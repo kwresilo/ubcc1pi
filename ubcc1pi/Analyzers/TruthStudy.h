@@ -1,5 +1,5 @@
 /**
- *  @file  ubcc1pi/Analyzers/TruthStudy_module.h
+ *  @file  ubcc1pi/Analyzers/TruthStudy.h
  *
  *  @brief The header file for the truth study analyzer.
  */
@@ -18,21 +18,24 @@ namespace ubcc1pi
  */
 class TruthStudy : public art::EDAnalyzer
 {
-    /**
-     *  @brief  Constructor
-     *
-     *  @param  config the set of input fhicl parameters
-     */
-    TruthStudy(const fhicl::ParameterSet &config);
- 
-    /**
-     *  @brief  Analyze an event
-     *
-     *  @param  event the event to analyze
-     */
-    void analyze(const art::Event &event);
+    public:
+        /**
+         *  @brief  Constructor
+         *
+         *  @param  config the set of input fhicl parameters
+         */
+        TruthStudy(const fhicl::ParameterSet &config);
+
+        /**
+         *  @brief  Analyze an event
+         *
+         *  @param  event the event to analyze
+         */
+        void analyze(const art::Event &event);
 };
 
 } // namespace ubcc1pi
+
+DEFINE_ART_MODULE(ubcc1pi::TruthStudy)
 
 #endif

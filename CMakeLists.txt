@@ -53,6 +53,12 @@ include(BuildPlugins)
 # source
 add_subdirectory(ubcc1pi)
 
+# configuration
+add_subdirectory(fcl)
+
+# unit tests
+add_subdirectory(test)
+
 # ups - table and config files
 add_subdirectory(ups)
 

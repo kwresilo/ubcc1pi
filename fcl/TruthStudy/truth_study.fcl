@@ -1,0 +1,8 @@
+BEGIN_PROLOG
+
+truth_study:
+{
+    module_type: "TruthStudy"
+}
+
+END_PROLOG
