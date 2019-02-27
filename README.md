@@ -21,3 +21,7 @@ mrb install -j4
 # Setup your local products
 mrbslp
 ```
+
+## Documentation
+
+Please see <https://a-d-smith.github.io/ubcc1pi/> for documentation of the master branch. Or look in [/docs](docs/README.md) to build your own.

@@ -1,6 +1,6 @@
 # Documentation
 
-This repository is documented using doxygen. To view the documentation for the current master branch, please go [here](https://www.hep.phy.cam.ac.uk/~asmith/ubcc1pi-docs/).
+This repository is documented using doxygen. To view the documentation for the current master branch, please go <https://a-d-smith.github.io/ubcc1pi>.
 If you need to compile the documentation for another branch / commit, please `git clone` this repository and then follow these steps:
 
 ```
