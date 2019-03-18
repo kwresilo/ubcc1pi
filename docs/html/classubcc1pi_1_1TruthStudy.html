@@ -103,25 +103,31 @@ window.onload = initDynSections;
 
 <p><a href="classubcc1pi_1_1TruthStudy-members.html">List of all members.</a></p>
 <table border="0" cellpadding="0" cellspacing="0">
+<tr><td colspan="2"><h2>Classes</h2></td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">struct &nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="structubcc1pi_1_1TruthStudy_1_1Config.html">Config</a></td></tr>
+<tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">The configuration structure.  <a href="structubcc1pi_1_1TruthStudy_1_1Config.html#_details">More...</a><br/></td></tr>
 <tr><td colspan="2"><h2>Public Member Functions</h2></td></tr>
-<tr><td class="memItemLeft" align="right" valign="top">&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classubcc1pi_1_1TruthStudy.html#aa9a8eea995917bf3ce7b7499e7c823dd">TruthStudy</a> (const fhicl::ParameterSet &amp;config)</td></tr>
-<tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">Constructor.  <a href="#aa9a8eea995917bf3ce7b7499e7c823dd"></a><br/></td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classubcc1pi_1_1TruthStudy.html#ae3ab02c2affcd2ff94280b3b3f42006f">TruthStudy</a> (const art::EDAnalyzer::Table&lt; <a class="el" href="structubcc1pi_1_1TruthStudy_1_1Config.html">Config</a> &gt; &amp;config)</td></tr>
+<tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">Constructor.  <a href="#ae3ab02c2affcd2ff94280b3b3f42006f"></a><br/></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">void&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classubcc1pi_1_1TruthStudy.html#a53964464bdd4d125a3211eea8d4a0933">analyze</a> (const art::Event &amp;event)</td></tr>
 <tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">Analyze an event.  <a href="#a53964464bdd4d125a3211eea8d4a0933"></a><br/></td></tr>
+<tr><td colspan="2"><h2>Private Attributes</h2></td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">art::EDAnalyzer::Table&lt; <a class="el" href="structubcc1pi_1_1TruthStudy_1_1Config.html">Config</a> &gt;&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classubcc1pi_1_1TruthStudy.html#a63aab6fecd42c698475125b2ce8cff79">m_config</a></td></tr>
+<tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">The FHiCL configuration options.  <a href="#a63aab6fecd42c698475125b2ce8cff79"></a><br/></td></tr>
 </table>
 <hr/><a name="_details"></a><h2>Detailed Description</h2>
 <p>The truth study class. </p>
 
-<p>Definition at line <a class="el" href="TruthStudy_8h_source.html#l00019">19</a> of file <a class="el" href="TruthStudy_8h_source.html">TruthStudy.h</a>.</p>
+<p>Definition at line <a class="el" href="TruthStudy_8h_source.html#l00023">23</a> of file <a class="el" href="TruthStudy_8h_source.html">TruthStudy.h</a>.</p>
 <hr/><h2>Constructor &amp; Destructor Documentation</h2>
-<a class="anchor" id="aa9a8eea995917bf3ce7b7499e7c823dd"></a><!-- doxytag: member="ubcc1pi::TruthStudy::TruthStudy" ref="aa9a8eea995917bf3ce7b7499e7c823dd" args="(const fhicl::ParameterSet &amp;config)" -->
+<a class="anchor" id="ae3ab02c2affcd2ff94280b3b3f42006f"></a><!-- doxytag: member="ubcc1pi::TruthStudy::TruthStudy" ref="ae3ab02c2affcd2ff94280b3b3f42006f" args="(const art::EDAnalyzer::Table&lt; Config &gt; &amp;config)" -->
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
           <td class="memname">ubcc1pi::TruthStudy::TruthStudy </td>
           <td>(</td>
-          <td class="paramtype">const fhicl::ParameterSet &amp;&nbsp;</td>
+          <td class="paramtype">const art::EDAnalyzer::Table&lt; <a class="el" href="structubcc1pi_1_1TruthStudy_1_1Config.html">Config</a> &gt; &amp;&nbsp;</td>
           <td class="paramname"> <em>config</em></td>
           <td>&nbsp;)&nbsp;</td>
           <td></td>
@@ -138,7 +144,7 @@ window.onload = initDynSections;
   </dd>
 </dl>
 
-<p>Definition at line <a class="el" href="TruthStudy__module_8cc_source.html#l00012">12</a> of file <a class="el" href="TruthStudy__module_8cc_source.html">TruthStudy_module.cc</a>.</p>
+<p>Definition at line <a class="el" href="TruthStudy__module_8cc_source.html#l00014">14</a> of file <a class="el" href="TruthStudy__module_8cc_source.html">TruthStudy_module.cc</a>.</p>
 
 </div>
 </div>
@@ -167,7 +173,25 @@ window.onload = initDynSections;
   </dd>
 </dl>
 
-<p>Definition at line <a class="el" href="TruthStudy__module_8cc_source.html#l00018">18</a> of file <a class="el" href="TruthStudy__module_8cc_source.html">TruthStudy_module.cc</a>.</p>
+<p>Definition at line <a class="el" href="TruthStudy__module_8cc_source.html#l00022">22</a> of file <a class="el" href="TruthStudy__module_8cc_source.html">TruthStudy_module.cc</a>.</p>
+
+</div>
+</div>
+<hr/><h2>Member Data Documentation</h2>
+<a class="anchor" id="a63aab6fecd42c698475125b2ce8cff79"></a><!-- doxytag: member="ubcc1pi::TruthStudy::m_config" ref="a63aab6fecd42c698475125b2ce8cff79" args="" -->
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">art::EDAnalyzer::Table&lt;<a class="el" href="structubcc1pi_1_1TruthStudy_1_1Config.html">Config</a>&gt; <a class="el" href="classubcc1pi_1_1TruthStudy.html#a63aab6fecd42c698475125b2ce8cff79">ubcc1pi::TruthStudy::m_config</a><code> [private]</code></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+
+<p>The FHiCL configuration options. </p>
+
+<p>Definition at line <a class="el" href="TruthStudy_8h_source.html#l00060">60</a> of file <a class="el" href="TruthStudy_8h_source.html">TruthStudy.h</a>.</p>
 
 </div>
 </div>
@@ -181,7 +205,7 @@ window.onload = initDynSections;
      onmouseover="return searchBox.OnSearchSelectShow()"
      onmouseout="return searchBox.OnSearchSelectHide()"
      onkeydown="return searchBox.OnSearchSelectKey(event)">
-<a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(0)"><span class="SelectionMark">&nbsp;</span>All</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(1)"><span class="SelectionMark">&nbsp;</span>Classes</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(2)"><span class="SelectionMark">&nbsp;</span>Namespaces</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(3)"><span class="SelectionMark">&nbsp;</span>Files</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(4)"><span class="SelectionMark">&nbsp;</span>Functions</a></div>
+<a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(0)"><span class="SelectionMark">&nbsp;</span>All</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(1)"><span class="SelectionMark">&nbsp;</span>Classes</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(2)"><span class="SelectionMark">&nbsp;</span>Namespaces</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(3)"><span class="SelectionMark">&nbsp;</span>Files</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(4)"><span class="SelectionMark">&nbsp;</span>Functions</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(5)"><span class="SelectionMark">&nbsp;</span>Variables</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(6)"><span class="SelectionMark">&nbsp;</span>Typedefs</a></div>
 
 <!-- iframe showing the search results (closed by default) -->
 <div id="MSearchResultsWindow">
@@ -193,7 +217,7 @@ window.onload = initDynSections;
 <hr size="1"/>
 <address style="text-align: right;">
     <small>
-        Generated on Wed Feb 27 13:43:18 2019 for ubcc1pi by <a href="http://www.doxygen.org/index.html" target="_blank">doxygen</a> 1.6.1
+        Generated on Mon Mar 18 17:13:12 2019 for ubcc1pi by <a href="http://www.doxygen.org/index.html" target="_blank">doxygen</a> 1.6.1
     </small>
 </address>
 
