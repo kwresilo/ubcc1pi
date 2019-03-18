@@ -10,6 +10,10 @@
 #include "art/Framework/Core/ModuleMacros.h"
 #include "art/Framework/Core/EDAnalyzer.h"
 
+#include "fhiclcpp/types/Atom.h"
+#include "fhiclcpp/types/Table.h"
+#include "canvas/Utilities/InputTag.h"
+
 namespace ubcc1pi
 {
 
@@ -20,11 +24,29 @@ class TruthStudy : public art::EDAnalyzer
 {
     public:
         /**
+         *  @brief  The configuration structure
+         */
+        struct Config
+        {
+            fhicl::Atom<art::InputTag> MCTruthLabel
+            {
+                fhicl::Name("MCTruthLabel"),
+                fhicl::Comment("The label for the neutrino MCTruth producer")
+            };
+            
+            fhicl::Atom<art::InputTag> MCParticleLabel
+            {
+                fhicl::Name("MCParticleLabel"),
+                fhicl::Comment("The label for the MCParticle producer")
+            };
+        };
+
+        /**
          *  @brief  Constructor
          *
          *  @param  config the set of input fhicl parameters
          */
-        TruthStudy(const fhicl::ParameterSet &config);
+        TruthStudy(const art::EDAnalyzer::Table<Config> &config);
 
         /**
          *  @brief  Analyze an event
@@ -32,6 +54,10 @@ class TruthStudy : public art::EDAnalyzer
          *  @param  event the event to analyze
          */
         void analyze(const art::Event &event);
+
+    private:
+
+        art::EDAnalyzer::Table<Config>  m_config; ///< The FHiCL configuration options
 };
 
 } // namespace ubcc1pi

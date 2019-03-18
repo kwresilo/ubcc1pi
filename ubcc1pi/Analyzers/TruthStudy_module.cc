@@ -6,10 +6,14 @@
 
 #include "ubcc1pi/Analyzers/TruthStudy.h"
 
+#include "ubcc1pi/Objects/Interaction.h"
+
 namespace ubcc1pi
 {
 
-TruthStudy::TruthStudy(const fhicl::ParameterSet &config) : art::EDAnalyzer(config)
+TruthStudy::TruthStudy(const art::EDAnalyzer::Table<Config> &config) :
+    art::EDAnalyzer(config),
+    m_config(config)
 {
 }
 
@@ -17,6 +21,11 @@ TruthStudy::TruthStudy(const fhicl::ParameterSet &config) : art::EDAnalyzer(conf
  
 void TruthStudy::analyze(const art::Event &event)
 {
+    const auto mcTruthLabel = m_config().MCTruthLabel();
+    const auto mcParticleLabel = m_config().MCParticleLabel();
+
+    const Interaction interaction(event, mcTruthLabel, mcParticleLabel);
+    interaction.PrintInfo();
 }
 
 } // namespace ubcc1pi

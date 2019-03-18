@@ -1,0 +1,189 @@
+/**
+ *  @file  ubcc1pi/Helpers/CollectionHelper.h
+ *
+ *  @brief The header file for the truth helper class
+ */
+
+#ifndef UBCC1PI_HELPERS_COLLECTION_HELPER
+#define UBCC1PI_HELPERS_COLLECTION_HELPER
+
+#include "art/Framework/Principal/Event.h"
+#include "canvas/Utilities/InputTag.h"
+#include "canvas/Persistency/Common/FindManyP.h"
+
+#include <vector>
+#include <map>
+
+// ATTN could just forward declare these
+#include "nusimdata/SimulationBase/MCTruth.h"
+#include "nusimdata/SimulationBase/MCParticle.h"
+
+namespace ubcc1pi
+{
+
+// Typedefs scoped to the namespace
+template <typename T>
+using Collection = std::vector< art::Ptr<T> >;
+
+template <typename L, typename R>
+using Association = std::map< art::Ptr<L>, Collection<R> >;
+
+typedef Collection<simb::MCParticle> MCParticleVector;
+
+/**
+ *  @brief  The collection helper class
+ */
+class CollectionHelper
+{
+    public:
+        /**
+         *  @brief  Get a collection of objects in the desired format from the event
+         *
+         *  @param  event the art event
+         *  @param  label the label of the collection producer
+         */
+        template <typename T>
+        static Collection<T> GetCollection(const art::Event &event, const art::InputTag &label);
+        
+        /**
+         *  @brief  Get an association between objects in the desired format from the event
+         *
+         *  @param  event the art event
+         *  @param  collectionLabel the label of the producer which made the collection of type L
+         *  @param  associationLabel the label of the association producer
+         */
+        template <typename L, typename R>
+        static Association<L, R> GetAssociation(const art::Event &event, const art::InputTag &collectionLabel, const art::InputTag &associationLabel);
+        
+        /**
+         *  @brief  Get an association between objects in the desired format from the event
+         *
+         *  @param  event the art event
+         *  @param  label the label of the association and collection producer
+         */
+        template <typename L, typename R>
+        static Association<L, R> GetAssociation(const art::Event &event, const art::InputTag &label);
+        
+        /**
+         *  @brief  Get the reversed association (R -> L) from in input association (L -> R)
+         *
+         *  @param  forwardAssociation the forward L -> R association
+         *
+         *  @return the reversed association R -> L
+         */
+        template <typename L, typename R>
+        static Association<R, L> GetReversedAssociation(const Association<L, R> &forwardAssociation);
+        
+        /**
+         *  @brief  Get the objects associated to a given input object
+         *
+         *  @param  objectL the input object
+         *  @param  association the association between objects of type L -> R
+         *
+         *  @return the objects of type R associated to the input object
+         */
+        template <typename L, typename R>
+        static Collection<R> GetManyAssociated(const art::Ptr<L> &objectL, const Association<L, R> &association);
+        
+        /**
+         *  @brief  Get the single object associated to a given input object
+         *
+         *  @param  objectL the input object
+         *  @param  association the association between objects of type L -> R
+         *
+         *  @return the object of type R associated to the input object
+         */
+        template <typename L, typename R>
+        static art::Ptr<R> GetSingleAssociated(const art::Ptr<L> &objectL, const Association<L, R> &association);
+};
+
+// -----------------------------------------------------------------------------------------------------------------------------------------
+
+template <typename T>
+inline Collection<T> CollectionHelper::GetCollection(const art::Event &event, const art::InputTag &label)
+{
+    Collection<T> outputCollection;
+
+    const auto handle = event.getValidHandle< std::vector<T> >(label);
+    for (size_t i = 0; i < handle->size(); ++i)
+    {
+        outputCollection.emplace_back(handle, i);    
+    }
+
+    return outputCollection;
+}
+
+// -----------------------------------------------------------------------------------------------------------------------------------------
+        
+template <typename L, typename R>
+inline Association<L, R> CollectionHelper::GetAssociation(const art::Event &event, const art::InputTag &label)
+{
+    return CollectionHelper::GetAssociation<L, R>(event, label, label);  
+}
+
+// -----------------------------------------------------------------------------------------------------------------------------------------
+        
+template <typename L, typename R>
+inline Association<L, R> CollectionHelper::GetAssociation(const art::Event &event, const art::InputTag &collectionLabel, const art::InputTag &associationLabel)
+{
+    Association<L, R> outputAssociation;
+
+    const auto handle = event.getValidHandle< std::vector<L> >(collectionLabel);
+    const art::FindManyP<R> assoc(handle, event, associationLabel);
+
+    for (unsigned int i = 0; i < handle->size(); ++i)
+    {
+        const art::Ptr<L> objectL(handle, i);
+
+        for (const auto &objectR : assoc.at(objectL.key()))
+            outputAssociation[objectL].push_back(objectR);
+    }
+
+    return outputAssociation;
+}
+
+// -----------------------------------------------------------------------------------------------------------------------------------------
+        
+template <typename L, typename R>
+inline Association<R, L> CollectionHelper::GetReversedAssociation(const Association<L, R> &forwardAssociation)
+{
+    Association<R, L> reverseAssociation;
+
+    for (const auto &entry : forwardAssociation)
+    {
+        for (const auto &object : entry.second)
+            reverseAssociation[object].push_back(entry.first);
+    }
+
+    return reverseAssociation;
+}
+
+// -----------------------------------------------------------------------------------------------------------------------------------------
+        
+template <typename L, typename R>
+inline Collection<R> CollectionHelper::GetManyAssociated(const art::Ptr<L> &objectL, const Association<L, R> &association)
+{
+    const auto iter = association.find(objectL);
+
+    if (iter == association.end())
+        throw cet::exception("CollectionHelper::GetManyAssociated") << " - No association entry found for the input object." << std::endl;
+
+    return iter->second;
+}
+
+// -----------------------------------------------------------------------------------------------------------------------------------------
+        
+template <typename L, typename R>
+inline art::Ptr<R> CollectionHelper::GetSingleAssociated(const art::Ptr<L> &objectL, const Association<L, R> &association)
+{
+    const auto objects = CollectionHelper::GetManyAssociated(objectL, association);
+
+    if (objects.size() != 1)
+        throw cet::exception("CollectionHelper::GetSingleAssociated") << " - Found " << objects.size() << " objects associated to the input object. Expected 1." << std::endl;
+
+    return objects.front();
+}
+
+} // namespace ubcc1pi
+
+#endif
