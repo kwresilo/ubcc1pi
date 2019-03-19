@@ -6,6 +6,8 @@
 
 #include "ubcc1pi/Objects/Interaction.h"
 
+#include "ubcc1pi/Helpers/AnalysisHelper.h"
+
 namespace ubcc1pi
 {
 
@@ -151,43 +153,57 @@ void Interaction::PrintInfo() const
     // Output the information about the neutrino interaction
     std::cout << "Neutrino interaction --------------------------------------------------------------------------------------" << std::endl;
     std::cout << "  - Neutrino energy       : " << m_neutrino.E() << std::endl;
+    std::cout << "  - Neutrino vertex       : " << m_neutrino.Vx() << ", " << m_neutrino.Vy() << ", " << m_neutrino.Vz() << std::endl;
+    std::cout << "  - Is Fiducial?          : " << (AnalysisHelper::IsFiducial(m_neutrino.Position().Vect()) ? "Yes" : "No") << std::endl;
     std::cout << "  - Interaction type      : " << nuType << " - " << ccnc << " - " << mode << std::endl;
     
-    const auto finalStates = TruthHelper::GetPrimaryMCParticles(m_allMCParticles);
+    const auto primaries = TruthHelper::GetPrimaryMCParticles(m_allMCParticles);
+    const auto finalStates = TruthHelper::GetVisibleFinalStates(m_allMCParticles);
 
-    // Count the final state particles
-    std::map<int, int> pdgCountMap;
-    std::vector<int> usedPdgs;
-    for (const auto &finalState : finalStates)
+    // Count the particles
+    std::map<int, std::vector<int> > primaryPDGCountMap;
+    std::map<int, std::vector<int> > finalStatePDGCountMap;
+    std::map<int, std::vector<int> > signalPDGCountMap;
+
+    for (const auto &particle : m_allMCParticles)
     {
-        const auto pdg = finalState->PdgCode();
+        const auto pdg = particle->PdgCode();
 
-        if (pdgCountMap.find(pdg) == pdgCountMap.end())
-        {
-            pdgCountMap.emplace(pdg, 1);
-            usedPdgs.push_back(pdg);
-        }
-        else
-        {
-            pdgCountMap.at(pdg)++;
-        }
+        const bool isPrimary = (std::find(primaries.begin(), primaries.end(), particle) != primaries.end());
+        const bool isFinalState = (std::find(finalStates.begin(), finalStates.end(), particle) != finalStates.end());
+        const bool isSignal = (isFinalState && AnalysisHelper::PassesMomentumThreshold(particle));
+
+        if (isPrimary)
+            primaryPDGCountMap[pdg].push_back(particle->TrackId());
+        
+        if (isFinalState)
+            finalStatePDGCountMap[pdg].push_back(particle->TrackId());
+        
+        if (isSignal)
+            signalPDGCountMap[pdg].push_back(particle->TrackId());
     }
     
-    std::cout << "  - Final state particles : ";
-    for (const auto pdg : usedPdgs)
+    std::cout << "  - Primary particles     : ";
+    for (const auto &entry : primaryPDGCountMap)
     {
-        std::cout << " " << pdgCountMap.at(pdg) << " (" << pdg << ")  ";
+        std::cout << " " << entry.second.size() << " (" << entry.first << ")  ";
     }
-
     std::cout << std::endl;
-        
-    // Output the final state particles
-    for (const auto &finalState : finalStates)
+    
+    
+    std::cout << "  - Final state particles : ";
+    for (const auto &entry : finalStatePDGCountMap)
     {
-        std::cout << "    - Particle" << std::endl;
-        std::cout << "      - PDG Code : " << finalState->PdgCode() << std::endl;
-        std::cout << "      - Momentum : " << finalState->P() << std::endl;
+        std::cout << " " << entry.second.size() << " (" << entry.first << ")  ";
     }
+    std::cout << std::endl;
+    
+    std::cout << "  - ... above threshold   : ";
+    for (const auto &entry : signalPDGCountMap)
+    {
+        std::cout << " " << entry.second.size() << " (" << entry.first << ")  ";
+    }
+    std::cout << std::endl;
 
     std::cout << "-----------------------------------------------------------------------------------------------------------" << std::endl;
 }

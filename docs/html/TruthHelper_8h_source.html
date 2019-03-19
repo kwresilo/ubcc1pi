@@ -109,50 +109,144 @@ window.onload = initDynSections;
 <a name="l00013"></a>00013 
 <a name="l00014"></a>00014 <span class="preprocessor">#include &quot;<a class="code" href="CollectionHelper_8h.html" title="The header file for the truth helper class.">ubcc1pi/Helpers/CollectionHelper.h</a>&quot;</span>
 <a name="l00015"></a>00015 
-<a name="l00016"></a>00016 <span class="keyword">namespace </span>ubcc1pi
-<a name="l00017"></a>00017 {
-<a name="l00018"></a>00018 <span class="comment"></span>
-<a name="l00019"></a>00019 <span class="comment">/**</span>
-<a name="l00020"></a>00020 <span class="comment"> *  @brief  The truth helper class</span>
-<a name="l00021"></a>00021 <span class="comment"> */</span>
-<a name="l00022"></a><a class="code" href="classubcc1pi_1_1TruthHelper.html">00022</a> <span class="keyword">class </span><a class="code" href="classubcc1pi_1_1TruthHelper.html" title="The truth helper class.">TruthHelper</a>
-<a name="l00023"></a>00023 {
-<a name="l00024"></a>00024     <span class="keyword">public</span>:<span class="comment"></span>
-<a name="l00025"></a>00025 <span class="comment">        /**</span>
-<a name="l00026"></a>00026 <span class="comment">         *  @brief  Get the MCTruth with the most energetic MCNeutrino</span>
-<a name="l00027"></a>00027 <span class="comment">         *</span>
-<a name="l00028"></a>00028 <span class="comment">         *  @param  event the art event</span>
-<a name="l00029"></a>00029 <span class="comment">         *  @param  mcTruthLabel the label of the MCTruth producer</span>
-<a name="l00030"></a>00030 <span class="comment">         *</span>
-<a name="l00031"></a>00031 <span class="comment">         *  @return the MCTruth</span>
-<a name="l00032"></a>00032 <span class="comment">         */</span>
-<a name="l00033"></a>00033         <span class="keyword">static</span> art::Ptr&lt;simb::MCTruth&gt; <a class="code" href="classubcc1pi_1_1TruthHelper.html#a03e7c64954e820782bd2ba73124d7dcc" title="Get the MCTruth with the most energetic MCNeutrino.">GetNeutrinoMCTruth</a>(<span class="keyword">const</span> art::Event &amp;event, <span class="keyword">const</span> art::InputTag &amp;mcTruthLabel);
-<a name="l00034"></a>00034 <span class="comment"></span>
-<a name="l00035"></a>00035 <span class="comment">        /**</span>
-<a name="l00036"></a>00036 <span class="comment">         *  @brief  Get the MCParticles associated to the input MCTruth</span>
-<a name="l00037"></a>00037 <span class="comment">         *</span>
-<a name="l00038"></a>00038 <span class="comment">         *  @param  event the art event</span>
-<a name="l00039"></a>00039 <span class="comment">         *  @param  mcTruthLabel the label of the MCTruth producer</span>
-<a name="l00040"></a>00040 <span class="comment">         *  @param  mcParticleLabel the label of the MCParticle producer</span>
-<a name="l00041"></a>00041 <span class="comment">         *  @param  mcTruth the MCTruth object</span>
-<a name="l00042"></a>00042 <span class="comment">         *</span>
-<a name="l00043"></a>00043 <span class="comment">         *  @return the associated MCParticles</span>
-<a name="l00044"></a>00044 <span class="comment">         */</span>
-<a name="l00045"></a>00045         <span class="keyword">static</span> <a class="code" href="namespaceubcc1pi.html#a42e409a54246ea6acba6d873b8eb696c">MCParticleVector</a> <a class="code" href="classubcc1pi_1_1TruthHelper.html#a4d6f2b46ca8dc942d66116d372792a9e" title="Get the MCParticles associated to the input MCTruth.">GetMCParticlesFromMCTruth</a>(<span class="keyword">const</span> art::Event &amp;event, <span class="keyword">const</span> art::InputTag &amp;mcTruthLabel, <span class="keyword">const</span> art::InputTag &amp;mcParticleLabel, <span class="keyword">const</span> art::Ptr&lt;simb::MCTruth&gt; &amp;mcTruth);
-<a name="l00046"></a>00046 <span class="comment"></span>
-<a name="l00047"></a>00047 <span class="comment">        /**</span>
-<a name="l00048"></a>00048 <span class="comment">         *  @brief  Get the primary MCParticles</span>
-<a name="l00049"></a>00049 <span class="comment">         *</span>
-<a name="l00050"></a>00050 <span class="comment">         *  @param  allMCParticles the input MCParticles</span>
-<a name="l00051"></a>00051 <span class="comment">         *</span>
-<a name="l00052"></a>00052 <span class="comment">         *  @return the primary MCParticles in the input list</span>
-<a name="l00053"></a>00053 <span class="comment">         */</span>
-<a name="l00054"></a>00054         <span class="keyword">static</span> <a class="code" href="namespaceubcc1pi.html#a42e409a54246ea6acba6d873b8eb696c">MCParticleVector</a> <a class="code" href="classubcc1pi_1_1TruthHelper.html#a09a117d495d2ba51c657eae472d10134" title="Get the primary MCParticles.">GetPrimaryMCParticles</a>(<span class="keyword">const</span> <a class="code" href="namespaceubcc1pi.html#a42e409a54246ea6acba6d873b8eb696c">MCParticleVector</a> &amp;allMCParticles);
-<a name="l00055"></a>00055 };
-<a name="l00056"></a>00056 
-<a name="l00057"></a>00057 } <span class="comment">// namespace ubcc1pi</span>
-<a name="l00058"></a>00058 
-<a name="l00059"></a>00059 <span class="preprocessor">#endif</span>
+<a name="l00016"></a>00016 <span class="preprocessor">#include &lt;unordered_map&gt;</span>
+<a name="l00017"></a>00017 
+<a name="l00018"></a>00018 <span class="keyword">namespace </span>ubcc1pi
+<a name="l00019"></a>00019 {
+<a name="l00020"></a>00020 <span class="comment"></span>
+<a name="l00021"></a>00021 <span class="comment">/**</span>
+<a name="l00022"></a>00022 <span class="comment"> *  @brief  A map intended to hold the mapping from MCParticle.TrackId() -&gt; MCParticle - for navigation of the MCParticle hierarchy </span>
+<a name="l00023"></a>00023 <span class="comment"> */</span>
+<a name="l00024"></a><a class="code" href="namespaceubcc1pi.html#ad270925efcb22aadbfb3e59d150771b9">00024</a> <span class="keyword">typedef</span> std::unordered_map&lt;int, art::Ptr&lt;simb::MCParticle&gt; &gt; <a class="code" href="namespaceubcc1pi.html#ad270925efcb22aadbfb3e59d150771b9" title="A map intended to hold the mapping from MCParticle.TrackId() -&amp;gt; MCParticle - for...">MCParticleMap</a>;
+<a name="l00025"></a>00025 <span class="comment"></span>
+<a name="l00026"></a>00026 <span class="comment">/**</span>
+<a name="l00027"></a>00027 <span class="comment"> *  @brief  The truth helper class</span>
+<a name="l00028"></a>00028 <span class="comment"> */</span>
+<a name="l00029"></a><a class="code" href="classubcc1pi_1_1TruthHelper.html">00029</a> <span class="keyword">class </span><a class="code" href="classubcc1pi_1_1TruthHelper.html" title="The truth helper class.">TruthHelper</a>
+<a name="l00030"></a>00030 {
+<a name="l00031"></a>00031     <span class="keyword">public</span>:<span class="comment"></span>
+<a name="l00032"></a>00032 <span class="comment">        /**</span>
+<a name="l00033"></a>00033 <span class="comment">         *  @brief  The interaction class - represents a neutrino interaction</span>
+<a name="l00034"></a>00034 <span class="comment">         */</span>
+<a name="l00035"></a><a class="code" href="classubcc1pi_1_1TruthHelper_1_1Interaction.html">00035</a>         <span class="keyword">class </span><a class="code" href="classubcc1pi_1_1TruthHelper_1_1Interaction.html" title="The interaction class - represents a neutrino interaction.">Interaction</a>
+<a name="l00036"></a>00036         {
+<a name="l00037"></a>00037             <span class="keyword">public</span>:
+<a name="l00038"></a>00038                 <span class="comment">// No default constructor</span>
+<a name="l00039"></a>00039                 <a class="code" href="classubcc1pi_1_1TruthHelper_1_1Interaction.html#a0ba44a6df4387e9f19ff04229e0647ec">Interaction</a>() = <span class="keyword">delete</span>;
+<a name="l00040"></a>00040 <span class="comment"></span>
+<a name="l00041"></a>00041 <span class="comment">                /**</span>
+<a name="l00042"></a>00042 <span class="comment">                 *  @brief  Constructor</span>
+<a name="l00043"></a>00043 <span class="comment">                 *</span>
+<a name="l00044"></a>00044 <span class="comment">                 *  @param  event the art event</span>
+<a name="l00045"></a>00045 <span class="comment">                 *  @param  mcTruthLabel the label of the MCTruth producer</span>
+<a name="l00046"></a>00046 <span class="comment">                 *  @param  mcParticleLabel the label of the MCParticle producer</span>
+<a name="l00047"></a>00047 <span class="comment">                 */</span>
+<a name="l00048"></a>00048                 <a class="code" href="classubcc1pi_1_1TruthHelper_1_1Interaction.html#a0ba44a6df4387e9f19ff04229e0647ec">Interaction</a>(<span class="keyword">const</span> art::Event &amp;event, <span class="keyword">const</span> art::InputTag &amp;mcTruthLabel, <span class="keyword">const</span> art::InputTag &amp;mcParticleLabel);
+<a name="l00049"></a>00049 <span class="comment"></span>
+<a name="l00050"></a>00050 <span class="comment">                /**</span>
+<a name="l00051"></a>00051 <span class="comment">                 *  @brief  Get the MCParticle of the neutrino</span>
+<a name="l00052"></a>00052 <span class="comment">                 */</span>
+<a name="l00053"></a>00053                 simb::MCParticle <a class="code" href="classubcc1pi_1_1TruthHelper_1_1Interaction.html#a401fba4175bb4b253e4cb4778f2ede93" title="Get the MCParticle of the neutrino.">GetNeutrino</a>() <span class="keyword">const</span>;
+<a name="l00054"></a>00054 <span class="comment"></span>
+<a name="l00055"></a>00055 <span class="comment">                /**</span>
+<a name="l00056"></a>00056 <span class="comment">                 *  @brief  Get the current type (charged or neutral)</span>
+<a name="l00057"></a>00057 <span class="comment">                 */</span>
+<a name="l00058"></a>00058                 simb::curr_type_ <a class="code" href="classubcc1pi_1_1TruthHelper_1_1Interaction.html#a6cfac919a7cded5a26458e445c2ab86a" title="Get the current type (charged or neutral).">GetCCNC</a>() <span class="keyword">const</span>;
+<a name="l00059"></a>00059 <span class="comment"></span>
+<a name="l00060"></a>00060 <span class="comment">                /**</span>
+<a name="l00061"></a>00061 <span class="comment">                 *  @brief  Get the interaction mode (QE, RES, DIS, ...)</span>
+<a name="l00062"></a>00062 <span class="comment">                 */</span>
+<a name="l00063"></a>00063                 simb::int_type_ <a class="code" href="classubcc1pi_1_1TruthHelper_1_1Interaction.html#ae9c94a7a07ee953e94c3eefb55383f57" title="Get the interaction mode (QE, RES, DIS, ...).">GetIteractionMode</a>() <span class="keyword">const</span>;
+<a name="l00064"></a>00064 <span class="comment"></span>
+<a name="l00065"></a>00065 <span class="comment">                /**</span>
+<a name="l00066"></a>00066 <span class="comment">                 *  @brief  Get the full list of MCParticles associated with this interaction</span>
+<a name="l00067"></a>00067 <span class="comment">                 */</span>
+<a name="l00068"></a>00068                 <a class="code" href="namespaceubcc1pi.html#a42e409a54246ea6acba6d873b8eb696c">MCParticleVector</a> <a class="code" href="classubcc1pi_1_1TruthHelper_1_1Interaction.html#aab149c5796f07ea4cadb2ba30b1eea27" title="Get the full list of MCParticles associated with this interaction.">GetAllMCParticles</a>() <span class="keyword">const</span>;
+<a name="l00069"></a>00069 <span class="comment"></span>
+<a name="l00070"></a>00070 <span class="comment">                /**</span>
+<a name="l00071"></a>00071 <span class="comment">                 *  @brief  Print the details of the interaction</span>
+<a name="l00072"></a>00072 <span class="comment">                 */</span>
+<a name="l00073"></a>00073                 <span class="comment">//void PrintInfo() const;</span>
+<a name="l00074"></a>00074 
+<a name="l00075"></a>00075             <span class="keyword">private</span>:
+<a name="l00076"></a><a class="code" href="classubcc1pi_1_1TruthHelper_1_1Interaction.html#aad41c9be4f23badee7b9804e01e838d2">00076</a>                 simb::MCParticle  <a class="code" href="classubcc1pi_1_1TruthHelper_1_1Interaction.html#aad41c9be4f23badee7b9804e01e838d2" title="Print the details of the interaction.">m_neutrino</a>;         <span class="comment">///&lt; The neutrino MCParticle</span>
+<a name="l00077"></a><a class="code" href="classubcc1pi_1_1TruthHelper_1_1Interaction.html#a114a8eda2c6adee3a24709aff314dd2b">00077</a> <span class="comment"></span>                <a class="code" href="namespaceubcc1pi.html#a42e409a54246ea6acba6d873b8eb696c">MCParticleVector</a>  <a class="code" href="classubcc1pi_1_1TruthHelper_1_1Interaction.html#a114a8eda2c6adee3a24709aff314dd2b" title="The MCParticles associated with the interaction.">m_allMCParticles</a>;   <span class="comment">///&lt; The MCParticles associated with the interaction</span>
+<a name="l00078"></a>00078 <span class="comment"></span>
+<a name="l00079"></a><a class="code" href="classubcc1pi_1_1TruthHelper_1_1Interaction.html#ab7c2d679f1da70c335bb4860261cdf5b">00079</a>                 simb::curr_type_  <a class="code" href="classubcc1pi_1_1TruthHelper_1_1Interaction.html#ab7c2d679f1da70c335bb4860261cdf5b" title="If the iteraction is CC or NC.">m_ccnc</a>;             <span class="comment">///&lt; If the iteraction is CC or NC</span>
+<a name="l00080"></a><a class="code" href="classubcc1pi_1_1TruthHelper_1_1Interaction.html#a32f98ca6843b46791ed3e57d668fa778">00080</a> <span class="comment"></span>                simb::int_type_   <a class="code" href="classubcc1pi_1_1TruthHelper_1_1Interaction.html#a32f98ca6843b46791ed3e57d668fa778" title="The interaction mode: QE, RES, DIS...">m_mode</a>;             <span class="comment">///&lt; The interaction mode: QE, RES, DIS...</span>
+<a name="l00081"></a>00081 <span class="comment"></span>        };
+<a name="l00082"></a>00082 <span class="comment"></span>
+<a name="l00083"></a>00083 <span class="comment">        /**</span>
+<a name="l00084"></a>00084 <span class="comment">         *  @brief  Get the MCTruth with the most energetic MCNeutrino</span>
+<a name="l00085"></a>00085 <span class="comment">         *</span>
+<a name="l00086"></a>00086 <span class="comment">         *  @param  event the art event</span>
+<a name="l00087"></a>00087 <span class="comment">         *  @param  mcTruthLabel the label of the MCTruth producer</span>
+<a name="l00088"></a>00088 <span class="comment">         *</span>
+<a name="l00089"></a>00089 <span class="comment">         *  @return the MCTruth</span>
+<a name="l00090"></a>00090 <span class="comment">         */</span>
+<a name="l00091"></a>00091         <span class="keyword">static</span> art::Ptr&lt;simb::MCTruth&gt; <a class="code" href="classubcc1pi_1_1TruthHelper.html#a03e7c64954e820782bd2ba73124d7dcc" title="Get the MCTruth with the most energetic MCNeutrino.">GetNeutrinoMCTruth</a>(<span class="keyword">const</span> art::Event &amp;event, <span class="keyword">const</span> art::InputTag &amp;mcTruthLabel);
+<a name="l00092"></a>00092 <span class="comment"></span>
+<a name="l00093"></a>00093 <span class="comment">        /**</span>
+<a name="l00094"></a>00094 <span class="comment">         *  @brief  Get the MCParticles associated to the input MCTruth</span>
+<a name="l00095"></a>00095 <span class="comment">         *</span>
+<a name="l00096"></a>00096 <span class="comment">         *  @param  event the art event</span>
+<a name="l00097"></a>00097 <span class="comment">         *  @param  mcTruthLabel the label of the MCTruth producer</span>
+<a name="l00098"></a>00098 <span class="comment">         *  @param  mcParticleLabel the label of the MCParticle producer</span>
+<a name="l00099"></a>00099 <span class="comment">         *  @param  mcTruth the MCTruth object</span>
+<a name="l00100"></a>00100 <span class="comment">         *</span>
+<a name="l00101"></a>00101 <span class="comment">         *  @return the associated MCParticles</span>
+<a name="l00102"></a>00102 <span class="comment">         */</span>
+<a name="l00103"></a>00103         <span class="keyword">static</span> <a class="code" href="namespaceubcc1pi.html#a42e409a54246ea6acba6d873b8eb696c">MCParticleVector</a> <a class="code" href="classubcc1pi_1_1TruthHelper.html#a4d6f2b46ca8dc942d66116d372792a9e" title="Get the MCParticles associated to the input MCTruth.">GetMCParticlesFromMCTruth</a>(<span class="keyword">const</span> art::Event &amp;event, <span class="keyword">const</span> art::InputTag &amp;mcTruthLabel, <span class="keyword">const</span> art::InputTag &amp;mcParticleLabel, <span class="keyword">const</span> art::Ptr&lt;simb::MCTruth&gt; &amp;mcTruth);
+<a name="l00104"></a>00104 <span class="comment"></span>
+<a name="l00105"></a>00105 <span class="comment">        /**</span>
+<a name="l00106"></a>00106 <span class="comment">         *  @brief  Get the primary MCParticles - the immediate products of the neutrino interaction leaving the nucleus</span>
+<a name="l00107"></a>00107 <span class="comment">         *</span>
+<a name="l00108"></a>00108 <span class="comment">         *  @param  allMCParticles the input MCParticles</span>
+<a name="l00109"></a>00109 <span class="comment">         *</span>
+<a name="l00110"></a>00110 <span class="comment">         *  @return the primary MCParticles in the input list</span>
+<a name="l00111"></a>00111 <span class="comment">         */</span>
+<a name="l00112"></a>00112         <span class="keyword">static</span> <a class="code" href="namespaceubcc1pi.html#a42e409a54246ea6acba6d873b8eb696c">MCParticleVector</a> <a class="code" href="classubcc1pi_1_1TruthHelper.html#a09a117d495d2ba51c657eae472d10134" title="Get the primary MCParticles - the immediate products of the neutrino interaction...">GetPrimaryMCParticles</a>(<span class="keyword">const</span> <a class="code" href="namespaceubcc1pi.html#a42e409a54246ea6acba6d873b8eb696c">MCParticleVector</a> &amp;allMCParticles);
+<a name="l00113"></a>00113 <span class="comment"></span>
+<a name="l00114"></a>00114 <span class="comment">        /**</span>
+<a name="l00115"></a>00115 <span class="comment">         *  @brief  Check if an MCParticle is primary</span>
+<a name="l00116"></a>00116 <span class="comment">         *</span>
+<a name="l00117"></a>00117 <span class="comment">         *  @param  particle the particle to check</span>
+<a name="l00118"></a>00118 <span class="comment">         */</span>
+<a name="l00119"></a>00119         <span class="keyword">static</span> <span class="keywordtype">bool</span> <a class="code" href="classubcc1pi_1_1TruthHelper.html#ad6f3089ab19b98e771a7421d947a5634" title="Check if an MCParticle is primary.">IsPrimary</a>(<span class="keyword">const</span> art::Ptr&lt;simb::MCParticle&gt; &amp;particle);
+<a name="l00120"></a>00120 <span class="comment"></span>
+<a name="l00121"></a>00121 <span class="comment">        /**</span>
+<a name="l00122"></a>00122 <span class="comment">         *  @brief  Get the mapping from MCParticle.TrackId() -&gt; MCParticle</span>
+<a name="l00123"></a>00123 <span class="comment">         *</span>
+<a name="l00124"></a>00124 <span class="comment">         *  @param  allMCParticles the input MCParticles</span>
+<a name="l00125"></a>00125 <span class="comment">         *</span>
+<a name="l00126"></a>00126 <span class="comment">         *  @return the output MCParticleMap map</span>
+<a name="l00127"></a>00127 <span class="comment">         */</span>
+<a name="l00128"></a>00128         <span class="keyword">static</span> <a class="code" href="namespaceubcc1pi.html#ad270925efcb22aadbfb3e59d150771b9" title="A map intended to hold the mapping from MCParticle.TrackId() -&amp;gt; MCParticle - for...">MCParticleMap</a> <a class="code" href="classubcc1pi_1_1TruthHelper.html#a9aa2f68b5c8e98de81805eb1b6eb7ced" title="Get the mapping from MCParticle.TrackId() -&amp;gt; MCParticle.">GetMCParticleMap</a>(<span class="keyword">const</span> <a class="code" href="namespaceubcc1pi.html#a42e409a54246ea6acba6d873b8eb696c">MCParticleVector</a> &amp;allMCParticles);
+<a name="l00129"></a>00129 <span class="comment"></span>
+<a name="l00130"></a>00130 <span class="comment">        /**</span>
+<a name="l00131"></a>00131 <span class="comment">         *  @brief  Get the mother MCParticle of the input particle</span>
+<a name="l00132"></a>00132 <span class="comment">         *</span>
+<a name="l00133"></a>00133 <span class="comment">         *  @param  particle the particle</span>
+<a name="l00134"></a>00134 <span class="comment">         *  @param  mcParticleMap the mapping from TrackId -&gt; MCParticle</span>
+<a name="l00135"></a>00135 <span class="comment">         *</span>
+<a name="l00136"></a>00136 <span class="comment">         *  @return the mother MCParticle</span>
+<a name="l00137"></a>00137 <span class="comment">         */</span>
+<a name="l00138"></a>00138         <span class="keyword">static</span> art::Ptr&lt;simb::MCParticle&gt; <a class="code" href="classubcc1pi_1_1TruthHelper.html#a00e5be93d2524e98fa8ee5be03f9a225" title="Get the mother MCParticle of the input particle.">GetMother</a>(<span class="keyword">const</span> art::Ptr&lt;simb::MCParticle&gt; &amp;particle, <span class="keyword">const</span> <a class="code" href="namespaceubcc1pi.html#ad270925efcb22aadbfb3e59d150771b9" title="A map intended to hold the mapping from MCParticle.TrackId() -&amp;gt; MCParticle - for...">MCParticleMap</a> &amp;mcParticleMap);
+<a name="l00139"></a>00139         <span class="comment"></span>
+<a name="l00140"></a>00140 <span class="comment">        /**</span>
+<a name="l00141"></a>00141 <span class="comment">         *  @brief  Get the daughter MCParticles of the input particle</span>
+<a name="l00142"></a>00142 <span class="comment">         *</span>
+<a name="l00143"></a>00143 <span class="comment">         *  @param  particle the particle</span>
+<a name="l00144"></a>00144 <span class="comment">         *  @param  mcParticleMap the mapping from TrackId -&gt; MCParticle</span>
+<a name="l00145"></a>00145 <span class="comment">         *</span>
+<a name="l00146"></a>00146 <span class="comment">         *  @return the daughter MCParticles</span>
+<a name="l00147"></a>00147 <span class="comment">         */</span>
+<a name="l00148"></a>00148         <span class="keyword">static</span> <a class="code" href="namespaceubcc1pi.html#a42e409a54246ea6acba6d873b8eb696c">MCParticleVector</a> <a class="code" href="classubcc1pi_1_1TruthHelper.html#aca685b9fe28e2bde5ab41415c1a4efd1" title="Get the daughter MCParticles of the input particle.">GetDaughters</a>(<span class="keyword">const</span> art::Ptr&lt;simb::MCParticle&gt; &amp;particle, <span class="keyword">const</span> <a class="code" href="namespaceubcc1pi.html#ad270925efcb22aadbfb3e59d150771b9" title="A map intended to hold the mapping from MCParticle.TrackId() -&amp;gt; MCParticle - for...">MCParticleMap</a> &amp;mcParticleMap);
+<a name="l00149"></a>00149 };
+<a name="l00150"></a>00150 
+<a name="l00151"></a>00151 } <span class="comment">// namespace ubcc1pi</span>
+<a name="l00152"></a>00152 
+<a name="l00153"></a>00153 <span class="preprocessor">#endif</span>
 </pre></div></div>
 <!--- window showing the filter options -->
 <div id="MSearchSelectWindow"
@@ -171,7 +265,7 @@ window.onload = initDynSections;
 <hr size="1"/>
 <address style="text-align: right;">
     <small>
-        Generated on Mon Mar 18 17:13:12 2019 for ubcc1pi by <a href="http://www.doxygen.org/index.html" target="_blank">doxygen</a> 1.6.1
+        Generated on Tue Mar 19 15:50:07 2019 for ubcc1pi by <a href="http://www.doxygen.org/index.html" target="_blank">doxygen</a> 1.6.1
     </small>
 </address>
 

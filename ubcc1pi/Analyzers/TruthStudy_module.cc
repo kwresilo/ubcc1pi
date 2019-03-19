@@ -6,7 +6,7 @@
 
 #include "ubcc1pi/Analyzers/TruthStudy.h"
 
-#include "ubcc1pi/Objects/Interaction.h"
+#include "ubcc1pi/Helpers/TruthHelper.h"
 
 namespace ubcc1pi
 {
@@ -24,8 +24,8 @@ void TruthStudy::analyze(const art::Event &event)
     const auto mcTruthLabel = m_config().MCTruthLabel();
     const auto mcParticleLabel = m_config().MCParticleLabel();
 
-    const Interaction interaction(event, mcTruthLabel, mcParticleLabel);
-    interaction.PrintInfo();
+    const TruthHelper::Interaction interaction(event, mcTruthLabel, mcParticleLabel);
+    //interaction.PrintInfo();
 }
 
 } // namespace ubcc1pi
