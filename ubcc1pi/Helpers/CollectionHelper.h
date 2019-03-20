@@ -1,7 +1,7 @@
 /**
  *  @file  ubcc1pi/Helpers/CollectionHelper.h
  *
- *  @brief The header file for the truth helper class
+ *  @brief The header file for the collection helper class
  */
 
 #ifndef UBCC1PI_HELPERS_COLLECTION_HELPER

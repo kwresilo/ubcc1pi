@@ -189,4 +189,19 @@ bool AnalysisHelper::IsCC1PiSignal(const TruthHelper::Interaction &interaction)
     return (nMu == 1 && nPiPlus == 1);
 }
 
+// -----------------------------------------------------------------------------------------------------------------------------------------
+
+unsigned int AnalysisHelper::CountParticlesWithPDG(const MCParticleVector &particles, const int pdg)
+{
+    unsigned int count = 0;
+
+    for (const auto &particle : particles)
+    {
+        if (particle->PdgCode() == pdg)
+            count++;
+    }
+
+    return count;
+}
+
 } // namespace ubcc1pi

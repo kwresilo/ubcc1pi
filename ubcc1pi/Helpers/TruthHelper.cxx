@@ -170,7 +170,7 @@ simb::curr_type_ TruthHelper::Interaction::GetCCNC() const
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
         
-simb::int_type_ TruthHelper::Interaction::GetIteractionMode() const
+simb::int_type_ TruthHelper::Interaction::GetInteractionMode() const
 {
     return m_mode;
 }

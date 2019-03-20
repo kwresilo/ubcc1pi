@@ -45,11 +45,12 @@ class AnalysisHelper
         static bool IsVisible(const art::Ptr<simb::MCParticle> &particle);
 
         // TODO add doxygen comments
-        MCParticleVector GetPrimaryParticles(const TruthHelper::Interaction &interaction);
-        MCParticleVector GetVisibleFinalStates(const TruthHelper::Interaction &interaction);
-        MCParticleVector GetReconstructableFinalStates(const TruthHelper::Interaction &interaction);
-        bool IsNeutrinoVertexFiducial(const TruthHelper::Interaction &interaction);
-        bool IsCC1PiSignal(const TruthHelper::Interaction &interaction);
+        static MCParticleVector GetPrimaryParticles(const TruthHelper::Interaction &interaction);
+        static MCParticleVector GetVisibleFinalStates(const TruthHelper::Interaction &interaction);
+        static MCParticleVector GetReconstructableFinalStates(const TruthHelper::Interaction &interaction);
+        static bool IsNeutrinoVertexFiducial(const TruthHelper::Interaction &interaction);
+        static bool IsCC1PiSignal(const TruthHelper::Interaction &interaction);
+        static unsigned int CountParticlesWithPDG(const MCParticleVector &particles, const int pdg);
 
     private:
         /**

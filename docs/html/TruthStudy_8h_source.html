@@ -106,61 +106,118 @@ window.onload = initDynSections;
 <a name="l00010"></a>00010 <span class="preprocessor">#include &quot;art/Framework/Core/ModuleMacros.h&quot;</span>
 <a name="l00011"></a>00011 <span class="preprocessor">#include &quot;art/Framework/Core/EDAnalyzer.h&quot;</span>
 <a name="l00012"></a>00012 
-<a name="l00013"></a>00013 <span class="preprocessor">#include &quot;fhiclcpp/types/Atom.h&quot;</span>
-<a name="l00014"></a>00014 <span class="preprocessor">#include &quot;fhiclcpp/types/Table.h&quot;</span>
-<a name="l00015"></a>00015 <span class="preprocessor">#include &quot;canvas/Utilities/InputTag.h&quot;</span>
-<a name="l00016"></a>00016 
-<a name="l00017"></a>00017 <span class="keyword">namespace </span>ubcc1pi
-<a name="l00018"></a>00018 {
-<a name="l00019"></a>00019 <span class="comment"></span>
-<a name="l00020"></a>00020 <span class="comment">/**</span>
-<a name="l00021"></a>00021 <span class="comment"> *  @brief  The truth study class</span>
-<a name="l00022"></a>00022 <span class="comment"> */</span>
-<a name="l00023"></a><a class="code" href="classubcc1pi_1_1TruthStudy.html">00023</a> <span class="keyword">class </span><a class="code" href="classubcc1pi_1_1TruthStudy.html" title="The truth study class.">TruthStudy</a> : <span class="keyword">public</span> art::EDAnalyzer
-<a name="l00024"></a>00024 {
-<a name="l00025"></a>00025     <span class="keyword">public</span>:<span class="comment"></span>
-<a name="l00026"></a>00026 <span class="comment">        /**</span>
-<a name="l00027"></a>00027 <span class="comment">         *  @brief  The configuration structure</span>
-<a name="l00028"></a>00028 <span class="comment">         */</span>
-<a name="l00029"></a><a class="code" href="structubcc1pi_1_1TruthStudy_1_1Config.html">00029</a>         <span class="keyword">struct </span><a class="code" href="structubcc1pi_1_1TruthStudy_1_1Config.html" title="The configuration structure.">Config</a>
-<a name="l00030"></a>00030         {
-<a name="l00031"></a>00031             fhicl::Atom&lt;art::InputTag&gt; MCTruthLabel
-<a name="l00032"></a>00032             {
-<a name="l00033"></a>00033                 fhicl::Name(<span class="stringliteral">&quot;MCTruthLabel&quot;</span>),
-<a name="l00034"></a>00034                 fhicl::Comment(<span class="stringliteral">&quot;The label for the neutrino MCTruth producer&quot;</span>)
-<a name="l00035"></a>00035             };
-<a name="l00036"></a>00036             
-<a name="l00037"></a>00037             fhicl::Atom&lt;art::InputTag&gt; MCParticleLabel
-<a name="l00038"></a>00038             {
-<a name="l00039"></a>00039                 fhicl::Name(<span class="stringliteral">&quot;MCParticleLabel&quot;</span>),
-<a name="l00040"></a>00040                 fhicl::Comment(<span class="stringliteral">&quot;The label for the MCParticle producer&quot;</span>)
-<a name="l00041"></a>00041             };
-<a name="l00042"></a>00042         };
-<a name="l00043"></a>00043 <span class="comment"></span>
-<a name="l00044"></a>00044 <span class="comment">        /**</span>
-<a name="l00045"></a>00045 <span class="comment">         *  @brief  Constructor</span>
-<a name="l00046"></a>00046 <span class="comment">         *</span>
-<a name="l00047"></a>00047 <span class="comment">         *  @param  config the set of input fhicl parameters</span>
-<a name="l00048"></a>00048 <span class="comment">         */</span>
-<a name="l00049"></a>00049         <a class="code" href="classubcc1pi_1_1TruthStudy.html#ae3ab02c2affcd2ff94280b3b3f42006f" title="Constructor.">TruthStudy</a>(<span class="keyword">const</span> art::EDAnalyzer::Table&lt;Config&gt; &amp;config);
-<a name="l00050"></a>00050 <span class="comment"></span>
-<a name="l00051"></a>00051 <span class="comment">        /**</span>
-<a name="l00052"></a>00052 <span class="comment">         *  @brief  Analyze an event</span>
-<a name="l00053"></a>00053 <span class="comment">         *</span>
-<a name="l00054"></a>00054 <span class="comment">         *  @param  event the event to analyze</span>
-<a name="l00055"></a>00055 <span class="comment">         */</span>
-<a name="l00056"></a>00056         <span class="keywordtype">void</span> <a class="code" href="classubcc1pi_1_1TruthStudy.html#a53964464bdd4d125a3211eea8d4a0933" title="Analyze an event.">analyze</a>(<span class="keyword">const</span> art::Event &amp;event);
-<a name="l00057"></a>00057 
-<a name="l00058"></a>00058     <span class="keyword">private</span>:
-<a name="l00059"></a>00059 
-<a name="l00060"></a><a class="code" href="classubcc1pi_1_1TruthStudy.html#a63aab6fecd42c698475125b2ce8cff79">00060</a>         art::EDAnalyzer::Table&lt;Config&gt;  <a class="code" href="classubcc1pi_1_1TruthStudy.html#a63aab6fecd42c698475125b2ce8cff79" title="The FHiCL configuration options.">m_config</a>; <span class="comment">///&lt; The FHiCL configuration options</span>
-<a name="l00061"></a>00061 <span class="comment"></span>};
-<a name="l00062"></a>00062 
-<a name="l00063"></a>00063 } <span class="comment">// namespace ubcc1pi</span>
-<a name="l00064"></a>00064 
-<a name="l00065"></a>00065 DEFINE_ART_MODULE(<a class="code" href="classubcc1pi_1_1TruthStudy.html" title="The truth study class.">ubcc1pi::TruthStudy</a>)
-<a name="l00066"></a>00066 
-<a name="l00067"></a>00067 <span class="preprocessor">#endif</span>
+<a name="l00013"></a>00013 <span class="preprocessor">#include &quot;art/Framework/Services/Optional/TFileService.h&quot;</span>
+<a name="l00014"></a>00014 <span class="preprocessor">#include &lt;TTree.h&gt;</span>
+<a name="l00015"></a>00015 
+<a name="l00016"></a>00016 <span class="preprocessor">#include &quot;fhiclcpp/types/Atom.h&quot;</span>
+<a name="l00017"></a>00017 <span class="preprocessor">#include &quot;fhiclcpp/types/Table.h&quot;</span>
+<a name="l00018"></a>00018 <span class="preprocessor">#include &quot;canvas/Utilities/InputTag.h&quot;</span>
+<a name="l00019"></a>00019 
+<a name="l00020"></a>00020 <span class="keyword">namespace </span>ubcc1pi
+<a name="l00021"></a>00021 {
+<a name="l00022"></a>00022 <span class="comment"></span>
+<a name="l00023"></a>00023 <span class="comment">/**</span>
+<a name="l00024"></a>00024 <span class="comment"> *  @brief  The truth study class</span>
+<a name="l00025"></a>00025 <span class="comment"> */</span>
+<a name="l00026"></a><a class="code" href="classubcc1pi_1_1TruthStudy.html">00026</a> <span class="keyword">class </span><a class="code" href="classubcc1pi_1_1TruthStudy.html" title="The truth study class.">TruthStudy</a> : <span class="keyword">public</span> art::EDAnalyzer
+<a name="l00027"></a>00027 {
+<a name="l00028"></a>00028     <span class="keyword">public</span>:<span class="comment"></span>
+<a name="l00029"></a>00029 <span class="comment">        /**</span>
+<a name="l00030"></a>00030 <span class="comment">         *  @brief  The configuration structure</span>
+<a name="l00031"></a>00031 <span class="comment">         */</span>
+<a name="l00032"></a><a class="code" href="structubcc1pi_1_1TruthStudy_1_1Config.html">00032</a>         <span class="keyword">struct </span><a class="code" href="structubcc1pi_1_1TruthStudy_1_1Config.html" title="The configuration structure.">Config</a>
+<a name="l00033"></a>00033         {
+<a name="l00034"></a>00034             fhicl::Atom&lt;art::InputTag&gt; MCTruthLabel
+<a name="l00035"></a>00035             {
+<a name="l00036"></a>00036                 fhicl::Name(<span class="stringliteral">&quot;MCTruthLabel&quot;</span>),
+<a name="l00037"></a>00037                 fhicl::Comment(<span class="stringliteral">&quot;The label for the neutrino MCTruth producer&quot;</span>)
+<a name="l00038"></a>00038             };
+<a name="l00039"></a>00039             
+<a name="l00040"></a>00040             fhicl::Atom&lt;art::InputTag&gt; MCParticleLabel
+<a name="l00041"></a>00041             {
+<a name="l00042"></a>00042                 fhicl::Name(<span class="stringliteral">&quot;MCParticleLabel&quot;</span>),
+<a name="l00043"></a>00043                 fhicl::Comment(<span class="stringliteral">&quot;The label for the MCParticle producer&quot;</span>)
+<a name="l00044"></a>00044             };
+<a name="l00045"></a>00045         };
+<a name="l00046"></a>00046 <span class="comment"></span>
+<a name="l00047"></a>00047 <span class="comment">        /**</span>
+<a name="l00048"></a>00048 <span class="comment">         *  @brief  The interaction output structure</span>
+<a name="l00049"></a>00049 <span class="comment">         */</span>
+<a name="l00050"></a><a class="code" href="structubcc1pi_1_1TruthStudy_1_1InteractionOutput.html">00050</a>         <span class="keyword">struct </span><a class="code" href="structubcc1pi_1_1TruthStudy_1_1InteractionOutput.html" title="The interaction output structure.">InteractionOutput</a>
+<a name="l00051"></a>00051         {
+<a name="l00052"></a>00052             <span class="comment">// Event metadata</span>
+<a name="l00053"></a><a class="code" href="structubcc1pi_1_1TruthStudy_1_1InteractionOutput.html#a5e0ccb31d8e236f7f2c3164cf0e169cc">00053</a>             <span class="keywordtype">int</span>          <a class="code" href="structubcc1pi_1_1TruthStudy_1_1InteractionOutput.html#a5e0ccb31d8e236f7f2c3164cf0e169cc" title="The run number.">m_run</a>;          <span class="comment">///&lt; The run number</span>
+<a name="l00054"></a><a class="code" href="structubcc1pi_1_1TruthStudy_1_1InteractionOutput.html#ade608f244acc312eeffea8dd3294e17f">00054</a> <span class="comment"></span>            <span class="keywordtype">int</span>          <a class="code" href="structubcc1pi_1_1TruthStudy_1_1InteractionOutput.html#ade608f244acc312eeffea8dd3294e17f" title="The subrun number.">m_subRun</a>;       <span class="comment">///&lt; The subrun number</span>
+<a name="l00055"></a><a class="code" href="structubcc1pi_1_1TruthStudy_1_1InteractionOutput.html#afde6946364deb7b41fb0267f52a55219">00055</a> <span class="comment"></span>            <span class="keywordtype">int</span>          <a class="code" href="structubcc1pi_1_1TruthStudy_1_1InteractionOutput.html#afde6946364deb7b41fb0267f52a55219" title="The event number.">m_event</a>;        <span class="comment">///&lt; The event number</span>
+<a name="l00056"></a>00056 <span class="comment"></span>            <span class="comment">// Interaction information</span>
+<a name="l00057"></a><a class="code" href="structubcc1pi_1_1TruthStudy_1_1InteractionOutput.html#acf83eb4a6d4a01f3649a4dcaea0c4c12">00057</a>             std::string  <a class="code" href="structubcc1pi_1_1TruthStudy_1_1InteractionOutput.html#acf83eb4a6d4a01f3649a4dcaea0c4c12" title="The truth interaction type.">m_interaction</a>;  <span class="comment">///&lt; The truth interaction type</span>
+<a name="l00058"></a><a class="code" href="structubcc1pi_1_1TruthStudy_1_1InteractionOutput.html#acf995a61142a8df22357b8ddc5f6cb29">00058</a> <span class="comment"></span>            <span class="keywordtype">bool</span>         <a class="code" href="structubcc1pi_1_1TruthStudy_1_1InteractionOutput.html#acf995a61142a8df22357b8ddc5f6cb29" title="If the neutrino is fiducial.">m_isNuFiducial</a>; <span class="comment">///&lt; If the neutrino is fiducial</span>
+<a name="l00059"></a><a class="code" href="structubcc1pi_1_1TruthStudy_1_1InteractionOutput.html#a0ab0178af024ec77770fb6f9abfac825">00059</a> <span class="comment"></span>            <span class="keywordtype">bool</span>         <a class="code" href="structubcc1pi_1_1TruthStudy_1_1InteractionOutput.html#a0ab0178af024ec77770fb6f9abfac825" title="If the event is a CC1Pi signal event.">m_isSignal</a>;     <span class="comment">///&lt; If the event is a CC1Pi signal event</span>
+<a name="l00060"></a><a class="code" href="structubcc1pi_1_1TruthStudy_1_1InteractionOutput.html#a58055fa66283f4e6f7a2650572f12312">00060</a> <span class="comment"></span>            <span class="keywordtype">int</span>          <a class="code" href="structubcc1pi_1_1TruthStudy_1_1InteractionOutput.html#a58055fa66283f4e6f7a2650572f12312" title="The number of mu-.">m_nMuMinus</a>;     <span class="comment">///&lt; The number of mu-</span>
+<a name="l00061"></a><a class="code" href="structubcc1pi_1_1TruthStudy_1_1InteractionOutput.html#ab8faaa159419a7bea467cf12914f7d99">00061</a> <span class="comment"></span>            <span class="keywordtype">int</span>          <a class="code" href="structubcc1pi_1_1TruthStudy_1_1InteractionOutput.html#ab8faaa159419a7bea467cf12914f7d99" title="The number of mu+.">m_nMuPlus</a>;      <span class="comment">///&lt; The number of mu+</span>
+<a name="l00062"></a><a class="code" href="structubcc1pi_1_1TruthStudy_1_1InteractionOutput.html#ad3d0711889140ce8680aba1a4885dcff">00062</a> <span class="comment"></span>            <span class="keywordtype">int</span>          <a class="code" href="structubcc1pi_1_1TruthStudy_1_1InteractionOutput.html#ad3d0711889140ce8680aba1a4885dcff" title="The number of pi+.">m_nPiPlus</a>;      <span class="comment">///&lt; The number of pi+</span>
+<a name="l00063"></a><a class="code" href="structubcc1pi_1_1TruthStudy_1_1InteractionOutput.html#a0aaa79d0b615d96a84017d40f01465b4">00063</a> <span class="comment"></span>            <span class="keywordtype">int</span>          <a class="code" href="structubcc1pi_1_1TruthStudy_1_1InteractionOutput.html#a0aaa79d0b615d96a84017d40f01465b4" title="The number of pi-.">m_nPiMinus</a>;     <span class="comment">///&lt; The number of pi-</span>
+<a name="l00064"></a><a class="code" href="structubcc1pi_1_1TruthStudy_1_1InteractionOutput.html#a65ea8408abc4050c337560b4873d214f">00064</a> <span class="comment"></span>            <span class="keywordtype">int</span>          <a class="code" href="structubcc1pi_1_1TruthStudy_1_1InteractionOutput.html#a65ea8408abc4050c337560b4873d214f" title="The number of K+.">m_nKPlus</a>;       <span class="comment">///&lt; The number of K+</span>
+<a name="l00065"></a><a class="code" href="structubcc1pi_1_1TruthStudy_1_1InteractionOutput.html#a069299f45397b1abd9d65c34d0746aa6">00065</a> <span class="comment"></span>            <span class="keywordtype">int</span>          <a class="code" href="structubcc1pi_1_1TruthStudy_1_1InteractionOutput.html#a069299f45397b1abd9d65c34d0746aa6" title="The number of K-.">m_nKMinus</a>;      <span class="comment">///&lt; The number of K-</span>
+<a name="l00066"></a><a class="code" href="structubcc1pi_1_1TruthStudy_1_1InteractionOutput.html#ab838d3cd5f3dd7f3bc21692724d59755">00066</a> <span class="comment"></span>            <span class="keywordtype">int</span>          <a class="code" href="structubcc1pi_1_1TruthStudy_1_1InteractionOutput.html#ab838d3cd5f3dd7f3bc21692724d59755" title="The number of p.">m_nProton</a>;      <span class="comment">///&lt; The number of p</span>
+<a name="l00067"></a><a class="code" href="structubcc1pi_1_1TruthStudy_1_1InteractionOutput.html#a1027ecaf91716d808ed0312a7870d54b">00067</a> <span class="comment"></span>            <span class="keywordtype">int</span>          <a class="code" href="structubcc1pi_1_1TruthStudy_1_1InteractionOutput.html#a1027ecaf91716d808ed0312a7870d54b" title="The number of n.">m_nNeutron</a>;     <span class="comment">///&lt; The number of n</span>
+<a name="l00068"></a><a class="code" href="structubcc1pi_1_1TruthStudy_1_1InteractionOutput.html#aab94db483d8c3c655868c381f18e2c5e">00068</a> <span class="comment"></span>            <span class="keywordtype">int</span>          <a class="code" href="structubcc1pi_1_1TruthStudy_1_1InteractionOutput.html#aab94db483d8c3c655868c381f18e2c5e" title="The number of gamma.">m_nPhoton</a>;      <span class="comment">///&lt; The number of gamma</span>
+<a name="l00069"></a><a class="code" href="structubcc1pi_1_1TruthStudy_1_1InteractionOutput.html#a12f8f8ad1fb3848b73c57e20ac0a8c7f">00069</a> <span class="comment"></span>            <span class="keywordtype">int</span>          <a class="code" href="structubcc1pi_1_1TruthStudy_1_1InteractionOutput.html#a12f8f8ad1fb3848b73c57e20ac0a8c7f" title="The total number of particles.">m_nTotal</a>;       <span class="comment">///&lt; The total number of particles</span>
+<a name="l00070"></a>00070 <span class="comment"></span>            <span class="comment">// Kinematics</span>
+<a name="l00071"></a><a class="code" href="structubcc1pi_1_1TruthStudy_1_1InteractionOutput.html#ac8a23831a28cdd096a967b78ba3d2542">00071</a>             <span class="keywordtype">float</span>        <a class="code" href="structubcc1pi_1_1TruthStudy_1_1InteractionOutput.html#ac8a23831a28cdd096a967b78ba3d2542" title="The neutrino energy.">m_nuE</a>;          <span class="comment">///&lt; The neutrino energy</span>
+<a name="l00072"></a>00072 <span class="comment"></span>        };
+<a name="l00073"></a>00073         <span class="comment"></span>
+<a name="l00074"></a>00074 <span class="comment">        /**</span>
+<a name="l00075"></a>00075 <span class="comment">         *  @brief  The signal output structure</span>
+<a name="l00076"></a>00076 <span class="comment">         */</span>
+<a name="l00077"></a><a class="code" href="structubcc1pi_1_1TruthStudy_1_1SignalOutput.html">00077</a>         <span class="keyword">struct </span><a class="code" href="structubcc1pi_1_1TruthStudy_1_1SignalOutput.html" title="The signal output structure.">SignalOutput</a>
+<a name="l00078"></a>00078         {
+<a name="l00079"></a>00079             <span class="comment">// Event metadata</span>
+<a name="l00080"></a><a class="code" href="structubcc1pi_1_1TruthStudy_1_1SignalOutput.html#a8cfceb623e83d125c87ff8b7dfa14536">00080</a>             <span class="keywordtype">int</span>          <a class="code" href="structubcc1pi_1_1TruthStudy_1_1SignalOutput.html#a8cfceb623e83d125c87ff8b7dfa14536" title="The run number.">m_run</a>;          <span class="comment">///&lt; The run number</span>
+<a name="l00081"></a><a class="code" href="structubcc1pi_1_1TruthStudy_1_1SignalOutput.html#a2f7628c18d708c91d6a1c2186b6ee632">00081</a> <span class="comment"></span>            <span class="keywordtype">int</span>          <a class="code" href="structubcc1pi_1_1TruthStudy_1_1SignalOutput.html#a2f7628c18d708c91d6a1c2186b6ee632" title="The subrun number.">m_subRun</a>;       <span class="comment">///&lt; The subrun number</span>
+<a name="l00082"></a><a class="code" href="structubcc1pi_1_1TruthStudy_1_1SignalOutput.html#a3590722f8bd38d3d808ad82a066785f3">00082</a> <span class="comment"></span>            <span class="keywordtype">int</span>          <a class="code" href="structubcc1pi_1_1TruthStudy_1_1SignalOutput.html#a3590722f8bd38d3d808ad82a066785f3" title="The event number.">m_event</a>;        <span class="comment">///&lt; The event number</span>
+<a name="l00083"></a>00083 <span class="comment"></span>            <span class="comment">// Interaction information</span>
+<a name="l00084"></a><a class="code" href="structubcc1pi_1_1TruthStudy_1_1SignalOutput.html#ad17a2e72699829ffc811783f9036603d">00084</a>             std::string  <a class="code" href="structubcc1pi_1_1TruthStudy_1_1SignalOutput.html#ad17a2e72699829ffc811783f9036603d" title="The truth interaction type.">m_interaction</a>;  <span class="comment">///&lt; The truth interaction type</span>
+<a name="l00085"></a><a class="code" href="structubcc1pi_1_1TruthStudy_1_1SignalOutput.html#a36f59eb7c57ecc24a8a972b4244e343c">00085</a> <span class="comment"></span>            <span class="keywordtype">int</span>          <a class="code" href="structubcc1pi_1_1TruthStudy_1_1SignalOutput.html#a36f59eb7c57ecc24a8a972b4244e343c" title="The number of p.">m_nProton</a>;      <span class="comment">///&lt; The number of p</span>
+<a name="l00086"></a>00086 <span class="comment"></span>            <span class="comment">// Kinematics</span>
+<a name="l00087"></a><a class="code" href="structubcc1pi_1_1TruthStudy_1_1SignalOutput.html#ac68d15c0438c02f703b0dea9c25d9105">00087</a>             <span class="keywordtype">float</span>        <a class="code" href="structubcc1pi_1_1TruthStudy_1_1SignalOutput.html#ac68d15c0438c02f703b0dea9c25d9105" title="The neutrino energy.">m_nuE</a>;          <span class="comment">///&lt; The neutrino energy</span>
+<a name="l00088"></a><a class="code" href="structubcc1pi_1_1TruthStudy_1_1SignalOutput.html#a02c27e4191e3f05c72e3e6df2efab35c">00088</a> <span class="comment"></span>            <span class="keywordtype">float</span>        <a class="code" href="structubcc1pi_1_1TruthStudy_1_1SignalOutput.html#a02c27e4191e3f05c72e3e6df2efab35c" title="The muon momentum in x.">m_muMomX</a>;       <span class="comment">///&lt; The muon momentum in x</span>
+<a name="l00089"></a><a class="code" href="structubcc1pi_1_1TruthStudy_1_1SignalOutput.html#ab7713be32bf01e98d49e0f0212d2d64b">00089</a> <span class="comment"></span>            <span class="keywordtype">float</span>        <a class="code" href="structubcc1pi_1_1TruthStudy_1_1SignalOutput.html#ab7713be32bf01e98d49e0f0212d2d64b" title="The muon momentum in y.">m_muMomY</a>;       <span class="comment">///&lt; The muon momentum in y</span>
+<a name="l00090"></a><a class="code" href="structubcc1pi_1_1TruthStudy_1_1SignalOutput.html#ab9a1a4587adb4286429038fa9a529401">00090</a> <span class="comment"></span>            <span class="keywordtype">float</span>        <a class="code" href="structubcc1pi_1_1TruthStudy_1_1SignalOutput.html#ab9a1a4587adb4286429038fa9a529401" title="The muon momentum in z.">m_muMomZ</a>;       <span class="comment">///&lt; The muon momentum in z</span>
+<a name="l00091"></a><a class="code" href="structubcc1pi_1_1TruthStudy_1_1SignalOutput.html#ae811127f4e4d166a05a435bb73193419">00091</a> <span class="comment"></span>            <span class="keywordtype">float</span>        <a class="code" href="structubcc1pi_1_1TruthStudy_1_1SignalOutput.html#ae811127f4e4d166a05a435bb73193419" title="The pion momentum in x.">m_piMomX</a>;       <span class="comment">///&lt; The pion momentum in x</span>
+<a name="l00092"></a><a class="code" href="structubcc1pi_1_1TruthStudy_1_1SignalOutput.html#a60e5b95d60f5366de1436bcf71186482">00092</a> <span class="comment"></span>            <span class="keywordtype">float</span>        <a class="code" href="structubcc1pi_1_1TruthStudy_1_1SignalOutput.html#a60e5b95d60f5366de1436bcf71186482" title="The pion momentum in y.">m_piMomY</a>;       <span class="comment">///&lt; The pion momentum in y</span>
+<a name="l00093"></a><a class="code" href="structubcc1pi_1_1TruthStudy_1_1SignalOutput.html#ae8d66d6b4bf58c7d94067591878622e3">00093</a> <span class="comment"></span>            <span class="keywordtype">float</span>        <a class="code" href="structubcc1pi_1_1TruthStudy_1_1SignalOutput.html#ae8d66d6b4bf58c7d94067591878622e3" title="The pion momentum in z.">m_piMomZ</a>;       <span class="comment">///&lt; The pion momentum in z</span>
+<a name="l00094"></a>00094 <span class="comment"></span>        };
+<a name="l00095"></a>00095 <span class="comment"></span>
+<a name="l00096"></a>00096 <span class="comment">        /**</span>
+<a name="l00097"></a>00097 <span class="comment">         *  @brief  Constructor</span>
+<a name="l00098"></a>00098 <span class="comment">         *</span>
+<a name="l00099"></a>00099 <span class="comment">         *  @param  config the set of input fhicl parameters</span>
+<a name="l00100"></a>00100 <span class="comment">         */</span>
+<a name="l00101"></a>00101         <a class="code" href="classubcc1pi_1_1TruthStudy.html#ae3ab02c2affcd2ff94280b3b3f42006f" title="Constructor.">TruthStudy</a>(<span class="keyword">const</span> art::EDAnalyzer::Table&lt;Config&gt; &amp;config);
+<a name="l00102"></a>00102 <span class="comment"></span>
+<a name="l00103"></a>00103 <span class="comment">        /**</span>
+<a name="l00104"></a>00104 <span class="comment">         *  @brief  Analyze an event</span>
+<a name="l00105"></a>00105 <span class="comment">         *</span>
+<a name="l00106"></a>00106 <span class="comment">         *  @param  event the event to analyze</span>
+<a name="l00107"></a>00107 <span class="comment">         */</span>
+<a name="l00108"></a>00108         <span class="keywordtype">void</span> <a class="code" href="classubcc1pi_1_1TruthStudy.html#a53964464bdd4d125a3211eea8d4a0933" title="Analyze an event.">analyze</a>(<span class="keyword">const</span> art::Event &amp;event);
+<a name="l00109"></a>00109 
+<a name="l00110"></a>00110     <span class="keyword">private</span>:
+<a name="l00111"></a>00111             
+<a name="l00112"></a><a class="code" href="classubcc1pi_1_1TruthStudy.html#a63aab6fecd42c698475125b2ce8cff79">00112</a>         art::EDAnalyzer::Table&lt;Config&gt;  <a class="code" href="classubcc1pi_1_1TruthStudy.html#a63aab6fecd42c698475125b2ce8cff79" title="The FHiCL configuration options.">m_config</a>;            <span class="comment">///&lt; The FHiCL configuration options</span>
+<a name="l00113"></a><a class="code" href="classubcc1pi_1_1TruthStudy.html#a3781ddf1bfba9512ec2dcfa7081f7624">00113</a> <span class="comment"></span>        TTree                          *<a class="code" href="classubcc1pi_1_1TruthStudy.html#a3781ddf1bfba9512ec2dcfa7081f7624" title="The output tree for all interactions.">m_pInteractionTree</a>;  <span class="comment">///&lt; The output tree for all interactions</span>
+<a name="l00114"></a><a class="code" href="classubcc1pi_1_1TruthStudy.html#ae0850a2829e819936b7252905bf875c3">00114</a> <span class="comment"></span>        TTree                          *<a class="code" href="classubcc1pi_1_1TruthStudy.html#ae0850a2829e819936b7252905bf875c3" title="The output tree for signal interactions.">m_pSignalTree</a>;       <span class="comment">///&lt; The output tree for signal interactions</span>
+<a name="l00115"></a>00115 <span class="comment"></span>
+<a name="l00116"></a><a class="code" href="classubcc1pi_1_1TruthStudy.html#aef3116094915a252686b76e3028f01e3">00116</a>         <a class="code" href="structubcc1pi_1_1TruthStudy_1_1InteractionOutput.html" title="The interaction output structure.">InteractionOutput</a>               <a class="code" href="classubcc1pi_1_1TruthStudy.html#aef3116094915a252686b76e3028f01e3" title="The output objects for all interactions.">m_interactionOutput</a>; <span class="comment">///&lt; The output objects for all interactions</span>
+<a name="l00117"></a><a class="code" href="classubcc1pi_1_1TruthStudy.html#ad75dad23a008cdcd345970c4d8f5fe52">00117</a> <span class="comment"></span>        <a class="code" href="structubcc1pi_1_1TruthStudy_1_1SignalOutput.html" title="The signal output structure.">SignalOutput</a>                    <a class="code" href="classubcc1pi_1_1TruthStudy.html#ad75dad23a008cdcd345970c4d8f5fe52" title="The output objects for signal interactions.">m_signalOutput</a>;      <span class="comment">///&lt; The output objects for signal interactions</span>
+<a name="l00118"></a>00118 <span class="comment"></span>};
+<a name="l00119"></a>00119 
+<a name="l00120"></a>00120 } <span class="comment">// namespace ubcc1pi</span>
+<a name="l00121"></a>00121 
+<a name="l00122"></a>00122 DEFINE_ART_MODULE(<a class="code" href="classubcc1pi_1_1TruthStudy.html" title="The truth study class.">ubcc1pi::TruthStudy</a>)
+<a name="l00123"></a>00123 
+<a name="l00124"></a>00124 <span class="preprocessor">#endif</span>
 </pre></div></div>
 <!--- window showing the filter options -->
 <div id="MSearchSelectWindow"
@@ -179,7 +236,7 @@ window.onload = initDynSections;
 <hr size="1"/>
 <address style="text-align: right;">
     <small>
-        Generated on Tue Mar 19 15:50:07 2019 for ubcc1pi by <a href="http://www.doxygen.org/index.html" target="_blank">doxygen</a> 1.6.1
+        Generated on Wed Mar 20 12:43:16 2019 for ubcc1pi by <a href="http://www.doxygen.org/index.html" target="_blank">doxygen</a> 1.6.1
     </small>
 </address>
 

@@ -3,6 +3,10 @@ BEGIN_PROLOG
 truth_study:
 {
     module_type: "TruthStudy"
+
+    # Input labels
+    MCTruthLabel:    "generator"
+    MCParticleLabel: "largeant"
 }
 
 END_PROLOG

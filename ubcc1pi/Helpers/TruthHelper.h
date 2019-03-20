@@ -60,7 +60,7 @@ class TruthHelper
                 /**
                  *  @brief  Get the interaction mode (QE, RES, DIS, ...)
                  */
-                simb::int_type_ GetIteractionMode() const;
+                simb::int_type_ GetInteractionMode() const;
 
                 /**
                  *  @brief  Get the full list of MCParticles associated with this interaction

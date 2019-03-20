@@ -11,6 +11,7 @@ source:
 
 services:
 {
+    TFileService: {fileName: "truthStudy.root"}
 }
 
 physics:
