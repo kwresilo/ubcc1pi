@@ -46,9 +46,9 @@ TruthStudy::TruthStudy(const art::EDAnalyzer::Table<Config> &config) :
     m_pSignalTree->Branch("interaction", &m_signalOutput.m_interaction);
     m_pSignalTree->Branch("nProton",     &m_signalOutput.m_nProton);
     m_pSignalTree->Branch("nuE",         &m_signalOutput.m_nuE);
-    m_pSignalTree->Branch("nuMomX",      &m_signalOutput.m_muMomX);
-    m_pSignalTree->Branch("nuMomY",      &m_signalOutput.m_muMomY);
-    m_pSignalTree->Branch("nuMomZ",      &m_signalOutput.m_muMomZ);
+    m_pSignalTree->Branch("muMomX",      &m_signalOutput.m_muMomX);
+    m_pSignalTree->Branch("muMomY",      &m_signalOutput.m_muMomY);
+    m_pSignalTree->Branch("muMomZ",      &m_signalOutput.m_muMomZ);
     m_pSignalTree->Branch("piMomX",      &m_signalOutput.m_piMomX);
     m_pSignalTree->Branch("piMomY",      &m_signalOutput.m_piMomY);
     m_pSignalTree->Branch("piMomZ",      &m_signalOutput.m_piMomZ);

@@ -19,13 +19,19 @@ interactions. In order to determine if an event contiains a CC1Pi topology, we d
 
 ## Instructions
 
-### Instructions for running locally on a single file
+### Running locally on a single file
 ```
 # Run the TruthStudy module
 lar -c truth_study_driver.fcl -s <my_input_art_root_file>
 
 # Now you should have an output root file
 root -l truthStudy.root
+```
+
+### Making plots
+```
+# The plotting script will look for a file called truthStudy.root in your current directory
+python plots.py
 ```
 
 ## Output file content
