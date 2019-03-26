@@ -395,13 +395,13 @@ window.onload = initDynSections;
 <a name="l00299"></a>00299         <span class="keyword">const</span> art::Ptr&lt;L&gt; objectL(handle, i);
 <a name="l00300"></a>00300         <span class="keyword">const</span> <span class="keyword">auto</span> key = objectL.key();
 <a name="l00301"></a>00301         <span class="keyword">const</span> <span class="keyword">auto</span> objects = assoc.at(key);
-<a name="l00302"></a>00302         <span class="keyword">const</span> <span class="keyword">auto</span> <a class="code" href="namespaceplot.html#a89b294f92d2188cfca3f713fd33b081c">data</a> = assoc.data(key);
+<a name="l00302"></a>00302         <span class="keyword">const</span> <span class="keyword">auto</span> data = assoc.data(key);
 <a name="l00303"></a>00303 
-<a name="l00304"></a>00304         <span class="keywordflow">if</span> (objects.size() != <a class="code" href="namespaceplot.html#a89b294f92d2188cfca3f713fd33b081c">data</a>.size())
+<a name="l00304"></a>00304         <span class="keywordflow">if</span> (objects.size() != data.size())
 <a name="l00305"></a>00305             <span class="keywordflow">throw</span> cet::exception(<span class="stringliteral">&quot;CollectionHelper::GetAssociationWithData&quot;</span>) &lt;&lt; <span class="stringliteral">&quot; - Number of metadata doesn&apos;t match number of associated objects.&quot;</span> &lt;&lt; std::endl;
 <a name="l00306"></a>00306 
 <a name="l00307"></a>00307         <span class="keywordflow">for</span> (<span class="keywordtype">unsigned</span> <span class="keywordtype">int</span> j = 0; j &lt; objects.size(); ++j)
-<a name="l00308"></a>00308             outputAssociation[objectL].emplace_back(objects.at(j), *<a class="code" href="namespaceplot.html#a89b294f92d2188cfca3f713fd33b081c">data</a>.at(j));
+<a name="l00308"></a>00308             outputAssociation[objectL].emplace_back(objects.at(j), *data.at(j));
 <a name="l00309"></a>00309     }
 <a name="l00310"></a>00310 
 <a name="l00311"></a>00311     <span class="keywordflow">return</span> outputAssociation;
@@ -501,7 +501,7 @@ window.onload = initDynSections;
 <hr size="1"/>
 <address style="text-align: right;">
     <small>
-        Generated on Tue Mar 26 16:29:12 2019 for ubcc1pi by <a href="http://www.doxygen.org/index.html" target="_blank">doxygen</a> 1.6.1
+        Generated on Tue Mar 26 16:35:05 2019 for ubcc1pi by <a href="http://www.doxygen.org/index.html" target="_blank">doxygen</a> 1.6.1
     </small>
 </address>
 
