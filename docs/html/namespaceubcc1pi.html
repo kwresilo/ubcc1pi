@@ -98,19 +98,38 @@ window.onload = initDynSections;
 <a href="#_details">More...</a></p>
 <table border="0" cellpadding="0" cellspacing="0">
 <tr><td colspan="2"><h2>Classes</h2></td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">class &nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classubcc1pi_1_1RecoStudy.html">RecoStudy</a></td></tr>
+<tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">The reco study class.  <a href="classubcc1pi_1_1RecoStudy.html#_details">More...</a><br/></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">class &nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classubcc1pi_1_1TruthStudy.html">TruthStudy</a></td></tr>
 <tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">The truth study class.  <a href="classubcc1pi_1_1TruthStudy.html#_details">More...</a><br/></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">class &nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classubcc1pi_1_1AnalysisHelper.html">AnalysisHelper</a></td></tr>
 <tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">The analysis helper class.  <a href="classubcc1pi_1_1AnalysisHelper.html#_details">More...</a><br/></td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">class &nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classubcc1pi_1_1BacktrackHelper.html">BacktrackHelper</a></td></tr>
+<tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">The backtrack helper class.  <a href="classubcc1pi_1_1BacktrackHelper.html#_details">More...</a><br/></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">class &nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classubcc1pi_1_1CollectionHelper.html">CollectionHelper</a></td></tr>
 <tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">The collection helper class.  <a href="classubcc1pi_1_1CollectionHelper.html#_details">More...</a><br/></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">class &nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classubcc1pi_1_1DebugHelper.html">DebugHelper</a></td></tr>
 <tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">The debug helper class.  <a href="classubcc1pi_1_1DebugHelper.html#_details">More...</a><br/></td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">class &nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classubcc1pi_1_1RecoHelper.html">RecoHelper</a></td></tr>
+<tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">The reco helper class.  <a href="classubcc1pi_1_1RecoHelper.html#_details">More...</a><br/></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">class &nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classubcc1pi_1_1TruthHelper.html">TruthHelper</a></td></tr>
 <tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">The truth helper class.  <a href="classubcc1pi_1_1TruthHelper.html#_details">More...</a><br/></td></tr>
 <tr><td colspan="2"><h2>Typedefs</h2></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">typedef Collection<br class="typebreak"/>
 &lt; simb::MCParticle &gt;&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceubcc1pi.html#a42e409a54246ea6acba6d873b8eb696c">MCParticleVector</a></td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">typedef Collection<br class="typebreak"/>
+&lt; recob::PFParticle &gt;&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceubcc1pi.html#a6f66dc13c5a55147db5c84db67f6062b">PFParticleVector</a></td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">typedef Collection&lt; recob::Hit &gt;&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceubcc1pi.html#aad18bb5924d1ff428402c8af4b72f1c0">HitVector</a></td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">typedef Association<br class="typebreak"/>
+&lt; recob::Hit, <br class="typebreak"/>
+recob::PFParticle &gt;&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceubcc1pi.html#a679f75d7e515d88fd2b37057e0d681bb">HitsToPFParticles</a></td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">typedef AssociationData<br class="typebreak"/>
+&lt; recob::Hit, simb::MCParticle, <br class="typebreak"/>
+float &gt;&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceubcc1pi.html#a9c8db99d0f284acb6b95013a2527c00d">HitsToMCParticleWeights</a></td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">typedef std::unordered_map<br class="typebreak"/>
+&lt; int, art::Ptr<br class="typebreak"/>
+&lt; recob::PFParticle &gt; &gt;&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceubcc1pi.html#a191f1ccf6de87673e21719a2d401a00f">PFParticleMap</a></td></tr>
+<tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">A map intended to hold the mapping from PFParticle.TrackId() -&gt; PFParticle - for navigation of the PFParticle hierarchy.  <a href="#a191f1ccf6de87673e21719a2d401a00f"></a><br/></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">typedef std::unordered_map<br class="typebreak"/>
 &lt; int, art::Ptr<br class="typebreak"/>
 &lt; simb::MCParticle &gt; &gt;&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceubcc1pi.html#ad270925efcb22aadbfb3e59d150771b9">MCParticleMap</a></td></tr>
@@ -119,6 +138,51 @@ window.onload = initDynSections;
 <hr/><a name="_details"></a><h2>Detailed Description</h2>
 <p>The main <a class="el" href="namespaceubcc1pi.html" title="The main ubcc1pi namespace.">ubcc1pi</a> namespace. </p>
 <hr/><h2>Typedef Documentation</h2>
+<a class="anchor" id="a9c8db99d0f284acb6b95013a2527c00d"></a><!-- doxytag: member="ubcc1pi::HitsToMCParticleWeights" ref="a9c8db99d0f284acb6b95013a2527c00d" args="" -->
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">typedef AssociationData&lt;recob::Hit, simb::MCParticle, float&gt; <a class="el" href="namespaceubcc1pi.html#a9c8db99d0f284acb6b95013a2527c00d">ubcc1pi::HitsToMCParticleWeights</a></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+
+<p>Definition at line <a class="el" href="CollectionHelper_8h_source.html#l00049">49</a> of file <a class="el" href="CollectionHelper_8h_source.html">CollectionHelper.h</a>.</p>
+
+</div>
+</div>
+<a class="anchor" id="a679f75d7e515d88fd2b37057e0d681bb"></a><!-- doxytag: member="ubcc1pi::HitsToPFParticles" ref="a679f75d7e515d88fd2b37057e0d681bb" args="" -->
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">typedef Association&lt;recob::Hit, recob::PFParticle&gt; <a class="el" href="namespaceubcc1pi.html#a679f75d7e515d88fd2b37057e0d681bb">ubcc1pi::HitsToPFParticles</a></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+
+<p>Definition at line <a class="el" href="CollectionHelper_8h_source.html#l00048">48</a> of file <a class="el" href="CollectionHelper_8h_source.html">CollectionHelper.h</a>.</p>
+
+</div>
+</div>
+<a class="anchor" id="aad18bb5924d1ff428402c8af4b72f1c0"></a><!-- doxytag: member="ubcc1pi::HitVector" ref="aad18bb5924d1ff428402c8af4b72f1c0" args="" -->
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">typedef Collection&lt;recob::Hit&gt; <a class="el" href="namespaceubcc1pi.html#aad18bb5924d1ff428402c8af4b72f1c0">ubcc1pi::HitVector</a></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+
+<p>Definition at line <a class="el" href="CollectionHelper_8h_source.html#l00046">46</a> of file <a class="el" href="CollectionHelper_8h_source.html">CollectionHelper.h</a>.</p>
+
+</div>
+</div>
 <a class="anchor" id="ad270925efcb22aadbfb3e59d150771b9"></a><!-- doxytag: member="ubcc1pi::MCParticleMap" ref="ad270925efcb22aadbfb3e59d150771b9" args="" -->
 <div class="memitem">
 <div class="memproto">
@@ -147,7 +211,39 @@ window.onload = initDynSections;
 </div>
 <div class="memdoc">
 
-<p>Definition at line <a class="el" href="CollectionHelper_8h_source.html#l00031">31</a> of file <a class="el" href="CollectionHelper_8h_source.html">CollectionHelper.h</a>.</p>
+<p>Definition at line <a class="el" href="CollectionHelper_8h_source.html#l00044">44</a> of file <a class="el" href="CollectionHelper_8h_source.html">CollectionHelper.h</a>.</p>
+
+</div>
+</div>
+<a class="anchor" id="a191f1ccf6de87673e21719a2d401a00f"></a><!-- doxytag: member="ubcc1pi::PFParticleMap" ref="a191f1ccf6de87673e21719a2d401a00f" args="" -->
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">typedef std::unordered_map&lt;int, art::Ptr&lt;recob::PFParticle&gt; &gt; <a class="el" href="namespaceubcc1pi.html#a191f1ccf6de87673e21719a2d401a00f">ubcc1pi::PFParticleMap</a></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+
+<p>A map intended to hold the mapping from PFParticle.TrackId() -&gt; PFParticle - for navigation of the PFParticle hierarchy. </p>
+
+<p>Definition at line <a class="el" href="RecoHelper_8h_source.html#l00020">20</a> of file <a class="el" href="RecoHelper_8h_source.html">RecoHelper.h</a>.</p>
+
+</div>
+</div>
+<a class="anchor" id="a6f66dc13c5a55147db5c84db67f6062b"></a><!-- doxytag: member="ubcc1pi::PFParticleVector" ref="a6f66dc13c5a55147db5c84db67f6062b" args="" -->
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">typedef Collection&lt;recob::PFParticle&gt; <a class="el" href="namespaceubcc1pi.html#a6f66dc13c5a55147db5c84db67f6062b">ubcc1pi::PFParticleVector</a></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+
+<p>Definition at line <a class="el" href="CollectionHelper_8h_source.html#l00045">45</a> of file <a class="el" href="CollectionHelper_8h_source.html">CollectionHelper.h</a>.</p>
 
 </div>
 </div>
@@ -169,7 +265,7 @@ window.onload = initDynSections;
 <hr size="1"/>
 <address style="text-align: right;">
     <small>
-        Generated on Wed Mar 20 12:43:16 2019 for ubcc1pi by <a href="http://www.doxygen.org/index.html" target="_blank">doxygen</a> 1.6.1
+        Generated on Tue Mar 26 16:29:12 2019 for ubcc1pi by <a href="http://www.doxygen.org/index.html" target="_blank">doxygen</a> 1.6.1
     </small>
 </address>
 

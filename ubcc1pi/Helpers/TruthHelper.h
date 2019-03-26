@@ -146,6 +146,10 @@ class TruthHelper
          *  @return the daughter MCParticles
          */
         static MCParticleVector GetDaughters(const art::Ptr<simb::MCParticle> &particle, const MCParticleMap &mcParticleMap);
+        
+        // TODO doxygen comments
+        static MCParticleVector GetDownstreamParticles(const art::Ptr<simb::MCParticle> &particle, const MCParticleMap &mcParticleMap);
+        static void GetDownstreamParticles(const art::Ptr<simb::MCParticle> &particle, const MCParticleMap &mcParticleMap, MCParticleVector &downstreamParticles);
 };
 
 } // namespace ubcc1pi

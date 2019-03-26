@@ -1,0 +1,117 @@
+<?xml version="1.0"?>
+
+<!DOCTYPE project [
+
+<!-- =================================================================================================================================== -->
+<!-- Settings that you might want to modify                                                                                              -->
+<!-- =================================================================================================================================== -->
+
+<!-- Names -->
+<!ENTITY username        "asmith">
+
+<!-- LArSoft version -->
+<!ENTITY tag             "v08_00_00_09">
+<!ENTITY qual            "e17:prof">
+
+<!--
+    You will also need to make a tarball of your local environment (with ubcc1pi cloned) that you have tested with the above versions.
+    To do this run the command: ./make_tar
+-->
+
+<!-- Input files -->
+<!ENTITY inputDef        "prodgenie_bnb_nu_uboone_overlay_mcc9_combined_run1_reco2_redo">
+
+<!-- Job settings -->
+<!ENTITY numJobs         "97">
+<!ENTITY maxFilesPerJob  "40">
+<!ENTITY numEvents       "9999999999999999999999999999999999999999999999999999999999999">
+<!-- NB. I use large number for numEvents to get all events in the files, it's not really the number of events that will be processed -->
+
+<!-- =================================================================================================================================== -->
+<!-- Settings that you probably won't need to modify                                                                                     -->
+<!-- =================================================================================================================================== -->
+
+<!-- Shorthands -->
+<!ENTITY projectName     "ubcc1pi">
+<!ENTITY dataTier        "ana">
+<!ENTITY schema          "root">
+
+<!-- Stages -->
+<!ENTITY fullStudyName   "all">
+<!ENTITY fullStudyFcl    "ubcc1pi_driver.fcl">
+
+<!ENTITY truthStudyName  "truthStudy">
+<!ENTITY truthStudyFcl   "truty_study_driver.fcl">
+
+]>
+
+<!-- =================================================================================================================================== -->
+<!-- =================================================================================================================================== -->
+<!-- Below are the project.py settings for each stage                                                                                    -->
+<!-- =================================================================================================================================== -->
+<!-- =================================================================================================================================== -->
+
+<project name="&projectName;">
+
+    <!-- =============================================================================================================================== -->
+    <!-- Set up the LArSoft version                                                                                                      -->
+    <!-- =============================================================================================================================== -->
+    <larsoft>
+        <tag>&tag;</tag>
+        <qual>&qual;</qual>
+        <local>/pnfs/uboone/resilient/users/&username;/tars/&projectName;/local.tar</local>
+    </larsoft>
+    
+    <!-- =============================================================================================================================== -->
+    <!-- Set up the project -->
+    <!-- =============================================================================================================================== -->
+    <group>uboone</group>
+    <os>SL6</os>
+    <resource>DEDICATED,OPPORTUNISTIC</resource>
+    
+    <!-- =============================================================================================================================== -->
+    <!-- All studies -->
+    <!-- =============================================================================================================================== -->
+    <stage name="&fullStudyName;">
+        <!-- Settings -->
+        <fcl>&fullStudyFcl;</fcl>
+        <numjobs>&numJobs;</numjobs>
+        <maxfilesperjob>&maxFilesPerJob;</maxfilesperjob>
+        <numevents>&numEvents;</numevents>
+
+        <!-- Input files -->
+        <inputdef>&inputDef;</inputdef>
+
+        <!-- Output directories -->
+        <outdir>/pnfs/uboone/scratch/users/&username;/&projectName;/&fullStudyName;/</outdir> 
+        <logdir>/pnfs/uboone/scratch/users/&username;/&projectName;/&fullStudyName;/</logdir> 
+        <workdir>/pnfs/uboone/resilient/users/&username;/work/&projectName;/&fullStudyName;/</workdir> 
+
+        <!-- Options -->
+        <datatier>&dataTier;</datatier>
+        <schema>&schema;</schema>
+    </stage>
+
+    <!-- =============================================================================================================================== -->
+    <!-- Truth study -->
+    <!-- =============================================================================================================================== -->
+    <stage name="&truthStudyName;">
+        <!-- Settings -->
+        <fcl>&truthStudyFcl;</fcl>
+        <numjobs>&numJobs;</numjobs>
+        <maxfilesperjob>&maxFilesPerJob;</maxfilesperjob>
+        <numevents>&numEvents;</numevents>
+
+        <!-- Input files -->
+        <inputdef>&inputDef;</inputdef>
+
+        <!-- Output directories -->
+        <outdir>/pnfs/uboone/scratch/users/&username;/&projectName;/&truthStudyName;/</outdir> 
+        <logdir>/pnfs/uboone/scratch/users/&username;/&projectName;/&truthStudyName;/</logdir> 
+        <workdir>/pnfs/uboone/resilient/users/&username;/work/&projectName;/&truthStudyName;/</workdir> 
+
+        <!-- Options -->
+        <datatier>&dataTier;</datatier>
+        <schema>&schema;</schema>
+    </stage>
+</project>

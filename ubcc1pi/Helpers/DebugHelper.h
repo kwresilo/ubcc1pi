@@ -11,6 +11,7 @@
 #include "nusimdata/SimulationBase/MCParticle.h"
 
 #include "ubcc1pi/Helpers/TruthHelper.h"
+#include "ubcc1pi/Helpers/BacktrackHelper.h"
 
 #include <iomanip>
 
@@ -35,6 +36,8 @@ class DebugHelper
         static void Print(const MCParticleVector &particles, const unsigned int depth = 0);
         static void PrintSummary(const MCParticleVector &particles, const unsigned int depth = 0);
         static void Print(const TruthHelper::Interaction &interaction, const unsigned int depth = 0);
+        static void Print(const art::Ptr<recob::PFParticle> &particle, const unsigned int depth = 0);
+        static void Print(const BacktrackHelper::BacktrackerData &data, const unsigned int depth = 0);
         static std::string GetInteractionString(const TruthHelper::Interaction &interaction, const bool brief = false);
     private:
 

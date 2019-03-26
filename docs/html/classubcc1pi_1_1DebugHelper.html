@@ -109,6 +109,8 @@ window.onload = initDynSections;
 <tr><td class="memItemLeft" align="right" valign="top">static void&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classubcc1pi_1_1DebugHelper.html#a627c600829e2ee5fb3f434cb9304d90c">Print</a> (const <a class="el" href="namespaceubcc1pi.html#a42e409a54246ea6acba6d873b8eb696c">MCParticleVector</a> &amp;particles, const unsigned int depth=0)</td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">static void&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classubcc1pi_1_1DebugHelper.html#a76d7fae32f0070e142ef2f97cec8c340">PrintSummary</a> (const <a class="el" href="namespaceubcc1pi.html#a42e409a54246ea6acba6d873b8eb696c">MCParticleVector</a> &amp;particles, const unsigned int depth=0)</td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">static void&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classubcc1pi_1_1DebugHelper.html#a6ae2f5ae273b9bdd0d3d61042995decb">Print</a> (const <a class="el" href="classubcc1pi_1_1TruthHelper_1_1Interaction.html">TruthHelper::Interaction</a> &amp;interaction, const unsigned int depth=0)</td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">static void&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classubcc1pi_1_1DebugHelper.html#a62818ee2d7e084ccc670f48080440637">Print</a> (const art::Ptr&lt; recob::PFParticle &gt; &amp;particle, const unsigned int depth=0)</td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">static void&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classubcc1pi_1_1DebugHelper.html#a1c26ecb744b190bf3fae584f340f53a8">Print</a> (const <a class="el" href="classubcc1pi_1_1BacktrackHelper_1_1BacktrackerData.html">BacktrackHelper::BacktrackerData</a> &amp;data, const unsigned int depth=0)</td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">static std::string&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classubcc1pi_1_1DebugHelper.html#afa3de270caa2516a65cd135df91bc398">GetInteractionString</a> (const <a class="el" href="classubcc1pi_1_1TruthHelper_1_1Interaction.html">TruthHelper::Interaction</a> &amp;interaction, const bool brief=false)</td></tr>
 <tr><td colspan="2"><h2>Static Private Member Functions</h2></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">static void&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classubcc1pi_1_1DebugHelper.html#aabd1b6f052f9414f1879b8af9982adfc">PrintHeader</a> (const std::string &amp;title, const unsigned int depth=0)</td></tr>
@@ -128,7 +130,7 @@ window.onload = initDynSections;
 <hr/><a name="_details"></a><h2>Detailed Description</h2>
 <p>The debug helper class. </p>
 
-<p>Definition at line <a class="el" href="DebugHelper_8h_source.html#l00023">23</a> of file <a class="el" href="DebugHelper_8h_source.html">DebugHelper.h</a>.</p>
+<p>Definition at line <a class="el" href="DebugHelper_8h_source.html#l00024">24</a> of file <a class="el" href="DebugHelper_8h_source.html">DebugHelper.h</a>.</p>
 <hr/><h2>Member Function Documentation</h2>
 <a class="anchor" id="afa3de270caa2516a65cd135df91bc398"></a><!-- doxytag: member="ubcc1pi::DebugHelper::GetInteractionString" ref="afa3de270caa2516a65cd135df91bc398" args="(const TruthHelper::Interaction &amp;interaction, const bool brief=false)" -->
 <div class="memitem">
@@ -156,6 +158,64 @@ window.onload = initDynSections;
 <div class="memdoc">
 
 <p>Definition at line <a class="el" href="DebugHelper_8cxx_source.html#l00077">77</a> of file <a class="el" href="DebugHelper_8cxx_source.html">DebugHelper.cxx</a>.</p>
+
+</div>
+</div>
+<a class="anchor" id="a1c26ecb744b190bf3fae584f340f53a8"></a><!-- doxytag: member="ubcc1pi::DebugHelper::Print" ref="a1c26ecb744b190bf3fae584f340f53a8" args="(const BacktrackHelper::BacktrackerData &amp;data, const unsigned int depth=0)" -->
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void ubcc1pi::DebugHelper::Print </td>
+          <td>(</td>
+          <td class="paramtype">const <a class="el" href="classubcc1pi_1_1BacktrackHelper_1_1BacktrackerData.html">BacktrackHelper::BacktrackerData</a> &amp;&nbsp;</td>
+          <td class="paramname"> <em>data</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const unsigned int&nbsp;</td>
+          <td class="paramname"> <em>depth</em> = <code>0</code></td><td>&nbsp;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td><td><code> [static]</code></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+
+<p>Definition at line <a class="el" href="DebugHelper_8cxx_source.html#l00188">188</a> of file <a class="el" href="DebugHelper_8cxx_source.html">DebugHelper.cxx</a>.</p>
+
+</div>
+</div>
+<a class="anchor" id="a62818ee2d7e084ccc670f48080440637"></a><!-- doxytag: member="ubcc1pi::DebugHelper::Print" ref="a62818ee2d7e084ccc670f48080440637" args="(const art::Ptr&lt; recob::PFParticle &gt; &amp;particle, const unsigned int depth=0)" -->
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void ubcc1pi::DebugHelper::Print </td>
+          <td>(</td>
+          <td class="paramtype">const art::Ptr&lt; recob::PFParticle &gt; &amp;&nbsp;</td>
+          <td class="paramname"> <em>particle</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const unsigned int&nbsp;</td>
+          <td class="paramname"> <em>depth</em> = <code>0</code></td><td>&nbsp;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td><td><code> [static]</code></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+
+<p>Definition at line <a class="el" href="DebugHelper_8cxx_source.html#l00179">179</a> of file <a class="el" href="DebugHelper_8cxx_source.html">DebugHelper.cxx</a>.</p>
 
 </div>
 </div>
@@ -280,7 +340,7 @@ window.onload = initDynSections;
 </div>
 <div class="memdoc">
 
-<p>Definition at line <a class="el" href="DebugHelper_8h_source.html#l00062">62</a> of file <a class="el" href="DebugHelper_8h_source.html">DebugHelper.h</a>.</p>
+<p>Definition at line <a class="el" href="DebugHelper_8h_source.html#l00065">65</a> of file <a class="el" href="DebugHelper_8h_source.html">DebugHelper.h</a>.</p>
 
 </div>
 </div>
@@ -317,7 +377,7 @@ template&lt;typename T &gt; </div>
 </div>
 <div class="memdoc">
 
-<p>Definition at line <a class="el" href="DebugHelper_8h_source.html#l00077">77</a> of file <a class="el" href="DebugHelper_8h_source.html">DebugHelper.h</a>.</p>
+<p>Definition at line <a class="el" href="DebugHelper_8h_source.html#l00080">80</a> of file <a class="el" href="DebugHelper_8h_source.html">DebugHelper.h</a>.</p>
 
 </div>
 </div>
@@ -346,7 +406,7 @@ template&lt;typename T &gt; </div>
 </div>
 <div class="memdoc">
 
-<p>Definition at line <a class="el" href="DebugHelper_8h_source.html#l00069">69</a> of file <a class="el" href="DebugHelper_8h_source.html">DebugHelper.h</a>.</p>
+<p>Definition at line <a class="el" href="DebugHelper_8h_source.html#l00072">72</a> of file <a class="el" href="DebugHelper_8h_source.html">DebugHelper.h</a>.</p>
 
 </div>
 </div>
@@ -393,7 +453,7 @@ template&lt;typename T &gt; </div>
 
 <p>The number of spaces to an indent. </p>
 
-<p>Definition at line <a class="el" href="DebugHelper_8h_source.html#l00047">47</a> of file <a class="el" href="DebugHelper_8h_source.html">DebugHelper.h</a>.</p>
+<p>Definition at line <a class="el" href="DebugHelper_8h_source.html#l00050">50</a> of file <a class="el" href="DebugHelper_8h_source.html">DebugHelper.h</a>.</p>
 
 </div>
 </div>
@@ -410,7 +470,7 @@ template&lt;typename T &gt; </div>
 
 <p>The number of characters to a key. </p>
 
-<p>Definition at line <a class="el" href="DebugHelper_8h_source.html#l00049">49</a> of file <a class="el" href="DebugHelper_8h_source.html">DebugHelper.h</a>.</p>
+<p>Definition at line <a class="el" href="DebugHelper_8h_source.html#l00052">52</a> of file <a class="el" href="DebugHelper_8h_source.html">DebugHelper.h</a>.</p>
 
 </div>
 </div>
@@ -427,7 +487,7 @@ template&lt;typename T &gt; </div>
 
 <p>The character to use for a horizontal rule. </p>
 
-<p>Definition at line <a class="el" href="DebugHelper_8h_source.html#l00050">50</a> of file <a class="el" href="DebugHelper_8h_source.html">DebugHelper.h</a>.</p>
+<p>Definition at line <a class="el" href="DebugHelper_8h_source.html#l00053">53</a> of file <a class="el" href="DebugHelper_8h_source.html">DebugHelper.h</a>.</p>
 
 </div>
 </div>
@@ -444,7 +504,7 @@ template&lt;typename T &gt; </div>
 
 <p>The number of characters in a horizontal rule. </p>
 
-<p>Definition at line <a class="el" href="DebugHelper_8h_source.html#l00048">48</a> of file <a class="el" href="DebugHelper_8h_source.html">DebugHelper.h</a>.</p>
+<p>Definition at line <a class="el" href="DebugHelper_8h_source.html#l00051">51</a> of file <a class="el" href="DebugHelper_8h_source.html">DebugHelper.h</a>.</p>
 
 </div>
 </div>
@@ -470,7 +530,7 @@ template&lt;typename T &gt; </div>
 <hr size="1"/>
 <address style="text-align: right;">
     <small>
-        Generated on Wed Mar 20 12:43:16 2019 for ubcc1pi by <a href="http://www.doxygen.org/index.html" target="_blank">doxygen</a> 1.6.1
+        Generated on Tue Mar 26 16:29:12 2019 for ubcc1pi by <a href="http://www.doxygen.org/index.html" target="_blank">doxygen</a> 1.6.1
     </small>
 </address>
 

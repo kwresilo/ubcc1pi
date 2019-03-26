@@ -270,7 +270,60 @@ window.onload = initDynSections;
 <a name="l00174"></a>00174     <span class="keywordflow">return</span> (nuType + <span class="stringliteral">&quot;, &quot;</span> + ccnc + <span class="stringliteral">&quot;, &quot;</span> + mode);
 <a name="l00175"></a>00175 }
 <a name="l00176"></a>00176 
-<a name="l00177"></a>00177 } <span class="comment">// namespace ubcc1pi</span>
+<a name="l00177"></a>00177 <span class="comment">// -----------------------------------------------------------------------------------------------------------------------------------------</span>
+<a name="l00178"></a>00178 
+<a name="l00179"></a><a class="code" href="classubcc1pi_1_1DebugHelper.html#a62818ee2d7e084ccc670f48080440637">00179</a> <span class="keywordtype">void</span> <a class="code" href="classubcc1pi_1_1DebugHelper.html#a2c4d153bc246d7b98d4ab674f4a9a494" title="Print an MCParticle.">DebugHelper::Print</a>(<span class="keyword">const</span> art::Ptr&lt;recob::PFParticle&gt; &amp;particle, <span class="keyword">const</span> <span class="keywordtype">unsigned</span> <span class="keywordtype">int</span> depth)
+<a name="l00180"></a>00180 {
+<a name="l00181"></a>00181     <a class="code" href="classubcc1pi_1_1DebugHelper.html#aabd1b6f052f9414f1879b8af9982adfc">DebugHelper::PrintHeader</a>(<span class="stringliteral">&quot;PFParticle&quot;</span>, depth);
+<a name="l00182"></a>00182     <a class="code" href="classubcc1pi_1_1DebugHelper.html#a8ce418c62a4eede98d01b1b0177c5b33">DebugHelper::PrintProperty</a>(<span class="stringliteral">&quot;ID&quot;</span>, particle-&gt;Self(), depth);
+<a name="l00183"></a>00183     <a class="code" href="classubcc1pi_1_1DebugHelper.html#a8ce418c62a4eede98d01b1b0177c5b33">DebugHelper::PrintProperty</a>(<span class="stringliteral">&quot;PDG&quot;</span>, particle-&gt;PdgCode(), depth);
+<a name="l00184"></a>00184 }
+<a name="l00185"></a>00185 
+<a name="l00186"></a>00186 <span class="comment">// -----------------------------------------------------------------------------------------------------------------------------------------</span>
+<a name="l00187"></a>00187 
+<a name="l00188"></a><a class="code" href="classubcc1pi_1_1DebugHelper.html#a1c26ecb744b190bf3fae584f340f53a8">00188</a> <span class="keywordtype">void</span> <a class="code" href="classubcc1pi_1_1DebugHelper.html#a2c4d153bc246d7b98d4ab674f4a9a494" title="Print an MCParticle.">DebugHelper::Print</a>(<span class="keyword">const</span> <a class="code" href="classubcc1pi_1_1BacktrackHelper_1_1BacktrackerData.html" title="Class holding backtracking data.">BacktrackHelper::BacktrackerData</a> &amp;<a class="code" href="namespaceplot.html#a89b294f92d2188cfca3f713fd33b081c">data</a>, <span class="keyword">const</span> <span class="keywordtype">unsigned</span> <span class="keywordtype">int</span> depth)
+<a name="l00189"></a>00189 {
+<a name="l00190"></a>00190     <a class="code" href="classubcc1pi_1_1DebugHelper.html#aabd1b6f052f9414f1879b8af9982adfc">DebugHelper::PrintHeader</a>(<span class="stringliteral">&quot;Backtracker data&quot;</span>, depth);
+<a name="l00191"></a>00191 
+<a name="l00192"></a>00192     <a class="code" href="classubcc1pi_1_1DebugHelper.html#aabd1b6f052f9414f1879b8af9982adfc">DebugHelper::PrintHeader</a>(<span class="stringliteral">&quot;PFParticles&quot;</span>, depth);
+<a name="l00193"></a>00193     <span class="keywordflow">for</span> (<span class="keyword">const</span> <span class="keyword">auto</span> &amp;pfParticle : data.<a class="code" href="classubcc1pi_1_1BacktrackHelper_1_1BacktrackerData.html#a6c072195afa69da6d4d8ff6adb41bfed" title="Get the PFParticles.">GetPFParticles</a>())
+<a name="l00194"></a>00194     {
+<a name="l00195"></a>00195         <a class="code" href="classubcc1pi_1_1DebugHelper.html#a2c4d153bc246d7b98d4ab674f4a9a494" title="Print an MCParticle.">DebugHelper::Print</a>(pfParticle, depth + 1);
+<a name="l00196"></a>00196         <a class="code" href="classubcc1pi_1_1DebugHelper.html#a8ce418c62a4eede98d01b1b0177c5b33">DebugHelper::PrintProperty</a>(<span class="stringliteral">&quot;# Hits&quot;</span>, data.<a class="code" href="classubcc1pi_1_1BacktrackHelper_1_1BacktrackerData.html#a0b0a97de0d99588bedd5510be8649a2c" title="Get the number of hits associated with a given PFParticle.">GetNHits</a>(pfParticle), depth + 1);
+<a name="l00197"></a>00197         <a class="code" href="classubcc1pi_1_1DebugHelper.html#a8ce418c62a4eede98d01b1b0177c5b33">DebugHelper::PrintProperty</a>(<span class="stringliteral">&quot;Best matched MCParticle&quot;</span>, depth + 1);
+<a name="l00198"></a>00198 
+<a name="l00199"></a>00199         <span class="keywordflow">try</span>
+<a name="l00200"></a>00200         {
+<a name="l00201"></a>00201             <span class="keyword">const</span> <span class="keyword">auto</span> mcParticle = data.<a class="code" href="classubcc1pi_1_1BacktrackHelper_1_1BacktrackerData.html#a278df2088e0b86a416da69c7f8f8ee97" title="Get the MCParticle with the highest weighted match to the given PFParticle.">GetBestMatchedMCParticle</a>(pfParticle);
+<a name="l00202"></a>00202             <a class="code" href="classubcc1pi_1_1DebugHelper.html#a2c4d153bc246d7b98d4ab674f4a9a494" title="Print an MCParticle.">DebugHelper::Print</a>(mcParticle, depth + 2);
+<a name="l00203"></a>00203             <a class="code" href="classubcc1pi_1_1DebugHelper.html#a8ce418c62a4eede98d01b1b0177c5b33">DebugHelper::PrintProperty</a>(<span class="stringliteral">&quot;Purity&quot;</span>, data.<a class="code" href="classubcc1pi_1_1BacktrackHelper_1_1BacktrackerData.html#a8f5fa5a741e52e1549fb4dd67213de88" title="Get the purity of a given PFParticle-MCParticle pair = shared weight / PFParticle...">GetMatchPurity</a>(pfParticle, mcParticle), depth + 2);
+<a name="l00204"></a>00204             <a class="code" href="classubcc1pi_1_1DebugHelper.html#a8ce418c62a4eede98d01b1b0177c5b33">DebugHelper::PrintProperty</a>(<span class="stringliteral">&quot;Completeness&quot;</span>, data.<a class="code" href="classubcc1pi_1_1BacktrackHelper_1_1BacktrackerData.html#a5d62542a22cb2d0f17795c03ca0b7c6e" title="Get the completeness a given PFParticle-MCParticle pair = shared weight / MCParticle...">GetMatchCompleteness</a>(pfParticle, mcParticle), depth + 2);
+<a name="l00205"></a>00205         }
+<a name="l00206"></a>00206         <span class="keywordflow">catch</span> (<span class="keyword">const</span> cet::exception &amp;)
+<a name="l00207"></a>00207         {
+<a name="l00208"></a>00208         } 
+<a name="l00209"></a>00209     }
+<a name="l00210"></a>00210     
+<a name="l00211"></a>00211     <a class="code" href="classubcc1pi_1_1DebugHelper.html#aabd1b6f052f9414f1879b8af9982adfc">DebugHelper::PrintHeader</a>(<span class="stringliteral">&quot;MCParticles&quot;</span>, depth);
+<a name="l00212"></a>00212     <span class="keywordflow">for</span> (<span class="keyword">const</span> <span class="keyword">auto</span> &amp;mcParticle : data.<a class="code" href="classubcc1pi_1_1BacktrackHelper_1_1BacktrackerData.html#a1a8d273212e2aabcc854cd5ff190b319" title="Get the MCParticles.">GetMCParticles</a>())
+<a name="l00213"></a>00213     {
+<a name="l00214"></a>00214         <a class="code" href="classubcc1pi_1_1DebugHelper.html#a2c4d153bc246d7b98d4ab674f4a9a494" title="Print an MCParticle.">DebugHelper::Print</a>(mcParticle, depth + 1);
+<a name="l00215"></a>00215         <a class="code" href="classubcc1pi_1_1DebugHelper.html#a8ce418c62a4eede98d01b1b0177c5b33">DebugHelper::PrintProperty</a>(<span class="stringliteral">&quot;# Hits (weighted)&quot;</span>, data.<a class="code" href="classubcc1pi_1_1BacktrackHelper_1_1BacktrackerData.html#a5d45b96730887e759cc634de06618048" title="Get the weight associated with a given PFParticle (= the number of hits).">GetWeight</a>(mcParticle), depth + 1);
+<a name="l00216"></a>00216 
+<a name="l00217"></a>00217         <span class="keyword">const</span> <span class="keyword">auto</span> pfParticles = data.<a class="code" href="classubcc1pi_1_1BacktrackHelper_1_1BacktrackerData.html#a5cffbe33dac0dde02fb445a5520c2a8a" title="Get the PFParticles which have the given MCParticle as their strongest match.">GetBestMatchedPFParticles</a>(mcParticle);
+<a name="l00218"></a>00218         <a class="code" href="classubcc1pi_1_1DebugHelper.html#a8ce418c62a4eede98d01b1b0177c5b33">DebugHelper::PrintProperty</a>(<span class="stringliteral">&quot;Best matched PFParticles&quot;</span>, pfParticles.size(), depth + 1);
+<a name="l00219"></a>00219             
+<a name="l00220"></a>00220         <span class="keywordflow">for</span> (<span class="keyword">const</span> <span class="keyword">auto</span> &amp;pfParticle : pfParticles)
+<a name="l00221"></a>00221         {
+<a name="l00222"></a>00222             <a class="code" href="classubcc1pi_1_1DebugHelper.html#a2c4d153bc246d7b98d4ab674f4a9a494" title="Print an MCParticle.">DebugHelper::Print</a>(pfParticle, depth + 2);
+<a name="l00223"></a>00223             <a class="code" href="classubcc1pi_1_1DebugHelper.html#a8ce418c62a4eede98d01b1b0177c5b33">DebugHelper::PrintProperty</a>(<span class="stringliteral">&quot;# Hits&quot;</span>, data.<a class="code" href="classubcc1pi_1_1BacktrackHelper_1_1BacktrackerData.html#a0b0a97de0d99588bedd5510be8649a2c" title="Get the number of hits associated with a given PFParticle.">GetNHits</a>(pfParticle), depth + 2);
+<a name="l00224"></a>00224             <a class="code" href="classubcc1pi_1_1DebugHelper.html#a8ce418c62a4eede98d01b1b0177c5b33">DebugHelper::PrintProperty</a>(<span class="stringliteral">&quot;Purity&quot;</span>, data.<a class="code" href="classubcc1pi_1_1BacktrackHelper_1_1BacktrackerData.html#a8f5fa5a741e52e1549fb4dd67213de88" title="Get the purity of a given PFParticle-MCParticle pair = shared weight / PFParticle...">GetMatchPurity</a>(pfParticle, mcParticle), depth + 2);
+<a name="l00225"></a>00225             <a class="code" href="classubcc1pi_1_1DebugHelper.html#a8ce418c62a4eede98d01b1b0177c5b33">DebugHelper::PrintProperty</a>(<span class="stringliteral">&quot;Completeness&quot;</span>, data.<a class="code" href="classubcc1pi_1_1BacktrackHelper_1_1BacktrackerData.html#a5d62542a22cb2d0f17795c03ca0b7c6e" title="Get the completeness a given PFParticle-MCParticle pair = shared weight / MCParticle...">GetMatchCompleteness</a>(pfParticle, mcParticle), depth + 2);
+<a name="l00226"></a>00226         }
+<a name="l00227"></a>00227     }
+<a name="l00228"></a>00228 }
+<a name="l00229"></a>00229 
+<a name="l00230"></a>00230 } <span class="comment">// namespace ubcc1pi</span>
 </pre></div></div>
 <!--- window showing the filter options -->
 <div id="MSearchSelectWindow"
@@ -289,7 +342,7 @@ window.onload = initDynSections;
 <hr size="1"/>
 <address style="text-align: right;">
     <small>
-        Generated on Wed Mar 20 12:43:16 2019 for ubcc1pi by <a href="http://www.doxygen.org/index.html" target="_blank">doxygen</a> 1.6.1
+        Generated on Tue Mar 26 16:29:12 2019 for ubcc1pi by <a href="http://www.doxygen.org/index.html" target="_blank">doxygen</a> 1.6.1
     </small>
 </address>
 

@@ -1,0 +1,14 @@
+BEGIN_PROLOG
+
+reco_study:
+{
+    module_type: "RecoStudy"
+
+    # Input labels
+    MCTruthLabel:    "generator"
+    MCParticleLabel: "largeant"
+    BacktrackerLabel: "gaushitTruthMatch"
+    PFParticleLabel: "pandora"
+}
+
+END_PROLOG

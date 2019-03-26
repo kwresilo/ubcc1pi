@@ -126,7 +126,7 @@ MCParticleVector TruthHelper::GetDaughters(const art::Ptr<simb::MCParticle> &par
         if (daughterIter == mcParticleMap.end())
         {
             // ATTN this can happen - MCParticles outside of the cryostat are dropped 
-            std::cout << "WARNING - Can't find daughter MCParticle in hierarchy, likely out of cryostat - skipping" << std::endl;
+            // std::cout << "WARNING - Can't find daughter MCParticle in hierarchy, likely out of cryostat - skipping" << std::endl;
             continue;
         }
 
@@ -181,5 +181,26 @@ MCParticleVector TruthHelper::Interaction::GetAllMCParticles() const
 {
     return m_allMCParticles;
 }
+
+// -----------------------------------------------------------------------------------------------------------------------------------------
+
+MCParticleVector TruthHelper::GetDownstreamParticles(const art::Ptr<simb::MCParticle> &particle, const MCParticleMap &mcParticleMap)
+{
+    MCParticleVector downstreamParticles;
+    TruthHelper::GetDownstreamParticles(particle, mcParticleMap, downstreamParticles);
+
+    return downstreamParticles;
+}
+
+// -----------------------------------------------------------------------------------------------------------------------------------------
+
+void TruthHelper::GetDownstreamParticles(const art::Ptr<simb::MCParticle> &particle, const MCParticleMap &mcParticleMap, MCParticleVector &downstreamParticles)
+{
+    downstreamParticles.push_back(particle);
+
+    for (const auto &daughter : TruthHelper::GetDaughters(particle, mcParticleMap))
+        TruthHelper::GetDownstreamParticles(daughter, mcParticleMap, downstreamParticles);
+}
+
 
 } // namespace ubcc1pi

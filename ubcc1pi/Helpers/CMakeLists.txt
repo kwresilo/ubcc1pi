@@ -12,6 +12,8 @@ art_make(
         canvas
         cetlib cetlib_except
         nusimdata_SimulationBase
+        lardataobj_RecoBase
+        lardataobj_AnalysisBase
         art_Framework_Principal
         art_Persistency_Common
     )

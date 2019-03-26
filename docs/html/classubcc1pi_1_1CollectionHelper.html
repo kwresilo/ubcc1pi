@@ -122,11 +122,32 @@ window.onload = initDynSections;
 <tr><td class="memTemplParams" colspan="2">template&lt;typename L , typename R &gt; </td></tr>
 <tr><td class="memTemplItemLeft" align="right" valign="top">static art::Ptr&lt; R &gt;&nbsp;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="classubcc1pi_1_1CollectionHelper.html#aef49ea81264de87954feb660c9d6fbda">GetSingleAssociated</a> (const art::Ptr&lt; L &gt; &amp;objectL, const Association&lt; L, R &gt; &amp;association)</td></tr>
 <tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">Get the single object associated to a given input object.  <a href="#aef49ea81264de87954feb660c9d6fbda"></a><br/></td></tr>
+<tr><td class="memTemplParams" colspan="2">template&lt;typename L , typename R , typename D &gt; </td></tr>
+<tr><td class="memTemplItemLeft" align="right" valign="top">static AssociationData&lt; L, R, D &gt;&nbsp;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="classubcc1pi_1_1CollectionHelper.html#ac3b9b18ed81845b6ee502fd40c56739a">GetAssociationWithData</a> (const art::Event &amp;event, const art::InputTag &amp;collectionLabel, const art::InputTag &amp;associationLabel)</td></tr>
+<tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">Get an association between objects in the desired format from the event with data.  <a href="#ac3b9b18ed81845b6ee502fd40c56739a"></a><br/></td></tr>
+<tr><td class="memTemplParams" colspan="2">template&lt;typename L , typename R , typename D &gt; </td></tr>
+<tr><td class="memTemplItemLeft" align="right" valign="top">static AssociationData&lt; L, R, D &gt;&nbsp;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="classubcc1pi_1_1CollectionHelper.html#a61157e332cecb09e3b76e70c05314171">GetAssociationWithData</a> (const art::Event &amp;event, const art::InputTag &amp;label)</td></tr>
+<tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">Get an association between objects in the desired format from the event with data.  <a href="#a61157e332cecb09e3b76e70c05314171"></a><br/></td></tr>
+<tr><td class="memTemplParams" colspan="2">template&lt;typename L , typename R , typename D &gt; </td></tr>
+<tr><td class="memTemplItemLeft" align="right" valign="top">static AssociationData&lt; R, L, D &gt;&nbsp;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="classubcc1pi_1_1CollectionHelper.html#a98a12563d322ae7cc874bb401cce581e">GetReversedAssociation</a> (const AssociationData&lt; L, R, D &gt; &amp;forwardAssociation)</td></tr>
+<tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">Get the reversed association (R -&gt; L) from in input association (L -&gt; R) with data.  <a href="#a98a12563d322ae7cc874bb401cce581e"></a><br/></td></tr>
+<tr><td class="memTemplParams" colspan="2">template&lt;typename L , typename R , typename D &gt; </td></tr>
+<tr><td class="memTemplItemLeft" align="right" valign="top">static Collection&lt; R &gt;&nbsp;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="classubcc1pi_1_1CollectionHelper.html#a60305ef657a7c91cb8a3f4c1416c35ed">GetManyAssociated</a> (const art::Ptr&lt; L &gt; &amp;objectL, const AssociationData&lt; L, R, D &gt; &amp;association)</td></tr>
+<tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">Get the objects associated to a given input object.  <a href="#a60305ef657a7c91cb8a3f4c1416c35ed"></a><br/></td></tr>
+<tr><td class="memTemplParams" colspan="2">template&lt;typename L , typename R , typename D &gt; </td></tr>
+<tr><td class="memTemplItemLeft" align="right" valign="top">static art::Ptr&lt; R &gt;&nbsp;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="classubcc1pi_1_1CollectionHelper.html#af0289a6c1b171232453ef34f05744367">GetSingleAssociated</a> (const art::Ptr&lt; L &gt; &amp;objectL, const AssociationData&lt; L, R, D &gt; &amp;association)</td></tr>
+<tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">Get the single object associated to a given input object.  <a href="#af0289a6c1b171232453ef34f05744367"></a><br/></td></tr>
+<tr><td class="memTemplParams" colspan="2">template&lt;typename L , typename R , typename D &gt; </td></tr>
+<tr><td class="memTemplItemLeft" align="right" valign="top">static CollectionData&lt; R, D &gt;&nbsp;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="classubcc1pi_1_1CollectionHelper.html#aada59fad3b5a521a03d63b15516882e7">GetManyAssociatedWithData</a> (const art::Ptr&lt; L &gt; &amp;objectL, const AssociationData&lt; L, R, D &gt; &amp;association)</td></tr>
+<tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">Get the objects associated to a given input object with data.  <a href="#aada59fad3b5a521a03d63b15516882e7"></a><br/></td></tr>
+<tr><td class="memTemplParams" colspan="2">template&lt;typename L , typename R , typename D &gt; </td></tr>
+<tr><td class="memTemplItemLeft" align="right" valign="top">static ObjectData&lt; R, D &gt;&nbsp;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="classubcc1pi_1_1CollectionHelper.html#a676ac6dea618e1ab80ede7f9be66ec6d">GetSingleAssociatedWithData</a> (const art::Ptr&lt; L &gt; &amp;objectL, const AssociationData&lt; L, R, D &gt; &amp;association)</td></tr>
+<tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">Get the single object associated to a given input object with data.  <a href="#a676ac6dea618e1ab80ede7f9be66ec6d"></a><br/></td></tr>
 </table>
 <hr/><a name="_details"></a><h2>Detailed Description</h2>
 <p>The collection helper class. </p>
 
-<p>Definition at line <a class="el" href="CollectionHelper_8h_source.html#l00036">36</a> of file <a class="el" href="CollectionHelper_8h_source.html">CollectionHelper.h</a>.</p>
+<p>Definition at line <a class="el" href="CollectionHelper_8h_source.html#l00054">54</a> of file <a class="el" href="CollectionHelper_8h_source.html">CollectionHelper.h</a>.</p>
 <hr/><h2>Member Function Documentation</h2>
 <a class="anchor" id="abcf3a50544771dfd179ae1a4faaee4ff"></a><!-- doxytag: member="ubcc1pi::CollectionHelper::GetAssociation" ref="abcf3a50544771dfd179ae1a4faaee4ff" args="(const art::Event &amp;event, const art::InputTag &amp;label)" -->
 <div class="memitem">
@@ -164,7 +185,7 @@ template&lt;typename L , typename R &gt; </div>
   </dd>
 </dl>
 
-<p>Definition at line <a class="el" href="CollectionHelper_8h_source.html#l00119">119</a> of file <a class="el" href="CollectionHelper_8h_source.html">CollectionHelper.h</a>.</p>
+<p>Definition at line <a class="el" href="CollectionHelper_8h_source.html#l00210">210</a> of file <a class="el" href="CollectionHelper_8h_source.html">CollectionHelper.h</a>.</p>
 
 </div>
 </div>
@@ -211,7 +232,94 @@ template&lt;typename L , typename R &gt; </div>
   </dd>
 </dl>
 
-<p>Definition at line <a class="el" href="CollectionHelper_8h_source.html#l00127">127</a> of file <a class="el" href="CollectionHelper_8h_source.html">CollectionHelper.h</a>.</p>
+<p>Definition at line <a class="el" href="CollectionHelper_8h_source.html#l00218">218</a> of file <a class="el" href="CollectionHelper_8h_source.html">CollectionHelper.h</a>.</p>
+
+</div>
+</div>
+<a class="anchor" id="a61157e332cecb09e3b76e70c05314171"></a><!-- doxytag: member="ubcc1pi::CollectionHelper::GetAssociationWithData" ref="a61157e332cecb09e3b76e70c05314171" args="(const art::Event &amp;event, const art::InputTag &amp;label)" -->
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;typename L , typename R , typename D &gt; </div>
+      <table class="memname">
+        <tr>
+          <td class="memname">AssociationData&lt; L, R, D &gt; ubcc1pi::CollectionHelper::GetAssociationWithData </td>
+          <td>(</td>
+          <td class="paramtype">const art::Event &amp;&nbsp;</td>
+          <td class="paramname"> <em>event</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const art::InputTag &amp;&nbsp;</td>
+          <td class="paramname"> <em>label</em></td><td>&nbsp;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td><td><code> [inline, static]</code></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+
+<p>Get an association between objects in the desired format from the event with data. </p>
+<dl><dt><b>Parameters:</b></dt><dd>
+  <table border="0" cellspacing="2" cellpadding="0">
+    <tr><td valign="top"></td><td valign="top"><em>event</em>&nbsp;</td><td>the art event </td></tr>
+    <tr><td valign="top"></td><td valign="top"><em>label</em>&nbsp;</td><td>the label of the association and collection producer </td></tr>
+  </table>
+  </dd>
+</dl>
+
+<p>Definition at line <a class="el" href="CollectionHelper_8h_source.html#l00282">282</a> of file <a class="el" href="CollectionHelper_8h_source.html">CollectionHelper.h</a>.</p>
+
+</div>
+</div>
+<a class="anchor" id="ac3b9b18ed81845b6ee502fd40c56739a"></a><!-- doxytag: member="ubcc1pi::CollectionHelper::GetAssociationWithData" ref="ac3b9b18ed81845b6ee502fd40c56739a" args="(const art::Event &amp;event, const art::InputTag &amp;collectionLabel, const art::InputTag &amp;associationLabel)" -->
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;typename L , typename R , typename D &gt; </div>
+      <table class="memname">
+        <tr>
+          <td class="memname">AssociationData&lt; L, R, D &gt; ubcc1pi::CollectionHelper::GetAssociationWithData </td>
+          <td>(</td>
+          <td class="paramtype">const art::Event &amp;&nbsp;</td>
+          <td class="paramname"> <em>event</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const art::InputTag &amp;&nbsp;</td>
+          <td class="paramname"> <em>collectionLabel</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const art::InputTag &amp;&nbsp;</td>
+          <td class="paramname"> <em>associationLabel</em></td><td>&nbsp;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td><td><code> [inline, static]</code></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+
+<p>Get an association between objects in the desired format from the event with data. </p>
+<dl><dt><b>Parameters:</b></dt><dd>
+  <table border="0" cellspacing="2" cellpadding="0">
+    <tr><td valign="top"></td><td valign="top"><em>event</em>&nbsp;</td><td>the art event </td></tr>
+    <tr><td valign="top"></td><td valign="top"><em>collectionLabel</em>&nbsp;</td><td>the label of the producer which made the collection of type L </td></tr>
+    <tr><td valign="top"></td><td valign="top"><em>associationLabel</em>&nbsp;</td><td>the label of the association producer </td></tr>
+  </table>
+  </dd>
+</dl>
+
+<p>Definition at line <a class="el" href="CollectionHelper_8h_source.html#l00290">290</a> of file <a class="el" href="CollectionHelper_8h_source.html">CollectionHelper.h</a>.</p>
 
 </div>
 </div>
@@ -251,7 +359,48 @@ template&lt;typename T &gt; </div>
   </dd>
 </dl>
 
-<p>Definition at line <a class="el" href="CollectionHelper_8h_source.html#l00103">103</a> of file <a class="el" href="CollectionHelper_8h_source.html">CollectionHelper.h</a>.</p>
+<p>Definition at line <a class="el" href="CollectionHelper_8h_source.html#l00194">194</a> of file <a class="el" href="CollectionHelper_8h_source.html">CollectionHelper.h</a>.</p>
+
+</div>
+</div>
+<a class="anchor" id="a60305ef657a7c91cb8a3f4c1416c35ed"></a><!-- doxytag: member="ubcc1pi::CollectionHelper::GetManyAssociated" ref="a60305ef657a7c91cb8a3f4c1416c35ed" args="(const art::Ptr&lt; L &gt; &amp;objectL, const AssociationData&lt; L, R, D &gt; &amp;association)" -->
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;typename L , typename R , typename D &gt; </div>
+      <table class="memname">
+        <tr>
+          <td class="memname">Collection&lt; R &gt; ubcc1pi::CollectionHelper::GetManyAssociated </td>
+          <td>(</td>
+          <td class="paramtype">const art::Ptr&lt; L &gt; &amp;&nbsp;</td>
+          <td class="paramname"> <em>objectL</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const AssociationData&lt; L, R, D &gt; &amp;&nbsp;</td>
+          <td class="paramname"> <em>association</em></td><td>&nbsp;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td><td><code> [inline, static]</code></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+
+<p>Get the objects associated to a given input object. </p>
+<dl><dt><b>Parameters:</b></dt><dd>
+  <table border="0" cellspacing="2" cellpadding="0">
+    <tr><td valign="top"></td><td valign="top"><em>objectL</em>&nbsp;</td><td>the input object </td></tr>
+    <tr><td valign="top"></td><td valign="top"><em>association</em>&nbsp;</td><td>the association between objects of type L -&gt; R</td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="return"><dt><b>Returns:</b></dt><dd>the objects of type R associated to the input object </dd></dl>
+
+<p>Definition at line <a class="el" href="CollectionHelper_8h_source.html#l00333">333</a> of file <a class="el" href="CollectionHelper_8h_source.html">CollectionHelper.h</a>.</p>
 
 </div>
 </div>
@@ -292,7 +441,79 @@ template&lt;typename L , typename R &gt; </div>
 </dl>
 <dl class="return"><dt><b>Returns:</b></dt><dd>the objects of type R associated to the input object </dd></dl>
 
-<p>Definition at line <a class="el" href="CollectionHelper_8h_source.html#l00164">164</a> of file <a class="el" href="CollectionHelper_8h_source.html">CollectionHelper.h</a>.</p>
+<p>Definition at line <a class="el" href="CollectionHelper_8h_source.html#l00256">256</a> of file <a class="el" href="CollectionHelper_8h_source.html">CollectionHelper.h</a>.</p>
+
+</div>
+</div>
+<a class="anchor" id="aada59fad3b5a521a03d63b15516882e7"></a><!-- doxytag: member="ubcc1pi::CollectionHelper::GetManyAssociatedWithData" ref="aada59fad3b5a521a03d63b15516882e7" args="(const art::Ptr&lt; L &gt; &amp;objectL, const AssociationData&lt; L, R, D &gt; &amp;association)" -->
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;typename L , typename R , typename D &gt; </div>
+      <table class="memname">
+        <tr>
+          <td class="memname">CollectionData&lt; R, D &gt; ubcc1pi::CollectionHelper::GetManyAssociatedWithData </td>
+          <td>(</td>
+          <td class="paramtype">const art::Ptr&lt; L &gt; &amp;&nbsp;</td>
+          <td class="paramname"> <em>objectL</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const AssociationData&lt; L, R, D &gt; &amp;&nbsp;</td>
+          <td class="paramname"> <em>association</em></td><td>&nbsp;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td><td><code> [inline, static]</code></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+
+<p>Get the objects associated to a given input object with data. </p>
+<dl><dt><b>Parameters:</b></dt><dd>
+  <table border="0" cellspacing="2" cellpadding="0">
+    <tr><td valign="top"></td><td valign="top"><em>objectL</em>&nbsp;</td><td>the input object </td></tr>
+    <tr><td valign="top"></td><td valign="top"><em>association</em>&nbsp;</td><td>the association between objects of type L -&gt; R</td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="return"><dt><b>Returns:</b></dt><dd>the objects of type R associated to the input object </dd></dl>
+
+<p>Definition at line <a class="el" href="CollectionHelper_8h_source.html#l00363">363</a> of file <a class="el" href="CollectionHelper_8h_source.html">CollectionHelper.h</a>.</p>
+
+</div>
+</div>
+<a class="anchor" id="a98a12563d322ae7cc874bb401cce581e"></a><!-- doxytag: member="ubcc1pi::CollectionHelper::GetReversedAssociation" ref="a98a12563d322ae7cc874bb401cce581e" args="(const AssociationData&lt; L, R, D &gt; &amp;forwardAssociation)" -->
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;typename L , typename R , typename D &gt; </div>
+      <table class="memname">
+        <tr>
+          <td class="memname">AssociationData&lt; R, L, D &gt; ubcc1pi::CollectionHelper::GetReversedAssociation </td>
+          <td>(</td>
+          <td class="paramtype">const AssociationData&lt; L, R, D &gt; &amp;&nbsp;</td>
+          <td class="paramname"> <em>forwardAssociation</em></td>
+          <td>&nbsp;)&nbsp;</td>
+          <td><code> [inline, static]</code></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+
+<p>Get the reversed association (R -&gt; L) from in input association (L -&gt; R) with data. </p>
+<dl><dt><b>Parameters:</b></dt><dd>
+  <table border="0" cellspacing="2" cellpadding="0">
+    <tr><td valign="top"></td><td valign="top"><em>forwardAssociation</em>&nbsp;</td><td>the forward L -&gt; R association</td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="return"><dt><b>Returns:</b></dt><dd>the reversed association R -&gt; L </dd></dl>
+
+<p>Definition at line <a class="el" href="CollectionHelper_8h_source.html#l00317">317</a> of file <a class="el" href="CollectionHelper_8h_source.html">CollectionHelper.h</a>.</p>
 
 </div>
 </div>
@@ -323,7 +544,48 @@ template&lt;typename L , typename R &gt; </div>
 </dl>
 <dl class="return"><dt><b>Returns:</b></dt><dd>the reversed association R -&gt; L </dd></dl>
 
-<p>Definition at line <a class="el" href="CollectionHelper_8h_source.html#l00148">148</a> of file <a class="el" href="CollectionHelper_8h_source.html">CollectionHelper.h</a>.</p>
+<p>Definition at line <a class="el" href="CollectionHelper_8h_source.html#l00239">239</a> of file <a class="el" href="CollectionHelper_8h_source.html">CollectionHelper.h</a>.</p>
+
+</div>
+</div>
+<a class="anchor" id="af0289a6c1b171232453ef34f05744367"></a><!-- doxytag: member="ubcc1pi::CollectionHelper::GetSingleAssociated" ref="af0289a6c1b171232453ef34f05744367" args="(const art::Ptr&lt; L &gt; &amp;objectL, const AssociationData&lt; L, R, D &gt; &amp;association)" -->
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;typename L , typename R , typename D &gt; </div>
+      <table class="memname">
+        <tr>
+          <td class="memname">art::Ptr&lt; R &gt; ubcc1pi::CollectionHelper::GetSingleAssociated </td>
+          <td>(</td>
+          <td class="paramtype">const art::Ptr&lt; L &gt; &amp;&nbsp;</td>
+          <td class="paramname"> <em>objectL</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const AssociationData&lt; L, R, D &gt; &amp;&nbsp;</td>
+          <td class="paramname"> <em>association</em></td><td>&nbsp;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td><td><code> [inline, static]</code></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+
+<p>Get the single object associated to a given input object. </p>
+<dl><dt><b>Parameters:</b></dt><dd>
+  <table border="0" cellspacing="2" cellpadding="0">
+    <tr><td valign="top"></td><td valign="top"><em>objectL</em>&nbsp;</td><td>the input object </td></tr>
+    <tr><td valign="top"></td><td valign="top"><em>association</em>&nbsp;</td><td>the association between objects of type L -&gt; R</td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="return"><dt><b>Returns:</b></dt><dd>the object of type R associated to the input object </dd></dl>
+
+<p>Definition at line <a class="el" href="CollectionHelper_8h_source.html#l00350">350</a> of file <a class="el" href="CollectionHelper_8h_source.html">CollectionHelper.h</a>.</p>
 
 </div>
 </div>
@@ -364,7 +626,48 @@ template&lt;typename L , typename R &gt; </div>
 </dl>
 <dl class="return"><dt><b>Returns:</b></dt><dd>the object of type R associated to the input object </dd></dl>
 
-<p>Definition at line <a class="el" href="CollectionHelper_8h_source.html#l00177">177</a> of file <a class="el" href="CollectionHelper_8h_source.html">CollectionHelper.h</a>.</p>
+<p>Definition at line <a class="el" href="CollectionHelper_8h_source.html#l00269">269</a> of file <a class="el" href="CollectionHelper_8h_source.html">CollectionHelper.h</a>.</p>
+
+</div>
+</div>
+<a class="anchor" id="a676ac6dea618e1ab80ede7f9be66ec6d"></a><!-- doxytag: member="ubcc1pi::CollectionHelper::GetSingleAssociatedWithData" ref="a676ac6dea618e1ab80ede7f9be66ec6d" args="(const art::Ptr&lt; L &gt; &amp;objectL, const AssociationData&lt; L, R, D &gt; &amp;association)" -->
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;typename L , typename R , typename D &gt; </div>
+      <table class="memname">
+        <tr>
+          <td class="memname">ObjectData&lt; R, D &gt; ubcc1pi::CollectionHelper::GetSingleAssociatedWithData </td>
+          <td>(</td>
+          <td class="paramtype">const art::Ptr&lt; L &gt; &amp;&nbsp;</td>
+          <td class="paramname"> <em>objectL</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const AssociationData&lt; L, R, D &gt; &amp;&nbsp;</td>
+          <td class="paramname"> <em>association</em></td><td>&nbsp;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td><td><code> [inline, static]</code></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+
+<p>Get the single object associated to a given input object with data. </p>
+<dl><dt><b>Parameters:</b></dt><dd>
+  <table border="0" cellspacing="2" cellpadding="0">
+    <tr><td valign="top"></td><td valign="top"><em>objectL</em>&nbsp;</td><td>the input object </td></tr>
+    <tr><td valign="top"></td><td valign="top"><em>association</em>&nbsp;</td><td>the association between objects of type L -&gt; R</td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="return"><dt><b>Returns:</b></dt><dd>the object of type R associated to the input object </dd></dl>
+
+<p>Definition at line <a class="el" href="CollectionHelper_8h_source.html#l00376">376</a> of file <a class="el" href="CollectionHelper_8h_source.html">CollectionHelper.h</a>.</p>
 
 </div>
 </div>
@@ -389,7 +692,7 @@ template&lt;typename L , typename R &gt; </div>
 <hr size="1"/>
 <address style="text-align: right;">
     <small>
-        Generated on Wed Mar 20 12:43:16 2019 for ubcc1pi by <a href="http://www.doxygen.org/index.html" target="_blank">doxygen</a> 1.6.1
+        Generated on Tue Mar 26 16:29:12 2019 for ubcc1pi by <a href="http://www.doxygen.org/index.html" target="_blank">doxygen</a> 1.6.1
     </small>
 </address>
 

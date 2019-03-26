@@ -204,4 +204,20 @@ unsigned int AnalysisHelper::CountParticlesWithPDG(const MCParticleVector &parti
     return count;
 }
 
+// -----------------------------------------------------------------------------------------------------------------------------------------
+
+BacktrackHelper::BacktrackerData AnalysisHelper::GetBacktrackerData(const art::Event &event, const art::InputTag &mcTruthLabel, const art::InputTag &mcParticleLabel, const art::InputTag &backtrackerLabel, const art::InputTag &pfParticleLabel)
+{
+    const TruthHelper::Interaction interaction(event, mcTruthLabel, mcParticleLabel);
+    const auto allPFParticles = CollectionHelper::GetCollection<recob::PFParticle>(event, pfParticleLabel);
+
+    const auto finalStatePFParticles = RecoHelper::GetNeutrinoFinalStates(allPFParticles);
+    const auto finalStateMCParticles = AnalysisHelper::GetReconstructableFinalStates(interaction);
+
+    const auto hitsToPfps = BacktrackHelper::GetHitToPFParticleMap(event, pfParticleLabel, finalStatePFParticles);
+    const auto hitsToMcps = BacktrackHelper::GetHitToMCParticleWeightMap(event, mcParticleLabel, backtrackerLabel, finalStateMCParticles);
+
+    return BacktrackHelper::BacktrackerData(finalStatePFParticles, finalStateMCParticles, hitsToPfps, hitsToMcps);
+}
+
 } // namespace ubcc1pi

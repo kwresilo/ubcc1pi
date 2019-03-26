@@ -11,6 +11,8 @@
 
 #include "ubcc1pi/Helpers/CollectionHelper.h"
 #include "ubcc1pi/Helpers/TruthHelper.h"
+#include "ubcc1pi/Helpers/RecoHelper.h"
+#include "ubcc1pi/Helpers/BacktrackHelper.h"
 
 namespace ubcc1pi
 {
@@ -51,6 +53,7 @@ class AnalysisHelper
         static bool IsNeutrinoVertexFiducial(const TruthHelper::Interaction &interaction);
         static bool IsCC1PiSignal(const TruthHelper::Interaction &interaction);
         static unsigned int CountParticlesWithPDG(const MCParticleVector &particles, const int pdg);
+        static BacktrackHelper::BacktrackerData GetBacktrackerData(const art::Event &event, const art::InputTag &mcTruthLabel, const art::InputTag &mcParticleLabel, const art::InputTag &backtrackerLabel, const art::InputTag &pfParticleLabel);
 
     private:
         /**

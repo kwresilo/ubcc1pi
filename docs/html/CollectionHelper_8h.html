@@ -101,9 +101,13 @@ window.onload = initDynSections;
 <code>#include &quot;canvas/Utilities/InputTag.h&quot;</code><br/>
 <code>#include &quot;canvas/Persistency/Common/FindManyP.h&quot;</code><br/>
 <code>#include &lt;vector&gt;</code><br/>
-<code>#include &lt;map&gt;</code><br/>
+<code>#include &lt;unordered_map&gt;</code><br/>
 <code>#include &quot;nusimdata/SimulationBase/MCTruth.h&quot;</code><br/>
 <code>#include &quot;nusimdata/SimulationBase/MCParticle.h&quot;</code><br/>
+<code>#include &quot;lardataobj/RecoBase/Hit.h&quot;</code><br/>
+<code>#include &quot;lardataobj/RecoBase/PFParticle.h&quot;</code><br/>
+<code>#include &quot;lardataobj/RecoBase/Cluster.h&quot;</code><br/>
+<code>#include &quot;lardataobj/AnalysisBase/BackTrackerMatchingData.h&quot;</code><br/>
 
 <p><a href="CollectionHelper_8h_source.html">Go to the source code of this file.</a></p>
 <table border="0" cellpadding="0" cellspacing="0">
@@ -119,6 +123,15 @@ window.onload = initDynSections;
 <tr><td colspan="2"><h2>Typedefs</h2></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">typedef Collection<br class="typebreak"/>
 &lt; simb::MCParticle &gt;&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceubcc1pi.html#a42e409a54246ea6acba6d873b8eb696c">ubcc1pi::MCParticleVector</a></td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">typedef Collection<br class="typebreak"/>
+&lt; recob::PFParticle &gt;&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceubcc1pi.html#a6f66dc13c5a55147db5c84db67f6062b">ubcc1pi::PFParticleVector</a></td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">typedef Collection&lt; recob::Hit &gt;&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceubcc1pi.html#aad18bb5924d1ff428402c8af4b72f1c0">ubcc1pi::HitVector</a></td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">typedef Association<br class="typebreak"/>
+&lt; recob::Hit, <br class="typebreak"/>
+recob::PFParticle &gt;&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceubcc1pi.html#a679f75d7e515d88fd2b37057e0d681bb">ubcc1pi::HitsToPFParticles</a></td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">typedef AssociationData<br class="typebreak"/>
+&lt; recob::Hit, simb::MCParticle, <br class="typebreak"/>
+float &gt;&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceubcc1pi.html#a9c8db99d0f284acb6b95013a2527c00d">ubcc1pi::HitsToMCParticleWeights</a></td></tr>
 </table>
 <hr/><a name="_details"></a><h2>Detailed Description</h2>
 <p>The header file for the collection helper class. </p>
@@ -142,7 +155,7 @@ window.onload = initDynSections;
 <hr size="1"/>
 <address style="text-align: right;">
     <small>
-        Generated on Wed Mar 20 12:43:16 2019 for ubcc1pi by <a href="http://www.doxygen.org/index.html" target="_blank">doxygen</a> 1.6.1
+        Generated on Tue Mar 26 16:29:12 2019 for ubcc1pi by <a href="http://www.doxygen.org/index.html" target="_blank">doxygen</a> 1.6.1
     </small>
 </address>
 

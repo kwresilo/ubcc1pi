@@ -174,4 +174,57 @@ std::string DebugHelper::GetInteractionString(const TruthHelper::Interaction &in
     return (nuType + ", " + ccnc + ", " + mode);
 }
 
+// -----------------------------------------------------------------------------------------------------------------------------------------
+
+void DebugHelper::Print(const art::Ptr<recob::PFParticle> &particle, const unsigned int depth)
+{
+    DebugHelper::PrintHeader("PFParticle", depth);
+    DebugHelper::PrintProperty("ID", particle->Self(), depth);
+    DebugHelper::PrintProperty("PDG", particle->PdgCode(), depth);
+}
+
+// -----------------------------------------------------------------------------------------------------------------------------------------
+
+void DebugHelper::Print(const BacktrackHelper::BacktrackerData &data, const unsigned int depth)
+{
+    DebugHelper::PrintHeader("Backtracker data", depth);
+
+    DebugHelper::PrintHeader("PFParticles", depth);
+    for (const auto &pfParticle : data.GetPFParticles())
+    {
+        DebugHelper::Print(pfParticle, depth + 1);
+        DebugHelper::PrintProperty("# Hits", data.GetNHits(pfParticle), depth + 1);
+        DebugHelper::PrintProperty("Best matched MCParticle", depth + 1);
+
+        try
+        {
+            const auto mcParticle = data.GetBestMatchedMCParticle(pfParticle);
+            DebugHelper::Print(mcParticle, depth + 2);
+            DebugHelper::PrintProperty("Purity", data.GetMatchPurity(pfParticle, mcParticle), depth + 2);
+            DebugHelper::PrintProperty("Completeness", data.GetMatchCompleteness(pfParticle, mcParticle), depth + 2);
+        }
+        catch (const cet::exception &)
+        {
+        } 
+    }
+    
+    DebugHelper::PrintHeader("MCParticles", depth);
+    for (const auto &mcParticle : data.GetMCParticles())
+    {
+        DebugHelper::Print(mcParticle, depth + 1);
+        DebugHelper::PrintProperty("# Hits (weighted)", data.GetWeight(mcParticle), depth + 1);
+
+        const auto pfParticles = data.GetBestMatchedPFParticles(mcParticle);
+        DebugHelper::PrintProperty("Best matched PFParticles", pfParticles.size(), depth + 1);
+            
+        for (const auto &pfParticle : pfParticles)
+        {
+            DebugHelper::Print(pfParticle, depth + 2);
+            DebugHelper::PrintProperty("# Hits", data.GetNHits(pfParticle), depth + 2);
+            DebugHelper::PrintProperty("Purity", data.GetMatchPurity(pfParticle, mcParticle), depth + 2);
+            DebugHelper::PrintProperty("Completeness", data.GetMatchCompleteness(pfParticle, mcParticle), depth + 2);
+        }
+    }
+}
+
 } // namespace ubcc1pi
