@@ -13,7 +13,7 @@ def GetOpeningAngle(x1, y1, z1, x2, y2, z2):
     return np.arccos(((x1 * x2) + (y1 * y2) + (z1 * z2)) / (GetMag(x1, y1, z1) * GetMag(x2, y2, z2)))
 
 # Open the file
-file_name = 'truthStudy.root'
+file_name = 'ubcc1pi.root'
 file = uproot.open(file_name)
 
 # Get the trees

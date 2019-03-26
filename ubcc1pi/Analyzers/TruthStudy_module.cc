@@ -87,6 +87,9 @@ void TruthStudy::analyze(const art::Event &event)
     m_interactionOutput.m_nPhoton = AnalysisHelper::CountParticlesWithPDG(particles, 22);
     m_interactionOutput.m_nTotal = particles.size();
     
+    m_pInteractionTree->Fill();
+    
+    DebugHelper::Print(interaction);
 
     // Only fill the signal tree if this is a signal event!
     if (!AnalysisHelper::IsCC1PiSignal(interaction))
@@ -118,11 +121,8 @@ void TruthStudy::analyze(const art::Event &event)
     m_signalOutput.m_piMomY = piMom.Y();
     m_signalOutput.m_piMomZ = piMom.Z();
     
-    DebugHelper::Print(interaction);
-   
     // Fill the trees
     m_pSignalTree->Fill();
-    m_pInteractionTree->Fill();
 }
 
 } // namespace ubcc1pi
