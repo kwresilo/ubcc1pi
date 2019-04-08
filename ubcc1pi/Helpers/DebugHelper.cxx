@@ -227,4 +227,45 @@ void DebugHelper::Print(const BacktrackHelper::BacktrackerData &data, const unsi
     }
 }
 
+// -----------------------------------------------------------------------------------------------------------------------------------------
+
+void DebugHelper::Print(const BacktrackHelper::SliceMetadata &sliceMetadata, const unsigned int depth)
+{
+    const auto slices = sliceMetadata.GetSlices();
+    const auto totalNuHits = sliceMetadata.GetTotalNumberOfNuInducedHits();
+    const auto selectedSlices = sliceMetadata.GetSelectedNeutrinoSlices();
+
+    DebugHelper::PrintHeader("Slice metadata", depth);
+    DebugHelper::PrintProperty("# Slices", slices.size(), depth);
+    DebugHelper::PrintProperty("# Slices selected", selectedSlices.size(), depth);
+    DebugHelper::PrintProperty("# Total neutrino hits", totalNuHits, depth);
+
+    art::Ptr<recob::Slice> mostCompleteSlice;
+    if (totalNuHits > 0)
+    {
+        mostCompleteSlice = sliceMetadata.GetMostCompleteSlice();
+        DebugHelper::PrintProperty("Most complete slice selected?", sliceMetadata.IsMostCompleteSliceSelected(), depth);
+    }
+
+    for (const auto &slice : slices)
+    {
+        DebugHelper::PrintHeader("Slice", depth + 1);
+
+        const auto nHits = sliceMetadata.GetNumberOfHits(slice);
+        DebugHelper::PrintProperty("# Hits", nHits, depth + 1);
+
+        if (nHits > 0)
+            DebugHelper::PrintProperty("Purity", sliceMetadata.GetPurity(slice), depth + 1);
+
+        if (totalNuHits > 0)
+        {
+            DebugHelper::PrintProperty("Completeness", sliceMetadata.GetCompleteness(slice), depth + 1);
+            DebugHelper::PrintProperty("Most complete?", slice == mostCompleteSlice, depth + 1);
+        }
+
+        const auto isSelected = (std::find(selectedSlices.begin(), selectedSlices.end(), slice) != selectedSlices.end());
+        DebugHelper::PrintProperty("Is selected as nu?", isSelected, depth + 1);
+    }
+}
+
 } // namespace ubcc1pi

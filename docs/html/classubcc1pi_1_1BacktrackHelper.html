@@ -106,11 +106,15 @@ window.onload = initDynSections;
 <tr><td colspan="2"><h2>Classes</h2></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">class &nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classubcc1pi_1_1BacktrackHelper_1_1BacktrackerData.html">BacktrackerData</a></td></tr>
 <tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">Class holding backtracking data.  <a href="classubcc1pi_1_1BacktrackHelper_1_1BacktrackerData.html#_details">More...</a><br/></td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">class &nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classubcc1pi_1_1BacktrackHelper_1_1SliceMetadata.html">SliceMetadata</a></td></tr>
+<tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">Class holding the backtracking details of the slices.  <a href="classubcc1pi_1_1BacktrackHelper_1_1SliceMetadata.html#_details">More...</a><br/></td></tr>
 <tr><td colspan="2"><h2>Static Public Member Functions</h2></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">static <a class="el" href="namespaceubcc1pi.html#a679f75d7e515d88fd2b37057e0d681bb">HitsToPFParticles</a>&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classubcc1pi_1_1BacktrackHelper.html#abef0133f03eeb918ffc6960815f727ee">GetHitToPFParticleMap</a> (const art::Event &amp;event, const art::InputTag &amp;pfParticleLabel, const <a class="el" href="namespaceubcc1pi.html#a6f66dc13c5a55147db5c84db67f6062b">PFParticleVector</a> &amp;finalStates)</td></tr>
 <tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">Get the mapping from neutrino final state PFParticles to hits, folding in all downstream PFParticles.  <a href="#abef0133f03eeb918ffc6960815f727ee"></a><br/></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">static <a class="el" href="namespaceubcc1pi.html#a9c8db99d0f284acb6b95013a2527c00d">HitsToMCParticleWeights</a>&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classubcc1pi_1_1BacktrackHelper.html#af267328d4f76279b5ab7225f86067059">GetHitToMCParticleWeightMap</a> (const art::Event &amp;event, const art::InputTag &amp;mcParticleLabel, const art::InputTag &amp;backtrackerLabel, const <a class="el" href="namespaceubcc1pi.html#a42e409a54246ea6acba6d873b8eb696c">MCParticleVector</a> &amp;finalStates)</td></tr>
 <tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">Get the mapping from neutrino final state MCParticles to hits, folding in all downstream particles.  <a href="#af267328d4f76279b5ab7225f86067059"></a><br/></td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">static <a class="el" href="namespaceubcc1pi.html#a8ce7e6a90e2e4a858a72ad75073a3f7e">HitsToBool</a>&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classubcc1pi_1_1BacktrackHelper.html#a3205636d4c461b7f245ecf895cba020e">GetHitsToIsNuInducedMap</a> (const art::Event &amp;event, const art::InputTag &amp;hitLabel, const art::InputTag &amp;mcParticleLabel, const art::InputTag &amp;backtrackerLabel, const <a class="el" href="namespaceubcc1pi.html#a42e409a54246ea6acba6d873b8eb696c">MCParticleVector</a> &amp;nuMCParticles)</td></tr>
+<tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">Get the mapping from all hits, to whether the hit is induced (at least in part) by a neutrino induced MCParticle.  <a href="#a3205636d4c461b7f245ecf895cba020e"></a><br/></td></tr>
 </table>
 <hr/><a name="_details"></a><h2>Detailed Description</h2>
 <p>The backtrack helper class. </p>
@@ -118,6 +122,65 @@ window.onload = initDynSections;
 
 <p>Definition at line <a class="el" href="BacktrackHelper_8h_source.html#l00023">23</a> of file <a class="el" href="BacktrackHelper_8h_source.html">BacktrackHelper.h</a>.</p>
 <hr/><h2>Member Function Documentation</h2>
+<a class="anchor" id="a3205636d4c461b7f245ecf895cba020e"></a><!-- doxytag: member="ubcc1pi::BacktrackHelper::GetHitsToIsNuInducedMap" ref="a3205636d4c461b7f245ecf895cba020e" args="(const art::Event &amp;event, const art::InputTag &amp;hitLabel, const art::InputTag &amp;mcParticleLabel, const art::InputTag &amp;backtrackerLabel, const MCParticleVector &amp;nuMCParticles)" -->
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="namespaceubcc1pi.html#a8ce7e6a90e2e4a858a72ad75073a3f7e">HitsToBool</a> ubcc1pi::BacktrackHelper::GetHitsToIsNuInducedMap </td>
+          <td>(</td>
+          <td class="paramtype">const art::Event &amp;&nbsp;</td>
+          <td class="paramname"> <em>event</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const art::InputTag &amp;&nbsp;</td>
+          <td class="paramname"> <em>hitLabel</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const art::InputTag &amp;&nbsp;</td>
+          <td class="paramname"> <em>mcParticleLabel</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const art::InputTag &amp;&nbsp;</td>
+          <td class="paramname"> <em>backtrackerLabel</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const <a class="el" href="namespaceubcc1pi.html#a42e409a54246ea6acba6d873b8eb696c">MCParticleVector</a> &amp;&nbsp;</td>
+          <td class="paramname"> <em>nuMCParticles</em></td><td>&nbsp;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td><td><code> [static]</code></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+
+<p>Get the mapping from all hits, to whether the hit is induced (at least in part) by a neutrino induced MCParticle. </p>
+<dl><dt><b>Parameters:</b></dt><dd>
+  <table border="0" cellspacing="2" cellpadding="0">
+    <tr><td valign="top"></td><td valign="top"><em>event</em>&nbsp;</td><td>the art event </td></tr>
+    <tr><td valign="top"></td><td valign="top"><em>hitLabel</em>&nbsp;</td><td>the Hit producer label </td></tr>
+    <tr><td valign="top"></td><td valign="top"><em>mcParticleLabel</em>&nbsp;</td><td>the MCParticle producer label </td></tr>
+    <tr><td valign="top"></td><td valign="top"><em>backtrackerLabel</em>&nbsp;</td><td>the MCParticle to hit producer label </td></tr>
+    <tr><td valign="top"></td><td valign="top"><em>nuMCParticles</em>&nbsp;</td><td>the input vector of neutrino induced MCParticles </td></tr>
+  </table>
+  </dd>
+</dl>
+
+<p>Definition at line <a class="el" href="BacktrackHelper_8cxx_source.html#l00088">88</a> of file <a class="el" href="BacktrackHelper_8cxx_source.html">BacktrackHelper.cxx</a>.</p>
+
+</div>
+</div>
 <a class="anchor" id="af267328d4f76279b5ab7225f86067059"></a><!-- doxytag: member="ubcc1pi::BacktrackHelper::GetHitToMCParticleWeightMap" ref="af267328d4f76279b5ab7225f86067059" args="(const art::Event &amp;event, const art::InputTag &amp;mcParticleLabel, const art::InputTag &amp;backtrackerLabel, const MCParticleVector &amp;finalStates)" -->
 <div class="memitem">
 <div class="memproto">
@@ -237,7 +300,7 @@ window.onload = initDynSections;
 <hr size="1"/>
 <address style="text-align: right;">
     <small>
-        Generated on Tue Mar 26 16:35:05 2019 for ubcc1pi by <a href="http://www.doxygen.org/index.html" target="_blank">doxygen</a> 1.6.1
+        Generated on Mon Apr 8 11:11:36 2019 for ubcc1pi by <a href="http://www.doxygen.org/index.html" target="_blank">doxygen</a> 1.6.1
     </small>
 </address>
 

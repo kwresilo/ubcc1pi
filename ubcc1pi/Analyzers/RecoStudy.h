@@ -54,6 +54,18 @@ class RecoStudy : public art::EDAnalyzer
                 fhicl::Name("PFParticleLabel"),
                 fhicl::Comment("The label for the PFParticle producer (Pandora)")
             };
+            
+            fhicl::Atom<art::InputTag> SliceLabel
+            {
+                fhicl::Name("SliceLabel"),
+                fhicl::Comment("The label for the Slice producer (Pandora)")
+            };
+            
+            fhicl::Atom<art::InputTag> HitLabel
+            {
+                fhicl::Name("HitLabel"),
+                fhicl::Comment("The label for the Hit producer")
+            };
         };
         
         /**
@@ -73,6 +85,13 @@ class RecoStudy : public art::EDAnalyzer
             int          m_nProtons;       ///< The number of target proton MCParticle
             int          m_nPFPs;          ///< The number of PFParticles
 
+            // Slice details
+            int          m_nNuHitsTotal;              ///< The total number of neutrino induced hits in the whole event
+            bool         m_hasChosenSlice;            ///< If a slice was identified as the neutrino
+            float        m_chosenSlicePurity;         ///< The purity of the chosen neutrino slice
+            float        m_chosenSliceCompleteness;   ///< The completeness of the chosen neutrino slice
+            bool         m_isChosenSliceMostComplete; ///< If the chosen slice is the most complete in the event
+
             // Match details
             int          m_nMuMatches;          ///< The number of PFParticles matched to the muon MCParticle
             int          m_nPiMatches;          ///< The number of PFParticles matched to the pion MCParticle
@@ -87,16 +106,21 @@ class RecoStudy : public art::EDAnalyzer
         struct OutputParticle
         {
             // Event metadata
-            int          m_run;                   ///< The run number
-            int          m_subRun;                ///< The subrun number
-            int          m_event;                 ///< The event number
-            int          m_nUnmatchedPFPsInEvent; ///< The number of unmatched neutrino induced PFParticles in the event
-            int          m_nPFPsInEvent;          ///< The number of neutrino induced PFParticles in the event
+            int          m_run;                       ///< The run number
+            int          m_subRun;                    ///< The subrun number
+            int          m_event;                     ///< The event number
+            int          m_nUnmatchedPFPsInEvent;     ///< The number of unmatched neutrino induced PFParticles in the event
+            int          m_nPFPsInEvent;              ///< The number of neutrino induced PFParticles in the event
+            bool         m_eventHasChosenSlice;       ///< If a slice was identified as the neutrino
+            float        m_chosenSlicePurity;         ///< The purity of the chosen neutrino slice
+            float        m_chosenSliceCompleteness;   ///< The completeness of the chosen neutrino slice
+            bool         m_isChosenSliceMostComplete; ///< If the chosen slice is the most complete in the event
                                             
             // True Particle details             
             int          m_pdgCode;               ///< The particle PDG code
             float        m_momentum;              ///< The particle momentum
-            float        m_mcHitWeight;           ///< The weighted number of hits associated to the MCParticle
+            float        m_mcHitWeight;           ///< The total weighted number of hits associated to the MCParticle
+            float        m_mcHitWeightFromSlice;  ///< The total weighted number of hits associated to the MCParticle that are in the chosen slice
 
             // Match details
             int          m_nMatches;              ///< The number of PFParticles matches

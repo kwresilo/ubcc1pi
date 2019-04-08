@@ -64,7 +64,18 @@ HitsToMCParticleWeights BacktrackHelper::GetHitToMCParticleWeightMap(const art::
 
             for (const auto &entry : hits)
             {
-                outputMap[entry.first].emplace_back(finalState, entry.second.ideFraction);
+                const auto weight = entry.second.ideFraction;
+
+                auto &mcParticleWeightVector = outputMap[entry.first];
+                auto iter = std::find_if(mcParticleWeightVector.begin(), mcParticleWeightVector.end(), [&](const auto &x){return x.first == finalState;});
+
+                if (iter == mcParticleWeightVector.end())
+                {
+                    mcParticleWeightVector.emplace_back(finalState, weight);
+                    continue;
+                }
+
+                iter->second += weight;
             }
         }
     }
@@ -74,12 +85,54 @@ HitsToMCParticleWeights BacktrackHelper::GetHitToMCParticleWeightMap(const art::
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
 
+HitsToBool BacktrackHelper::GetHitsToIsNuInducedMap(const art::Event &event, const art::InputTag &hitLabel, const art::InputTag &mcParticleLabel, const art::InputTag &backtrackerLabel, const MCParticleVector &nuMCParticles)
+{
+    const auto hits = CollectionHelper::GetCollection<recob::Hit>(event, hitLabel);
+    const auto mcpToHitMap = CollectionHelper::GetAssociation<simb::MCParticle, recob::Hit>(event, mcParticleLabel, backtrackerLabel);
+    const auto hitToMcpMap = CollectionHelper::GetReversedAssociation(mcpToHitMap);
+    
+    HitsToBool outputMap;
+
+    for (const auto &hit : hits)
+    {
+        // Start by assuming that the hit isn't neutrino induced, and change this later if required
+        if (!outputMap.emplace(hit, false).second)
+            throw cet::exception("BacktrackHelper::GetHitsToIsNuInducedMap") << " - Repeated input hits." << std::endl;
+
+        // Check the hit is associated to an MCParticle
+        const auto iter = hitToMcpMap.find(hit);
+        if (iter == hitToMcpMap.end())
+            continue;
+
+        // Check the hit is associated to a neutrino induced MCParticle
+        bool isNuInduced = false;
+        for (const auto &mcParticle : iter->second)
+        {
+            if (std::find(nuMCParticles.begin(), nuMCParticles.end(), mcParticle) != nuMCParticles.end())
+            {
+                isNuInduced = true;
+                break;
+            }
+        }
+
+        if (isNuInduced)
+            outputMap.at(hit) = true;
+    }
+
+    return outputMap;
+}
+
+// -----------------------------------------------------------------------------------------------------------------------------------------
+
 BacktrackHelper::BacktrackerData::BacktrackerData(const PFParticleVector &pfParticles, const MCParticleVector &mcParticles, const HitsToPFParticles &hitsToPfps, const HitsToMCParticleWeights &hitsToMcps) :
     m_mcParticles(mcParticles),
-    m_pfParticles(pfParticles)
+    m_pfParticles(pfParticles),
+    m_hitsToMcps(hitsToMcps)
 {
     this->CheckConsistency(m_mcParticles, hitsToMcps);
     this->CheckConsistency(m_pfParticles, hitsToPfps);
+
+    const auto allHits = this->CollectHits(hitsToPfps, hitsToMcps);
 
     for (const auto &hit : this->CollectHits(hitsToPfps, hitsToMcps))
     {
@@ -106,20 +159,19 @@ BacktrackHelper::BacktrackerData::BacktrackerData(const PFParticleVector &pfPart
             {
                 const auto mcParticle = entry.first;
                 const auto weight = entry.second;
-
+            
                 // Check if we already have an entry for this particle
                 if (m_mcParticleWeightMap.find(mcParticle) == m_mcParticleWeightMap.end())
                     m_mcParticleWeightMap.emplace(mcParticle, 0.f);
     
                 m_mcParticleWeightMap.at(mcParticle) += weight;
-
+                
                 // Fill the PFParticle -> MCParticle matched weight map
                 if (hasPFParticle)
                 {
                     // Get the map entry for this PFParticle, creating it if it doesn't exist
                     auto &entry = m_matchMap[pfParticle];
 
-                    // ATTN Does this need to be a reference?
                     auto iter = std::find_if(entry.begin(), entry.end(), [&](const auto &x){return x.first == mcParticle;});
                     if (iter == entry.end())
                     {
@@ -264,6 +316,29 @@ float BacktrackHelper::BacktrackerData::GetWeight(const art::Ptr<simb::MCParticl
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
 
+HitVector BacktrackHelper::BacktrackerData::GetHits(const art::Ptr<simb::MCParticle> &mcParticle) const
+{
+    HitVector hits;
+
+    for (const auto &entry : m_hitsToMcps)
+    {
+        for (const auto &pair : entry.second)
+        {
+            if (pair.first == mcParticle)
+            {
+                if (std::find(hits.begin(), hits.end(), entry.first) != hits.end())
+                    throw cet::exception("BacktrackerData::GetHits") << " - Found repeated hits associated to the input MCParticle" << std::endl;
+
+                hits.push_back(entry.first);
+            }
+        }
+    }
+
+    return hits;
+}
+
+// -----------------------------------------------------------------------------------------------------------------------------------------
+
 float BacktrackHelper::BacktrackerData::GetMatchWeight(const art::Ptr<recob::PFParticle> &pfParticle, const art::Ptr<simb::MCParticle> &mcParticle) const
 {
     const auto iter = m_matchMap.find(pfParticle);
@@ -355,6 +430,205 @@ PFParticleVector BacktrackHelper::BacktrackerData::GetBestMatchedPFParticles(con
     }
 
     return pfParticles;
+}
+
+// -----------------------------------------------------------------------------------------------------------------------------------------
+                
+float BacktrackHelper::BacktrackerData::GetWeight(const art::Ptr<recob::Hit> &hit, const art::Ptr<simb::MCParticle> &mcParticle) const
+{
+    CollectionData<simb::MCParticle, float> mcParticleWeights;
+    const bool hasMCParticles = this->CollectMCParticleWeights(hit, m_hitsToMcps, mcParticleWeights);
+
+    if (!hasMCParticles)
+        return 0.f;
+
+    float weight = 0.f;
+    for (const auto &entry : mcParticleWeights)
+    {
+        if (mcParticle == entry.first)
+            weight += entry.second;
+    }
+
+    return weight;
+}
+
+// -----------------------------------------------------------------------------------------------------------------------------------------
+                
+float BacktrackHelper::BacktrackerData::GetWeight(const HitVector &hits, const art::Ptr<simb::MCParticle> &mcParticle) const
+{
+    float weight = 0.f;
+    for (const auto &hit : hits)
+    {
+        weight += this->GetWeight(hit, mcParticle);
+    }
+
+    return weight;
+}
+
+// -----------------------------------------------------------------------------------------------------------------------------------------
+// -----------------------------------------------------------------------------------------------------------------------------------------
+                
+BacktrackHelper::SliceMetadata::SliceMetadata(const SliceVector &slices, const SlicesToBool &sliceToIsSelectedAsNu, const SlicesToHits &slicesToHits, const HitsToBool &hitsToIsNuInduced) :
+    m_slices(slices),
+    m_sliceToIsSelectedAsNu(sliceToIsSelectedAsNu),
+    m_slicesToHits(slicesToHits),
+    m_hitsToIsNuInduced(hitsToIsNuInduced)
+{
+}
+
+// -----------------------------------------------------------------------------------------------------------------------------------------
+
+SliceVector BacktrackHelper::SliceMetadata::GetSlices() const
+{
+    return m_slices;
+}
+
+// -----------------------------------------------------------------------------------------------------------------------------------------
+
+SliceVector BacktrackHelper::SliceMetadata::GetSelectedNeutrinoSlices() const
+{
+    SliceVector neutrinos;
+    for (const auto &slice : m_slices)
+    {
+        const auto iter = m_sliceToIsSelectedAsNu.find(slice);
+        if (iter == m_sliceToIsSelectedAsNu.end())
+            throw cet::exception("SliceMetadata::GetSelectedNeutrinoSlices") << " - map entry for slice is missing." << std::endl;
+
+        if (iter->second)
+            neutrinos.push_back(slice);
+    }
+
+    return neutrinos;
+}
+
+// -----------------------------------------------------------------------------------------------------------------------------------------
+
+float BacktrackHelper::SliceMetadata::GetPurity(const art::Ptr<recob::Slice> &slice) const
+{
+    const auto nHits = this->GetNumberOfHits(slice);
+
+    if (nHits == 0)
+        throw cet::exception("SliceMetadata::GetPurity") << " - slice has no hits." << std::endl;
+
+    return (static_cast<float>(this->GetNumberOfNuInducedHits(slice)) / static_cast<float>(nHits));
+}
+
+// -----------------------------------------------------------------------------------------------------------------------------------------
+                
+float BacktrackHelper::SliceMetadata::GetCompleteness(const art::Ptr<recob::Slice> &slice) const
+{
+    const auto nNuHits = this->GetTotalNumberOfNuInducedHits();
+
+    if (nNuHits == 0)
+        throw cet::exception("SliceMetadata::GetCompleteness") << " - there are no neutrino hits." << std::endl;
+
+    return (static_cast<float>(this->GetNumberOfNuInducedHits(slice)) / static_cast<float>(nNuHits));
+}
+
+// -----------------------------------------------------------------------------------------------------------------------------------------
+
+unsigned int BacktrackHelper::SliceMetadata::GetNumberOfHits(const art::Ptr<recob::Slice> &slice) const
+{
+    return CollectionHelper::GetManyAssociated(slice, m_slicesToHits).size();
+}
+
+// -----------------------------------------------------------------------------------------------------------------------------------------
+
+HitVector BacktrackHelper::SliceMetadata::GetHits(const art::Ptr<recob::Slice> &slice) const
+{
+    return CollectionHelper::GetManyAssociated(slice, m_slicesToHits);
+}
+
+// -----------------------------------------------------------------------------------------------------------------------------------------
+
+unsigned int BacktrackHelper::SliceMetadata::GetNumberOfNuInducedHits(const art::Ptr<recob::Slice> &slice) const
+{
+    return this->CountNuInducedHits(CollectionHelper::GetManyAssociated(slice, m_slicesToHits));
+}
+
+// -----------------------------------------------------------------------------------------------------------------------------------------
+                
+unsigned int BacktrackHelper::SliceMetadata::GetTotalNumberOfNuInducedHits() const
+{
+    return this->CountNuInducedHits(this->GetAllHits());
+}
+
+// -----------------------------------------------------------------------------------------------------------------------------------------
+
+art::Ptr<recob::Slice> BacktrackHelper::SliceMetadata::GetMostCompleteSlice() const
+{
+    if (this->GetTotalNumberOfNuInducedHits() == 0)
+        throw cet::exception("SliceMetadata::GetMostCompleteSlice") << " - there are no neutrino hits! No slice is more complete than any other" << std::endl;
+
+    if (m_slices.empty())
+        throw cet::exception("SliceMetadata::GetMostCompleteSlice") << " - there are no slices to choose from." << std::endl;
+
+    float bestCompleteness = -std::numeric_limits<float>::max();
+    art::Ptr<recob::Slice> mostCompleteSlice;
+    bool foundMostCompleteSlice = false;
+
+    for (const auto &slice : m_slices)
+    {
+        const auto completeness = this->GetCompleteness(slice);
+        if (completeness < bestCompleteness)
+            continue;
+
+        bestCompleteness = completeness;
+        mostCompleteSlice = slice;
+        foundMostCompleteSlice = true;
+    }
+
+    if (!foundMostCompleteSlice)
+        throw cet::exception("SliceMetadata::GetMostCompleteSlice") << " - couldn't find the most complete slice" << std::endl;
+
+    return mostCompleteSlice;
+}
+
+// -----------------------------------------------------------------------------------------------------------------------------------------
+                
+bool BacktrackHelper::SliceMetadata::IsMostCompleteSliceSelected() const
+{
+    const auto iter = m_sliceToIsSelectedAsNu.find(this->GetMostCompleteSlice());
+    if (iter == m_sliceToIsSelectedAsNu.end())
+        throw cet::exception("SliceMetadata::IsMostCompleteSliceSelected") << " - map entry for slice is missing." << std::endl;
+
+    return iter->second;
+}
+
+// -----------------------------------------------------------------------------------------------------------------------------------------
+                
+HitVector BacktrackHelper::SliceMetadata::GetAllHits() const
+{
+    HitVector outputHits;
+
+    for (const auto &slice : m_slices)
+    {
+        for (const auto &hit : CollectionHelper::GetManyAssociated(slice, m_slicesToHits))
+        {
+            outputHits.push_back(hit);
+        }
+    }
+
+    return outputHits;
+}
+
+// -----------------------------------------------------------------------------------------------------------------------------------------
+
+unsigned int BacktrackHelper::SliceMetadata::CountNuInducedHits(const HitVector &hits) const
+{
+    unsigned int nNuInducedHits = 0;
+
+    for (const auto &hit : hits)
+    {
+        const auto iter = m_hitsToIsNuInduced.find(hit);
+        if (iter == m_hitsToIsNuInduced.end())
+            throw cet::exception("SliceMetadata::CountNuInducedHits") << " - map entry for hit is missing." << std::endl;
+
+        if (iter->second)
+            nNuInducedHits++;
+    }
+
+    return nNuInducedHits;
 }
 
 } // namespace ubcc1pi

@@ -105,6 +105,7 @@ window.onload = initDynSections;
 <table border="0" cellpadding="0" cellspacing="0">
 <tr><td colspan="2"><h2>Static Public Member Functions</h2></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">static <a class="el" href="namespaceubcc1pi.html#a191f1ccf6de87673e21719a2d401a00f">PFParticleMap</a>&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classubcc1pi_1_1RecoHelper.html#a5844feed162067a8d9149d702df5af1c">GetPFParticleMap</a> (const <a class="el" href="namespaceubcc1pi.html#a6f66dc13c5a55147db5c84db67f6062b">PFParticleVector</a> &amp;allPFParticles)</td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">static <a class="el" href="namespaceubcc1pi.html#a6f66dc13c5a55147db5c84db67f6062b">PFParticleVector</a>&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classubcc1pi_1_1RecoHelper.html#a183577bab3db220b26bcfe3b110db4a4">GetNeutrinos</a> (const <a class="el" href="namespaceubcc1pi.html#a6f66dc13c5a55147db5c84db67f6062b">PFParticleVector</a> &amp;allPFParticles)</td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">static art::Ptr<br class="typebreak"/>
 &lt; recob::PFParticle &gt;&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classubcc1pi_1_1RecoHelper.html#a8646717e211ae40d91695dad442bbe07">GetNeutrino</a> (const <a class="el" href="namespaceubcc1pi.html#a6f66dc13c5a55147db5c84db67f6062b">PFParticleVector</a> &amp;allPFParticles)</td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">static <a class="el" href="namespaceubcc1pi.html#a6f66dc13c5a55147db5c84db67f6062b">PFParticleVector</a>&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classubcc1pi_1_1RecoHelper.html#af71daaff8a5ce5c4e711d60058a4424a">GetNeutrinoFinalStates</a> (const <a class="el" href="namespaceubcc1pi.html#a6f66dc13c5a55147db5c84db67f6062b">PFParticleVector</a> &amp;allPFParticles)</td></tr>
@@ -114,6 +115,7 @@ window.onload = initDynSections;
 <tr><td class="memItemLeft" align="right" valign="top">static <a class="el" href="namespaceubcc1pi.html#a6f66dc13c5a55147db5c84db67f6062b">PFParticleVector</a>&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classubcc1pi_1_1RecoHelper.html#a4f0df14148b8885c5f66888a7d7dc5ef">GetDaughters</a> (const art::Ptr&lt; recob::PFParticle &gt; &amp;particle, const <a class="el" href="namespaceubcc1pi.html#a191f1ccf6de87673e21719a2d401a00f">PFParticleMap</a> &amp;pfParticleMap)</td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">static <a class="el" href="namespaceubcc1pi.html#a6f66dc13c5a55147db5c84db67f6062b">PFParticleVector</a>&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classubcc1pi_1_1RecoHelper.html#a8b20fe3bdcb94fd9a073312a25c77701">GetDownstreamParticles</a> (const art::Ptr&lt; recob::PFParticle &gt; &amp;particle, const <a class="el" href="namespaceubcc1pi.html#a191f1ccf6de87673e21719a2d401a00f">PFParticleMap</a> &amp;pfParticleMap)</td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">static void&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classubcc1pi_1_1RecoHelper.html#a155656490285003dc5bb36cc4c4756a6">GetDownstreamParticles</a> (const art::Ptr&lt; recob::PFParticle &gt; &amp;particle, const <a class="el" href="namespaceubcc1pi.html#a191f1ccf6de87673e21719a2d401a00f">PFParticleMap</a> &amp;pfParticleMap, <a class="el" href="namespaceubcc1pi.html#a6f66dc13c5a55147db5c84db67f6062b">PFParticleVector</a> &amp;downstreamParticles)</td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">static bool&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classubcc1pi_1_1RecoHelper.html#a598a6c917043afe29d14ef92e36c0249">IsSliceSelectedAsNu</a> (const art::Ptr&lt; recob::Slice &gt; &amp;slice, const <a class="el" href="namespaceubcc1pi.html#af71288e330b74f94db7a05b62adc65bb">SlicesToPFParticles</a> &amp;slicesToPFParticles)</td></tr>
 </table>
 <hr/><a name="_details"></a><h2>Detailed Description</h2>
 <p>The reco helper class. </p>
@@ -145,7 +147,7 @@ window.onload = initDynSections;
 </div>
 <div class="memdoc">
 
-<p>Definition at line <a class="el" href="RecoHelper_8cxx_source.html#l00089">89</a> of file <a class="el" href="RecoHelper_8cxx_source.html">RecoHelper.cxx</a>.</p>
+<p>Definition at line <a class="el" href="RecoHelper_8cxx_source.html#l00096">96</a> of file <a class="el" href="RecoHelper_8cxx_source.html">RecoHelper.cxx</a>.</p>
 
 </div>
 </div>
@@ -180,7 +182,7 @@ window.onload = initDynSections;
 </div>
 <div class="memdoc">
 
-<p>Definition at line <a class="el" href="RecoHelper_8cxx_source.html#l00117">117</a> of file <a class="el" href="RecoHelper_8cxx_source.html">RecoHelper.cxx</a>.</p>
+<p>Definition at line <a class="el" href="RecoHelper_8cxx_source.html#l00124">124</a> of file <a class="el" href="RecoHelper_8cxx_source.html">RecoHelper.cxx</a>.</p>
 
 </div>
 </div>
@@ -209,7 +211,7 @@ window.onload = initDynSections;
 </div>
 <div class="memdoc">
 
-<p>Definition at line <a class="el" href="RecoHelper_8cxx_source.html#l00107">107</a> of file <a class="el" href="RecoHelper_8cxx_source.html">RecoHelper.cxx</a>.</p>
+<p>Definition at line <a class="el" href="RecoHelper_8cxx_source.html#l00114">114</a> of file <a class="el" href="RecoHelper_8cxx_source.html">RecoHelper.cxx</a>.</p>
 
 </div>
 </div>
@@ -229,7 +231,7 @@ window.onload = initDynSections;
 </div>
 <div class="memdoc">
 
-<p>Definition at line <a class="el" href="RecoHelper_8cxx_source.html#l00027">27</a> of file <a class="el" href="RecoHelper_8cxx_source.html">RecoHelper.cxx</a>.</p>
+<p>Definition at line <a class="el" href="RecoHelper_8cxx_source.html#l00047">47</a> of file <a class="el" href="RecoHelper_8cxx_source.html">RecoHelper.cxx</a>.</p>
 
 </div>
 </div>
@@ -257,7 +259,27 @@ window.onload = initDynSections;
   </dd>
 </dl>
 
-<p>Definition at line <a class="el" href="RecoHelper_8cxx_source.html#l00055">55</a> of file <a class="el" href="RecoHelper_8cxx_source.html">RecoHelper.cxx</a>.</p>
+<p>Definition at line <a class="el" href="RecoHelper_8cxx_source.html#l00062">62</a> of file <a class="el" href="RecoHelper_8cxx_source.html">RecoHelper.cxx</a>.</p>
+
+</div>
+</div>
+<a class="anchor" id="a183577bab3db220b26bcfe3b110db4a4"></a><!-- doxytag: member="ubcc1pi::RecoHelper::GetNeutrinos" ref="a183577bab3db220b26bcfe3b110db4a4" args="(const PFParticleVector &amp;allPFParticles)" -->
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="namespaceubcc1pi.html#a6f66dc13c5a55147db5c84db67f6062b">PFParticleVector</a> ubcc1pi::RecoHelper::GetNeutrinos </td>
+          <td>(</td>
+          <td class="paramtype">const <a class="el" href="namespaceubcc1pi.html#a6f66dc13c5a55147db5c84db67f6062b">PFParticleVector</a> &amp;&nbsp;</td>
+          <td class="paramname"> <em>allPFParticles</em></td>
+          <td>&nbsp;)&nbsp;</td>
+          <td><code> [static]</code></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+
+<p>Definition at line <a class="el" href="RecoHelper_8cxx_source.html#l00027">27</a> of file <a class="el" href="RecoHelper_8cxx_source.html">RecoHelper.cxx</a>.</p>
 
 </div>
 </div>
@@ -286,7 +308,7 @@ window.onload = initDynSections;
 </div>
 <div class="memdoc">
 
-<p>Definition at line <a class="el" href="RecoHelper_8cxx_source.html#l00075">75</a> of file <a class="el" href="RecoHelper_8cxx_source.html">RecoHelper.cxx</a>.</p>
+<p>Definition at line <a class="el" href="RecoHelper_8cxx_source.html#l00082">82</a> of file <a class="el" href="RecoHelper_8cxx_source.html">RecoHelper.cxx</a>.</p>
 
 </div>
 </div>
@@ -307,6 +329,35 @@ window.onload = initDynSections;
 <div class="memdoc">
 
 <p>Definition at line <a class="el" href="RecoHelper_8cxx_source.html#l00012">12</a> of file <a class="el" href="RecoHelper_8cxx_source.html">RecoHelper.cxx</a>.</p>
+
+</div>
+</div>
+<a class="anchor" id="a598a6c917043afe29d14ef92e36c0249"></a><!-- doxytag: member="ubcc1pi::RecoHelper::IsSliceSelectedAsNu" ref="a598a6c917043afe29d14ef92e36c0249" args="(const art::Ptr&lt; recob::Slice &gt; &amp;slice, const SlicesToPFParticles &amp;slicesToPFParticles)" -->
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool ubcc1pi::RecoHelper::IsSliceSelectedAsNu </td>
+          <td>(</td>
+          <td class="paramtype">const art::Ptr&lt; recob::Slice &gt; &amp;&nbsp;</td>
+          <td class="paramname"> <em>slice</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const <a class="el" href="namespaceubcc1pi.html#af71288e330b74f94db7a05b62adc65bb">SlicesToPFParticles</a> &amp;&nbsp;</td>
+          <td class="paramname"> <em>slicesToPFParticles</em></td><td>&nbsp;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td><td><code> [static]</code></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+
+<p>Definition at line <a class="el" href="RecoHelper_8cxx_source.html#l00134">134</a> of file <a class="el" href="RecoHelper_8cxx_source.html">RecoHelper.cxx</a>.</p>
 
 </div>
 </div>
@@ -332,7 +383,7 @@ window.onload = initDynSections;
 <hr size="1"/>
 <address style="text-align: right;">
     <small>
-        Generated on Tue Mar 26 16:35:05 2019 for ubcc1pi by <a href="http://www.doxygen.org/index.html" target="_blank">doxygen</a> 1.6.1
+        Generated on Mon Apr 8 11:11:36 2019 for ubcc1pi by <a href="http://www.doxygen.org/index.html" target="_blank">doxygen</a> 1.6.1
     </small>
 </address>
 

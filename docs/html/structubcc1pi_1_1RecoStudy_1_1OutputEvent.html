@@ -116,6 +116,16 @@ window.onload = initDynSections;
 <tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">The number of target proton MCParticle.  <a href="#a6e57cd9ebddb1cbb1206331d4120099e"></a><br/></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">int&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="structubcc1pi_1_1RecoStudy_1_1OutputEvent.html#a550be60458e3af44ab175e9851e3655e">m_nPFPs</a></td></tr>
 <tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">The number of PFParticles.  <a href="#a550be60458e3af44ab175e9851e3655e"></a><br/></td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">int&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="structubcc1pi_1_1RecoStudy_1_1OutputEvent.html#a32e90d8d9d351ef34d7bfdfc56060b7b">m_nNuHitsTotal</a></td></tr>
+<tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">The total number of neutrino induced hits in the whole event.  <a href="#a32e90d8d9d351ef34d7bfdfc56060b7b"></a><br/></td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">bool&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="structubcc1pi_1_1RecoStudy_1_1OutputEvent.html#a4c23e5625ffd930bd12a1cb56c652c3b">m_hasChosenSlice</a></td></tr>
+<tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">If a slice was identified as the neutrino.  <a href="#a4c23e5625ffd930bd12a1cb56c652c3b"></a><br/></td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">float&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="structubcc1pi_1_1RecoStudy_1_1OutputEvent.html#a66248b7b84b486a77a43512aa0ba0649">m_chosenSlicePurity</a></td></tr>
+<tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">The purity of the chosen neutrino slice.  <a href="#a66248b7b84b486a77a43512aa0ba0649"></a><br/></td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">float&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="structubcc1pi_1_1RecoStudy_1_1OutputEvent.html#aa38f605ab6e746acd4d52563041e0b00">m_chosenSliceCompleteness</a></td></tr>
+<tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">The completeness of the chosen neutrino slice.  <a href="#aa38f605ab6e746acd4d52563041e0b00"></a><br/></td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">bool&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="structubcc1pi_1_1RecoStudy_1_1OutputEvent.html#a2d6622fc58f915d8758c5d2dcd8f423b">m_isChosenSliceMostComplete</a></td></tr>
+<tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">If the chosen slice is the most complete in the event.  <a href="#a2d6622fc58f915d8758c5d2dcd8f423b"></a><br/></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">int&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="structubcc1pi_1_1RecoStudy_1_1OutputEvent.html#a2061a8a0303fd8d6144f8a5a3a056ffd">m_nMuMatches</a></td></tr>
 <tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">The number of PFParticles matched to the muon MCParticle.  <a href="#a2061a8a0303fd8d6144f8a5a3a056ffd"></a><br/></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">int&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="structubcc1pi_1_1RecoStudy_1_1OutputEvent.html#ad67d11caaee69ad97458b386c33af4de">m_nPiMatches</a></td></tr>
@@ -130,8 +140,42 @@ window.onload = initDynSections;
 <hr/><a name="_details"></a><h2>Detailed Description</h2>
 <p>The output event level structure. </p>
 
-<p>Definition at line <a class="el" href="RecoStudy_8h_source.html#l00062">62</a> of file <a class="el" href="RecoStudy_8h_source.html">RecoStudy.h</a>.</p>
+<p>Definition at line <a class="el" href="RecoStudy_8h_source.html#l00074">74</a> of file <a class="el" href="RecoStudy_8h_source.html">RecoStudy.h</a>.</p>
 <hr/><h2>Member Data Documentation</h2>
+<a class="anchor" id="aa38f605ab6e746acd4d52563041e0b00"></a><!-- doxytag: member="ubcc1pi::RecoStudy::OutputEvent::m_chosenSliceCompleteness" ref="aa38f605ab6e746acd4d52563041e0b00" args="" -->
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">float <a class="el" href="structubcc1pi_1_1RecoStudy_1_1OutputEvent.html#aa38f605ab6e746acd4d52563041e0b00">ubcc1pi::RecoStudy::OutputEvent::m_chosenSliceCompleteness</a></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+
+<p>The completeness of the chosen neutrino slice. </p>
+
+<p>Definition at line <a class="el" href="RecoStudy_8h_source.html#l00092">92</a> of file <a class="el" href="RecoStudy_8h_source.html">RecoStudy.h</a>.</p>
+
+</div>
+</div>
+<a class="anchor" id="a66248b7b84b486a77a43512aa0ba0649"></a><!-- doxytag: member="ubcc1pi::RecoStudy::OutputEvent::m_chosenSlicePurity" ref="a66248b7b84b486a77a43512aa0ba0649" args="" -->
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">float <a class="el" href="structubcc1pi_1_1RecoStudy_1_1OutputEvent.html#a66248b7b84b486a77a43512aa0ba0649">ubcc1pi::RecoStudy::OutputEvent::m_chosenSlicePurity</a></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+
+<p>The purity of the chosen neutrino slice. </p>
+
+<p>Definition at line <a class="el" href="RecoStudy_8h_source.html#l00091">91</a> of file <a class="el" href="RecoStudy_8h_source.html">RecoStudy.h</a>.</p>
+
+</div>
+</div>
 <a class="anchor" id="afd52133fc143ee071a38bf2f1fe8a8d1"></a><!-- doxytag: member="ubcc1pi::RecoStudy::OutputEvent::m_event" ref="afd52133fc143ee071a38bf2f1fe8a8d1" args="" -->
 <div class="memitem">
 <div class="memproto">
@@ -145,7 +189,41 @@ window.onload = initDynSections;
 
 <p>The event number. </p>
 
-<p>Definition at line <a class="el" href="RecoStudy_8h_source.html#l00067">67</a> of file <a class="el" href="RecoStudy_8h_source.html">RecoStudy.h</a>.</p>
+<p>Definition at line <a class="el" href="RecoStudy_8h_source.html#l00079">79</a> of file <a class="el" href="RecoStudy_8h_source.html">RecoStudy.h</a>.</p>
+
+</div>
+</div>
+<a class="anchor" id="a4c23e5625ffd930bd12a1cb56c652c3b"></a><!-- doxytag: member="ubcc1pi::RecoStudy::OutputEvent::m_hasChosenSlice" ref="a4c23e5625ffd930bd12a1cb56c652c3b" args="" -->
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool <a class="el" href="structubcc1pi_1_1RecoStudy_1_1OutputEvent.html#a4c23e5625ffd930bd12a1cb56c652c3b">ubcc1pi::RecoStudy::OutputEvent::m_hasChosenSlice</a></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+
+<p>If a slice was identified as the neutrino. </p>
+
+<p>Definition at line <a class="el" href="RecoStudy_8h_source.html#l00090">90</a> of file <a class="el" href="RecoStudy_8h_source.html">RecoStudy.h</a>.</p>
+
+</div>
+</div>
+<a class="anchor" id="a2d6622fc58f915d8758c5d2dcd8f423b"></a><!-- doxytag: member="ubcc1pi::RecoStudy::OutputEvent::m_isChosenSliceMostComplete" ref="a2d6622fc58f915d8758c5d2dcd8f423b" args="" -->
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool <a class="el" href="structubcc1pi_1_1RecoStudy_1_1OutputEvent.html#a2d6622fc58f915d8758c5d2dcd8f423b">ubcc1pi::RecoStudy::OutputEvent::m_isChosenSliceMostComplete</a></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+
+<p>If the chosen slice is the most complete in the event. </p>
+
+<p>Definition at line <a class="el" href="RecoStudy_8h_source.html#l00093">93</a> of file <a class="el" href="RecoStudy_8h_source.html">RecoStudy.h</a>.</p>
 
 </div>
 </div>
@@ -162,7 +240,24 @@ window.onload = initDynSections;
 
 <p>The number of PFParticles matched to the muon MCParticle. </p>
 
-<p>Definition at line <a class="el" href="RecoStudy_8h_source.html#l00077">77</a> of file <a class="el" href="RecoStudy_8h_source.html">RecoStudy.h</a>.</p>
+<p>Definition at line <a class="el" href="RecoStudy_8h_source.html#l00096">96</a> of file <a class="el" href="RecoStudy_8h_source.html">RecoStudy.h</a>.</p>
+
+</div>
+</div>
+<a class="anchor" id="a32e90d8d9d351ef34d7bfdfc56060b7b"></a><!-- doxytag: member="ubcc1pi::RecoStudy::OutputEvent::m_nNuHitsTotal" ref="a32e90d8d9d351ef34d7bfdfc56060b7b" args="" -->
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">int <a class="el" href="structubcc1pi_1_1RecoStudy_1_1OutputEvent.html#a32e90d8d9d351ef34d7bfdfc56060b7b">ubcc1pi::RecoStudy::OutputEvent::m_nNuHitsTotal</a></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+
+<p>The total number of neutrino induced hits in the whole event. </p>
+
+<p>Definition at line <a class="el" href="RecoStudy_8h_source.html#l00089">89</a> of file <a class="el" href="RecoStudy_8h_source.html">RecoStudy.h</a>.</p>
 
 </div>
 </div>
@@ -179,7 +274,7 @@ window.onload = initDynSections;
 
 <p>The number of PFParticles. </p>
 
-<p>Definition at line <a class="el" href="RecoStudy_8h_source.html#l00074">74</a> of file <a class="el" href="RecoStudy_8h_source.html">RecoStudy.h</a>.</p>
+<p>Definition at line <a class="el" href="RecoStudy_8h_source.html#l00086">86</a> of file <a class="el" href="RecoStudy_8h_source.html">RecoStudy.h</a>.</p>
 
 </div>
 </div>
@@ -196,7 +291,7 @@ window.onload = initDynSections;
 
 <p>The number of PFParticles matched to the pion MCParticle. </p>
 
-<p>Definition at line <a class="el" href="RecoStudy_8h_source.html#l00078">78</a> of file <a class="el" href="RecoStudy_8h_source.html">RecoStudy.h</a>.</p>
+<p>Definition at line <a class="el" href="RecoStudy_8h_source.html#l00097">97</a> of file <a class="el" href="RecoStudy_8h_source.html">RecoStudy.h</a>.</p>
 
 </div>
 </div>
@@ -213,7 +308,7 @@ window.onload = initDynSections;
 
 <p>The number of target proton MCParticle. </p>
 
-<p>Definition at line <a class="el" href="RecoStudy_8h_source.html#l00073">73</a> of file <a class="el" href="RecoStudy_8h_source.html">RecoStudy.h</a>.</p>
+<p>Definition at line <a class="el" href="RecoStudy_8h_source.html#l00085">85</a> of file <a class="el" href="RecoStudy_8h_source.html">RecoStudy.h</a>.</p>
 
 </div>
 </div>
@@ -230,7 +325,7 @@ window.onload = initDynSections;
 
 <p>The number of proton MCParticles with at least one PFParticle matched. </p>
 
-<p>Definition at line <a class="el" href="RecoStudy_8h_source.html#l00079">79</a> of file <a class="el" href="RecoStudy_8h_source.html">RecoStudy.h</a>.</p>
+<p>Definition at line <a class="el" href="RecoStudy_8h_source.html#l00098">98</a> of file <a class="el" href="RecoStudy_8h_source.html">RecoStudy.h</a>.</p>
 
 </div>
 </div>
@@ -247,7 +342,7 @@ window.onload = initDynSections;
 
 <p>The number of proton MCParticles with exactly one PFParticle matched. </p>
 
-<p>Definition at line <a class="el" href="RecoStudy_8h_source.html#l00080">80</a> of file <a class="el" href="RecoStudy_8h_source.html">RecoStudy.h</a>.</p>
+<p>Definition at line <a class="el" href="RecoStudy_8h_source.html#l00099">99</a> of file <a class="el" href="RecoStudy_8h_source.html">RecoStudy.h</a>.</p>
 
 </div>
 </div>
@@ -264,7 +359,7 @@ window.onload = initDynSections;
 
 <p>The neutrino energy. </p>
 
-<p>Definition at line <a class="el" href="RecoStudy_8h_source.html#l00070">70</a> of file <a class="el" href="RecoStudy_8h_source.html">RecoStudy.h</a>.</p>
+<p>Definition at line <a class="el" href="RecoStudy_8h_source.html#l00082">82</a> of file <a class="el" href="RecoStudy_8h_source.html">RecoStudy.h</a>.</p>
 
 </div>
 </div>
@@ -281,7 +376,7 @@ window.onload = initDynSections;
 
 <p>The number of PFParticles that don't share hits with any neutrino primary MCParticle ==&gt; cosmic or induced. </p>
 
-<p>Definition at line <a class="el" href="RecoStudy_8h_source.html#l00081">81</a> of file <a class="el" href="RecoStudy_8h_source.html">RecoStudy.h</a>.</p>
+<p>Definition at line <a class="el" href="RecoStudy_8h_source.html#l00100">100</a> of file <a class="el" href="RecoStudy_8h_source.html">RecoStudy.h</a>.</p>
 
 </div>
 </div>
@@ -298,7 +393,7 @@ window.onload = initDynSections;
 
 <p>The run number. </p>
 
-<p>Definition at line <a class="el" href="RecoStudy_8h_source.html#l00065">65</a> of file <a class="el" href="RecoStudy_8h_source.html">RecoStudy.h</a>.</p>
+<p>Definition at line <a class="el" href="RecoStudy_8h_source.html#l00077">77</a> of file <a class="el" href="RecoStudy_8h_source.html">RecoStudy.h</a>.</p>
 
 </div>
 </div>
@@ -315,7 +410,7 @@ window.onload = initDynSections;
 
 <p>The subrun number. </p>
 
-<p>Definition at line <a class="el" href="RecoStudy_8h_source.html#l00066">66</a> of file <a class="el" href="RecoStudy_8h_source.html">RecoStudy.h</a>.</p>
+<p>Definition at line <a class="el" href="RecoStudy_8h_source.html#l00078">78</a> of file <a class="el" href="RecoStudy_8h_source.html">RecoStudy.h</a>.</p>
 
 </div>
 </div>
@@ -340,7 +435,7 @@ window.onload = initDynSections;
 <hr size="1"/>
 <address style="text-align: right;">
     <small>
-        Generated on Tue Mar 26 16:35:05 2019 for ubcc1pi by <a href="http://www.doxygen.org/index.html" target="_blank">doxygen</a> 1.6.1
+        Generated on Mon Apr 8 11:11:36 2019 for ubcc1pi by <a href="http://www.doxygen.org/index.html" target="_blank">doxygen</a> 1.6.1
     </small>
 </address>
 

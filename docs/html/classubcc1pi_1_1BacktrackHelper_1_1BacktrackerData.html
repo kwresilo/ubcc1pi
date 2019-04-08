@@ -126,6 +126,8 @@ simb::MCParticle, float &gt;&nbsp;</td><td class="memItemRight" valign="bottom">
 <tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">Get the weight associated with a given PFParticle (= the number of hits).  <a href="#a5d45b96730887e759cc634de06618048"></a><br/></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">float&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classubcc1pi_1_1BacktrackHelper_1_1BacktrackerData.html#ab907df18cdecf05f5d754cf32d46c94d">GetWeight</a> (const art::Ptr&lt; simb::MCParticle &gt; &amp;mcParticle) const </td></tr>
 <tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">Get the weight associated with a given MCParticle (= the weighted number of hits).  <a href="#ab907df18cdecf05f5d754cf32d46c94d"></a><br/></td></tr>
+<tr><td class="memItemLeft" align="right" valign="top"><a class="el" href="namespaceubcc1pi.html#aad18bb5924d1ff428402c8af4b72f1c0">HitVector</a>&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classubcc1pi_1_1BacktrackHelper_1_1BacktrackerData.html#a9a1113ff1e392071ee88da790db9b3c3">GetHits</a> (const art::Ptr&lt; simb::MCParticle &gt; &amp;mcParticle) const </td></tr>
+<tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">Get all hits that are associated the MCParticle with any weight.  <a href="#a9a1113ff1e392071ee88da790db9b3c3"></a><br/></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">float&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classubcc1pi_1_1BacktrackHelper_1_1BacktrackerData.html#a48fa660eec95653e9a2151abfccc6dc1">GetMatchWeight</a> (const art::Ptr&lt; recob::PFParticle &gt; &amp;pfParticle, const art::Ptr&lt; simb::MCParticle &gt; &amp;mcParticle) const </td></tr>
 <tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">Get the weight of a given PFParticle-MCParticle pair.  <a href="#a48fa660eec95653e9a2151abfccc6dc1"></a><br/></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">float&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classubcc1pi_1_1BacktrackHelper_1_1BacktrackerData.html#a8f5fa5a741e52e1549fb4dd67213de88">GetMatchPurity</a> (const art::Ptr&lt; recob::PFParticle &gt; &amp;pfParticle, const art::Ptr&lt; simb::MCParticle &gt; &amp;mcParticle) const </td></tr>
@@ -136,6 +138,10 @@ simb::MCParticle, float &gt;&nbsp;</td><td class="memItemRight" valign="bottom">
 <tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">Get the MCParticle with the highest weighted match to the given PFParticle.  <a href="#a278df2088e0b86a416da69c7f8f8ee97"></a><br/></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top"><a class="el" href="namespaceubcc1pi.html#a6f66dc13c5a55147db5c84db67f6062b">PFParticleVector</a>&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classubcc1pi_1_1BacktrackHelper_1_1BacktrackerData.html#a5cffbe33dac0dde02fb445a5520c2a8a">GetBestMatchedPFParticles</a> (const art::Ptr&lt; simb::MCParticle &gt; &amp;mcParticle) const </td></tr>
 <tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">Get the PFParticles which have the given MCParticle as their strongest match.  <a href="#a5cffbe33dac0dde02fb445a5520c2a8a"></a><br/></td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">float&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classubcc1pi_1_1BacktrackHelper_1_1BacktrackerData.html#aaaef7d8975bdddf6df79a2386affeead">GetWeight</a> (const art::Ptr&lt; recob::Hit &gt; &amp;hit, const art::Ptr&lt; simb::MCParticle &gt; &amp;mcParticle) const </td></tr>
+<tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">Get the weight associated with the input Hit and MCParticle weight = fraction of the energy of the hit that was provided by the supplied MCParticle.  <a href="#aaaef7d8975bdddf6df79a2386affeead"></a><br/></td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">float&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classubcc1pi_1_1BacktrackHelper_1_1BacktrackerData.html#a26ee59613ffcc3501af5f1d1ee26d49c">GetWeight</a> (const <a class="el" href="namespaceubcc1pi.html#aad18bb5924d1ff428402c8af4b72f1c0">HitVector</a> &amp;hits, const art::Ptr&lt; simb::MCParticle &gt; &amp;mcParticle) const </td></tr>
+<tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">Get the summed weight associated with the input collection of Hits and MCParticle.  <a href="#a26ee59613ffcc3501af5f1d1ee26d49c"></a><br/></td></tr>
 <tr><td colspan="2"><h2>Private Member Functions</h2></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">void&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classubcc1pi_1_1BacktrackHelper_1_1BacktrackerData.html#a76e0d6aa2e9d56a181b6e413e1f04fd5">CheckConsistency</a> (const <a class="el" href="namespaceubcc1pi.html#a6f66dc13c5a55147db5c84db67f6062b">PFParticleVector</a> &amp;pfParticles, const <a class="el" href="namespaceubcc1pi.html#a679f75d7e515d88fd2b37057e0d681bb">HitsToPFParticles</a> &amp;hitsToPfps) const </td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">void&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classubcc1pi_1_1BacktrackHelper_1_1BacktrackerData.html#a0917037ff959924c0d47d94ebac53f1f">CheckConsistency</a> (const <a class="el" href="namespaceubcc1pi.html#a42e409a54246ea6acba6d873b8eb696c">MCParticleVector</a> &amp;mcParticles, const <a class="el" href="namespaceubcc1pi.html#a9c8db99d0f284acb6b95013a2527c00d">HitsToMCParticleWeights</a> &amp;hitsToMcps) const </td></tr>
@@ -153,6 +159,8 @@ simb::MCParticle, float &gt;&nbsp;</td><td class="memItemRight" valign="bottom">
 <tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">The mapping from PFParticle to the total weight (= number of hits).  <a href="#adf044f8d9cdd2646af0d26cf96d36305"></a><br/></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top"><a class="el" href="classubcc1pi_1_1BacktrackHelper_1_1BacktrackerData.html#a7c2934d13178bb2b3a542f042f45a836">MatchMap</a>&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classubcc1pi_1_1BacktrackHelper_1_1BacktrackerData.html#a622fd1b767b090773759fa5cf365bafb">m_matchMap</a></td></tr>
 <tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">The matching between PFParticles and MCParticles along with the shared weight.  <a href="#a622fd1b767b090773759fa5cf365bafb"></a><br/></td></tr>
+<tr><td class="memItemLeft" align="right" valign="top"><a class="el" href="namespaceubcc1pi.html#a9c8db99d0f284acb6b95013a2527c00d">HitsToMCParticleWeights</a>&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classubcc1pi_1_1BacktrackHelper_1_1BacktrackerData.html#a5fdea3cfff2614e2b2305c3d78ca466b">m_hitsToMcps</a></td></tr>
+<tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">The mapping from hits to MCParticle along with the associated weights.  <a href="#a5fdea3cfff2614e2b2305c3d78ca466b"></a><br/></td></tr>
 </table>
 <hr/><a name="_details"></a><h2>Detailed Description</h2>
 <p>Class holding backtracking data. </p>
@@ -253,7 +261,7 @@ simb::MCParticle, float &gt;&nbsp;</td><td class="memItemRight" valign="bottom">
   </dd>
 </dl>
 
-<p>Definition at line <a class="el" href="BacktrackHelper_8cxx_source.html#l00077">77</a> of file <a class="el" href="BacktrackHelper_8cxx_source.html">BacktrackHelper.cxx</a>.</p>
+<p>Definition at line <a class="el" href="BacktrackHelper_8cxx_source.html#l00127">127</a> of file <a class="el" href="BacktrackHelper_8cxx_source.html">BacktrackHelper.cxx</a>.</p>
 
 </div>
 </div>
@@ -283,7 +291,7 @@ simb::MCParticle, float &gt;&nbsp;</td><td class="memItemRight" valign="bottom">
 </div>
 <div class="memdoc">
 
-<p>Definition at line <a class="el" href="BacktrackHelper_8cxx_source.html#l00140">140</a> of file <a class="el" href="BacktrackHelper_8cxx_source.html">BacktrackHelper.cxx</a>.</p>
+<p>Definition at line <a class="el" href="BacktrackHelper_8cxx_source.html#l00192">192</a> of file <a class="el" href="BacktrackHelper_8cxx_source.html">BacktrackHelper.cxx</a>.</p>
 
 </div>
 </div>
@@ -312,7 +320,7 @@ simb::MCParticle, float &gt;&nbsp;</td><td class="memItemRight" valign="bottom">
 </div>
 <div class="memdoc">
 
-<p>Definition at line <a class="el" href="BacktrackHelper_8cxx_source.html#l00154">154</a> of file <a class="el" href="BacktrackHelper_8cxx_source.html">BacktrackHelper.cxx</a>.</p>
+<p>Definition at line <a class="el" href="BacktrackHelper_8cxx_source.html#l00206">206</a> of file <a class="el" href="BacktrackHelper_8cxx_source.html">BacktrackHelper.cxx</a>.</p>
 
 </div>
 </div>
@@ -341,7 +349,7 @@ simb::MCParticle, float &gt;&nbsp;</td><td class="memItemRight" valign="bottom">
 </div>
 <div class="memdoc">
 
-<p>Definition at line <a class="el" href="BacktrackHelper_8cxx_source.html#l00168">168</a> of file <a class="el" href="BacktrackHelper_8cxx_source.html">BacktrackHelper.cxx</a>.</p>
+<p>Definition at line <a class="el" href="BacktrackHelper_8cxx_source.html#l00220">220</a> of file <a class="el" href="BacktrackHelper_8cxx_source.html">BacktrackHelper.cxx</a>.</p>
 
 </div>
 </div>
@@ -376,7 +384,7 @@ simb::MCParticle, float &gt;&nbsp;</td><td class="memItemRight" valign="bottom">
 </div>
 <div class="memdoc">
 
-<p>Definition at line <a class="el" href="BacktrackHelper_8cxx_source.html#l00207">207</a> of file <a class="el" href="BacktrackHelper_8cxx_source.html">BacktrackHelper.cxx</a>.</p>
+<p>Definition at line <a class="el" href="BacktrackHelper_8cxx_source.html#l00259">259</a> of file <a class="el" href="BacktrackHelper_8cxx_source.html">BacktrackHelper.cxx</a>.</p>
 
 </div>
 </div>
@@ -411,7 +419,7 @@ simb::MCParticle, float &gt;&nbsp;</td><td class="memItemRight" valign="bottom">
 </div>
 <div class="memdoc">
 
-<p>Definition at line <a class="el" href="BacktrackHelper_8cxx_source.html#l00192">192</a> of file <a class="el" href="BacktrackHelper_8cxx_source.html">BacktrackHelper.cxx</a>.</p>
+<p>Definition at line <a class="el" href="BacktrackHelper_8cxx_source.html#l00244">244</a> of file <a class="el" href="BacktrackHelper_8cxx_source.html">BacktrackHelper.cxx</a>.</p>
 
 </div>
 </div>
@@ -439,7 +447,7 @@ simb::MCParticle, float &gt;&nbsp;</td><td class="memItemRight" valign="bottom">
   </dd>
 </dl>
 
-<p>Definition at line <a class="el" href="BacktrackHelper_8cxx_source.html#l00317">317</a> of file <a class="el" href="BacktrackHelper_8cxx_source.html">BacktrackHelper.cxx</a>.</p>
+<p>Definition at line <a class="el" href="BacktrackHelper_8cxx_source.html#l00392">392</a> of file <a class="el" href="BacktrackHelper_8cxx_source.html">BacktrackHelper.cxx</a>.</p>
 
 </div>
 </div>
@@ -467,7 +475,35 @@ simb::MCParticle, float &gt;&nbsp;</td><td class="memItemRight" valign="bottom">
   </dd>
 </dl>
 
-<p>Definition at line <a class="el" href="BacktrackHelper_8cxx_source.html#l00341">341</a> of file <a class="el" href="BacktrackHelper_8cxx_source.html">BacktrackHelper.cxx</a>.</p>
+<p>Definition at line <a class="el" href="BacktrackHelper_8cxx_source.html#l00416">416</a> of file <a class="el" href="BacktrackHelper_8cxx_source.html">BacktrackHelper.cxx</a>.</p>
+
+</div>
+</div>
+<a class="anchor" id="a9a1113ff1e392071ee88da790db9b3c3"></a><!-- doxytag: member="ubcc1pi::BacktrackHelper::BacktrackerData::GetHits" ref="a9a1113ff1e392071ee88da790db9b3c3" args="(const art::Ptr&lt; simb::MCParticle &gt; &amp;mcParticle) const " -->
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="namespaceubcc1pi.html#aad18bb5924d1ff428402c8af4b72f1c0">HitVector</a> ubcc1pi::BacktrackHelper::BacktrackerData::GetHits </td>
+          <td>(</td>
+          <td class="paramtype">const art::Ptr&lt; simb::MCParticle &gt; &amp;&nbsp;</td>
+          <td class="paramname"> <em>mcParticle</em></td>
+          <td>&nbsp;)&nbsp;</td>
+          <td> const</td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+
+<p>Get all hits that are associated the MCParticle with any weight. </p>
+<dl><dt><b>Parameters:</b></dt><dd>
+  <table border="0" cellspacing="2" cellpadding="0">
+    <tr><td valign="top"></td><td valign="top"><em>mcParticle</em>&nbsp;</td><td>the mcParticle </td></tr>
+  </table>
+  </dd>
+</dl>
+
+<p>Definition at line <a class="el" href="BacktrackHelper_8cxx_source.html#l00319">319</a> of file <a class="el" href="BacktrackHelper_8cxx_source.html">BacktrackHelper.cxx</a>.</p>
 
 </div>
 </div>
@@ -505,7 +541,7 @@ simb::MCParticle, float &gt;&nbsp;</td><td class="memItemRight" valign="bottom">
   </dd>
 </dl>
 
-<p>Definition at line <a class="el" href="BacktrackHelper_8cxx_source.html#l00302">302</a> of file <a class="el" href="BacktrackHelper_8cxx_source.html">BacktrackHelper.cxx</a>.</p>
+<p>Definition at line <a class="el" href="BacktrackHelper_8cxx_source.html#l00377">377</a> of file <a class="el" href="BacktrackHelper_8cxx_source.html">BacktrackHelper.cxx</a>.</p>
 
 </div>
 </div>
@@ -543,7 +579,7 @@ simb::MCParticle, float &gt;&nbsp;</td><td class="memItemRight" valign="bottom">
   </dd>
 </dl>
 
-<p>Definition at line <a class="el" href="BacktrackHelper_8cxx_source.html#l00287">287</a> of file <a class="el" href="BacktrackHelper_8cxx_source.html">BacktrackHelper.cxx</a>.</p>
+<p>Definition at line <a class="el" href="BacktrackHelper_8cxx_source.html#l00362">362</a> of file <a class="el" href="BacktrackHelper_8cxx_source.html">BacktrackHelper.cxx</a>.</p>
 
 </div>
 </div>
@@ -581,7 +617,7 @@ simb::MCParticle, float &gt;&nbsp;</td><td class="memItemRight" valign="bottom">
   </dd>
 </dl>
 
-<p>Definition at line <a class="el" href="BacktrackHelper_8cxx_source.html#l00267">267</a> of file <a class="el" href="BacktrackHelper_8cxx_source.html">BacktrackHelper.cxx</a>.</p>
+<p>Definition at line <a class="el" href="BacktrackHelper_8cxx_source.html#l00342">342</a> of file <a class="el" href="BacktrackHelper_8cxx_source.html">BacktrackHelper.cxx</a>.</p>
 
 </div>
 </div>
@@ -602,7 +638,7 @@ simb::MCParticle, float &gt;&nbsp;</td><td class="memItemRight" valign="bottom">
 
 <p>Get the MCParticles. </p>
 
-<p>Definition at line <a class="el" href="BacktrackHelper_8cxx_source.html#l00222">222</a> of file <a class="el" href="BacktrackHelper_8cxx_source.html">BacktrackHelper.cxx</a>.</p>
+<p>Definition at line <a class="el" href="BacktrackHelper_8cxx_source.html#l00274">274</a> of file <a class="el" href="BacktrackHelper_8cxx_source.html">BacktrackHelper.cxx</a>.</p>
 
 </div>
 </div>
@@ -630,7 +666,7 @@ simb::MCParticle, float &gt;&nbsp;</td><td class="memItemRight" valign="bottom">
   </dd>
 </dl>
 
-<p>Definition at line <a class="el" href="BacktrackHelper_8cxx_source.html#l00236">236</a> of file <a class="el" href="BacktrackHelper_8cxx_source.html">BacktrackHelper.cxx</a>.</p>
+<p>Definition at line <a class="el" href="BacktrackHelper_8cxx_source.html#l00288">288</a> of file <a class="el" href="BacktrackHelper_8cxx_source.html">BacktrackHelper.cxx</a>.</p>
 
 </div>
 </div>
@@ -651,7 +687,83 @@ simb::MCParticle, float &gt;&nbsp;</td><td class="memItemRight" valign="bottom">
 
 <p>Get the PFParticles. </p>
 
-<p>Definition at line <a class="el" href="BacktrackHelper_8cxx_source.html#l00229">229</a> of file <a class="el" href="BacktrackHelper_8cxx_source.html">BacktrackHelper.cxx</a>.</p>
+<p>Definition at line <a class="el" href="BacktrackHelper_8cxx_source.html#l00281">281</a> of file <a class="el" href="BacktrackHelper_8cxx_source.html">BacktrackHelper.cxx</a>.</p>
+
+</div>
+</div>
+<a class="anchor" id="a26ee59613ffcc3501af5f1d1ee26d49c"></a><!-- doxytag: member="ubcc1pi::BacktrackHelper::BacktrackerData::GetWeight" ref="a26ee59613ffcc3501af5f1d1ee26d49c" args="(const HitVector &amp;hits, const art::Ptr&lt; simb::MCParticle &gt; &amp;mcParticle) const " -->
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">float ubcc1pi::BacktrackHelper::BacktrackerData::GetWeight </td>
+          <td>(</td>
+          <td class="paramtype">const <a class="el" href="namespaceubcc1pi.html#aad18bb5924d1ff428402c8af4b72f1c0">HitVector</a> &amp;&nbsp;</td>
+          <td class="paramname"> <em>hits</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const art::Ptr&lt; simb::MCParticle &gt; &amp;&nbsp;</td>
+          <td class="paramname"> <em>mcParticle</em></td><td>&nbsp;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td><td> const</td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+
+<p>Get the summed weight associated with the input collection of Hits and MCParticle. </p>
+<dl><dt><b>Parameters:</b></dt><dd>
+  <table border="0" cellspacing="2" cellpadding="0">
+    <tr><td valign="top"></td><td valign="top"><em>hits</em>&nbsp;</td><td>the input hits </td></tr>
+    <tr><td valign="top"></td><td valign="top"><em>mcParticle</em>&nbsp;</td><td>the input MCParticle </td></tr>
+  </table>
+  </dd>
+</dl>
+
+<p>Definition at line <a class="el" href="BacktrackHelper_8cxx_source.html#l00457">457</a> of file <a class="el" href="BacktrackHelper_8cxx_source.html">BacktrackHelper.cxx</a>.</p>
+
+</div>
+</div>
+<a class="anchor" id="aaaef7d8975bdddf6df79a2386affeead"></a><!-- doxytag: member="ubcc1pi::BacktrackHelper::BacktrackerData::GetWeight" ref="aaaef7d8975bdddf6df79a2386affeead" args="(const art::Ptr&lt; recob::Hit &gt; &amp;hit, const art::Ptr&lt; simb::MCParticle &gt; &amp;mcParticle) const " -->
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">float ubcc1pi::BacktrackHelper::BacktrackerData::GetWeight </td>
+          <td>(</td>
+          <td class="paramtype">const art::Ptr&lt; recob::Hit &gt; &amp;&nbsp;</td>
+          <td class="paramname"> <em>hit</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const art::Ptr&lt; simb::MCParticle &gt; &amp;&nbsp;</td>
+          <td class="paramname"> <em>mcParticle</em></td><td>&nbsp;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td><td> const</td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+
+<p>Get the weight associated with the input Hit and MCParticle weight = fraction of the energy of the hit that was provided by the supplied MCParticle. </p>
+<dl><dt><b>Parameters:</b></dt><dd>
+  <table border="0" cellspacing="2" cellpadding="0">
+    <tr><td valign="top"></td><td valign="top"><em>hit</em>&nbsp;</td><td>the input hit </td></tr>
+    <tr><td valign="top"></td><td valign="top"><em>mcParticle</em>&nbsp;</td><td>the input MCParticle </td></tr>
+  </table>
+  </dd>
+</dl>
+
+<p>Definition at line <a class="el" href="BacktrackHelper_8cxx_source.html#l00437">437</a> of file <a class="el" href="BacktrackHelper_8cxx_source.html">BacktrackHelper.cxx</a>.</p>
 
 </div>
 </div>
@@ -679,7 +791,7 @@ simb::MCParticle, float &gt;&nbsp;</td><td class="memItemRight" valign="bottom">
   </dd>
 </dl>
 
-<p>Definition at line <a class="el" href="BacktrackHelper_8cxx_source.html#l00255">255</a> of file <a class="el" href="BacktrackHelper_8cxx_source.html">BacktrackHelper.cxx</a>.</p>
+<p>Definition at line <a class="el" href="BacktrackHelper_8cxx_source.html#l00307">307</a> of file <a class="el" href="BacktrackHelper_8cxx_source.html">BacktrackHelper.cxx</a>.</p>
 
 </div>
 </div>
@@ -707,11 +819,28 @@ simb::MCParticle, float &gt;&nbsp;</td><td class="memItemRight" valign="bottom">
   </dd>
 </dl>
 
-<p>Definition at line <a class="el" href="BacktrackHelper_8cxx_source.html#l00243">243</a> of file <a class="el" href="BacktrackHelper_8cxx_source.html">BacktrackHelper.cxx</a>.</p>
+<p>Definition at line <a class="el" href="BacktrackHelper_8cxx_source.html#l00295">295</a> of file <a class="el" href="BacktrackHelper_8cxx_source.html">BacktrackHelper.cxx</a>.</p>
 
 </div>
 </div>
 <hr/><h2>Member Data Documentation</h2>
+<a class="anchor" id="a5fdea3cfff2614e2b2305c3d78ca466b"></a><!-- doxytag: member="ubcc1pi::BacktrackHelper::BacktrackerData::m_hitsToMcps" ref="a5fdea3cfff2614e2b2305c3d78ca466b" args="" -->
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="namespaceubcc1pi.html#a9c8db99d0f284acb6b95013a2527c00d">HitsToMCParticleWeights</a> <a class="el" href="classubcc1pi_1_1BacktrackHelper_1_1BacktrackerData.html#a5fdea3cfff2614e2b2305c3d78ca466b">ubcc1pi::BacktrackHelper::BacktrackerData::m_hitsToMcps</a><code> [private]</code></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+
+<p>The mapping from hits to MCParticle along with the associated weights. </p>
+
+<p>Definition at line <a class="el" href="BacktrackHelper_8h_source.html#l00155">155</a> of file <a class="el" href="BacktrackHelper_8h_source.html">BacktrackHelper.h</a>.</p>
+
+</div>
+</div>
 <a class="anchor" id="a622fd1b767b090773759fa5cf365bafb"></a><!-- doxytag: member="ubcc1pi::BacktrackHelper::BacktrackerData::m_matchMap" ref="a622fd1b767b090773759fa5cf365bafb" args="" -->
 <div class="memitem">
 <div class="memproto">
@@ -725,7 +854,7 @@ simb::MCParticle, float &gt;&nbsp;</td><td class="memItemRight" valign="bottom">
 
 <p>The matching between PFParticles and MCParticles along with the shared weight. </p>
 
-<p>Definition at line <a class="el" href="BacktrackHelper_8h_source.html#l00130">130</a> of file <a class="el" href="BacktrackHelper_8h_source.html">BacktrackHelper.h</a>.</p>
+<p>Definition at line <a class="el" href="BacktrackHelper_8h_source.html#l00154">154</a> of file <a class="el" href="BacktrackHelper_8h_source.html">BacktrackHelper.h</a>.</p>
 
 </div>
 </div>
@@ -742,7 +871,7 @@ simb::MCParticle, float &gt;&nbsp;</td><td class="memItemRight" valign="bottom">
 
 <p>The MCParticles. </p>
 
-<p>Definition at line <a class="el" href="BacktrackHelper_8h_source.html#l00126">126</a> of file <a class="el" href="BacktrackHelper_8h_source.html">BacktrackHelper.h</a>.</p>
+<p>Definition at line <a class="el" href="BacktrackHelper_8h_source.html#l00150">150</a> of file <a class="el" href="BacktrackHelper_8h_source.html">BacktrackHelper.h</a>.</p>
 
 </div>
 </div>
@@ -759,7 +888,7 @@ simb::MCParticle, float &gt;&nbsp;</td><td class="memItemRight" valign="bottom">
 
 <p>The mapping from MCParticle to the total weight (= weighted number of hits). </p>
 
-<p>Definition at line <a class="el" href="BacktrackHelper_8h_source.html#l00128">128</a> of file <a class="el" href="BacktrackHelper_8h_source.html">BacktrackHelper.h</a>.</p>
+<p>Definition at line <a class="el" href="BacktrackHelper_8h_source.html#l00152">152</a> of file <a class="el" href="BacktrackHelper_8h_source.html">BacktrackHelper.h</a>.</p>
 
 </div>
 </div>
@@ -776,7 +905,7 @@ simb::MCParticle, float &gt;&nbsp;</td><td class="memItemRight" valign="bottom">
 
 <p>The PFParticles. </p>
 
-<p>Definition at line <a class="el" href="BacktrackHelper_8h_source.html#l00127">127</a> of file <a class="el" href="BacktrackHelper_8h_source.html">BacktrackHelper.h</a>.</p>
+<p>Definition at line <a class="el" href="BacktrackHelper_8h_source.html#l00151">151</a> of file <a class="el" href="BacktrackHelper_8h_source.html">BacktrackHelper.h</a>.</p>
 
 </div>
 </div>
@@ -793,7 +922,7 @@ simb::MCParticle, float &gt;&nbsp;</td><td class="memItemRight" valign="bottom">
 
 <p>The mapping from PFParticle to the total weight (= number of hits). </p>
 
-<p>Definition at line <a class="el" href="BacktrackHelper_8h_source.html#l00129">129</a> of file <a class="el" href="BacktrackHelper_8h_source.html">BacktrackHelper.h</a>.</p>
+<p>Definition at line <a class="el" href="BacktrackHelper_8h_source.html#l00153">153</a> of file <a class="el" href="BacktrackHelper_8h_source.html">BacktrackHelper.h</a>.</p>
 
 </div>
 </div>
@@ -819,7 +948,7 @@ simb::MCParticle, float &gt;&nbsp;</td><td class="memItemRight" valign="bottom">
 <hr size="1"/>
 <address style="text-align: right;">
     <small>
-        Generated on Tue Mar 26 16:35:05 2019 for ubcc1pi by <a href="http://www.doxygen.org/index.html" target="_blank">doxygen</a> 1.6.1
+        Generated on Mon Apr 8 11:11:36 2019 for ubcc1pi by <a href="http://www.doxygen.org/index.html" target="_blank">doxygen</a> 1.6.1
     </small>
 </address>
 

@@ -107,6 +107,7 @@ window.onload = initDynSections;
 <code>#include &quot;lardataobj/RecoBase/Hit.h&quot;</code><br/>
 <code>#include &quot;lardataobj/RecoBase/PFParticle.h&quot;</code><br/>
 <code>#include &quot;lardataobj/RecoBase/Cluster.h&quot;</code><br/>
+<code>#include &quot;lardataobj/RecoBase/Slice.h&quot;</code><br/>
 <code>#include &quot;lardataobj/AnalysisBase/BackTrackerMatchingData.h&quot;</code><br/>
 
 <p><a href="CollectionHelper_8h_source.html">Go to the source code of this file.</a></p>
@@ -122,12 +123,23 @@ window.onload = initDynSections;
 <tr><td class="memItemLeft" align="right" valign="top">typedef Collection<br class="typebreak"/>
 &lt; recob::PFParticle &gt;&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceubcc1pi.html#a6f66dc13c5a55147db5c84db67f6062b">ubcc1pi::PFParticleVector</a></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">typedef Collection&lt; recob::Hit &gt;&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceubcc1pi.html#aad18bb5924d1ff428402c8af4b72f1c0">ubcc1pi::HitVector</a></td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">typedef Collection&lt; recob::Slice &gt;&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceubcc1pi.html#aa994f8a737de42fc8bf8f51e5b5ed363">ubcc1pi::SliceVector</a></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">typedef Association<br class="typebreak"/>
 &lt; recob::Hit, <br class="typebreak"/>
 recob::PFParticle &gt;&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceubcc1pi.html#a679f75d7e515d88fd2b37057e0d681bb">ubcc1pi::HitsToPFParticles</a></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">typedef AssociationData<br class="typebreak"/>
 &lt; recob::Hit, simb::MCParticle, <br class="typebreak"/>
 float &gt;&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceubcc1pi.html#a9c8db99d0f284acb6b95013a2527c00d">ubcc1pi::HitsToMCParticleWeights</a></td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">typedef Association<br class="typebreak"/>
+&lt; recob::Slice, recob::Hit &gt;&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceubcc1pi.html#ab9236b7f2097980810f3f2737455749c">ubcc1pi::SlicesToHits</a></td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">typedef Association<br class="typebreak"/>
+&lt; recob::Slice, <br class="typebreak"/>
+recob::PFParticle &gt;&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceubcc1pi.html#af71288e330b74f94db7a05b62adc65bb">ubcc1pi::SlicesToPFParticles</a></td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">typedef std::unordered_map<br class="typebreak"/>
+&lt; art::Ptr&lt; recob::Hit &gt;, bool &gt;&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceubcc1pi.html#a8ce7e6a90e2e4a858a72ad75073a3f7e">ubcc1pi::HitsToBool</a></td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">typedef std::unordered_map<br class="typebreak"/>
+&lt; art::Ptr&lt; recob::Slice &gt;<br class="typebreak"/>
+, bool &gt;&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceubcc1pi.html#ad48fdc9041372ec7c0bfcfc3fe3b7217">ubcc1pi::SlicesToBool</a></td></tr>
 </table>
 <hr/><a name="_details"></a><h2>Detailed Description</h2>
 <p>The header file for the collection helper class. </p>
@@ -151,7 +163,7 @@ float &gt;&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href
 <hr size="1"/>
 <address style="text-align: right;">
     <small>
-        Generated on Tue Mar 26 16:35:05 2019 for ubcc1pi by <a href="http://www.doxygen.org/index.html" target="_blank">doxygen</a> 1.6.1
+        Generated on Mon Apr 8 11:11:36 2019 for ubcc1pi by <a href="http://www.doxygen.org/index.html" target="_blank">doxygen</a> 1.6.1
     </small>
 </address>
 

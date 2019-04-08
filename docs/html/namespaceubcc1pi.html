@@ -117,12 +117,23 @@ window.onload = initDynSections;
 <tr><td class="memItemLeft" align="right" valign="top">typedef Collection<br class="typebreak"/>
 &lt; recob::PFParticle &gt;&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceubcc1pi.html#a6f66dc13c5a55147db5c84db67f6062b">PFParticleVector</a></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">typedef Collection&lt; recob::Hit &gt;&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceubcc1pi.html#aad18bb5924d1ff428402c8af4b72f1c0">HitVector</a></td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">typedef Collection&lt; recob::Slice &gt;&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceubcc1pi.html#aa994f8a737de42fc8bf8f51e5b5ed363">SliceVector</a></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">typedef Association<br class="typebreak"/>
 &lt; recob::Hit, <br class="typebreak"/>
 recob::PFParticle &gt;&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceubcc1pi.html#a679f75d7e515d88fd2b37057e0d681bb">HitsToPFParticles</a></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">typedef AssociationData<br class="typebreak"/>
 &lt; recob::Hit, simb::MCParticle, <br class="typebreak"/>
 float &gt;&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceubcc1pi.html#a9c8db99d0f284acb6b95013a2527c00d">HitsToMCParticleWeights</a></td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">typedef Association<br class="typebreak"/>
+&lt; recob::Slice, recob::Hit &gt;&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceubcc1pi.html#ab9236b7f2097980810f3f2737455749c">SlicesToHits</a></td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">typedef Association<br class="typebreak"/>
+&lt; recob::Slice, <br class="typebreak"/>
+recob::PFParticle &gt;&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceubcc1pi.html#af71288e330b74f94db7a05b62adc65bb">SlicesToPFParticles</a></td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">typedef std::unordered_map<br class="typebreak"/>
+&lt; art::Ptr&lt; recob::Hit &gt;, bool &gt;&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceubcc1pi.html#a8ce7e6a90e2e4a858a72ad75073a3f7e">HitsToBool</a></td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">typedef std::unordered_map<br class="typebreak"/>
+&lt; art::Ptr&lt; recob::Slice &gt;<br class="typebreak"/>
+, bool &gt;&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceubcc1pi.html#ad48fdc9041372ec7c0bfcfc3fe3b7217">SlicesToBool</a></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">typedef std::unordered_map<br class="typebreak"/>
 &lt; int, art::Ptr<br class="typebreak"/>
 &lt; recob::PFParticle &gt; &gt;&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceubcc1pi.html#a191f1ccf6de87673e21719a2d401a00f">PFParticleMap</a></td></tr>
@@ -133,6 +144,21 @@ float &gt;&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href
 <tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">A map intended to hold the mapping from MCParticle.TrackId() -&gt; MCParticle - for navigation of the MCParticle hierarchy.  <a href="#ad270925efcb22aadbfb3e59d150771b9"></a><br/></td></tr>
 </table>
 <hr/><h2>Typedef Documentation</h2>
+<a class="anchor" id="a8ce7e6a90e2e4a858a72ad75073a3f7e"></a><!-- doxytag: member="ubcc1pi::HitsToBool" ref="a8ce7e6a90e2e4a858a72ad75073a3f7e" args="" -->
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">typedef std::unordered_map&lt;art::Ptr&lt;recob::Hit&gt;, bool&gt; <a class="el" href="namespaceubcc1pi.html#a8ce7e6a90e2e4a858a72ad75073a3f7e">ubcc1pi::HitsToBool</a></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+
+<p>Definition at line <a class="el" href="CollectionHelper_8h_source.html#l00055">55</a> of file <a class="el" href="CollectionHelper_8h_source.html">CollectionHelper.h</a>.</p>
+
+</div>
+</div>
 <a class="anchor" id="a9c8db99d0f284acb6b95013a2527c00d"></a><!-- doxytag: member="ubcc1pi::HitsToMCParticleWeights" ref="a9c8db99d0f284acb6b95013a2527c00d" args="" -->
 <div class="memitem">
 <div class="memproto">
@@ -144,7 +170,7 @@ float &gt;&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href
 </div>
 <div class="memdoc">
 
-<p>Definition at line <a class="el" href="CollectionHelper_8h_source.html#l00049">49</a> of file <a class="el" href="CollectionHelper_8h_source.html">CollectionHelper.h</a>.</p>
+<p>Definition at line <a class="el" href="CollectionHelper_8h_source.html#l00051">51</a> of file <a class="el" href="CollectionHelper_8h_source.html">CollectionHelper.h</a>.</p>
 
 </div>
 </div>
@@ -159,7 +185,7 @@ float &gt;&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href
 </div>
 <div class="memdoc">
 
-<p>Definition at line <a class="el" href="CollectionHelper_8h_source.html#l00048">48</a> of file <a class="el" href="CollectionHelper_8h_source.html">CollectionHelper.h</a>.</p>
+<p>Definition at line <a class="el" href="CollectionHelper_8h_source.html#l00050">50</a> of file <a class="el" href="CollectionHelper_8h_source.html">CollectionHelper.h</a>.</p>
 
 </div>
 </div>
@@ -174,7 +200,7 @@ float &gt;&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href
 </div>
 <div class="memdoc">
 
-<p>Definition at line <a class="el" href="CollectionHelper_8h_source.html#l00046">46</a> of file <a class="el" href="CollectionHelper_8h_source.html">CollectionHelper.h</a>.</p>
+<p>Definition at line <a class="el" href="CollectionHelper_8h_source.html#l00047">47</a> of file <a class="el" href="CollectionHelper_8h_source.html">CollectionHelper.h</a>.</p>
 
 </div>
 </div>
@@ -206,7 +232,7 @@ float &gt;&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href
 </div>
 <div class="memdoc">
 
-<p>Definition at line <a class="el" href="CollectionHelper_8h_source.html#l00044">44</a> of file <a class="el" href="CollectionHelper_8h_source.html">CollectionHelper.h</a>.</p>
+<p>Definition at line <a class="el" href="CollectionHelper_8h_source.html#l00045">45</a> of file <a class="el" href="CollectionHelper_8h_source.html">CollectionHelper.h</a>.</p>
 
 </div>
 </div>
@@ -238,7 +264,67 @@ float &gt;&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href
 </div>
 <div class="memdoc">
 
-<p>Definition at line <a class="el" href="CollectionHelper_8h_source.html#l00045">45</a> of file <a class="el" href="CollectionHelper_8h_source.html">CollectionHelper.h</a>.</p>
+<p>Definition at line <a class="el" href="CollectionHelper_8h_source.html#l00046">46</a> of file <a class="el" href="CollectionHelper_8h_source.html">CollectionHelper.h</a>.</p>
+
+</div>
+</div>
+<a class="anchor" id="ad48fdc9041372ec7c0bfcfc3fe3b7217"></a><!-- doxytag: member="ubcc1pi::SlicesToBool" ref="ad48fdc9041372ec7c0bfcfc3fe3b7217" args="" -->
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">typedef std::unordered_map&lt;art::Ptr&lt;recob::Slice&gt;, bool&gt; <a class="el" href="namespaceubcc1pi.html#ad48fdc9041372ec7c0bfcfc3fe3b7217">ubcc1pi::SlicesToBool</a></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+
+<p>Definition at line <a class="el" href="CollectionHelper_8h_source.html#l00056">56</a> of file <a class="el" href="CollectionHelper_8h_source.html">CollectionHelper.h</a>.</p>
+
+</div>
+</div>
+<a class="anchor" id="ab9236b7f2097980810f3f2737455749c"></a><!-- doxytag: member="ubcc1pi::SlicesToHits" ref="ab9236b7f2097980810f3f2737455749c" args="" -->
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">typedef Association&lt;recob::Slice, recob::Hit&gt; <a class="el" href="namespaceubcc1pi.html#ab9236b7f2097980810f3f2737455749c">ubcc1pi::SlicesToHits</a></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+
+<p>Definition at line <a class="el" href="CollectionHelper_8h_source.html#l00052">52</a> of file <a class="el" href="CollectionHelper_8h_source.html">CollectionHelper.h</a>.</p>
+
+</div>
+</div>
+<a class="anchor" id="af71288e330b74f94db7a05b62adc65bb"></a><!-- doxytag: member="ubcc1pi::SlicesToPFParticles" ref="af71288e330b74f94db7a05b62adc65bb" args="" -->
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">typedef Association&lt;recob::Slice, recob::PFParticle&gt; <a class="el" href="namespaceubcc1pi.html#af71288e330b74f94db7a05b62adc65bb">ubcc1pi::SlicesToPFParticles</a></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+
+<p>Definition at line <a class="el" href="CollectionHelper_8h_source.html#l00053">53</a> of file <a class="el" href="CollectionHelper_8h_source.html">CollectionHelper.h</a>.</p>
+
+</div>
+</div>
+<a class="anchor" id="aa994f8a737de42fc8bf8f51e5b5ed363"></a><!-- doxytag: member="ubcc1pi::SliceVector" ref="aa994f8a737de42fc8bf8f51e5b5ed363" args="" -->
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">typedef Collection&lt;recob::Slice&gt; <a class="el" href="namespaceubcc1pi.html#aa994f8a737de42fc8bf8f51e5b5ed363">ubcc1pi::SliceVector</a></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+
+<p>Definition at line <a class="el" href="CollectionHelper_8h_source.html#l00048">48</a> of file <a class="el" href="CollectionHelper_8h_source.html">CollectionHelper.h</a>.</p>
 
 </div>
 </div>
@@ -260,7 +346,7 @@ float &gt;&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href
 <hr size="1"/>
 <address style="text-align: right;">
     <small>
-        Generated on Tue Mar 26 16:35:05 2019 for ubcc1pi by <a href="http://www.doxygen.org/index.html" target="_blank">doxygen</a> 1.6.1
+        Generated on Mon Apr 8 11:11:36 2019 for ubcc1pi by <a href="http://www.doxygen.org/index.html" target="_blank">doxygen</a> 1.6.1
     </small>
 </address>
 

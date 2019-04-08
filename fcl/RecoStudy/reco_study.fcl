@@ -5,10 +5,12 @@ reco_study:
     module_type: "RecoStudy"
 
     # Input labels
-    MCTruthLabel:    "generator"
-    MCParticleLabel: "largeant"
+    MCTruthLabel:     "generator"
+    MCParticleLabel:  "largeant"
     BacktrackerLabel: "gaushitTruthMatch"
-    PFParticleLabel: "pandora"
+    PFParticleLabel:  "pandora"
+    SliceLabel:       "pandora"
+    HitLabel:         "gaushit"
 }
 
 END_PROLOG

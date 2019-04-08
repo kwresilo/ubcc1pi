@@ -24,10 +24,9 @@ PFParticleMap RecoHelper::GetPFParticleMap(const PFParticleVector &allPFParticle
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
 
-art::Ptr<recob::PFParticle> RecoHelper::GetNeutrino(const PFParticleVector &allPFParticles)
+PFParticleVector RecoHelper::GetNeutrinos(const PFParticleVector &allPFParticles)
 {
-    bool foundNu = false;
-    art::Ptr<recob::PFParticle> neutrino;
+    PFParticleVector neutrinos;
 
     for (const auto &particle : allPFParticles)
     {
@@ -36,18 +35,26 @@ art::Ptr<recob::PFParticle> RecoHelper::GetNeutrino(const PFParticleVector &allP
             pdg == 14 || // Numu
             pdg == 16 )  // Nutau
         {
-            if (foundNu)
-                throw cet::exception("RecoHelper::GetNeutrino") << " - Found multiple neutrino PFParticles." << std::endl;
-
-            foundNu = true;
-            neutrino = particle;
+            neutrinos.push_back(particle);
         }
     }
             
-    if (!foundNu)
+    return neutrinos;
+}
+
+// -----------------------------------------------------------------------------------------------------------------------------------------
+
+art::Ptr<recob::PFParticle> RecoHelper::GetNeutrino(const PFParticleVector &allPFParticles)
+{
+    const auto &neutrinos = RecoHelper::GetNeutrinos(allPFParticles);
+
+    if (neutrinos.empty())
         throw cet::exception("RecoHelper::GetNeutrino") << " - Didn't find a neutrino PFParticle." << std::endl;
 
-    return neutrino;
+    if (neutrinos.size() > 1)
+        throw cet::exception("RecoHelper::GetNeutrino") << " - Found multiple neutrino PFParticles." << std::endl;
+
+    return neutrinos.front();
 }
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
@@ -120,6 +127,18 @@ void RecoHelper::GetDownstreamParticles(const art::Ptr<recob::PFParticle> &parti
 
     for (const auto &daughter : RecoHelper::GetDaughters(particle, pfParticleMap))
         RecoHelper::GetDownstreamParticles(daughter, pfParticleMap, downstreamParticles);
+}
+
+// -----------------------------------------------------------------------------------------------------------------------------------------
+        
+bool RecoHelper::IsSliceSelectedAsNu(const art::Ptr<recob::Slice> &slice, const SlicesToPFParticles &slicesToPFParticles)
+{
+    const auto neutrinos = RecoHelper::GetNeutrinos(CollectionHelper::GetManyAssociated(slice, slicesToPFParticles));
+    
+    if (neutrinos.size() > 1)
+        throw cet::exception("RecoHelper::IsSliceSelectedAsNu") << " - Found multiple neutrino PFParticles associated to slice." << std::endl;
+ 
+    return (!neutrinos.empty());
 }
 
 } // namespace ubcc1pi

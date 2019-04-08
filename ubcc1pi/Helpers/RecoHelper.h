@@ -27,6 +27,7 @@ class RecoHelper
     public:
         // TODO doxygen comments
         static PFParticleMap GetPFParticleMap(const PFParticleVector &allPFParticles);
+        static PFParticleVector GetNeutrinos(const PFParticleVector &allPFParticles);
         static art::Ptr<recob::PFParticle> GetNeutrino(const PFParticleVector &allPFParticles);
 
         /**
@@ -39,7 +40,7 @@ class RecoHelper
         static PFParticleVector GetDaughters(const art::Ptr<recob::PFParticle> &particle, const PFParticleMap &pfParticleMap);
         static PFParticleVector GetDownstreamParticles(const art::Ptr<recob::PFParticle> &particle, const PFParticleMap &pfParticleMap);
         static void GetDownstreamParticles(const art::Ptr<recob::PFParticle> &particle, const PFParticleMap &pfParticleMap, PFParticleVector &downstreamParticles);
-
+        static bool IsSliceSelectedAsNu(const art::Ptr<recob::Slice> &slice, const SlicesToPFParticles &slicesToPFParticles);
 };
 
 } // namespace ubcc1pi

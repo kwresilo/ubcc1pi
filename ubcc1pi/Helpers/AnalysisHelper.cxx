@@ -220,4 +220,26 @@ BacktrackHelper::BacktrackerData AnalysisHelper::GetBacktrackerData(const art::E
     return BacktrackHelper::BacktrackerData(finalStatePFParticles, finalStateMCParticles, hitsToPfps, hitsToMcps);
 }
 
+// -----------------------------------------------------------------------------------------------------------------------------------------
+        
+BacktrackHelper::SliceMetadata AnalysisHelper::GetSliceMetadata(const art::Event &event, const art::InputTag &mcTruthLabel, const art::InputTag &mcParticleLabel, const art::InputTag &backtrackerLabel, const art::InputTag &pfParticleLabel, const art::InputTag &sliceLabel, const art::InputTag &hitLabel)
+{
+    const auto slices = CollectionHelper::GetCollection<recob::Slice>(event, sliceLabel);
+    const auto slicesToHits = CollectionHelper::GetAssociation<recob::Slice, recob::Hit>(event, sliceLabel);
+    const auto pfParticlesToSlices = CollectionHelper::GetAssociation<recob::PFParticle, recob::Slice>(event, pfParticleLabel, sliceLabel);
+    const auto slicesToPFParticles = CollectionHelper::GetReversedAssociation(pfParticlesToSlices);    
+    const auto nuMCTruth = TruthHelper::GetNeutrinoMCTruth(event, mcTruthLabel);
+    const auto nuMCParticles = TruthHelper::GetMCParticlesFromMCTruth(event, mcTruthLabel, mcParticleLabel, nuMCTruth);
+    const auto hitsToIsNuInduced = BacktrackHelper::GetHitsToIsNuInducedMap(event, hitLabel, mcParticleLabel, backtrackerLabel, nuMCParticles);
+    
+    SlicesToBool sliceToIsSelectedAsNu;
+    for (const auto &slice : slices)
+    {
+        if (!sliceToIsSelectedAsNu.emplace(slice, RecoHelper::IsSliceSelectedAsNu(slice, slicesToPFParticles)).second)
+            throw cet::exception("AnalysisHelper::GetSliceMetadata") << " - Repeated slices." << std::endl;
+    }
+
+    return BacktrackHelper::SliceMetadata(slices, sliceToIsSelectedAsNu, slicesToHits, hitsToIsNuInduced);
+}
+
 } // namespace ubcc1pi

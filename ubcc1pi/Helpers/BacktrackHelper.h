@@ -73,6 +73,13 @@ class BacktrackHelper
                  *  @param  mcParticle the mcParticle
                  */
                 float GetWeight(const art::Ptr<simb::MCParticle> &mcParticle) const;
+
+                /**
+                 *  @brief  Get all hits that are associated the MCParticle with any weight
+                 *
+                 *  @param  mcParticle the mcParticle
+                 */
+                HitVector GetHits(const art::Ptr<simb::MCParticle> &mcParticle) const;
                 
                 /**
                  *  @brief  Get the weight of a given PFParticle-MCParticle pair
@@ -114,6 +121,23 @@ class BacktrackHelper
                  */
                 PFParticleVector GetBestMatchedPFParticles(const art::Ptr<simb::MCParticle> &mcParticle) const;
 
+                /**
+                 *  @brief  Get the weight associated with the input Hit and MCParticle
+                 *          weight = fraction of the energy of the hit that was provided by the supplied MCParticle
+                 *
+                 *  @param  hit the input hit
+                 *  @param  mcParticle the input MCParticle
+                 */
+                float GetWeight(const art::Ptr<recob::Hit> &hit, const art::Ptr<simb::MCParticle> &mcParticle) const;
+
+                /**
+                 *  @brief  Get the summed weight associated with the input collection of Hits and MCParticle
+                 *
+                 *  @param  hits the input hits
+                 *  @param  mcParticle the input MCParticle
+                 */
+                float GetWeight(const HitVector &hits, const art::Ptr<simb::MCParticle> &mcParticle) const;
+
             private:
 
                 // TODO doxygen comments
@@ -123,11 +147,110 @@ class BacktrackHelper
                 bool CollectPFParticle(const art::Ptr<recob::Hit> &hit, const HitsToPFParticles &hitsToPfps, art::Ptr<recob::PFParticle> &outputParticle) const;
                 bool CollectMCParticleWeights(const art::Ptr<recob::Hit> &hit, const HitsToMCParticleWeights &hitsToMcps, CollectionData<simb::MCParticle, float> &outputParticleWeights) const;
 
-                MCParticleVector     m_mcParticles;         ///< The MCParticles
-                PFParticleVector     m_pfParticles;         ///< The PFParticles
-                MCParticleToFloatMap m_mcParticleWeightMap; ///< The mapping from MCParticle to the total weight (= weighted number of hits)
-                PFParticleToFloatMap m_pfParticleWeightMap; ///< The mapping from PFParticle to the total weight (= number of hits)
-                MatchMap             m_matchMap;            ///< The matching between PFParticles and MCParticles along with the shared weight
+                MCParticleVector        m_mcParticles;         ///< The MCParticles
+                PFParticleVector        m_pfParticles;         ///< The PFParticles
+                MCParticleToFloatMap    m_mcParticleWeightMap; ///< The mapping from MCParticle to the total weight (= weighted number of hits)
+                PFParticleToFloatMap    m_pfParticleWeightMap; ///< The mapping from PFParticle to the total weight (= number of hits)
+                MatchMap                m_matchMap;            ///< The matching between PFParticles and MCParticles along with the shared weight
+                HitsToMCParticleWeights m_hitsToMcps;          ///< The mapping from hits to MCParticle along with the associated weights 
+        };
+
+        /**
+         *  @brief  Class holding the backtracking details of the slices
+         */
+        class SliceMetadata
+        {
+            public:
+                /** 
+                 *  @brief  Constructor
+                 *
+                 *  @param  slices the input slices
+                 *  @param  sliceToIsSelectedAsNu the input map from a slice to whether it's been selected as the neutrino - There should only ever be 1 or zero slices selected
+                 *  @param  slicesToHits the input mapping from hits to slices
+                 *  @param  hitsToIsNuInduced the input mapping from a hit to whether it's neutrino induced or not
+                 */
+                SliceMetadata(const SliceVector &slices, const SlicesToBool &sliceToIsSelectedAsNu, const SlicesToHits &slicesToHits, const HitsToBool &hitsToIsNuInduced);
+
+                /** 
+                 *  @brief  Get the slices
+                 */
+                SliceVector GetSlices() const;
+
+                /** 
+                 *  @brief  Get the purity of a given slice
+                 *          purity = fraction of the hits in the slice that are neutrino induced
+                 *
+                 *  @param  slice the input slice
+                 */
+                float GetPurity(const art::Ptr<recob::Slice> &slice) const;
+                
+                /** 
+                 *  @brief  Get the completeness of a given slice
+                 *          completeness = fraction of the neutrino induced hits in the event that are in the slice
+                 *
+                 *  @param  slice the input slice
+                 */
+                float GetCompleteness(const art::Ptr<recob::Slice> &slice) const;
+
+                /** 
+                 *  @brief  Get the number of hits in the slice
+                 *
+                 *  @param  slice the input slice
+                 */
+                unsigned int GetNumberOfHits(const art::Ptr<recob::Slice> &slice) const;
+                
+                /** 
+                 *  @brief  Get the hits in the given slice
+                 *
+                 *  @param  slice the input slice
+                 */
+                HitVector GetHits(const art::Ptr<recob::Slice> &slice) const;
+                
+                /** 
+                 *  @brief  Get the number of neutrino induced hits in the slice
+                 *
+                 *  @param  slice the input slice
+                 */
+                unsigned int GetNumberOfNuInducedHits(const art::Ptr<recob::Slice> &slice) const;
+                
+                /** 
+                 *  @brief  Get the total number of neutrino induced hits
+                 */
+                unsigned int GetTotalNumberOfNuInducedHits() const;
+
+                /** 
+                 *  @brief  Get the slice with the largest completeness
+                 */
+                art::Ptr<recob::Slice> GetMostCompleteSlice() const;
+                
+                /** 
+                 *  @brief  Get the slices that have been selected a neutrinos
+                 */
+                SliceVector GetSelectedNeutrinoSlices() const;
+                
+                /** 
+                 *  @brief  Determine if the most complete slice has been selected as a neutrino
+                 */
+                bool IsMostCompleteSliceSelected() const;
+
+            private:
+
+                /** 
+                 *  @brief  Get all hits in the event through the slices
+                 */
+                HitVector GetAllHits() const;
+
+                /** 
+                 *  @brief  Count the number of hits in the input vector that are neutrino induced
+                 *
+                 *  @param  hits the input hits
+                 */
+                unsigned int CountNuInducedHits(const HitVector &hits) const;
+
+                SliceVector  m_slices;
+                SlicesToBool m_sliceToIsSelectedAsNu;
+                SlicesToHits m_slicesToHits;
+                HitsToBool   m_hitsToIsNuInduced;
         };
 
     /**
@@ -148,6 +271,17 @@ class BacktrackHelper
      *  @param  finalStates the input vector of final state MCParticles
      */
     static HitsToMCParticleWeights GetHitToMCParticleWeightMap(const art::Event &event, const art::InputTag &mcParticleLabel, const art::InputTag &backtrackerLabel, const MCParticleVector &finalStates);
+
+    /**
+     *  @brief  Get the mapping from all hits, to whether the hit is induced (at least in part) by a neutrino induced MCParticle
+     *
+     *  @param  event the art event
+     *  @param  hitLabel the Hit producer label
+     *  @param  mcParticleLabel the MCParticle producer label
+     *  @param  backtrackerLabel the MCParticle to hit producer label
+     *  @param  nuMCParticles the input vector of neutrino induced MCParticles
+     */
+    static HitsToBool GetHitsToIsNuInducedMap(const art::Event &event, const art::InputTag &hitLabel, const art::InputTag &mcParticleLabel, const art::InputTag &backtrackerLabel, const MCParticleVector &nuMCParticles);
 };
 
 } // namespace ubcc1pi

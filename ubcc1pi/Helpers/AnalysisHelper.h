@@ -55,6 +55,8 @@ class AnalysisHelper
         static unsigned int CountParticlesWithPDG(const MCParticleVector &particles, const int pdg);
         static BacktrackHelper::BacktrackerData GetBacktrackerData(const art::Event &event, const art::InputTag &mcTruthLabel, const art::InputTag &mcParticleLabel, const art::InputTag &backtrackerLabel, const art::InputTag &pfParticleLabel);
 
+        static BacktrackHelper::SliceMetadata GetSliceMetadata(const art::Event &event, const art::InputTag &mcTruthLabel, const art::InputTag &mcParticleLabel, const art::InputTag &backtrackerLabel, const art::InputTag &pfParticleLabel, const art::InputTag &sliceLabel, const art::InputTag &hitLabel);
+
     private:
         /**
          *  @brief  Get the first visible MCParticles in the hierarchy - these are the final state particles we expect to produce tracks and showers

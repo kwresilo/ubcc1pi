@@ -323,7 +323,48 @@ window.onload = initDynSections;
 <a name="l00227"></a>00227     }
 <a name="l00228"></a>00228 }
 <a name="l00229"></a>00229 
-<a name="l00230"></a>00230 } <span class="comment">// namespace ubcc1pi</span>
+<a name="l00230"></a>00230 <span class="comment">// -----------------------------------------------------------------------------------------------------------------------------------------</span>
+<a name="l00231"></a>00231 
+<a name="l00232"></a><a class="code" href="classubcc1pi_1_1DebugHelper.html#a9baa836bc0aaffed4df904deedf6a00f">00232</a> <span class="keywordtype">void</span> <a class="code" href="classubcc1pi_1_1DebugHelper.html#a2c4d153bc246d7b98d4ab674f4a9a494" title="Print an MCParticle.">DebugHelper::Print</a>(<span class="keyword">const</span> <a class="code" href="classubcc1pi_1_1BacktrackHelper_1_1SliceMetadata.html" title="Class holding the backtracking details of the slices.">BacktrackHelper::SliceMetadata</a> &amp;sliceMetadata, <span class="keyword">const</span> <span class="keywordtype">unsigned</span> <span class="keywordtype">int</span> depth)
+<a name="l00233"></a>00233 {
+<a name="l00234"></a>00234     <span class="keyword">const</span> <span class="keyword">auto</span> slices = sliceMetadata.<a class="code" href="classubcc1pi_1_1BacktrackHelper_1_1SliceMetadata.html#a67cb3c839bb4fcea1eccb32bff9a9d4e" title="Get the slices.">GetSlices</a>();
+<a name="l00235"></a>00235     <span class="keyword">const</span> <span class="keyword">auto</span> totalNuHits = sliceMetadata.<a class="code" href="classubcc1pi_1_1BacktrackHelper_1_1SliceMetadata.html#ab40aca65872d1c3ed6e2afd8031d30de" title="Get the total number of neutrino induced hits.">GetTotalNumberOfNuInducedHits</a>();
+<a name="l00236"></a>00236     <span class="keyword">const</span> <span class="keyword">auto</span> selectedSlices = sliceMetadata.<a class="code" href="classubcc1pi_1_1BacktrackHelper_1_1SliceMetadata.html#ad9adc94bb2108988a9007ea11d5eb0cd" title="Get the slices that have been selected a neutrinos.">GetSelectedNeutrinoSlices</a>();
+<a name="l00237"></a>00237 
+<a name="l00238"></a>00238     <a class="code" href="classubcc1pi_1_1DebugHelper.html#aabd1b6f052f9414f1879b8af9982adfc">DebugHelper::PrintHeader</a>(<span class="stringliteral">&quot;Slice metadata&quot;</span>, depth);
+<a name="l00239"></a>00239     <a class="code" href="classubcc1pi_1_1DebugHelper.html#a8ce418c62a4eede98d01b1b0177c5b33">DebugHelper::PrintProperty</a>(<span class="stringliteral">&quot;# Slices&quot;</span>, slices.size(), depth);
+<a name="l00240"></a>00240     <a class="code" href="classubcc1pi_1_1DebugHelper.html#a8ce418c62a4eede98d01b1b0177c5b33">DebugHelper::PrintProperty</a>(<span class="stringliteral">&quot;# Slices selected&quot;</span>, selectedSlices.size(), depth);
+<a name="l00241"></a>00241     <a class="code" href="classubcc1pi_1_1DebugHelper.html#a8ce418c62a4eede98d01b1b0177c5b33">DebugHelper::PrintProperty</a>(<span class="stringliteral">&quot;# Total neutrino hits&quot;</span>, totalNuHits, depth);
+<a name="l00242"></a>00242 
+<a name="l00243"></a>00243     art::Ptr&lt;recob::Slice&gt; mostCompleteSlice;
+<a name="l00244"></a>00244     <span class="keywordflow">if</span> (totalNuHits &gt; 0)
+<a name="l00245"></a>00245     {
+<a name="l00246"></a>00246         mostCompleteSlice = sliceMetadata.<a class="code" href="classubcc1pi_1_1BacktrackHelper_1_1SliceMetadata.html#a8f66604753714e61261df01f8fd5d6d4" title="Get the slice with the largest completeness.">GetMostCompleteSlice</a>();
+<a name="l00247"></a>00247         <a class="code" href="classubcc1pi_1_1DebugHelper.html#a8ce418c62a4eede98d01b1b0177c5b33">DebugHelper::PrintProperty</a>(<span class="stringliteral">&quot;Most complete slice selected?&quot;</span>, sliceMetadata.<a class="code" href="classubcc1pi_1_1BacktrackHelper_1_1SliceMetadata.html#a6f8ef72c837db9c44baf97146cb63fcc" title="Determine if the most complete slice has been selected as a neutrino.">IsMostCompleteSliceSelected</a>(), depth);
+<a name="l00248"></a>00248     }
+<a name="l00249"></a>00249 
+<a name="l00250"></a>00250     <span class="keywordflow">for</span> (<span class="keyword">const</span> <span class="keyword">auto</span> &amp;slice : slices)
+<a name="l00251"></a>00251     {
+<a name="l00252"></a>00252         <a class="code" href="classubcc1pi_1_1DebugHelper.html#aabd1b6f052f9414f1879b8af9982adfc">DebugHelper::PrintHeader</a>(<span class="stringliteral">&quot;Slice&quot;</span>, depth + 1);
+<a name="l00253"></a>00253 
+<a name="l00254"></a>00254         <span class="keyword">const</span> <span class="keyword">auto</span> nHits = sliceMetadata.<a class="code" href="classubcc1pi_1_1BacktrackHelper_1_1SliceMetadata.html#ab021c38b5f7c9f983ff4edd0755e1e02" title="Get the number of hits in the slice.">GetNumberOfHits</a>(slice);
+<a name="l00255"></a>00255         <a class="code" href="classubcc1pi_1_1DebugHelper.html#a8ce418c62a4eede98d01b1b0177c5b33">DebugHelper::PrintProperty</a>(<span class="stringliteral">&quot;# Hits&quot;</span>, nHits, depth + 1);
+<a name="l00256"></a>00256 
+<a name="l00257"></a>00257         <span class="keywordflow">if</span> (nHits &gt; 0)
+<a name="l00258"></a>00258             <a class="code" href="classubcc1pi_1_1DebugHelper.html#a8ce418c62a4eede98d01b1b0177c5b33">DebugHelper::PrintProperty</a>(<span class="stringliteral">&quot;Purity&quot;</span>, sliceMetadata.<a class="code" href="classubcc1pi_1_1BacktrackHelper_1_1SliceMetadata.html#a56e9b21ca6b62257f4ef49bccecf3988" title="Get the purity of a given slice purity = fraction of the hits in the slice that are...">GetPurity</a>(slice), depth + 1);
+<a name="l00259"></a>00259 
+<a name="l00260"></a>00260         <span class="keywordflow">if</span> (totalNuHits &gt; 0)
+<a name="l00261"></a>00261         {
+<a name="l00262"></a>00262             <a class="code" href="classubcc1pi_1_1DebugHelper.html#a8ce418c62a4eede98d01b1b0177c5b33">DebugHelper::PrintProperty</a>(<span class="stringliteral">&quot;Completeness&quot;</span>, sliceMetadata.<a class="code" href="classubcc1pi_1_1BacktrackHelper_1_1SliceMetadata.html#a14cf6b514a261bb389f4e1052ab6dcc0" title="Get the completeness of a given slice completeness = fraction of the neutrino induced...">GetCompleteness</a>(slice), depth + 1);
+<a name="l00263"></a>00263             <a class="code" href="classubcc1pi_1_1DebugHelper.html#a8ce418c62a4eede98d01b1b0177c5b33">DebugHelper::PrintProperty</a>(<span class="stringliteral">&quot;Most complete?&quot;</span>, slice == mostCompleteSlice, depth + 1);
+<a name="l00264"></a>00264         }
+<a name="l00265"></a>00265 
+<a name="l00266"></a>00266         <span class="keyword">const</span> <span class="keyword">auto</span> isSelected = (std::find(selectedSlices.begin(), selectedSlices.end(), slice) != selectedSlices.end());
+<a name="l00267"></a>00267         <a class="code" href="classubcc1pi_1_1DebugHelper.html#a8ce418c62a4eede98d01b1b0177c5b33">DebugHelper::PrintProperty</a>(<span class="stringliteral">&quot;Is selected as nu?&quot;</span>, isSelected, depth + 1);
+<a name="l00268"></a>00268     }
+<a name="l00269"></a>00269 }
+<a name="l00270"></a>00270 
+<a name="l00271"></a>00271 } <span class="comment">// namespace ubcc1pi</span>
 </pre></div></div>
 <!--- window showing the filter options -->
 <div id="MSearchSelectWindow"
@@ -342,7 +383,7 @@ window.onload = initDynSections;
 <hr size="1"/>
 <address style="text-align: right;">
     <small>
-        Generated on Tue Mar 26 16:35:05 2019 for ubcc1pi by <a href="http://www.doxygen.org/index.html" target="_blank">doxygen</a> 1.6.1
+        Generated on Mon Apr 8 11:11:36 2019 for ubcc1pi by <a href="http://www.doxygen.org/index.html" target="_blank">doxygen</a> 1.6.1
     </small>
 </address>
 

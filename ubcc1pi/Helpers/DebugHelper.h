@@ -39,6 +39,7 @@ class DebugHelper
         static void Print(const art::Ptr<recob::PFParticle> &particle, const unsigned int depth = 0);
         static void Print(const BacktrackHelper::BacktrackerData &data, const unsigned int depth = 0);
         static std::string GetInteractionString(const TruthHelper::Interaction &interaction, const bool brief = false);
+        static void Print(const BacktrackHelper::SliceMetadata &sliceMetadata, const unsigned int depth = 0);
     private:
 
         static void PrintHeader(const std::string &title, const unsigned int depth = 0);

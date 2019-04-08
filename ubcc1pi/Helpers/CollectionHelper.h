@@ -20,6 +20,7 @@
 #include "lardataobj/RecoBase/Hit.h"
 #include "lardataobj/RecoBase/PFParticle.h"
 #include "lardataobj/RecoBase/Cluster.h"
+#include "lardataobj/RecoBase/Slice.h"
 #include "lardataobj/AnalysisBase/BackTrackerMatchingData.h"
 
 namespace ubcc1pi
@@ -44,9 +45,16 @@ using AssociationData = std::unordered_map< art::Ptr<L>, CollectionData<R, D> >;
 typedef Collection<simb::MCParticle> MCParticleVector;
 typedef Collection<recob::PFParticle> PFParticleVector;
 typedef Collection<recob::Hit> HitVector;
+typedef Collection<recob::Slice> SliceVector;
 
 typedef Association<recob::Hit, recob::PFParticle> HitsToPFParticles;
 typedef AssociationData<recob::Hit, simb::MCParticle, float> HitsToMCParticleWeights;
+typedef Association<recob::Slice, recob::Hit> SlicesToHits;
+typedef Association<recob::Slice, recob::PFParticle> SlicesToPFParticles;
+                
+typedef std::unordered_map<art::Ptr<recob::Hit>, bool> HitsToBool;
+typedef std::unordered_map<art::Ptr<recob::Slice>, bool> SlicesToBool;
+
 
 /**
  *  @brief  The collection helper class
@@ -186,6 +194,15 @@ class CollectionHelper
          */
         template <typename L, typename R, typename D>
         static ObjectData<R, D> GetSingleAssociatedWithData(const art::Ptr<L> &objectL, const AssociationData<L, R, D> &association);
+
+        /**
+         *  @brief  Get the objects that are in both collection A and B
+         *
+         *  @param  a the first collection A
+         *  @param  b the second collection B
+         */
+        template <typename T>
+        static Collection<T> GetIntersection(const Collection<T> &a, const Collection<T> &b);
 };
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
@@ -381,6 +398,22 @@ inline ObjectData<R, D> CollectionHelper::GetSingleAssociatedWithData(const art:
         throw cet::exception("CollectionHelper::GetSingleAssociated") << " - Found " << objects.size() << " objects associated to the input object. Expected 1." << std::endl;
 
     return objects.front();
+}
+
+// -----------------------------------------------------------------------------------------------------------------------------------------
+        
+template <typename T>
+inline Collection<T> CollectionHelper::GetIntersection(const Collection<T> &a, const Collection<T> &b)
+{
+    Collection<T> intersection;
+
+    for (const auto &objectA : a)
+    {
+        if (std::find(b.begin(), b.end(), objectA) != b.end())
+            intersection.push_back(objectA);
+    }
+    
+    return intersection;
 }
 
 

@@ -183,42 +183,42 @@ window.onload = initDynSections;
 <a name="l00087"></a>00087     <a class="code" href="classubcc1pi_1_1TruthStudy.html#aef3116094915a252686b76e3028f01e3" title="The output objects for all interactions.">m_interactionOutput</a>.<a class="code" href="structubcc1pi_1_1TruthStudy_1_1InteractionOutput.html#aab94db483d8c3c655868c381f18e2c5e" title="The number of gamma.">m_nPhoton</a> = <a class="code" href="classubcc1pi_1_1AnalysisHelper.html#a16f704a96831fa7f2926ae43c3017644">AnalysisHelper::CountParticlesWithPDG</a>(particles, 22);
 <a name="l00088"></a>00088     <a class="code" href="classubcc1pi_1_1TruthStudy.html#aef3116094915a252686b76e3028f01e3" title="The output objects for all interactions.">m_interactionOutput</a>.<a class="code" href="structubcc1pi_1_1TruthStudy_1_1InteractionOutput.html#a12f8f8ad1fb3848b73c57e20ac0a8c7f" title="The total number of particles.">m_nTotal</a> = particles.size();
 <a name="l00089"></a>00089     
-<a name="l00090"></a>00090 
-<a name="l00091"></a>00091     <span class="comment">// Only fill the signal tree if this is a signal event!</span>
-<a name="l00092"></a>00092     <span class="keywordflow">if</span> (!<a class="code" href="classubcc1pi_1_1AnalysisHelper.html#adfe9e4f5eff1afaa590aa6cc90406f4d">AnalysisHelper::IsCC1PiSignal</a>(interaction))
-<a name="l00093"></a>00093         <span class="keywordflow">return</span>;
-<a name="l00094"></a>00094     
-<a name="l00095"></a>00095     <a class="code" href="classubcc1pi_1_1TruthStudy.html#ad75dad23a008cdcd345970c4d8f5fe52" title="The output objects for signal interactions.">m_signalOutput</a>.<a class="code" href="structubcc1pi_1_1TruthStudy_1_1SignalOutput.html#a8cfceb623e83d125c87ff8b7dfa14536" title="The run number.">m_run</a> = <span class="keyword">event</span>.run();
-<a name="l00096"></a>00096     <a class="code" href="classubcc1pi_1_1TruthStudy.html#ad75dad23a008cdcd345970c4d8f5fe52" title="The output objects for signal interactions.">m_signalOutput</a>.<a class="code" href="structubcc1pi_1_1TruthStudy_1_1SignalOutput.html#a2f7628c18d708c91d6a1c2186b6ee632" title="The subrun number.">m_subRun</a> = <span class="keyword">event</span>.subRun();
-<a name="l00097"></a>00097     <a class="code" href="classubcc1pi_1_1TruthStudy.html#ad75dad23a008cdcd345970c4d8f5fe52" title="The output objects for signal interactions.">m_signalOutput</a>.<a class="code" href="structubcc1pi_1_1TruthStudy_1_1SignalOutput.html#a3590722f8bd38d3d808ad82a066785f3" title="The event number.">m_event</a> = <span class="keyword">event</span>.event();
-<a name="l00098"></a>00098     <a class="code" href="classubcc1pi_1_1TruthStudy.html#ad75dad23a008cdcd345970c4d8f5fe52" title="The output objects for signal interactions.">m_signalOutput</a>.<a class="code" href="structubcc1pi_1_1TruthStudy_1_1SignalOutput.html#ad17a2e72699829ffc811783f9036603d" title="The truth interaction type.">m_interaction</a> = <a class="code" href="classubcc1pi_1_1TruthStudy.html#aef3116094915a252686b76e3028f01e3" title="The output objects for all interactions.">m_interactionOutput</a>.<a class="code" href="structubcc1pi_1_1TruthStudy_1_1InteractionOutput.html#acf83eb4a6d4a01f3649a4dcaea0c4c12" title="The truth interaction type.">m_interaction</a>;
-<a name="l00099"></a>00099     <a class="code" href="classubcc1pi_1_1TruthStudy.html#ad75dad23a008cdcd345970c4d8f5fe52" title="The output objects for signal interactions.">m_signalOutput</a>.<a class="code" href="structubcc1pi_1_1TruthStudy_1_1SignalOutput.html#a36f59eb7c57ecc24a8a972b4244e343c" title="The number of p.">m_nProton</a> = <a class="code" href="classubcc1pi_1_1TruthStudy.html#aef3116094915a252686b76e3028f01e3" title="The output objects for all interactions.">m_interactionOutput</a>.<a class="code" href="structubcc1pi_1_1TruthStudy_1_1InteractionOutput.html#ab838d3cd5f3dd7f3bc21692724d59755" title="The number of p.">m_nProton</a>;
-<a name="l00100"></a>00100     <a class="code" href="classubcc1pi_1_1TruthStudy.html#ad75dad23a008cdcd345970c4d8f5fe52" title="The output objects for signal interactions.">m_signalOutput</a>.<a class="code" href="structubcc1pi_1_1TruthStudy_1_1SignalOutput.html#ac68d15c0438c02f703b0dea9c25d9105" title="The neutrino energy.">m_nuE</a> = <a class="code" href="classubcc1pi_1_1TruthStudy.html#aef3116094915a252686b76e3028f01e3" title="The output objects for all interactions.">m_interactionOutput</a>.<a class="code" href="structubcc1pi_1_1TruthStudy_1_1InteractionOutput.html#ac8a23831a28cdd096a967b78ba3d2542" title="The neutrino energy.">m_nuE</a>;
-<a name="l00101"></a>00101 
-<a name="l00102"></a>00102     <span class="comment">// Get the momenta</span>
-<a name="l00103"></a>00103     TVector3 muMom, piMom;
-<a name="l00104"></a>00104     <span class="keywordflow">for</span> (<span class="keyword">const</span> <span class="keyword">auto</span> &amp;particle : particles)
-<a name="l00105"></a>00105     {
-<a name="l00106"></a>00106         <span class="keywordflow">if</span> (particle-&gt;PdgCode() == 13)
-<a name="l00107"></a>00107             muMom = particle-&gt;Momentum().Vect();
-<a name="l00108"></a>00108         
-<a name="l00109"></a>00109         <span class="keywordflow">if</span> (particle-&gt;PdgCode() == 211)
-<a name="l00110"></a>00110             piMom = particle-&gt;Momentum().Vect();
-<a name="l00111"></a>00111     }
-<a name="l00112"></a>00112 
-<a name="l00113"></a>00113     <a class="code" href="classubcc1pi_1_1TruthStudy.html#ad75dad23a008cdcd345970c4d8f5fe52" title="The output objects for signal interactions.">m_signalOutput</a>.<a class="code" href="structubcc1pi_1_1TruthStudy_1_1SignalOutput.html#a02c27e4191e3f05c72e3e6df2efab35c" title="The muon momentum in x.">m_muMomX</a> = muMom.X();
-<a name="l00114"></a>00114     <a class="code" href="classubcc1pi_1_1TruthStudy.html#ad75dad23a008cdcd345970c4d8f5fe52" title="The output objects for signal interactions.">m_signalOutput</a>.<a class="code" href="structubcc1pi_1_1TruthStudy_1_1SignalOutput.html#ab7713be32bf01e98d49e0f0212d2d64b" title="The muon momentum in y.">m_muMomY</a> = muMom.Y();
-<a name="l00115"></a>00115     <a class="code" href="classubcc1pi_1_1TruthStudy.html#ad75dad23a008cdcd345970c4d8f5fe52" title="The output objects for signal interactions.">m_signalOutput</a>.<a class="code" href="structubcc1pi_1_1TruthStudy_1_1SignalOutput.html#ab9a1a4587adb4286429038fa9a529401" title="The muon momentum in z.">m_muMomZ</a> = muMom.Z();
-<a name="l00116"></a>00116     
-<a name="l00117"></a>00117     <a class="code" href="classubcc1pi_1_1TruthStudy.html#ad75dad23a008cdcd345970c4d8f5fe52" title="The output objects for signal interactions.">m_signalOutput</a>.<a class="code" href="structubcc1pi_1_1TruthStudy_1_1SignalOutput.html#ae811127f4e4d166a05a435bb73193419" title="The pion momentum in x.">m_piMomX</a> = piMom.X();
-<a name="l00118"></a>00118     <a class="code" href="classubcc1pi_1_1TruthStudy.html#ad75dad23a008cdcd345970c4d8f5fe52" title="The output objects for signal interactions.">m_signalOutput</a>.<a class="code" href="structubcc1pi_1_1TruthStudy_1_1SignalOutput.html#a60e5b95d60f5366de1436bcf71186482" title="The pion momentum in y.">m_piMomY</a> = piMom.Y();
-<a name="l00119"></a>00119     <a class="code" href="classubcc1pi_1_1TruthStudy.html#ad75dad23a008cdcd345970c4d8f5fe52" title="The output objects for signal interactions.">m_signalOutput</a>.<a class="code" href="structubcc1pi_1_1TruthStudy_1_1SignalOutput.html#ae8d66d6b4bf58c7d94067591878622e3" title="The pion momentum in z.">m_piMomZ</a> = piMom.Z();
-<a name="l00120"></a>00120     
-<a name="l00121"></a>00121     <a class="code" href="classubcc1pi_1_1DebugHelper.html#a2c4d153bc246d7b98d4ab674f4a9a494" title="Print an MCParticle.">DebugHelper::Print</a>(interaction);
-<a name="l00122"></a>00122    
-<a name="l00123"></a>00123     <span class="comment">// Fill the trees</span>
-<a name="l00124"></a>00124     <a class="code" href="classubcc1pi_1_1TruthStudy.html#ae0850a2829e819936b7252905bf875c3" title="The output tree for signal interactions.">m_pSignalTree</a>-&gt;Fill();
-<a name="l00125"></a>00125     <a class="code" href="classubcc1pi_1_1TruthStudy.html#a3781ddf1bfba9512ec2dcfa7081f7624" title="The output tree for all interactions.">m_pInteractionTree</a>-&gt;Fill();
+<a name="l00090"></a>00090     <a class="code" href="classubcc1pi_1_1TruthStudy.html#a3781ddf1bfba9512ec2dcfa7081f7624" title="The output tree for all interactions.">m_pInteractionTree</a>-&gt;Fill();
+<a name="l00091"></a>00091     
+<a name="l00092"></a>00092     <a class="code" href="classubcc1pi_1_1DebugHelper.html#a2c4d153bc246d7b98d4ab674f4a9a494" title="Print an MCParticle.">DebugHelper::Print</a>(interaction);
+<a name="l00093"></a>00093 
+<a name="l00094"></a>00094     <span class="comment">// Only fill the signal tree if this is a signal event!</span>
+<a name="l00095"></a>00095     <span class="keywordflow">if</span> (!<a class="code" href="classubcc1pi_1_1AnalysisHelper.html#adfe9e4f5eff1afaa590aa6cc90406f4d">AnalysisHelper::IsCC1PiSignal</a>(interaction))
+<a name="l00096"></a>00096         <span class="keywordflow">return</span>;
+<a name="l00097"></a>00097     
+<a name="l00098"></a>00098     <a class="code" href="classubcc1pi_1_1TruthStudy.html#ad75dad23a008cdcd345970c4d8f5fe52" title="The output objects for signal interactions.">m_signalOutput</a>.<a class="code" href="structubcc1pi_1_1TruthStudy_1_1SignalOutput.html#a8cfceb623e83d125c87ff8b7dfa14536" title="The run number.">m_run</a> = <span class="keyword">event</span>.run();
+<a name="l00099"></a>00099     <a class="code" href="classubcc1pi_1_1TruthStudy.html#ad75dad23a008cdcd345970c4d8f5fe52" title="The output objects for signal interactions.">m_signalOutput</a>.<a class="code" href="structubcc1pi_1_1TruthStudy_1_1SignalOutput.html#a2f7628c18d708c91d6a1c2186b6ee632" title="The subrun number.">m_subRun</a> = <span class="keyword">event</span>.subRun();
+<a name="l00100"></a>00100     <a class="code" href="classubcc1pi_1_1TruthStudy.html#ad75dad23a008cdcd345970c4d8f5fe52" title="The output objects for signal interactions.">m_signalOutput</a>.<a class="code" href="structubcc1pi_1_1TruthStudy_1_1SignalOutput.html#a3590722f8bd38d3d808ad82a066785f3" title="The event number.">m_event</a> = <span class="keyword">event</span>.event();
+<a name="l00101"></a>00101     <a class="code" href="classubcc1pi_1_1TruthStudy.html#ad75dad23a008cdcd345970c4d8f5fe52" title="The output objects for signal interactions.">m_signalOutput</a>.<a class="code" href="structubcc1pi_1_1TruthStudy_1_1SignalOutput.html#ad17a2e72699829ffc811783f9036603d" title="The truth interaction type.">m_interaction</a> = <a class="code" href="classubcc1pi_1_1TruthStudy.html#aef3116094915a252686b76e3028f01e3" title="The output objects for all interactions.">m_interactionOutput</a>.<a class="code" href="structubcc1pi_1_1TruthStudy_1_1InteractionOutput.html#acf83eb4a6d4a01f3649a4dcaea0c4c12" title="The truth interaction type.">m_interaction</a>;
+<a name="l00102"></a>00102     <a class="code" href="classubcc1pi_1_1TruthStudy.html#ad75dad23a008cdcd345970c4d8f5fe52" title="The output objects for signal interactions.">m_signalOutput</a>.<a class="code" href="structubcc1pi_1_1TruthStudy_1_1SignalOutput.html#a36f59eb7c57ecc24a8a972b4244e343c" title="The number of p.">m_nProton</a> = <a class="code" href="classubcc1pi_1_1TruthStudy.html#aef3116094915a252686b76e3028f01e3" title="The output objects for all interactions.">m_interactionOutput</a>.<a class="code" href="structubcc1pi_1_1TruthStudy_1_1InteractionOutput.html#ab838d3cd5f3dd7f3bc21692724d59755" title="The number of p.">m_nProton</a>;
+<a name="l00103"></a>00103     <a class="code" href="classubcc1pi_1_1TruthStudy.html#ad75dad23a008cdcd345970c4d8f5fe52" title="The output objects for signal interactions.">m_signalOutput</a>.<a class="code" href="structubcc1pi_1_1TruthStudy_1_1SignalOutput.html#ac68d15c0438c02f703b0dea9c25d9105" title="The neutrino energy.">m_nuE</a> = <a class="code" href="classubcc1pi_1_1TruthStudy.html#aef3116094915a252686b76e3028f01e3" title="The output objects for all interactions.">m_interactionOutput</a>.<a class="code" href="structubcc1pi_1_1TruthStudy_1_1InteractionOutput.html#ac8a23831a28cdd096a967b78ba3d2542" title="The neutrino energy.">m_nuE</a>;
+<a name="l00104"></a>00104 
+<a name="l00105"></a>00105     <span class="comment">// Get the momenta</span>
+<a name="l00106"></a>00106     TVector3 muMom, piMom;
+<a name="l00107"></a>00107     <span class="keywordflow">for</span> (<span class="keyword">const</span> <span class="keyword">auto</span> &amp;particle : particles)
+<a name="l00108"></a>00108     {
+<a name="l00109"></a>00109         <span class="keywordflow">if</span> (particle-&gt;PdgCode() == 13)
+<a name="l00110"></a>00110             muMom = particle-&gt;Momentum().Vect();
+<a name="l00111"></a>00111         
+<a name="l00112"></a>00112         <span class="keywordflow">if</span> (particle-&gt;PdgCode() == 211)
+<a name="l00113"></a>00113             piMom = particle-&gt;Momentum().Vect();
+<a name="l00114"></a>00114     }
+<a name="l00115"></a>00115 
+<a name="l00116"></a>00116     <a class="code" href="classubcc1pi_1_1TruthStudy.html#ad75dad23a008cdcd345970c4d8f5fe52" title="The output objects for signal interactions.">m_signalOutput</a>.<a class="code" href="structubcc1pi_1_1TruthStudy_1_1SignalOutput.html#a02c27e4191e3f05c72e3e6df2efab35c" title="The muon momentum in x.">m_muMomX</a> = muMom.X();
+<a name="l00117"></a>00117     <a class="code" href="classubcc1pi_1_1TruthStudy.html#ad75dad23a008cdcd345970c4d8f5fe52" title="The output objects for signal interactions.">m_signalOutput</a>.<a class="code" href="structubcc1pi_1_1TruthStudy_1_1SignalOutput.html#ab7713be32bf01e98d49e0f0212d2d64b" title="The muon momentum in y.">m_muMomY</a> = muMom.Y();
+<a name="l00118"></a>00118     <a class="code" href="classubcc1pi_1_1TruthStudy.html#ad75dad23a008cdcd345970c4d8f5fe52" title="The output objects for signal interactions.">m_signalOutput</a>.<a class="code" href="structubcc1pi_1_1TruthStudy_1_1SignalOutput.html#ab9a1a4587adb4286429038fa9a529401" title="The muon momentum in z.">m_muMomZ</a> = muMom.Z();
+<a name="l00119"></a>00119     
+<a name="l00120"></a>00120     <a class="code" href="classubcc1pi_1_1TruthStudy.html#ad75dad23a008cdcd345970c4d8f5fe52" title="The output objects for signal interactions.">m_signalOutput</a>.<a class="code" href="structubcc1pi_1_1TruthStudy_1_1SignalOutput.html#ae811127f4e4d166a05a435bb73193419" title="The pion momentum in x.">m_piMomX</a> = piMom.X();
+<a name="l00121"></a>00121     <a class="code" href="classubcc1pi_1_1TruthStudy.html#ad75dad23a008cdcd345970c4d8f5fe52" title="The output objects for signal interactions.">m_signalOutput</a>.<a class="code" href="structubcc1pi_1_1TruthStudy_1_1SignalOutput.html#a60e5b95d60f5366de1436bcf71186482" title="The pion momentum in y.">m_piMomY</a> = piMom.Y();
+<a name="l00122"></a>00122     <a class="code" href="classubcc1pi_1_1TruthStudy.html#ad75dad23a008cdcd345970c4d8f5fe52" title="The output objects for signal interactions.">m_signalOutput</a>.<a class="code" href="structubcc1pi_1_1TruthStudy_1_1SignalOutput.html#ae8d66d6b4bf58c7d94067591878622e3" title="The pion momentum in z.">m_piMomZ</a> = piMom.Z();
+<a name="l00123"></a>00123     
+<a name="l00124"></a>00124     <span class="comment">// Fill the trees</span>
+<a name="l00125"></a>00125     <a class="code" href="classubcc1pi_1_1TruthStudy.html#ae0850a2829e819936b7252905bf875c3" title="The output tree for signal interactions.">m_pSignalTree</a>-&gt;Fill();
 <a name="l00126"></a>00126 }
 <a name="l00127"></a>00127 
 <a name="l00128"></a>00128 } <span class="comment">// namespace ubcc1pi</span>
@@ -240,7 +240,7 @@ window.onload = initDynSections;
 <hr size="1"/>
 <address style="text-align: right;">
     <small>
-        Generated on Tue Mar 26 16:35:05 2019 for ubcc1pi by <a href="http://www.doxygen.org/index.html" target="_blank">doxygen</a> 1.6.1
+        Generated on Mon Apr 8 11:11:36 2019 for ubcc1pi by <a href="http://www.doxygen.org/index.html" target="_blank">doxygen</a> 1.6.1
     </small>
 </address>
 

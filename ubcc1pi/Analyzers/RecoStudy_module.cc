@@ -33,16 +33,26 @@ RecoStudy::RecoStudy(const art::EDAnalyzer::Table<Config> &config) :
     m_pEventTree->Branch("nProtonsMatched", &m_outputEvent.m_nProtonsMatched);
     m_pEventTree->Branch("nProtonsMatchedOnce", &m_outputEvent.m_nProtonsMatchedOnce);
     m_pEventTree->Branch("nUnmatchedPFPs", &m_outputEvent.m_nUnmatchedPFPs);
-    
+    m_pEventTree->Branch("nNuHitsTotal", &m_outputEvent.m_nNuHitsTotal);
+    m_pEventTree->Branch("hasChosenSlice", &m_outputEvent.m_hasChosenSlice);
+    m_pEventTree->Branch("chosenSlicePurity", &m_outputEvent.m_chosenSlicePurity);
+    m_pEventTree->Branch("chosenSliceCompleteness", &m_outputEvent.m_chosenSliceCompleteness);
+    m_pEventTree->Branch("isChosenSliceMostComplete", &m_outputEvent.m_isChosenSliceMostComplete);
+
     m_pParticleTree = fileService->make<TTree>("particles", "");
     m_pParticleTree->Branch("run", &m_outputParticle.m_run);
     m_pParticleTree->Branch("subRun", &m_outputParticle.m_subRun);
     m_pParticleTree->Branch("event", &m_outputParticle.m_event);
     m_pParticleTree->Branch("nPFPsInEvent", &m_outputParticle.m_nPFPsInEvent);
+    m_pParticleTree->Branch("eventHasChosenSlice", &m_outputParticle.m_eventHasChosenSlice);
+    m_pParticleTree->Branch("chosenSlicePurity", &m_outputParticle.m_chosenSlicePurity);
+    m_pParticleTree->Branch("chosenSliceCompleteness", &m_outputParticle.m_chosenSliceCompleteness);
+    m_pParticleTree->Branch("isChosenSliceMostComplete", &m_outputParticle.m_isChosenSliceMostComplete);
     m_pParticleTree->Branch("nUnmatchedPFPsInEvent", &m_outputParticle.m_nUnmatchedPFPsInEvent);
     m_pParticleTree->Branch("pdgCode", &m_outputParticle.m_pdgCode);
     m_pParticleTree->Branch("momentum", &m_outputParticle.m_momentum);
     m_pParticleTree->Branch("mcHitWeight", &m_outputParticle.m_mcHitWeight);
+    m_pParticleTree->Branch("mcHitWeightFromSlice", &m_outputParticle.m_mcHitWeightFromSlice);
     m_pParticleTree->Branch("nMatches", &m_outputParticle.m_nMatches);
     m_pParticleTree->Branch("isBestMatchTrack", &m_outputParticle.m_isBestMatchTrack);
     m_pParticleTree->Branch("bestMatchPurity", &m_outputParticle.m_bestMatchPurity);
@@ -59,6 +69,8 @@ void RecoStudy::analyze(const art::Event &event)
     const auto mcParticleLabel = m_config().MCParticleLabel();
     const auto backtrackerLabel = m_config().BacktrackerLabel();
     const auto pfParticleLabel = m_config().PFParticleLabel();
+    const auto sliceLabel = m_config().SliceLabel();
+    const auto hitLabel = m_config().HitLabel();
 
     // Get the truth level information
     const TruthHelper::Interaction interaction(event, mcTruthLabel, mcParticleLabel);
@@ -66,6 +78,9 @@ void RecoStudy::analyze(const art::Event &event)
     // Only use signal events
     if (!AnalysisHelper::IsCC1PiSignal(interaction))
         return;
+
+    // Get the metada on the slices
+    const auto sliceMetadata = AnalysisHelper::GetSliceMetadata(event, mcTruthLabel, mcParticleLabel, backtrackerLabel, pfParticleLabel, sliceLabel, hitLabel);
 
     // Get the reco-true matching information
     const auto backtrackerData = AnalysisHelper::GetBacktrackerData(event, mcTruthLabel, mcParticleLabel, backtrackerLabel, pfParticleLabel);
@@ -79,6 +94,25 @@ void RecoStudy::analyze(const art::Event &event)
     m_outputEvent.m_nuEnergy = interaction.GetNeutrino().E();
     m_outputEvent.m_nProtons = AnalysisHelper::CountParticlesWithPDG(mcParticles, 2212);
     m_outputEvent.m_nPFPs = pfParticles.size();
+    m_outputEvent.m_nNuHitsTotal = sliceMetadata.GetTotalNumberOfNuInducedHits();
+
+    const auto chosenSlices = sliceMetadata.GetSelectedNeutrinoSlices();
+    if (chosenSlices.size() > 1)
+        throw cet::exception("RecoStudy::analyze") << " - Multiple slices were selected as the neutrino." << std::endl;
+
+    m_outputEvent.m_hasChosenSlice = false;
+    m_outputEvent.m_chosenSlicePurity = -std::numeric_limits<float>::max();
+    m_outputEvent.m_chosenSliceCompleteness = -std::numeric_limits<float>::max();
+    m_outputEvent.m_isChosenSliceMostComplete = false;
+
+    if (!chosenSlices.empty())
+    {
+        const auto chosenSlice = chosenSlices.front();
+        m_outputEvent.m_hasChosenSlice = true;
+        m_outputEvent.m_chosenSlicePurity = sliceMetadata.GetPurity(chosenSlice);
+        m_outputEvent.m_chosenSliceCompleteness = sliceMetadata.GetCompleteness(chosenSlice);
+        m_outputEvent.m_isChosenSliceMostComplete = sliceMetadata.IsMostCompleteSliceSelected(); 
+    }
 
     m_outputEvent.m_nProtonsMatched = 0;
     m_outputEvent.m_nProtonsMatchedOnce = 0;
@@ -140,12 +174,36 @@ void RecoStudy::analyze(const art::Event &event)
         m_outputParticle.m_event = event.event();
         m_outputParticle.m_nPFPsInEvent = m_outputEvent.m_nPFPs;
         m_outputParticle.m_nUnmatchedPFPsInEvent = m_outputEvent.m_nUnmatchedPFPs;
+        
+        m_outputParticle.m_eventHasChosenSlice = m_outputEvent.m_hasChosenSlice;
+        m_outputParticle.m_chosenSlicePurity = m_outputEvent.m_chosenSlicePurity;
+        m_outputParticle.m_chosenSliceCompleteness = m_outputEvent.m_chosenSliceCompleteness;
+        m_outputParticle.m_isChosenSliceMostComplete = m_outputEvent.m_isChosenSliceMostComplete;
 
         // MCParticle information
         const auto pdg = mcParticle->PdgCode();
         m_outputParticle.m_pdgCode = pdg;
         m_outputParticle.m_momentum = mcParticle->P();
         m_outputParticle.m_mcHitWeight = backtrackerData.GetWeight(mcParticle);
+        m_outputParticle.m_mcHitWeightFromSlice = 0.f;
+
+        if (!chosenSlices.empty())
+        {
+            // Get the hits from the MCParticle that are also in the chosen slice
+            const auto chosenSlice = chosenSlices.front();
+            const auto sharedHits = CollectionHelper::GetIntersection(backtrackerData.GetHits(mcParticle), sliceMetadata.GetHits(chosenSlice));
+            m_outputParticle.m_mcHitWeightFromSlice = backtrackerData.GetWeight(sharedHits, mcParticle);
+
+            std::cout << "DEBUG" << std::endl;
+            std::cout << "ID                = " << mcParticle->TrackId() << std::endl;
+            std::cout << "PDG               = " << pdg << std::endl;
+            std::cout << "MCParticle hits   = " << backtrackerData.GetHits(mcParticle).size() << std::endl;
+            std::cout << "MCParticle weight = " << backtrackerData.GetWeight(backtrackerData.GetHits(mcParticle), mcParticle) << std::endl;
+            std::cout << "... checksum ^^^  = " << backtrackerData.GetWeight(mcParticle) << std::endl;
+            std::cout << "Slice hits        = " << sliceMetadata.GetHits(chosenSlice).size() << std::endl;
+            std::cout << "Shared hits       = " << sharedHits.size() << std::endl;
+            std::cout << "Shared weight     = " << m_outputParticle.m_mcHitWeightFromSlice << std::endl;
+        }
 
         // Match information
         const auto matchedPFParticles = backtrackerData.GetBestMatchedPFParticles(mcParticle);
@@ -183,6 +241,7 @@ void RecoStudy::analyze(const art::Event &event)
     }
 
     DebugHelper::Print(interaction);
+    DebugHelper::Print(sliceMetadata);
     DebugHelper::Print(backtrackerData);
 }
 

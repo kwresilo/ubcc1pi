@@ -143,11 +143,14 @@ window.onload = initDynSections;
 <tr><td class="memTemplParams" colspan="2">template&lt;typename L , typename R , typename D &gt; </td></tr>
 <tr><td class="memTemplItemLeft" align="right" valign="top">static ObjectData&lt; R, D &gt;&nbsp;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="classubcc1pi_1_1CollectionHelper.html#a676ac6dea618e1ab80ede7f9be66ec6d">GetSingleAssociatedWithData</a> (const art::Ptr&lt; L &gt; &amp;objectL, const AssociationData&lt; L, R, D &gt; &amp;association)</td></tr>
 <tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">Get the single object associated to a given input object with data.  <a href="#a676ac6dea618e1ab80ede7f9be66ec6d"></a><br/></td></tr>
+<tr><td class="memTemplParams" colspan="2">template&lt;typename T &gt; </td></tr>
+<tr><td class="memTemplItemLeft" align="right" valign="top">static Collection&lt; T &gt;&nbsp;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="classubcc1pi_1_1CollectionHelper.html#a117afa8e6240b58536f19a0b805f8f21">GetIntersection</a> (const Collection&lt; T &gt; &amp;a, const Collection&lt; T &gt; &amp;b)</td></tr>
+<tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">Get the objects that are in both collection A and B.  <a href="#a117afa8e6240b58536f19a0b805f8f21"></a><br/></td></tr>
 </table>
 <hr/><a name="_details"></a><h2>Detailed Description</h2>
 <p>The collection helper class. </p>
 
-<p>Definition at line <a class="el" href="CollectionHelper_8h_source.html#l00054">54</a> of file <a class="el" href="CollectionHelper_8h_source.html">CollectionHelper.h</a>.</p>
+<p>Definition at line <a class="el" href="CollectionHelper_8h_source.html#l00062">62</a> of file <a class="el" href="CollectionHelper_8h_source.html">CollectionHelper.h</a>.</p>
 <hr/><h2>Member Function Documentation</h2>
 <a class="anchor" id="abcf3a50544771dfd179ae1a4faaee4ff"></a><!-- doxytag: member="ubcc1pi::CollectionHelper::GetAssociation" ref="abcf3a50544771dfd179ae1a4faaee4ff" args="(const art::Event &amp;event, const art::InputTag &amp;label)" -->
 <div class="memitem">
@@ -185,7 +188,7 @@ template&lt;typename L , typename R &gt; </div>
   </dd>
 </dl>
 
-<p>Definition at line <a class="el" href="CollectionHelper_8h_source.html#l00210">210</a> of file <a class="el" href="CollectionHelper_8h_source.html">CollectionHelper.h</a>.</p>
+<p>Definition at line <a class="el" href="CollectionHelper_8h_source.html#l00227">227</a> of file <a class="el" href="CollectionHelper_8h_source.html">CollectionHelper.h</a>.</p>
 
 </div>
 </div>
@@ -232,7 +235,7 @@ template&lt;typename L , typename R &gt; </div>
   </dd>
 </dl>
 
-<p>Definition at line <a class="el" href="CollectionHelper_8h_source.html#l00218">218</a> of file <a class="el" href="CollectionHelper_8h_source.html">CollectionHelper.h</a>.</p>
+<p>Definition at line <a class="el" href="CollectionHelper_8h_source.html#l00235">235</a> of file <a class="el" href="CollectionHelper_8h_source.html">CollectionHelper.h</a>.</p>
 
 </div>
 </div>
@@ -272,7 +275,7 @@ template&lt;typename L , typename R , typename D &gt; </div>
   </dd>
 </dl>
 
-<p>Definition at line <a class="el" href="CollectionHelper_8h_source.html#l00282">282</a> of file <a class="el" href="CollectionHelper_8h_source.html">CollectionHelper.h</a>.</p>
+<p>Definition at line <a class="el" href="CollectionHelper_8h_source.html#l00299">299</a> of file <a class="el" href="CollectionHelper_8h_source.html">CollectionHelper.h</a>.</p>
 
 </div>
 </div>
@@ -319,7 +322,7 @@ template&lt;typename L , typename R , typename D &gt; </div>
   </dd>
 </dl>
 
-<p>Definition at line <a class="el" href="CollectionHelper_8h_source.html#l00290">290</a> of file <a class="el" href="CollectionHelper_8h_source.html">CollectionHelper.h</a>.</p>
+<p>Definition at line <a class="el" href="CollectionHelper_8h_source.html#l00307">307</a> of file <a class="el" href="CollectionHelper_8h_source.html">CollectionHelper.h</a>.</p>
 
 </div>
 </div>
@@ -359,7 +362,47 @@ template&lt;typename T &gt; </div>
   </dd>
 </dl>
 
-<p>Definition at line <a class="el" href="CollectionHelper_8h_source.html#l00194">194</a> of file <a class="el" href="CollectionHelper_8h_source.html">CollectionHelper.h</a>.</p>
+<p>Definition at line <a class="el" href="CollectionHelper_8h_source.html#l00211">211</a> of file <a class="el" href="CollectionHelper_8h_source.html">CollectionHelper.h</a>.</p>
+
+</div>
+</div>
+<a class="anchor" id="a117afa8e6240b58536f19a0b805f8f21"></a><!-- doxytag: member="ubcc1pi::CollectionHelper::GetIntersection" ref="a117afa8e6240b58536f19a0b805f8f21" args="(const Collection&lt; T &gt; &amp;a, const Collection&lt; T &gt; &amp;b)" -->
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;typename T &gt; </div>
+      <table class="memname">
+        <tr>
+          <td class="memname">Collection&lt; T &gt; ubcc1pi::CollectionHelper::GetIntersection </td>
+          <td>(</td>
+          <td class="paramtype">const Collection&lt; T &gt; &amp;&nbsp;</td>
+          <td class="paramname"> <em>a</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const Collection&lt; T &gt; &amp;&nbsp;</td>
+          <td class="paramname"> <em>b</em></td><td>&nbsp;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td><td><code> [inline, static]</code></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+
+<p>Get the objects that are in both collection A and B. </p>
+<dl><dt><b>Parameters:</b></dt><dd>
+  <table border="0" cellspacing="2" cellpadding="0">
+    <tr><td valign="top"></td><td valign="top"><em>a</em>&nbsp;</td><td>the first collection A </td></tr>
+    <tr><td valign="top"></td><td valign="top"><em>b</em>&nbsp;</td><td>the second collection B </td></tr>
+  </table>
+  </dd>
+</dl>
+
+<p>Definition at line <a class="el" href="CollectionHelper_8h_source.html#l00406">406</a> of file <a class="el" href="CollectionHelper_8h_source.html">CollectionHelper.h</a>.</p>
 
 </div>
 </div>
@@ -400,7 +443,7 @@ template&lt;typename L , typename R , typename D &gt; </div>
 </dl>
 <dl class="return"><dt><b>Returns:</b></dt><dd>the objects of type R associated to the input object </dd></dl>
 
-<p>Definition at line <a class="el" href="CollectionHelper_8h_source.html#l00333">333</a> of file <a class="el" href="CollectionHelper_8h_source.html">CollectionHelper.h</a>.</p>
+<p>Definition at line <a class="el" href="CollectionHelper_8h_source.html#l00350">350</a> of file <a class="el" href="CollectionHelper_8h_source.html">CollectionHelper.h</a>.</p>
 
 </div>
 </div>
@@ -441,7 +484,7 @@ template&lt;typename L , typename R &gt; </div>
 </dl>
 <dl class="return"><dt><b>Returns:</b></dt><dd>the objects of type R associated to the input object </dd></dl>
 
-<p>Definition at line <a class="el" href="CollectionHelper_8h_source.html#l00256">256</a> of file <a class="el" href="CollectionHelper_8h_source.html">CollectionHelper.h</a>.</p>
+<p>Definition at line <a class="el" href="CollectionHelper_8h_source.html#l00273">273</a> of file <a class="el" href="CollectionHelper_8h_source.html">CollectionHelper.h</a>.</p>
 
 </div>
 </div>
@@ -482,7 +525,7 @@ template&lt;typename L , typename R , typename D &gt; </div>
 </dl>
 <dl class="return"><dt><b>Returns:</b></dt><dd>the objects of type R associated to the input object </dd></dl>
 
-<p>Definition at line <a class="el" href="CollectionHelper_8h_source.html#l00363">363</a> of file <a class="el" href="CollectionHelper_8h_source.html">CollectionHelper.h</a>.</p>
+<p>Definition at line <a class="el" href="CollectionHelper_8h_source.html#l00380">380</a> of file <a class="el" href="CollectionHelper_8h_source.html">CollectionHelper.h</a>.</p>
 
 </div>
 </div>
@@ -513,7 +556,7 @@ template&lt;typename L , typename R , typename D &gt; </div>
 </dl>
 <dl class="return"><dt><b>Returns:</b></dt><dd>the reversed association R -&gt; L </dd></dl>
 
-<p>Definition at line <a class="el" href="CollectionHelper_8h_source.html#l00317">317</a> of file <a class="el" href="CollectionHelper_8h_source.html">CollectionHelper.h</a>.</p>
+<p>Definition at line <a class="el" href="CollectionHelper_8h_source.html#l00334">334</a> of file <a class="el" href="CollectionHelper_8h_source.html">CollectionHelper.h</a>.</p>
 
 </div>
 </div>
@@ -544,7 +587,7 @@ template&lt;typename L , typename R &gt; </div>
 </dl>
 <dl class="return"><dt><b>Returns:</b></dt><dd>the reversed association R -&gt; L </dd></dl>
 
-<p>Definition at line <a class="el" href="CollectionHelper_8h_source.html#l00239">239</a> of file <a class="el" href="CollectionHelper_8h_source.html">CollectionHelper.h</a>.</p>
+<p>Definition at line <a class="el" href="CollectionHelper_8h_source.html#l00256">256</a> of file <a class="el" href="CollectionHelper_8h_source.html">CollectionHelper.h</a>.</p>
 
 </div>
 </div>
@@ -585,7 +628,7 @@ template&lt;typename L , typename R , typename D &gt; </div>
 </dl>
 <dl class="return"><dt><b>Returns:</b></dt><dd>the object of type R associated to the input object </dd></dl>
 
-<p>Definition at line <a class="el" href="CollectionHelper_8h_source.html#l00350">350</a> of file <a class="el" href="CollectionHelper_8h_source.html">CollectionHelper.h</a>.</p>
+<p>Definition at line <a class="el" href="CollectionHelper_8h_source.html#l00367">367</a> of file <a class="el" href="CollectionHelper_8h_source.html">CollectionHelper.h</a>.</p>
 
 </div>
 </div>
@@ -626,7 +669,7 @@ template&lt;typename L , typename R &gt; </div>
 </dl>
 <dl class="return"><dt><b>Returns:</b></dt><dd>the object of type R associated to the input object </dd></dl>
 
-<p>Definition at line <a class="el" href="CollectionHelper_8h_source.html#l00269">269</a> of file <a class="el" href="CollectionHelper_8h_source.html">CollectionHelper.h</a>.</p>
+<p>Definition at line <a class="el" href="CollectionHelper_8h_source.html#l00286">286</a> of file <a class="el" href="CollectionHelper_8h_source.html">CollectionHelper.h</a>.</p>
 
 </div>
 </div>
@@ -667,7 +710,7 @@ template&lt;typename L , typename R , typename D &gt; </div>
 </dl>
 <dl class="return"><dt><b>Returns:</b></dt><dd>the object of type R associated to the input object </dd></dl>
 
-<p>Definition at line <a class="el" href="CollectionHelper_8h_source.html#l00376">376</a> of file <a class="el" href="CollectionHelper_8h_source.html">CollectionHelper.h</a>.</p>
+<p>Definition at line <a class="el" href="CollectionHelper_8h_source.html#l00393">393</a> of file <a class="el" href="CollectionHelper_8h_source.html">CollectionHelper.h</a>.</p>
 
 </div>
 </div>
@@ -692,7 +735,7 @@ template&lt;typename L , typename R , typename D &gt; </div>
 <hr size="1"/>
 <address style="text-align: right;">
     <small>
-        Generated on Tue Mar 26 16:35:05 2019 for ubcc1pi by <a href="http://www.doxygen.org/index.html" target="_blank">doxygen</a> 1.6.1
+        Generated on Mon Apr 8 11:11:36 2019 for ubcc1pi by <a href="http://www.doxygen.org/index.html" target="_blank">doxygen</a> 1.6.1
     </small>
 </address>
 
