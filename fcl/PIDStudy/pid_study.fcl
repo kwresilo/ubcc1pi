@@ -1,0 +1,18 @@
+BEGIN_PROLOG
+
+pid_study:
+{
+    module_type: "PIDStudy"
+
+    # Input labels
+    MCTruthLabel:     "generator"
+    MCParticleLabel:  "largeant"
+    BacktrackerLabel: "gaushitTruthMatch"
+    PFParticleLabel:  "pandora"
+    SliceLabel:       "pandora"
+    TrackLabel:       "pandora"
+    PIDLabel:         "pandoracalipidSCE"
+    HitLabel:         "gaushit"
+}
+
+END_PROLOG

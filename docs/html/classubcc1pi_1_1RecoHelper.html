@@ -116,6 +116,11 @@ window.onload = initDynSections;
 <tr><td class="memItemLeft" align="right" valign="top">static <a class="el" href="namespaceubcc1pi.html#a6f66dc13c5a55147db5c84db67f6062b">PFParticleVector</a>&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classubcc1pi_1_1RecoHelper.html#a8b20fe3bdcb94fd9a073312a25c77701">GetDownstreamParticles</a> (const art::Ptr&lt; recob::PFParticle &gt; &amp;particle, const <a class="el" href="namespaceubcc1pi.html#a191f1ccf6de87673e21719a2d401a00f">PFParticleMap</a> &amp;pfParticleMap)</td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">static void&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classubcc1pi_1_1RecoHelper.html#a155656490285003dc5bb36cc4c4756a6">GetDownstreamParticles</a> (const art::Ptr&lt; recob::PFParticle &gt; &amp;particle, const <a class="el" href="namespaceubcc1pi.html#a191f1ccf6de87673e21719a2d401a00f">PFParticleMap</a> &amp;pfParticleMap, <a class="el" href="namespaceubcc1pi.html#a6f66dc13c5a55147db5c84db67f6062b">PFParticleVector</a> &amp;downstreamParticles)</td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">static bool&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classubcc1pi_1_1RecoHelper.html#a598a6c917043afe29d14ef92e36c0249">IsSliceSelectedAsNu</a> (const art::Ptr&lt; recob::Slice &gt; &amp;slice, const <a class="el" href="namespaceubcc1pi.html#af71288e330b74f94db7a05b62adc65bb">SlicesToPFParticles</a> &amp;slicesToPFParticles)</td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">static bool&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classubcc1pi_1_1RecoHelper.html#a6e56b3b19799a7acfde3cc9291efeaf5">HasMetadataValue</a> (const art::Ptr&lt; larpandoraobj::PFParticleMetadata &gt; &amp;metadata, const std::string &amp;property)</td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">static float&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classubcc1pi_1_1RecoHelper.html#a0e2618c9ff5db099e1c0dbf28254e472">GetMetadataFloat</a> (const art::Ptr&lt; larpandoraobj::PFParticleMetadata &gt; &amp;metadata, const std::string &amp;property)</td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">static int&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classubcc1pi_1_1RecoHelper.html#a5ce5d410e6facd08eaa58ef07671e5b6">GetMetadataInt</a> (const art::Ptr&lt; larpandoraobj::PFParticleMetadata &gt; &amp;metadata, const std::string &amp;property)</td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">static bool&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classubcc1pi_1_1RecoHelper.html#ac7017d24bf36789adb2a6a6d7f640512">GetMetadataBool</a> (const art::Ptr&lt; larpandoraobj::PFParticleMetadata &gt; &amp;metadata, const std::string &amp;property)</td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">static float&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classubcc1pi_1_1RecoHelper.html#aa7b3da3945f85595dfe6385e959d0132">GetTrackScore</a> (const art::Ptr&lt; larpandoraobj::PFParticleMetadata &gt; &amp;metadata)</td></tr>
 </table>
 <hr/><a name="_details"></a><h2>Detailed Description</h2>
 <p>The reco helper class. </p>
@@ -212,6 +217,93 @@ window.onload = initDynSections;
 <div class="memdoc">
 
 <p>Definition at line <a class="el" href="RecoHelper_8cxx_source.html#l00114">114</a> of file <a class="el" href="RecoHelper_8cxx_source.html">RecoHelper.cxx</a>.</p>
+
+</div>
+</div>
+<a class="anchor" id="ac7017d24bf36789adb2a6a6d7f640512"></a><!-- doxytag: member="ubcc1pi::RecoHelper::GetMetadataBool" ref="ac7017d24bf36789adb2a6a6d7f640512" args="(const art::Ptr&lt; larpandoraobj::PFParticleMetadata &gt; &amp;metadata, const std::string &amp;property)" -->
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool ubcc1pi::RecoHelper::GetMetadataBool </td>
+          <td>(</td>
+          <td class="paramtype">const art::Ptr&lt; larpandoraobj::PFParticleMetadata &gt; &amp;&nbsp;</td>
+          <td class="paramname"> <em>metadata</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const std::string &amp;&nbsp;</td>
+          <td class="paramname"> <em>property</em></td><td>&nbsp;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td><td><code> [static]</code></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+
+<p>Definition at line <a class="el" href="RecoHelper_8cxx_source.html#l00171">171</a> of file <a class="el" href="RecoHelper_8cxx_source.html">RecoHelper.cxx</a>.</p>
+
+</div>
+</div>
+<a class="anchor" id="a0e2618c9ff5db099e1c0dbf28254e472"></a><!-- doxytag: member="ubcc1pi::RecoHelper::GetMetadataFloat" ref="a0e2618c9ff5db099e1c0dbf28254e472" args="(const art::Ptr&lt; larpandoraobj::PFParticleMetadata &gt; &amp;metadata, const std::string &amp;property)" -->
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">float ubcc1pi::RecoHelper::GetMetadataFloat </td>
+          <td>(</td>
+          <td class="paramtype">const art::Ptr&lt; larpandoraobj::PFParticleMetadata &gt; &amp;&nbsp;</td>
+          <td class="paramname"> <em>metadata</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const std::string &amp;&nbsp;</td>
+          <td class="paramname"> <em>property</em></td><td>&nbsp;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td><td><code> [static]</code></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+
+<p>Definition at line <a class="el" href="RecoHelper_8cxx_source.html#l00154">154</a> of file <a class="el" href="RecoHelper_8cxx_source.html">RecoHelper.cxx</a>.</p>
+
+</div>
+</div>
+<a class="anchor" id="a5ce5d410e6facd08eaa58ef07671e5b6"></a><!-- doxytag: member="ubcc1pi::RecoHelper::GetMetadataInt" ref="a5ce5d410e6facd08eaa58ef07671e5b6" args="(const art::Ptr&lt; larpandoraobj::PFParticleMetadata &gt; &amp;metadata, const std::string &amp;property)" -->
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">int ubcc1pi::RecoHelper::GetMetadataInt </td>
+          <td>(</td>
+          <td class="paramtype">const art::Ptr&lt; larpandoraobj::PFParticleMetadata &gt; &amp;&nbsp;</td>
+          <td class="paramname"> <em>metadata</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const std::string &amp;&nbsp;</td>
+          <td class="paramname"> <em>property</em></td><td>&nbsp;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td><td><code> [static]</code></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+
+<p>Definition at line <a class="el" href="RecoHelper_8cxx_source.html#l00164">164</a> of file <a class="el" href="RecoHelper_8cxx_source.html">RecoHelper.cxx</a>.</p>
 
 </div>
 </div>
@@ -332,6 +424,55 @@ window.onload = initDynSections;
 
 </div>
 </div>
+<a class="anchor" id="aa7b3da3945f85595dfe6385e959d0132"></a><!-- doxytag: member="ubcc1pi::RecoHelper::GetTrackScore" ref="aa7b3da3945f85595dfe6385e959d0132" args="(const art::Ptr&lt; larpandoraobj::PFParticleMetadata &gt; &amp;metadata)" -->
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">float ubcc1pi::RecoHelper::GetTrackScore </td>
+          <td>(</td>
+          <td class="paramtype">const art::Ptr&lt; larpandoraobj::PFParticleMetadata &gt; &amp;&nbsp;</td>
+          <td class="paramname"> <em>metadata</em></td>
+          <td>&nbsp;)&nbsp;</td>
+          <td><code> [static]</code></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+
+<p>Definition at line <a class="el" href="RecoHelper_8cxx_source.html#l00186">186</a> of file <a class="el" href="RecoHelper_8cxx_source.html">RecoHelper.cxx</a>.</p>
+
+</div>
+</div>
+<a class="anchor" id="a6e56b3b19799a7acfde3cc9291efeaf5"></a><!-- doxytag: member="ubcc1pi::RecoHelper::HasMetadataValue" ref="a6e56b3b19799a7acfde3cc9291efeaf5" args="(const art::Ptr&lt; larpandoraobj::PFParticleMetadata &gt; &amp;metadata, const std::string &amp;property)" -->
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool ubcc1pi::RecoHelper::HasMetadataValue </td>
+          <td>(</td>
+          <td class="paramtype">const art::Ptr&lt; larpandoraobj::PFParticleMetadata &gt; &amp;&nbsp;</td>
+          <td class="paramname"> <em>metadata</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const std::string &amp;&nbsp;</td>
+          <td class="paramname"> <em>property</em></td><td>&nbsp;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td><td><code> [static]</code></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+
+<p>Definition at line <a class="el" href="RecoHelper_8cxx_source.html#l00146">146</a> of file <a class="el" href="RecoHelper_8cxx_source.html">RecoHelper.cxx</a>.</p>
+
+</div>
+</div>
 <a class="anchor" id="a598a6c917043afe29d14ef92e36c0249"></a><!-- doxytag: member="ubcc1pi::RecoHelper::IsSliceSelectedAsNu" ref="a598a6c917043afe29d14ef92e36c0249" args="(const art::Ptr&lt; recob::Slice &gt; &amp;slice, const SlicesToPFParticles &amp;slicesToPFParticles)" -->
 <div class="memitem">
 <div class="memproto">
@@ -383,7 +524,7 @@ window.onload = initDynSections;
 <hr size="1"/>
 <address style="text-align: right;">
     <small>
-        Generated on Mon Apr 8 11:11:36 2019 for ubcc1pi by <a href="http://www.doxygen.org/index.html" target="_blank">doxygen</a> 1.6.1
+        Generated on Mon Apr 22 14:16:29 2019 for ubcc1pi by <a href="http://www.doxygen.org/index.html" target="_blank">doxygen</a> 1.6.1
     </small>
 </address>
 

@@ -21,6 +21,10 @@
 #include "lardataobj/RecoBase/PFParticle.h"
 #include "lardataobj/RecoBase/Cluster.h"
 #include "lardataobj/RecoBase/Slice.h"
+#include "lardataobj/RecoBase/Track.h"
+#include "lardataobj/RecoBase/PFParticleMetadata.h"
+
+#include "lardataobj/AnalysisBase/ParticleID.h"
 #include "lardataobj/AnalysisBase/BackTrackerMatchingData.h"
 
 namespace ubcc1pi

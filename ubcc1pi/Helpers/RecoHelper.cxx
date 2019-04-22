@@ -141,4 +141,51 @@ bool RecoHelper::IsSliceSelectedAsNu(const art::Ptr<recob::Slice> &slice, const 
     return (!neutrinos.empty());
 }
 
+// -----------------------------------------------------------------------------------------------------------------------------------------
+        
+bool RecoHelper::HasMetadataValue(const art::Ptr<larpandoraobj::PFParticleMetadata> &metadata, const std::string &property)
+{
+    const auto &properties = metadata->GetPropertiesMap();
+    return (properties.find(property) != properties.end());
+}
+
+// -----------------------------------------------------------------------------------------------------------------------------------------
+
+float RecoHelper::GetMetadataFloat(const art::Ptr<larpandoraobj::PFParticleMetadata> &metadata, const std::string &property)
+{
+    if (!RecoHelper::HasMetadataValue(metadata, property))
+        throw cet::exception("RecoHelper::GetMetadataValue") << " - Can't find metadata with key: " << property << std::endl;
+
+    return metadata->GetPropertiesMap().at(property);
+}
+
+// -----------------------------------------------------------------------------------------------------------------------------------------
+
+int RecoHelper::GetMetadataInt(const art::Ptr<larpandoraobj::PFParticleMetadata> &metadata, const std::string &property)
+{
+    return static_cast<int>(std::round(RecoHelper::GetMetadataFloat(metadata, property)));
+}
+
+// -----------------------------------------------------------------------------------------------------------------------------------------
+
+bool RecoHelper::GetMetadataBool(const art::Ptr<larpandoraobj::PFParticleMetadata> &metadata, const std::string &property)
+{
+    switch (RecoHelper::GetMetadataInt(metadata, property))
+    {
+        case 0:
+            return false;
+        case 1:
+            return true;
+        default:
+            throw cet::exception("RecoHelper::GetMetadataValue") << " - Can't interpret metadata: " << property << " as boolean." << std::endl;
+    }
+}
+
+// -----------------------------------------------------------------------------------------------------------------------------------------
+
+float RecoHelper::GetTrackScore(const art::Ptr<larpandoraobj::PFParticleMetadata> &metadata)
+{
+    return RecoHelper::GetMetadataFloat(metadata, "TrackScore");
+}
+
 } // namespace ubcc1pi

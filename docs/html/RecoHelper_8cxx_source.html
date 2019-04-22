@@ -237,7 +237,54 @@ window.onload = initDynSections;
 <a name="l00141"></a>00141     <span class="keywordflow">return</span> (!neutrinos.empty());
 <a name="l00142"></a>00142 }
 <a name="l00143"></a>00143 
-<a name="l00144"></a>00144 } <span class="comment">// namespace ubcc1pi</span>
+<a name="l00144"></a>00144 <span class="comment">// -----------------------------------------------------------------------------------------------------------------------------------------</span>
+<a name="l00145"></a>00145         
+<a name="l00146"></a><a class="code" href="classubcc1pi_1_1RecoHelper.html#a6e56b3b19799a7acfde3cc9291efeaf5">00146</a> <span class="keywordtype">bool</span> <a class="code" href="classubcc1pi_1_1RecoHelper.html#a6e56b3b19799a7acfde3cc9291efeaf5">RecoHelper::HasMetadataValue</a>(<span class="keyword">const</span> art::Ptr&lt;larpandoraobj::PFParticleMetadata&gt; &amp;metadata, <span class="keyword">const</span> std::string &amp;property)
+<a name="l00147"></a>00147 {
+<a name="l00148"></a>00148     <span class="keyword">const</span> <span class="keyword">auto</span> &amp;properties = metadata-&gt;GetPropertiesMap();
+<a name="l00149"></a>00149     <span class="keywordflow">return</span> (properties.find(property) != properties.end());
+<a name="l00150"></a>00150 }
+<a name="l00151"></a>00151 
+<a name="l00152"></a>00152 <span class="comment">// -----------------------------------------------------------------------------------------------------------------------------------------</span>
+<a name="l00153"></a>00153 
+<a name="l00154"></a><a class="code" href="classubcc1pi_1_1RecoHelper.html#a0e2618c9ff5db099e1c0dbf28254e472">00154</a> <span class="keywordtype">float</span> <a class="code" href="classubcc1pi_1_1RecoHelper.html#a0e2618c9ff5db099e1c0dbf28254e472">RecoHelper::GetMetadataFloat</a>(<span class="keyword">const</span> art::Ptr&lt;larpandoraobj::PFParticleMetadata&gt; &amp;metadata, <span class="keyword">const</span> std::string &amp;property)
+<a name="l00155"></a>00155 {
+<a name="l00156"></a>00156     <span class="keywordflow">if</span> (!<a class="code" href="classubcc1pi_1_1RecoHelper.html#a6e56b3b19799a7acfde3cc9291efeaf5">RecoHelper::HasMetadataValue</a>(metadata, property))
+<a name="l00157"></a>00157         <span class="keywordflow">throw</span> cet::exception(<span class="stringliteral">&quot;RecoHelper::GetMetadataValue&quot;</span>) &lt;&lt; <span class="stringliteral">&quot; - Can&apos;t find metadata with key: &quot;</span> &lt;&lt; <span class="keyword">property</span> &lt;&lt; std::endl;
+<a name="l00158"></a>00158 
+<a name="l00159"></a>00159     <span class="keywordflow">return</span> metadata-&gt;GetPropertiesMap().at(property);
+<a name="l00160"></a>00160 }
+<a name="l00161"></a>00161 
+<a name="l00162"></a>00162 <span class="comment">// -----------------------------------------------------------------------------------------------------------------------------------------</span>
+<a name="l00163"></a>00163 
+<a name="l00164"></a><a class="code" href="classubcc1pi_1_1RecoHelper.html#a5ce5d410e6facd08eaa58ef07671e5b6">00164</a> <span class="keywordtype">int</span> <a class="code" href="classubcc1pi_1_1RecoHelper.html#a5ce5d410e6facd08eaa58ef07671e5b6">RecoHelper::GetMetadataInt</a>(<span class="keyword">const</span> art::Ptr&lt;larpandoraobj::PFParticleMetadata&gt; &amp;metadata, <span class="keyword">const</span> std::string &amp;property)
+<a name="l00165"></a>00165 {
+<a name="l00166"></a>00166     <span class="keywordflow">return</span> <span class="keyword">static_cast&lt;</span><span class="keywordtype">int</span><span class="keyword">&gt;</span>(std::round(<a class="code" href="classubcc1pi_1_1RecoHelper.html#a0e2618c9ff5db099e1c0dbf28254e472">RecoHelper::GetMetadataFloat</a>(metadata, property)));
+<a name="l00167"></a>00167 }
+<a name="l00168"></a>00168 
+<a name="l00169"></a>00169 <span class="comment">// -----------------------------------------------------------------------------------------------------------------------------------------</span>
+<a name="l00170"></a>00170 
+<a name="l00171"></a><a class="code" href="classubcc1pi_1_1RecoHelper.html#ac7017d24bf36789adb2a6a6d7f640512">00171</a> <span class="keywordtype">bool</span> <a class="code" href="classubcc1pi_1_1RecoHelper.html#ac7017d24bf36789adb2a6a6d7f640512">RecoHelper::GetMetadataBool</a>(<span class="keyword">const</span> art::Ptr&lt;larpandoraobj::PFParticleMetadata&gt; &amp;metadata, <span class="keyword">const</span> std::string &amp;property)
+<a name="l00172"></a>00172 {
+<a name="l00173"></a>00173     <span class="keywordflow">switch</span> (<a class="code" href="classubcc1pi_1_1RecoHelper.html#a5ce5d410e6facd08eaa58ef07671e5b6">RecoHelper::GetMetadataInt</a>(metadata, property))
+<a name="l00174"></a>00174     {
+<a name="l00175"></a>00175         <span class="keywordflow">case</span> 0:
+<a name="l00176"></a>00176             <span class="keywordflow">return</span> <span class="keyword">false</span>;
+<a name="l00177"></a>00177         <span class="keywordflow">case</span> 1:
+<a name="l00178"></a>00178             <span class="keywordflow">return</span> <span class="keyword">true</span>;
+<a name="l00179"></a>00179         <span class="keywordflow">default</span>:
+<a name="l00180"></a>00180             <span class="keywordflow">throw</span> cet::exception(<span class="stringliteral">&quot;RecoHelper::GetMetadataValue&quot;</span>) &lt;&lt; <span class="stringliteral">&quot; - Can&apos;t interpret metadata: &quot;</span> &lt;&lt; <span class="keyword">property</span> &lt;&lt; <span class="stringliteral">&quot; as boolean.&quot;</span> &lt;&lt; std::endl;
+<a name="l00181"></a>00181     }
+<a name="l00182"></a>00182 }
+<a name="l00183"></a>00183 
+<a name="l00184"></a>00184 <span class="comment">// -----------------------------------------------------------------------------------------------------------------------------------------</span>
+<a name="l00185"></a>00185 
+<a name="l00186"></a><a class="code" href="classubcc1pi_1_1RecoHelper.html#aa7b3da3945f85595dfe6385e959d0132">00186</a> <span class="keywordtype">float</span> <a class="code" href="classubcc1pi_1_1RecoHelper.html#aa7b3da3945f85595dfe6385e959d0132">RecoHelper::GetTrackScore</a>(<span class="keyword">const</span> art::Ptr&lt;larpandoraobj::PFParticleMetadata&gt; &amp;metadata)
+<a name="l00187"></a>00187 {
+<a name="l00188"></a>00188     <span class="keywordflow">return</span> <a class="code" href="classubcc1pi_1_1RecoHelper.html#a0e2618c9ff5db099e1c0dbf28254e472">RecoHelper::GetMetadataFloat</a>(metadata, <span class="stringliteral">&quot;TrackScore&quot;</span>);
+<a name="l00189"></a>00189 }
+<a name="l00190"></a>00190 
+<a name="l00191"></a>00191 } <span class="comment">// namespace ubcc1pi</span>
 </pre></div></div>
 <!--- window showing the filter options -->
 <div id="MSearchSelectWindow"
@@ -256,7 +303,7 @@ window.onload = initDynSections;
 <hr size="1"/>
 <address style="text-align: right;">
     <small>
-        Generated on Mon Apr 8 11:11:36 2019 for ubcc1pi by <a href="http://www.doxygen.org/index.html" target="_blank">doxygen</a> 1.6.1
+        Generated on Mon Apr 22 14:16:29 2019 for ubcc1pi by <a href="http://www.doxygen.org/index.html" target="_blank">doxygen</a> 1.6.1
     </small>
 </address>
 

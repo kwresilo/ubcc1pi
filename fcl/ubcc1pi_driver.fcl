@@ -1,5 +1,6 @@
 #include "truth_study.fcl"
 #include "reco_study.fcl"
+#include "pid_study.fcl"
 
 process_name: UBCC1Pi
 
@@ -21,9 +22,10 @@ physics:
     {
         truthStudy: @local::truth_study
         recoStudy: @local::reco_study
+        pidStudy: @local::pid_study
     }
 
-    ana: [ truthStudy, recoStudy ]
+    ana: [ truthStudy, recoStudy, pidStudy ]
 
     end_paths: [ ana ]
 }
