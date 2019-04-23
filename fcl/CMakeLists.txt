@@ -1,5 +1,3 @@
-add_subdirectory(TruthStudy)
-add_subdirectory(RecoStudy)
-add_subdirectory(PIDStudy)
-
-install_fhicl()
+add_subdirectory(Analyzers)
+add_subdirectory(Producers)
+add_subdirectory(Drivers)

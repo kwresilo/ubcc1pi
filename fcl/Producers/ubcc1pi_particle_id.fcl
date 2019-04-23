@@ -1,0 +1,12 @@
+BEGIN_PROLOG
+
+ubcc1pi_particle_id:
+{
+    module_type: "ParticleID"
+
+    # Input labels
+    PFParticleLabel:  "pandora"
+    HitLabel:         "gaushit"
+}
+
+END_PROLOG

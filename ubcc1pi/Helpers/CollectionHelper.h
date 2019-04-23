@@ -50,11 +50,13 @@ typedef Collection<simb::MCParticle> MCParticleVector;
 typedef Collection<recob::PFParticle> PFParticleVector;
 typedef Collection<recob::Hit> HitVector;
 typedef Collection<recob::Slice> SliceVector;
+typedef Collection<recob::Track> TrackVector;
 
 typedef Association<recob::Hit, recob::PFParticle> HitsToPFParticles;
 typedef AssociationData<recob::Hit, simb::MCParticle, float> HitsToMCParticleWeights;
 typedef Association<recob::Slice, recob::Hit> SlicesToHits;
 typedef Association<recob::Slice, recob::PFParticle> SlicesToPFParticles;
+typedef Association<recob::PFParticle, recob::Hit> PFParticleToHits;
                 
 typedef std::unordered_map<art::Ptr<recob::Hit>, bool> HitsToBool;
 typedef std::unordered_map<art::Ptr<recob::Slice>, bool> SlicesToBool;
@@ -207,6 +209,17 @@ class CollectionHelper
          */
         template <typename T>
         static Collection<T> GetIntersection(const Collection<T> &a, const Collection<T> &b);
+
+        /**
+         *  @brief  Get an association between object of type A and C, via an intermediate collection B
+         *
+         *  @param  event the art event
+         *  @param  labelA the label of the A producer
+         *  @param  labelB the label of the B producer
+         *  @param  labelC the label of the B to C assoication producer
+         */
+        template <typename A, typename B, typename C>
+        static Association<A, C> GetAssociationViaCollection(const art::Event &event, const art::InputTag &labelA, const art::InputTag &labelB, const art::InputTag &labelC);
 };
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
@@ -418,6 +431,38 @@ inline Collection<T> CollectionHelper::GetIntersection(const Collection<T> &a, c
     }
     
     return intersection;
+}
+
+// -----------------------------------------------------------------------------------------------------------------------------------------
+        
+template <typename A, typename B, typename C>
+inline Association<A, C> CollectionHelper::GetAssociationViaCollection(const art::Event &event, const art::InputTag &labelA, const art::InputTag &labelB, const art::InputTag &labelC)
+{
+    const auto collectionA = CollectionHelper::GetCollection<A>(event, labelA);
+    const auto assocAB = CollectionHelper::GetAssociation<A, B>(event, labelA, labelB);
+    const auto assocBC = CollectionHelper::GetAssociation<B, C>(event, labelB, labelC);
+
+    Association<A, C> outputAssociation;
+
+    for (const auto &objectA : collectionA)
+    {
+        try
+        {
+            const auto collectionB = CollectionHelper::GetManyAssociated(objectA, assocAB);
+            for (const auto &objectB : collectionB)
+            {
+                const auto collectionC = CollectionHelper::GetManyAssociated(objectB, assocBC);
+
+                auto &outputCollection = outputAssociation[objectA];
+                outputCollection.insert(outputCollection.end(), collectionC.begin(), collectionC.end());
+            }
+        }
+        catch (const cet::exception &)
+        {
+        }
+    }
+
+    return outputAssociation;
 }
 
 

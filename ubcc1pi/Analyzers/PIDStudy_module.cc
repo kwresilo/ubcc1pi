@@ -66,7 +66,32 @@ void PIDStudy::analyze(const art::Event &event)
     // Get the reco-true matching information
     const auto backtrackerData = AnalysisHelper::GetBacktrackerData(event, mcTruthLabel, mcParticleLabel, backtrackerLabel, pfParticleLabel);
     const auto pfParticles = backtrackerData.GetPFParticles();
-    
+
+    // Get the maximum track length
+    float maxTrackLength = -std::numeric_limits<float>::max();
+    for (const auto &pfParticle : pfParticles)
+    {
+        try
+        {
+            const auto tracks = CollectionHelper::GetManyAssociated(pfParticle, pfpToTrack); 
+            
+            if (tracks.size() > 1)
+                throw cet::exception("PIDStudy::analyze") << " - Multiple tracks associated to PFParticle!" << std::endl;
+        
+            if (!tracks.empty())
+            {
+                const auto track = tracks.front();
+                if (track->Length() > maxTrackLength)
+                {
+                    maxTrackLength = track->Length();
+                }
+            }
+        }
+        catch (const cet::exception &)
+        {
+        }
+    }
+
     // Store the event level information
     m_outputAlgorithm.m_run = event.run();
     m_outputAlgorithm.m_subRun = event.subRun();
@@ -93,6 +118,8 @@ void PIDStudy::analyze(const art::Event &event)
             m_outputAlgorithm.m_trueMatchPurity = -std::numeric_limits<float>::max();
             m_outputAlgorithm.m_trueMatchCompleteness = -std::numeric_limits<float>::max();
         }
+        
+        // --------------------------------------------------------------------------
 
         // Store the Pandora track/shower ID algorithm output
         m_outputAlgorithm.m_name = "PandoraTrackShower";
@@ -107,6 +134,8 @@ void PIDStudy::analyze(const art::Event &event)
         const auto metadata = CollectionHelper::GetSingleAssociated(pfParticle, pfpToMetadata);
         m_outputAlgorithm.m_value = RecoHelper::GetTrackScore(metadata);
         m_pAlgorithmTree->Fill();
+        
+        // --------------------------------------------------------------------------
 
         // If the PFParticle is track-like, then score the output of the PID algorithms on the track
         bool hasTrack = false;
@@ -130,7 +159,35 @@ void PIDStudy::analyze(const art::Event &event)
 
         if (!hasTrack)
             continue;
+        
+        // --------------------------------------------------------------------------
+        
+        // Store the track length
+        m_outputAlgorithm.m_name = "TrackLength";
+        m_outputAlgorithm.m_variableType = static_cast<int>(anab::kTrackLength);
+        m_outputAlgorithm.m_trackDir = static_cast<int>(anab::kNoDirection);
+        m_outputAlgorithm.m_nDOF = -std::numeric_limits<int>::max();
+        m_outputAlgorithm.m_assumedPdg = -std::numeric_limits<int>::max();
+        m_outputAlgorithm.m_planeWUsed = true;
+        m_outputAlgorithm.m_planeUUsed = true;
+        m_outputAlgorithm.m_planeVUsed = true;
+        m_outputAlgorithm.m_value = track->Length();
+        m_pAlgorithmTree->Fill();
 
+        // Store the relative track length
+        m_outputAlgorithm.m_name = "RelativeTrackLength";
+        m_outputAlgorithm.m_variableType = static_cast<int>(anab::kTrackLength);
+        m_outputAlgorithm.m_trackDir = static_cast<int>(anab::kNoDirection);
+        m_outputAlgorithm.m_nDOF = -std::numeric_limits<int>::max();
+        m_outputAlgorithm.m_assumedPdg = -std::numeric_limits<int>::max();
+        m_outputAlgorithm.m_planeWUsed = true;
+        m_outputAlgorithm.m_planeUUsed = true;
+        m_outputAlgorithm.m_planeVUsed = true;
+        m_outputAlgorithm.m_value = track->Length() / maxTrackLength;
+        m_pAlgorithmTree->Fill();
+        
+        // --------------------------------------------------------------------------
+      
         const auto pid = CollectionHelper::GetSingleAssociated(track, trackToPID);
 
         for (const auto &algo : pid->ParticleIDAlgScores())
@@ -147,6 +204,7 @@ void PIDStudy::analyze(const art::Event &event)
             m_pAlgorithmTree->Fill();
         }
     }
+        
 }
 
 } // namespace ubcc1pi

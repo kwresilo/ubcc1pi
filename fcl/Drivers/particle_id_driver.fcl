@@ -1,0 +1,27 @@
+#include "ubcc1pi_particle_id.fcl"
+
+process_name: ParticleID
+
+source:
+{
+    module_type:                RootInput
+    maxEvents:                 -1
+    saveMemoryObjectThreshold:  0
+}
+
+services:
+{
+    TFileService: {fileName: "particleID.root"}
+}
+
+physics:
+{
+    producers:
+    {
+        particleId: @local::ubcc1pi_particle_id
+    }
+
+    pid: [ particleId ]
+
+    trigger_paths: [ pid ]
+}
