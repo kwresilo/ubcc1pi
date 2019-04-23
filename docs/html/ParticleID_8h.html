@@ -3,7 +3,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
-<title>ubcc1pi: CollectionHelper.h File Reference</title>
+<title>ubcc1pi: ParticleID.h File Reference</title>
 <link href="https://fonts.googleapis.com/css?family=Roboto|Roboto+Mono" rel="stylesheet">
 <link href="search/search.css" rel="stylesheet" type="text/css"/>
 <script type="text/javaScript" src="search/search.js"></script>
@@ -90,68 +90,33 @@ window.onload = initDynSections;
       <li><a href="files.html"><span>File&nbsp;List</span></a></li>
     </ul>
   </div>
-  <div class="navpath"><a class="el" href="dir_6c72eedb3a9b729ca0d128649761b7ab.html">ubcc1pi</a>&nbsp;&raquo&nbsp;<a class="el" href="dir_4eeb5f279a89cfd28f3f243c1b7f73e7.html">Helpers</a>
+  <div class="navpath"><a class="el" href="dir_6c72eedb3a9b729ca0d128649761b7ab.html">ubcc1pi</a>&nbsp;&raquo&nbsp;<a class="el" href="dir_91a42a060c39fa131f01b70226a6e6c8.html">Producers</a>
   </div>
 </div>
 <div class="contents">
-<h1>CollectionHelper.h File Reference</h1>
-<p>The header file for the collection helper class.  
+<h1>ParticleID.h File Reference</h1>
+<p>The header file for the particle ID producer.  
 <a href="#_details">More...</a></p>
-<code>#include &quot;art/Framework/Principal/Event.h&quot;</code><br/>
+<code>#include &quot;art/Framework/Core/ModuleMacros.h&quot;</code><br/>
+<code>#include &quot;art/Framework/Core/EDProducer.h&quot;</code><br/>
+<code>#include &quot;fhiclcpp/types/Atom.h&quot;</code><br/>
+<code>#include &quot;fhiclcpp/types/Table.h&quot;</code><br/>
 <code>#include &quot;canvas/Utilities/InputTag.h&quot;</code><br/>
-<code>#include &quot;canvas/Persistency/Common/FindManyP.h&quot;</code><br/>
-<code>#include &lt;vector&gt;</code><br/>
-<code>#include &lt;unordered_map&gt;</code><br/>
-<code>#include &quot;nusimdata/SimulationBase/MCTruth.h&quot;</code><br/>
-<code>#include &quot;nusimdata/SimulationBase/MCParticle.h&quot;</code><br/>
-<code>#include &quot;lardataobj/RecoBase/Hit.h&quot;</code><br/>
-<code>#include &quot;lardataobj/RecoBase/PFParticle.h&quot;</code><br/>
-<code>#include &quot;lardataobj/RecoBase/Cluster.h&quot;</code><br/>
-<code>#include &quot;lardataobj/RecoBase/Slice.h&quot;</code><br/>
-<code>#include &quot;lardataobj/RecoBase/Track.h&quot;</code><br/>
-<code>#include &quot;lardataobj/RecoBase/PFParticleMetadata.h&quot;</code><br/>
-<code>#include &quot;lardataobj/AnalysisBase/ParticleID.h&quot;</code><br/>
-<code>#include &quot;lardataobj/AnalysisBase/BackTrackerMatchingData.h&quot;</code><br/>
 
-<p><a href="CollectionHelper_8h_source.html">Go to the source code of this file.</a></p>
+<p><a href="ParticleID_8h_source.html">Go to the source code of this file.</a></p>
 <table border="0" cellpadding="0" cellspacing="0">
 <tr><td colspan="2"><h2>Classes</h2></td></tr>
-<tr><td class="memItemLeft" align="right" valign="top">class &nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classubcc1pi_1_1CollectionHelper.html">ubcc1pi::CollectionHelper</a></td></tr>
-<tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">The collection helper class.  <a href="classubcc1pi_1_1CollectionHelper.html#_details">More...</a><br/></td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">class &nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classubcc1pi_1_1ParticleID.html">ubcc1pi::ParticleID</a></td></tr>
+<tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">The particle ID producer class.  <a href="classubcc1pi_1_1ParticleID.html#_details">More...</a><br/></td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">struct &nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="structubcc1pi_1_1ParticleID_1_1Config.html">ubcc1pi::ParticleID::Config</a></td></tr>
+<tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">The configuration structure.  <a href="structubcc1pi_1_1ParticleID_1_1Config.html#_details">More...</a><br/></td></tr>
 <tr><td colspan="2"><h2>Namespaces</h2></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">namespace &nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceubcc1pi.html">ubcc1pi</a></td></tr>
-<tr><td colspan="2"><h2>Typedefs</h2></td></tr>
-<tr><td class="memItemLeft" align="right" valign="top">typedef Collection<br class="typebreak"/>
-&lt; simb::MCParticle &gt;&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceubcc1pi.html#a42e409a54246ea6acba6d873b8eb696c">ubcc1pi::MCParticleVector</a></td></tr>
-<tr><td class="memItemLeft" align="right" valign="top">typedef Collection<br class="typebreak"/>
-&lt; recob::PFParticle &gt;&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceubcc1pi.html#a6f66dc13c5a55147db5c84db67f6062b">ubcc1pi::PFParticleVector</a></td></tr>
-<tr><td class="memItemLeft" align="right" valign="top">typedef Collection&lt; recob::Hit &gt;&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceubcc1pi.html#aad18bb5924d1ff428402c8af4b72f1c0">ubcc1pi::HitVector</a></td></tr>
-<tr><td class="memItemLeft" align="right" valign="top">typedef Collection&lt; recob::Slice &gt;&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceubcc1pi.html#aa994f8a737de42fc8bf8f51e5b5ed363">ubcc1pi::SliceVector</a></td></tr>
-<tr><td class="memItemLeft" align="right" valign="top">typedef Collection&lt; recob::Track &gt;&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceubcc1pi.html#a9858ae764c7015247c896d054bb5e3c8">ubcc1pi::TrackVector</a></td></tr>
-<tr><td class="memItemLeft" align="right" valign="top">typedef Association<br class="typebreak"/>
-&lt; recob::Hit, <br class="typebreak"/>
-recob::PFParticle &gt;&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceubcc1pi.html#a679f75d7e515d88fd2b37057e0d681bb">ubcc1pi::HitsToPFParticles</a></td></tr>
-<tr><td class="memItemLeft" align="right" valign="top">typedef AssociationData<br class="typebreak"/>
-&lt; recob::Hit, simb::MCParticle, <br class="typebreak"/>
-float &gt;&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceubcc1pi.html#a9c8db99d0f284acb6b95013a2527c00d">ubcc1pi::HitsToMCParticleWeights</a></td></tr>
-<tr><td class="memItemLeft" align="right" valign="top">typedef Association<br class="typebreak"/>
-&lt; recob::Slice, recob::Hit &gt;&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceubcc1pi.html#ab9236b7f2097980810f3f2737455749c">ubcc1pi::SlicesToHits</a></td></tr>
-<tr><td class="memItemLeft" align="right" valign="top">typedef Association<br class="typebreak"/>
-&lt; recob::Slice, <br class="typebreak"/>
-recob::PFParticle &gt;&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceubcc1pi.html#af71288e330b74f94db7a05b62adc65bb">ubcc1pi::SlicesToPFParticles</a></td></tr>
-<tr><td class="memItemLeft" align="right" valign="top">typedef Association<br class="typebreak"/>
-&lt; recob::PFParticle, <br class="typebreak"/>
-recob::Hit &gt;&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceubcc1pi.html#af2a476415c10ea6c87268772b4cfa882">ubcc1pi::PFParticleToHits</a></td></tr>
-<tr><td class="memItemLeft" align="right" valign="top">typedef std::unordered_map<br class="typebreak"/>
-&lt; art::Ptr&lt; recob::Hit &gt;, bool &gt;&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceubcc1pi.html#a8ce7e6a90e2e4a858a72ad75073a3f7e">ubcc1pi::HitsToBool</a></td></tr>
-<tr><td class="memItemLeft" align="right" valign="top">typedef std::unordered_map<br class="typebreak"/>
-&lt; art::Ptr&lt; recob::Slice &gt;<br class="typebreak"/>
-, bool &gt;&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceubcc1pi.html#ad48fdc9041372ec7c0bfcfc3fe3b7217">ubcc1pi::SlicesToBool</a></td></tr>
 </table>
 <hr/><a name="_details"></a><h2>Detailed Description</h2>
-<p>The header file for the collection helper class. </p>
+<p>The header file for the particle ID producer. </p>
 
-<p>Definition in file <a class="el" href="CollectionHelper_8h_source.html">CollectionHelper.h</a>.</p>
+<p>Definition in file <a class="el" href="ParticleID_8h_source.html">ParticleID.h</a>.</p>
 </div>
 <!--- window showing the filter options -->
 <div id="MSearchSelectWindow"

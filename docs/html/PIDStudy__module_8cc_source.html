@@ -162,90 +162,148 @@ window.onload = initDynSections;
 <a name="l00066"></a>00066     <span class="comment">// Get the reco-true matching information</span>
 <a name="l00067"></a>00067     <span class="keyword">const</span> <span class="keyword">auto</span> backtrackerData = <a class="code" href="classubcc1pi_1_1AnalysisHelper.html#a0eecf386ca90ad73a6a7302341e8544d">AnalysisHelper::GetBacktrackerData</a>(event, mcTruthLabel, mcParticleLabel, backtrackerLabel, pfParticleLabel);
 <a name="l00068"></a>00068     <span class="keyword">const</span> <span class="keyword">auto</span> pfParticles = backtrackerData.GetPFParticles();
-<a name="l00069"></a>00069     
-<a name="l00070"></a>00070     <span class="comment">// Store the event level information</span>
-<a name="l00071"></a>00071     <a class="code" href="classubcc1pi_1_1PIDStudy.html#ac251a16ac6464c27e4ef5b30b9d3dddc" title="The output algorithm-level object.">m_outputAlgorithm</a>.<a class="code" href="structubcc1pi_1_1PIDStudy_1_1OutputAlgorithm.html#a79ef2c613cd9638780411d9636a57d44" title="The run number.">m_run</a> = <span class="keyword">event</span>.run();
-<a name="l00072"></a>00072     <a class="code" href="classubcc1pi_1_1PIDStudy.html#ac251a16ac6464c27e4ef5b30b9d3dddc" title="The output algorithm-level object.">m_outputAlgorithm</a>.<a class="code" href="structubcc1pi_1_1PIDStudy_1_1OutputAlgorithm.html#a1f8776b6d913e678fa5a2a9f1f808a29" title="The subrun number.">m_subRun</a> = <span class="keyword">event</span>.subRun();
-<a name="l00073"></a>00073     <a class="code" href="classubcc1pi_1_1PIDStudy.html#ac251a16ac6464c27e4ef5b30b9d3dddc" title="The output algorithm-level object.">m_outputAlgorithm</a>.<a class="code" href="structubcc1pi_1_1PIDStudy_1_1OutputAlgorithm.html#aaeedca795a8b57798ec6a8cdb29ecf7e" title="The event number.">m_event</a> = <span class="keyword">event</span>.event();
-<a name="l00074"></a>00074     <a class="code" href="classubcc1pi_1_1PIDStudy.html#ac251a16ac6464c27e4ef5b30b9d3dddc" title="The output algorithm-level object.">m_outputAlgorithm</a>.<a class="code" href="structubcc1pi_1_1PIDStudy_1_1OutputAlgorithm.html#a19909f00af9a7b2149bd488d6b39770a" title="If the event is a true CC1Pi signal.">m_isSignal</a> = <a class="code" href="classubcc1pi_1_1AnalysisHelper.html#adfe9e4f5eff1afaa590aa6cc90406f4d">AnalysisHelper::IsCC1PiSignal</a>(interaction);
-<a name="l00075"></a>00075 
-<a name="l00076"></a>00076     <span class="keywordflow">for</span> (<span class="keyword">const</span> <span class="keyword">auto</span> &amp;pfParticle : pfParticles)
-<a name="l00077"></a>00077     {
-<a name="l00078"></a>00078         <span class="comment">// Store the particle level information</span>
-<a name="l00079"></a>00079         <a class="code" href="classubcc1pi_1_1PIDStudy.html#ac251a16ac6464c27e4ef5b30b9d3dddc" title="The output algorithm-level object.">m_outputAlgorithm</a>.<a class="code" href="structubcc1pi_1_1PIDStudy_1_1OutputAlgorithm.html#a32ac2ed84a88008497d9384863aed3bd" title="The number of hits associated to the PFParticle.">m_nPFPHits</a> = backtrackerData.GetNHits(pfParticle);
-<a name="l00080"></a>00080         <span class="keywordflow">try</span>
-<a name="l00081"></a>00081         {
-<a name="l00082"></a>00082             <span class="keyword">const</span> <span class="keyword">auto</span> mcParticle = backtrackerData.GetBestMatchedMCParticle(pfParticle);
-<a name="l00083"></a>00083 
-<a name="l00084"></a>00084             <a class="code" href="classubcc1pi_1_1PIDStudy.html#ac251a16ac6464c27e4ef5b30b9d3dddc" title="The output algorithm-level object.">m_outputAlgorithm</a>.<a class="code" href="structubcc1pi_1_1PIDStudy_1_1OutputAlgorithm.html#a836ea363c9d3342f6ef6cdcbf9bd7423" title="The particle PDG code.">m_truePdgCode</a> = mcParticle-&gt;PdgCode();
-<a name="l00085"></a>00085             <a class="code" href="classubcc1pi_1_1PIDStudy.html#ac251a16ac6464c27e4ef5b30b9d3dddc" title="The output algorithm-level object.">m_outputAlgorithm</a>.<a class="code" href="structubcc1pi_1_1PIDStudy_1_1OutputAlgorithm.html#a045b1b3dd8d3bae26a3f96d5a161179a" title="The particle momentum.">m_trueMomentum</a> = mcParticle-&gt;P();
-<a name="l00086"></a>00086             <a class="code" href="classubcc1pi_1_1PIDStudy.html#ac251a16ac6464c27e4ef5b30b9d3dddc" title="The output algorithm-level object.">m_outputAlgorithm</a>.<a class="code" href="structubcc1pi_1_1PIDStudy_1_1OutputAlgorithm.html#a6da1f97e94e56990606e592e2dfa0eda" title="Match purity to the true particle.">m_trueMatchPurity</a> = backtrackerData.GetMatchPurity(pfParticle, mcParticle);
-<a name="l00087"></a>00087             <a class="code" href="classubcc1pi_1_1PIDStudy.html#ac251a16ac6464c27e4ef5b30b9d3dddc" title="The output algorithm-level object.">m_outputAlgorithm</a>.<a class="code" href="structubcc1pi_1_1PIDStudy_1_1OutputAlgorithm.html#a542cf4d2e449b629abd9e8ed62c91bbd" title="Match completeness to the true particle.">m_trueMatchCompleteness</a> = backtrackerData.GetMatchCompleteness(pfParticle, mcParticle);
-<a name="l00088"></a>00088         }
-<a name="l00089"></a>00089         <span class="keywordflow">catch</span> (<span class="keyword">const</span> cet::exception &amp;)
-<a name="l00090"></a>00090         {
-<a name="l00091"></a>00091             <a class="code" href="classubcc1pi_1_1PIDStudy.html#ac251a16ac6464c27e4ef5b30b9d3dddc" title="The output algorithm-level object.">m_outputAlgorithm</a>.<a class="code" href="structubcc1pi_1_1PIDStudy_1_1OutputAlgorithm.html#a836ea363c9d3342f6ef6cdcbf9bd7423" title="The particle PDG code.">m_truePdgCode</a> = -std::numeric_limits&lt;int&gt;::max();
-<a name="l00092"></a>00092             <a class="code" href="classubcc1pi_1_1PIDStudy.html#ac251a16ac6464c27e4ef5b30b9d3dddc" title="The output algorithm-level object.">m_outputAlgorithm</a>.<a class="code" href="structubcc1pi_1_1PIDStudy_1_1OutputAlgorithm.html#a045b1b3dd8d3bae26a3f96d5a161179a" title="The particle momentum.">m_trueMomentum</a> = -std::numeric_limits&lt;float&gt;::max();
-<a name="l00093"></a>00093             <a class="code" href="classubcc1pi_1_1PIDStudy.html#ac251a16ac6464c27e4ef5b30b9d3dddc" title="The output algorithm-level object.">m_outputAlgorithm</a>.<a class="code" href="structubcc1pi_1_1PIDStudy_1_1OutputAlgorithm.html#a6da1f97e94e56990606e592e2dfa0eda" title="Match purity to the true particle.">m_trueMatchPurity</a> = -std::numeric_limits&lt;float&gt;::max();
-<a name="l00094"></a>00094             <a class="code" href="classubcc1pi_1_1PIDStudy.html#ac251a16ac6464c27e4ef5b30b9d3dddc" title="The output algorithm-level object.">m_outputAlgorithm</a>.<a class="code" href="structubcc1pi_1_1PIDStudy_1_1OutputAlgorithm.html#a542cf4d2e449b629abd9e8ed62c91bbd" title="Match completeness to the true particle.">m_trueMatchCompleteness</a> = -std::numeric_limits&lt;float&gt;::max();
-<a name="l00095"></a>00095         }
-<a name="l00096"></a>00096 
-<a name="l00097"></a>00097         <span class="comment">// Store the Pandora track/shower ID algorithm output</span>
-<a name="l00098"></a>00098         <a class="code" href="classubcc1pi_1_1PIDStudy.html#ac251a16ac6464c27e4ef5b30b9d3dddc" title="The output algorithm-level object.">m_outputAlgorithm</a>.<a class="code" href="structubcc1pi_1_1PIDStudy_1_1OutputAlgorithm.html#a434906ab7898155b0a89b59537d650a0" title="The algorithm name.">m_name</a> = <span class="stringliteral">&quot;PandoraTrackShower&quot;</span>;
-<a name="l00099"></a>00099         <a class="code" href="classubcc1pi_1_1PIDStudy.html#ac251a16ac6464c27e4ef5b30b9d3dddc" title="The output algorithm-level object.">m_outputAlgorithm</a>.<a class="code" href="structubcc1pi_1_1PIDStudy_1_1OutputAlgorithm.html#aeff0f3b63ce6e4347daeb48d78850718" title="The variable type from the PID object.">m_variableType</a> = <span class="keyword">static_cast&lt;</span><span class="keywordtype">int</span><span class="keyword">&gt;</span>(anab::kScore);
-<a name="l00100"></a>00100         <a class="code" href="classubcc1pi_1_1PIDStudy.html#ac251a16ac6464c27e4ef5b30b9d3dddc" title="The output algorithm-level object.">m_outputAlgorithm</a>.<a class="code" href="structubcc1pi_1_1PIDStudy_1_1OutputAlgorithm.html#a420e7b28377779aaff6650233b08fa8b" title="The track direction (forward, backward, no direction).">m_trackDir</a> = <span class="keyword">static_cast&lt;</span><span class="keywordtype">int</span><span class="keyword">&gt;</span>(anab::kNoDirection);
-<a name="l00101"></a>00101         <a class="code" href="classubcc1pi_1_1PIDStudy.html#ac251a16ac6464c27e4ef5b30b9d3dddc" title="The output algorithm-level object.">m_outputAlgorithm</a>.<a class="code" href="structubcc1pi_1_1PIDStudy_1_1OutputAlgorithm.html#ababfe6494ce37661584053c98f71c6ca" title="The number of degrees of freedom.">m_nDOF</a> = -std::numeric_limits&lt;int&gt;::max();
-<a name="l00102"></a>00102         <a class="code" href="classubcc1pi_1_1PIDStudy.html#ac251a16ac6464c27e4ef5b30b9d3dddc" title="The output algorithm-level object.">m_outputAlgorithm</a>.<a class="code" href="structubcc1pi_1_1PIDStudy_1_1OutputAlgorithm.html#adc843d14aa37e00543d914ebb34e9671" title="The PDG assumed by the algorithm.">m_assumedPdg</a> = -std::numeric_limits&lt;int&gt;::max();
-<a name="l00103"></a>00103         <a class="code" href="classubcc1pi_1_1PIDStudy.html#ac251a16ac6464c27e4ef5b30b9d3dddc" title="The output algorithm-level object.">m_outputAlgorithm</a>.<a class="code" href="structubcc1pi_1_1PIDStudy_1_1OutputAlgorithm.html#a7152afe5e2b6ea9f0c982d88d6a6cc4e" title="If the W plane is used.">m_planeWUsed</a> = <span class="keyword">true</span>;
-<a name="l00104"></a>00104         <a class="code" href="classubcc1pi_1_1PIDStudy.html#ac251a16ac6464c27e4ef5b30b9d3dddc" title="The output algorithm-level object.">m_outputAlgorithm</a>.<a class="code" href="structubcc1pi_1_1PIDStudy_1_1OutputAlgorithm.html#a933e1d441a3f3eb1129d5085a3245501" title="If the U plane is used.">m_planeUUsed</a> = <span class="keyword">true</span>;
-<a name="l00105"></a>00105         <a class="code" href="classubcc1pi_1_1PIDStudy.html#ac251a16ac6464c27e4ef5b30b9d3dddc" title="The output algorithm-level object.">m_outputAlgorithm</a>.<a class="code" href="structubcc1pi_1_1PIDStudy_1_1OutputAlgorithm.html#a9b6820db6d44399bf7432c489b60a636" title="If the V plane is used.">m_planeVUsed</a> = <span class="keyword">true</span>;
-<a name="l00106"></a>00106 
-<a name="l00107"></a>00107         <span class="keyword">const</span> <span class="keyword">auto</span> metadata = <a class="code" href="classubcc1pi_1_1CollectionHelper.html#aef49ea81264de87954feb660c9d6fbda" title="Get the single object associated to a given input object.">CollectionHelper::GetSingleAssociated</a>(pfParticle, pfpToMetadata);
-<a name="l00108"></a>00108         <a class="code" href="classubcc1pi_1_1PIDStudy.html#ac251a16ac6464c27e4ef5b30b9d3dddc" title="The output algorithm-level object.">m_outputAlgorithm</a>.<a class="code" href="structubcc1pi_1_1PIDStudy_1_1OutputAlgorithm.html#aa745c078f873993705f650ab6c9155b4" title="The output value of the PID algorithm.">m_value</a> = <a class="code" href="classubcc1pi_1_1RecoHelper.html#aa7b3da3945f85595dfe6385e959d0132">RecoHelper::GetTrackScore</a>(metadata);
-<a name="l00109"></a>00109         <a class="code" href="classubcc1pi_1_1PIDStudy.html#adebdf656888ea35436428d3637da2d95" title="The output tree for all PID algorithm level data.">m_pAlgorithmTree</a>-&gt;Fill();
-<a name="l00110"></a>00110 
-<a name="l00111"></a>00111         <span class="comment">// If the PFParticle is track-like, then score the output of the PID algorithms on the track</span>
-<a name="l00112"></a>00112         <span class="keywordtype">bool</span> hasTrack = <span class="keyword">false</span>;
-<a name="l00113"></a>00113         art::Ptr&lt;recob::Track&gt; track;
-<a name="l00114"></a>00114         <span class="keywordflow">try</span>
+<a name="l00069"></a>00069 
+<a name="l00070"></a>00070     <span class="comment">// Get the maximum track length</span>
+<a name="l00071"></a>00071     <span class="keywordtype">float</span> maxTrackLength = -std::numeric_limits&lt;float&gt;::max();
+<a name="l00072"></a>00072     <span class="keywordflow">for</span> (<span class="keyword">const</span> <span class="keyword">auto</span> &amp;pfParticle : pfParticles)
+<a name="l00073"></a>00073     {
+<a name="l00074"></a>00074         <span class="keywordflow">try</span>
+<a name="l00075"></a>00075         {
+<a name="l00076"></a>00076             <span class="keyword">const</span> <span class="keyword">auto</span> tracks = <a class="code" href="classubcc1pi_1_1CollectionHelper.html#a5aa35d148efb229f796a112482902a67" title="Get the objects associated to a given input object.">CollectionHelper::GetManyAssociated</a>(pfParticle, pfpToTrack); 
+<a name="l00077"></a>00077             
+<a name="l00078"></a>00078             <span class="keywordflow">if</span> (tracks.size() &gt; 1)
+<a name="l00079"></a>00079                 <span class="keywordflow">throw</span> cet::exception(<span class="stringliteral">&quot;PIDStudy::analyze&quot;</span>) &lt;&lt; <span class="stringliteral">&quot; - Multiple tracks associated to PFParticle!&quot;</span> &lt;&lt; std::endl;
+<a name="l00080"></a>00080         
+<a name="l00081"></a>00081             <span class="keywordflow">if</span> (!tracks.empty())
+<a name="l00082"></a>00082             {
+<a name="l00083"></a>00083                 <span class="keyword">const</span> <span class="keyword">auto</span> track = tracks.front();
+<a name="l00084"></a>00084                 <span class="keywordflow">if</span> (track-&gt;Length() &gt; maxTrackLength)
+<a name="l00085"></a>00085                 {
+<a name="l00086"></a>00086                     maxTrackLength = track-&gt;Length();
+<a name="l00087"></a>00087                 }
+<a name="l00088"></a>00088             }
+<a name="l00089"></a>00089         }
+<a name="l00090"></a>00090         <span class="keywordflow">catch</span> (<span class="keyword">const</span> cet::exception &amp;)
+<a name="l00091"></a>00091         {
+<a name="l00092"></a>00092         }
+<a name="l00093"></a>00093     }
+<a name="l00094"></a>00094 
+<a name="l00095"></a>00095     <span class="comment">// Store the event level information</span>
+<a name="l00096"></a>00096     <a class="code" href="classubcc1pi_1_1PIDStudy.html#ac251a16ac6464c27e4ef5b30b9d3dddc" title="The output algorithm-level object.">m_outputAlgorithm</a>.<a class="code" href="structubcc1pi_1_1PIDStudy_1_1OutputAlgorithm.html#a79ef2c613cd9638780411d9636a57d44" title="The run number.">m_run</a> = <span class="keyword">event</span>.run();
+<a name="l00097"></a>00097     <a class="code" href="classubcc1pi_1_1PIDStudy.html#ac251a16ac6464c27e4ef5b30b9d3dddc" title="The output algorithm-level object.">m_outputAlgorithm</a>.<a class="code" href="structubcc1pi_1_1PIDStudy_1_1OutputAlgorithm.html#a1f8776b6d913e678fa5a2a9f1f808a29" title="The subrun number.">m_subRun</a> = <span class="keyword">event</span>.subRun();
+<a name="l00098"></a>00098     <a class="code" href="classubcc1pi_1_1PIDStudy.html#ac251a16ac6464c27e4ef5b30b9d3dddc" title="The output algorithm-level object.">m_outputAlgorithm</a>.<a class="code" href="structubcc1pi_1_1PIDStudy_1_1OutputAlgorithm.html#aaeedca795a8b57798ec6a8cdb29ecf7e" title="The event number.">m_event</a> = <span class="keyword">event</span>.event();
+<a name="l00099"></a>00099     <a class="code" href="classubcc1pi_1_1PIDStudy.html#ac251a16ac6464c27e4ef5b30b9d3dddc" title="The output algorithm-level object.">m_outputAlgorithm</a>.<a class="code" href="structubcc1pi_1_1PIDStudy_1_1OutputAlgorithm.html#a19909f00af9a7b2149bd488d6b39770a" title="If the event is a true CC1Pi signal.">m_isSignal</a> = <a class="code" href="classubcc1pi_1_1AnalysisHelper.html#adfe9e4f5eff1afaa590aa6cc90406f4d">AnalysisHelper::IsCC1PiSignal</a>(interaction);
+<a name="l00100"></a>00100 
+<a name="l00101"></a>00101     <span class="keywordflow">for</span> (<span class="keyword">const</span> <span class="keyword">auto</span> &amp;pfParticle : pfParticles)
+<a name="l00102"></a>00102     {
+<a name="l00103"></a>00103         <span class="comment">// Store the particle level information</span>
+<a name="l00104"></a>00104         <a class="code" href="classubcc1pi_1_1PIDStudy.html#ac251a16ac6464c27e4ef5b30b9d3dddc" title="The output algorithm-level object.">m_outputAlgorithm</a>.<a class="code" href="structubcc1pi_1_1PIDStudy_1_1OutputAlgorithm.html#a32ac2ed84a88008497d9384863aed3bd" title="The number of hits associated to the PFParticle.">m_nPFPHits</a> = backtrackerData.GetNHits(pfParticle);
+<a name="l00105"></a>00105         <span class="keywordflow">try</span>
+<a name="l00106"></a>00106         {
+<a name="l00107"></a>00107             <span class="keyword">const</span> <span class="keyword">auto</span> mcParticle = backtrackerData.GetBestMatchedMCParticle(pfParticle);
+<a name="l00108"></a>00108 
+<a name="l00109"></a>00109             <a class="code" href="classubcc1pi_1_1PIDStudy.html#ac251a16ac6464c27e4ef5b30b9d3dddc" title="The output algorithm-level object.">m_outputAlgorithm</a>.<a class="code" href="structubcc1pi_1_1PIDStudy_1_1OutputAlgorithm.html#a836ea363c9d3342f6ef6cdcbf9bd7423" title="The particle PDG code.">m_truePdgCode</a> = mcParticle-&gt;PdgCode();
+<a name="l00110"></a>00110             <a class="code" href="classubcc1pi_1_1PIDStudy.html#ac251a16ac6464c27e4ef5b30b9d3dddc" title="The output algorithm-level object.">m_outputAlgorithm</a>.<a class="code" href="structubcc1pi_1_1PIDStudy_1_1OutputAlgorithm.html#a045b1b3dd8d3bae26a3f96d5a161179a" title="The particle momentum.">m_trueMomentum</a> = mcParticle-&gt;P();
+<a name="l00111"></a>00111             <a class="code" href="classubcc1pi_1_1PIDStudy.html#ac251a16ac6464c27e4ef5b30b9d3dddc" title="The output algorithm-level object.">m_outputAlgorithm</a>.<a class="code" href="structubcc1pi_1_1PIDStudy_1_1OutputAlgorithm.html#a6da1f97e94e56990606e592e2dfa0eda" title="Match purity to the true particle.">m_trueMatchPurity</a> = backtrackerData.GetMatchPurity(pfParticle, mcParticle);
+<a name="l00112"></a>00112             <a class="code" href="classubcc1pi_1_1PIDStudy.html#ac251a16ac6464c27e4ef5b30b9d3dddc" title="The output algorithm-level object.">m_outputAlgorithm</a>.<a class="code" href="structubcc1pi_1_1PIDStudy_1_1OutputAlgorithm.html#a542cf4d2e449b629abd9e8ed62c91bbd" title="Match completeness to the true particle.">m_trueMatchCompleteness</a> = backtrackerData.GetMatchCompleteness(pfParticle, mcParticle);
+<a name="l00113"></a>00113         }
+<a name="l00114"></a>00114         <span class="keywordflow">catch</span> (<span class="keyword">const</span> cet::exception &amp;)
 <a name="l00115"></a>00115         {
-<a name="l00116"></a>00116             <span class="keyword">const</span> <span class="keyword">auto</span> tracks = <a class="code" href="classubcc1pi_1_1CollectionHelper.html#a5aa35d148efb229f796a112482902a67" title="Get the objects associated to a given input object.">CollectionHelper::GetManyAssociated</a>(pfParticle, pfpToTrack); 
-<a name="l00117"></a>00117             
-<a name="l00118"></a>00118             <span class="keywordflow">if</span> (tracks.size() &gt; 1)
-<a name="l00119"></a>00119                 <span class="keywordflow">throw</span> cet::exception(<span class="stringliteral">&quot;PIDStudy::analyze&quot;</span>) &lt;&lt; <span class="stringliteral">&quot; - Multiple tracks associated to PFParticle!&quot;</span> &lt;&lt; std::endl;
-<a name="l00120"></a>00120         
-<a name="l00121"></a>00121             <span class="keywordflow">if</span> (!tracks.empty())
-<a name="l00122"></a>00122             {
-<a name="l00123"></a>00123                 track = tracks.front();
-<a name="l00124"></a>00124                 hasTrack = <span class="keyword">true</span>;
-<a name="l00125"></a>00125             }
-<a name="l00126"></a>00126         }
-<a name="l00127"></a>00127         <span class="keywordflow">catch</span> (<span class="keyword">const</span> cet::exception &amp;)
-<a name="l00128"></a>00128         {
-<a name="l00129"></a>00129         }
-<a name="l00130"></a>00130 
-<a name="l00131"></a>00131         <span class="keywordflow">if</span> (!hasTrack)
-<a name="l00132"></a>00132             <span class="keywordflow">continue</span>;
+<a name="l00116"></a>00116             <a class="code" href="classubcc1pi_1_1PIDStudy.html#ac251a16ac6464c27e4ef5b30b9d3dddc" title="The output algorithm-level object.">m_outputAlgorithm</a>.<a class="code" href="structubcc1pi_1_1PIDStudy_1_1OutputAlgorithm.html#a836ea363c9d3342f6ef6cdcbf9bd7423" title="The particle PDG code.">m_truePdgCode</a> = -std::numeric_limits&lt;int&gt;::max();
+<a name="l00117"></a>00117             <a class="code" href="classubcc1pi_1_1PIDStudy.html#ac251a16ac6464c27e4ef5b30b9d3dddc" title="The output algorithm-level object.">m_outputAlgorithm</a>.<a class="code" href="structubcc1pi_1_1PIDStudy_1_1OutputAlgorithm.html#a045b1b3dd8d3bae26a3f96d5a161179a" title="The particle momentum.">m_trueMomentum</a> = -std::numeric_limits&lt;float&gt;::max();
+<a name="l00118"></a>00118             <a class="code" href="classubcc1pi_1_1PIDStudy.html#ac251a16ac6464c27e4ef5b30b9d3dddc" title="The output algorithm-level object.">m_outputAlgorithm</a>.<a class="code" href="structubcc1pi_1_1PIDStudy_1_1OutputAlgorithm.html#a6da1f97e94e56990606e592e2dfa0eda" title="Match purity to the true particle.">m_trueMatchPurity</a> = -std::numeric_limits&lt;float&gt;::max();
+<a name="l00119"></a>00119             <a class="code" href="classubcc1pi_1_1PIDStudy.html#ac251a16ac6464c27e4ef5b30b9d3dddc" title="The output algorithm-level object.">m_outputAlgorithm</a>.<a class="code" href="structubcc1pi_1_1PIDStudy_1_1OutputAlgorithm.html#a542cf4d2e449b629abd9e8ed62c91bbd" title="Match completeness to the true particle.">m_trueMatchCompleteness</a> = -std::numeric_limits&lt;float&gt;::max();
+<a name="l00120"></a>00120         }
+<a name="l00121"></a>00121         
+<a name="l00122"></a>00122         <span class="comment">// --------------------------------------------------------------------------</span>
+<a name="l00123"></a>00123 
+<a name="l00124"></a>00124         <span class="comment">// Store the Pandora track/shower ID algorithm output</span>
+<a name="l00125"></a>00125         <a class="code" href="classubcc1pi_1_1PIDStudy.html#ac251a16ac6464c27e4ef5b30b9d3dddc" title="The output algorithm-level object.">m_outputAlgorithm</a>.<a class="code" href="structubcc1pi_1_1PIDStudy_1_1OutputAlgorithm.html#a434906ab7898155b0a89b59537d650a0" title="The algorithm name.">m_name</a> = <span class="stringliteral">&quot;PandoraTrackShower&quot;</span>;
+<a name="l00126"></a>00126         <a class="code" href="classubcc1pi_1_1PIDStudy.html#ac251a16ac6464c27e4ef5b30b9d3dddc" title="The output algorithm-level object.">m_outputAlgorithm</a>.<a class="code" href="structubcc1pi_1_1PIDStudy_1_1OutputAlgorithm.html#aeff0f3b63ce6e4347daeb48d78850718" title="The variable type from the PID object.">m_variableType</a> = <span class="keyword">static_cast&lt;</span><span class="keywordtype">int</span><span class="keyword">&gt;</span>(anab::kScore);
+<a name="l00127"></a>00127         <a class="code" href="classubcc1pi_1_1PIDStudy.html#ac251a16ac6464c27e4ef5b30b9d3dddc" title="The output algorithm-level object.">m_outputAlgorithm</a>.<a class="code" href="structubcc1pi_1_1PIDStudy_1_1OutputAlgorithm.html#a420e7b28377779aaff6650233b08fa8b" title="The track direction (forward, backward, no direction).">m_trackDir</a> = <span class="keyword">static_cast&lt;</span><span class="keywordtype">int</span><span class="keyword">&gt;</span>(anab::kNoDirection);
+<a name="l00128"></a>00128         <a class="code" href="classubcc1pi_1_1PIDStudy.html#ac251a16ac6464c27e4ef5b30b9d3dddc" title="The output algorithm-level object.">m_outputAlgorithm</a>.<a class="code" href="structubcc1pi_1_1PIDStudy_1_1OutputAlgorithm.html#ababfe6494ce37661584053c98f71c6ca" title="The number of degrees of freedom.">m_nDOF</a> = -std::numeric_limits&lt;int&gt;::max();
+<a name="l00129"></a>00129         <a class="code" href="classubcc1pi_1_1PIDStudy.html#ac251a16ac6464c27e4ef5b30b9d3dddc" title="The output algorithm-level object.">m_outputAlgorithm</a>.<a class="code" href="structubcc1pi_1_1PIDStudy_1_1OutputAlgorithm.html#adc843d14aa37e00543d914ebb34e9671" title="The PDG assumed by the algorithm.">m_assumedPdg</a> = -std::numeric_limits&lt;int&gt;::max();
+<a name="l00130"></a>00130         <a class="code" href="classubcc1pi_1_1PIDStudy.html#ac251a16ac6464c27e4ef5b30b9d3dddc" title="The output algorithm-level object.">m_outputAlgorithm</a>.<a class="code" href="structubcc1pi_1_1PIDStudy_1_1OutputAlgorithm.html#a7152afe5e2b6ea9f0c982d88d6a6cc4e" title="If the W plane is used.">m_planeWUsed</a> = <span class="keyword">true</span>;
+<a name="l00131"></a>00131         <a class="code" href="classubcc1pi_1_1PIDStudy.html#ac251a16ac6464c27e4ef5b30b9d3dddc" title="The output algorithm-level object.">m_outputAlgorithm</a>.<a class="code" href="structubcc1pi_1_1PIDStudy_1_1OutputAlgorithm.html#a933e1d441a3f3eb1129d5085a3245501" title="If the U plane is used.">m_planeUUsed</a> = <span class="keyword">true</span>;
+<a name="l00132"></a>00132         <a class="code" href="classubcc1pi_1_1PIDStudy.html#ac251a16ac6464c27e4ef5b30b9d3dddc" title="The output algorithm-level object.">m_outputAlgorithm</a>.<a class="code" href="structubcc1pi_1_1PIDStudy_1_1OutputAlgorithm.html#a9b6820db6d44399bf7432c489b60a636" title="If the V plane is used.">m_planeVUsed</a> = <span class="keyword">true</span>;
 <a name="l00133"></a>00133 
-<a name="l00134"></a>00134         <span class="keyword">const</span> <span class="keyword">auto</span> pid = <a class="code" href="classubcc1pi_1_1CollectionHelper.html#aef49ea81264de87954feb660c9d6fbda" title="Get the single object associated to a given input object.">CollectionHelper::GetSingleAssociated</a>(track, trackToPID);
-<a name="l00135"></a>00135 
-<a name="l00136"></a>00136         <span class="keywordflow">for</span> (<span class="keyword">const</span> <span class="keyword">auto</span> &amp;algo : pid-&gt;ParticleIDAlgScores())
-<a name="l00137"></a>00137         {
-<a name="l00138"></a>00138             <a class="code" href="classubcc1pi_1_1PIDStudy.html#ac251a16ac6464c27e4ef5b30b9d3dddc" title="The output algorithm-level object.">m_outputAlgorithm</a>.<a class="code" href="structubcc1pi_1_1PIDStudy_1_1OutputAlgorithm.html#a434906ab7898155b0a89b59537d650a0" title="The algorithm name.">m_name</a> = algo.fAlgName;
-<a name="l00139"></a>00139             <a class="code" href="classubcc1pi_1_1PIDStudy.html#ac251a16ac6464c27e4ef5b30b9d3dddc" title="The output algorithm-level object.">m_outputAlgorithm</a>.<a class="code" href="structubcc1pi_1_1PIDStudy_1_1OutputAlgorithm.html#aeff0f3b63ce6e4347daeb48d78850718" title="The variable type from the PID object.">m_variableType</a> = <span class="keyword">static_cast&lt;</span><span class="keywordtype">int</span><span class="keyword">&gt;</span>(algo.fVariableType);
-<a name="l00140"></a>00140             <a class="code" href="classubcc1pi_1_1PIDStudy.html#ac251a16ac6464c27e4ef5b30b9d3dddc" title="The output algorithm-level object.">m_outputAlgorithm</a>.<a class="code" href="structubcc1pi_1_1PIDStudy_1_1OutputAlgorithm.html#a420e7b28377779aaff6650233b08fa8b" title="The track direction (forward, backward, no direction).">m_trackDir</a> = <span class="keyword">static_cast&lt;</span><span class="keywordtype">int</span><span class="keyword">&gt;</span>(algo.fTrackDir);
-<a name="l00141"></a>00141             <a class="code" href="classubcc1pi_1_1PIDStudy.html#ac251a16ac6464c27e4ef5b30b9d3dddc" title="The output algorithm-level object.">m_outputAlgorithm</a>.<a class="code" href="structubcc1pi_1_1PIDStudy_1_1OutputAlgorithm.html#ababfe6494ce37661584053c98f71c6ca" title="The number of degrees of freedom.">m_nDOF</a> = algo.fNdf;
-<a name="l00142"></a>00142             <a class="code" href="classubcc1pi_1_1PIDStudy.html#ac251a16ac6464c27e4ef5b30b9d3dddc" title="The output algorithm-level object.">m_outputAlgorithm</a>.<a class="code" href="structubcc1pi_1_1PIDStudy_1_1OutputAlgorithm.html#adc843d14aa37e00543d914ebb34e9671" title="The PDG assumed by the algorithm.">m_assumedPdg</a> = algo.fAssumedPdg;
-<a name="l00143"></a>00143             <a class="code" href="classubcc1pi_1_1PIDStudy.html#ac251a16ac6464c27e4ef5b30b9d3dddc" title="The output algorithm-level object.">m_outputAlgorithm</a>.<a class="code" href="structubcc1pi_1_1PIDStudy_1_1OutputAlgorithm.html#a7152afe5e2b6ea9f0c982d88d6a6cc4e" title="If the W plane is used.">m_planeWUsed</a> = algo.fPlaneMask[0];
-<a name="l00144"></a>00144             <a class="code" href="classubcc1pi_1_1PIDStudy.html#ac251a16ac6464c27e4ef5b30b9d3dddc" title="The output algorithm-level object.">m_outputAlgorithm</a>.<a class="code" href="structubcc1pi_1_1PIDStudy_1_1OutputAlgorithm.html#a933e1d441a3f3eb1129d5085a3245501" title="If the U plane is used.">m_planeUUsed</a> = algo.fPlaneMask[1];
-<a name="l00145"></a>00145             <a class="code" href="classubcc1pi_1_1PIDStudy.html#ac251a16ac6464c27e4ef5b30b9d3dddc" title="The output algorithm-level object.">m_outputAlgorithm</a>.<a class="code" href="structubcc1pi_1_1PIDStudy_1_1OutputAlgorithm.html#a9b6820db6d44399bf7432c489b60a636" title="If the V plane is used.">m_planeVUsed</a> = algo.fPlaneMask[2];
-<a name="l00146"></a>00146             <a class="code" href="classubcc1pi_1_1PIDStudy.html#ac251a16ac6464c27e4ef5b30b9d3dddc" title="The output algorithm-level object.">m_outputAlgorithm</a>.<a class="code" href="structubcc1pi_1_1PIDStudy_1_1OutputAlgorithm.html#aa745c078f873993705f650ab6c9155b4" title="The output value of the PID algorithm.">m_value</a> = algo.fValue;
-<a name="l00147"></a>00147             <a class="code" href="classubcc1pi_1_1PIDStudy.html#adebdf656888ea35436428d3637da2d95" title="The output tree for all PID algorithm level data.">m_pAlgorithmTree</a>-&gt;Fill();
-<a name="l00148"></a>00148         }
-<a name="l00149"></a>00149     }
-<a name="l00150"></a>00150 }
-<a name="l00151"></a>00151 
-<a name="l00152"></a>00152 } <span class="comment">// namespace ubcc1pi</span>
+<a name="l00134"></a>00134         <span class="keyword">const</span> <span class="keyword">auto</span> metadata = <a class="code" href="classubcc1pi_1_1CollectionHelper.html#aef49ea81264de87954feb660c9d6fbda" title="Get the single object associated to a given input object.">CollectionHelper::GetSingleAssociated</a>(pfParticle, pfpToMetadata);
+<a name="l00135"></a>00135         <a class="code" href="classubcc1pi_1_1PIDStudy.html#ac251a16ac6464c27e4ef5b30b9d3dddc" title="The output algorithm-level object.">m_outputAlgorithm</a>.<a class="code" href="structubcc1pi_1_1PIDStudy_1_1OutputAlgorithm.html#aa745c078f873993705f650ab6c9155b4" title="The output value of the PID algorithm.">m_value</a> = <a class="code" href="classubcc1pi_1_1RecoHelper.html#aa7b3da3945f85595dfe6385e959d0132">RecoHelper::GetTrackScore</a>(metadata);
+<a name="l00136"></a>00136         <a class="code" href="classubcc1pi_1_1PIDStudy.html#adebdf656888ea35436428d3637da2d95" title="The output tree for all PID algorithm level data.">m_pAlgorithmTree</a>-&gt;Fill();
+<a name="l00137"></a>00137         
+<a name="l00138"></a>00138         <span class="comment">// --------------------------------------------------------------------------</span>
+<a name="l00139"></a>00139 
+<a name="l00140"></a>00140         <span class="comment">// If the PFParticle is track-like, then score the output of the PID algorithms on the track</span>
+<a name="l00141"></a>00141         <span class="keywordtype">bool</span> hasTrack = <span class="keyword">false</span>;
+<a name="l00142"></a>00142         art::Ptr&lt;recob::Track&gt; track;
+<a name="l00143"></a>00143         <span class="keywordflow">try</span>
+<a name="l00144"></a>00144         {
+<a name="l00145"></a>00145             <span class="keyword">const</span> <span class="keyword">auto</span> tracks = <a class="code" href="classubcc1pi_1_1CollectionHelper.html#a5aa35d148efb229f796a112482902a67" title="Get the objects associated to a given input object.">CollectionHelper::GetManyAssociated</a>(pfParticle, pfpToTrack); 
+<a name="l00146"></a>00146             
+<a name="l00147"></a>00147             <span class="keywordflow">if</span> (tracks.size() &gt; 1)
+<a name="l00148"></a>00148                 <span class="keywordflow">throw</span> cet::exception(<span class="stringliteral">&quot;PIDStudy::analyze&quot;</span>) &lt;&lt; <span class="stringliteral">&quot; - Multiple tracks associated to PFParticle!&quot;</span> &lt;&lt; std::endl;
+<a name="l00149"></a>00149         
+<a name="l00150"></a>00150             <span class="keywordflow">if</span> (!tracks.empty())
+<a name="l00151"></a>00151             {
+<a name="l00152"></a>00152                 track = tracks.front();
+<a name="l00153"></a>00153                 hasTrack = <span class="keyword">true</span>;
+<a name="l00154"></a>00154             }
+<a name="l00155"></a>00155         }
+<a name="l00156"></a>00156         <span class="keywordflow">catch</span> (<span class="keyword">const</span> cet::exception &amp;)
+<a name="l00157"></a>00157         {
+<a name="l00158"></a>00158         }
+<a name="l00159"></a>00159 
+<a name="l00160"></a>00160         <span class="keywordflow">if</span> (!hasTrack)
+<a name="l00161"></a>00161             <span class="keywordflow">continue</span>;
+<a name="l00162"></a>00162         
+<a name="l00163"></a>00163         <span class="comment">// --------------------------------------------------------------------------</span>
+<a name="l00164"></a>00164         
+<a name="l00165"></a>00165         <span class="comment">// Store the track length</span>
+<a name="l00166"></a>00166         <a class="code" href="classubcc1pi_1_1PIDStudy.html#ac251a16ac6464c27e4ef5b30b9d3dddc" title="The output algorithm-level object.">m_outputAlgorithm</a>.<a class="code" href="structubcc1pi_1_1PIDStudy_1_1OutputAlgorithm.html#a434906ab7898155b0a89b59537d650a0" title="The algorithm name.">m_name</a> = <span class="stringliteral">&quot;TrackLength&quot;</span>;
+<a name="l00167"></a>00167         <a class="code" href="classubcc1pi_1_1PIDStudy.html#ac251a16ac6464c27e4ef5b30b9d3dddc" title="The output algorithm-level object.">m_outputAlgorithm</a>.<a class="code" href="structubcc1pi_1_1PIDStudy_1_1OutputAlgorithm.html#aeff0f3b63ce6e4347daeb48d78850718" title="The variable type from the PID object.">m_variableType</a> = <span class="keyword">static_cast&lt;</span><span class="keywordtype">int</span><span class="keyword">&gt;</span>(anab::kTrackLength);
+<a name="l00168"></a>00168         <a class="code" href="classubcc1pi_1_1PIDStudy.html#ac251a16ac6464c27e4ef5b30b9d3dddc" title="The output algorithm-level object.">m_outputAlgorithm</a>.<a class="code" href="structubcc1pi_1_1PIDStudy_1_1OutputAlgorithm.html#a420e7b28377779aaff6650233b08fa8b" title="The track direction (forward, backward, no direction).">m_trackDir</a> = <span class="keyword">static_cast&lt;</span><span class="keywordtype">int</span><span class="keyword">&gt;</span>(anab::kNoDirection);
+<a name="l00169"></a>00169         <a class="code" href="classubcc1pi_1_1PIDStudy.html#ac251a16ac6464c27e4ef5b30b9d3dddc" title="The output algorithm-level object.">m_outputAlgorithm</a>.<a class="code" href="structubcc1pi_1_1PIDStudy_1_1OutputAlgorithm.html#ababfe6494ce37661584053c98f71c6ca" title="The number of degrees of freedom.">m_nDOF</a> = -std::numeric_limits&lt;int&gt;::max();
+<a name="l00170"></a>00170         <a class="code" href="classubcc1pi_1_1PIDStudy.html#ac251a16ac6464c27e4ef5b30b9d3dddc" title="The output algorithm-level object.">m_outputAlgorithm</a>.<a class="code" href="structubcc1pi_1_1PIDStudy_1_1OutputAlgorithm.html#adc843d14aa37e00543d914ebb34e9671" title="The PDG assumed by the algorithm.">m_assumedPdg</a> = -std::numeric_limits&lt;int&gt;::max();
+<a name="l00171"></a>00171         <a class="code" href="classubcc1pi_1_1PIDStudy.html#ac251a16ac6464c27e4ef5b30b9d3dddc" title="The output algorithm-level object.">m_outputAlgorithm</a>.<a class="code" href="structubcc1pi_1_1PIDStudy_1_1OutputAlgorithm.html#a7152afe5e2b6ea9f0c982d88d6a6cc4e" title="If the W plane is used.">m_planeWUsed</a> = <span class="keyword">true</span>;
+<a name="l00172"></a>00172         <a class="code" href="classubcc1pi_1_1PIDStudy.html#ac251a16ac6464c27e4ef5b30b9d3dddc" title="The output algorithm-level object.">m_outputAlgorithm</a>.<a class="code" href="structubcc1pi_1_1PIDStudy_1_1OutputAlgorithm.html#a933e1d441a3f3eb1129d5085a3245501" title="If the U plane is used.">m_planeUUsed</a> = <span class="keyword">true</span>;
+<a name="l00173"></a>00173         <a class="code" href="classubcc1pi_1_1PIDStudy.html#ac251a16ac6464c27e4ef5b30b9d3dddc" title="The output algorithm-level object.">m_outputAlgorithm</a>.<a class="code" href="structubcc1pi_1_1PIDStudy_1_1OutputAlgorithm.html#a9b6820db6d44399bf7432c489b60a636" title="If the V plane is used.">m_planeVUsed</a> = <span class="keyword">true</span>;
+<a name="l00174"></a>00174         <a class="code" href="classubcc1pi_1_1PIDStudy.html#ac251a16ac6464c27e4ef5b30b9d3dddc" title="The output algorithm-level object.">m_outputAlgorithm</a>.<a class="code" href="structubcc1pi_1_1PIDStudy_1_1OutputAlgorithm.html#aa745c078f873993705f650ab6c9155b4" title="The output value of the PID algorithm.">m_value</a> = track-&gt;Length();
+<a name="l00175"></a>00175         <a class="code" href="classubcc1pi_1_1PIDStudy.html#adebdf656888ea35436428d3637da2d95" title="The output tree for all PID algorithm level data.">m_pAlgorithmTree</a>-&gt;Fill();
+<a name="l00176"></a>00176 
+<a name="l00177"></a>00177         <span class="comment">// Store the relative track length</span>
+<a name="l00178"></a>00178         <a class="code" href="classubcc1pi_1_1PIDStudy.html#ac251a16ac6464c27e4ef5b30b9d3dddc" title="The output algorithm-level object.">m_outputAlgorithm</a>.<a class="code" href="structubcc1pi_1_1PIDStudy_1_1OutputAlgorithm.html#a434906ab7898155b0a89b59537d650a0" title="The algorithm name.">m_name</a> = <span class="stringliteral">&quot;RelativeTrackLength&quot;</span>;
+<a name="l00179"></a>00179         <a class="code" href="classubcc1pi_1_1PIDStudy.html#ac251a16ac6464c27e4ef5b30b9d3dddc" title="The output algorithm-level object.">m_outputAlgorithm</a>.<a class="code" href="structubcc1pi_1_1PIDStudy_1_1OutputAlgorithm.html#aeff0f3b63ce6e4347daeb48d78850718" title="The variable type from the PID object.">m_variableType</a> = <span class="keyword">static_cast&lt;</span><span class="keywordtype">int</span><span class="keyword">&gt;</span>(anab::kTrackLength);
+<a name="l00180"></a>00180         <a class="code" href="classubcc1pi_1_1PIDStudy.html#ac251a16ac6464c27e4ef5b30b9d3dddc" title="The output algorithm-level object.">m_outputAlgorithm</a>.<a class="code" href="structubcc1pi_1_1PIDStudy_1_1OutputAlgorithm.html#a420e7b28377779aaff6650233b08fa8b" title="The track direction (forward, backward, no direction).">m_trackDir</a> = <span class="keyword">static_cast&lt;</span><span class="keywordtype">int</span><span class="keyword">&gt;</span>(anab::kNoDirection);
+<a name="l00181"></a>00181         <a class="code" href="classubcc1pi_1_1PIDStudy.html#ac251a16ac6464c27e4ef5b30b9d3dddc" title="The output algorithm-level object.">m_outputAlgorithm</a>.<a class="code" href="structubcc1pi_1_1PIDStudy_1_1OutputAlgorithm.html#ababfe6494ce37661584053c98f71c6ca" title="The number of degrees of freedom.">m_nDOF</a> = -std::numeric_limits&lt;int&gt;::max();
+<a name="l00182"></a>00182         <a class="code" href="classubcc1pi_1_1PIDStudy.html#ac251a16ac6464c27e4ef5b30b9d3dddc" title="The output algorithm-level object.">m_outputAlgorithm</a>.<a class="code" href="structubcc1pi_1_1PIDStudy_1_1OutputAlgorithm.html#adc843d14aa37e00543d914ebb34e9671" title="The PDG assumed by the algorithm.">m_assumedPdg</a> = -std::numeric_limits&lt;int&gt;::max();
+<a name="l00183"></a>00183         <a class="code" href="classubcc1pi_1_1PIDStudy.html#ac251a16ac6464c27e4ef5b30b9d3dddc" title="The output algorithm-level object.">m_outputAlgorithm</a>.<a class="code" href="structubcc1pi_1_1PIDStudy_1_1OutputAlgorithm.html#a7152afe5e2b6ea9f0c982d88d6a6cc4e" title="If the W plane is used.">m_planeWUsed</a> = <span class="keyword">true</span>;
+<a name="l00184"></a>00184         <a class="code" href="classubcc1pi_1_1PIDStudy.html#ac251a16ac6464c27e4ef5b30b9d3dddc" title="The output algorithm-level object.">m_outputAlgorithm</a>.<a class="code" href="structubcc1pi_1_1PIDStudy_1_1OutputAlgorithm.html#a933e1d441a3f3eb1129d5085a3245501" title="If the U plane is used.">m_planeUUsed</a> = <span class="keyword">true</span>;
+<a name="l00185"></a>00185         <a class="code" href="classubcc1pi_1_1PIDStudy.html#ac251a16ac6464c27e4ef5b30b9d3dddc" title="The output algorithm-level object.">m_outputAlgorithm</a>.<a class="code" href="structubcc1pi_1_1PIDStudy_1_1OutputAlgorithm.html#a9b6820db6d44399bf7432c489b60a636" title="If the V plane is used.">m_planeVUsed</a> = <span class="keyword">true</span>;
+<a name="l00186"></a>00186         <a class="code" href="classubcc1pi_1_1PIDStudy.html#ac251a16ac6464c27e4ef5b30b9d3dddc" title="The output algorithm-level object.">m_outputAlgorithm</a>.<a class="code" href="structubcc1pi_1_1PIDStudy_1_1OutputAlgorithm.html#aa745c078f873993705f650ab6c9155b4" title="The output value of the PID algorithm.">m_value</a> = track-&gt;Length() / maxTrackLength;
+<a name="l00187"></a>00187         <a class="code" href="classubcc1pi_1_1PIDStudy.html#adebdf656888ea35436428d3637da2d95" title="The output tree for all PID algorithm level data.">m_pAlgorithmTree</a>-&gt;Fill();
+<a name="l00188"></a>00188         
+<a name="l00189"></a>00189         <span class="comment">// --------------------------------------------------------------------------</span>
+<a name="l00190"></a>00190       
+<a name="l00191"></a>00191         <span class="keyword">const</span> <span class="keyword">auto</span> pid = <a class="code" href="classubcc1pi_1_1CollectionHelper.html#aef49ea81264de87954feb660c9d6fbda" title="Get the single object associated to a given input object.">CollectionHelper::GetSingleAssociated</a>(track, trackToPID);
+<a name="l00192"></a>00192 
+<a name="l00193"></a>00193         <span class="keywordflow">for</span> (<span class="keyword">const</span> <span class="keyword">auto</span> &amp;algo : pid-&gt;ParticleIDAlgScores())
+<a name="l00194"></a>00194         {
+<a name="l00195"></a>00195             <a class="code" href="classubcc1pi_1_1PIDStudy.html#ac251a16ac6464c27e4ef5b30b9d3dddc" title="The output algorithm-level object.">m_outputAlgorithm</a>.<a class="code" href="structubcc1pi_1_1PIDStudy_1_1OutputAlgorithm.html#a434906ab7898155b0a89b59537d650a0" title="The algorithm name.">m_name</a> = algo.fAlgName;
+<a name="l00196"></a>00196             <a class="code" href="classubcc1pi_1_1PIDStudy.html#ac251a16ac6464c27e4ef5b30b9d3dddc" title="The output algorithm-level object.">m_outputAlgorithm</a>.<a class="code" href="structubcc1pi_1_1PIDStudy_1_1OutputAlgorithm.html#aeff0f3b63ce6e4347daeb48d78850718" title="The variable type from the PID object.">m_variableType</a> = <span class="keyword">static_cast&lt;</span><span class="keywordtype">int</span><span class="keyword">&gt;</span>(algo.fVariableType);
+<a name="l00197"></a>00197             <a class="code" href="classubcc1pi_1_1PIDStudy.html#ac251a16ac6464c27e4ef5b30b9d3dddc" title="The output algorithm-level object.">m_outputAlgorithm</a>.<a class="code" href="structubcc1pi_1_1PIDStudy_1_1OutputAlgorithm.html#a420e7b28377779aaff6650233b08fa8b" title="The track direction (forward, backward, no direction).">m_trackDir</a> = <span class="keyword">static_cast&lt;</span><span class="keywordtype">int</span><span class="keyword">&gt;</span>(algo.fTrackDir);
+<a name="l00198"></a>00198             <a class="code" href="classubcc1pi_1_1PIDStudy.html#ac251a16ac6464c27e4ef5b30b9d3dddc" title="The output algorithm-level object.">m_outputAlgorithm</a>.<a class="code" href="structubcc1pi_1_1PIDStudy_1_1OutputAlgorithm.html#ababfe6494ce37661584053c98f71c6ca" title="The number of degrees of freedom.">m_nDOF</a> = algo.fNdf;
+<a name="l00199"></a>00199             <a class="code" href="classubcc1pi_1_1PIDStudy.html#ac251a16ac6464c27e4ef5b30b9d3dddc" title="The output algorithm-level object.">m_outputAlgorithm</a>.<a class="code" href="structubcc1pi_1_1PIDStudy_1_1OutputAlgorithm.html#adc843d14aa37e00543d914ebb34e9671" title="The PDG assumed by the algorithm.">m_assumedPdg</a> = algo.fAssumedPdg;
+<a name="l00200"></a>00200             <a class="code" href="classubcc1pi_1_1PIDStudy.html#ac251a16ac6464c27e4ef5b30b9d3dddc" title="The output algorithm-level object.">m_outputAlgorithm</a>.<a class="code" href="structubcc1pi_1_1PIDStudy_1_1OutputAlgorithm.html#a7152afe5e2b6ea9f0c982d88d6a6cc4e" title="If the W plane is used.">m_planeWUsed</a> = algo.fPlaneMask[0];
+<a name="l00201"></a>00201             <a class="code" href="classubcc1pi_1_1PIDStudy.html#ac251a16ac6464c27e4ef5b30b9d3dddc" title="The output algorithm-level object.">m_outputAlgorithm</a>.<a class="code" href="structubcc1pi_1_1PIDStudy_1_1OutputAlgorithm.html#a933e1d441a3f3eb1129d5085a3245501" title="If the U plane is used.">m_planeUUsed</a> = algo.fPlaneMask[1];
+<a name="l00202"></a>00202             <a class="code" href="classubcc1pi_1_1PIDStudy.html#ac251a16ac6464c27e4ef5b30b9d3dddc" title="The output algorithm-level object.">m_outputAlgorithm</a>.<a class="code" href="structubcc1pi_1_1PIDStudy_1_1OutputAlgorithm.html#a9b6820db6d44399bf7432c489b60a636" title="If the V plane is used.">m_planeVUsed</a> = algo.fPlaneMask[2];
+<a name="l00203"></a>00203             <a class="code" href="classubcc1pi_1_1PIDStudy.html#ac251a16ac6464c27e4ef5b30b9d3dddc" title="The output algorithm-level object.">m_outputAlgorithm</a>.<a class="code" href="structubcc1pi_1_1PIDStudy_1_1OutputAlgorithm.html#aa745c078f873993705f650ab6c9155b4" title="The output value of the PID algorithm.">m_value</a> = algo.fValue;
+<a name="l00204"></a>00204             <a class="code" href="classubcc1pi_1_1PIDStudy.html#adebdf656888ea35436428d3637da2d95" title="The output tree for all PID algorithm level data.">m_pAlgorithmTree</a>-&gt;Fill();
+<a name="l00205"></a>00205         }
+<a name="l00206"></a>00206     }
+<a name="l00207"></a>00207         
+<a name="l00208"></a>00208 }
+<a name="l00209"></a>00209 
+<a name="l00210"></a>00210 } <span class="comment">// namespace ubcc1pi</span>
 </pre></div></div>
 <!--- window showing the filter options -->
 <div id="MSearchSelectWindow"
@@ -264,7 +322,7 @@ window.onload = initDynSections;
 <hr size="1"/>
 <address style="text-align: right;">
     <small>
-        Generated on Mon Apr 22 14:16:29 2019 for ubcc1pi by <a href="http://www.doxygen.org/index.html" target="_blank">doxygen</a> 1.6.1
+        Generated on Tue Apr 23 11:21:20 2019 for ubcc1pi by <a href="http://www.doxygen.org/index.html" target="_blank">doxygen</a> 1.6.1
     </small>
 </address>
 
