@@ -1,0 +1,17 @@
+BEGIN_PROLOG
+
+event_selection:
+{
+    module_type: "EventSelection"
+
+    # Input labels
+    MCTruthLabel:     "generator"
+    MCParticleLabel:  "largeant"
+    BacktrackerLabel: "gaushitTruthMatch"
+    PFParticleLabel:  "pandora"
+    TrackLabel:       "pandora"
+    ShowerLabel:      "pandora"
+    PIDLabel:         "pandoracalipidSCE"
+}
+
+END_PROLOG

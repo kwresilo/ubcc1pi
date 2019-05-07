@@ -22,7 +22,7 @@
 <!ENTITY inputDef        "prodgenie_bnb_nu_uboone_overlay_mcc9_postCSU_v08_00_00_12_run1_reco2">
 
 <!-- Job settings -->
-<!ENTITY numJobs         "263">
+<!ENTITY numJobs         "263"> 
 <!ENTITY maxFilesPerJob  "40">
 <!ENTITY numEvents       "9999999999999999999999999999999999999999999999999999999999999">
 <!-- NB. I use large number for numEvents to get all events in the files, it's not really the number of events that will be processed -->
@@ -41,7 +41,10 @@
 <!ENTITY fullStudyFcl    "ubcc1pi_driver.fcl">
 
 <!ENTITY truthStudyName  "truthStudy">
-<!ENTITY truthStudyFcl   "truty_study_driver.fcl">
+<!ENTITY truthStudyFcl   "truth_study_driver.fcl">
+
+<!ENTITY eventSelectionName  "eventSelection">
+<!ENTITY eventSelectionFcl   "event_selection_driver.fcl">
 
 ]>
 
@@ -109,6 +112,29 @@
         <outdir>/pnfs/uboone/scratch/users/&username;/&projectName;/&truthStudyName;/</outdir> 
         <logdir>/pnfs/uboone/scratch/users/&username;/&projectName;/&truthStudyName;/</logdir> 
         <workdir>/pnfs/uboone/resilient/users/&username;/work/&projectName;/&truthStudyName;/</workdir> 
+
+        <!-- Options -->
+        <datatier>&dataTier;</datatier>
+        <schema>&schema;</schema>
+    </stage>
+    
+    <!-- =============================================================================================================================== -->
+    <!-- Event Selection -->
+    <!-- =============================================================================================================================== -->
+    <stage name="&eventSelectionName;">
+        <!-- Settings -->
+        <fcl>&eventSelectionFcl;</fcl>
+        <numjobs>&numJobs;</numjobs>
+        <maxfilesperjob>&maxFilesPerJob;</maxfilesperjob>
+        <numevents>&numEvents;</numevents>
+
+        <!-- Input files -->
+        <inputdef>&inputDef;</inputdef>
+
+        <!-- Output directories -->
+        <outdir>/pnfs/uboone/scratch/users/&username;/&projectName;/&eventSelectionName;/</outdir> 
+        <logdir>/pnfs/uboone/scratch/users/&username;/&projectName;/&eventSelectionName;/</logdir> 
+        <workdir>/pnfs/uboone/resilient/users/&username;/work/&projectName;/&eventSelectionName;/</workdir> 
 
         <!-- Options -->
         <datatier>&dataTier;</datatier>
