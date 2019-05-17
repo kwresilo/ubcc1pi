@@ -27,7 +27,7 @@ class EventSelector
         /**
          *  @brief  Constructor
          *
-         *  @param  finalState the final state PFParticles
+         *  @param  finalStates the final state PFParticles
          *  @param  event the art event
          *  @param  pfParticleLabel the PFParticle producer label
          *  @param  trackLabel the Track producer label
@@ -36,49 +36,49 @@ class EventSelector
         EventSelector(const PFParticleVector &finalStates, const art::Event &event, const art::InputTag &pfParticleLabel, const art::InputTag &trackLabel, const art::InputTag &pidLabel);
 
         /**
-         *  @breif  Get the track vs. shower score for the given PFParticle
+         *  @brief  Get the track vs. shower score for the given PFParticle
          *
          *  @param  pfParticle the input PFParticle
          */
         float GetTrackShowerScore(const art::Ptr<recob::PFParticle> &pfParticle) const;
         
         /**
-         *  @breif  Get the proton vs. MIP score for the given PFParticle
+         *  @brief  Get the proton vs. MIP score for the given PFParticle
          *
          *  @param  pfParticle the input PFParticle
          */
         float GetProtonMIPScore(const art::Ptr<recob::PFParticle> &pfParticle) const;
         
         /**
-         *  @breif  Get the muon vs. pion score for the given PFParticle
+         *  @brief  Get the muon vs. pion score for the given PFParticle
          *
          *  @param  pfParticle the input PFParticle
          */
         float GetMuonPionScore(const art::Ptr<recob::PFParticle> &pfParticle) const;
 
         /**
-         *  @breif  Get the likelihood that the pfParticle would have the relevant scores, given that it's truly a muon
+         *  @brief  Get the likelihood that the pfParticle would have the relevant scores, given that it's truly a muon
          *
          *  @param  pfParticle the input PFParticle
          */
         float GetMuonLikelihood(const art::Ptr<recob::PFParticle> &pfParticle) const;
         
         /**
-         *  @breif  Get the likelihood that the pfParticle would have the relevant scores, given that it's truly a pion
+         *  @brief  Get the likelihood that the pfParticle would have the relevant scores, given that it's truly a pion
          *
          *  @param  pfParticle the input PFParticle
          */
         float GetPionLikelihood(const art::Ptr<recob::PFParticle> &pfParticle) const;
         
         /**
-         *  @breif  Get the likelihood that the pfParticle would have the relevant scores, given that it's truly a proton
+         *  @brief  Get the likelihood that the pfParticle would have the relevant scores, given that it's truly a proton
          *
          *  @param  pfParticle the input PFParticle
          */
         float GetProtonLikelihood(const art::Ptr<recob::PFParticle> &pfParticle) const;
 
         /**
-         *  @breif  Get the likelihood of the event being CC1Pi with the most likely PID assignment (assuming the event is truly CC1Pi)
+         *  @brief  Get the likelihood of the event being CC1Pi with the most likely PID assignment (assuming the event is truly CC1Pi)
          *
          *  @param  bestMuon the pfparticle most likely to be the muon assuming the event is cc1pi
          *  @param  bestPion the pfparticle most likely to be the pion assuming the event is cc1pi
