@@ -9,6 +9,9 @@
 
 #include "ubcc1pi/Helpers/CollectionHelper.h"
 
+#include <TFile.h>
+#include <TH1.h>
+
 namespace ubcc1pi
 {
 
@@ -79,10 +82,34 @@ class EventSelector
          *
          *  @param  bestMuon the pfparticle most likely to be the muon assuming the event is cc1pi
          *  @param  bestPion the pfparticle most likely to be the pion assuming the event is cc1pi
+         *  @param  bestProtons the pfparticles most likely to be protons assuming the event is cc1pi
          */
-        float GetBestCC1PiScore(art::Ptr<recob::PFParticle> &bestMuon, art::Ptr<recob::PFParticle> &bestPion) const;
+        float GetBestCC1PiScore(art::Ptr<recob::PFParticle> &bestMuon, art::Ptr<recob::PFParticle> &bestPion, PFParticleVector &bestProtons) const;
 
     private:
+
+        /**
+         *  @brief  Get the total likelihood for a given PFParticle using the supplied histograms
+         *
+         *  @param  pfParticle the input PFParticle
+         *  @param  pTrackShower the track-shower likelihood histogram
+         *  @param  pProtonMIP the proton-MIP likelihood histogram
+         *  @param  pMuonPion the muon-pion likelihood histogram
+         */
+        float GetLikelihood(const art::Ptr<recob::PFParticle> &pfParticle, const TH1F *pTrackShower, const TH1F *pProtonMIP, const TH1F *pMuonPion) const;
+        
+        /**
+         *  @brief  Get the single likelihood from the supplied histogram
+         *
+         *  @param  value the value to look up in the histogram
+         *  @param  pHistogram the input likelihood histogram
+         */
+        float GetLikelihood(const float value, const TH1F *pHistogram) const;
+
+        /**
+         *  @brief  Get the full file path for the PID histogram root file
+         */
+        std::string GetPIDHistFileName() const;
 
         PFParticleVector                                                   m_finalStates;           ///< The input final state PFParticles
         const art::Event                                                  *m_pEvent;                ///< The art event
@@ -90,6 +117,18 @@ class EventSelector
         Association<recob::PFParticle, larpandoraobj::PFParticleMetadata>  m_pfParticleToMetadata;  ///< The mapping from PFParticles to metadata
         Association<recob::PFParticle, recob::Track>                       m_pfParticleToTrack;     ///< The mapping from PFParticles to tracks
         Association<recob::Track, anab::ParticleID>                        m_trackToPID;            ///< The mapping from Tracks to PID
+
+        TH1F                                                              *m_hTrackShower_muon;     ///< The track-shower likelihood histogram for muons
+        TH1F                                                              *m_hTrackShower_pion;     ///< The track-shower likelihood histogram for pions
+        TH1F                                                              *m_hTrackShower_proton;   ///< The track-shower likelihood histogram for protons
+        
+        TH1F                                                              *m_hProtonMIP_muon;       ///< The proton-MIP likelihood histogram for muons
+        TH1F                                                              *m_hProtonMIP_pion;       ///< The proton-MIP likelihood histogram for pions
+        TH1F                                                              *m_hProtonMIP_proton;     ///< The proton-MIP likelihood histogram for protons
+        
+        TH1F                                                              *m_hMuonPion_muon;        ///< The muon-pion likelihood histogram for muons
+        TH1F                                                              *m_hMuonPion_pion;        ///< The muon-pion likelihood histogram for pions
+        TH1F                                                              *m_hMuonPion_proton;      ///< The muon-pion likelihood histogram for protons
 };
 
 } // namespace ubcc1pi

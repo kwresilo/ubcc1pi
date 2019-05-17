@@ -2,3 +2,9 @@
 
 # Make the tarball for the current local products in the place the grid settings XML file expects
 make_tar_uboone.sh /pnfs/uboone/resilient/users/$USER/tars/ubcc1pi/local.tar
+
+PID_HIST_DIR=/pnfs/uboone/scratch/users/$USER/ubcc1pi/grid/
+mkdir -p $PID_HIST_DIR
+
+cp -f ubcc1pi_pid_hist.root $PID_HIST_DIR/.
+#cp -f grid_setup.sh $PID_HIST_DIR/.
