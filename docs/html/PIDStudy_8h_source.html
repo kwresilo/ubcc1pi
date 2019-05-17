@@ -113,130 +113,152 @@ window.onload = initDynSections;
 <a name="l00017"></a>00017 <span class="preprocessor">#include &quot;fhiclcpp/types/Table.h&quot;</span>
 <a name="l00018"></a>00018 <span class="preprocessor">#include &quot;canvas/Utilities/InputTag.h&quot;</span>
 <a name="l00019"></a>00019 
-<a name="l00020"></a>00020 <span class="keyword">namespace </span>ubcc1pi
-<a name="l00021"></a>00021 {
-<a name="l00022"></a>00022 <span class="comment"></span>
-<a name="l00023"></a>00023 <span class="comment">/**</span>
-<a name="l00024"></a>00024 <span class="comment"> *  @brief  The PID study class</span>
-<a name="l00025"></a>00025 <span class="comment"> */</span>
-<a name="l00026"></a><a class="code" href="classubcc1pi_1_1PIDStudy.html">00026</a> <span class="keyword">class </span><a class="code" href="classubcc1pi_1_1PIDStudy.html" title="The PID study class.">PIDStudy</a> : <span class="keyword">public</span> art::EDAnalyzer
-<a name="l00027"></a>00027 {
-<a name="l00028"></a>00028     <span class="keyword">public</span>:<span class="comment"></span>
-<a name="l00029"></a>00029 <span class="comment">        /**</span>
-<a name="l00030"></a>00030 <span class="comment">         *  @brief  The configuration structure</span>
-<a name="l00031"></a>00031 <span class="comment">         */</span>
-<a name="l00032"></a><a class="code" href="structubcc1pi_1_1PIDStudy_1_1Config.html">00032</a>         <span class="keyword">struct </span><a class="code" href="structubcc1pi_1_1PIDStudy_1_1Config.html" title="The configuration structure.">Config</a>
-<a name="l00033"></a>00033         {
-<a name="l00034"></a>00034             fhicl::Atom&lt;art::InputTag&gt; MCTruthLabel
-<a name="l00035"></a>00035             {
-<a name="l00036"></a>00036                 fhicl::Name(<span class="stringliteral">&quot;MCTruthLabel&quot;</span>),
-<a name="l00037"></a>00037                 fhicl::Comment(<span class="stringliteral">&quot;The label for the neutrino MCTruth producer&quot;</span>)
-<a name="l00038"></a>00038             };
-<a name="l00039"></a>00039             
-<a name="l00040"></a>00040             fhicl::Atom&lt;art::InputTag&gt; MCParticleLabel
-<a name="l00041"></a>00041             {
-<a name="l00042"></a>00042                 fhicl::Name(<span class="stringliteral">&quot;MCParticleLabel&quot;</span>),
-<a name="l00043"></a>00043                 fhicl::Comment(<span class="stringliteral">&quot;The label for the MCParticle producer&quot;</span>)
-<a name="l00044"></a>00044             };
-<a name="l00045"></a>00045             
-<a name="l00046"></a>00046             fhicl::Atom&lt;art::InputTag&gt; BacktrackerLabel
-<a name="l00047"></a>00047             {
-<a name="l00048"></a>00048                 fhicl::Name(<span class="stringliteral">&quot;BacktrackerLabel&quot;</span>),
-<a name="l00049"></a>00049                 fhicl::Comment(<span class="stringliteral">&quot;The label for the MCParticle to Hit backtracker producer&quot;</span>)
-<a name="l00050"></a>00050             };
-<a name="l00051"></a>00051             
-<a name="l00052"></a>00052             fhicl::Atom&lt;art::InputTag&gt; PFParticleLabel
-<a name="l00053"></a>00053             {
-<a name="l00054"></a>00054                 fhicl::Name(<span class="stringliteral">&quot;PFParticleLabel&quot;</span>),
-<a name="l00055"></a>00055                 fhicl::Comment(<span class="stringliteral">&quot;The label for the PFParticle producer (Pandora)&quot;</span>)
-<a name="l00056"></a>00056             };
-<a name="l00057"></a>00057             
-<a name="l00058"></a>00058             fhicl::Atom&lt;art::InputTag&gt; TrackLabel
-<a name="l00059"></a>00059             {
-<a name="l00060"></a>00060                 fhicl::Name(<span class="stringliteral">&quot;TrackLabel&quot;</span>),
-<a name="l00061"></a>00061                 fhicl::Comment(<span class="stringliteral">&quot;The label for the Track producer&quot;</span>)
-<a name="l00062"></a>00062             };
-<a name="l00063"></a>00063             
-<a name="l00064"></a>00064             fhicl::Atom&lt;art::InputTag&gt; PIDLabel
-<a name="l00065"></a>00065             {
-<a name="l00066"></a>00066                 fhicl::Name(<span class="stringliteral">&quot;PIDLabel&quot;</span>),
-<a name="l00067"></a>00067                 fhicl::Comment(<span class="stringliteral">&quot;The label for the PID producer&quot;</span>)
-<a name="l00068"></a>00068             };
-<a name="l00069"></a>00069             
-<a name="l00070"></a>00070             fhicl::Atom&lt;art::InputTag&gt; SliceLabel
-<a name="l00071"></a>00071             {
-<a name="l00072"></a>00072                 fhicl::Name(<span class="stringliteral">&quot;SliceLabel&quot;</span>),
-<a name="l00073"></a>00073                 fhicl::Comment(<span class="stringliteral">&quot;The label for the Slice producer (Pandora)&quot;</span>)
-<a name="l00074"></a>00074             };
-<a name="l00075"></a>00075             
-<a name="l00076"></a>00076             fhicl::Atom&lt;art::InputTag&gt; HitLabel
-<a name="l00077"></a>00077             {
-<a name="l00078"></a>00078                 fhicl::Name(<span class="stringliteral">&quot;HitLabel&quot;</span>),
-<a name="l00079"></a>00079                 fhicl::Comment(<span class="stringliteral">&quot;The label for the Hit producer&quot;</span>)
-<a name="l00080"></a>00080             };
-<a name="l00081"></a>00081         };
-<a name="l00082"></a>00082 <span class="comment"></span>
-<a name="l00083"></a>00083 <span class="comment">        /**</span>
-<a name="l00084"></a>00084 <span class="comment">         *  @brief  The output PID algorithm level structure</span>
-<a name="l00085"></a>00085 <span class="comment">         */</span>
-<a name="l00086"></a><a class="code" href="structubcc1pi_1_1PIDStudy_1_1OutputAlgorithm.html">00086</a>         <span class="keyword">struct </span><a class="code" href="structubcc1pi_1_1PIDStudy_1_1OutputAlgorithm.html" title="The output PID algorithm level structure.">OutputAlgorithm</a>
-<a name="l00087"></a>00087         {
-<a name="l00088"></a>00088             <span class="comment">// Event metadata</span>
-<a name="l00089"></a><a class="code" href="structubcc1pi_1_1PIDStudy_1_1OutputAlgorithm.html#a79ef2c613cd9638780411d9636a57d44">00089</a>             <span class="keywordtype">int</span>          <a class="code" href="structubcc1pi_1_1PIDStudy_1_1OutputAlgorithm.html#a79ef2c613cd9638780411d9636a57d44" title="The run number.">m_run</a>;                   <span class="comment">///&lt; The run number</span>
-<a name="l00090"></a><a class="code" href="structubcc1pi_1_1PIDStudy_1_1OutputAlgorithm.html#a1f8776b6d913e678fa5a2a9f1f808a29">00090</a> <span class="comment"></span>            <span class="keywordtype">int</span>          <a class="code" href="structubcc1pi_1_1PIDStudy_1_1OutputAlgorithm.html#a1f8776b6d913e678fa5a2a9f1f808a29" title="The subrun number.">m_subRun</a>;                <span class="comment">///&lt; The subrun number</span>
-<a name="l00091"></a><a class="code" href="structubcc1pi_1_1PIDStudy_1_1OutputAlgorithm.html#aaeedca795a8b57798ec6a8cdb29ecf7e">00091</a> <span class="comment"></span>            <span class="keywordtype">int</span>          <a class="code" href="structubcc1pi_1_1PIDStudy_1_1OutputAlgorithm.html#aaeedca795a8b57798ec6a8cdb29ecf7e" title="The event number.">m_event</a>;                 <span class="comment">///&lt; The event number</span>
-<a name="l00092"></a><a class="code" href="structubcc1pi_1_1PIDStudy_1_1OutputAlgorithm.html#a19909f00af9a7b2149bd488d6b39770a">00092</a> <span class="comment"></span>            <span class="keywordtype">bool</span>         <a class="code" href="structubcc1pi_1_1PIDStudy_1_1OutputAlgorithm.html#a19909f00af9a7b2149bd488d6b39770a" title="If the event is a true CC1Pi signal.">m_isSignal</a>;              <span class="comment">///&lt; If the event is a true CC1Pi signal</span>
-<a name="l00093"></a>00093 <span class="comment"></span>        
-<a name="l00094"></a>00094             <span class="comment">// PFParticle details</span>
-<a name="l00095"></a><a class="code" href="structubcc1pi_1_1PIDStudy_1_1OutputAlgorithm.html#a32ac2ed84a88008497d9384863aed3bd">00095</a>             <span class="keywordtype">int</span>          <a class="code" href="structubcc1pi_1_1PIDStudy_1_1OutputAlgorithm.html#a32ac2ed84a88008497d9384863aed3bd" title="The number of hits associated to the PFParticle.">m_nPFPHits</a>;              <span class="comment">///&lt; The number of hits associated to the PFParticle</span>
-<a name="l00096"></a>00096 <span class="comment"></span>
+<a name="l00020"></a>00020 <span class="preprocessor">#include &quot;<a class="code" href="CollectionHelper_8h.html" title="The header file for the collection helper class.">ubcc1pi/Helpers/CollectionHelper.h</a>&quot;</span>
+<a name="l00021"></a>00021 <span class="preprocessor">#include &quot;<a class="code" href="BacktrackHelper_8h.html" title="The header file for the back tracking helper class.">ubcc1pi/Helpers/BacktrackHelper.h</a>&quot;</span>
+<a name="l00022"></a>00022 
+<a name="l00023"></a>00023 <span class="keyword">namespace </span>ubcc1pi
+<a name="l00024"></a>00024 {
+<a name="l00025"></a>00025 <span class="comment"></span>
+<a name="l00026"></a>00026 <span class="comment">/**</span>
+<a name="l00027"></a>00027 <span class="comment"> *  @brief  The PID study class</span>
+<a name="l00028"></a>00028 <span class="comment"> */</span>
+<a name="l00029"></a><a class="code" href="classubcc1pi_1_1PIDStudy.html">00029</a> <span class="keyword">class </span><a class="code" href="classubcc1pi_1_1PIDStudy.html" title="The PID study class.">PIDStudy</a> : <span class="keyword">public</span> art::EDAnalyzer
+<a name="l00030"></a>00030 {
+<a name="l00031"></a>00031     <span class="keyword">public</span>:<span class="comment"></span>
+<a name="l00032"></a>00032 <span class="comment">        /**</span>
+<a name="l00033"></a>00033 <span class="comment">         *  @brief  The configuration structure</span>
+<a name="l00034"></a>00034 <span class="comment">         */</span>
+<a name="l00035"></a><a class="code" href="structubcc1pi_1_1PIDStudy_1_1Config.html">00035</a>         <span class="keyword">struct </span><a class="code" href="structubcc1pi_1_1PIDStudy_1_1Config.html" title="The configuration structure.">Config</a>
+<a name="l00036"></a>00036         {
+<a name="l00037"></a>00037             fhicl::Atom&lt;art::InputTag&gt; MCTruthLabel
+<a name="l00038"></a>00038             {
+<a name="l00039"></a>00039                 fhicl::Name(<span class="stringliteral">&quot;MCTruthLabel&quot;</span>),
+<a name="l00040"></a>00040                 fhicl::Comment(<span class="stringliteral">&quot;The label for the neutrino MCTruth producer&quot;</span>)
+<a name="l00041"></a>00041             };
+<a name="l00042"></a>00042             
+<a name="l00043"></a>00043             fhicl::Atom&lt;art::InputTag&gt; MCParticleLabel
+<a name="l00044"></a>00044             {
+<a name="l00045"></a>00045                 fhicl::Name(<span class="stringliteral">&quot;MCParticleLabel&quot;</span>),
+<a name="l00046"></a>00046                 fhicl::Comment(<span class="stringliteral">&quot;The label for the MCParticle producer&quot;</span>)
+<a name="l00047"></a>00047             };
+<a name="l00048"></a>00048             
+<a name="l00049"></a>00049             fhicl::Atom&lt;art::InputTag&gt; BacktrackerLabel
+<a name="l00050"></a>00050             {
+<a name="l00051"></a>00051                 fhicl::Name(<span class="stringliteral">&quot;BacktrackerLabel&quot;</span>),
+<a name="l00052"></a>00052                 fhicl::Comment(<span class="stringliteral">&quot;The label for the MCParticle to Hit backtracker producer&quot;</span>)
+<a name="l00053"></a>00053             };
+<a name="l00054"></a>00054             
+<a name="l00055"></a>00055             fhicl::Atom&lt;art::InputTag&gt; PFParticleLabel
+<a name="l00056"></a>00056             {
+<a name="l00057"></a>00057                 fhicl::Name(<span class="stringliteral">&quot;PFParticleLabel&quot;</span>),
+<a name="l00058"></a>00058                 fhicl::Comment(<span class="stringliteral">&quot;The label for the PFParticle producer (Pandora)&quot;</span>)
+<a name="l00059"></a>00059             };
+<a name="l00060"></a>00060             
+<a name="l00061"></a>00061             fhicl::Atom&lt;art::InputTag&gt; TrackLabel
+<a name="l00062"></a>00062             {
+<a name="l00063"></a>00063                 fhicl::Name(<span class="stringliteral">&quot;TrackLabel&quot;</span>),
+<a name="l00064"></a>00064                 fhicl::Comment(<span class="stringliteral">&quot;The label for the Track producer&quot;</span>)
+<a name="l00065"></a>00065             };
+<a name="l00066"></a>00066             
+<a name="l00067"></a>00067             fhicl::Atom&lt;art::InputTag&gt; PIDLabel
+<a name="l00068"></a>00068             {
+<a name="l00069"></a>00069                 fhicl::Name(<span class="stringliteral">&quot;PIDLabel&quot;</span>),
+<a name="l00070"></a>00070                 fhicl::Comment(<span class="stringliteral">&quot;The label for the PID producer&quot;</span>)
+<a name="l00071"></a>00071             };
+<a name="l00072"></a>00072             
+<a name="l00073"></a>00073             fhicl::Atom&lt;art::InputTag&gt; SliceLabel
+<a name="l00074"></a>00074             {
+<a name="l00075"></a>00075                 fhicl::Name(<span class="stringliteral">&quot;SliceLabel&quot;</span>),
+<a name="l00076"></a>00076                 fhicl::Comment(<span class="stringliteral">&quot;The label for the Slice producer (Pandora)&quot;</span>)
+<a name="l00077"></a>00077             };
+<a name="l00078"></a>00078             
+<a name="l00079"></a>00079             fhicl::Atom&lt;art::InputTag&gt; HitLabel
+<a name="l00080"></a>00080             {
+<a name="l00081"></a>00081                 fhicl::Name(<span class="stringliteral">&quot;HitLabel&quot;</span>),
+<a name="l00082"></a>00082                 fhicl::Comment(<span class="stringliteral">&quot;The label for the Hit producer&quot;</span>)
+<a name="l00083"></a>00083             };
+<a name="l00084"></a>00084         };
+<a name="l00085"></a>00085 <span class="comment"></span>
+<a name="l00086"></a>00086 <span class="comment">        /**</span>
+<a name="l00087"></a>00087 <span class="comment">         *  @brief  The output PID algorithm level structure</span>
+<a name="l00088"></a>00088 <span class="comment">         */</span>
+<a name="l00089"></a><a class="code" href="structubcc1pi_1_1PIDStudy_1_1OutputAlgorithm.html">00089</a>         <span class="keyword">struct </span><a class="code" href="structubcc1pi_1_1PIDStudy_1_1OutputAlgorithm.html" title="The output PID algorithm level structure.">OutputAlgorithm</a>
+<a name="l00090"></a>00090         {
+<a name="l00091"></a>00091             <span class="comment">// Event metadata</span>
+<a name="l00092"></a><a class="code" href="structubcc1pi_1_1PIDStudy_1_1OutputAlgorithm.html#a79ef2c613cd9638780411d9636a57d44">00092</a>             <span class="keywordtype">int</span>          <a class="code" href="structubcc1pi_1_1PIDStudy_1_1OutputAlgorithm.html#a79ef2c613cd9638780411d9636a57d44" title="The run number.">m_run</a>;                   <span class="comment">///&lt; The run number</span>
+<a name="l00093"></a><a class="code" href="structubcc1pi_1_1PIDStudy_1_1OutputAlgorithm.html#a1f8776b6d913e678fa5a2a9f1f808a29">00093</a> <span class="comment"></span>            <span class="keywordtype">int</span>          <a class="code" href="structubcc1pi_1_1PIDStudy_1_1OutputAlgorithm.html#a1f8776b6d913e678fa5a2a9f1f808a29" title="The subrun number.">m_subRun</a>;                <span class="comment">///&lt; The subrun number</span>
+<a name="l00094"></a><a class="code" href="structubcc1pi_1_1PIDStudy_1_1OutputAlgorithm.html#aaeedca795a8b57798ec6a8cdb29ecf7e">00094</a> <span class="comment"></span>            <span class="keywordtype">int</span>          <a class="code" href="structubcc1pi_1_1PIDStudy_1_1OutputAlgorithm.html#aaeedca795a8b57798ec6a8cdb29ecf7e" title="The event number.">m_event</a>;                 <span class="comment">///&lt; The event number</span>
+<a name="l00095"></a><a class="code" href="structubcc1pi_1_1PIDStudy_1_1OutputAlgorithm.html#a19909f00af9a7b2149bd488d6b39770a">00095</a> <span class="comment"></span>            <span class="keywordtype">bool</span>         <a class="code" href="structubcc1pi_1_1PIDStudy_1_1OutputAlgorithm.html#a19909f00af9a7b2149bd488d6b39770a" title="If the event is a true CC1Pi signal.">m_isSignal</a>;              <span class="comment">///&lt; If the event is a true CC1Pi signal</span>
+<a name="l00096"></a>00096 <span class="comment"></span>        
 <a name="l00097"></a>00097             <span class="comment">// Matched True Particle details</span>
-<a name="l00098"></a><a class="code" href="structubcc1pi_1_1PIDStudy_1_1OutputAlgorithm.html#a836ea363c9d3342f6ef6cdcbf9bd7423">00098</a>             <span class="keywordtype">int</span>          <a class="code" href="structubcc1pi_1_1PIDStudy_1_1OutputAlgorithm.html#a836ea363c9d3342f6ef6cdcbf9bd7423" title="The particle PDG code.">m_truePdgCode</a>;           <span class="comment">///&lt; The particle PDG code</span>
-<a name="l00099"></a><a class="code" href="structubcc1pi_1_1PIDStudy_1_1OutputAlgorithm.html#a045b1b3dd8d3bae26a3f96d5a161179a">00099</a> <span class="comment"></span>            <span class="keywordtype">float</span>        <a class="code" href="structubcc1pi_1_1PIDStudy_1_1OutputAlgorithm.html#a045b1b3dd8d3bae26a3f96d5a161179a" title="The particle momentum.">m_trueMomentum</a>;          <span class="comment">///&lt; The particle momentum</span>
-<a name="l00100"></a><a class="code" href="structubcc1pi_1_1PIDStudy_1_1OutputAlgorithm.html#a6da1f97e94e56990606e592e2dfa0eda">00100</a> <span class="comment"></span>            <span class="keywordtype">float</span>        <a class="code" href="structubcc1pi_1_1PIDStudy_1_1OutputAlgorithm.html#a6da1f97e94e56990606e592e2dfa0eda" title="Match purity to the true particle.">m_trueMatchPurity</a>;       <span class="comment">///&lt; Match purity to the true particle</span>
-<a name="l00101"></a><a class="code" href="structubcc1pi_1_1PIDStudy_1_1OutputAlgorithm.html#a542cf4d2e449b629abd9e8ed62c91bbd">00101</a> <span class="comment"></span>            <span class="keywordtype">float</span>        <a class="code" href="structubcc1pi_1_1PIDStudy_1_1OutputAlgorithm.html#a542cf4d2e449b629abd9e8ed62c91bbd" title="Match completeness to the true particle.">m_trueMatchCompleteness</a>; <span class="comment">///&lt; Match completeness to the true particle</span>
-<a name="l00102"></a>00102 <span class="comment"></span>
-<a name="l00103"></a>00103             <span class="comment">// PID algorithm details</span>
-<a name="l00104"></a><a class="code" href="structubcc1pi_1_1PIDStudy_1_1OutputAlgorithm.html#a434906ab7898155b0a89b59537d650a0">00104</a>             std::string  <a class="code" href="structubcc1pi_1_1PIDStudy_1_1OutputAlgorithm.html#a434906ab7898155b0a89b59537d650a0" title="The algorithm name.">m_name</a>;                  <span class="comment">///&lt; The algorithm name</span>
-<a name="l00105"></a><a class="code" href="structubcc1pi_1_1PIDStudy_1_1OutputAlgorithm.html#aeff0f3b63ce6e4347daeb48d78850718">00105</a> <span class="comment"></span>            <span class="keywordtype">int</span>          <a class="code" href="structubcc1pi_1_1PIDStudy_1_1OutputAlgorithm.html#aeff0f3b63ce6e4347daeb48d78850718" title="The variable type from the PID object.">m_variableType</a>;          <span class="comment">///&lt; The variable type from the PID object</span>
-<a name="l00106"></a><a class="code" href="structubcc1pi_1_1PIDStudy_1_1OutputAlgorithm.html#a420e7b28377779aaff6650233b08fa8b">00106</a> <span class="comment"></span>            <span class="keywordtype">int</span>          <a class="code" href="structubcc1pi_1_1PIDStudy_1_1OutputAlgorithm.html#a420e7b28377779aaff6650233b08fa8b" title="The track direction (forward, backward, no direction).">m_trackDir</a>;              <span class="comment">///&lt; The track direction (forward, backward, no direction)</span>
-<a name="l00107"></a><a class="code" href="structubcc1pi_1_1PIDStudy_1_1OutputAlgorithm.html#ababfe6494ce37661584053c98f71c6ca">00107</a> <span class="comment"></span>            <span class="keywordtype">int</span>          <a class="code" href="structubcc1pi_1_1PIDStudy_1_1OutputAlgorithm.html#ababfe6494ce37661584053c98f71c6ca" title="The number of degrees of freedom.">m_nDOF</a>;                  <span class="comment">///&lt; The number of degrees of freedom</span>
-<a name="l00108"></a><a class="code" href="structubcc1pi_1_1PIDStudy_1_1OutputAlgorithm.html#adc843d14aa37e00543d914ebb34e9671">00108</a> <span class="comment"></span>            <span class="keywordtype">int</span>          <a class="code" href="structubcc1pi_1_1PIDStudy_1_1OutputAlgorithm.html#adc843d14aa37e00543d914ebb34e9671" title="The PDG assumed by the algorithm.">m_assumedPdg</a>;            <span class="comment">///&lt; The PDG assumed by the algorithm</span>
-<a name="l00109"></a><a class="code" href="structubcc1pi_1_1PIDStudy_1_1OutputAlgorithm.html#a7152afe5e2b6ea9f0c982d88d6a6cc4e">00109</a> <span class="comment"></span>            <span class="keywordtype">bool</span>         <a class="code" href="structubcc1pi_1_1PIDStudy_1_1OutputAlgorithm.html#a7152afe5e2b6ea9f0c982d88d6a6cc4e" title="If the W plane is used.">m_planeWUsed</a>;            <span class="comment">///&lt; If the W plane is used</span>
-<a name="l00110"></a><a class="code" href="structubcc1pi_1_1PIDStudy_1_1OutputAlgorithm.html#a933e1d441a3f3eb1129d5085a3245501">00110</a> <span class="comment"></span>            <span class="keywordtype">bool</span>         <a class="code" href="structubcc1pi_1_1PIDStudy_1_1OutputAlgorithm.html#a933e1d441a3f3eb1129d5085a3245501" title="If the U plane is used.">m_planeUUsed</a>;            <span class="comment">///&lt; If the U plane is used</span>
-<a name="l00111"></a><a class="code" href="structubcc1pi_1_1PIDStudy_1_1OutputAlgorithm.html#a9b6820db6d44399bf7432c489b60a636">00111</a> <span class="comment"></span>            <span class="keywordtype">bool</span>         <a class="code" href="structubcc1pi_1_1PIDStudy_1_1OutputAlgorithm.html#a9b6820db6d44399bf7432c489b60a636" title="If the V plane is used.">m_planeVUsed</a>;            <span class="comment">///&lt; If the V plane is used</span>
-<a name="l00112"></a>00112 <span class="comment"></span>
-<a name="l00113"></a>00113             <span class="comment">// The PID algorithm output</span>
-<a name="l00114"></a><a class="code" href="structubcc1pi_1_1PIDStudy_1_1OutputAlgorithm.html#aa745c078f873993705f650ab6c9155b4">00114</a>             <span class="keywordtype">float</span>        <a class="code" href="structubcc1pi_1_1PIDStudy_1_1OutputAlgorithm.html#aa745c078f873993705f650ab6c9155b4" title="The output value of the PID algorithm.">m_value</a>;                 <span class="comment">///&lt; The output value of the PID algorithm</span>
-<a name="l00115"></a>00115 <span class="comment"></span>        };
-<a name="l00116"></a>00116 <span class="comment"></span>
-<a name="l00117"></a>00117 <span class="comment">        /**</span>
-<a name="l00118"></a>00118 <span class="comment">         *  @brief  Constructor</span>
-<a name="l00119"></a>00119 <span class="comment">         *</span>
-<a name="l00120"></a>00120 <span class="comment">         *  @param  config the set of input fhicl parameters</span>
-<a name="l00121"></a>00121 <span class="comment">         */</span>
-<a name="l00122"></a>00122         <a class="code" href="classubcc1pi_1_1PIDStudy.html#aa34c45c4c357e1b50ac22b842c6bfdf9" title="Constructor.">PIDStudy</a>(<span class="keyword">const</span> art::EDAnalyzer::Table&lt;Config&gt; &amp;config);
-<a name="l00123"></a>00123 <span class="comment"></span>
-<a name="l00124"></a>00124 <span class="comment">        /**</span>
-<a name="l00125"></a>00125 <span class="comment">         *  @brief  Analyze an event</span>
-<a name="l00126"></a>00126 <span class="comment">         *</span>
-<a name="l00127"></a>00127 <span class="comment">         *  @param  event the event to analyze</span>
-<a name="l00128"></a>00128 <span class="comment">         */</span>
-<a name="l00129"></a>00129         <span class="keywordtype">void</span> <a class="code" href="classubcc1pi_1_1PIDStudy.html#a573fcf9fc008d970e4c9569d87d41bf1" title="Analyze an event.">analyze</a>(<span class="keyword">const</span> art::Event &amp;event);
-<a name="l00130"></a>00130 
-<a name="l00131"></a>00131     <span class="keyword">private</span>:
-<a name="l00132"></a>00132             
-<a name="l00133"></a><a class="code" href="classubcc1pi_1_1PIDStudy.html#ab769f2814b6897cb753bd5ba58bad0e4">00133</a>         art::EDAnalyzer::Table&lt;Config&gt;  <a class="code" href="classubcc1pi_1_1PIDStudy.html#ab769f2814b6897cb753bd5ba58bad0e4" title="The FHiCL configuration options.">m_config</a>;          <span class="comment">///&lt; The FHiCL configuration options</span>
-<a name="l00134"></a>00134 <span class="comment"></span>        
-<a name="l00135"></a><a class="code" href="classubcc1pi_1_1PIDStudy.html#adebdf656888ea35436428d3637da2d95">00135</a>         TTree                          *<a class="code" href="classubcc1pi_1_1PIDStudy.html#adebdf656888ea35436428d3637da2d95" title="The output tree for all PID algorithm level data.">m_pAlgorithmTree</a>;  <span class="comment">///&lt; The output tree for all PID algorithm level data</span>
-<a name="l00136"></a><a class="code" href="classubcc1pi_1_1PIDStudy.html#ac251a16ac6464c27e4ef5b30b9d3dddc">00136</a> <span class="comment"></span>        <a class="code" href="structubcc1pi_1_1PIDStudy_1_1OutputAlgorithm.html" title="The output PID algorithm level structure.">OutputAlgorithm</a>                 <a class="code" href="classubcc1pi_1_1PIDStudy.html#ac251a16ac6464c27e4ef5b30b9d3dddc" title="The output algorithm-level object.">m_outputAlgorithm</a>; <span class="comment">///&lt; The output algorithm-level object</span>
-<a name="l00137"></a>00137 <span class="comment"></span>};
-<a name="l00138"></a>00138 
-<a name="l00139"></a>00139 } <span class="comment">// namespace ubcc1pi</span>
-<a name="l00140"></a>00140 
-<a name="l00141"></a>00141 DEFINE_ART_MODULE(<a class="code" href="classubcc1pi_1_1PIDStudy.html" title="The PID study class.">ubcc1pi::PIDStudy</a>)
-<a name="l00142"></a>00142 
-<a name="l00143"></a>00143 <span class="preprocessor">#endif</span>
+<a name="l00098"></a><a class="code" href="structubcc1pi_1_1PIDStudy_1_1OutputAlgorithm.html#a26afab5d9db0c460d72e1af4fc990e12">00098</a>             <span class="keywordtype">bool</span>         <a class="code" href="structubcc1pi_1_1PIDStudy_1_1OutputAlgorithm.html#a26afab5d9db0c460d72e1af4fc990e12" title="If the PFParticle matches to any neutrino MCParticles.">m_hasMatchedMCParticle</a>;  <span class="comment">///&lt; If the PFParticle matches to any neutrino MCParticles</span>
+<a name="l00099"></a><a class="code" href="structubcc1pi_1_1PIDStudy_1_1OutputAlgorithm.html#a836ea363c9d3342f6ef6cdcbf9bd7423">00099</a> <span class="comment"></span>            <span class="keywordtype">int</span>          <a class="code" href="structubcc1pi_1_1PIDStudy_1_1OutputAlgorithm.html#a836ea363c9d3342f6ef6cdcbf9bd7423" title="The particle PDG code.">m_truePdgCode</a>;           <span class="comment">///&lt; The particle PDG code</span>
+<a name="l00100"></a><a class="code" href="structubcc1pi_1_1PIDStudy_1_1OutputAlgorithm.html#a045b1b3dd8d3bae26a3f96d5a161179a">00100</a> <span class="comment"></span>            <span class="keywordtype">float</span>        <a class="code" href="structubcc1pi_1_1PIDStudy_1_1OutputAlgorithm.html#a045b1b3dd8d3bae26a3f96d5a161179a" title="The particle momentum.">m_trueMomentum</a>;          <span class="comment">///&lt; The particle momentum</span>
+<a name="l00101"></a><a class="code" href="structubcc1pi_1_1PIDStudy_1_1OutputAlgorithm.html#a6da1f97e94e56990606e592e2dfa0eda">00101</a> <span class="comment"></span>            <span class="keywordtype">float</span>        <a class="code" href="structubcc1pi_1_1PIDStudy_1_1OutputAlgorithm.html#a6da1f97e94e56990606e592e2dfa0eda" title="Match purity to the true particle.">m_trueMatchPurity</a>;       <span class="comment">///&lt; Match purity to the true particle</span>
+<a name="l00102"></a><a class="code" href="structubcc1pi_1_1PIDStudy_1_1OutputAlgorithm.html#a542cf4d2e449b629abd9e8ed62c91bbd">00102</a> <span class="comment"></span>            <span class="keywordtype">float</span>        <a class="code" href="structubcc1pi_1_1PIDStudy_1_1OutputAlgorithm.html#a542cf4d2e449b629abd9e8ed62c91bbd" title="Match completeness to the true particle.">m_trueMatchCompleteness</a>; <span class="comment">///&lt; Match completeness to the true particle</span>
+<a name="l00103"></a>00103 <span class="comment"></span>
+<a name="l00104"></a>00104             <span class="comment">// PID variables</span>
+<a name="l00105"></a><a class="code" href="structubcc1pi_1_1PIDStudy_1_1OutputAlgorithm.html#ab6a8467e41cbdcdf35d35377f2eb58dc">00105</a>             <span class="keywordtype">int</span>          <a class="code" href="structubcc1pi_1_1PIDStudy_1_1OutputAlgorithm.html#ab6a8467e41cbdcdf35d35377f2eb58dc" title="The number of hits in the U view.">m_nHitsU</a>;                <span class="comment">///&lt; The number of hits in the U view</span>
+<a name="l00106"></a><a class="code" href="structubcc1pi_1_1PIDStudy_1_1OutputAlgorithm.html#a5bbab7cdcd014146c484e57fa44fb9bb">00106</a> <span class="comment"></span>            <span class="keywordtype">int</span>          <a class="code" href="structubcc1pi_1_1PIDStudy_1_1OutputAlgorithm.html#a5bbab7cdcd014146c484e57fa44fb9bb" title="The number of hits in the U view.">m_nHitsV</a>;                <span class="comment">///&lt; The number of hits in the U view</span>
+<a name="l00107"></a><a class="code" href="structubcc1pi_1_1PIDStudy_1_1OutputAlgorithm.html#a6e3e6be62fdb0d1fa12f70501e7fd446">00107</a> <span class="comment"></span>            <span class="keywordtype">int</span>          <a class="code" href="structubcc1pi_1_1PIDStudy_1_1OutputAlgorithm.html#a6e3e6be62fdb0d1fa12f70501e7fd446" title="The number of hits in the U view.">m_nHitsW</a>;                <span class="comment">///&lt; The number of hits in the U view</span>
+<a name="l00108"></a><a class="code" href="structubcc1pi_1_1PIDStudy_1_1OutputAlgorithm.html#a75f8088e5eee13587f8b9487fd23aacd">00108</a> <span class="comment"></span>            <span class="keywordtype">float</span>        <a class="code" href="structubcc1pi_1_1PIDStudy_1_1OutputAlgorithm.html#a75f8088e5eee13587f8b9487fd23aacd" title="The track-length.">m_length</a>;                <span class="comment">///&lt; The track-length</span>
+<a name="l00109"></a><a class="code" href="structubcc1pi_1_1PIDStudy_1_1OutputAlgorithm.html#a2c3c612d812e774589a64bf71ff73041">00109</a> <span class="comment"></span>            <span class="keywordtype">float</span>        <a class="code" href="structubcc1pi_1_1PIDStudy_1_1OutputAlgorithm.html#a2c3c612d812e774589a64bf71ff73041" title="The track-shower score.">m_trackShower</a>;           <span class="comment">///&lt; The track-shower score</span>
+<a name="l00110"></a><a class="code" href="structubcc1pi_1_1PIDStudy_1_1OutputAlgorithm.html#a32530eb05a48a487c80f7ebaf0756548">00110</a> <span class="comment"></span>            <span class="keywordtype">float</span>        <a class="code" href="structubcc1pi_1_1PIDStudy_1_1OutputAlgorithm.html#a32530eb05a48a487c80f7ebaf0756548" title="The chi2 under the muon hypothesis in the U view.">m_chi2_mu_U</a>;             <span class="comment">///&lt; The chi2 under the muon hypothesis in the U view</span>
+<a name="l00111"></a><a class="code" href="structubcc1pi_1_1PIDStudy_1_1OutputAlgorithm.html#a5b3e4f2f3acb5edadca2e0c29a683bd6">00111</a> <span class="comment"></span>            <span class="keywordtype">float</span>        <a class="code" href="structubcc1pi_1_1PIDStudy_1_1OutputAlgorithm.html#a5b3e4f2f3acb5edadca2e0c29a683bd6" title="The chi2 under the pion hypothesis in the U view.">m_chi2_pi_U</a>;             <span class="comment">///&lt; The chi2 under the pion hypothesis in the U view</span>
+<a name="l00112"></a><a class="code" href="structubcc1pi_1_1PIDStudy_1_1OutputAlgorithm.html#a32febb63fc7dc129a4fa0ebef3572efa">00112</a> <span class="comment"></span>            <span class="keywordtype">float</span>        <a class="code" href="structubcc1pi_1_1PIDStudy_1_1OutputAlgorithm.html#a32febb63fc7dc129a4fa0ebef3572efa" title="The chi2 under the proton hypothesis in the U view.">m_chi2_p_U</a>;              <span class="comment">///&lt; The chi2 under the proton hypothesis in the U view</span>
+<a name="l00113"></a><a class="code" href="structubcc1pi_1_1PIDStudy_1_1OutputAlgorithm.html#a8ed306a31fb1d4b65fc9941a0d350d66">00113</a> <span class="comment"></span>            <span class="keywordtype">float</span>        <a class="code" href="structubcc1pi_1_1PIDStudy_1_1OutputAlgorithm.html#a8ed306a31fb1d4b65fc9941a0d350d66" title="The chi2 under the muon hypothesis in the V view.">m_chi2_mu_V</a>;             <span class="comment">///&lt; The chi2 under the muon hypothesis in the V view</span>
+<a name="l00114"></a><a class="code" href="structubcc1pi_1_1PIDStudy_1_1OutputAlgorithm.html#ab601016b106fbf7c82d56acc2d2f5045">00114</a> <span class="comment"></span>            <span class="keywordtype">float</span>        <a class="code" href="structubcc1pi_1_1PIDStudy_1_1OutputAlgorithm.html#ab601016b106fbf7c82d56acc2d2f5045" title="The chi2 under the pion hypothesis in the V view.">m_chi2_pi_V</a>;             <span class="comment">///&lt; The chi2 under the pion hypothesis in the V view</span>
+<a name="l00115"></a><a class="code" href="structubcc1pi_1_1PIDStudy_1_1OutputAlgorithm.html#a223236e2da6d86627c44c08924b0fb0d">00115</a> <span class="comment"></span>            <span class="keywordtype">float</span>        <a class="code" href="structubcc1pi_1_1PIDStudy_1_1OutputAlgorithm.html#a223236e2da6d86627c44c08924b0fb0d" title="The chi2 under the proton hypothesis in the V view.">m_chi2_p_V</a>;              <span class="comment">///&lt; The chi2 under the proton hypothesis in the V view</span>
+<a name="l00116"></a><a class="code" href="structubcc1pi_1_1PIDStudy_1_1OutputAlgorithm.html#a6b16b7c0b3dac11dde39e8f46a02f0c3">00116</a> <span class="comment"></span>            <span class="keywordtype">float</span>        <a class="code" href="structubcc1pi_1_1PIDStudy_1_1OutputAlgorithm.html#a6b16b7c0b3dac11dde39e8f46a02f0c3" title="The chi2 under the muon hypothesis in the W view.">m_chi2_mu_W</a>;             <span class="comment">///&lt; The chi2 under the muon hypothesis in the W view</span>
+<a name="l00117"></a><a class="code" href="structubcc1pi_1_1PIDStudy_1_1OutputAlgorithm.html#a88b45e993c41827bf1ad4d709471fd9a">00117</a> <span class="comment"></span>            <span class="keywordtype">float</span>        <a class="code" href="structubcc1pi_1_1PIDStudy_1_1OutputAlgorithm.html#a88b45e993c41827bf1ad4d709471fd9a" title="The chi2 under the pion hypothesis in the W view.">m_chi2_pi_W</a>;             <span class="comment">///&lt; The chi2 under the pion hypothesis in the W view</span>
+<a name="l00118"></a><a class="code" href="structubcc1pi_1_1PIDStudy_1_1OutputAlgorithm.html#a8da37888ce24cd698de0ae64ac8ddaac">00118</a> <span class="comment"></span>            <span class="keywordtype">float</span>        <a class="code" href="structubcc1pi_1_1PIDStudy_1_1OutputAlgorithm.html#a8da37888ce24cd698de0ae64ac8ddaac" title="The chi2 under the proton hypothesis in the W view.">m_chi2_p_W</a>;              <span class="comment">///&lt; The chi2 under the proton hypothesis in the W view</span>
+<a name="l00119"></a><a class="code" href="structubcc1pi_1_1PIDStudy_1_1OutputAlgorithm.html#a08067b49dcfa0edd0068c762ac8e9555">00119</a> <span class="comment"></span>            <span class="keywordtype">float</span>        <a class="code" href="structubcc1pi_1_1PIDStudy_1_1OutputAlgorithm.html#a08067b49dcfa0edd0068c762ac8e9555" title="The forwards bragg peak likelihood under the muon hypothesis in the U view.">m_braggPeakLLH_mu_U</a>;     <span class="comment">///&lt; The forwards bragg peak likelihood under the muon hypothesis in the U view</span>
+<a name="l00120"></a><a class="code" href="structubcc1pi_1_1PIDStudy_1_1OutputAlgorithm.html#ac8d407288856f7a00fec42fcbed7588d">00120</a> <span class="comment"></span>            <span class="keywordtype">float</span>        <a class="code" href="structubcc1pi_1_1PIDStudy_1_1OutputAlgorithm.html#ac8d407288856f7a00fec42fcbed7588d" title="The forwards bragg peak likelihood under the pion hypothesis in the U view.">m_braggPeakLLH_pi_U</a>;     <span class="comment">///&lt; The forwards bragg peak likelihood under the pion hypothesis in the U view</span>
+<a name="l00121"></a><a class="code" href="structubcc1pi_1_1PIDStudy_1_1OutputAlgorithm.html#ac8f0eea61907b99cc47c417fa02dfa24">00121</a> <span class="comment"></span>            <span class="keywordtype">float</span>        <a class="code" href="structubcc1pi_1_1PIDStudy_1_1OutputAlgorithm.html#ac8f0eea61907b99cc47c417fa02dfa24" title="The forwards bragg peak likelihood under the proton hypothesis in the U view.">m_braggPeakLLH_p_U</a>;      <span class="comment">///&lt; The forwards bragg peak likelihood under the proton hypothesis in the U view</span>
+<a name="l00122"></a><a class="code" href="structubcc1pi_1_1PIDStudy_1_1OutputAlgorithm.html#ac7ab9053cf5e9b98959172fa912370bd">00122</a> <span class="comment"></span>            <span class="keywordtype">float</span>        <a class="code" href="structubcc1pi_1_1PIDStudy_1_1OutputAlgorithm.html#ac7ab9053cf5e9b98959172fa912370bd" title="The forwards bragg peak likelihood under the MIP hypothesis in the U view.">m_braggPeakLLH_MIP_U</a>;    <span class="comment">///&lt; The forwards bragg peak likelihood under the MIP hypothesis in the U view </span>
+<a name="l00123"></a><a class="code" href="structubcc1pi_1_1PIDStudy_1_1OutputAlgorithm.html#af9756206879ef1aff9a59229cf4d3169">00123</a> <span class="comment"></span>            <span class="keywordtype">float</span>        <a class="code" href="structubcc1pi_1_1PIDStudy_1_1OutputAlgorithm.html#af9756206879ef1aff9a59229cf4d3169" title="The forwards bragg peak likelihood under the muon hypothesis in the V view.">m_braggPeakLLH_mu_V</a>;     <span class="comment">///&lt; The forwards bragg peak likelihood under the muon hypothesis in the V view</span>
+<a name="l00124"></a><a class="code" href="structubcc1pi_1_1PIDStudy_1_1OutputAlgorithm.html#ac005372a7276c483294b93f5b976cf19">00124</a> <span class="comment"></span>            <span class="keywordtype">float</span>        <a class="code" href="structubcc1pi_1_1PIDStudy_1_1OutputAlgorithm.html#ac005372a7276c483294b93f5b976cf19" title="The forwards bragg peak likelihood under the pion hypothesis in the V view.">m_braggPeakLLH_pi_V</a>;     <span class="comment">///&lt; The forwards bragg peak likelihood under the pion hypothesis in the V view</span>
+<a name="l00125"></a><a class="code" href="structubcc1pi_1_1PIDStudy_1_1OutputAlgorithm.html#a5949369f5c16ddec585983ccb5b1e6b0">00125</a> <span class="comment"></span>            <span class="keywordtype">float</span>        <a class="code" href="structubcc1pi_1_1PIDStudy_1_1OutputAlgorithm.html#a5949369f5c16ddec585983ccb5b1e6b0" title="The forwards bragg peak likelihood under the proton hypothesis in the V view.">m_braggPeakLLH_p_V</a>;      <span class="comment">///&lt; The forwards bragg peak likelihood under the proton hypothesis in the V view</span>
+<a name="l00126"></a><a class="code" href="structubcc1pi_1_1PIDStudy_1_1OutputAlgorithm.html#a9152423f15d13c1c2c2fd53809c5e8c1">00126</a> <span class="comment"></span>            <span class="keywordtype">float</span>        <a class="code" href="structubcc1pi_1_1PIDStudy_1_1OutputAlgorithm.html#a9152423f15d13c1c2c2fd53809c5e8c1" title="The forwards bragg peak likelihood under the MIP hypothesis in the V view.">m_braggPeakLLH_MIP_V</a>;    <span class="comment">///&lt; The forwards bragg peak likelihood under the MIP hypothesis in the V view </span>
+<a name="l00127"></a><a class="code" href="structubcc1pi_1_1PIDStudy_1_1OutputAlgorithm.html#a3b44c74cdab1cd90013599d1cc24d5fa">00127</a> <span class="comment"></span>            <span class="keywordtype">float</span>        <a class="code" href="structubcc1pi_1_1PIDStudy_1_1OutputAlgorithm.html#a3b44c74cdab1cd90013599d1cc24d5fa" title="The forwards bragg peak likelihood under the muon hypothesis in the W view.">m_braggPeakLLH_mu_W</a>;     <span class="comment">///&lt; The forwards bragg peak likelihood under the muon hypothesis in the W view</span>
+<a name="l00128"></a><a class="code" href="structubcc1pi_1_1PIDStudy_1_1OutputAlgorithm.html#a7a4f5c20eb9f0b43d236dfac9115fa8f">00128</a> <span class="comment"></span>            <span class="keywordtype">float</span>        <a class="code" href="structubcc1pi_1_1PIDStudy_1_1OutputAlgorithm.html#a7a4f5c20eb9f0b43d236dfac9115fa8f" title="The forwards bragg peak likelihood under the pion hypothesis in the W view.">m_braggPeakLLH_pi_W</a>;     <span class="comment">///&lt; The forwards bragg peak likelihood under the pion hypothesis in the W view</span>
+<a name="l00129"></a><a class="code" href="structubcc1pi_1_1PIDStudy_1_1OutputAlgorithm.html#af69a93011bc8c34eae84f4283d425d76">00129</a> <span class="comment"></span>            <span class="keywordtype">float</span>        <a class="code" href="structubcc1pi_1_1PIDStudy_1_1OutputAlgorithm.html#af69a93011bc8c34eae84f4283d425d76" title="The forwards bragg peak likelihood under the proton hypothesis in the W view.">m_braggPeakLLH_p_W</a>;      <span class="comment">///&lt; The forwards bragg peak likelihood under the proton hypothesis in the W view</span>
+<a name="l00130"></a><a class="code" href="structubcc1pi_1_1PIDStudy_1_1OutputAlgorithm.html#ab320be1f623bf6b542d1ec7eb512afd1">00130</a> <span class="comment"></span>            <span class="keywordtype">float</span>        <a class="code" href="structubcc1pi_1_1PIDStudy_1_1OutputAlgorithm.html#ab320be1f623bf6b542d1ec7eb512afd1" title="The forwards bragg peak likelihood under the MIP hypothesis in the W view.">m_braggPeakLLH_MIP_W</a>;    <span class="comment">///&lt; The forwards bragg peak likelihood under the MIP hypothesis in the W view </span>
+<a name="l00131"></a>00131 <span class="comment"></span>        };
+<a name="l00132"></a>00132 <span class="comment"></span>
+<a name="l00133"></a>00133 <span class="comment">        /**</span>
+<a name="l00134"></a>00134 <span class="comment">         *  @brief  Constructor</span>
+<a name="l00135"></a>00135 <span class="comment">         *</span>
+<a name="l00136"></a>00136 <span class="comment">         *  @param  config the set of input fhicl parameters</span>
+<a name="l00137"></a>00137 <span class="comment">         */</span>
+<a name="l00138"></a>00138         <a class="code" href="classubcc1pi_1_1PIDStudy.html#aa34c45c4c357e1b50ac22b842c6bfdf9" title="Constructor.">PIDStudy</a>(<span class="keyword">const</span> art::EDAnalyzer::Table&lt;Config&gt; &amp;config);
+<a name="l00139"></a>00139 <span class="comment"></span>
+<a name="l00140"></a>00140 <span class="comment">        /**</span>
+<a name="l00141"></a>00141 <span class="comment">         *  @brief  Analyze an event</span>
+<a name="l00142"></a>00142 <span class="comment">         *</span>
+<a name="l00143"></a>00143 <span class="comment">         *  @param  event the event to analyze</span>
+<a name="l00144"></a>00144 <span class="comment">         */</span>
+<a name="l00145"></a>00145         <span class="keywordtype">void</span> <a class="code" href="classubcc1pi_1_1PIDStudy.html#a573fcf9fc008d970e4c9569d87d41bf1" title="Analyze an event.">analyze</a>(<span class="keyword">const</span> art::Event &amp;event);
+<a name="l00146"></a>00146 
+<a name="l00147"></a>00147     <span class="keyword">private</span>:
+<a name="l00148"></a>00148 
+<a name="l00149"></a>00149         <span class="keywordtype">void</span> <a class="code" href="classubcc1pi_1_1PIDStudy.html#aa7be8471809aee2e4997a315d37d4642">SetEventInfo</a>(<span class="keyword">const</span> art::Event &amp;event);
+<a name="l00150"></a>00150         <span class="keywordtype">void</span> <a class="code" href="classubcc1pi_1_1PIDStudy.html#ac1f55b4a8d431d67979db4ac48117275">ResetParticleInfo</a>();
+<a name="l00151"></a>00151         <span class="keywordtype">void</span> <a class="code" href="classubcc1pi_1_1PIDStudy.html#a30199a37ea8cc6af6270a7103de9a02e">SetMatchedMCParticleInfo</a>(<span class="keyword">const</span> art::Ptr&lt;recob::PFParticle&gt; &amp;pfParticle, <span class="keyword">const</span> <a class="code" href="classubcc1pi_1_1BacktrackHelper_1_1BacktrackerData.html" title="Class holding backtracking data.">BacktrackHelper::BacktrackerData</a> &amp;backtrackerData);
+<a name="l00152"></a>00152         <span class="keywordtype">bool</span> <a class="code" href="classubcc1pi_1_1PIDStudy.html#abd58a231bfbcc0c11c90e82e66ac806c">GetTrack</a>(<span class="keyword">const</span> art::Ptr&lt;recob::PFParticle&gt; &amp;pfParticle, <span class="keyword">const</span> Association&lt;recob::PFParticle, recob::Track&gt; &amp;pfpToTrack, art::Ptr&lt;recob::Track&gt; &amp;track);
+<a name="l00153"></a>00153         geo::View_t <a class="code" href="classubcc1pi_1_1PIDStudy.html#a02332b2cff6beec99843ede2afdc4338">GetView</a>(<span class="keyword">const</span> std::bitset&lt;8&gt; &amp;planeMask) <span class="keyword">const</span>;
+<a name="l00154"></a>00154             
+<a name="l00155"></a><a class="code" href="classubcc1pi_1_1PIDStudy.html#ab769f2814b6897cb753bd5ba58bad0e4">00155</a>         art::EDAnalyzer::Table&lt;Config&gt;  <a class="code" href="classubcc1pi_1_1PIDStudy.html#ab769f2814b6897cb753bd5ba58bad0e4" title="The FHiCL configuration options.">m_config</a>;          <span class="comment">///&lt; The FHiCL configuration options</span>
+<a name="l00156"></a>00156 <span class="comment"></span>        
+<a name="l00157"></a><a class="code" href="classubcc1pi_1_1PIDStudy.html#a864ee800ea168d6bb1fbf68552f1b635">00157</a>         TTree                          *<a class="code" href="classubcc1pi_1_1PIDStudy.html#a864ee800ea168d6bb1fbf68552f1b635" title="The output tree for all particle level data.">m_pParticleTree</a>;  <span class="comment">///&lt; The output tree for all particle level data</span>
+<a name="l00158"></a><a class="code" href="classubcc1pi_1_1PIDStudy.html#a8a8864dcbf940436a803a30f62266551">00158</a> <span class="comment"></span>        <a class="code" href="structubcc1pi_1_1PIDStudy_1_1OutputAlgorithm.html" title="The output PID algorithm level structure.">OutputAlgorithm</a>                 <a class="code" href="classubcc1pi_1_1PIDStudy.html#a8a8864dcbf940436a803a30f62266551" title="The output particle-level object.">m_outputParticle</a>; <span class="comment">///&lt; The output particle-level object</span>
+<a name="l00159"></a>00159 <span class="comment"></span>};
+<a name="l00160"></a>00160 
+<a name="l00161"></a>00161 } <span class="comment">// namespace ubcc1pi</span>
+<a name="l00162"></a>00162 
+<a name="l00163"></a>00163 DEFINE_ART_MODULE(<a class="code" href="classubcc1pi_1_1PIDStudy.html" title="The PID study class.">ubcc1pi::PIDStudy</a>)
+<a name="l00164"></a>00164 
+<a name="l00165"></a>00165 <span class="preprocessor">#endif</span>
 </pre></div></div>
 <!--- window showing the filter options -->
 <div id="MSearchSelectWindow"
@@ -255,7 +277,7 @@ window.onload = initDynSections;
 <hr size="1"/>
 <address style="text-align: right;">
     <small>
-        Generated on Fri May 17 11:35:10 2019 for ubcc1pi by <a href="http://www.doxygen.org/index.html" target="_blank">doxygen</a> 1.6.1
+        Generated on Fri May 17 14:57:33 2019 for ubcc1pi by <a href="http://www.doxygen.org/index.html" target="_blank">doxygen</a> 1.6.1
     </small>
 </address>
 

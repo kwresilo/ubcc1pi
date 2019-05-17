@@ -112,8 +112,8 @@ window.onload = initDynSections;
 <tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">The event number.  <a href="#aaeedca795a8b57798ec6a8cdb29ecf7e"></a><br/></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">bool&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="structubcc1pi_1_1PIDStudy_1_1OutputAlgorithm.html#a19909f00af9a7b2149bd488d6b39770a">m_isSignal</a></td></tr>
 <tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">If the event is a true CC1Pi signal.  <a href="#a19909f00af9a7b2149bd488d6b39770a"></a><br/></td></tr>
-<tr><td class="memItemLeft" align="right" valign="top">int&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="structubcc1pi_1_1PIDStudy_1_1OutputAlgorithm.html#a32ac2ed84a88008497d9384863aed3bd">m_nPFPHits</a></td></tr>
-<tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">The number of hits associated to the PFParticle.  <a href="#a32ac2ed84a88008497d9384863aed3bd"></a><br/></td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">bool&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="structubcc1pi_1_1PIDStudy_1_1OutputAlgorithm.html#a26afab5d9db0c460d72e1af4fc990e12">m_hasMatchedMCParticle</a></td></tr>
+<tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">If the PFParticle matches to any neutrino MCParticles.  <a href="#a26afab5d9db0c460d72e1af4fc990e12"></a><br/></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">int&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="structubcc1pi_1_1PIDStudy_1_1OutputAlgorithm.html#a836ea363c9d3342f6ef6cdcbf9bd7423">m_truePdgCode</a></td></tr>
 <tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">The particle PDG code.  <a href="#a836ea363c9d3342f6ef6cdcbf9bd7423"></a><br/></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">float&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="structubcc1pi_1_1PIDStudy_1_1OutputAlgorithm.html#a045b1b3dd8d3bae26a3f96d5a161179a">m_trueMomentum</a></td></tr>
@@ -122,44 +122,418 @@ window.onload = initDynSections;
 <tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">Match purity to the true particle.  <a href="#a6da1f97e94e56990606e592e2dfa0eda"></a><br/></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">float&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="structubcc1pi_1_1PIDStudy_1_1OutputAlgorithm.html#a542cf4d2e449b629abd9e8ed62c91bbd">m_trueMatchCompleteness</a></td></tr>
 <tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">Match completeness to the true particle.  <a href="#a542cf4d2e449b629abd9e8ed62c91bbd"></a><br/></td></tr>
-<tr><td class="memItemLeft" align="right" valign="top">std::string&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="structubcc1pi_1_1PIDStudy_1_1OutputAlgorithm.html#a434906ab7898155b0a89b59537d650a0">m_name</a></td></tr>
-<tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">The algorithm name.  <a href="#a434906ab7898155b0a89b59537d650a0"></a><br/></td></tr>
-<tr><td class="memItemLeft" align="right" valign="top">int&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="structubcc1pi_1_1PIDStudy_1_1OutputAlgorithm.html#aeff0f3b63ce6e4347daeb48d78850718">m_variableType</a></td></tr>
-<tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">The variable type from the PID object.  <a href="#aeff0f3b63ce6e4347daeb48d78850718"></a><br/></td></tr>
-<tr><td class="memItemLeft" align="right" valign="top">int&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="structubcc1pi_1_1PIDStudy_1_1OutputAlgorithm.html#a420e7b28377779aaff6650233b08fa8b">m_trackDir</a></td></tr>
-<tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">The track direction (forward, backward, no direction).  <a href="#a420e7b28377779aaff6650233b08fa8b"></a><br/></td></tr>
-<tr><td class="memItemLeft" align="right" valign="top">int&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="structubcc1pi_1_1PIDStudy_1_1OutputAlgorithm.html#ababfe6494ce37661584053c98f71c6ca">m_nDOF</a></td></tr>
-<tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">The number of degrees of freedom.  <a href="#ababfe6494ce37661584053c98f71c6ca"></a><br/></td></tr>
-<tr><td class="memItemLeft" align="right" valign="top">int&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="structubcc1pi_1_1PIDStudy_1_1OutputAlgorithm.html#adc843d14aa37e00543d914ebb34e9671">m_assumedPdg</a></td></tr>
-<tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">The PDG assumed by the algorithm.  <a href="#adc843d14aa37e00543d914ebb34e9671"></a><br/></td></tr>
-<tr><td class="memItemLeft" align="right" valign="top">bool&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="structubcc1pi_1_1PIDStudy_1_1OutputAlgorithm.html#a7152afe5e2b6ea9f0c982d88d6a6cc4e">m_planeWUsed</a></td></tr>
-<tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">If the W plane is used.  <a href="#a7152afe5e2b6ea9f0c982d88d6a6cc4e"></a><br/></td></tr>
-<tr><td class="memItemLeft" align="right" valign="top">bool&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="structubcc1pi_1_1PIDStudy_1_1OutputAlgorithm.html#a933e1d441a3f3eb1129d5085a3245501">m_planeUUsed</a></td></tr>
-<tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">If the U plane is used.  <a href="#a933e1d441a3f3eb1129d5085a3245501"></a><br/></td></tr>
-<tr><td class="memItemLeft" align="right" valign="top">bool&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="structubcc1pi_1_1PIDStudy_1_1OutputAlgorithm.html#a9b6820db6d44399bf7432c489b60a636">m_planeVUsed</a></td></tr>
-<tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">If the V plane is used.  <a href="#a9b6820db6d44399bf7432c489b60a636"></a><br/></td></tr>
-<tr><td class="memItemLeft" align="right" valign="top">float&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="structubcc1pi_1_1PIDStudy_1_1OutputAlgorithm.html#aa745c078f873993705f650ab6c9155b4">m_value</a></td></tr>
-<tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">The output value of the PID algorithm.  <a href="#aa745c078f873993705f650ab6c9155b4"></a><br/></td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">int&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="structubcc1pi_1_1PIDStudy_1_1OutputAlgorithm.html#ab6a8467e41cbdcdf35d35377f2eb58dc">m_nHitsU</a></td></tr>
+<tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">The number of hits in the U view.  <a href="#ab6a8467e41cbdcdf35d35377f2eb58dc"></a><br/></td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">int&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="structubcc1pi_1_1PIDStudy_1_1OutputAlgorithm.html#a5bbab7cdcd014146c484e57fa44fb9bb">m_nHitsV</a></td></tr>
+<tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">The number of hits in the U view.  <a href="#a5bbab7cdcd014146c484e57fa44fb9bb"></a><br/></td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">int&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="structubcc1pi_1_1PIDStudy_1_1OutputAlgorithm.html#a6e3e6be62fdb0d1fa12f70501e7fd446">m_nHitsW</a></td></tr>
+<tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">The number of hits in the U view.  <a href="#a6e3e6be62fdb0d1fa12f70501e7fd446"></a><br/></td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">float&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="structubcc1pi_1_1PIDStudy_1_1OutputAlgorithm.html#a75f8088e5eee13587f8b9487fd23aacd">m_length</a></td></tr>
+<tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">The track-length.  <a href="#a75f8088e5eee13587f8b9487fd23aacd"></a><br/></td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">float&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="structubcc1pi_1_1PIDStudy_1_1OutputAlgorithm.html#a2c3c612d812e774589a64bf71ff73041">m_trackShower</a></td></tr>
+<tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">The track-shower score.  <a href="#a2c3c612d812e774589a64bf71ff73041"></a><br/></td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">float&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="structubcc1pi_1_1PIDStudy_1_1OutputAlgorithm.html#a32530eb05a48a487c80f7ebaf0756548">m_chi2_mu_U</a></td></tr>
+<tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">The chi2 under the muon hypothesis in the U view.  <a href="#a32530eb05a48a487c80f7ebaf0756548"></a><br/></td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">float&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="structubcc1pi_1_1PIDStudy_1_1OutputAlgorithm.html#a5b3e4f2f3acb5edadca2e0c29a683bd6">m_chi2_pi_U</a></td></tr>
+<tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">The chi2 under the pion hypothesis in the U view.  <a href="#a5b3e4f2f3acb5edadca2e0c29a683bd6"></a><br/></td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">float&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="structubcc1pi_1_1PIDStudy_1_1OutputAlgorithm.html#a32febb63fc7dc129a4fa0ebef3572efa">m_chi2_p_U</a></td></tr>
+<tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">The chi2 under the proton hypothesis in the U view.  <a href="#a32febb63fc7dc129a4fa0ebef3572efa"></a><br/></td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">float&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="structubcc1pi_1_1PIDStudy_1_1OutputAlgorithm.html#a8ed306a31fb1d4b65fc9941a0d350d66">m_chi2_mu_V</a></td></tr>
+<tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">The chi2 under the muon hypothesis in the V view.  <a href="#a8ed306a31fb1d4b65fc9941a0d350d66"></a><br/></td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">float&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="structubcc1pi_1_1PIDStudy_1_1OutputAlgorithm.html#ab601016b106fbf7c82d56acc2d2f5045">m_chi2_pi_V</a></td></tr>
+<tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">The chi2 under the pion hypothesis in the V view.  <a href="#ab601016b106fbf7c82d56acc2d2f5045"></a><br/></td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">float&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="structubcc1pi_1_1PIDStudy_1_1OutputAlgorithm.html#a223236e2da6d86627c44c08924b0fb0d">m_chi2_p_V</a></td></tr>
+<tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">The chi2 under the proton hypothesis in the V view.  <a href="#a223236e2da6d86627c44c08924b0fb0d"></a><br/></td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">float&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="structubcc1pi_1_1PIDStudy_1_1OutputAlgorithm.html#a6b16b7c0b3dac11dde39e8f46a02f0c3">m_chi2_mu_W</a></td></tr>
+<tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">The chi2 under the muon hypothesis in the W view.  <a href="#a6b16b7c0b3dac11dde39e8f46a02f0c3"></a><br/></td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">float&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="structubcc1pi_1_1PIDStudy_1_1OutputAlgorithm.html#a88b45e993c41827bf1ad4d709471fd9a">m_chi2_pi_W</a></td></tr>
+<tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">The chi2 under the pion hypothesis in the W view.  <a href="#a88b45e993c41827bf1ad4d709471fd9a"></a><br/></td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">float&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="structubcc1pi_1_1PIDStudy_1_1OutputAlgorithm.html#a8da37888ce24cd698de0ae64ac8ddaac">m_chi2_p_W</a></td></tr>
+<tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">The chi2 under the proton hypothesis in the W view.  <a href="#a8da37888ce24cd698de0ae64ac8ddaac"></a><br/></td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">float&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="structubcc1pi_1_1PIDStudy_1_1OutputAlgorithm.html#a08067b49dcfa0edd0068c762ac8e9555">m_braggPeakLLH_mu_U</a></td></tr>
+<tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">The forwards bragg peak likelihood under the muon hypothesis in the U view.  <a href="#a08067b49dcfa0edd0068c762ac8e9555"></a><br/></td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">float&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="structubcc1pi_1_1PIDStudy_1_1OutputAlgorithm.html#ac8d407288856f7a00fec42fcbed7588d">m_braggPeakLLH_pi_U</a></td></tr>
+<tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">The forwards bragg peak likelihood under the pion hypothesis in the U view.  <a href="#ac8d407288856f7a00fec42fcbed7588d"></a><br/></td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">float&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="structubcc1pi_1_1PIDStudy_1_1OutputAlgorithm.html#ac8f0eea61907b99cc47c417fa02dfa24">m_braggPeakLLH_p_U</a></td></tr>
+<tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">The forwards bragg peak likelihood under the proton hypothesis in the U view.  <a href="#ac8f0eea61907b99cc47c417fa02dfa24"></a><br/></td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">float&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="structubcc1pi_1_1PIDStudy_1_1OutputAlgorithm.html#ac7ab9053cf5e9b98959172fa912370bd">m_braggPeakLLH_MIP_U</a></td></tr>
+<tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">The forwards bragg peak likelihood under the MIP hypothesis in the U view.  <a href="#ac7ab9053cf5e9b98959172fa912370bd"></a><br/></td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">float&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="structubcc1pi_1_1PIDStudy_1_1OutputAlgorithm.html#af9756206879ef1aff9a59229cf4d3169">m_braggPeakLLH_mu_V</a></td></tr>
+<tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">The forwards bragg peak likelihood under the muon hypothesis in the V view.  <a href="#af9756206879ef1aff9a59229cf4d3169"></a><br/></td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">float&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="structubcc1pi_1_1PIDStudy_1_1OutputAlgorithm.html#ac005372a7276c483294b93f5b976cf19">m_braggPeakLLH_pi_V</a></td></tr>
+<tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">The forwards bragg peak likelihood under the pion hypothesis in the V view.  <a href="#ac005372a7276c483294b93f5b976cf19"></a><br/></td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">float&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="structubcc1pi_1_1PIDStudy_1_1OutputAlgorithm.html#a5949369f5c16ddec585983ccb5b1e6b0">m_braggPeakLLH_p_V</a></td></tr>
+<tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">The forwards bragg peak likelihood under the proton hypothesis in the V view.  <a href="#a5949369f5c16ddec585983ccb5b1e6b0"></a><br/></td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">float&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="structubcc1pi_1_1PIDStudy_1_1OutputAlgorithm.html#a9152423f15d13c1c2c2fd53809c5e8c1">m_braggPeakLLH_MIP_V</a></td></tr>
+<tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">The forwards bragg peak likelihood under the MIP hypothesis in the V view.  <a href="#a9152423f15d13c1c2c2fd53809c5e8c1"></a><br/></td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">float&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="structubcc1pi_1_1PIDStudy_1_1OutputAlgorithm.html#a3b44c74cdab1cd90013599d1cc24d5fa">m_braggPeakLLH_mu_W</a></td></tr>
+<tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">The forwards bragg peak likelihood under the muon hypothesis in the W view.  <a href="#a3b44c74cdab1cd90013599d1cc24d5fa"></a><br/></td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">float&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="structubcc1pi_1_1PIDStudy_1_1OutputAlgorithm.html#a7a4f5c20eb9f0b43d236dfac9115fa8f">m_braggPeakLLH_pi_W</a></td></tr>
+<tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">The forwards bragg peak likelihood under the pion hypothesis in the W view.  <a href="#a7a4f5c20eb9f0b43d236dfac9115fa8f"></a><br/></td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">float&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="structubcc1pi_1_1PIDStudy_1_1OutputAlgorithm.html#af69a93011bc8c34eae84f4283d425d76">m_braggPeakLLH_p_W</a></td></tr>
+<tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">The forwards bragg peak likelihood under the proton hypothesis in the W view.  <a href="#af69a93011bc8c34eae84f4283d425d76"></a><br/></td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">float&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="structubcc1pi_1_1PIDStudy_1_1OutputAlgorithm.html#ab320be1f623bf6b542d1ec7eb512afd1">m_braggPeakLLH_MIP_W</a></td></tr>
+<tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">The forwards bragg peak likelihood under the MIP hypothesis in the W view.  <a href="#ab320be1f623bf6b542d1ec7eb512afd1"></a><br/></td></tr>
 </table>
 <hr/><a name="_details"></a><h2>Detailed Description</h2>
 <p>The output PID algorithm level structure. </p>
 
-<p>Definition at line <a class="el" href="PIDStudy_8h_source.html#l00086">86</a> of file <a class="el" href="PIDStudy_8h_source.html">PIDStudy.h</a>.</p>
+<p>Definition at line <a class="el" href="PIDStudy_8h_source.html#l00089">89</a> of file <a class="el" href="PIDStudy_8h_source.html">PIDStudy.h</a>.</p>
 <hr/><h2>Member Data Documentation</h2>
-<a class="anchor" id="adc843d14aa37e00543d914ebb34e9671"></a><!-- doxytag: member="ubcc1pi::PIDStudy::OutputAlgorithm::m_assumedPdg" ref="adc843d14aa37e00543d914ebb34e9671" args="" -->
+<a class="anchor" id="ac7ab9053cf5e9b98959172fa912370bd"></a><!-- doxytag: member="ubcc1pi::PIDStudy::OutputAlgorithm::m_braggPeakLLH_MIP_U" ref="ac7ab9053cf5e9b98959172fa912370bd" args="" -->
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">int <a class="el" href="structubcc1pi_1_1PIDStudy_1_1OutputAlgorithm.html#adc843d14aa37e00543d914ebb34e9671">ubcc1pi::PIDStudy::OutputAlgorithm::m_assumedPdg</a></td>
+          <td class="memname">float <a class="el" href="structubcc1pi_1_1PIDStudy_1_1OutputAlgorithm.html#ac7ab9053cf5e9b98959172fa912370bd">ubcc1pi::PIDStudy::OutputAlgorithm::m_braggPeakLLH_MIP_U</a></td>
         </tr>
       </table>
 </div>
 <div class="memdoc">
 
-<p>The PDG assumed by the algorithm. </p>
+<p>The forwards bragg peak likelihood under the MIP hypothesis in the U view. </p>
 
-<p>Definition at line <a class="el" href="PIDStudy_8h_source.html#l00108">108</a> of file <a class="el" href="PIDStudy_8h_source.html">PIDStudy.h</a>.</p>
+<p>Definition at line <a class="el" href="PIDStudy_8h_source.html#l00122">122</a> of file <a class="el" href="PIDStudy_8h_source.html">PIDStudy.h</a>.</p>
+
+</div>
+</div>
+<a class="anchor" id="a9152423f15d13c1c2c2fd53809c5e8c1"></a><!-- doxytag: member="ubcc1pi::PIDStudy::OutputAlgorithm::m_braggPeakLLH_MIP_V" ref="a9152423f15d13c1c2c2fd53809c5e8c1" args="" -->
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">float <a class="el" href="structubcc1pi_1_1PIDStudy_1_1OutputAlgorithm.html#a9152423f15d13c1c2c2fd53809c5e8c1">ubcc1pi::PIDStudy::OutputAlgorithm::m_braggPeakLLH_MIP_V</a></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+
+<p>The forwards bragg peak likelihood under the MIP hypothesis in the V view. </p>
+
+<p>Definition at line <a class="el" href="PIDStudy_8h_source.html#l00126">126</a> of file <a class="el" href="PIDStudy_8h_source.html">PIDStudy.h</a>.</p>
+
+</div>
+</div>
+<a class="anchor" id="ab320be1f623bf6b542d1ec7eb512afd1"></a><!-- doxytag: member="ubcc1pi::PIDStudy::OutputAlgorithm::m_braggPeakLLH_MIP_W" ref="ab320be1f623bf6b542d1ec7eb512afd1" args="" -->
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">float <a class="el" href="structubcc1pi_1_1PIDStudy_1_1OutputAlgorithm.html#ab320be1f623bf6b542d1ec7eb512afd1">ubcc1pi::PIDStudy::OutputAlgorithm::m_braggPeakLLH_MIP_W</a></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+
+<p>The forwards bragg peak likelihood under the MIP hypothesis in the W view. </p>
+
+<p>Definition at line <a class="el" href="PIDStudy_8h_source.html#l00130">130</a> of file <a class="el" href="PIDStudy_8h_source.html">PIDStudy.h</a>.</p>
+
+</div>
+</div>
+<a class="anchor" id="a08067b49dcfa0edd0068c762ac8e9555"></a><!-- doxytag: member="ubcc1pi::PIDStudy::OutputAlgorithm::m_braggPeakLLH_mu_U" ref="a08067b49dcfa0edd0068c762ac8e9555" args="" -->
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">float <a class="el" href="structubcc1pi_1_1PIDStudy_1_1OutputAlgorithm.html#a08067b49dcfa0edd0068c762ac8e9555">ubcc1pi::PIDStudy::OutputAlgorithm::m_braggPeakLLH_mu_U</a></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+
+<p>The forwards bragg peak likelihood under the muon hypothesis in the U view. </p>
+
+<p>Definition at line <a class="el" href="PIDStudy_8h_source.html#l00119">119</a> of file <a class="el" href="PIDStudy_8h_source.html">PIDStudy.h</a>.</p>
+
+</div>
+</div>
+<a class="anchor" id="af9756206879ef1aff9a59229cf4d3169"></a><!-- doxytag: member="ubcc1pi::PIDStudy::OutputAlgorithm::m_braggPeakLLH_mu_V" ref="af9756206879ef1aff9a59229cf4d3169" args="" -->
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">float <a class="el" href="structubcc1pi_1_1PIDStudy_1_1OutputAlgorithm.html#af9756206879ef1aff9a59229cf4d3169">ubcc1pi::PIDStudy::OutputAlgorithm::m_braggPeakLLH_mu_V</a></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+
+<p>The forwards bragg peak likelihood under the muon hypothesis in the V view. </p>
+
+<p>Definition at line <a class="el" href="PIDStudy_8h_source.html#l00123">123</a> of file <a class="el" href="PIDStudy_8h_source.html">PIDStudy.h</a>.</p>
+
+</div>
+</div>
+<a class="anchor" id="a3b44c74cdab1cd90013599d1cc24d5fa"></a><!-- doxytag: member="ubcc1pi::PIDStudy::OutputAlgorithm::m_braggPeakLLH_mu_W" ref="a3b44c74cdab1cd90013599d1cc24d5fa" args="" -->
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">float <a class="el" href="structubcc1pi_1_1PIDStudy_1_1OutputAlgorithm.html#a3b44c74cdab1cd90013599d1cc24d5fa">ubcc1pi::PIDStudy::OutputAlgorithm::m_braggPeakLLH_mu_W</a></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+
+<p>The forwards bragg peak likelihood under the muon hypothesis in the W view. </p>
+
+<p>Definition at line <a class="el" href="PIDStudy_8h_source.html#l00127">127</a> of file <a class="el" href="PIDStudy_8h_source.html">PIDStudy.h</a>.</p>
+
+</div>
+</div>
+<a class="anchor" id="ac8f0eea61907b99cc47c417fa02dfa24"></a><!-- doxytag: member="ubcc1pi::PIDStudy::OutputAlgorithm::m_braggPeakLLH_p_U" ref="ac8f0eea61907b99cc47c417fa02dfa24" args="" -->
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">float <a class="el" href="structubcc1pi_1_1PIDStudy_1_1OutputAlgorithm.html#ac8f0eea61907b99cc47c417fa02dfa24">ubcc1pi::PIDStudy::OutputAlgorithm::m_braggPeakLLH_p_U</a></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+
+<p>The forwards bragg peak likelihood under the proton hypothesis in the U view. </p>
+
+<p>Definition at line <a class="el" href="PIDStudy_8h_source.html#l00121">121</a> of file <a class="el" href="PIDStudy_8h_source.html">PIDStudy.h</a>.</p>
+
+</div>
+</div>
+<a class="anchor" id="a5949369f5c16ddec585983ccb5b1e6b0"></a><!-- doxytag: member="ubcc1pi::PIDStudy::OutputAlgorithm::m_braggPeakLLH_p_V" ref="a5949369f5c16ddec585983ccb5b1e6b0" args="" -->
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">float <a class="el" href="structubcc1pi_1_1PIDStudy_1_1OutputAlgorithm.html#a5949369f5c16ddec585983ccb5b1e6b0">ubcc1pi::PIDStudy::OutputAlgorithm::m_braggPeakLLH_p_V</a></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+
+<p>The forwards bragg peak likelihood under the proton hypothesis in the V view. </p>
+
+<p>Definition at line <a class="el" href="PIDStudy_8h_source.html#l00125">125</a> of file <a class="el" href="PIDStudy_8h_source.html">PIDStudy.h</a>.</p>
+
+</div>
+</div>
+<a class="anchor" id="af69a93011bc8c34eae84f4283d425d76"></a><!-- doxytag: member="ubcc1pi::PIDStudy::OutputAlgorithm::m_braggPeakLLH_p_W" ref="af69a93011bc8c34eae84f4283d425d76" args="" -->
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">float <a class="el" href="structubcc1pi_1_1PIDStudy_1_1OutputAlgorithm.html#af69a93011bc8c34eae84f4283d425d76">ubcc1pi::PIDStudy::OutputAlgorithm::m_braggPeakLLH_p_W</a></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+
+<p>The forwards bragg peak likelihood under the proton hypothesis in the W view. </p>
+
+<p>Definition at line <a class="el" href="PIDStudy_8h_source.html#l00129">129</a> of file <a class="el" href="PIDStudy_8h_source.html">PIDStudy.h</a>.</p>
+
+</div>
+</div>
+<a class="anchor" id="ac8d407288856f7a00fec42fcbed7588d"></a><!-- doxytag: member="ubcc1pi::PIDStudy::OutputAlgorithm::m_braggPeakLLH_pi_U" ref="ac8d407288856f7a00fec42fcbed7588d" args="" -->
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">float <a class="el" href="structubcc1pi_1_1PIDStudy_1_1OutputAlgorithm.html#ac8d407288856f7a00fec42fcbed7588d">ubcc1pi::PIDStudy::OutputAlgorithm::m_braggPeakLLH_pi_U</a></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+
+<p>The forwards bragg peak likelihood under the pion hypothesis in the U view. </p>
+
+<p>Definition at line <a class="el" href="PIDStudy_8h_source.html#l00120">120</a> of file <a class="el" href="PIDStudy_8h_source.html">PIDStudy.h</a>.</p>
+
+</div>
+</div>
+<a class="anchor" id="ac005372a7276c483294b93f5b976cf19"></a><!-- doxytag: member="ubcc1pi::PIDStudy::OutputAlgorithm::m_braggPeakLLH_pi_V" ref="ac005372a7276c483294b93f5b976cf19" args="" -->
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">float <a class="el" href="structubcc1pi_1_1PIDStudy_1_1OutputAlgorithm.html#ac005372a7276c483294b93f5b976cf19">ubcc1pi::PIDStudy::OutputAlgorithm::m_braggPeakLLH_pi_V</a></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+
+<p>The forwards bragg peak likelihood under the pion hypothesis in the V view. </p>
+
+<p>Definition at line <a class="el" href="PIDStudy_8h_source.html#l00124">124</a> of file <a class="el" href="PIDStudy_8h_source.html">PIDStudy.h</a>.</p>
+
+</div>
+</div>
+<a class="anchor" id="a7a4f5c20eb9f0b43d236dfac9115fa8f"></a><!-- doxytag: member="ubcc1pi::PIDStudy::OutputAlgorithm::m_braggPeakLLH_pi_W" ref="a7a4f5c20eb9f0b43d236dfac9115fa8f" args="" -->
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">float <a class="el" href="structubcc1pi_1_1PIDStudy_1_1OutputAlgorithm.html#a7a4f5c20eb9f0b43d236dfac9115fa8f">ubcc1pi::PIDStudy::OutputAlgorithm::m_braggPeakLLH_pi_W</a></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+
+<p>The forwards bragg peak likelihood under the pion hypothesis in the W view. </p>
+
+<p>Definition at line <a class="el" href="PIDStudy_8h_source.html#l00128">128</a> of file <a class="el" href="PIDStudy_8h_source.html">PIDStudy.h</a>.</p>
+
+</div>
+</div>
+<a class="anchor" id="a32530eb05a48a487c80f7ebaf0756548"></a><!-- doxytag: member="ubcc1pi::PIDStudy::OutputAlgorithm::m_chi2_mu_U" ref="a32530eb05a48a487c80f7ebaf0756548" args="" -->
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">float <a class="el" href="structubcc1pi_1_1PIDStudy_1_1OutputAlgorithm.html#a32530eb05a48a487c80f7ebaf0756548">ubcc1pi::PIDStudy::OutputAlgorithm::m_chi2_mu_U</a></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+
+<p>The chi2 under the muon hypothesis in the U view. </p>
+
+<p>Definition at line <a class="el" href="PIDStudy_8h_source.html#l00110">110</a> of file <a class="el" href="PIDStudy_8h_source.html">PIDStudy.h</a>.</p>
+
+</div>
+</div>
+<a class="anchor" id="a8ed306a31fb1d4b65fc9941a0d350d66"></a><!-- doxytag: member="ubcc1pi::PIDStudy::OutputAlgorithm::m_chi2_mu_V" ref="a8ed306a31fb1d4b65fc9941a0d350d66" args="" -->
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">float <a class="el" href="structubcc1pi_1_1PIDStudy_1_1OutputAlgorithm.html#a8ed306a31fb1d4b65fc9941a0d350d66">ubcc1pi::PIDStudy::OutputAlgorithm::m_chi2_mu_V</a></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+
+<p>The chi2 under the muon hypothesis in the V view. </p>
+
+<p>Definition at line <a class="el" href="PIDStudy_8h_source.html#l00113">113</a> of file <a class="el" href="PIDStudy_8h_source.html">PIDStudy.h</a>.</p>
+
+</div>
+</div>
+<a class="anchor" id="a6b16b7c0b3dac11dde39e8f46a02f0c3"></a><!-- doxytag: member="ubcc1pi::PIDStudy::OutputAlgorithm::m_chi2_mu_W" ref="a6b16b7c0b3dac11dde39e8f46a02f0c3" args="" -->
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">float <a class="el" href="structubcc1pi_1_1PIDStudy_1_1OutputAlgorithm.html#a6b16b7c0b3dac11dde39e8f46a02f0c3">ubcc1pi::PIDStudy::OutputAlgorithm::m_chi2_mu_W</a></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+
+<p>The chi2 under the muon hypothesis in the W view. </p>
+
+<p>Definition at line <a class="el" href="PIDStudy_8h_source.html#l00116">116</a> of file <a class="el" href="PIDStudy_8h_source.html">PIDStudy.h</a>.</p>
+
+</div>
+</div>
+<a class="anchor" id="a32febb63fc7dc129a4fa0ebef3572efa"></a><!-- doxytag: member="ubcc1pi::PIDStudy::OutputAlgorithm::m_chi2_p_U" ref="a32febb63fc7dc129a4fa0ebef3572efa" args="" -->
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">float <a class="el" href="structubcc1pi_1_1PIDStudy_1_1OutputAlgorithm.html#a32febb63fc7dc129a4fa0ebef3572efa">ubcc1pi::PIDStudy::OutputAlgorithm::m_chi2_p_U</a></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+
+<p>The chi2 under the proton hypothesis in the U view. </p>
+
+<p>Definition at line <a class="el" href="PIDStudy_8h_source.html#l00112">112</a> of file <a class="el" href="PIDStudy_8h_source.html">PIDStudy.h</a>.</p>
+
+</div>
+</div>
+<a class="anchor" id="a223236e2da6d86627c44c08924b0fb0d"></a><!-- doxytag: member="ubcc1pi::PIDStudy::OutputAlgorithm::m_chi2_p_V" ref="a223236e2da6d86627c44c08924b0fb0d" args="" -->
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">float <a class="el" href="structubcc1pi_1_1PIDStudy_1_1OutputAlgorithm.html#a223236e2da6d86627c44c08924b0fb0d">ubcc1pi::PIDStudy::OutputAlgorithm::m_chi2_p_V</a></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+
+<p>The chi2 under the proton hypothesis in the V view. </p>
+
+<p>Definition at line <a class="el" href="PIDStudy_8h_source.html#l00115">115</a> of file <a class="el" href="PIDStudy_8h_source.html">PIDStudy.h</a>.</p>
+
+</div>
+</div>
+<a class="anchor" id="a8da37888ce24cd698de0ae64ac8ddaac"></a><!-- doxytag: member="ubcc1pi::PIDStudy::OutputAlgorithm::m_chi2_p_W" ref="a8da37888ce24cd698de0ae64ac8ddaac" args="" -->
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">float <a class="el" href="structubcc1pi_1_1PIDStudy_1_1OutputAlgorithm.html#a8da37888ce24cd698de0ae64ac8ddaac">ubcc1pi::PIDStudy::OutputAlgorithm::m_chi2_p_W</a></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+
+<p>The chi2 under the proton hypothesis in the W view. </p>
+
+<p>Definition at line <a class="el" href="PIDStudy_8h_source.html#l00118">118</a> of file <a class="el" href="PIDStudy_8h_source.html">PIDStudy.h</a>.</p>
+
+</div>
+</div>
+<a class="anchor" id="a5b3e4f2f3acb5edadca2e0c29a683bd6"></a><!-- doxytag: member="ubcc1pi::PIDStudy::OutputAlgorithm::m_chi2_pi_U" ref="a5b3e4f2f3acb5edadca2e0c29a683bd6" args="" -->
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">float <a class="el" href="structubcc1pi_1_1PIDStudy_1_1OutputAlgorithm.html#a5b3e4f2f3acb5edadca2e0c29a683bd6">ubcc1pi::PIDStudy::OutputAlgorithm::m_chi2_pi_U</a></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+
+<p>The chi2 under the pion hypothesis in the U view. </p>
+
+<p>Definition at line <a class="el" href="PIDStudy_8h_source.html#l00111">111</a> of file <a class="el" href="PIDStudy_8h_source.html">PIDStudy.h</a>.</p>
+
+</div>
+</div>
+<a class="anchor" id="ab601016b106fbf7c82d56acc2d2f5045"></a><!-- doxytag: member="ubcc1pi::PIDStudy::OutputAlgorithm::m_chi2_pi_V" ref="ab601016b106fbf7c82d56acc2d2f5045" args="" -->
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">float <a class="el" href="structubcc1pi_1_1PIDStudy_1_1OutputAlgorithm.html#ab601016b106fbf7c82d56acc2d2f5045">ubcc1pi::PIDStudy::OutputAlgorithm::m_chi2_pi_V</a></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+
+<p>The chi2 under the pion hypothesis in the V view. </p>
+
+<p>Definition at line <a class="el" href="PIDStudy_8h_source.html#l00114">114</a> of file <a class="el" href="PIDStudy_8h_source.html">PIDStudy.h</a>.</p>
+
+</div>
+</div>
+<a class="anchor" id="a88b45e993c41827bf1ad4d709471fd9a"></a><!-- doxytag: member="ubcc1pi::PIDStudy::OutputAlgorithm::m_chi2_pi_W" ref="a88b45e993c41827bf1ad4d709471fd9a" args="" -->
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">float <a class="el" href="structubcc1pi_1_1PIDStudy_1_1OutputAlgorithm.html#a88b45e993c41827bf1ad4d709471fd9a">ubcc1pi::PIDStudy::OutputAlgorithm::m_chi2_pi_W</a></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+
+<p>The chi2 under the pion hypothesis in the W view. </p>
+
+<p>Definition at line <a class="el" href="PIDStudy_8h_source.html#l00117">117</a> of file <a class="el" href="PIDStudy_8h_source.html">PIDStudy.h</a>.</p>
 
 </div>
 </div>
@@ -176,7 +550,24 @@ window.onload = initDynSections;
 
 <p>The event number. </p>
 
-<p>Definition at line <a class="el" href="PIDStudy_8h_source.html#l00091">91</a> of file <a class="el" href="PIDStudy_8h_source.html">PIDStudy.h</a>.</p>
+<p>Definition at line <a class="el" href="PIDStudy_8h_source.html#l00094">94</a> of file <a class="el" href="PIDStudy_8h_source.html">PIDStudy.h</a>.</p>
+
+</div>
+</div>
+<a class="anchor" id="a26afab5d9db0c460d72e1af4fc990e12"></a><!-- doxytag: member="ubcc1pi::PIDStudy::OutputAlgorithm::m_hasMatchedMCParticle" ref="a26afab5d9db0c460d72e1af4fc990e12" args="" -->
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool <a class="el" href="structubcc1pi_1_1PIDStudy_1_1OutputAlgorithm.html#a26afab5d9db0c460d72e1af4fc990e12">ubcc1pi::PIDStudy::OutputAlgorithm::m_hasMatchedMCParticle</a></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+
+<p>If the PFParticle matches to any neutrino MCParticles. </p>
+
+<p>Definition at line <a class="el" href="PIDStudy_8h_source.html#l00098">98</a> of file <a class="el" href="PIDStudy_8h_source.html">PIDStudy.h</a>.</p>
 
 </div>
 </div>
@@ -193,109 +584,75 @@ window.onload = initDynSections;
 
 <p>If the event is a true CC1Pi signal. </p>
 
-<p>Definition at line <a class="el" href="PIDStudy_8h_source.html#l00092">92</a> of file <a class="el" href="PIDStudy_8h_source.html">PIDStudy.h</a>.</p>
-
-</div>
-</div>
-<a class="anchor" id="a434906ab7898155b0a89b59537d650a0"></a><!-- doxytag: member="ubcc1pi::PIDStudy::OutputAlgorithm::m_name" ref="a434906ab7898155b0a89b59537d650a0" args="" -->
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">std::string <a class="el" href="structubcc1pi_1_1PIDStudy_1_1OutputAlgorithm.html#a434906ab7898155b0a89b59537d650a0">ubcc1pi::PIDStudy::OutputAlgorithm::m_name</a></td>
-        </tr>
-      </table>
-</div>
-<div class="memdoc">
-
-<p>The algorithm name. </p>
-
-<p>Definition at line <a class="el" href="PIDStudy_8h_source.html#l00104">104</a> of file <a class="el" href="PIDStudy_8h_source.html">PIDStudy.h</a>.</p>
-
-</div>
-</div>
-<a class="anchor" id="ababfe6494ce37661584053c98f71c6ca"></a><!-- doxytag: member="ubcc1pi::PIDStudy::OutputAlgorithm::m_nDOF" ref="ababfe6494ce37661584053c98f71c6ca" args="" -->
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">int <a class="el" href="structubcc1pi_1_1PIDStudy_1_1OutputAlgorithm.html#ababfe6494ce37661584053c98f71c6ca">ubcc1pi::PIDStudy::OutputAlgorithm::m_nDOF</a></td>
-        </tr>
-      </table>
-</div>
-<div class="memdoc">
-
-<p>The number of degrees of freedom. </p>
-
-<p>Definition at line <a class="el" href="PIDStudy_8h_source.html#l00107">107</a> of file <a class="el" href="PIDStudy_8h_source.html">PIDStudy.h</a>.</p>
-
-</div>
-</div>
-<a class="anchor" id="a32ac2ed84a88008497d9384863aed3bd"></a><!-- doxytag: member="ubcc1pi::PIDStudy::OutputAlgorithm::m_nPFPHits" ref="a32ac2ed84a88008497d9384863aed3bd" args="" -->
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">int <a class="el" href="structubcc1pi_1_1PIDStudy_1_1OutputAlgorithm.html#a32ac2ed84a88008497d9384863aed3bd">ubcc1pi::PIDStudy::OutputAlgorithm::m_nPFPHits</a></td>
-        </tr>
-      </table>
-</div>
-<div class="memdoc">
-
-<p>The number of hits associated to the PFParticle. </p>
-
 <p>Definition at line <a class="el" href="PIDStudy_8h_source.html#l00095">95</a> of file <a class="el" href="PIDStudy_8h_source.html">PIDStudy.h</a>.</p>
 
 </div>
 </div>
-<a class="anchor" id="a933e1d441a3f3eb1129d5085a3245501"></a><!-- doxytag: member="ubcc1pi::PIDStudy::OutputAlgorithm::m_planeUUsed" ref="a933e1d441a3f3eb1129d5085a3245501" args="" -->
+<a class="anchor" id="a75f8088e5eee13587f8b9487fd23aacd"></a><!-- doxytag: member="ubcc1pi::PIDStudy::OutputAlgorithm::m_length" ref="a75f8088e5eee13587f8b9487fd23aacd" args="" -->
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">bool <a class="el" href="structubcc1pi_1_1PIDStudy_1_1OutputAlgorithm.html#a933e1d441a3f3eb1129d5085a3245501">ubcc1pi::PIDStudy::OutputAlgorithm::m_planeUUsed</a></td>
+          <td class="memname">float <a class="el" href="structubcc1pi_1_1PIDStudy_1_1OutputAlgorithm.html#a75f8088e5eee13587f8b9487fd23aacd">ubcc1pi::PIDStudy::OutputAlgorithm::m_length</a></td>
         </tr>
       </table>
 </div>
 <div class="memdoc">
 
-<p>If the U plane is used. </p>
+<p>The track-length. </p>
 
-<p>Definition at line <a class="el" href="PIDStudy_8h_source.html#l00110">110</a> of file <a class="el" href="PIDStudy_8h_source.html">PIDStudy.h</a>.</p>
+<p>Definition at line <a class="el" href="PIDStudy_8h_source.html#l00108">108</a> of file <a class="el" href="PIDStudy_8h_source.html">PIDStudy.h</a>.</p>
 
 </div>
 </div>
-<a class="anchor" id="a9b6820db6d44399bf7432c489b60a636"></a><!-- doxytag: member="ubcc1pi::PIDStudy::OutputAlgorithm::m_planeVUsed" ref="a9b6820db6d44399bf7432c489b60a636" args="" -->
+<a class="anchor" id="ab6a8467e41cbdcdf35d35377f2eb58dc"></a><!-- doxytag: member="ubcc1pi::PIDStudy::OutputAlgorithm::m_nHitsU" ref="ab6a8467e41cbdcdf35d35377f2eb58dc" args="" -->
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">bool <a class="el" href="structubcc1pi_1_1PIDStudy_1_1OutputAlgorithm.html#a9b6820db6d44399bf7432c489b60a636">ubcc1pi::PIDStudy::OutputAlgorithm::m_planeVUsed</a></td>
+          <td class="memname">int <a class="el" href="structubcc1pi_1_1PIDStudy_1_1OutputAlgorithm.html#ab6a8467e41cbdcdf35d35377f2eb58dc">ubcc1pi::PIDStudy::OutputAlgorithm::m_nHitsU</a></td>
         </tr>
       </table>
 </div>
 <div class="memdoc">
 
-<p>If the V plane is used. </p>
+<p>The number of hits in the U view. </p>
 
-<p>Definition at line <a class="el" href="PIDStudy_8h_source.html#l00111">111</a> of file <a class="el" href="PIDStudy_8h_source.html">PIDStudy.h</a>.</p>
+<p>Definition at line <a class="el" href="PIDStudy_8h_source.html#l00105">105</a> of file <a class="el" href="PIDStudy_8h_source.html">PIDStudy.h</a>.</p>
 
 </div>
 </div>
-<a class="anchor" id="a7152afe5e2b6ea9f0c982d88d6a6cc4e"></a><!-- doxytag: member="ubcc1pi::PIDStudy::OutputAlgorithm::m_planeWUsed" ref="a7152afe5e2b6ea9f0c982d88d6a6cc4e" args="" -->
+<a class="anchor" id="a5bbab7cdcd014146c484e57fa44fb9bb"></a><!-- doxytag: member="ubcc1pi::PIDStudy::OutputAlgorithm::m_nHitsV" ref="a5bbab7cdcd014146c484e57fa44fb9bb" args="" -->
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">bool <a class="el" href="structubcc1pi_1_1PIDStudy_1_1OutputAlgorithm.html#a7152afe5e2b6ea9f0c982d88d6a6cc4e">ubcc1pi::PIDStudy::OutputAlgorithm::m_planeWUsed</a></td>
+          <td class="memname">int <a class="el" href="structubcc1pi_1_1PIDStudy_1_1OutputAlgorithm.html#a5bbab7cdcd014146c484e57fa44fb9bb">ubcc1pi::PIDStudy::OutputAlgorithm::m_nHitsV</a></td>
         </tr>
       </table>
 </div>
 <div class="memdoc">
 
-<p>If the W plane is used. </p>
+<p>The number of hits in the U view. </p>
 
-<p>Definition at line <a class="el" href="PIDStudy_8h_source.html#l00109">109</a> of file <a class="el" href="PIDStudy_8h_source.html">PIDStudy.h</a>.</p>
+<p>Definition at line <a class="el" href="PIDStudy_8h_source.html#l00106">106</a> of file <a class="el" href="PIDStudy_8h_source.html">PIDStudy.h</a>.</p>
+
+</div>
+</div>
+<a class="anchor" id="a6e3e6be62fdb0d1fa12f70501e7fd446"></a><!-- doxytag: member="ubcc1pi::PIDStudy::OutputAlgorithm::m_nHitsW" ref="a6e3e6be62fdb0d1fa12f70501e7fd446" args="" -->
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">int <a class="el" href="structubcc1pi_1_1PIDStudy_1_1OutputAlgorithm.html#a6e3e6be62fdb0d1fa12f70501e7fd446">ubcc1pi::PIDStudy::OutputAlgorithm::m_nHitsW</a></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+
+<p>The number of hits in the U view. </p>
+
+<p>Definition at line <a class="el" href="PIDStudy_8h_source.html#l00107">107</a> of file <a class="el" href="PIDStudy_8h_source.html">PIDStudy.h</a>.</p>
 
 </div>
 </div>
@@ -312,7 +669,7 @@ window.onload = initDynSections;
 
 <p>The run number. </p>
 
-<p>Definition at line <a class="el" href="PIDStudy_8h_source.html#l00089">89</a> of file <a class="el" href="PIDStudy_8h_source.html">PIDStudy.h</a>.</p>
+<p>Definition at line <a class="el" href="PIDStudy_8h_source.html#l00092">92</a> of file <a class="el" href="PIDStudy_8h_source.html">PIDStudy.h</a>.</p>
 
 </div>
 </div>
@@ -329,24 +686,24 @@ window.onload = initDynSections;
 
 <p>The subrun number. </p>
 
-<p>Definition at line <a class="el" href="PIDStudy_8h_source.html#l00090">90</a> of file <a class="el" href="PIDStudy_8h_source.html">PIDStudy.h</a>.</p>
+<p>Definition at line <a class="el" href="PIDStudy_8h_source.html#l00093">93</a> of file <a class="el" href="PIDStudy_8h_source.html">PIDStudy.h</a>.</p>
 
 </div>
 </div>
-<a class="anchor" id="a420e7b28377779aaff6650233b08fa8b"></a><!-- doxytag: member="ubcc1pi::PIDStudy::OutputAlgorithm::m_trackDir" ref="a420e7b28377779aaff6650233b08fa8b" args="" -->
+<a class="anchor" id="a2c3c612d812e774589a64bf71ff73041"></a><!-- doxytag: member="ubcc1pi::PIDStudy::OutputAlgorithm::m_trackShower" ref="a2c3c612d812e774589a64bf71ff73041" args="" -->
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">int <a class="el" href="structubcc1pi_1_1PIDStudy_1_1OutputAlgorithm.html#a420e7b28377779aaff6650233b08fa8b">ubcc1pi::PIDStudy::OutputAlgorithm::m_trackDir</a></td>
+          <td class="memname">float <a class="el" href="structubcc1pi_1_1PIDStudy_1_1OutputAlgorithm.html#a2c3c612d812e774589a64bf71ff73041">ubcc1pi::PIDStudy::OutputAlgorithm::m_trackShower</a></td>
         </tr>
       </table>
 </div>
 <div class="memdoc">
 
-<p>The track direction (forward, backward, no direction). </p>
+<p>The track-shower score. </p>
 
-<p>Definition at line <a class="el" href="PIDStudy_8h_source.html#l00106">106</a> of file <a class="el" href="PIDStudy_8h_source.html">PIDStudy.h</a>.</p>
+<p>Definition at line <a class="el" href="PIDStudy_8h_source.html#l00109">109</a> of file <a class="el" href="PIDStudy_8h_source.html">PIDStudy.h</a>.</p>
 
 </div>
 </div>
@@ -363,7 +720,7 @@ window.onload = initDynSections;
 
 <p>Match completeness to the true particle. </p>
 
-<p>Definition at line <a class="el" href="PIDStudy_8h_source.html#l00101">101</a> of file <a class="el" href="PIDStudy_8h_source.html">PIDStudy.h</a>.</p>
+<p>Definition at line <a class="el" href="PIDStudy_8h_source.html#l00102">102</a> of file <a class="el" href="PIDStudy_8h_source.html">PIDStudy.h</a>.</p>
 
 </div>
 </div>
@@ -380,7 +737,7 @@ window.onload = initDynSections;
 
 <p>Match purity to the true particle. </p>
 
-<p>Definition at line <a class="el" href="PIDStudy_8h_source.html#l00100">100</a> of file <a class="el" href="PIDStudy_8h_source.html">PIDStudy.h</a>.</p>
+<p>Definition at line <a class="el" href="PIDStudy_8h_source.html#l00101">101</a> of file <a class="el" href="PIDStudy_8h_source.html">PIDStudy.h</a>.</p>
 
 </div>
 </div>
@@ -397,7 +754,7 @@ window.onload = initDynSections;
 
 <p>The particle momentum. </p>
 
-<p>Definition at line <a class="el" href="PIDStudy_8h_source.html#l00099">99</a> of file <a class="el" href="PIDStudy_8h_source.html">PIDStudy.h</a>.</p>
+<p>Definition at line <a class="el" href="PIDStudy_8h_source.html#l00100">100</a> of file <a class="el" href="PIDStudy_8h_source.html">PIDStudy.h</a>.</p>
 
 </div>
 </div>
@@ -414,41 +771,7 @@ window.onload = initDynSections;
 
 <p>The particle PDG code. </p>
 
-<p>Definition at line <a class="el" href="PIDStudy_8h_source.html#l00098">98</a> of file <a class="el" href="PIDStudy_8h_source.html">PIDStudy.h</a>.</p>
-
-</div>
-</div>
-<a class="anchor" id="aa745c078f873993705f650ab6c9155b4"></a><!-- doxytag: member="ubcc1pi::PIDStudy::OutputAlgorithm::m_value" ref="aa745c078f873993705f650ab6c9155b4" args="" -->
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">float <a class="el" href="structubcc1pi_1_1PIDStudy_1_1OutputAlgorithm.html#aa745c078f873993705f650ab6c9155b4">ubcc1pi::PIDStudy::OutputAlgorithm::m_value</a></td>
-        </tr>
-      </table>
-</div>
-<div class="memdoc">
-
-<p>The output value of the PID algorithm. </p>
-
-<p>Definition at line <a class="el" href="PIDStudy_8h_source.html#l00114">114</a> of file <a class="el" href="PIDStudy_8h_source.html">PIDStudy.h</a>.</p>
-
-</div>
-</div>
-<a class="anchor" id="aeff0f3b63ce6e4347daeb48d78850718"></a><!-- doxytag: member="ubcc1pi::PIDStudy::OutputAlgorithm::m_variableType" ref="aeff0f3b63ce6e4347daeb48d78850718" args="" -->
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">int <a class="el" href="structubcc1pi_1_1PIDStudy_1_1OutputAlgorithm.html#aeff0f3b63ce6e4347daeb48d78850718">ubcc1pi::PIDStudy::OutputAlgorithm::m_variableType</a></td>
-        </tr>
-      </table>
-</div>
-<div class="memdoc">
-
-<p>The variable type from the PID object. </p>
-
-<p>Definition at line <a class="el" href="PIDStudy_8h_source.html#l00105">105</a> of file <a class="el" href="PIDStudy_8h_source.html">PIDStudy.h</a>.</p>
+<p>Definition at line <a class="el" href="PIDStudy_8h_source.html#l00099">99</a> of file <a class="el" href="PIDStudy_8h_source.html">PIDStudy.h</a>.</p>
 
 </div>
 </div>
@@ -473,7 +796,7 @@ window.onload = initDynSections;
 <hr size="1"/>
 <address style="text-align: right;">
     <small>
-        Generated on Fri May 17 11:35:11 2019 for ubcc1pi by <a href="http://www.doxygen.org/index.html" target="_blank">doxygen</a> 1.6.1
+        Generated on Fri May 17 14:57:34 2019 for ubcc1pi by <a href="http://www.doxygen.org/index.html" target="_blank">doxygen</a> 1.6.1
     </small>
 </address>
 
