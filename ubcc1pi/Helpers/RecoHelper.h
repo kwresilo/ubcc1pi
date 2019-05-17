@@ -49,6 +49,7 @@ class RecoHelper
         static bool GetMetadataBool(const art::Ptr<larpandoraobj::PFParticleMetadata> &metadata, const std::string &property);
 
         static float GetTrackScore(const art::Ptr<larpandoraobj::PFParticleMetadata> &metadata);
+        static unsigned int CountHitsInView(const HitVector &hits, const geo::View_t &view);
 };
 
 } // namespace ubcc1pi

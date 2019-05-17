@@ -8,6 +8,7 @@
 
 #include "ubcc1pi/Helpers/TruthHelper.h"
 #include "ubcc1pi/Helpers/AnalysisHelper.h"
+#include "ubcc1pi/Helpers/RecoHelper.h"
 #include "ubcc1pi/Helpers/DebugHelper.h"
 
 
@@ -21,25 +22,47 @@ PIDStudy::PIDStudy(const art::EDAnalyzer::Table<Config> &config) :
     // Setup the output trees
     art::ServiceHandle<art::TFileService> fileService;
     
-    m_pAlgorithmTree = fileService->make<TTree>("algorithms", "");
-    m_pAlgorithmTree->Branch("run", &m_outputAlgorithm.m_run);
-    m_pAlgorithmTree->Branch("subRun", &m_outputAlgorithm.m_subRun);
-    m_pAlgorithmTree->Branch("event", &m_outputAlgorithm.m_event);
-    m_pAlgorithmTree->Branch("isSignal", &m_outputAlgorithm.m_isSignal);
-    m_pAlgorithmTree->Branch("nPFPHits", &m_outputAlgorithm.m_nPFPHits);
-    m_pAlgorithmTree->Branch("truePdgCode", &m_outputAlgorithm.m_truePdgCode);
-    m_pAlgorithmTree->Branch("trueMomentum", &m_outputAlgorithm.m_trueMomentum);
-    m_pAlgorithmTree->Branch("trueMatchPurity", &m_outputAlgorithm.m_trueMatchPurity);
-    m_pAlgorithmTree->Branch("trueMatchCompleteness", &m_outputAlgorithm.m_trueMatchCompleteness);
-    m_pAlgorithmTree->Branch("name", &m_outputAlgorithm.m_name);
-    m_pAlgorithmTree->Branch("variableType", &m_outputAlgorithm.m_variableType);
-    m_pAlgorithmTree->Branch("trackDir", &m_outputAlgorithm.m_trackDir);
-    m_pAlgorithmTree->Branch("nDOF", &m_outputAlgorithm.m_nDOF);
-    m_pAlgorithmTree->Branch("assumedPdg", &m_outputAlgorithm.m_assumedPdg);
-    m_pAlgorithmTree->Branch("planeWUsed", &m_outputAlgorithm.m_planeWUsed);
-    m_pAlgorithmTree->Branch("planeUUsed", &m_outputAlgorithm.m_planeUUsed);
-    m_pAlgorithmTree->Branch("planeVUsed", &m_outputAlgorithm.m_planeVUsed);
-    m_pAlgorithmTree->Branch("value", &m_outputAlgorithm.m_value);
+    m_pParticleTree = fileService->make<TTree>("particles", "");
+    m_pParticleTree->Branch("run", &m_outputParticle.m_run);
+    m_pParticleTree->Branch("subRun", &m_outputParticle.m_subRun);
+    m_pParticleTree->Branch("event", &m_outputParticle.m_event);
+    m_pParticleTree->Branch("isSignal", &m_outputParticle.m_isSignal);
+    m_pParticleTree->Branch("hasMatchedMCParticle", &m_outputParticle.m_hasMatchedMCParticle);
+    m_pParticleTree->Branch("truePdgCode", &m_outputParticle.m_truePdgCode);
+    m_pParticleTree->Branch("trueMomentum", &m_outputParticle.m_trueMomentum);
+    m_pParticleTree->Branch("trueMatchPurity", &m_outputParticle.m_trueMatchPurity);
+    m_pParticleTree->Branch("trueMatchCompleteness", &m_outputParticle.m_trueMatchCompleteness);
+
+    m_pParticleTree->Branch("nHitsU", &m_outputParticle.m_nHitsU);
+    m_pParticleTree->Branch("nHitsV", &m_outputParticle.m_nHitsV);
+    m_pParticleTree->Branch("nHitsW", &m_outputParticle.m_nHitsW);
+
+    m_pParticleTree->Branch("length", &m_outputParticle.m_length);
+
+    m_pParticleTree->Branch("trackShower", &m_outputParticle.m_trackShower);
+
+    m_pParticleTree->Branch("chi2_mu_U", &m_outputParticle.m_chi2_mu_U);
+    m_pParticleTree->Branch("chi2_pi_U", &m_outputParticle.m_chi2_pi_U);
+    m_pParticleTree->Branch("chi2_p_U", &m_outputParticle.m_chi2_p_U);
+    m_pParticleTree->Branch("chi2_mu_V", &m_outputParticle.m_chi2_mu_V);
+    m_pParticleTree->Branch("chi2_pi_V", &m_outputParticle.m_chi2_pi_V);
+    m_pParticleTree->Branch("chi2_p_V", &m_outputParticle.m_chi2_p_V);
+    m_pParticleTree->Branch("chi2_mu_W", &m_outputParticle.m_chi2_mu_W);
+    m_pParticleTree->Branch("chi2_pi_W", &m_outputParticle.m_chi2_pi_W);
+    m_pParticleTree->Branch("chi2_p_W", &m_outputParticle.m_chi2_p_W);
+
+    m_pParticleTree->Branch("braggPeakLLH_mu_U", &m_outputParticle.m_braggPeakLLH_mu_U);
+    m_pParticleTree->Branch("braggPeakLLH_pi_U", &m_outputParticle.m_braggPeakLLH_pi_U);
+    m_pParticleTree->Branch("braggPeakLLH_p_U", &m_outputParticle.m_braggPeakLLH_p_U);
+    m_pParticleTree->Branch("braggPeakLLH_MIP_U", &m_outputParticle.m_braggPeakLLH_MIP_U);
+    m_pParticleTree->Branch("braggPeakLLH_mu_V", &m_outputParticle.m_braggPeakLLH_mu_V);
+    m_pParticleTree->Branch("braggPeakLLH_pi_V", &m_outputParticle.m_braggPeakLLH_pi_V);
+    m_pParticleTree->Branch("braggPeakLLH_p_V", &m_outputParticle.m_braggPeakLLH_p_V);
+    m_pParticleTree->Branch("braggPeakLLH_MIP_V", &m_outputParticle.m_braggPeakLLH_MIP_V);
+    m_pParticleTree->Branch("braggPeakLLH_mu_W", &m_outputParticle.m_braggPeakLLH_mu_W);
+    m_pParticleTree->Branch("braggPeakLLH_pi_W", &m_outputParticle.m_braggPeakLLH_pi_W);
+    m_pParticleTree->Branch("braggPeakLLH_p_W", &m_outputParticle.m_braggPeakLLH_p_W);
+    m_pParticleTree->Branch("braggPeakLLH_MIP_W", &m_outputParticle.m_braggPeakLLH_MIP_W);
 }
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
@@ -55,156 +78,273 @@ void PIDStudy::analyze(const art::Event &event)
     const auto pidLabel = m_config().PIDLabel();
     const auto sliceLabel = m_config().SliceLabel();
     const auto hitLabel = m_config().HitLabel();
+    
+    // Get the neutrino final state PFParticles
+    const auto allPFParticles = CollectionHelper::GetCollection<recob::PFParticle>(event, pfParticleLabel);
+    const auto pfParticles = RecoHelper::GetNeutrinoFinalStates(allPFParticles);
 
-    // Get the truth level information
-    const TruthHelper::Interaction interaction(event, mcTruthLabel, mcParticleLabel);
-
+    // Get the associations from PFParticles to metadata, tracks and PID
     const auto pfpToTrack = CollectionHelper::GetAssociation<recob::PFParticle, recob::Track>(event, pfParticleLabel, trackLabel);
     const auto pfpToMetadata = CollectionHelper::GetAssociation<recob::PFParticle, larpandoraobj::PFParticleMetadata>(event, pfParticleLabel);
     const auto trackToPID = CollectionHelper::GetAssociation<recob::Track, anab::ParticleID>(event, trackLabel, pidLabel);
     
     // Get the reco-true matching information
     const auto backtrackerData = AnalysisHelper::GetBacktrackerData(event, mcTruthLabel, mcParticleLabel, backtrackerLabel, pfParticleLabel);
-    const auto pfParticles = backtrackerData.GetPFParticles();
 
-    // Get the maximum track length
-    float maxTrackLength = -std::numeric_limits<float>::max();
+    // Store the event level information
+    this->SetEventInfo(event);
+
     for (const auto &pfParticle : pfParticles)
     {
-        try
-        {
-            const auto tracks = CollectionHelper::GetManyAssociated(pfParticle, pfpToTrack); 
-            
-            if (tracks.size() > 1)
-                throw cet::exception("PIDStudy::analyze") << " - Multiple tracks associated to PFParticle!" << std::endl;
+        this->ResetParticleInfo();
+        this->SetMatchedMCParticleInfo(pfParticle, backtrackerData);
+       
+        // Number of hits
+        const auto &hits = backtrackerData.GetHits(pfParticle);
+        m_outputParticle.m_nHitsU = RecoHelper::CountHitsInView(hits, geo::kU);
+        m_outputParticle.m_nHitsV = RecoHelper::CountHitsInView(hits, geo::kV);
+        m_outputParticle.m_nHitsW = RecoHelper::CountHitsInView(hits, geo::kW);
+
+        // Track-shower score 
+        const auto metadata = CollectionHelper::GetSingleAssociated(pfParticle, pfpToMetadata);
+        m_outputParticle.m_trackShower = RecoHelper::GetTrackScore(metadata);
         
-            if (!tracks.empty())
+        art::Ptr<recob::Track> track;
+        if (!this->GetTrack(pfParticle, pfpToTrack, track))
+            continue;
+
+        // Track length
+        m_outputParticle.m_length = track->Length();
+
+        // PID algorithm outputs
+        const auto pid = CollectionHelper::GetSingleAssociated(track, trackToPID);
+        for (const auto &algo : pid->ParticleIDAlgScores())
+        {
+            const auto view = this->GetView(algo.fPlaneMask);
+
+            // Chi2 algorithms
+            if (algo.fAlgName == "Chi2")
             {
-                const auto track = tracks.front();
-                if (track->Length() > maxTrackLength)
+                switch (algo.fAssumedPdg)
                 {
-                    maxTrackLength = track->Length();
+                    case 13:
+                        switch (view)
+                        {
+                            case geo::kW:
+                                m_outputParticle.m_chi2_mu_W = algo.fValue;
+                                break;
+                            case geo::kU:
+                                m_outputParticle.m_chi2_mu_U = algo.fValue;
+                                break;
+                            case geo::kV:
+                                m_outputParticle.m_chi2_mu_V = algo.fValue;
+                                break;
+                            default: break;
+                        }
+                        break;
+                    case 211:
+                        switch (view)
+                        {
+                            case geo::kW:
+                                m_outputParticle.m_chi2_pi_W = algo.fValue;
+                                break;
+                            case geo::kU:
+                                m_outputParticle.m_chi2_pi_U = algo.fValue;
+                                break;
+                            case geo::kV:
+                                m_outputParticle.m_chi2_pi_V = algo.fValue;
+                                break;
+                            default: break;
+                        }
+                        break;
+                    case 2212:
+                        switch (view)
+                        {
+                            case geo::kW:
+                                m_outputParticle.m_chi2_p_W = algo.fValue;
+                                break;
+                            case geo::kU:
+                                m_outputParticle.m_chi2_p_U = algo.fValue;
+                                break;
+                            case geo::kV:
+                                m_outputParticle.m_chi2_p_V = algo.fValue;
+                                break;
+                            default: break;
+                        }
+                        break;
+                    default: break;
+                }
+            }
+            
+            // Bragg peak algorithms
+            if (algo.fAlgName == "BraggPeakLLH" && algo.fTrackDir == anab::kForward)
+            {
+                switch (algo.fAssumedPdg)
+                {
+                    case 13:
+                        switch (view)
+                        {
+                            case geo::kW:
+                                m_outputParticle.m_braggPeakLLH_mu_W = algo.fValue;
+                                break;
+                            case geo::kU:
+                                m_outputParticle.m_braggPeakLLH_mu_U = algo.fValue;
+                                break;
+                            case geo::kV:
+                                m_outputParticle.m_braggPeakLLH_mu_V = algo.fValue;
+                                break;
+                            default: break;
+                        }
+                        break;
+                    case 211:
+                        switch (view)
+                        {
+                            case geo::kW:
+                                m_outputParticle.m_braggPeakLLH_pi_W = algo.fValue;
+                                break;
+                            case geo::kU:
+                                m_outputParticle.m_braggPeakLLH_pi_U = algo.fValue;
+                                break;
+                            case geo::kV:
+                                m_outputParticle.m_braggPeakLLH_pi_V = algo.fValue;
+                                break;
+                            default: break;
+                        }
+                        break;
+                    case 2212:
+                        switch (view)
+                        {
+                            case geo::kW:
+                                m_outputParticle.m_braggPeakLLH_p_W = algo.fValue;
+                                break;
+                            case geo::kU:
+                                m_outputParticle.m_braggPeakLLH_p_U = algo.fValue;
+                                break;
+                            case geo::kV:
+                                m_outputParticle.m_braggPeakLLH_p_V = algo.fValue;
+                                break;
+                            default: break;
+                        }
+                        break;
+                    default: break;
                 }
             }
         }
-        catch (const cet::exception &)
-        {
-        }
+        
+        m_pParticleTree->Fill();
     }
+}
 
-    // Store the event level information
-    m_outputAlgorithm.m_run = event.run();
-    m_outputAlgorithm.m_subRun = event.subRun();
-    m_outputAlgorithm.m_event = event.event();
-    m_outputAlgorithm.m_isSignal = AnalysisHelper::IsCC1PiSignal(interaction);
+// -----------------------------------------------------------------------------------------------------------------------------------------
 
-    for (const auto &pfParticle : pfParticles)
+void PIDStudy::SetEventInfo(const art::Event &event)
+{    
+    m_outputParticle.m_run = event.run();
+    m_outputParticle.m_subRun = event.subRun();
+    m_outputParticle.m_event = event.event();
+    
+    const TruthHelper::Interaction interaction(event, m_config().MCTruthLabel(), m_config().MCParticleLabel());
+    m_outputParticle.m_isSignal = AnalysisHelper::IsCC1PiSignal(interaction);
+}
+
+// -----------------------------------------------------------------------------------------------------------------------------------------
+
+void PIDStudy::ResetParticleInfo()
+{
+    m_outputParticle.m_hasMatchedMCParticle = false;
+    m_outputParticle.m_truePdgCode = -std::numeric_limits<int>::max();
+    m_outputParticle.m_trueMomentum = -std::numeric_limits<float>::max();
+    m_outputParticle.m_trueMatchPurity = -std::numeric_limits<float>::max();
+    m_outputParticle.m_trueMatchCompleteness = -std::numeric_limits<float>::max();
+    m_outputParticle.m_nHitsU = -std::numeric_limits<int>::max();
+    m_outputParticle.m_nHitsV = -std::numeric_limits<int>::max();
+    m_outputParticle.m_nHitsW = -std::numeric_limits<int>::max();
+    m_outputParticle.m_length = -std::numeric_limits<float>::max();
+    m_outputParticle.m_trackShower = -std::numeric_limits<float>::max();
+    m_outputParticle.m_chi2_mu_U = -std::numeric_limits<float>::max();
+    m_outputParticle.m_chi2_pi_U = -std::numeric_limits<float>::max();
+    m_outputParticle.m_chi2_p_U = -std::numeric_limits<float>::max();
+    m_outputParticle.m_chi2_mu_V = -std::numeric_limits<float>::max();
+    m_outputParticle.m_chi2_pi_V = -std::numeric_limits<float>::max();
+    m_outputParticle.m_chi2_p_V = -std::numeric_limits<float>::max();
+    m_outputParticle.m_chi2_mu_W = -std::numeric_limits<float>::max();
+    m_outputParticle.m_chi2_pi_W = -std::numeric_limits<float>::max();
+    m_outputParticle.m_chi2_p_W = -std::numeric_limits<float>::max();
+    m_outputParticle.m_braggPeakLLH_mu_U = -std::numeric_limits<float>::max();
+    m_outputParticle.m_braggPeakLLH_pi_U = -std::numeric_limits<float>::max();
+    m_outputParticle.m_braggPeakLLH_p_U = -std::numeric_limits<float>::max();
+    m_outputParticle.m_braggPeakLLH_MIP_U = -std::numeric_limits<float>::max();
+    m_outputParticle.m_braggPeakLLH_mu_V = -std::numeric_limits<float>::max();
+    m_outputParticle.m_braggPeakLLH_pi_V = -std::numeric_limits<float>::max();
+    m_outputParticle.m_braggPeakLLH_p_V = -std::numeric_limits<float>::max();
+    m_outputParticle.m_braggPeakLLH_MIP_V = -std::numeric_limits<float>::max();
+    m_outputParticle.m_braggPeakLLH_mu_W = -std::numeric_limits<float>::max();
+    m_outputParticle.m_braggPeakLLH_pi_W = -std::numeric_limits<float>::max();
+    m_outputParticle.m_braggPeakLLH_p_W = -std::numeric_limits<float>::max();
+    m_outputParticle.m_braggPeakLLH_MIP_W = -std::numeric_limits<float>::max();
+}
+
+// -----------------------------------------------------------------------------------------------------------------------------------------
+
+void PIDStudy::SetMatchedMCParticleInfo(const art::Ptr<recob::PFParticle> &pfParticle, const BacktrackHelper::BacktrackerData &backtrackerData)
+{
+    try
     {
-        // Store the particle level information
-        m_outputAlgorithm.m_nPFPHits = backtrackerData.GetNHits(pfParticle);
-        try
-        {
-            const auto mcParticle = backtrackerData.GetBestMatchedMCParticle(pfParticle);
+        const auto mcParticle = backtrackerData.GetBestMatchedMCParticle(pfParticle);
 
-            m_outputAlgorithm.m_truePdgCode = mcParticle->PdgCode();
-            m_outputAlgorithm.m_trueMomentum = mcParticle->P();
-            m_outputAlgorithm.m_trueMatchPurity = backtrackerData.GetMatchPurity(pfParticle, mcParticle);
-            m_outputAlgorithm.m_trueMatchCompleteness = backtrackerData.GetMatchCompleteness(pfParticle, mcParticle);
-        }
-        catch (const cet::exception &)
-        {
-            m_outputAlgorithm.m_truePdgCode = -std::numeric_limits<int>::max();
-            m_outputAlgorithm.m_trueMomentum = -std::numeric_limits<float>::max();
-            m_outputAlgorithm.m_trueMatchPurity = -std::numeric_limits<float>::max();
-            m_outputAlgorithm.m_trueMatchCompleteness = -std::numeric_limits<float>::max();
-        }
-        
-        // --------------------------------------------------------------------------
-
-        // Store the Pandora track/shower ID algorithm output
-        m_outputAlgorithm.m_name = "PandoraTrackShower";
-        m_outputAlgorithm.m_variableType = static_cast<int>(anab::kScore);
-        m_outputAlgorithm.m_trackDir = static_cast<int>(anab::kNoDirection);
-        m_outputAlgorithm.m_nDOF = -std::numeric_limits<int>::max();
-        m_outputAlgorithm.m_assumedPdg = -std::numeric_limits<int>::max();
-        m_outputAlgorithm.m_planeWUsed = true;
-        m_outputAlgorithm.m_planeUUsed = true;
-        m_outputAlgorithm.m_planeVUsed = true;
-
-        const auto metadata = CollectionHelper::GetSingleAssociated(pfParticle, pfpToMetadata);
-        m_outputAlgorithm.m_value = RecoHelper::GetTrackScore(metadata);
-        m_pAlgorithmTree->Fill();
-        
-        // --------------------------------------------------------------------------
-
-        // If the PFParticle is track-like, then score the output of the PID algorithms on the track
-        bool hasTrack = false;
-        art::Ptr<recob::Track> track;
-        try
-        {
-            const auto tracks = CollectionHelper::GetManyAssociated(pfParticle, pfpToTrack); 
-            
-            if (tracks.size() > 1)
-                throw cet::exception("PIDStudy::analyze") << " - Multiple tracks associated to PFParticle!" << std::endl;
-        
-            if (!tracks.empty())
-            {
-                track = tracks.front();
-                hasTrack = true;
-            }
-        }
-        catch (const cet::exception &)
-        {
-        }
-
-        if (!hasTrack)
-            continue;
-        
-        // --------------------------------------------------------------------------
-        
-        // Store the track length
-        m_outputAlgorithm.m_name = "TrackLength";
-        m_outputAlgorithm.m_variableType = static_cast<int>(anab::kTrackLength);
-        m_outputAlgorithm.m_trackDir = static_cast<int>(anab::kNoDirection);
-        m_outputAlgorithm.m_nDOF = -std::numeric_limits<int>::max();
-        m_outputAlgorithm.m_assumedPdg = -std::numeric_limits<int>::max();
-        m_outputAlgorithm.m_planeWUsed = true;
-        m_outputAlgorithm.m_planeUUsed = true;
-        m_outputAlgorithm.m_planeVUsed = true;
-        m_outputAlgorithm.m_value = track->Length();
-        m_pAlgorithmTree->Fill();
-
-        // Store the relative track length
-        m_outputAlgorithm.m_name = "RelativeTrackLength";
-        m_outputAlgorithm.m_variableType = static_cast<int>(anab::kTrackLength);
-        m_outputAlgorithm.m_trackDir = static_cast<int>(anab::kNoDirection);
-        m_outputAlgorithm.m_nDOF = -std::numeric_limits<int>::max();
-        m_outputAlgorithm.m_assumedPdg = -std::numeric_limits<int>::max();
-        m_outputAlgorithm.m_planeWUsed = true;
-        m_outputAlgorithm.m_planeUUsed = true;
-        m_outputAlgorithm.m_planeVUsed = true;
-        m_outputAlgorithm.m_value = track->Length() / maxTrackLength;
-        m_pAlgorithmTree->Fill();
-        
-        // --------------------------------------------------------------------------
-      
-        const auto pid = CollectionHelper::GetSingleAssociated(track, trackToPID);
-
-        for (const auto &algo : pid->ParticleIDAlgScores())
-        {
-            m_outputAlgorithm.m_name = algo.fAlgName;
-            m_outputAlgorithm.m_variableType = static_cast<int>(algo.fVariableType);
-            m_outputAlgorithm.m_trackDir = static_cast<int>(algo.fTrackDir);
-            m_outputAlgorithm.m_nDOF = algo.fNdf;
-            m_outputAlgorithm.m_assumedPdg = algo.fAssumedPdg;
-            m_outputAlgorithm.m_planeWUsed = algo.fPlaneMask[0];
-            m_outputAlgorithm.m_planeUUsed = algo.fPlaneMask[1];
-            m_outputAlgorithm.m_planeVUsed = algo.fPlaneMask[2];
-            m_outputAlgorithm.m_value = algo.fValue;
-            m_pAlgorithmTree->Fill();
-        }
+        m_outputParticle.m_truePdgCode = mcParticle->PdgCode();
+        m_outputParticle.m_trueMomentum = mcParticle->P();
+        m_outputParticle.m_trueMatchPurity = backtrackerData.GetMatchPurity(pfParticle, mcParticle);
+        m_outputParticle.m_trueMatchCompleteness = backtrackerData.GetMatchCompleteness(pfParticle, mcParticle);
+        m_outputParticle.m_hasMatchedMCParticle = true;
     }
+    catch (const cet::exception &)
+    {
+        m_outputParticle.m_truePdgCode = -std::numeric_limits<int>::max();
+        m_outputParticle.m_trueMomentum = -std::numeric_limits<float>::max();
+        m_outputParticle.m_trueMatchPurity = -std::numeric_limits<float>::max();
+        m_outputParticle.m_trueMatchCompleteness = -std::numeric_limits<float>::max();
+        m_outputParticle.m_hasMatchedMCParticle = false;
+    }
+}
+
+// -----------------------------------------------------------------------------------------------------------------------------------------
+    
+bool PIDStudy::GetTrack(const art::Ptr<recob::PFParticle> &pfParticle, const Association<recob::PFParticle, recob::Track> &pfpToTrack, art::Ptr<recob::Track> &track)
+{
+    try
+    {
+        const auto tracks = CollectionHelper::GetManyAssociated(pfParticle, pfpToTrack); 
         
+        if (tracks.empty())
+            return false;
+
+        if (tracks.size() > 1)
+            throw cet::exception("PIDStudy::GetTrack") << " - Multiple tracks associated to PFParticle!" << std::endl;
+
+        track = tracks.front();
+        return true;
+    }
+    catch (const cet::exception &)
+    {
+        return false;
+    }
+}       
+
+// -----------------------------------------------------------------------------------------------------------------------------------------
+
+geo::View_t PIDStudy::GetView(const std::bitset<8> &planeMask) const
+{
+    if (planeMask.test(0) && !planeMask.test(1) && !planeMask.test(2))
+        return geo::kW;
+    
+    if (!planeMask.test(0) && planeMask.test(1) && !planeMask.test(2))
+        return geo::kU;
+    
+    if (!planeMask.test(0) && !planeMask.test(1) && planeMask.test(2))
+        return geo::kV;
+
+    return geo::kUnknown;
 }
 
 } // namespace ubcc1pi

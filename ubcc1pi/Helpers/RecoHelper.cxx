@@ -188,4 +188,18 @@ float RecoHelper::GetTrackScore(const art::Ptr<larpandoraobj::PFParticleMetadata
     return RecoHelper::GetMetadataFloat(metadata, "TrackScore");
 }
 
+// -----------------------------------------------------------------------------------------------------------------------------------------
+
+unsigned int RecoHelper::CountHitsInView(const HitVector &hits, const geo::View_t &view)
+{
+    unsigned int count = 0;
+    for (const auto &hit : hits)
+    {
+        if (hit->View() == view)
+            count++;
+    }
+
+    return count;
+}
+
 } // namespace ubcc1pi

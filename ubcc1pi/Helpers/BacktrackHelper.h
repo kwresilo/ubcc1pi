@@ -82,6 +82,13 @@ class BacktrackHelper
                 HitVector GetHits(const art::Ptr<simb::MCParticle> &mcParticle) const;
                 
                 /**
+                 *  @brief  Get all hits that are associated the PFParticle
+                 *
+                 *  @param  pfParticle the pfParticle
+                 */
+                HitVector GetHits(const art::Ptr<recob::PFParticle> &pfParticle) const;
+                
+                /**
                  *  @brief  Get the weight of a given PFParticle-MCParticle pair
                  *
                  *  @param  pfParticle the pfParticle
@@ -153,6 +160,7 @@ class BacktrackHelper
                 PFParticleToFloatMap    m_pfParticleWeightMap; ///< The mapping from PFParticle to the total weight (= number of hits)
                 MatchMap                m_matchMap;            ///< The matching between PFParticles and MCParticles along with the shared weight
                 HitsToMCParticleWeights m_hitsToMcps;          ///< The mapping from hits to MCParticle along with the associated weights 
+                HitsToPFParticles       m_hitsToPfps;          ///< The mapping from hits to PFParticles
         };
 
         /**

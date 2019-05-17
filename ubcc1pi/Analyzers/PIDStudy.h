@@ -17,6 +17,9 @@
 #include "fhiclcpp/types/Table.h"
 #include "canvas/Utilities/InputTag.h"
 
+#include "ubcc1pi/Helpers/CollectionHelper.h"
+#include "ubcc1pi/Helpers/BacktrackHelper.h"
+
 namespace ubcc1pi
 {
 
@@ -91,27 +94,40 @@ class PIDStudy : public art::EDAnalyzer
             int          m_event;                 ///< The event number
             bool         m_isSignal;              ///< If the event is a true CC1Pi signal
         
-            // PFParticle details
-            int          m_nPFPHits;              ///< The number of hits associated to the PFParticle
-
             // Matched True Particle details
+            bool         m_hasMatchedMCParticle;  ///< If the PFParticle matches to any neutrino MCParticles
             int          m_truePdgCode;           ///< The particle PDG code
             float        m_trueMomentum;          ///< The particle momentum
             float        m_trueMatchPurity;       ///< Match purity to the true particle
             float        m_trueMatchCompleteness; ///< Match completeness to the true particle
 
-            // PID algorithm details
-            std::string  m_name;                  ///< The algorithm name
-            int          m_variableType;          ///< The variable type from the PID object
-            int          m_trackDir;              ///< The track direction (forward, backward, no direction)
-            int          m_nDOF;                  ///< The number of degrees of freedom
-            int          m_assumedPdg;            ///< The PDG assumed by the algorithm
-            bool         m_planeWUsed;            ///< If the W plane is used
-            bool         m_planeUUsed;            ///< If the U plane is used
-            bool         m_planeVUsed;            ///< If the V plane is used
-
-            // The PID algorithm output
-            float        m_value;                 ///< The output value of the PID algorithm
+            // PID variables
+            int          m_nHitsU;                ///< The number of hits in the U view
+            int          m_nHitsV;                ///< The number of hits in the U view
+            int          m_nHitsW;                ///< The number of hits in the U view
+            float        m_length;                ///< The track-length
+            float        m_trackShower;           ///< The track-shower score
+            float        m_chi2_mu_U;             ///< The chi2 under the muon hypothesis in the U view
+            float        m_chi2_pi_U;             ///< The chi2 under the pion hypothesis in the U view
+            float        m_chi2_p_U;              ///< The chi2 under the proton hypothesis in the U view
+            float        m_chi2_mu_V;             ///< The chi2 under the muon hypothesis in the V view
+            float        m_chi2_pi_V;             ///< The chi2 under the pion hypothesis in the V view
+            float        m_chi2_p_V;              ///< The chi2 under the proton hypothesis in the V view
+            float        m_chi2_mu_W;             ///< The chi2 under the muon hypothesis in the W view
+            float        m_chi2_pi_W;             ///< The chi2 under the pion hypothesis in the W view
+            float        m_chi2_p_W;              ///< The chi2 under the proton hypothesis in the W view
+            float        m_braggPeakLLH_mu_U;     ///< The forwards bragg peak likelihood under the muon hypothesis in the U view
+            float        m_braggPeakLLH_pi_U;     ///< The forwards bragg peak likelihood under the pion hypothesis in the U view
+            float        m_braggPeakLLH_p_U;      ///< The forwards bragg peak likelihood under the proton hypothesis in the U view
+            float        m_braggPeakLLH_MIP_U;    ///< The forwards bragg peak likelihood under the MIP hypothesis in the U view 
+            float        m_braggPeakLLH_mu_V;     ///< The forwards bragg peak likelihood under the muon hypothesis in the V view
+            float        m_braggPeakLLH_pi_V;     ///< The forwards bragg peak likelihood under the pion hypothesis in the V view
+            float        m_braggPeakLLH_p_V;      ///< The forwards bragg peak likelihood under the proton hypothesis in the V view
+            float        m_braggPeakLLH_MIP_V;    ///< The forwards bragg peak likelihood under the MIP hypothesis in the V view 
+            float        m_braggPeakLLH_mu_W;     ///< The forwards bragg peak likelihood under the muon hypothesis in the W view
+            float        m_braggPeakLLH_pi_W;     ///< The forwards bragg peak likelihood under the pion hypothesis in the W view
+            float        m_braggPeakLLH_p_W;      ///< The forwards bragg peak likelihood under the proton hypothesis in the W view
+            float        m_braggPeakLLH_MIP_W;    ///< The forwards bragg peak likelihood under the MIP hypothesis in the W view 
         };
 
         /**
@@ -129,11 +145,17 @@ class PIDStudy : public art::EDAnalyzer
         void analyze(const art::Event &event);
 
     private:
+
+        void SetEventInfo(const art::Event &event);
+        void ResetParticleInfo();
+        void SetMatchedMCParticleInfo(const art::Ptr<recob::PFParticle> &pfParticle, const BacktrackHelper::BacktrackerData &backtrackerData);
+        bool GetTrack(const art::Ptr<recob::PFParticle> &pfParticle, const Association<recob::PFParticle, recob::Track> &pfpToTrack, art::Ptr<recob::Track> &track);
+        geo::View_t GetView(const std::bitset<8> &planeMask) const;
             
         art::EDAnalyzer::Table<Config>  m_config;          ///< The FHiCL configuration options
         
-        TTree                          *m_pAlgorithmTree;  ///< The output tree for all PID algorithm level data
-        OutputAlgorithm                 m_outputAlgorithm; ///< The output algorithm-level object
+        TTree                          *m_pParticleTree;  ///< The output tree for all particle level data
+        OutputAlgorithm                 m_outputParticle; ///< The output particle-level object
 };
 
 } // namespace ubcc1pi

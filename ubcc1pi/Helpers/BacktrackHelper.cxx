@@ -127,7 +127,8 @@ HitsToBool BacktrackHelper::GetHitsToIsNuInducedMap(const art::Event &event, con
 BacktrackHelper::BacktrackerData::BacktrackerData(const PFParticleVector &pfParticles, const MCParticleVector &mcParticles, const HitsToPFParticles &hitsToPfps, const HitsToMCParticleWeights &hitsToMcps) :
     m_mcParticles(mcParticles),
     m_pfParticles(pfParticles),
-    m_hitsToMcps(hitsToMcps)
+    m_hitsToMcps(hitsToMcps),
+    m_hitsToPfps(hitsToPfps)
 {
     this->CheckConsistency(m_mcParticles, hitsToMcps);
     this->CheckConsistency(m_pfParticles, hitsToPfps);
@@ -328,6 +329,29 @@ HitVector BacktrackHelper::BacktrackerData::GetHits(const art::Ptr<simb::MCParti
             {
                 if (std::find(hits.begin(), hits.end(), entry.first) != hits.end())
                     throw cet::exception("BacktrackerData::GetHits") << " - Found repeated hits associated to the input MCParticle" << std::endl;
+
+                hits.push_back(entry.first);
+            }
+        }
+    }
+
+    return hits;
+}
+
+// -----------------------------------------------------------------------------------------------------------------------------------------
+
+HitVector BacktrackHelper::BacktrackerData::GetHits(const art::Ptr<recob::PFParticle> &pfParticle) const
+{
+    HitVector hits;
+
+    for (const auto &entry : m_hitsToPfps)
+    {
+        for (const auto &pfp : entry.second)
+        {
+            if (pfp == pfParticle)
+            {
+                if (std::find(hits.begin(), hits.end(), entry.first) != hits.end())
+                    throw cet::exception("BacktrackerData::GetHits") << " - Found repeated hits associated to the input PFParticle" << std::endl;
 
                 hits.push_back(entry.first);
             }
