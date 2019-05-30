@@ -24,6 +24,7 @@
 #include "lardataobj/RecoBase/Track.h"
 #include "lardataobj/RecoBase/Shower.h"
 #include "lardataobj/RecoBase/PFParticleMetadata.h"
+#include "lardataobj/RecoBase/Vertex.h"
 
 #include "lardataobj/AnalysisBase/ParticleID.h"
 #include "lardataobj/AnalysisBase/BackTrackerMatchingData.h"

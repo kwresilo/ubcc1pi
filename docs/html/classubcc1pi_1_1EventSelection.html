@@ -108,29 +108,33 @@ window.onload = initDynSections;
 <tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">The configuration structure.  <a href="structubcc1pi_1_1EventSelection_1_1Config.html#_details">More...</a><br/></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">struct &nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="structubcc1pi_1_1EventSelection_1_1OutputEvent.html">OutputEvent</a></td></tr>
 <tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">The output event level structure.  <a href="structubcc1pi_1_1EventSelection_1_1OutputEvent.html#_details">More...</a><br/></td></tr>
-<tr><td class="memItemLeft" align="right" valign="top">struct &nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="structubcc1pi_1_1EventSelection_1_1OutputParticle.html">OutputParticle</a></td></tr>
-<tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">The output particle level structure.  <a href="structubcc1pi_1_1EventSelection_1_1OutputParticle.html#_details">More...</a><br/></td></tr>
 <tr><td colspan="2"><h2>Public Member Functions</h2></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classubcc1pi_1_1EventSelection.html#a7f9acc3bad2939735d669359ab465d58">EventSelection</a> (const art::EDAnalyzer::Table&lt; <a class="el" href="structubcc1pi_1_1EventSelection_1_1Config.html">Config</a> &gt; &amp;config)</td></tr>
 <tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">Constructor.  <a href="#a7f9acc3bad2939735d669359ab465d58"></a><br/></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">void&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classubcc1pi_1_1EventSelection.html#a46267dcc4422f5a9208bab5c2865bdd3">analyze</a> (const art::Event &amp;event)</td></tr>
 <tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">Analyze an event.  <a href="#a46267dcc4422f5a9208bab5c2865bdd3"></a><br/></td></tr>
+<tr><td colspan="2"><h2>Private Member Functions</h2></td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">void&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classubcc1pi_1_1EventSelection.html#a184014f7b5ba98b1827c84cf07dfd4d4">PerformPID</a> (const art::Event &amp;event, const <a class="el" href="namespaceubcc1pi.html#a6f66dc13c5a55147db5c84db67f6062b">PFParticleVector</a> &amp;finalStates, const float chi2ProtonCut, <a class="el" href="namespaceubcc1pi.html#a6f66dc13c5a55147db5c84db67f6062b">PFParticleVector</a> &amp;muons, <a class="el" href="namespaceubcc1pi.html#a6f66dc13c5a55147db5c84db67f6062b">PFParticleVector</a> &amp;pions, <a class="el" href="namespaceubcc1pi.html#a6f66dc13c5a55147db5c84db67f6062b">PFParticleVector</a> &amp;protons, <a class="el" href="namespaceubcc1pi.html#a6f66dc13c5a55147db5c84db67f6062b">PFParticleVector</a> &amp;showerLikes) const </td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">void&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classubcc1pi_1_1EventSelection.html#a53b0034702d7d4dd83b7e6539e2c2562">SelectTracksAndShowers</a> (const <a class="el" href="namespaceubcc1pi.html#a6f66dc13c5a55147db5c84db67f6062b">PFParticleVector</a> &amp;finalStates, <a class="el" href="namespaceubcc1pi.html#a6f66dc13c5a55147db5c84db67f6062b">PFParticleVector</a> &amp;trackLikes, <a class="el" href="namespaceubcc1pi.html#a6f66dc13c5a55147db5c84db67f6062b">PFParticleVector</a> &amp;showerLikes) const </td></tr>
+<tr><td class="memItemLeft" align="right" valign="top"><a class="el" href="namespaceubcc1pi.html#a6f66dc13c5a55147db5c84db67f6062b">PFParticleVector</a>&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classubcc1pi_1_1EventSelection.html#a7bc658d6dfb9bc6291df86875eed916f">SelectMIPs</a> (const art::Event &amp;event, const <a class="el" href="namespaceubcc1pi.html#a6f66dc13c5a55147db5c84db67f6062b">PFParticleVector</a> &amp;finalStates, const float chi2ProtonCut) const </td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">bool&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classubcc1pi_1_1EventSelection.html#af96f49407a60e6af1b5870caaa603074">IsTrackLike</a> (const art::Ptr&lt; recob::PFParticle &gt; &amp;pfParticle) const </td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">bool&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classubcc1pi_1_1EventSelection.html#ae11acc998c68e24d9d41067f28f292fd">IsShowerLike</a> (const art::Ptr&lt; recob::PFParticle &gt; &amp;pfParticle) const </td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">bool&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classubcc1pi_1_1EventSelection.html#a34e00895f793005c2b958e26ee4ad7da">PassesMIPSelection</a> (const art::Ptr&lt; recob::PFParticle &gt; &amp;pfParticle, const Association&lt; recob::PFParticle, recob::Track &gt; &amp;pfpToTracks, const Association&lt; recob::Track, anab::ParticleID &gt; &amp;trackToPIDs, const float chi2ProtonCut) const </td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">float&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classubcc1pi_1_1EventSelection.html#a85b4ed9dda5034490ac5fd4feedc15ff">GetMinChi2Proton</a> (const art::Ptr&lt; anab::ParticleID &gt; &amp;pid) const </td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">art::Ptr&lt; recob::PFParticle &gt;&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classubcc1pi_1_1EventSelection.html#a6aad7dedb970b5610db92c1ee330e74d">SelectMuon</a> (const art::Event &amp;event, const <a class="el" href="namespaceubcc1pi.html#a6f66dc13c5a55147db5c84db67f6062b">PFParticleVector</a> &amp;mips) const </td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">TVector3&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classubcc1pi_1_1EventSelection.html#ac2b94706d8c55fb90b186ca2d2f4cd83">GetRecoNeutrinoVertex</a> (const art::Event &amp;event, const <a class="el" href="namespaceubcc1pi.html#a6f66dc13c5a55147db5c84db67f6062b">PFParticleVector</a> &amp;allPFParticles) const </td></tr>
 <tr><td colspan="2"><h2>Private Attributes</h2></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">art::EDAnalyzer::Table&lt; <a class="el" href="structubcc1pi_1_1EventSelection_1_1Config.html">Config</a> &gt;&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classubcc1pi_1_1EventSelection.html#ad5d85af976f7345531c4fdf74a6e84e6">m_config</a></td></tr>
 <tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">The FHiCL configuration options.  <a href="#ad5d85af976f7345531c4fdf74a6e84e6"></a><br/></td></tr>
-<tr><td class="memItemLeft" align="right" valign="top">TTree *&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classubcc1pi_1_1EventSelection.html#a5ad390b4c8687bbaea80881da752f6c0">m_pParticleTree</a></td></tr>
-<tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">The output tree for all particle level data.  <a href="#a5ad390b4c8687bbaea80881da752f6c0"></a><br/></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">TTree *&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classubcc1pi_1_1EventSelection.html#a6ba26e7209711991c586d8fba170dd95">m_pEventTree</a></td></tr>
 <tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">The output tree for all event level data.  <a href="#a6ba26e7209711991c586d8fba170dd95"></a><br/></td></tr>
-<tr><td class="memItemLeft" align="right" valign="top"><a class="el" href="structubcc1pi_1_1EventSelection_1_1OutputParticle.html">OutputParticle</a>&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classubcc1pi_1_1EventSelection.html#abb65ce984a010851730ecefccd316a5c">m_outputParticle</a></td></tr>
-<tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">The output particle-level object.  <a href="#abb65ce984a010851730ecefccd316a5c"></a><br/></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top"><a class="el" href="structubcc1pi_1_1EventSelection_1_1OutputEvent.html">OutputEvent</a>&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classubcc1pi_1_1EventSelection.html#ab1cd5046a9ddeb71045f8378a476ca1b">m_outputEvent</a></td></tr>
 <tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">The output event-level object.  <a href="#ab1cd5046a9ddeb71045f8378a476ca1b"></a><br/></td></tr>
 </table>
 <hr/><a name="_details"></a><h2>Detailed Description</h2>
 <p>The PID study class. </p>
 
-<p>Definition at line <a class="el" href="EventSelection_8h_source.html#l00028">28</a> of file <a class="el" href="EventSelection_8h_source.html">EventSelection.h</a>.</p>
+<p>Definition at line <a class="el" href="EventSelection_8h_source.html#l00029">29</a> of file <a class="el" href="EventSelection_8h_source.html">EventSelection.h</a>.</p>
 <hr/><h2>Constructor &amp; Destructor Documentation</h2>
 <a class="anchor" id="a7f9acc3bad2939735d669359ab465d58"></a><!-- doxytag: member="ubcc1pi::EventSelection::EventSelection" ref="a7f9acc3bad2939735d669359ab465d58" args="(const art::EDAnalyzer::Table&lt; Config &gt; &amp;config)" -->
 <div class="memitem">
@@ -185,7 +189,295 @@ window.onload = initDynSections;
   </dd>
 </dl>
 
-<p>Definition at line <a class="el" href="EventSelection__module_8cc_source.html#l00083">83</a> of file <a class="el" href="EventSelection__module_8cc_source.html">EventSelection_module.cc</a>.</p>
+<p>Definition at line <a class="el" href="EventSelection__module_8cc_source.html#l00088">88</a> of file <a class="el" href="EventSelection__module_8cc_source.html">EventSelection_module.cc</a>.</p>
+
+</div>
+</div>
+<a class="anchor" id="a85b4ed9dda5034490ac5fd4feedc15ff"></a><!-- doxytag: member="ubcc1pi::EventSelection::GetMinChi2Proton" ref="a85b4ed9dda5034490ac5fd4feedc15ff" args="(const art::Ptr&lt; anab::ParticleID &gt; &amp;pid) const " -->
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">float ubcc1pi::EventSelection::GetMinChi2Proton </td>
+          <td>(</td>
+          <td class="paramtype">const art::Ptr&lt; anab::ParticleID &gt; &amp;&nbsp;</td>
+          <td class="paramname"> <em>pid</em></td>
+          <td>&nbsp;)&nbsp;</td>
+          <td> const<code> [private]</code></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+
+<p>Definition at line <a class="el" href="EventSelection__module_8cc_source.html#l00368">368</a> of file <a class="el" href="EventSelection__module_8cc_source.html">EventSelection_module.cc</a>.</p>
+
+</div>
+</div>
+<a class="anchor" id="ac2b94706d8c55fb90b186ca2d2f4cd83"></a><!-- doxytag: member="ubcc1pi::EventSelection::GetRecoNeutrinoVertex" ref="ac2b94706d8c55fb90b186ca2d2f4cd83" args="(const art::Event &amp;event, const PFParticleVector &amp;allPFParticles) const " -->
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">TVector3 ubcc1pi::EventSelection::GetRecoNeutrinoVertex </td>
+          <td>(</td>
+          <td class="paramtype">const art::Event &amp;&nbsp;</td>
+          <td class="paramname"> <em>event</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const <a class="el" href="namespaceubcc1pi.html#a6f66dc13c5a55147db5c84db67f6062b">PFParticleVector</a> &amp;&nbsp;</td>
+          <td class="paramname"> <em>allPFParticles</em></td><td>&nbsp;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td><td> const<code> [private]</code></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+
+<p>Definition at line <a class="el" href="EventSelection__module_8cc_source.html#l00428">428</a> of file <a class="el" href="EventSelection__module_8cc_source.html">EventSelection_module.cc</a>.</p>
+
+</div>
+</div>
+<a class="anchor" id="ae11acc998c68e24d9d41067f28f292fd"></a><!-- doxytag: member="ubcc1pi::EventSelection::IsShowerLike" ref="ae11acc998c68e24d9d41067f28f292fd" args="(const art::Ptr&lt; recob::PFParticle &gt; &amp;pfParticle) const " -->
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool ubcc1pi::EventSelection::IsShowerLike </td>
+          <td>(</td>
+          <td class="paramtype">const art::Ptr&lt; recob::PFParticle &gt; &amp;&nbsp;</td>
+          <td class="paramname"> <em>pfParticle</em></td>
+          <td>&nbsp;)&nbsp;</td>
+          <td> const<code> [private]</code></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+
+<p>Definition at line <a class="el" href="EventSelection__module_8cc_source.html#l00335">335</a> of file <a class="el" href="EventSelection__module_8cc_source.html">EventSelection_module.cc</a>.</p>
+
+</div>
+</div>
+<a class="anchor" id="af96f49407a60e6af1b5870caaa603074"></a><!-- doxytag: member="ubcc1pi::EventSelection::IsTrackLike" ref="af96f49407a60e6af1b5870caaa603074" args="(const art::Ptr&lt; recob::PFParticle &gt; &amp;pfParticle) const " -->
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool ubcc1pi::EventSelection::IsTrackLike </td>
+          <td>(</td>
+          <td class="paramtype">const art::Ptr&lt; recob::PFParticle &gt; &amp;&nbsp;</td>
+          <td class="paramname"> <em>pfParticle</em></td>
+          <td>&nbsp;)&nbsp;</td>
+          <td> const<code> [private]</code></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+
+<p>Definition at line <a class="el" href="EventSelection__module_8cc_source.html#l00327">327</a> of file <a class="el" href="EventSelection__module_8cc_source.html">EventSelection_module.cc</a>.</p>
+
+</div>
+</div>
+<a class="anchor" id="a34e00895f793005c2b958e26ee4ad7da"></a><!-- doxytag: member="ubcc1pi::EventSelection::PassesMIPSelection" ref="a34e00895f793005c2b958e26ee4ad7da" args="(const art::Ptr&lt; recob::PFParticle &gt; &amp;pfParticle, const Association&lt; recob::PFParticle, recob::Track &gt; &amp;pfpToTracks, const Association&lt; recob::Track, anab::ParticleID &gt; &amp;trackToPIDs, const float chi2ProtonCut) const " -->
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool ubcc1pi::EventSelection::PassesMIPSelection </td>
+          <td>(</td>
+          <td class="paramtype">const art::Ptr&lt; recob::PFParticle &gt; &amp;&nbsp;</td>
+          <td class="paramname"> <em>pfParticle</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const Association&lt; recob::PFParticle, recob::Track &gt; &amp;&nbsp;</td>
+          <td class="paramname"> <em>pfpToTracks</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const Association&lt; recob::Track, anab::ParticleID &gt; &amp;&nbsp;</td>
+          <td class="paramname"> <em>trackToPIDs</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const float&nbsp;</td>
+          <td class="paramname"> <em>chi2ProtonCut</em></td><td>&nbsp;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td><td> const<code> [private]</code></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+
+<p>Definition at line <a class="el" href="EventSelection__module_8cc_source.html#l00343">343</a> of file <a class="el" href="EventSelection__module_8cc_source.html">EventSelection_module.cc</a>.</p>
+
+</div>
+</div>
+<a class="anchor" id="a184014f7b5ba98b1827c84cf07dfd4d4"></a><!-- doxytag: member="ubcc1pi::EventSelection::PerformPID" ref="a184014f7b5ba98b1827c84cf07dfd4d4" args="(const art::Event &amp;event, const PFParticleVector &amp;finalStates, const float chi2ProtonCut, PFParticleVector &amp;muons, PFParticleVector &amp;pions, PFParticleVector &amp;protons, PFParticleVector &amp;showerLikes) const " -->
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void ubcc1pi::EventSelection::PerformPID </td>
+          <td>(</td>
+          <td class="paramtype">const art::Event &amp;&nbsp;</td>
+          <td class="paramname"> <em>event</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const <a class="el" href="namespaceubcc1pi.html#a6f66dc13c5a55147db5c84db67f6062b">PFParticleVector</a> &amp;&nbsp;</td>
+          <td class="paramname"> <em>finalStates</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const float&nbsp;</td>
+          <td class="paramname"> <em>chi2ProtonCut</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="namespaceubcc1pi.html#a6f66dc13c5a55147db5c84db67f6062b">PFParticleVector</a> &amp;&nbsp;</td>
+          <td class="paramname"> <em>muons</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="namespaceubcc1pi.html#a6f66dc13c5a55147db5c84db67f6062b">PFParticleVector</a> &amp;&nbsp;</td>
+          <td class="paramname"> <em>pions</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="namespaceubcc1pi.html#a6f66dc13c5a55147db5c84db67f6062b">PFParticleVector</a> &amp;&nbsp;</td>
+          <td class="paramname"> <em>protons</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="namespaceubcc1pi.html#a6f66dc13c5a55147db5c84db67f6062b">PFParticleVector</a> &amp;&nbsp;</td>
+          <td class="paramname"> <em>showerLikes</em></td><td>&nbsp;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td><td> const<code> [private]</code></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+
+<p>Definition at line <a class="el" href="EventSelection__module_8cc_source.html#l00241">241</a> of file <a class="el" href="EventSelection__module_8cc_source.html">EventSelection_module.cc</a>.</p>
+
+</div>
+</div>
+<a class="anchor" id="a7bc658d6dfb9bc6291df86875eed916f"></a><!-- doxytag: member="ubcc1pi::EventSelection::SelectMIPs" ref="a7bc658d6dfb9bc6291df86875eed916f" args="(const art::Event &amp;event, const PFParticleVector &amp;finalStates, const float chi2ProtonCut) const " -->
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="namespaceubcc1pi.html#a6f66dc13c5a55147db5c84db67f6062b">PFParticleVector</a> ubcc1pi::EventSelection::SelectMIPs </td>
+          <td>(</td>
+          <td class="paramtype">const art::Event &amp;&nbsp;</td>
+          <td class="paramname"> <em>event</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const <a class="el" href="namespaceubcc1pi.html#a6f66dc13c5a55147db5c84db67f6062b">PFParticleVector</a> &amp;&nbsp;</td>
+          <td class="paramname"> <em>finalStates</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const float&nbsp;</td>
+          <td class="paramname"> <em>chi2ProtonCut</em></td><td>&nbsp;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td><td> const<code> [private]</code></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+
+<p>Definition at line <a class="el" href="EventSelection__module_8cc_source.html#l00308">308</a> of file <a class="el" href="EventSelection__module_8cc_source.html">EventSelection_module.cc</a>.</p>
+
+</div>
+</div>
+<a class="anchor" id="a6aad7dedb970b5610db92c1ee330e74d"></a><!-- doxytag: member="ubcc1pi::EventSelection::SelectMuon" ref="a6aad7dedb970b5610db92c1ee330e74d" args="(const art::Event &amp;event, const PFParticleVector &amp;mips) const " -->
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">art::Ptr&lt; recob::PFParticle &gt; ubcc1pi::EventSelection::SelectMuon </td>
+          <td>(</td>
+          <td class="paramtype">const art::Event &amp;&nbsp;</td>
+          <td class="paramname"> <em>event</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const <a class="el" href="namespaceubcc1pi.html#a6f66dc13c5a55147db5c84db67f6062b">PFParticleVector</a> &amp;&nbsp;</td>
+          <td class="paramname"> <em>mips</em></td><td>&nbsp;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td><td> const<code> [private]</code></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+
+<p>Definition at line <a class="el" href="EventSelection__module_8cc_source.html#l00392">392</a> of file <a class="el" href="EventSelection__module_8cc_source.html">EventSelection_module.cc</a>.</p>
+
+</div>
+</div>
+<a class="anchor" id="a53b0034702d7d4dd83b7e6539e2c2562"></a><!-- doxytag: member="ubcc1pi::EventSelection::SelectTracksAndShowers" ref="a53b0034702d7d4dd83b7e6539e2c2562" args="(const PFParticleVector &amp;finalStates, PFParticleVector &amp;trackLikes, PFParticleVector &amp;showerLikes) const " -->
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void ubcc1pi::EventSelection::SelectTracksAndShowers </td>
+          <td>(</td>
+          <td class="paramtype">const <a class="el" href="namespaceubcc1pi.html#a6f66dc13c5a55147db5c84db67f6062b">PFParticleVector</a> &amp;&nbsp;</td>
+          <td class="paramname"> <em>finalStates</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="namespaceubcc1pi.html#a6f66dc13c5a55147db5c84db67f6062b">PFParticleVector</a> &amp;&nbsp;</td>
+          <td class="paramname"> <em>trackLikes</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="namespaceubcc1pi.html#a6f66dc13c5a55147db5c84db67f6062b">PFParticleVector</a> &amp;&nbsp;</td>
+          <td class="paramname"> <em>showerLikes</em></td><td>&nbsp;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td><td> const<code> [private]</code></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+
+<p>Definition at line <a class="el" href="EventSelection__module_8cc_source.html#l00294">294</a> of file <a class="el" href="EventSelection__module_8cc_source.html">EventSelection_module.cc</a>.</p>
 
 </div>
 </div>
@@ -203,7 +495,7 @@ window.onload = initDynSections;
 
 <p>The FHiCL configuration options. </p>
 
-<p>Definition at line <a class="el" href="EventSelection_8h_source.html#l00167">167</a> of file <a class="el" href="EventSelection_8h_source.html">EventSelection.h</a>.</p>
+<p>Definition at line <a class="el" href="EventSelection_8h_source.html#l00174">174</a> of file <a class="el" href="EventSelection_8h_source.html">EventSelection.h</a>.</p>
 
 </div>
 </div>
@@ -220,24 +512,7 @@ window.onload = initDynSections;
 
 <p>The output event-level object. </p>
 
-<p>Definition at line <a class="el" href="EventSelection_8h_source.html#l00173">173</a> of file <a class="el" href="EventSelection_8h_source.html">EventSelection.h</a>.</p>
-
-</div>
-</div>
-<a class="anchor" id="abb65ce984a010851730ecefccd316a5c"></a><!-- doxytag: member="ubcc1pi::EventSelection::m_outputParticle" ref="abb65ce984a010851730ecefccd316a5c" args="" -->
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname"><a class="el" href="structubcc1pi_1_1EventSelection_1_1OutputParticle.html">OutputParticle</a> <a class="el" href="classubcc1pi_1_1EventSelection.html#abb65ce984a010851730ecefccd316a5c">ubcc1pi::EventSelection::m_outputParticle</a><code> [private]</code></td>
-        </tr>
-      </table>
-</div>
-<div class="memdoc">
-
-<p>The output particle-level object. </p>
-
-<p>Definition at line <a class="el" href="EventSelection_8h_source.html#l00172">172</a> of file <a class="el" href="EventSelection_8h_source.html">EventSelection.h</a>.</p>
+<p>Definition at line <a class="el" href="EventSelection_8h_source.html#l00178">178</a> of file <a class="el" href="EventSelection_8h_source.html">EventSelection.h</a>.</p>
 
 </div>
 </div>
@@ -254,24 +529,7 @@ window.onload = initDynSections;
 
 <p>The output tree for all event level data. </p>
 
-<p>Definition at line <a class="el" href="EventSelection_8h_source.html#l00170">170</a> of file <a class="el" href="EventSelection_8h_source.html">EventSelection.h</a>.</p>
-
-</div>
-</div>
-<a class="anchor" id="a5ad390b4c8687bbaea80881da752f6c0"></a><!-- doxytag: member="ubcc1pi::EventSelection::m_pParticleTree" ref="a5ad390b4c8687bbaea80881da752f6c0" args="" -->
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">TTree* <a class="el" href="classubcc1pi_1_1EventSelection.html#a5ad390b4c8687bbaea80881da752f6c0">ubcc1pi::EventSelection::m_pParticleTree</a><code> [private]</code></td>
-        </tr>
-      </table>
-</div>
-<div class="memdoc">
-
-<p>The output tree for all particle level data. </p>
-
-<p>Definition at line <a class="el" href="EventSelection_8h_source.html#l00169">169</a> of file <a class="el" href="EventSelection_8h_source.html">EventSelection.h</a>.</p>
+<p>Definition at line <a class="el" href="EventSelection_8h_source.html#l00176">176</a> of file <a class="el" href="EventSelection_8h_source.html">EventSelection.h</a>.</p>
 
 </div>
 </div>
@@ -297,7 +555,7 @@ window.onload = initDynSections;
 <hr size="1"/>
 <address style="text-align: right;">
     <small>
-        Generated on Fri May 17 14:57:33 2019 for ubcc1pi by <a href="http://www.doxygen.org/index.html" target="_blank">doxygen</a> 1.6.1
+        Generated on Thu May 30 14:42:46 2019 for ubcc1pi by <a href="http://www.doxygen.org/index.html" target="_blank">doxygen</a> 1.6.1
     </small>
 </address>
 

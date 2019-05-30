@@ -12,6 +12,7 @@ event_selection:
     TrackLabel:       "pandora"
     ShowerLabel:      "pandora"
     PIDLabel:         "pandoracalipidSCE"
+    Chi2ProtonMIPCut: 50.0
 }
 
 END_PROLOG

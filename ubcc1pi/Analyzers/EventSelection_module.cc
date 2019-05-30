@@ -20,47 +20,24 @@ EventSelection::EventSelection(const art::EDAnalyzer::Table<Config> &config) :
     // Setup the output trees
     art::ServiceHandle<art::TFileService> fileService;
 
-    // Particle tree
-    m_pParticleTree = fileService->make<TTree>("particles", "");
-    m_pParticleTree->Branch("run", &m_outputParticle.m_run);
-    m_pParticleTree->Branch("subRun", &m_outputParticle.m_subRun);
-    m_pParticleTree->Branch("event", &m_outputParticle.m_event);
-    m_pParticleTree->Branch("isSignal", &m_outputParticle.m_isSignal);
-    
-    m_pParticleTree->Branch("didSelectionFinish", &m_outputParticle.m_didSelectionFinish);
-    m_pParticleTree->Branch("eventCC1PiScore", &m_outputParticle.m_eventCC1PiScore);
-    m_pParticleTree->Branch("nProtonSelected", &m_outputParticle.m_nProtonSelected);
-
-    m_pParticleTree->Branch("hasMatchedMCParticle", &m_outputParticle.m_hasMatchedMCParticle);
-    m_pParticleTree->Branch("truePdgCode", &m_outputParticle.m_truePdgCode);
-    m_pParticleTree->Branch("trueMomentum", &m_outputParticle.m_trueMomentum);
-    m_pParticleTree->Branch("trueMatchPurity", &m_outputParticle.m_trueMatchPurity);
-    m_pParticleTree->Branch("trueMatchCompleteness", &m_outputParticle.m_trueMatchCompleteness);
-
-    m_pParticleTree->Branch("trackShowerScore", &m_outputParticle.m_trackShowerScore);
-    m_pParticleTree->Branch("protonMIPScore", &m_outputParticle.m_protonMIPScore);
-    m_pParticleTree->Branch("muonPionScore", &m_outputParticle.m_muonPionScore);
-
-    m_pParticleTree->Branch("muonLikelihood", &m_outputParticle.m_muonLikelihood);
-    m_pParticleTree->Branch("pionLikelihood", &m_outputParticle.m_pionLikelihood);
-    m_pParticleTree->Branch("protonLikelihood", &m_outputParticle.m_protonLikelihood);
-    
-    m_pParticleTree->Branch("isMuonCandidate", &m_outputParticle.m_isMuonCandidate);
-    m_pParticleTree->Branch("isPionCandidate", &m_outputParticle.m_isPionCandidate);
-    m_pParticleTree->Branch("isProtonCandidate", &m_outputParticle.m_isProtonCandidate);
-
     // Event tree
     m_pEventTree = fileService->make<TTree>("events", "");
 
+    // Metadata
     m_pEventTree->Branch("run", &m_outputEvent.m_run);
     m_pEventTree->Branch("subRun", &m_outputEvent.m_subRun);
     m_pEventTree->Branch("event", &m_outputEvent.m_event);
 
+    // Interaction info
     m_pEventTree->Branch("isSignal", &m_outputEvent.m_isSignal);
     m_pEventTree->Branch("interaction", &m_outputEvent.m_interaction);
     m_pEventTree->Branch("isNuFiducial", &m_outputEvent.m_isNuFiducial);
     m_pEventTree->Branch("nuE", &m_outputEvent.m_nuE);
+    m_pEventTree->Branch("nuX", &m_outputEvent.m_nuX);
+    m_pEventTree->Branch("nuY", &m_outputEvent.m_nuY);
+    m_pEventTree->Branch("nuZ", &m_outputEvent.m_nuZ);
 
+    // True particle multiplicities
     m_pEventTree->Branch("nMuMinus", &m_outputEvent.m_nMuMinus);
     m_pEventTree->Branch("nMuPlus", &m_outputEvent.m_nMuPlus);
     m_pEventTree->Branch("nPiPlus", &m_outputEvent.m_nPiPlus);
@@ -72,10 +49,38 @@ EventSelection::EventSelection(const art::EDAnalyzer::Table<Config> &config) :
     m_pEventTree->Branch("nPhoton", &m_outputEvent.m_nPhoton);
     m_pEventTree->Branch("nTotal", &m_outputEvent.m_nTotal);
 
-    m_pEventTree->Branch("didSelectionFinish", &m_outputEvent.m_didSelectionFinish);
-    m_pEventTree->Branch("cc1piScore", &m_outputEvent.m_cc1piScore);
-    m_pEventTree->Branch("nProtonSelected", &m_outputEvent.m_nProtonSelected);
-    m_pEventTree->Branch("nFinalStatePFParticles", &m_outputEvent.m_nFinalStatePFParticles);
+    // True muon kinematics
+    m_pEventTree->Branch("trueMuEnergy", &m_outputEvent.m_trueMuEnergy);
+    m_pEventTree->Branch("trueMuTheta", &m_outputEvent.m_trueMuTheta);
+    m_pEventTree->Branch("trueMuPhi", &m_outputEvent.m_trueMuPhi);
+    
+    // True pion kinematics
+    m_pEventTree->Branch("truePiEnergy", &m_outputEvent.m_truePiEnergy);
+    m_pEventTree->Branch("truePiTheta", &m_outputEvent.m_truePiTheta);
+    m_pEventTree->Branch("truePiPhi", &m_outputEvent.m_truePiPhi);
+    m_pEventTree->Branch("trueMuPiAngle", &m_outputEvent.m_trueMuPiAngle);
+    
+    // Reconstruction details
+    m_pEventTree->Branch("recoNuX", &m_outputEvent.m_recoNuX);
+    m_pEventTree->Branch("recoNuY", &m_outputEvent.m_recoNuY);
+    m_pEventTree->Branch("recoNuZ", &m_outputEvent.m_recoNuZ);
+    m_pEventTree->Branch("isRecoNuFiducial", &m_outputEvent.m_isRecoNuFiducial);
+    
+    m_pEventTree->Branch("nFinalStatePFPs", &m_outputEvent.m_nFinalStatePFPs);
+    m_pEventTree->Branch("nRecoMIPs", &m_outputEvent.m_nRecoMIPs);
+
+    // Selection details
+    m_pEventTree->Branch("isSelected", &m_outputEvent.m_isSelected);
+
+    m_pEventTree->Branch("isSelectedMuonTruthMatched", &m_outputEvent.m_isSelectedMuonTruthMatched);
+    m_pEventTree->Branch("selectedMuonTruePdg", &m_outputEvent.m_selectedMuonTruePdg);
+    m_pEventTree->Branch("selectedMuonCompleteness", &m_outputEvent.m_selectedMuonCompleteness);
+    m_pEventTree->Branch("selectedMuonPurity", &m_outputEvent.m_selectedMuonPurity);
+    
+    m_pEventTree->Branch("isSelectedPionTruthMatched", &m_outputEvent.m_isSelectedPionTruthMatched);
+    m_pEventTree->Branch("selectedPionTruePdg", &m_outputEvent.m_selectedPionTruePdg);
+    m_pEventTree->Branch("selectedPionCompleteness", &m_outputEvent.m_selectedPionCompleteness);
+    m_pEventTree->Branch("selectedPionPurity", &m_outputEvent.m_selectedPionPurity);
 }
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
@@ -89,6 +94,7 @@ void EventSelection::analyze(const art::Event &event)
     const auto pfParticleLabel = m_config().PFParticleLabel();
     const auto trackLabel = m_config().TrackLabel();
     const auto pidLabel = m_config().PIDLabel();
+    const auto chi2ProtonCut = m_config().Chi2ProtonMIPCut();
     
     // Get the final state PFParticles
     const auto allPFParticles = CollectionHelper::GetCollection<recob::PFParticle>(event, pfParticleLabel);
@@ -101,16 +107,13 @@ void EventSelection::analyze(const art::Event &event)
     // Get the truth matching information for the PFParticles
     const auto backtrackerData = AnalysisHelper::GetBacktrackerData(event, mcTruthLabel, mcParticleLabel, backtrackerLabel, pfParticleLabel);
 
-    // Make a CC1Pi event selector to do the legwork
-    EventSelector selector(finalStates, event, pfParticleLabel, trackLabel, pidLabel);
-    
-    // Get the PIDs under the CC1Pi assumption
-    float cc1piScore = -std::numeric_limits<float>::max();
-    art::Ptr<recob::PFParticle> muonCandidate, pionCandidate;
-    PFParticleVector protonCandidates;
+    // Do the event selection
+    PFParticleVector muons, pions, protons, showerLikes;
+    this->PerformPID(event, finalStates, chi2ProtonCut, muons, pions, protons, showerLikes);
 
-    if (finalStates.size() >= 2)
-        cc1piScore = selector.GetBestCC1PiScore(muonCandidate, pionCandidate, protonCandidates);
+    const auto recoVertex = this->GetRecoNeutrinoVertex(event, allPFParticles);
+    const bool isRecoNuFiducial = AnalysisHelper::IsFiducial(recoVertex);
+    const bool isSelected = (muons.size() == 1 && pions.size() == 1 && showerLikes.size() == 0 && isRecoNuFiducial);
 
     // Output event level information
     m_outputEvent.m_run = event.run();
@@ -119,7 +122,12 @@ void EventSelection::analyze(const art::Event &event)
     m_outputEvent.m_isSignal = isTrueSignal;
     m_outputEvent.m_interaction = DebugHelper::GetInteractionString(interaction, true);
     m_outputEvent.m_isNuFiducial = AnalysisHelper::IsNeutrinoVertexFiducial(interaction);
-    m_outputEvent.m_nuE = interaction.GetNeutrino().E();
+
+    const auto mcNeutrino = interaction.GetNeutrino();
+    m_outputEvent.m_nuE = mcNeutrino.E();
+    m_outputEvent.m_nuX = mcNeutrino.Vx(); 
+    m_outputEvent.m_nuY = mcNeutrino.Vy(); 
+    m_outputEvent.m_nuZ = mcNeutrino.Vz(); 
 
     const auto mcParticles = AnalysisHelper::GetReconstructableFinalStates(interaction);
     m_outputEvent.m_nMuMinus = AnalysisHelper::CountParticlesWithPDG(mcParticles, 13);
@@ -132,80 +140,306 @@ void EventSelection::analyze(const art::Event &event)
     m_outputEvent.m_nNeutron = AnalysisHelper::CountParticlesWithPDG(mcParticles, 2112);
     m_outputEvent.m_nPhoton = AnalysisHelper::CountParticlesWithPDG(mcParticles, 22);
     m_outputEvent.m_nTotal = mcParticles.size();
+    
+    // Set the MCParticle kinematic information
+    m_outputEvent.m_trueMuEnergy = -std::numeric_limits<float>::max();
+    m_outputEvent.m_trueMuTheta = -std::numeric_limits<float>::max();
+    m_outputEvent.m_trueMuPhi = -std::numeric_limits<float>::max();
+    
+    m_outputEvent.m_truePiEnergy = -std::numeric_limits<float>::max();
+    m_outputEvent.m_truePiTheta = -std::numeric_limits<float>::max();
+    m_outputEvent.m_truePiPhi = -std::numeric_limits<float>::max();
+    m_outputEvent.m_trueMuPiAngle = -std::numeric_limits<float>::max(); 
 
-    m_outputEvent.m_cc1piScore = cc1piScore;
-    m_outputEvent.m_didSelectionFinish = (cc1piScore >= 0.f);
-    m_outputEvent.m_nProtonSelected = protonCandidates.size();
-    m_outputEvent.m_nFinalStatePFParticles = finalStates.size();
-
-    // Output particles
-    m_outputParticle.m_run = event.run();
-    m_outputParticle.m_subRun = event.subRun();
-    m_outputParticle.m_event = event.event();
-    m_outputParticle.m_isSignal = isTrueSignal;
-
-    for (const auto &pfParticle : finalStates)
+    if (isTrueSignal)
     {
-        // Event-level selection information
-        m_outputParticle.m_eventCC1PiScore = cc1piScore;
-        m_outputParticle.m_didSelectionFinish = (cc1piScore >= 0.f);
-        m_outputParticle.m_nProtonSelected = protonCandidates.size();
+        TVector3 muAngle, piAngle;
 
-        // Particle-level selection information
-        m_outputParticle.m_trackShowerScore = selector.GetTrackShowerScore(pfParticle);
-        m_outputParticle.m_protonMIPScore = selector.GetProtonMIPScore(pfParticle);
-        m_outputParticle.m_muonPionScore = selector.GetMuonPionScore(pfParticle);
-
-        m_outputParticle.m_muonLikelihood = selector.GetMuonLikelihood(pfParticle);
-        m_outputParticle.m_pionLikelihood = selector.GetPionLikelihood(pfParticle);
-        m_outputParticle.m_protonLikelihood = selector.GetProtonLikelihood(pfParticle);
-
-        m_outputParticle.m_isMuonCandidate = false;
-        m_outputParticle.m_isPionCandidate = false;
-        m_outputParticle.m_isProtonCandidate = false;
-
-        if (m_outputParticle.m_didSelectionFinish)
+        for (const auto &mcParticle : mcParticles)
         {
-            m_outputParticle.m_isMuonCandidate = (pfParticle == muonCandidate);
-            m_outputParticle.m_isPionCandidate = (pfParticle == pionCandidate);
+            const auto mcpE = mcParticle->E();
+            const auto mcpTheta = (mcParticle->P() < std::numeric_limits<float>::epsilon()) ? -std::numeric_limits<float>::max() : std::acos(mcParticle->Pz() / mcParticle->P());
+            const auto mcpPhi = std::atan2(mcParticle->Px(), mcParticle->Py());
 
-            for (const auto &protonCandidate : protonCandidates)
+            switch (mcParticle->PdgCode())
             {
-                if (pfParticle != protonCandidate)
-                    continue;
-
-                m_outputParticle.m_isProtonCandidate = true;
-                break;
+                case 13:
+                    m_outputEvent.m_trueMuEnergy = mcpE;
+                    m_outputEvent.m_trueMuTheta = mcpTheta; 
+                    m_outputEvent.m_trueMuPhi = mcpPhi;
+                    muAngle = TVector3(mcParticle->Px(), mcParticle->Py(), mcParticle->Pz()).Unit();
+                    break;
+                case 211:
+                    m_outputEvent.m_truePiEnergy = mcpE; 
+                    m_outputEvent.m_truePiTheta = mcpTheta;
+                    m_outputEvent.m_truePiPhi = mcpPhi;
+                    piAngle = TVector3(mcParticle->Px(), mcParticle->Py(), mcParticle->Pz()).Unit();
+                    break;
+                default: break;
             }
         }
 
-        // MCParticle matching information
-        m_outputParticle.m_hasMatchedMCParticle = false;
-        m_outputParticle.m_truePdgCode = -std::numeric_limits<int>::max();
-        m_outputParticle.m_trueMomentum = -std::numeric_limits<float>::max();
-        m_outputParticle.m_trueMatchPurity = -std::numeric_limits<float>::max();
-        m_outputParticle.m_trueMatchCompleteness = -std::numeric_limits<float>::max();
-        
+        m_outputEvent.m_trueMuPiAngle = std::acos(muAngle.Dot(piAngle));
+    }
+
+    // Set the reconstructed vertex position
+    m_outputEvent.m_recoNuX = recoVertex.X();
+    m_outputEvent.m_recoNuY = recoVertex.Y();
+    m_outputEvent.m_recoNuZ = recoVertex.Z();
+
+    // Set the selection information
+    m_outputEvent.m_nFinalStatePFPs = finalStates.size();
+    m_outputEvent.m_isRecoNuFiducial = isRecoNuFiducial;
+    m_outputEvent.m_nRecoMIPs = muons.size() + pions.size();
+    m_outputEvent.m_isSelected = isSelected;
+
+    // The selected particle info
+    m_outputEvent.m_isSelectedMuonTruthMatched = false;
+    m_outputEvent.m_selectedMuonTruePdg = -std::numeric_limits<int>::max();
+    m_outputEvent.m_selectedMuonCompleteness = -std::numeric_limits<float>::max();
+    m_outputEvent.m_selectedMuonPurity = -std::numeric_limits<float>::max();
+    
+    m_outputEvent.m_isSelectedPionTruthMatched = false;
+    m_outputEvent.m_selectedPionTruePdg = -std::numeric_limits<int>::max();
+    m_outputEvent.m_selectedPionCompleteness = -std::numeric_limits<float>::max();
+    m_outputEvent.m_selectedPionPurity = -std::numeric_limits<float>::max();
+    
+    if (isSelected)
+    {
+        // Save the muon information
         try
         {
-            const auto mcParticle = backtrackerData.GetBestMatchedMCParticle(pfParticle);
-            const auto purity = backtrackerData.GetMatchPurity(pfParticle, mcParticle);
-            const auto completeness = backtrackerData.GetMatchCompleteness(pfParticle, mcParticle);
-        
-            m_outputParticle.m_hasMatchedMCParticle = true;
-            m_outputParticle.m_truePdgCode = mcParticle->PdgCode();
-            m_outputParticle.m_trueMomentum = mcParticle->P();
-            m_outputParticle.m_trueMatchPurity = purity;
-            m_outputParticle.m_trueMatchCompleteness = completeness;
+            const auto matchedMCP = backtrackerData.GetBestMatchedMCParticle(muons.front());
+            m_outputEvent.m_selectedMuonTruePdg = matchedMCP->PdgCode();
+            m_outputEvent.m_selectedMuonCompleteness = backtrackerData.GetMatchCompleteness(muons.front(), matchedMCP);
+            m_outputEvent.m_selectedMuonPurity = backtrackerData.GetMatchPurity(muons.front(), matchedMCP);
+            m_outputEvent.m_isSelectedMuonTruthMatched = true;
         }
         catch (const cet::exception &)
         {
         }
-
-        m_pParticleTree->Fill();
-    }
         
+        // Save the pion information
+        try
+        {
+            const auto matchedMCP = backtrackerData.GetBestMatchedMCParticle(pions.front());
+            m_outputEvent.m_selectedPionTruePdg = matchedMCP->PdgCode();
+            m_outputEvent.m_selectedPionCompleteness = backtrackerData.GetMatchCompleteness(pions.front(), matchedMCP);
+            m_outputEvent.m_selectedPionPurity = backtrackerData.GetMatchPurity(pions.front(), matchedMCP);
+            m_outputEvent.m_isSelectedPionTruthMatched = true;
+        }
+        catch (const cet::exception &)
+        {
+        }
+    }
+
     m_pEventTree->Fill();
+}
+
+// -----------------------------------------------------------------------------------------------------------------------------------------
+
+void EventSelection::PerformPID(const art::Event &event, const PFParticleVector &finalStates, const float chi2ProtonCut, PFParticleVector &muons, PFParticleVector &pions, PFParticleVector &protons, PFParticleVector &showerLikes) const
+{
+    if (!muons.empty() || !pions.empty() || !protons.empty())
+        throw cet::exception("EventSelection::PerformPID") << " - Output vectors for muons, pions and protons were not all empty" << std::endl;
+    
+    // No need to do anything if there are no final states supplied
+    if (finalStates.empty())
+        return;
+
+    // Split the PFParticles into track and shower like based on the decision made in Pandora
+    PFParticleVector trackLikes;
+    this->SelectTracksAndShowers(finalStates, trackLikes, showerLikes);
+
+    // Select the PFParticles that pass the MIP selection
+    const auto mips = this->SelectMIPs(event, trackLikes, chi2ProtonCut);
+
+    // If there are no mips, then just call everything a proton
+    if (mips.empty())
+    {
+        protons = finalStates;
+        return;
+    }
+    
+    // Get the muon candidate
+    const auto muon = this->SelectMuon(event, mips);
+
+    // Populate the output vectors
+    for (const auto &pfParticle : finalStates)
+    {
+        if (pfParticle == muon)
+        {
+            muons.push_back(pfParticle);
+            continue;
+        }
+
+        // Any non-muon MIP is a pion
+        if (std::find(mips.begin(), mips.end(), pfParticle) != mips.end())
+        {
+            pions.push_back(pfParticle);
+            continue;
+        }
+
+        // Any non-MIP track is a proton
+        if (this->IsTrackLike(pfParticle))
+        {
+            protons.push_back(pfParticle);
+            continue;
+        }
+    }
+}
+
+// -----------------------------------------------------------------------------------------------------------------------------------------
+
+void EventSelection::SelectTracksAndShowers(const PFParticleVector &finalStates, PFParticleVector &trackLikes, PFParticleVector &showerLikes) const
+{
+    for (const auto &pfParticle : finalStates)
+    {
+        if (this->IsTrackLike(pfParticle))
+            trackLikes.push_back(pfParticle);
+        
+        if (this->IsShowerLike(pfParticle))
+            showerLikes.push_back(pfParticle);
+    }
+}
+
+// -----------------------------------------------------------------------------------------------------------------------------------------
+
+PFParticleVector EventSelection::SelectMIPs(const art::Event &event, const PFParticleVector &finalStates, const float chi2ProtonCut) const
+{
+    // Get the required associations
+    const auto pfpToTracks = CollectionHelper::GetAssociation<recob::PFParticle, recob::Track>(event, m_config().PFParticleLabel(), m_config().TrackLabel());
+    const auto trackToPIDs = CollectionHelper::GetAssociation<recob::Track, anab::ParticleID>(event, m_config().TrackLabel(), m_config().PIDLabel());
+
+    // Select MIPs
+    PFParticleVector mipCandidates;
+    for (const auto &pfParticle : finalStates)
+    {
+        if (this->PassesMIPSelection(pfParticle, pfpToTracks, trackToPIDs, chi2ProtonCut))
+            mipCandidates.push_back(pfParticle);
+    }
+
+    return mipCandidates;
+}
+
+// -----------------------------------------------------------------------------------------------------------------------------------------
+
+bool EventSelection::IsTrackLike(const art::Ptr<recob::PFParticle> &pfParticle) const
+{
+    const auto absPdg = std::abs(pfParticle->PdgCode());
+    return (absPdg == 13 || absPdg == 211 || absPdg == 2212 || absPdg == 321);
+}
+
+// -----------------------------------------------------------------------------------------------------------------------------------------
+
+bool EventSelection::IsShowerLike(const art::Ptr<recob::PFParticle> &pfParticle) const
+{
+    const auto absPdg = std::abs(pfParticle->PdgCode());
+    return (absPdg == 11 || absPdg == 22);
+}
+
+// -----------------------------------------------------------------------------------------------------------------------------------------
+
+bool EventSelection::PassesMIPSelection(const art::Ptr<recob::PFParticle> &pfParticle, const Association<recob::PFParticle, recob::Track> &pfpToTracks, const Association<recob::Track, anab::ParticleID> &trackToPIDs, const float chi2ProtonCut) const
+{
+    // Insist that Pandora has selected this PFParticle as track-like
+    if (!this->IsTrackLike(pfParticle))
+        return false;
+
+    // Insist that the PFParticle has an associated Track, and this track has a PID object
+    try
+    {
+        const auto track = CollectionHelper::GetSingleAssociated(pfParticle, pfpToTracks);
+        const auto pid = CollectionHelper::GetSingleAssociated(track, trackToPIDs);
+
+        // Get the minimum Chi2 under the proton hypothesis using all available views
+        const auto minChi2p = this->GetMinChi2Proton(pid);
+
+        return (minChi2p > chi2ProtonCut);
+    }
+    catch (const cet::exception &)
+    {
+        return false;
+    }
+}
+
+// -----------------------------------------------------------------------------------------------------------------------------------------
+
+float EventSelection::GetMinChi2Proton(const art::Ptr<anab::ParticleID> &pid) const
+{
+    float minChi2Proton = std::numeric_limits<float>::max();
+    bool isAvailable = false;
+    for (const auto &algo : pid->ParticleIDAlgScores())
+    {
+        if (algo.fAlgName == "Chi2" && algo.fAssumedPdg == 2212)
+        {
+            if (algo.fValue >= 0.f && algo.fValue < minChi2Proton)
+            {
+                minChi2Proton = algo.fValue;
+                isAvailable = true;
+            }
+        }
+    }
+
+    if (!isAvailable)
+        throw cet::exception("EventSelection::GetMinChi2Proton") << " - Couldn't find any Chi2 under the proton hypothesis for the given PID" << std::endl;
+
+    return minChi2Proton;
+}
+
+// -----------------------------------------------------------------------------------------------------------------------------------------
+
+art::Ptr<recob::PFParticle> EventSelection::SelectMuon(const art::Event &event, const PFParticleVector &mips) const
+{
+    if (mips.empty())
+        throw cet::exception("EventSelection::SelectMuon") << " - Input vector of MIP PFParticles is empty" << std::endl;
+
+    const auto pfpToTracks = CollectionHelper::GetAssociation<recob::PFParticle, recob::Track>(event, m_config().PFParticleLabel(), m_config().TrackLabel());
+    float maxTrackLength = -std::numeric_limits<float>::max();
+    art::Ptr<recob::PFParticle> muon;
+    bool foundMuon = false;
+
+    // Find the PFParticle with the longest track
+    for (const auto &pfParticle : mips)
+    {
+        try
+        {
+            const auto track = CollectionHelper::GetSingleAssociated(pfParticle, pfpToTracks);
+            if (track->Length() > maxTrackLength)
+            {
+                maxTrackLength = track->Length();
+                muon = pfParticle;
+                foundMuon = true;
+            }
+        }
+        catch (const cet::exception &)
+        {
+        }
+    }
+
+    if (!foundMuon)
+        throw cet::exception("EventSelection::SelectMuon") << " - None of the input PFParticles had an associated track" << std::endl;
+    
+    return muon;
+}
+
+// -----------------------------------------------------------------------------------------------------------------------------------------
+
+TVector3 EventSelection::GetRecoNeutrinoVertex(const art::Event &event, const PFParticleVector &allPFParticles) const
+{
+    const auto pfpToVertex = CollectionHelper::GetAssociation<recob::PFParticle, recob::Vertex>(event, m_config().PFParticleLabel());
+
+    try
+    {
+        const auto neutrino = RecoHelper::GetNeutrino(allPFParticles);
+        const auto vertex = CollectionHelper::GetSingleAssociated(neutrino, pfpToVertex);
+
+        return TVector3(vertex->position().X(), vertex->position().Y(), vertex->position().Z());
+    }
+    catch (const cet::exception &)
+    {
+        return TVector3(-std::numeric_limits<float>::max(), -std::numeric_limits<float>::max(), -std::numeric_limits<float>::max());
+    }
 }
 
 } // namespace ubcc1pi

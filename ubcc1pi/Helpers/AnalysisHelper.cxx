@@ -53,7 +53,7 @@ bool AnalysisHelper::PassesMomentumThreshold(const art::Ptr<simb::MCParticle> &p
 {
     // The mapping from PDG code to momentum threshold (GeV)
     std::map<int, float> pdgToThresholdMap;
-    pdgToThresholdMap.emplace(2212, 0.2);
+    pdgToThresholdMap.emplace(2212, 0.3);
     pdgToThresholdMap.emplace(2112, std::numeric_limits<float>::max());
 
     // If we haven't specified this PDG code then assume the threshold is zero - the particle passes by default

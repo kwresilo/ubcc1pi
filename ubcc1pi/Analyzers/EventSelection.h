@@ -17,7 +17,8 @@
 #include "fhiclcpp/types/Table.h"
 #include "canvas/Utilities/InputTag.h"
 
-#include "ubcc1pi/Objects/EventSelector.h"
+//#include "ubcc1pi/Objects/EventSelector.h"
+#include "ubcc1pi/Helpers/CollectionHelper.h"
 
 namespace ubcc1pi
 {
@@ -74,78 +75,73 @@ class EventSelection : public art::EDAnalyzer
                 fhicl::Name("PIDLabel"),
                 fhicl::Comment("The label for the PID producer")
             };
+            
+            fhicl::Atom<float> Chi2ProtonMIPCut
+            {
+                fhicl::Name("Chi2ProtonMIPCut"),
+                fhicl::Comment("The chi2 (minimum over all views) under the proton hypothesis above which a track is considered a MIP")
+            };
         };
         
-        /**
-         *  @brief  The output particle level structure
-         */
-        struct OutputParticle
-        {
-            // Event metadata
-            int          m_run;                   ///< The run number
-            int          m_subRun;                ///< The subrun number
-            int          m_event;                 ///< The event number
-            bool         m_isSignal;              ///< If the event is a true CC1Pi signal
-            
-            // Event level selection info
-            bool         m_didSelectionFinish;    ///< If the event selection finished (some events have PFParticles without tracks etc)
-            float        m_eventCC1PiScore;       ///< The event level CC1Pi score
-            int          m_nProtonSelected;       ///< The number of protons selected
-        
-            // Matched True Particle details
-            bool         m_hasMatchedMCParticle;  ///< If the particle has a matched MCParticle
-            int          m_truePdgCode;           ///< The particle PDG code
-            float        m_trueMomentum;          ///< The particle momentum
-            float        m_trueMatchPurity;       ///< Match purity to the true particle
-            float        m_trueMatchCompleteness; ///< Match completeness to the true particle
-
-            // The PID algorithm outputs
-            float        m_trackShowerScore;      ///< The track vs. shower score
-            float        m_protonMIPScore;        ///< The proton vs. MIP score
-            float        m_muonPionScore;         ///< The muon vs. pion score
-        
-            float        m_muonLikelihood;        ///< The score likelihood under the muon hypothesis
-            float        m_pionLikelihood;        ///< The score likelihood under the pion hypothesis
-            float        m_protonLikelihood;      ///< The score likelihood under the proton hypothesis
-            
-            bool         m_isMuonCandidate;       ///< Is this the most likely muon candidate
-            bool         m_isPionCandidate;       ///< Is this the most likely pion candidate
-            bool         m_isProtonCandidate;     ///< is this the most likely proton candidate
-        };
-
         /**
          *  @brief  The output event level structure
          */
         struct OutputEvent
         {
             // Event metadata
-            int          m_run;                     ///< The run number
-            int          m_subRun;                  ///< The subrun number
-            int          m_event;                   ///< The event number
-                                                    
-            // The truth interaction information    
-            bool         m_isSignal;                ///< If the event is a true CC1Pi signal
-            std::string  m_interaction;             ///< The interaction type string
-            bool         m_isNuFiducial;            ///< If the neutrino interaction is fiducial
-            float        m_nuE;                     ///< The true neutrino energy
-
-            // The true particle multiplicities
-            int          m_nMuMinus;                ///< The number of mu-
-            int          m_nMuPlus;                 ///< The number of mu+
-            int          m_nPiPlus;                 ///< The number of pi+
-            int          m_nPiMinus;                ///< The number of pi-
-            int          m_nKPlus;                  ///< The number of K+
-            int          m_nKMinus;                 ///< The number of K-
-            int          m_nProton;                 ///< The number of p
-            int          m_nNeutron;                ///< The number of n
-            int          m_nPhoton;                 ///< The number of gamma
-            int          m_nTotal;                  ///< The total number of particles
+            int          m_run;                                    ///< The run number
+            int          m_subRun;                                 ///< The subrun number
+            int          m_event;                                  ///< The event number
+                                                                   
+            // The truth interaction information                   
+            bool         m_isSignal;                               ///< If the event is a true CC1Pi signal
+            std::string  m_interaction;                            ///< The interaction type string
+            bool         m_isNuFiducial;                           ///< If the neutrino interaction is fiducial
+            float        m_nuE;                                    ///< The true neutrino energy
+            float        m_nuX;                                    ///< The true neutrino vertex x-position
+            float        m_nuY;                                    ///< The true neutrino vertex y-position
+            float        m_nuZ;                                    ///< The true neutrino vertex z-position
+                                                                   
+            // The true particle multiplicities                    
+            int          m_nMuMinus;                               ///< The number of mu-
+            int          m_nMuPlus;                                ///< The number of mu+
+            int          m_nPiPlus;                                ///< The number of pi+
+            int          m_nPiMinus;                               ///< The number of pi-
+            int          m_nKPlus;                                 ///< The number of K+
+            int          m_nKMinus;                                ///< The number of K-
+            int          m_nProton;                                ///< The number of p
+            int          m_nNeutron;                               ///< The number of n
+            int          m_nPhoton;                                ///< The number of gamma
+            int          m_nTotal;                                 ///< The total number of particles
 
             // The event selection info
-            bool         m_didSelectionFinish;      ///< If the event selection finished (some events have PFParticles without tracks etc)
-            float        m_cc1piScore;              ///< The event level CC1Pi score
-            int          m_nProtonSelected;         ///< The number of protons selected
-            int          m_nFinalStatePFParticles;  ///< The number of final state PFParticles
+            float        m_trueMuEnergy;                           ///< The true muon energy
+            float        m_trueMuTheta;                            ///< The true muon theta (angle to beam)
+            float        m_trueMuPhi;                              ///< The true muon phi (angle about beam)
+    
+            float        m_truePiEnergy;                           ///< The true pion energy
+            float        m_truePiTheta;                            ///< The true pion theta
+            float        m_truePiPhi;                              ///< The true pion phi
+            float        m_trueMuPiAngle;                          ///< The muon-pion opening angle
+
+            float        m_recoNuX;                                ///< The reco neutrino vertex x-position
+            float        m_recoNuY;                                ///< The reco neutrino vertex y-position
+            float        m_recoNuZ;                                ///< The reco neutrino vertex z-position
+
+            int          m_nFinalStatePFPs;                        ///< The number of reconstructed final state PFParticles
+            bool         m_isRecoNuFiducial;                       ///< If the reconstructed vertex is fiducial
+            int          m_nRecoMIPs;                              ///< The number of PFPs passing the MIP selection
+            bool         m_isSelected;                             ///< If the event is selected
+
+            bool         m_isSelectedMuonTruthMatched;             ///< If the selected muon PFParticle is matched to any MCParticle
+            int          m_selectedMuonTruePdg;                    ///< The true pdg code of the PFParticle selected as the muon
+            float        m_selectedMuonCompleteness;               ///< The match completeness for the selected muon
+            float        m_selectedMuonPurity;                     ///< The match purity for the selected muon
+    
+            bool         m_isSelectedPionTruthMatched;             ///< If the selected pion PFParticle is matched to any MCParticle
+            int          m_selectedPionTruePdg;                    ///< The true pdg code of the PFParticle selected as the pion
+            float        m_selectedPionCompleteness;               ///< The match completeness for the selected pion
+            float        m_selectedPionPurity;                     ///< The match purity for the selected pion
         };
 
         /**
@@ -164,12 +160,21 @@ class EventSelection : public art::EDAnalyzer
 
     private:
         
+        // TODO Doxygen comments
+        void PerformPID(const art::Event &event, const PFParticleVector &finalStates, const float chi2ProtonCut, PFParticleVector &muons, PFParticleVector &pions, PFParticleVector &protons, PFParticleVector &showerLikes) const;
+        void SelectTracksAndShowers(const PFParticleVector &finalStates, PFParticleVector &trackLikes, PFParticleVector &showerLikes) const;
+        PFParticleVector SelectMIPs(const art::Event &event, const PFParticleVector &finalStates, const float chi2ProtonCut) const;
+        bool IsTrackLike(const art::Ptr<recob::PFParticle> &pfParticle) const;
+        bool IsShowerLike(const art::Ptr<recob::PFParticle> &pfParticle) const;
+        bool PassesMIPSelection(const art::Ptr<recob::PFParticle> &pfParticle, const Association<recob::PFParticle, recob::Track> &pfpToTracks, const Association<recob::Track, anab::ParticleID> &trackToPIDs, const float chi2ProtonCut) const;
+        float GetMinChi2Proton(const art::Ptr<anab::ParticleID> &pid) const;
+        art::Ptr<recob::PFParticle> SelectMuon(const art::Event &event, const PFParticleVector &mips) const;
+        TVector3 GetRecoNeutrinoVertex(const art::Event &event, const PFParticleVector &allPFParticles) const;
+        
         art::EDAnalyzer::Table<Config>  m_config;          ///< The FHiCL configuration options
         
-        TTree                          *m_pParticleTree;   ///< The output tree for all particle level data
         TTree                          *m_pEventTree;      ///< The output tree for all event level data
 
-        OutputParticle                  m_outputParticle;  ///< The output particle-level object
         OutputEvent                     m_outputEvent;     ///< The output event-level object
 };
 
