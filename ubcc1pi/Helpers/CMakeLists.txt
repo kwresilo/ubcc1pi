@@ -6,6 +6,7 @@ art_make(
         ${ART_FRAMEWORK_PRINCIPAL}
         ${ART_FRAMEWORK_SERVICES_REGISTRY}
         ${ART_FRAMEWORK_SERVICES_BASIC}
+        ${ART_FRAMEWORK_SERVICES_OPTIONAL}
         ${ART_PERSISTENCY_COMMON}
         ${ART_PERSISTENCY_PROVENANCE}
         ${ROOT_BASIC_LIB_LIST}
@@ -16,6 +17,8 @@ art_make(
         lardataobj_AnalysisBase
         art_Framework_Principal
         art_Persistency_Common
+        larevt_SpaceChargeServices_SpaceChargeServiceStandard_service
+        ${Boost_SYSTEM_LIBRARY}
     )
 
 install_headers()

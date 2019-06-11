@@ -207,7 +207,7 @@ window.onload = initDynSections;
 <a name="l00111"></a>00111     <a class="code" href="namespaceubcc1pi.html#a6f66dc13c5a55147db5c84db67f6062b">PFParticleVector</a> muons, pions, protons, showerLikes;
 <a name="l00112"></a>00112     this-&gt;<a class="code" href="classubcc1pi_1_1EventSelection.html#a184014f7b5ba98b1827c84cf07dfd4d4">PerformPID</a>(event, finalStates, chi2ProtonCut, muons, pions, protons, showerLikes);
 <a name="l00113"></a>00113 
-<a name="l00114"></a>00114     <span class="keyword">const</span> <span class="keyword">auto</span> recoVertex = this-&gt;<a class="code" href="classubcc1pi_1_1EventSelection.html#ac2b94706d8c55fb90b186ca2d2f4cd83">GetRecoNeutrinoVertex</a>(event, allPFParticles);
+<a name="l00114"></a>00114     <span class="keyword">const</span> <span class="keyword">auto</span> recoVertex = <a class="code" href="classubcc1pi_1_1RecoHelper.html#a8df80cd3aa9c3d29113f9049ce1067cc">RecoHelper::GetRecoNeutrinoVertex</a>(event, allPFParticles, pfParticleLabel);
 <a name="l00115"></a>00115     <span class="keyword">const</span> <span class="keywordtype">bool</span> isRecoNuFiducial = <a class="code" href="classubcc1pi_1_1AnalysisHelper.html#a97eb991dc3a2a34b7def5444753617fd" title="Check if a position lies in the fiducial volume.">AnalysisHelper::IsFiducial</a>(recoVertex);
 <a name="l00116"></a>00116     <span class="keyword">const</span> <span class="keywordtype">bool</span> isSelected = (muons.size() == 1 &amp;&amp; pions.size() == 1 &amp;&amp; showerLikes.size() == 0 &amp;&amp; isRecoNuFiducial);
 <a name="l00117"></a>00117 
@@ -519,26 +519,8 @@ window.onload = initDynSections;
 <a name="l00423"></a>00423     <span class="keywordflow">return</span> muon;
 <a name="l00424"></a>00424 }
 <a name="l00425"></a>00425 
-<a name="l00426"></a>00426 <span class="comment">// -----------------------------------------------------------------------------------------------------------------------------------------</span>
-<a name="l00427"></a>00427 
-<a name="l00428"></a><a class="code" href="classubcc1pi_1_1EventSelection.html#ac2b94706d8c55fb90b186ca2d2f4cd83">00428</a> TVector3 <a class="code" href="classubcc1pi_1_1EventSelection.html#ac2b94706d8c55fb90b186ca2d2f4cd83">EventSelection::GetRecoNeutrinoVertex</a>(<span class="keyword">const</span> art::Event &amp;event, <span class="keyword">const</span> <a class="code" href="namespaceubcc1pi.html#a6f66dc13c5a55147db5c84db67f6062b">PFParticleVector</a> &amp;allPFParticles)<span class="keyword"> const</span>
-<a name="l00429"></a>00429 <span class="keyword"></span>{
-<a name="l00430"></a>00430     <span class="keyword">const</span> <span class="keyword">auto</span> pfpToVertex = CollectionHelper::GetAssociation&lt;recob::PFParticle, recob::Vertex&gt;(event, <a class="code" href="classubcc1pi_1_1EventSelection.html#ad5d85af976f7345531c4fdf74a6e84e6" title="The FHiCL configuration options.">m_config</a>().PFParticleLabel());
-<a name="l00431"></a>00431 
-<a name="l00432"></a>00432     <span class="keywordflow">try</span>
-<a name="l00433"></a>00433     {
-<a name="l00434"></a>00434         <span class="keyword">const</span> <span class="keyword">auto</span> neutrino = <a class="code" href="classubcc1pi_1_1RecoHelper.html#a8646717e211ae40d91695dad442bbe07">RecoHelper::GetNeutrino</a>(allPFParticles);
-<a name="l00435"></a>00435         <span class="keyword">const</span> <span class="keyword">auto</span> vertex = <a class="code" href="classubcc1pi_1_1CollectionHelper.html#aef49ea81264de87954feb660c9d6fbda" title="Get the single object associated to a given input object.">CollectionHelper::GetSingleAssociated</a>(neutrino, pfpToVertex);
-<a name="l00436"></a>00436 
-<a name="l00437"></a>00437         <span class="keywordflow">return</span> TVector3(vertex-&gt;position().X(), vertex-&gt;position().Y(), vertex-&gt;position().Z());
-<a name="l00438"></a>00438     }
-<a name="l00439"></a>00439     <span class="keywordflow">catch</span> (<span class="keyword">const</span> cet::exception &amp;)
-<a name="l00440"></a>00440     {
-<a name="l00441"></a>00441         <span class="keywordflow">return</span> TVector3(-std::numeric_limits&lt;float&gt;::max(), -std::numeric_limits&lt;float&gt;::max(), -std::numeric_limits&lt;float&gt;::max());
-<a name="l00442"></a>00442     }
-<a name="l00443"></a>00443 }
-<a name="l00444"></a>00444 
-<a name="l00445"></a>00445 } <span class="comment">// namespace ubcc1pi</span>
+<a name="l00426"></a>00426 
+<a name="l00427"></a>00427 } <span class="comment">// namespace ubcc1pi</span>
 </pre></div></div>
 <!--- window showing the filter options -->
 <div id="MSearchSelectWindow"
@@ -557,7 +539,7 @@ window.onload = initDynSections;
 <hr size="1"/>
 <address style="text-align: right;">
     <small>
-        Generated on Thu May 30 14:42:45 2019 for ubcc1pi by <a href="http://www.doxygen.org/index.html" target="_blank">doxygen</a> 1.6.1
+        Generated on Tue Jun 11 14:52:18 2019 for ubcc1pi by <a href="http://www.doxygen.org/index.html" target="_blank">doxygen</a> 1.6.1
     </small>
 </address>
 

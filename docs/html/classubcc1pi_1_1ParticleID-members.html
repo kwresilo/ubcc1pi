@@ -94,9 +94,19 @@ window.onload = initDynSections;
 </div>
 <div class="contents">
 <h1>ubcc1pi::ParticleID Member List</h1>This is the complete list of members for <a class="el" href="classubcc1pi_1_1ParticleID.html">ubcc1pi::ParticleID</a>, including all inherited members.<table>
+  <tr class="memlist"><td><a class="el" href="classubcc1pi_1_1ParticleID.html#a02d25a8bb3a2d726384f4ee1c59659fb">GetCalorimetryPoints</a>(const CalorimetryVector &amp;calos) const </td><td><a class="el" href="classubcc1pi_1_1ParticleID.html">ubcc1pi::ParticleID</a></td><td><code> [private]</code></td></tr>
+  <tr class="memlist"><td><a class="el" href="classubcc1pi_1_1ParticleID.html#aca8922290f392cdac64204aaeb8a051b">GetCalorimetryPoints</a>(const art::Ptr&lt; anab::Calorimetry &gt; &amp;calo) const </td><td><a class="el" href="classubcc1pi_1_1ParticleID.html">ubcc1pi::ParticleID</a></td><td><code> [private]</code></td></tr>
+  <tr class="memlist"><td><a class="el" href="classubcc1pi_1_1ParticleID.html#a58f9a81e13fa2199c5eb4631df6c2d6c">GetMeandEdx</a>(const std::vector&lt; std::pair&lt; float, float &gt; &gt; &amp;points) const </td><td><a class="el" href="classubcc1pi_1_1ParticleID.html">ubcc1pi::ParticleID</a></td><td><code> [private]</code></td></tr>
+  <tr class="memlist"><td><a class="el" href="classubcc1pi_1_1ParticleID.html#ab670c63995ef86d3e6e870b8863f5ac3">GetMostProbabledEdx</a>(const std::vector&lt; std::pair&lt; float, float &gt; &gt; &amp;points, const float kernalWidth, const float maxStepSize) const </td><td><a class="el" href="classubcc1pi_1_1ParticleID.html">ubcc1pi::ParticleID</a></td><td><code> [private]</code></td></tr>
+  <tr class="memlist"><td><a class="el" href="classubcc1pi_1_1ParticleID.html#adef1a83b9fc3e9e6c558f85252c50198">GetPointsInRange</a>(const std::vector&lt; std::pair&lt; float, float &gt; &gt; &amp;points, const float min, const float max) const </td><td><a class="el" href="classubcc1pi_1_1ParticleID.html">ubcc1pi::ParticleID</a></td><td><code> [private]</code></td></tr>
   <tr class="memlist"><td><a class="el" href="classubcc1pi_1_1ParticleID.html#a25a078f38279d9f9285ff5028976aacf">m_config</a></td><td><a class="el" href="classubcc1pi_1_1ParticleID.html">ubcc1pi::ParticleID</a></td><td><code> [private]</code></td></tr>
+  <tr class="memlist"><td><a class="el" href="classubcc1pi_1_1ParticleID.html#aac975f7aae2328985c054a522ba185ad">m_outputPoint</a></td><td><a class="el" href="classubcc1pi_1_1ParticleID.html">ubcc1pi::ParticleID</a></td><td><code> [private]</code></td></tr>
+  <tr class="memlist"><td><a class="el" href="classubcc1pi_1_1ParticleID.html#a5520ccbea5cccefadb718ddbf96f6423">m_pPointTree</a></td><td><a class="el" href="classubcc1pi_1_1ParticleID.html">ubcc1pi::ParticleID</a></td><td><code> [private]</code></td></tr>
+  <tr class="memlist"><td><a class="el" href="classubcc1pi_1_1ParticleID.html#a9ea2880ae497b4a305784793e5d86f04">OutputPoints</a>(const CalorimetryVector &amp;calos)</td><td><a class="el" href="classubcc1pi_1_1ParticleID.html">ubcc1pi::ParticleID</a></td><td><code> [private]</code></td></tr>
   <tr class="memlist"><td><a class="el" href="classubcc1pi_1_1ParticleID.html#a6c65a23daae3b3c73ecaffbbf5092b5d">ParticleID</a>(const art::EDProducer::Table&lt; Config &gt; &amp;config)</td><td><a class="el" href="classubcc1pi_1_1ParticleID.html">ubcc1pi::ParticleID</a></td><td></td></tr>
   <tr class="memlist"><td><a class="el" href="classubcc1pi_1_1ParticleID.html#a3adfb81a30e8611af7c59d7fe8fb96b1">produce</a>(art::Event &amp;event)</td><td><a class="el" href="classubcc1pi_1_1ParticleID.html">ubcc1pi::ParticleID</a></td><td></td></tr>
+  <tr class="memlist"><td><a class="el" href="classubcc1pi_1_1ParticleID.html#aee1f54851e80b81a8af2c228955212b6">SetMatchedMCParticleInfo</a>(const art::Ptr&lt; recob::PFParticle &gt; &amp;pfParticle, const BacktrackHelper::BacktrackerData &amp;backtrackerData)</td><td><a class="el" href="classubcc1pi_1_1ParticleID.html">ubcc1pi::ParticleID</a></td><td><code> [private]</code></td></tr>
+  <tr class="memlist"><td><a class="el" href="classubcc1pi_1_1ParticleID.html#abd9bb271c875c3eeba92e1cfbc667a10">SortPoints</a>(std::vector&lt; std::pair&lt; float, float &gt; &gt; &amp;points) const </td><td><a class="el" href="classubcc1pi_1_1ParticleID.html">ubcc1pi::ParticleID</a></td><td><code> [private]</code></td></tr>
 </table></div>
 <!--- window showing the filter options -->
 <div id="MSearchSelectWindow"
@@ -115,7 +125,7 @@ window.onload = initDynSections;
 <hr size="1"/>
 <address style="text-align: right;">
     <small>
-        Generated on Thu May 30 14:42:46 2019 for ubcc1pi by <a href="http://www.doxygen.org/index.html" target="_blank">doxygen</a> 1.6.1
+        Generated on Tue Jun 11 14:52:18 2019 for ubcc1pi by <a href="http://www.doxygen.org/index.html" target="_blank">doxygen</a> 1.6.1
     </small>
 </address>
 

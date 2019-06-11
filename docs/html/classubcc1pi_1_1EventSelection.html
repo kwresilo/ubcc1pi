@@ -122,7 +122,6 @@ window.onload = initDynSections;
 <tr><td class="memItemLeft" align="right" valign="top">bool&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classubcc1pi_1_1EventSelection.html#a34e00895f793005c2b958e26ee4ad7da">PassesMIPSelection</a> (const art::Ptr&lt; recob::PFParticle &gt; &amp;pfParticle, const Association&lt; recob::PFParticle, recob::Track &gt; &amp;pfpToTracks, const Association&lt; recob::Track, anab::ParticleID &gt; &amp;trackToPIDs, const float chi2ProtonCut) const </td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">float&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classubcc1pi_1_1EventSelection.html#a85b4ed9dda5034490ac5fd4feedc15ff">GetMinChi2Proton</a> (const art::Ptr&lt; anab::ParticleID &gt; &amp;pid) const </td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">art::Ptr&lt; recob::PFParticle &gt;&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classubcc1pi_1_1EventSelection.html#a6aad7dedb970b5610db92c1ee330e74d">SelectMuon</a> (const art::Event &amp;event, const <a class="el" href="namespaceubcc1pi.html#a6f66dc13c5a55147db5c84db67f6062b">PFParticleVector</a> &amp;mips) const </td></tr>
-<tr><td class="memItemLeft" align="right" valign="top">TVector3&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classubcc1pi_1_1EventSelection.html#ac2b94706d8c55fb90b186ca2d2f4cd83">GetRecoNeutrinoVertex</a> (const art::Event &amp;event, const <a class="el" href="namespaceubcc1pi.html#a6f66dc13c5a55147db5c84db67f6062b">PFParticleVector</a> &amp;allPFParticles) const </td></tr>
 <tr><td colspan="2"><h2>Private Attributes</h2></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">art::EDAnalyzer::Table&lt; <a class="el" href="structubcc1pi_1_1EventSelection_1_1Config.html">Config</a> &gt;&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classubcc1pi_1_1EventSelection.html#ad5d85af976f7345531c4fdf74a6e84e6">m_config</a></td></tr>
 <tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">The FHiCL configuration options.  <a href="#ad5d85af976f7345531c4fdf74a6e84e6"></a><br/></td></tr>
@@ -210,35 +209,6 @@ window.onload = initDynSections;
 <div class="memdoc">
 
 <p>Definition at line <a class="el" href="EventSelection__module_8cc_source.html#l00368">368</a> of file <a class="el" href="EventSelection__module_8cc_source.html">EventSelection_module.cc</a>.</p>
-
-</div>
-</div>
-<a class="anchor" id="ac2b94706d8c55fb90b186ca2d2f4cd83"></a><!-- doxytag: member="ubcc1pi::EventSelection::GetRecoNeutrinoVertex" ref="ac2b94706d8c55fb90b186ca2d2f4cd83" args="(const art::Event &amp;event, const PFParticleVector &amp;allPFParticles) const " -->
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">TVector3 ubcc1pi::EventSelection::GetRecoNeutrinoVertex </td>
-          <td>(</td>
-          <td class="paramtype">const art::Event &amp;&nbsp;</td>
-          <td class="paramname"> <em>event</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">const <a class="el" href="namespaceubcc1pi.html#a6f66dc13c5a55147db5c84db67f6062b">PFParticleVector</a> &amp;&nbsp;</td>
-          <td class="paramname"> <em>allPFParticles</em></td><td>&nbsp;</td>
-        </tr>
-        <tr>
-          <td></td>
-          <td>)</td>
-          <td></td><td></td><td> const<code> [private]</code></td>
-        </tr>
-      </table>
-</div>
-<div class="memdoc">
-
-<p>Definition at line <a class="el" href="EventSelection__module_8cc_source.html#l00428">428</a> of file <a class="el" href="EventSelection__module_8cc_source.html">EventSelection_module.cc</a>.</p>
 
 </div>
 </div>
@@ -495,7 +465,7 @@ window.onload = initDynSections;
 
 <p>The FHiCL configuration options. </p>
 
-<p>Definition at line <a class="el" href="EventSelection_8h_source.html#l00174">174</a> of file <a class="el" href="EventSelection_8h_source.html">EventSelection.h</a>.</p>
+<p>Definition at line <a class="el" href="EventSelection_8h_source.html#l00173">173</a> of file <a class="el" href="EventSelection_8h_source.html">EventSelection.h</a>.</p>
 
 </div>
 </div>
@@ -512,7 +482,7 @@ window.onload = initDynSections;
 
 <p>The output event-level object. </p>
 
-<p>Definition at line <a class="el" href="EventSelection_8h_source.html#l00178">178</a> of file <a class="el" href="EventSelection_8h_source.html">EventSelection.h</a>.</p>
+<p>Definition at line <a class="el" href="EventSelection_8h_source.html#l00177">177</a> of file <a class="el" href="EventSelection_8h_source.html">EventSelection.h</a>.</p>
 
 </div>
 </div>
@@ -529,7 +499,7 @@ window.onload = initDynSections;
 
 <p>The output tree for all event level data. </p>
 
-<p>Definition at line <a class="el" href="EventSelection_8h_source.html#l00176">176</a> of file <a class="el" href="EventSelection_8h_source.html">EventSelection.h</a>.</p>
+<p>Definition at line <a class="el" href="EventSelection_8h_source.html#l00175">175</a> of file <a class="el" href="EventSelection_8h_source.html">EventSelection.h</a>.</p>
 
 </div>
 </div>
@@ -555,7 +525,7 @@ window.onload = initDynSections;
 <hr size="1"/>
 <address style="text-align: right;">
     <small>
-        Generated on Thu May 30 14:42:46 2019 for ubcc1pi by <a href="http://www.doxygen.org/index.html" target="_blank">doxygen</a> 1.6.1
+        Generated on Tue Jun 11 14:52:18 2019 for ubcc1pi by <a href="http://www.doxygen.org/index.html" target="_blank">doxygen</a> 1.6.1
     </small>
 </address>
 

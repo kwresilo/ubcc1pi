@@ -28,6 +28,7 @@
 
 #include "lardataobj/AnalysisBase/ParticleID.h"
 #include "lardataobj/AnalysisBase/BackTrackerMatchingData.h"
+#include "lardataobj/AnalysisBase/Calorimetry.h"
 
 namespace ubcc1pi
 {
@@ -53,6 +54,7 @@ typedef Collection<recob::PFParticle> PFParticleVector;
 typedef Collection<recob::Hit> HitVector;
 typedef Collection<recob::Slice> SliceVector;
 typedef Collection<recob::Track> TrackVector;
+typedef Collection<anab::Calorimetry> CalorimetryVector;
 
 typedef Association<recob::Hit, recob::PFParticle> HitsToPFParticles;
 typedef AssociationData<recob::Hit, simb::MCParticle, float> HitsToMCParticleWeights;

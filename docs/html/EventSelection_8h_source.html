@@ -265,20 +265,19 @@ window.onload = initDynSections;
 <a name="l00169"></a>00169         <span class="keywordtype">bool</span> <a class="code" href="classubcc1pi_1_1EventSelection.html#a34e00895f793005c2b958e26ee4ad7da">PassesMIPSelection</a>(<span class="keyword">const</span> art::Ptr&lt;recob::PFParticle&gt; &amp;pfParticle, <span class="keyword">const</span> Association&lt;recob::PFParticle, recob::Track&gt; &amp;pfpToTracks, <span class="keyword">const</span> Association&lt;recob::Track, anab::ParticleID&gt; &amp;trackToPIDs, <span class="keyword">const</span> <span class="keywordtype">float</span> chi2ProtonCut) <span class="keyword">const</span>;
 <a name="l00170"></a>00170         <span class="keywordtype">float</span> <a class="code" href="classubcc1pi_1_1EventSelection.html#a85b4ed9dda5034490ac5fd4feedc15ff">GetMinChi2Proton</a>(<span class="keyword">const</span> art::Ptr&lt;anab::ParticleID&gt; &amp;pid) <span class="keyword">const</span>;
 <a name="l00171"></a>00171         art::Ptr&lt;recob::PFParticle&gt; <a class="code" href="classubcc1pi_1_1EventSelection.html#a6aad7dedb970b5610db92c1ee330e74d">SelectMuon</a>(<span class="keyword">const</span> art::Event &amp;event, <span class="keyword">const</span> <a class="code" href="namespaceubcc1pi.html#a6f66dc13c5a55147db5c84db67f6062b">PFParticleVector</a> &amp;mips) <span class="keyword">const</span>;
-<a name="l00172"></a>00172         TVector3 <a class="code" href="classubcc1pi_1_1EventSelection.html#ac2b94706d8c55fb90b186ca2d2f4cd83">GetRecoNeutrinoVertex</a>(<span class="keyword">const</span> art::Event &amp;event, <span class="keyword">const</span> <a class="code" href="namespaceubcc1pi.html#a6f66dc13c5a55147db5c84db67f6062b">PFParticleVector</a> &amp;allPFParticles) <span class="keyword">const</span>;
-<a name="l00173"></a>00173         
-<a name="l00174"></a><a class="code" href="classubcc1pi_1_1EventSelection.html#ad5d85af976f7345531c4fdf74a6e84e6">00174</a>         art::EDAnalyzer::Table&lt;Config&gt;  <a class="code" href="classubcc1pi_1_1EventSelection.html#ad5d85af976f7345531c4fdf74a6e84e6" title="The FHiCL configuration options.">m_config</a>;          <span class="comment">///&lt; The FHiCL configuration options</span>
-<a name="l00175"></a>00175 <span class="comment"></span>        
-<a name="l00176"></a><a class="code" href="classubcc1pi_1_1EventSelection.html#a6ba26e7209711991c586d8fba170dd95">00176</a>         TTree                          *<a class="code" href="classubcc1pi_1_1EventSelection.html#a6ba26e7209711991c586d8fba170dd95" title="The output tree for all event level data.">m_pEventTree</a>;      <span class="comment">///&lt; The output tree for all event level data</span>
-<a name="l00177"></a>00177 <span class="comment"></span>
-<a name="l00178"></a><a class="code" href="classubcc1pi_1_1EventSelection.html#ab1cd5046a9ddeb71045f8378a476ca1b">00178</a>         <a class="code" href="structubcc1pi_1_1EventSelection_1_1OutputEvent.html" title="The output event level structure.">OutputEvent</a>                     <a class="code" href="classubcc1pi_1_1EventSelection.html#ab1cd5046a9ddeb71045f8378a476ca1b" title="The output event-level object.">m_outputEvent</a>;     <span class="comment">///&lt; The output event-level object</span>
-<a name="l00179"></a>00179 <span class="comment"></span>};
-<a name="l00180"></a>00180 
-<a name="l00181"></a>00181 } <span class="comment">// namespace ubcc1pi</span>
-<a name="l00182"></a>00182 
-<a name="l00183"></a>00183 DEFINE_ART_MODULE(<a class="code" href="classubcc1pi_1_1EventSelection.html" title="The PID study class.">ubcc1pi::EventSelection</a>)
-<a name="l00184"></a>00184 
-<a name="l00185"></a>00185 <span class="preprocessor">#endif</span>
+<a name="l00172"></a>00172         
+<a name="l00173"></a><a class="code" href="classubcc1pi_1_1EventSelection.html#ad5d85af976f7345531c4fdf74a6e84e6">00173</a>         art::EDAnalyzer::Table&lt;Config&gt;  <a class="code" href="classubcc1pi_1_1EventSelection.html#ad5d85af976f7345531c4fdf74a6e84e6" title="The FHiCL configuration options.">m_config</a>;          <span class="comment">///&lt; The FHiCL configuration options</span>
+<a name="l00174"></a>00174 <span class="comment"></span>        
+<a name="l00175"></a><a class="code" href="classubcc1pi_1_1EventSelection.html#a6ba26e7209711991c586d8fba170dd95">00175</a>         TTree                          *<a class="code" href="classubcc1pi_1_1EventSelection.html#a6ba26e7209711991c586d8fba170dd95" title="The output tree for all event level data.">m_pEventTree</a>;      <span class="comment">///&lt; The output tree for all event level data</span>
+<a name="l00176"></a>00176 <span class="comment"></span>
+<a name="l00177"></a><a class="code" href="classubcc1pi_1_1EventSelection.html#ab1cd5046a9ddeb71045f8378a476ca1b">00177</a>         <a class="code" href="structubcc1pi_1_1EventSelection_1_1OutputEvent.html" title="The output event level structure.">OutputEvent</a>                     <a class="code" href="classubcc1pi_1_1EventSelection.html#ab1cd5046a9ddeb71045f8378a476ca1b" title="The output event-level object.">m_outputEvent</a>;     <span class="comment">///&lt; The output event-level object</span>
+<a name="l00178"></a>00178 <span class="comment"></span>};
+<a name="l00179"></a>00179 
+<a name="l00180"></a>00180 } <span class="comment">// namespace ubcc1pi</span>
+<a name="l00181"></a>00181 
+<a name="l00182"></a>00182 DEFINE_ART_MODULE(<a class="code" href="classubcc1pi_1_1EventSelection.html" title="The PID study class.">ubcc1pi::EventSelection</a>)
+<a name="l00183"></a>00183 
+<a name="l00184"></a>00184 <span class="preprocessor">#endif</span>
 </pre></div></div>
 <!--- window showing the filter options -->
 <div id="MSearchSelectWindow"
@@ -297,7 +296,7 @@ window.onload = initDynSections;
 <hr size="1"/>
 <address style="text-align: right;">
     <small>
-        Generated on Thu May 30 14:42:45 2019 for ubcc1pi by <a href="http://www.doxygen.org/index.html" target="_blank">doxygen</a> 1.6.1
+        Generated on Tue Jun 11 14:52:18 2019 for ubcc1pi by <a href="http://www.doxygen.org/index.html" target="_blank">doxygen</a> 1.6.1
     </small>
 </address>
 

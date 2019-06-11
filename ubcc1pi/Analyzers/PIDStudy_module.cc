@@ -27,6 +27,10 @@ PIDStudy::PIDStudy(const art::EDAnalyzer::Table<Config> &config) :
     m_pParticleTree->Branch("subRun", &m_outputParticle.m_subRun);
     m_pParticleTree->Branch("event", &m_outputParticle.m_event);
     m_pParticleTree->Branch("isSignal", &m_outputParticle.m_isSignal);
+    
+    m_pParticleTree->Branch("nuVertex", &m_outputParticle.m_nuVertex);
+    m_pParticleTree->Branch("nuVertexCorrected", &m_outputParticle.m_nuVertexCorrected);
+
     m_pParticleTree->Branch("hasMatchedMCParticle", &m_outputParticle.m_hasMatchedMCParticle);
     m_pParticleTree->Branch("truePdgCode", &m_outputParticle.m_truePdgCode);
     m_pParticleTree->Branch("trueMomentum", &m_outputParticle.m_trueMomentum);
@@ -37,9 +41,16 @@ PIDStudy::PIDStudy(const art::EDAnalyzer::Table<Config> &config) :
     m_pParticleTree->Branch("nHitsV", &m_outputParticle.m_nHitsV);
     m_pParticleTree->Branch("nHitsW", &m_outputParticle.m_nHitsW);
 
+    m_pParticleTree->Branch("start", &m_outputParticle.m_start);
+    m_pParticleTree->Branch("end", &m_outputParticle.m_end);
+    m_pParticleTree->Branch("startCorrected", &m_outputParticle.m_startCorrected);
+    m_pParticleTree->Branch("endCorrected", &m_outputParticle.m_endCorrected);
+    
     m_pParticleTree->Branch("length", &m_outputParticle.m_length);
 
     m_pParticleTree->Branch("trackShower", &m_outputParticle.m_trackShower);
+    m_pParticleTree->Branch("mipFraction", &m_outputParticle.m_mipFraction);
+    m_pParticleTree->Branch("primaryFraction", &m_outputParticle.m_primaryFraction);
 
     m_pParticleTree->Branch("chi2_mu_U", &m_outputParticle.m_chi2_mu_U);
     m_pParticleTree->Branch("chi2_pi_U", &m_outputParticle.m_chi2_pi_U);
@@ -76,23 +87,28 @@ void PIDStudy::analyze(const art::Event &event)
     const auto pfParticleLabel = m_config().PFParticleLabel();
     const auto trackLabel = m_config().TrackLabel();
     const auto pidLabel = m_config().PIDLabel();
-    const auto sliceLabel = m_config().SliceLabel();
-    const auto hitLabel = m_config().HitLabel();
+    const auto calorimetryLabel = m_config().CalorimetryLabel();
     
     // Get the neutrino final state PFParticles
     const auto allPFParticles = CollectionHelper::GetCollection<recob::PFParticle>(event, pfParticleLabel);
+    const auto pfParticleMap = RecoHelper::GetPFParticleMap(allPFParticles);
     const auto pfParticles = RecoHelper::GetNeutrinoFinalStates(allPFParticles);
 
     // Get the associations from PFParticles to metadata, tracks and PID
     const auto pfpToTrack = CollectionHelper::GetAssociation<recob::PFParticle, recob::Track>(event, pfParticleLabel, trackLabel);
     const auto pfpToMetadata = CollectionHelper::GetAssociation<recob::PFParticle, larpandoraobj::PFParticleMetadata>(event, pfParticleLabel);
+    const auto pfpToHits = CollectionHelper::GetAssociationViaCollection<recob::PFParticle, recob::Cluster, recob::Hit>(event, pfParticleLabel, pfParticleLabel, pfParticleLabel);
     const auto trackToPID = CollectionHelper::GetAssociation<recob::Track, anab::ParticleID>(event, trackLabel, pidLabel);
+    const auto trackToCalorimetry = CollectionHelper::GetAssociation<recob::Track, anab::Calorimetry>(event, trackLabel, calorimetryLabel);
     
     // Get the reco-true matching information
     const auto backtrackerData = AnalysisHelper::GetBacktrackerData(event, mcTruthLabel, mcParticleLabel, backtrackerLabel, pfParticleLabel);
 
+    // Get the space-charge service
+    const auto pSpaceChargeService = RecoHelper::GetSpaceChargeService();
+
     // Store the event level information
-    this->SetEventInfo(event);
+    this->SetEventInfo(event, allPFParticles);
 
     for (const auto &pfParticle : pfParticles)
     {
@@ -112,9 +128,54 @@ void PIDStudy::analyze(const art::Event &event)
         art::Ptr<recob::Track> track;
         if (!this->GetTrack(pfParticle, pfpToTrack, track))
             continue;
+   
+        // Get the track start and end points, and correct them for space charge
+        m_outputParticle.m_start = TVector3(track->Start().X(), track->Start().Y(), track->Start().Z());
+        m_outputParticle.m_end = TVector3(track->End().X(), track->End().Y(), track->End().Z());
+        m_outputParticle.m_startCorrected = RecoHelper::CorrectForSpaceCharge(m_outputParticle.m_start, pSpaceChargeService);
+        m_outputParticle.m_endCorrected = RecoHelper::CorrectForSpaceCharge(m_outputParticle.m_end, pSpaceChargeService);
 
         // Track length
         m_outputParticle.m_length = track->Length();
+
+        /* BEGIN TEST */
+        m_outputParticle.m_mipFraction = -std::numeric_limits<float>::max();
+        const auto calos = CollectionHelper::GetManyAssociated(track, trackToCalorimetry);
+        float nPoints = 0.f;
+        float nMIPPoints = 0.f;
+        for (const auto &calo : calos)
+        {
+            for (const auto &dEdx : calo->dEdx())
+            {
+                nPoints += 1.f;
+                if (dEdx < 2.5)
+                {
+                    nMIPPoints += 1.f;
+                }
+            }
+        }
+
+        if (nPoints >= std::numeric_limits<float>::epsilon())
+        {
+            m_outputParticle.m_mipFraction = nMIPPoints / nPoints;
+        }
+        /* END TEST */
+
+        /* BEGIN TEST */
+        m_outputParticle.m_primaryFraction = -std::numeric_limits<float>::max();
+
+        unsigned int nHitsTotal = 0;
+        for (const auto &downstreamPFParticle : RecoHelper::GetDownstreamParticles(pfParticle, pfParticleMap))
+        {
+            nHitsTotal += CollectionHelper::GetManyAssociated(downstreamPFParticle, pfpToHits).size();
+        }
+        const auto nPrimaryHits = CollectionHelper::GetManyAssociated(pfParticle, pfpToHits).size();
+
+        if (nHitsTotal > 0)
+        {
+            m_outputParticle.m_primaryFraction = static_cast<float>(nPrimaryHits) / static_cast<float>(nHitsTotal);
+        }
+        /* END TEST */
 
         // PID algorithm outputs
         const auto pid = CollectionHelper::GetSingleAssociated(track, trackToPID);
@@ -226,6 +287,21 @@ void PIDStudy::analyze(const art::Event &event)
                             default: break;
                         }
                         break;
+                    case 0:
+                        switch (view)
+                        {
+                            case geo::kW:
+                                m_outputParticle.m_braggPeakLLH_MIP_W = algo.fValue;
+                                break;
+                            case geo::kU:
+                                m_outputParticle.m_braggPeakLLH_MIP_U = algo.fValue;
+                                break;
+                            case geo::kV:
+                                m_outputParticle.m_braggPeakLLH_MIP_V = algo.fValue;
+                                break;
+                            default: break;
+                        }
+                        break;
                     default: break;
                 }
             }
@@ -237,7 +313,7 @@ void PIDStudy::analyze(const art::Event &event)
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
 
-void PIDStudy::SetEventInfo(const art::Event &event)
+void PIDStudy::SetEventInfo(const art::Event &event, const PFParticleVector &allPFParticles)
 {    
     m_outputParticle.m_run = event.run();
     m_outputParticle.m_subRun = event.subRun();
@@ -245,6 +321,9 @@ void PIDStudy::SetEventInfo(const art::Event &event)
     
     const TruthHelper::Interaction interaction(event, m_config().MCTruthLabel(), m_config().MCParticleLabel());
     m_outputParticle.m_isSignal = AnalysisHelper::IsCC1PiSignal(interaction);
+
+    m_outputParticle.m_nuVertex = RecoHelper::GetRecoNeutrinoVertex(event, allPFParticles, m_config().PFParticleLabel());
+    m_outputParticle.m_nuVertexCorrected = RecoHelper::CorrectForSpaceCharge(m_outputParticle.m_nuVertex, RecoHelper::GetSpaceChargeService());
 }
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
@@ -335,16 +414,22 @@ bool PIDStudy::GetTrack(const art::Ptr<recob::PFParticle> &pfParticle, const Ass
 
 geo::View_t PIDStudy::GetView(const std::bitset<8> &planeMask) const
 {
-    if (planeMask.test(0) && !planeMask.test(1) && !planeMask.test(2))
+    // Here is a hack to get around a bug in the PID code. Some algorithms call W = 0, U = 1, V = 2. But others call W = 7, U = 6, V = 5
+    const bool usesW = planeMask.test(0) || planeMask.test(7);
+    const bool usesU = planeMask.test(1) || planeMask.test(6);
+    const bool usesV = planeMask.test(2) || planeMask.test(5);
+    
+    if (usesW && !usesU && !usesV)
         return geo::kW;
     
-    if (!planeMask.test(0) && planeMask.test(1) && !planeMask.test(2))
+    if (!usesW && usesU && !usesV)
         return geo::kU;
     
-    if (!planeMask.test(0) && !planeMask.test(1) && planeMask.test(2))
+    if (!usesW && !usesU && usesV)
         return geo::kV;
 
     return geo::kUnknown;
+
 }
 
 } // namespace ubcc1pi

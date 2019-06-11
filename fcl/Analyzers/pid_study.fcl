@@ -9,10 +9,9 @@ pid_study:
     MCParticleLabel:  "largeant"
     BacktrackerLabel: "gaushitTruthMatch"
     PFParticleLabel:  "pandora"
-    SliceLabel:       "pandora"
     TrackLabel:       "pandora"
     PIDLabel:         "pandoracalipidSCE"
-    HitLabel:         "gaushit"
+    CalorimetryLabel: "pandoracaliSCE"
 }
 
 END_PROLOG

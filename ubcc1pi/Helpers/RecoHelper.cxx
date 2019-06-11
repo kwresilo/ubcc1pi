@@ -79,6 +79,25 @@ PFParticleVector RecoHelper::GetNeutrinoFinalStates(const PFParticleVector &allP
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
 
+TVector3 RecoHelper::GetRecoNeutrinoVertex(const art::Event &event, const PFParticleVector &allPFParticles, const art::InputTag &vertexLabel)
+{
+    const auto pfpToVertex = CollectionHelper::GetAssociation<recob::PFParticle, recob::Vertex>(event, vertexLabel);
+
+    try
+    {
+        const auto neutrino = RecoHelper::GetNeutrino(allPFParticles);
+        const auto vertex = CollectionHelper::GetSingleAssociated(neutrino, pfpToVertex);
+
+        return TVector3(vertex->position().X(), vertex->position().Y(), vertex->position().Z());
+    }
+    catch (const cet::exception &)
+    {
+        return TVector3(-std::numeric_limits<float>::max(), -std::numeric_limits<float>::max(), -std::numeric_limits<float>::max());
+    }
+}
+
+// -----------------------------------------------------------------------------------------------------------------------------------------
+
 art::Ptr<recob::PFParticle> RecoHelper::GetParent(const art::Ptr<recob::PFParticle> &particle, const PFParticleMap &pfParticleMap)
 {
     if (particle->IsPrimary())
@@ -200,6 +219,21 @@ unsigned int RecoHelper::CountHitsInView(const HitVector &hits, const geo::View_
     }
 
     return count;
+}
+
+// -----------------------------------------------------------------------------------------------------------------------------------------
+
+const spacecharge::SpaceChargeService::provider_type *const RecoHelper::GetSpaceChargeService()
+{
+    return lar::providerFrom<spacecharge::SpaceChargeService>();
+}
+
+// -----------------------------------------------------------------------------------------------------------------------------------------
+
+TVector3 RecoHelper::CorrectForSpaceCharge(const TVector3 &position, const spacecharge::SpaceChargeService::provider_type *const pSpaceChargeService)
+{
+    const auto offset = pSpaceChargeService->GetCalPosOffsets(geo::Point_t(position.X(), position.Y(), position.Z()));
+    return TVector3(position.X() - offset.X(), position.Y() + offset.Y(), position.Z() + offset.Z());
 }
 
 } // namespace ubcc1pi

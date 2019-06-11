@@ -110,6 +110,7 @@ window.onload = initDynSections;
 &lt; recob::PFParticle &gt;&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classubcc1pi_1_1RecoHelper.html#a8646717e211ae40d91695dad442bbe07">GetNeutrino</a> (const <a class="el" href="namespaceubcc1pi.html#a6f66dc13c5a55147db5c84db67f6062b">PFParticleVector</a> &amp;allPFParticles)</td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">static <a class="el" href="namespaceubcc1pi.html#a6f66dc13c5a55147db5c84db67f6062b">PFParticleVector</a>&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classubcc1pi_1_1RecoHelper.html#af71daaff8a5ce5c4e711d60058a4424a">GetNeutrinoFinalStates</a> (const <a class="el" href="namespaceubcc1pi.html#a6f66dc13c5a55147db5c84db67f6062b">PFParticleVector</a> &amp;allPFParticles)</td></tr>
 <tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">Get the PFParticles that have been deemed the neutrino final states from the PFParticle hierarchy.  <a href="#af71daaff8a5ce5c4e711d60058a4424a"></a><br/></td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">static TVector3&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classubcc1pi_1_1RecoHelper.html#a8df80cd3aa9c3d29113f9049ce1067cc">GetRecoNeutrinoVertex</a> (const art::Event &amp;event, const <a class="el" href="namespaceubcc1pi.html#a6f66dc13c5a55147db5c84db67f6062b">PFParticleVector</a> &amp;allPFParticles, const art::InputTag &amp;vertexLabel)</td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">static art::Ptr<br class="typebreak"/>
 &lt; recob::PFParticle &gt;&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classubcc1pi_1_1RecoHelper.html#aeecef71549f0c05bc7c42a7c95828d0d">GetParent</a> (const art::Ptr&lt; recob::PFParticle &gt; &amp;particle, const <a class="el" href="namespaceubcc1pi.html#a191f1ccf6de87673e21719a2d401a00f">PFParticleMap</a> &amp;pfParticleMap)</td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">static <a class="el" href="namespaceubcc1pi.html#a6f66dc13c5a55147db5c84db67f6062b">PFParticleVector</a>&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classubcc1pi_1_1RecoHelper.html#a4f0df14148b8885c5f66888a7d7dc5ef">GetDaughters</a> (const art::Ptr&lt; recob::PFParticle &gt; &amp;particle, const <a class="el" href="namespaceubcc1pi.html#a191f1ccf6de87673e21719a2d401a00f">PFParticleMap</a> &amp;pfParticleMap)</td></tr>
@@ -122,12 +123,45 @@ window.onload = initDynSections;
 <tr><td class="memItemLeft" align="right" valign="top">static bool&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classubcc1pi_1_1RecoHelper.html#ac7017d24bf36789adb2a6a6d7f640512">GetMetadataBool</a> (const art::Ptr&lt; larpandoraobj::PFParticleMetadata &gt; &amp;metadata, const std::string &amp;property)</td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">static float&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classubcc1pi_1_1RecoHelper.html#aa7b3da3945f85595dfe6385e959d0132">GetTrackScore</a> (const art::Ptr&lt; larpandoraobj::PFParticleMetadata &gt; &amp;metadata)</td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">static unsigned int&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classubcc1pi_1_1RecoHelper.html#a998ef45cbd255ffbda91475b54261173">CountHitsInView</a> (const <a class="el" href="namespaceubcc1pi.html#aad18bb5924d1ff428402c8af4b72f1c0">HitVector</a> &amp;hits, const geo::View_t &amp;view)</td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">static const <br class="typebreak"/>
+spacecharge::SpaceChargeService::provider_type <br class="typebreak"/>
+*const&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classubcc1pi_1_1RecoHelper.html#a65392f76209de578e0cbc52259a48155">GetSpaceChargeService</a> ()</td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">static TVector3&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classubcc1pi_1_1RecoHelper.html#a1dd5873775b95d7513df2fbd33201643">CorrectForSpaceCharge</a> (const TVector3 &amp;position, const spacecharge::SpaceChargeService::provider_type *const pSpaceChargeService)</td></tr>
 </table>
 <hr/><a name="_details"></a><h2>Detailed Description</h2>
 <p>The reco helper class. </p>
 
-<p>Definition at line <a class="el" href="RecoHelper_8h_source.html#l00025">25</a> of file <a class="el" href="RecoHelper_8h_source.html">RecoHelper.h</a>.</p>
+<p>Definition at line <a class="el" href="RecoHelper_8h_source.html#l00027">27</a> of file <a class="el" href="RecoHelper_8h_source.html">RecoHelper.h</a>.</p>
 <hr/><h2>Member Function Documentation</h2>
+<a class="anchor" id="a1dd5873775b95d7513df2fbd33201643"></a><!-- doxytag: member="ubcc1pi::RecoHelper::CorrectForSpaceCharge" ref="a1dd5873775b95d7513df2fbd33201643" args="(const TVector3 &amp;position, const spacecharge::SpaceChargeService::provider_type *const pSpaceChargeService)" -->
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">TVector3 ubcc1pi::RecoHelper::CorrectForSpaceCharge </td>
+          <td>(</td>
+          <td class="paramtype">const TVector3 &amp;&nbsp;</td>
+          <td class="paramname"> <em>position</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const spacecharge::SpaceChargeService::provider_type *const &nbsp;</td>
+          <td class="paramname"> <em>pSpaceChargeService</em></td><td>&nbsp;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td><td><code> [static]</code></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+
+<p>Definition at line <a class="el" href="RecoHelper_8cxx_source.html#l00233">233</a> of file <a class="el" href="RecoHelper_8cxx_source.html">RecoHelper.cxx</a>.</p>
+
+</div>
+</div>
 <a class="anchor" id="a998ef45cbd255ffbda91475b54261173"></a><!-- doxytag: member="ubcc1pi::RecoHelper::CountHitsInView" ref="a998ef45cbd255ffbda91475b54261173" args="(const HitVector &amp;hits, const geo::View_t &amp;view)" -->
 <div class="memitem">
 <div class="memproto">
@@ -153,7 +187,7 @@ window.onload = initDynSections;
 </div>
 <div class="memdoc">
 
-<p>Definition at line <a class="el" href="RecoHelper_8cxx_source.html#l00193">193</a> of file <a class="el" href="RecoHelper_8cxx_source.html">RecoHelper.cxx</a>.</p>
+<p>Definition at line <a class="el" href="RecoHelper_8cxx_source.html#l00212">212</a> of file <a class="el" href="RecoHelper_8cxx_source.html">RecoHelper.cxx</a>.</p>
 
 </div>
 </div>
@@ -182,7 +216,7 @@ window.onload = initDynSections;
 </div>
 <div class="memdoc">
 
-<p>Definition at line <a class="el" href="RecoHelper_8cxx_source.html#l00096">96</a> of file <a class="el" href="RecoHelper_8cxx_source.html">RecoHelper.cxx</a>.</p>
+<p>Definition at line <a class="el" href="RecoHelper_8cxx_source.html#l00115">115</a> of file <a class="el" href="RecoHelper_8cxx_source.html">RecoHelper.cxx</a>.</p>
 
 </div>
 </div>
@@ -217,7 +251,7 @@ window.onload = initDynSections;
 </div>
 <div class="memdoc">
 
-<p>Definition at line <a class="el" href="RecoHelper_8cxx_source.html#l00124">124</a> of file <a class="el" href="RecoHelper_8cxx_source.html">RecoHelper.cxx</a>.</p>
+<p>Definition at line <a class="el" href="RecoHelper_8cxx_source.html#l00143">143</a> of file <a class="el" href="RecoHelper_8cxx_source.html">RecoHelper.cxx</a>.</p>
 
 </div>
 </div>
@@ -246,7 +280,7 @@ window.onload = initDynSections;
 </div>
 <div class="memdoc">
 
-<p>Definition at line <a class="el" href="RecoHelper_8cxx_source.html#l00114">114</a> of file <a class="el" href="RecoHelper_8cxx_source.html">RecoHelper.cxx</a>.</p>
+<p>Definition at line <a class="el" href="RecoHelper_8cxx_source.html#l00133">133</a> of file <a class="el" href="RecoHelper_8cxx_source.html">RecoHelper.cxx</a>.</p>
 
 </div>
 </div>
@@ -275,7 +309,7 @@ window.onload = initDynSections;
 </div>
 <div class="memdoc">
 
-<p>Definition at line <a class="el" href="RecoHelper_8cxx_source.html#l00171">171</a> of file <a class="el" href="RecoHelper_8cxx_source.html">RecoHelper.cxx</a>.</p>
+<p>Definition at line <a class="el" href="RecoHelper_8cxx_source.html#l00190">190</a> of file <a class="el" href="RecoHelper_8cxx_source.html">RecoHelper.cxx</a>.</p>
 
 </div>
 </div>
@@ -304,7 +338,7 @@ window.onload = initDynSections;
 </div>
 <div class="memdoc">
 
-<p>Definition at line <a class="el" href="RecoHelper_8cxx_source.html#l00154">154</a> of file <a class="el" href="RecoHelper_8cxx_source.html">RecoHelper.cxx</a>.</p>
+<p>Definition at line <a class="el" href="RecoHelper_8cxx_source.html#l00173">173</a> of file <a class="el" href="RecoHelper_8cxx_source.html">RecoHelper.cxx</a>.</p>
 
 </div>
 </div>
@@ -333,7 +367,7 @@ window.onload = initDynSections;
 </div>
 <div class="memdoc">
 
-<p>Definition at line <a class="el" href="RecoHelper_8cxx_source.html#l00164">164</a> of file <a class="el" href="RecoHelper_8cxx_source.html">RecoHelper.cxx</a>.</p>
+<p>Definition at line <a class="el" href="RecoHelper_8cxx_source.html#l00183">183</a> of file <a class="el" href="RecoHelper_8cxx_source.html">RecoHelper.cxx</a>.</p>
 
 </div>
 </div>
@@ -430,7 +464,7 @@ window.onload = initDynSections;
 </div>
 <div class="memdoc">
 
-<p>Definition at line <a class="el" href="RecoHelper_8cxx_source.html#l00082">82</a> of file <a class="el" href="RecoHelper_8cxx_source.html">RecoHelper.cxx</a>.</p>
+<p>Definition at line <a class="el" href="RecoHelper_8cxx_source.html#l00101">101</a> of file <a class="el" href="RecoHelper_8cxx_source.html">RecoHelper.cxx</a>.</p>
 
 </div>
 </div>
@@ -454,6 +488,60 @@ window.onload = initDynSections;
 
 </div>
 </div>
+<a class="anchor" id="a8df80cd3aa9c3d29113f9049ce1067cc"></a><!-- doxytag: member="ubcc1pi::RecoHelper::GetRecoNeutrinoVertex" ref="a8df80cd3aa9c3d29113f9049ce1067cc" args="(const art::Event &amp;event, const PFParticleVector &amp;allPFParticles, const art::InputTag &amp;vertexLabel)" -->
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">TVector3 ubcc1pi::RecoHelper::GetRecoNeutrinoVertex </td>
+          <td>(</td>
+          <td class="paramtype">const art::Event &amp;&nbsp;</td>
+          <td class="paramname"> <em>event</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const <a class="el" href="namespaceubcc1pi.html#a6f66dc13c5a55147db5c84db67f6062b">PFParticleVector</a> &amp;&nbsp;</td>
+          <td class="paramname"> <em>allPFParticles</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const art::InputTag &amp;&nbsp;</td>
+          <td class="paramname"> <em>vertexLabel</em></td><td>&nbsp;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td><td><code> [static]</code></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+
+<p>Definition at line <a class="el" href="RecoHelper_8cxx_source.html#l00082">82</a> of file <a class="el" href="RecoHelper_8cxx_source.html">RecoHelper.cxx</a>.</p>
+
+</div>
+</div>
+<a class="anchor" id="a65392f76209de578e0cbc52259a48155"></a><!-- doxytag: member="ubcc1pi::RecoHelper::GetSpaceChargeService" ref="a65392f76209de578e0cbc52259a48155" args="()" -->
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">const spacecharge::SpaceChargeService::provider_type *const ubcc1pi::RecoHelper::GetSpaceChargeService </td>
+          <td>(</td>
+          <td class="paramname"></td>
+          <td>&nbsp;)&nbsp;</td>
+          <td><code> [static]</code></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+
+<p>Definition at line <a class="el" href="RecoHelper_8cxx_source.html#l00226">226</a> of file <a class="el" href="RecoHelper_8cxx_source.html">RecoHelper.cxx</a>.</p>
+
+</div>
+</div>
 <a class="anchor" id="aa7b3da3945f85595dfe6385e959d0132"></a><!-- doxytag: member="ubcc1pi::RecoHelper::GetTrackScore" ref="aa7b3da3945f85595dfe6385e959d0132" args="(const art::Ptr&lt; larpandoraobj::PFParticleMetadata &gt; &amp;metadata)" -->
 <div class="memitem">
 <div class="memproto">
@@ -470,7 +558,7 @@ window.onload = initDynSections;
 </div>
 <div class="memdoc">
 
-<p>Definition at line <a class="el" href="RecoHelper_8cxx_source.html#l00186">186</a> of file <a class="el" href="RecoHelper_8cxx_source.html">RecoHelper.cxx</a>.</p>
+<p>Definition at line <a class="el" href="RecoHelper_8cxx_source.html#l00205">205</a> of file <a class="el" href="RecoHelper_8cxx_source.html">RecoHelper.cxx</a>.</p>
 
 </div>
 </div>
@@ -499,7 +587,7 @@ window.onload = initDynSections;
 </div>
 <div class="memdoc">
 
-<p>Definition at line <a class="el" href="RecoHelper_8cxx_source.html#l00146">146</a> of file <a class="el" href="RecoHelper_8cxx_source.html">RecoHelper.cxx</a>.</p>
+<p>Definition at line <a class="el" href="RecoHelper_8cxx_source.html#l00165">165</a> of file <a class="el" href="RecoHelper_8cxx_source.html">RecoHelper.cxx</a>.</p>
 
 </div>
 </div>
@@ -528,7 +616,7 @@ window.onload = initDynSections;
 </div>
 <div class="memdoc">
 
-<p>Definition at line <a class="el" href="RecoHelper_8cxx_source.html#l00134">134</a> of file <a class="el" href="RecoHelper_8cxx_source.html">RecoHelper.cxx</a>.</p>
+<p>Definition at line <a class="el" href="RecoHelper_8cxx_source.html#l00153">153</a> of file <a class="el" href="RecoHelper_8cxx_source.html">RecoHelper.cxx</a>.</p>
 
 </div>
 </div>
@@ -554,7 +642,7 @@ window.onload = initDynSections;
 <hr size="1"/>
 <address style="text-align: right;">
     <small>
-        Generated on Thu May 30 14:42:46 2019 for ubcc1pi by <a href="http://www.doxygen.org/index.html" target="_blank">doxygen</a> 1.6.1
+        Generated on Tue Jun 11 14:52:18 2019 for ubcc1pi by <a href="http://www.doxygen.org/index.html" target="_blank">doxygen</a> 1.6.1
     </small>
 </address>
 

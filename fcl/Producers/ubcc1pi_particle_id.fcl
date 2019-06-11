@@ -5,8 +5,12 @@ ubcc1pi_particle_id:
     module_type: "ParticleID"
 
     # Input labels
+    MCTruthLabel:     "generator"
+    MCParticleLabel:  "largeant"
+    BacktrackerLabel: "gaushitTruthMatch"
     PFParticleLabel:  "pandora"
-    HitLabel:         "gaushit"
+    TrackLabel:       "pandora"
+    CalorimetryLabel: "pandoracaliSCE"
 }
 
 END_PROLOG

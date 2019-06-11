@@ -111,7 +111,7 @@ void EventSelection::analyze(const art::Event &event)
     PFParticleVector muons, pions, protons, showerLikes;
     this->PerformPID(event, finalStates, chi2ProtonCut, muons, pions, protons, showerLikes);
 
-    const auto recoVertex = this->GetRecoNeutrinoVertex(event, allPFParticles);
+    const auto recoVertex = RecoHelper::GetRecoNeutrinoVertex(event, allPFParticles, pfParticleLabel);
     const bool isRecoNuFiducial = AnalysisHelper::IsFiducial(recoVertex);
     const bool isSelected = (muons.size() == 1 && pions.size() == 1 && showerLikes.size() == 0 && isRecoNuFiducial);
 
@@ -423,23 +423,5 @@ art::Ptr<recob::PFParticle> EventSelection::SelectMuon(const art::Event &event, 
     return muon;
 }
 
-// -----------------------------------------------------------------------------------------------------------------------------------------
-
-TVector3 EventSelection::GetRecoNeutrinoVertex(const art::Event &event, const PFParticleVector &allPFParticles) const
-{
-    const auto pfpToVertex = CollectionHelper::GetAssociation<recob::PFParticle, recob::Vertex>(event, m_config().PFParticleLabel());
-
-    try
-    {
-        const auto neutrino = RecoHelper::GetNeutrino(allPFParticles);
-        const auto vertex = CollectionHelper::GetSingleAssociated(neutrino, pfpToVertex);
-
-        return TVector3(vertex->position().X(), vertex->position().Y(), vertex->position().Z());
-    }
-    catch (const cet::exception &)
-    {
-        return TVector3(-std::numeric_limits<float>::max(), -std::numeric_limits<float>::max(), -std::numeric_limits<float>::max());
-    }
-}
 
 } // namespace ubcc1pi

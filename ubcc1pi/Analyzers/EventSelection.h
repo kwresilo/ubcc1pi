@@ -169,7 +169,6 @@ class EventSelection : public art::EDAnalyzer
         bool PassesMIPSelection(const art::Ptr<recob::PFParticle> &pfParticle, const Association<recob::PFParticle, recob::Track> &pfpToTracks, const Association<recob::Track, anab::ParticleID> &trackToPIDs, const float chi2ProtonCut) const;
         float GetMinChi2Proton(const art::Ptr<anab::ParticleID> &pid) const;
         art::Ptr<recob::PFParticle> SelectMuon(const art::Event &event, const PFParticleVector &mips) const;
-        TVector3 GetRecoNeutrinoVertex(const art::Event &event, const PFParticleVector &allPFParticles) const;
         
         art::EDAnalyzer::Table<Config>  m_config;          ///< The FHiCL configuration options
         

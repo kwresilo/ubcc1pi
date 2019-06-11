@@ -43,7 +43,7 @@
 <!ENTITY truthStudyName  "truthStudy">
 <!ENTITY truthStudyFcl   "truth_study_driver.fcl">
 
-<!ENTITY eventSelectionName  "eventSelection-v08_00_00_13">
+<!ENTITY eventSelectionName  "eventSelection-30052019">
 <!ENTITY eventSelectionFcl   "event_selection_driver.fcl">
 
 ]>
@@ -132,7 +132,7 @@
         <inputdef>&inputDef;</inputdef>
 
         <!-- Set up for the grid -->
-        <jobsub>-f /pnfs/uboone/scratch/users/&username;/ubcc1pi/grid/ubcc1pi_pid_hist.root</jobsub>
+        <!--jobsub>-f /pnfs/uboone/scratch/users/&username;/ubcc1pi/grid/ubcc1pi_pid_hist.root</jobsub-->
 
         <!-- Output directories -->
         <outdir>/pnfs/uboone/scratch/users/&username;/&projectName;/&eventSelectionName;/</outdir> 

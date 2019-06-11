@@ -70,29 +70,26 @@ class PIDStudy : public art::EDAnalyzer
                 fhicl::Comment("The label for the PID producer")
             };
             
-            fhicl::Atom<art::InputTag> SliceLabel
+            fhicl::Atom<art::InputTag> CalorimetryLabel
             {
-                fhicl::Name("SliceLabel"),
-                fhicl::Comment("The label for the Slice producer (Pandora)")
-            };
-            
-            fhicl::Atom<art::InputTag> HitLabel
-            {
-                fhicl::Name("HitLabel"),
-                fhicl::Comment("The label for the Hit producer")
+                fhicl::Name("CalorimetryLabel"),
+                fhicl::Comment("The label for the calorimetry producer")
             };
         };
 
         /**
          *  @brief  The output PID algorithm level structure
          */
-        struct OutputAlgorithm
+        struct OutputParticle
         {
             // Event metadata
             int          m_run;                   ///< The run number
             int          m_subRun;                ///< The subrun number
             int          m_event;                 ///< The event number
             bool         m_isSignal;              ///< If the event is a true CC1Pi signal
+
+            TVector3     m_nuVertex;              ///< The reconstructed neutrino vertex
+            TVector3     m_nuVertexCorrected;     ///< The SCE corrected reconstructed neutrino vertex
         
             // Matched True Particle details
             bool         m_hasMatchedMCParticle;  ///< If the PFParticle matches to any neutrino MCParticles
@@ -101,12 +98,20 @@ class PIDStudy : public art::EDAnalyzer
             float        m_trueMatchPurity;       ///< Match purity to the true particle
             float        m_trueMatchCompleteness; ///< Match completeness to the true particle
 
+            // Geometric variables
+            TVector3     m_start;                 ///< The start position of the particle
+            TVector3     m_end;                   ///< The end position of the particle
+            TVector3     m_startCorrected;        ///< The SCE corrected start position of the particle
+            TVector3     m_endCorrected;          ///< The SCE corrected end position of the particle
+
             // PID variables
             int          m_nHitsU;                ///< The number of hits in the U view
             int          m_nHitsV;                ///< The number of hits in the U view
             int          m_nHitsW;                ///< The number of hits in the U view
             float        m_length;                ///< The track-length
             float        m_trackShower;           ///< The track-shower score
+            float        m_mipFraction;           ///< The fraction of dEdx sample points that are in the MIP region
+            float        m_primaryFraction;       ///< The fraction of hits in the PFParticle's hierarchy that are in the primary itself
             float        m_chi2_mu_U;             ///< The chi2 under the muon hypothesis in the U view
             float        m_chi2_pi_U;             ///< The chi2 under the pion hypothesis in the U view
             float        m_chi2_p_U;              ///< The chi2 under the proton hypothesis in the U view
@@ -146,7 +151,7 @@ class PIDStudy : public art::EDAnalyzer
 
     private:
 
-        void SetEventInfo(const art::Event &event);
+        void SetEventInfo(const art::Event &event, const PFParticleVector &allPFParticles);
         void ResetParticleInfo();
         void SetMatchedMCParticleInfo(const art::Ptr<recob::PFParticle> &pfParticle, const BacktrackHelper::BacktrackerData &backtrackerData);
         bool GetTrack(const art::Ptr<recob::PFParticle> &pfParticle, const Association<recob::PFParticle, recob::Track> &pfpToTrack, art::Ptr<recob::Track> &track);
@@ -155,7 +160,7 @@ class PIDStudy : public art::EDAnalyzer
         art::EDAnalyzer::Table<Config>  m_config;          ///< The FHiCL configuration options
         
         TTree                          *m_pParticleTree;  ///< The output tree for all particle level data
-        OutputAlgorithm                 m_outputParticle; ///< The output particle-level object
+        OutputParticle                  m_outputParticle; ///< The output particle-level object
 };
 
 } // namespace ubcc1pi

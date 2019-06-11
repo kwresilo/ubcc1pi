@@ -106,19 +106,37 @@ window.onload = initDynSections;
 <tr><td colspan="2"><h2>Classes</h2></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">struct &nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="structubcc1pi_1_1ParticleID_1_1Config.html">Config</a></td></tr>
 <tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">The configuration structure.  <a href="structubcc1pi_1_1ParticleID_1_1Config.html#_details">More...</a><br/></td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">struct &nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="structubcc1pi_1_1ParticleID_1_1OutputPoint.html">OutputPoint</a></td></tr>
+<tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">The output calorimetry point level structure.  <a href="structubcc1pi_1_1ParticleID_1_1OutputPoint.html#_details">More...</a><br/></td></tr>
 <tr><td colspan="2"><h2>Public Member Functions</h2></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classubcc1pi_1_1ParticleID.html#a6c65a23daae3b3c73ecaffbbf5092b5d">ParticleID</a> (const art::EDProducer::Table&lt; <a class="el" href="structubcc1pi_1_1ParticleID_1_1Config.html">Config</a> &gt; &amp;config)</td></tr>
 <tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">Constructor.  <a href="#a6c65a23daae3b3c73ecaffbbf5092b5d"></a><br/></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">void&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classubcc1pi_1_1ParticleID.html#a3adfb81a30e8611af7c59d7fe8fb96b1">produce</a> (art::Event &amp;event)</td></tr>
 <tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">Produce collections in the event record.  <a href="#a3adfb81a30e8611af7c59d7fe8fb96b1"></a><br/></td></tr>
+<tr><td colspan="2"><h2>Private Member Functions</h2></td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">std::vector&lt; std::pair&lt; float, <br class="typebreak"/>
+float &gt; &gt;&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classubcc1pi_1_1ParticleID.html#a02d25a8bb3a2d726384f4ee1c59659fb">GetCalorimetryPoints</a> (const <a class="el" href="namespaceubcc1pi.html#a2712553330d7ce0e4fea67c3097359e8">CalorimetryVector</a> &amp;calos) const </td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">std::vector&lt; std::pair&lt; float, <br class="typebreak"/>
+float &gt; &gt;&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classubcc1pi_1_1ParticleID.html#aca8922290f392cdac64204aaeb8a051b">GetCalorimetryPoints</a> (const art::Ptr&lt; anab::Calorimetry &gt; &amp;calo) const </td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">void&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classubcc1pi_1_1ParticleID.html#abd9bb271c875c3eeba92e1cfbc667a10">SortPoints</a> (std::vector&lt; std::pair&lt; float, float &gt; &gt; &amp;points) const </td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">std::vector&lt; std::pair&lt; float, <br class="typebreak"/>
+float &gt; &gt;&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classubcc1pi_1_1ParticleID.html#adef1a83b9fc3e9e6c558f85252c50198">GetPointsInRange</a> (const std::vector&lt; std::pair&lt; float, float &gt; &gt; &amp;points, const float min, const float max) const </td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">float&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classubcc1pi_1_1ParticleID.html#a58f9a81e13fa2199c5eb4631df6c2d6c">GetMeandEdx</a> (const std::vector&lt; std::pair&lt; float, float &gt; &gt; &amp;points) const </td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">float&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classubcc1pi_1_1ParticleID.html#ab670c63995ef86d3e6e870b8863f5ac3">GetMostProbabledEdx</a> (const std::vector&lt; std::pair&lt; float, float &gt; &gt; &amp;points, const float kernalWidth, const float maxStepSize) const </td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">void&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classubcc1pi_1_1ParticleID.html#aee1f54851e80b81a8af2c228955212b6">SetMatchedMCParticleInfo</a> (const art::Ptr&lt; recob::PFParticle &gt; &amp;pfParticle, const <a class="el" href="classubcc1pi_1_1BacktrackHelper_1_1BacktrackerData.html">BacktrackHelper::BacktrackerData</a> &amp;backtrackerData)</td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">void&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classubcc1pi_1_1ParticleID.html#a9ea2880ae497b4a305784793e5d86f04">OutputPoints</a> (const <a class="el" href="namespaceubcc1pi.html#a2712553330d7ce0e4fea67c3097359e8">CalorimetryVector</a> &amp;calos)</td></tr>
 <tr><td colspan="2"><h2>Private Attributes</h2></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">art::EDProducer::Table&lt; <a class="el" href="structubcc1pi_1_1ParticleID_1_1Config.html">Config</a> &gt;&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classubcc1pi_1_1ParticleID.html#a25a078f38279d9f9285ff5028976aacf">m_config</a></td></tr>
 <tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">The FHiCL configuration options.  <a href="#a25a078f38279d9f9285ff5028976aacf"></a><br/></td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">TTree *&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classubcc1pi_1_1ParticleID.html#a5520ccbea5cccefadb718ddbf96f6423">m_pPointTree</a></td></tr>
+<tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">The output tree for all calorimetry-point level data.  <a href="#a5520ccbea5cccefadb718ddbf96f6423"></a><br/></td></tr>
+<tr><td class="memItemLeft" align="right" valign="top"><a class="el" href="structubcc1pi_1_1ParticleID_1_1OutputPoint.html">OutputPoint</a>&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classubcc1pi_1_1ParticleID.html#aac975f7aae2328985c054a522ba185ad">m_outputPoint</a></td></tr>
+<tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">The output calorimetry-point level object.  <a href="#aac975f7aae2328985c054a522ba185ad"></a><br/></td></tr>
 </table>
 <hr/><a name="_details"></a><h2>Detailed Description</h2>
 <p>The particle ID producer class. </p>
 
-<p>Definition at line <a class="el" href="ParticleID_8h_source.html#l00023">23</a> of file <a class="el" href="ParticleID_8h_source.html">ParticleID.h</a>.</p>
+<p>Definition at line <a class="el" href="ParticleID_8h_source.html#l00028">28</a> of file <a class="el" href="ParticleID_8h_source.html">ParticleID.h</a>.</p>
 <hr/><h2>Constructor &amp; Destructor Documentation</h2>
 <a class="anchor" id="a6c65a23daae3b3c73ecaffbbf5092b5d"></a><!-- doxytag: member="ubcc1pi::ParticleID::ParticleID" ref="a6c65a23daae3b3c73ecaffbbf5092b5d" args="(const art::EDProducer::Table&lt; Config &gt; &amp;config)" -->
 <div class="memitem">
@@ -144,11 +162,161 @@ window.onload = initDynSections;
   </dd>
 </dl>
 
-<p>Definition at line <a class="el" href="ParticleID__module_8cc_source.html#l00015">15</a> of file <a class="el" href="ParticleID__module_8cc_source.html">ParticleID_module.cc</a>.</p>
+<p>Definition at line <a class="el" href="ParticleID__module_8cc_source.html#l00016">16</a> of file <a class="el" href="ParticleID__module_8cc_source.html">ParticleID_module.cc</a>.</p>
 
 </div>
 </div>
 <hr/><h2>Member Function Documentation</h2>
+<a class="anchor" id="aca8922290f392cdac64204aaeb8a051b"></a><!-- doxytag: member="ubcc1pi::ParticleID::GetCalorimetryPoints" ref="aca8922290f392cdac64204aaeb8a051b" args="(const art::Ptr&lt; anab::Calorimetry &gt; &amp;calo) const " -->
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">std::vector&lt; std::pair&lt; float, float &gt; &gt; ubcc1pi::ParticleID::GetCalorimetryPoints </td>
+          <td>(</td>
+          <td class="paramtype">const art::Ptr&lt; anab::Calorimetry &gt; &amp;&nbsp;</td>
+          <td class="paramname"> <em>calo</em></td>
+          <td>&nbsp;)&nbsp;</td>
+          <td> const<code> [private]</code></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+
+<p>Definition at line <a class="el" href="ParticleID__module_8cc_source.html#l00170">170</a> of file <a class="el" href="ParticleID__module_8cc_source.html">ParticleID_module.cc</a>.</p>
+
+</div>
+</div>
+<a class="anchor" id="a02d25a8bb3a2d726384f4ee1c59659fb"></a><!-- doxytag: member="ubcc1pi::ParticleID::GetCalorimetryPoints" ref="a02d25a8bb3a2d726384f4ee1c59659fb" args="(const CalorimetryVector &amp;calos) const " -->
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">std::vector&lt; std::pair&lt; float, float &gt; &gt; ubcc1pi::ParticleID::GetCalorimetryPoints </td>
+          <td>(</td>
+          <td class="paramtype">const <a class="el" href="namespaceubcc1pi.html#a2712553330d7ce0e4fea67c3097359e8">CalorimetryVector</a> &amp;&nbsp;</td>
+          <td class="paramname"> <em>calos</em></td>
+          <td>&nbsp;)&nbsp;</td>
+          <td> const<code> [private]</code></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+
+<p>Definition at line <a class="el" href="ParticleID__module_8cc_source.html#l00154">154</a> of file <a class="el" href="ParticleID__module_8cc_source.html">ParticleID_module.cc</a>.</p>
+
+</div>
+</div>
+<a class="anchor" id="a58f9a81e13fa2199c5eb4631df6c2d6c"></a><!-- doxytag: member="ubcc1pi::ParticleID::GetMeandEdx" ref="a58f9a81e13fa2199c5eb4631df6c2d6c" args="(const std::vector&lt; std::pair&lt; float, float &gt; &gt; &amp;points) const " -->
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">float ubcc1pi::ParticleID::GetMeandEdx </td>
+          <td>(</td>
+          <td class="paramtype">const std::vector&lt; std::pair&lt; float, float &gt; &gt; &amp;&nbsp;</td>
+          <td class="paramname"> <em>points</em></td>
+          <td>&nbsp;)&nbsp;</td>
+          <td> const<code> [private]</code></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+
+<p>Definition at line <a class="el" href="ParticleID__module_8cc_source.html#l00223">223</a> of file <a class="el" href="ParticleID__module_8cc_source.html">ParticleID_module.cc</a>.</p>
+
+</div>
+</div>
+<a class="anchor" id="ab670c63995ef86d3e6e870b8863f5ac3"></a><!-- doxytag: member="ubcc1pi::ParticleID::GetMostProbabledEdx" ref="ab670c63995ef86d3e6e870b8863f5ac3" args="(const std::vector&lt; std::pair&lt; float, float &gt; &gt; &amp;points, const float kernalWidth, const float maxStepSize) const " -->
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">float ubcc1pi::ParticleID::GetMostProbabledEdx </td>
+          <td>(</td>
+          <td class="paramtype">const std::vector&lt; std::pair&lt; float, float &gt; &gt; &amp;&nbsp;</td>
+          <td class="paramname"> <em>points</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const float&nbsp;</td>
+          <td class="paramname"> <em>kernalWidth</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const float&nbsp;</td>
+          <td class="paramname"> <em>maxStepSize</em></td><td>&nbsp;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td><td> const<code> [private]</code></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+
+<p>Definition at line <a class="el" href="ParticleID__module_8cc_source.html#l00237">237</a> of file <a class="el" href="ParticleID__module_8cc_source.html">ParticleID_module.cc</a>.</p>
+
+</div>
+</div>
+<a class="anchor" id="adef1a83b9fc3e9e6c558f85252c50198"></a><!-- doxytag: member="ubcc1pi::ParticleID::GetPointsInRange" ref="adef1a83b9fc3e9e6c558f85252c50198" args="(const std::vector&lt; std::pair&lt; float, float &gt; &gt; &amp;points, const float min, const float max) const " -->
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">std::vector&lt; std::pair&lt; float, float &gt; &gt; ubcc1pi::ParticleID::GetPointsInRange </td>
+          <td>(</td>
+          <td class="paramtype">const std::vector&lt; std::pair&lt; float, float &gt; &gt; &amp;&nbsp;</td>
+          <td class="paramname"> <em>points</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const float&nbsp;</td>
+          <td class="paramname"> <em>min</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const float&nbsp;</td>
+          <td class="paramname"> <em>max</em></td><td>&nbsp;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td><td> const<code> [private]</code></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+
+<p>Definition at line <a class="el" href="ParticleID__module_8cc_source.html#l00208">208</a> of file <a class="el" href="ParticleID__module_8cc_source.html">ParticleID_module.cc</a>.</p>
+
+</div>
+</div>
+<a class="anchor" id="a9ea2880ae497b4a305784793e5d86f04"></a><!-- doxytag: member="ubcc1pi::ParticleID::OutputPoints" ref="a9ea2880ae497b4a305784793e5d86f04" args="(const CalorimetryVector &amp;calos)" -->
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void ubcc1pi::ParticleID::OutputPoints </td>
+          <td>(</td>
+          <td class="paramtype">const <a class="el" href="namespaceubcc1pi.html#a2712553330d7ce0e4fea67c3097359e8">CalorimetryVector</a> &amp;&nbsp;</td>
+          <td class="paramname"> <em>calos</em></td>
+          <td>&nbsp;)&nbsp;</td>
+          <td><code> [private]</code></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+
+<p>Definition at line <a class="el" href="ParticleID__module_8cc_source.html#l00330">330</a> of file <a class="el" href="ParticleID__module_8cc_source.html">ParticleID_module.cc</a>.</p>
+
+</div>
+</div>
 <a class="anchor" id="a3adfb81a30e8611af7c59d7fe8fb96b1"></a><!-- doxytag: member="ubcc1pi::ParticleID::produce" ref="a3adfb81a30e8611af7c59d7fe8fb96b1" args="(art::Event &amp;event)" -->
 <div class="memitem">
 <div class="memproto">
@@ -173,7 +341,56 @@ window.onload = initDynSections;
   </dd>
 </dl>
 
-<p>Definition at line <a class="el" href="ParticleID__module_8cc_source.html#l00023">23</a> of file <a class="el" href="ParticleID__module_8cc_source.html">ParticleID_module.cc</a>.</p>
+<p>Definition at line <a class="el" href="ParticleID__module_8cc_source.html#l00042">42</a> of file <a class="el" href="ParticleID__module_8cc_source.html">ParticleID_module.cc</a>.</p>
+
+</div>
+</div>
+<a class="anchor" id="aee1f54851e80b81a8af2c228955212b6"></a><!-- doxytag: member="ubcc1pi::ParticleID::SetMatchedMCParticleInfo" ref="aee1f54851e80b81a8af2c228955212b6" args="(const art::Ptr&lt; recob::PFParticle &gt; &amp;pfParticle, const BacktrackHelper::BacktrackerData &amp;backtrackerData)" -->
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void ubcc1pi::ParticleID::SetMatchedMCParticleInfo </td>
+          <td>(</td>
+          <td class="paramtype">const art::Ptr&lt; recob::PFParticle &gt; &amp;&nbsp;</td>
+          <td class="paramname"> <em>pfParticle</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const <a class="el" href="classubcc1pi_1_1BacktrackHelper_1_1BacktrackerData.html">BacktrackHelper::BacktrackerData</a> &amp;&nbsp;</td>
+          <td class="paramname"> <em>backtrackerData</em></td><td>&nbsp;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td><td><code> [private]</code></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+
+<p>Definition at line <a class="el" href="ParticleID__module_8cc_source.html#l00306">306</a> of file <a class="el" href="ParticleID__module_8cc_source.html">ParticleID_module.cc</a>.</p>
+
+</div>
+</div>
+<a class="anchor" id="abd9bb271c875c3eeba92e1cfbc667a10"></a><!-- doxytag: member="ubcc1pi::ParticleID::SortPoints" ref="abd9bb271c875c3eeba92e1cfbc667a10" args="(std::vector&lt; std::pair&lt; float, float &gt; &gt; &amp;points) const " -->
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void ubcc1pi::ParticleID::SortPoints </td>
+          <td>(</td>
+          <td class="paramtype">std::vector&lt; std::pair&lt; float, float &gt; &gt; &amp;&nbsp;</td>
+          <td class="paramname"> <em>points</em></td>
+          <td>&nbsp;)&nbsp;</td>
+          <td> const<code> [private]</code></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+
+<p>Definition at line <a class="el" href="ParticleID__module_8cc_source.html#l00194">194</a> of file <a class="el" href="ParticleID__module_8cc_source.html">ParticleID_module.cc</a>.</p>
 
 </div>
 </div>
@@ -191,7 +408,41 @@ window.onload = initDynSections;
 
 <p>The FHiCL configuration options. </p>
 
-<p>Definition at line <a class="el" href="ParticleID_8h_source.html#l00060">60</a> of file <a class="el" href="ParticleID_8h_source.html">ParticleID.h</a>.</p>
+<p>Definition at line <a class="el" href="ParticleID_8h_source.html#l00125">125</a> of file <a class="el" href="ParticleID_8h_source.html">ParticleID.h</a>.</p>
+
+</div>
+</div>
+<a class="anchor" id="aac975f7aae2328985c054a522ba185ad"></a><!-- doxytag: member="ubcc1pi::ParticleID::m_outputPoint" ref="aac975f7aae2328985c054a522ba185ad" args="" -->
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="structubcc1pi_1_1ParticleID_1_1OutputPoint.html">OutputPoint</a> <a class="el" href="classubcc1pi_1_1ParticleID.html#aac975f7aae2328985c054a522ba185ad">ubcc1pi::ParticleID::m_outputPoint</a><code> [private]</code></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+
+<p>The output calorimetry-point level object. </p>
+
+<p>Definition at line <a class="el" href="ParticleID_8h_source.html#l00128">128</a> of file <a class="el" href="ParticleID_8h_source.html">ParticleID.h</a>.</p>
+
+</div>
+</div>
+<a class="anchor" id="a5520ccbea5cccefadb718ddbf96f6423"></a><!-- doxytag: member="ubcc1pi::ParticleID::m_pPointTree" ref="a5520ccbea5cccefadb718ddbf96f6423" args="" -->
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">TTree* <a class="el" href="classubcc1pi_1_1ParticleID.html#a5520ccbea5cccefadb718ddbf96f6423">ubcc1pi::ParticleID::m_pPointTree</a><code> [private]</code></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+
+<p>The output tree for all calorimetry-point level data. </p>
+
+<p>Definition at line <a class="el" href="ParticleID_8h_source.html#l00127">127</a> of file <a class="el" href="ParticleID_8h_source.html">ParticleID.h</a>.</p>
 
 </div>
 </div>
@@ -217,7 +468,7 @@ window.onload = initDynSections;
 <hr size="1"/>
 <address style="text-align: right;">
     <small>
-        Generated on Thu May 30 14:42:46 2019 for ubcc1pi by <a href="http://www.doxygen.org/index.html" target="_blank">doxygen</a> 1.6.1
+        Generated on Tue Jun 11 14:52:18 2019 for ubcc1pi by <a href="http://www.doxygen.org/index.html" target="_blank">doxygen</a> 1.6.1
     </small>
 </address>
 

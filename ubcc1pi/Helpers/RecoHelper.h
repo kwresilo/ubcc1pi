@@ -9,6 +9,8 @@
 
 #include "ubcc1pi/Helpers/CollectionHelper.h"
 
+#include "larevt/SpaceChargeServices/SpaceChargeService.h"
+
 #include <unordered_map>
 
 namespace ubcc1pi
@@ -36,6 +38,9 @@ class RecoHelper
          *  @param  allPFParticles the input vector of all PFParticles
          */
         static PFParticleVector GetNeutrinoFinalStates(const PFParticleVector &allPFParticles);
+
+        static TVector3 GetRecoNeutrinoVertex(const art::Event &event, const PFParticleVector &allPFParticles, const art::InputTag &vertexLabel);
+
         static art::Ptr<recob::PFParticle> GetParent(const art::Ptr<recob::PFParticle> &particle, const PFParticleMap &pfParticleMap);
         static PFParticleVector GetDaughters(const art::Ptr<recob::PFParticle> &particle, const PFParticleMap &pfParticleMap);
         static PFParticleVector GetDownstreamParticles(const art::Ptr<recob::PFParticle> &particle, const PFParticleMap &pfParticleMap);
@@ -50,6 +55,9 @@ class RecoHelper
 
         static float GetTrackScore(const art::Ptr<larpandoraobj::PFParticleMetadata> &metadata);
         static unsigned int CountHitsInView(const HitVector &hits, const geo::View_t &view);
+
+        static const spacecharge::SpaceChargeService::provider_type *const GetSpaceChargeService();
+        static TVector3 CorrectForSpaceCharge(const TVector3 &position, const spacecharge::SpaceChargeService::provider_type *const pSpaceChargeService);
 };
 
 } // namespace ubcc1pi
