@@ -5,14 +5,14 @@ event_selection:
     module_type: "EventSelection"
 
     # Input labels
-    MCTruthLabel:     "generator"
-    MCParticleLabel:  "largeant"
-    BacktrackerLabel: "gaushitTruthMatch"
-    PFParticleLabel:  "pandora"
-    TrackLabel:       "pandora"
-    ShowerLabel:      "pandora"
-    PIDLabel:         "pandoracalipidSCE"
-    Chi2ProtonMIPCut: 50.0
+    MCTruthLabel:      "generator"
+    MCParticleLabel:   "largeant"
+    BacktrackerLabel:  "gaushitTruthMatch"
+    PFParticleLabel:   "pandora"
+    TrackLabel:        "pandora"
+    PIDLabel:          "pandoracalipidSCE"
+    Sin2YZAngleCut:     0.175
+    ContainmentBorder:  5
 }
 
 END_PROLOG

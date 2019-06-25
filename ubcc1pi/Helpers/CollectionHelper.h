@@ -122,6 +122,17 @@ class CollectionHelper
         static Collection<R> GetManyAssociated(const art::Ptr<L> &objectL, const Association<L, R> &association);
         
         /**
+         *  @brief  Check if there is any association availble for the input object
+         *
+         *  @param  objectL the input object
+         *  @param  association the association between objects of type L -> R
+         *
+         *  @return if the association is available
+         */
+        template <typename L, typename R>
+        static bool HasAssociated(const art::Ptr<L> &objectL, const Association<L, R> &association);
+        
+        /**
          *  @brief  Get the single object associated to a given input object
          *
          *  @param  objectL the input object
@@ -299,6 +310,15 @@ inline Collection<R> CollectionHelper::GetManyAssociated(const art::Ptr<L> &obje
         throw cet::exception("CollectionHelper::GetManyAssociated") << " - No association entry found for the input object." << std::endl;
 
     return iter->second;
+}
+
+// -----------------------------------------------------------------------------------------------------------------------------------------
+
+template <typename L, typename R>
+inline bool CollectionHelper::HasAssociated(const art::Ptr<L> &objectL, const Association<L, R> &association)
+{
+    const auto iter = association.find(objectL);
+    return (iter != association.end());
 }
 
 // -----------------------------------------------------------------------------------------------------------------------------------------

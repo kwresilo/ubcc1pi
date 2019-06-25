@@ -54,6 +54,7 @@ class RecoHelper
         static bool GetMetadataBool(const art::Ptr<larpandoraobj::PFParticleMetadata> &metadata, const std::string &property);
 
         static float GetTrackScore(const art::Ptr<larpandoraobj::PFParticleMetadata> &metadata);
+        static float GetTopologicalScore(const art::Ptr<larpandoraobj::PFParticleMetadata> &metadata);
         static unsigned int CountHitsInView(const HitVector &hits, const geo::View_t &view);
 
         static const spacecharge::SpaceChargeService::provider_type *const GetSpaceChargeService();

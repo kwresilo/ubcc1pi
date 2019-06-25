@@ -12,6 +12,26 @@
 namespace ubcc1pi
 {
 
+bool AnalysisHelper::IsContained(const TVector3 &point, const float border)
+{
+    // TODO get this from a service, and don't have it repeated! eww.
+    const float minX = 0; 
+    const float maxX = 256.35; 
+    const float minY = -116.5; 
+    const float maxY = 116.5; 
+    const float minZ = 0; 
+    const float maxZ = 1036.8; 
+
+    return (point.X() > minX + border && 
+            point.X() < maxX - border && 
+            point.Y() > minY + border && 
+            point.Y() < maxY - border && 
+            point.Z() > minZ + border && 
+            point.Z() < maxZ - border ); 
+}
+
+// -----------------------------------------------------------------------------------------------------------------------------------------
+
 bool AnalysisHelper::IsFiducial(const TVector3 &point)
 {
     // For readability

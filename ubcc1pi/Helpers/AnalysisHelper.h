@@ -26,6 +26,14 @@ class AnalysisHelper
 {
     public:
         /**
+         *  @brief  Check if a position is contained within the TPC with some border margin
+         *
+         *  @param  point the point to check
+         *  @param  border the size of the border around the TPC volume
+         */
+        static bool IsContained(const TVector3 &point, const float border);
+
+        /**
          *  @brief  Check if a position lies in the fiducial volume
          *
          *  @param  point the point to check

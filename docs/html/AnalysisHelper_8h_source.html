@@ -122,60 +122,68 @@ window.onload = initDynSections;
 <a name="l00026"></a>00026 {
 <a name="l00027"></a>00027     <span class="keyword">public</span>:<span class="comment"></span>
 <a name="l00028"></a>00028 <span class="comment">        /**</span>
-<a name="l00029"></a>00029 <span class="comment">         *  @brief  Check if a position lies in the fiducial volume</span>
+<a name="l00029"></a>00029 <span class="comment">         *  @brief  Check if a position is contained within the TPC with some border margin</span>
 <a name="l00030"></a>00030 <span class="comment">         *</span>
 <a name="l00031"></a>00031 <span class="comment">         *  @param  point the point to check</span>
-<a name="l00032"></a>00032 <span class="comment">         */</span>
-<a name="l00033"></a>00033         <span class="keyword">static</span> <span class="keywordtype">bool</span> <a class="code" href="classubcc1pi_1_1AnalysisHelper.html#a97eb991dc3a2a34b7def5444753617fd" title="Check if a position lies in the fiducial volume.">IsFiducial</a>(<span class="keyword">const</span> TVector3 &amp;point);
-<a name="l00034"></a>00034 <span class="comment"></span>
-<a name="l00035"></a>00035 <span class="comment">        /**</span>
-<a name="l00036"></a>00036 <span class="comment">         *  @brief  Check if a MCParticle passes the momentum threshold to be considered by the analysis</span>
-<a name="l00037"></a>00037 <span class="comment">         *</span>
-<a name="l00038"></a>00038 <span class="comment">         *  @param  particle the particle to check</span>
-<a name="l00039"></a>00039 <span class="comment">         */</span>
-<a name="l00040"></a>00040         <span class="keyword">static</span> <span class="keywordtype">bool</span> <a class="code" href="classubcc1pi_1_1AnalysisHelper.html#a7784980335c87fc45a83b64cd1f25a77" title="Check if a MCParticle passes the momentum threshold to be considered by the analysis...">PassesMomentumThreshold</a>(<span class="keyword">const</span> art::Ptr&lt;simb::MCParticle&gt; &amp;particle);
-<a name="l00041"></a>00041 <span class="comment"></span>
-<a name="l00042"></a>00042 <span class="comment">        /**</span>
-<a name="l00043"></a>00043 <span class="comment">         *  @brief  Check if a MCParticle is considered visible to the detector</span>
-<a name="l00044"></a>00044 <span class="comment">         *</span>
-<a name="l00045"></a>00045 <span class="comment">         *  @param  particle the particle to check</span>
-<a name="l00046"></a>00046 <span class="comment">         */</span>
-<a name="l00047"></a>00047         <span class="keyword">static</span> <span class="keywordtype">bool</span> <a class="code" href="classubcc1pi_1_1AnalysisHelper.html#a8805f70cc8abcfd028b9c1f00efe7863" title="Check if a MCParticle is considered visible to the detector.">IsVisible</a>(<span class="keyword">const</span> art::Ptr&lt;simb::MCParticle&gt; &amp;particle);
-<a name="l00048"></a>00048 
-<a name="l00049"></a>00049         <span class="comment">// TODO add doxygen comments</span>
-<a name="l00050"></a>00050         <span class="keyword">static</span> <a class="code" href="namespaceubcc1pi.html#a42e409a54246ea6acba6d873b8eb696c">MCParticleVector</a> <a class="code" href="classubcc1pi_1_1AnalysisHelper.html#adea834a9d7d37d7b670a14a87a6dd288">GetPrimaryParticles</a>(<span class="keyword">const</span> <a class="code" href="classubcc1pi_1_1TruthHelper_1_1Interaction.html" title="The interaction class - represents a neutrino interaction.">TruthHelper::Interaction</a> &amp;interaction);
-<a name="l00051"></a>00051         <span class="keyword">static</span> <a class="code" href="namespaceubcc1pi.html#a42e409a54246ea6acba6d873b8eb696c">MCParticleVector</a> <a class="code" href="classubcc1pi_1_1AnalysisHelper.html#aeba3c3da302c48282b3e11983efe3aad">GetVisibleFinalStates</a>(<span class="keyword">const</span> <a class="code" href="classubcc1pi_1_1TruthHelper_1_1Interaction.html" title="The interaction class - represents a neutrino interaction.">TruthHelper::Interaction</a> &amp;interaction);
-<a name="l00052"></a>00052         <span class="keyword">static</span> <a class="code" href="namespaceubcc1pi.html#a42e409a54246ea6acba6d873b8eb696c">MCParticleVector</a> <a class="code" href="classubcc1pi_1_1AnalysisHelper.html#ad91614dfe95c04b72ab1b92b1e7c725f">GetReconstructableFinalStates</a>(<span class="keyword">const</span> <a class="code" href="classubcc1pi_1_1TruthHelper_1_1Interaction.html" title="The interaction class - represents a neutrino interaction.">TruthHelper::Interaction</a> &amp;interaction);
-<a name="l00053"></a>00053         <span class="keyword">static</span> <span class="keywordtype">bool</span> <a class="code" href="classubcc1pi_1_1AnalysisHelper.html#ad082a3639cf639dac54ebdc740dd0f2a">IsNeutrinoVertexFiducial</a>(<span class="keyword">const</span> <a class="code" href="classubcc1pi_1_1TruthHelper_1_1Interaction.html" title="The interaction class - represents a neutrino interaction.">TruthHelper::Interaction</a> &amp;interaction);
-<a name="l00054"></a>00054         <span class="keyword">static</span> <span class="keywordtype">bool</span> <a class="code" href="classubcc1pi_1_1AnalysisHelper.html#adfe9e4f5eff1afaa590aa6cc90406f4d">IsCC1PiSignal</a>(<span class="keyword">const</span> <a class="code" href="classubcc1pi_1_1TruthHelper_1_1Interaction.html" title="The interaction class - represents a neutrino interaction.">TruthHelper::Interaction</a> &amp;interaction);
-<a name="l00055"></a>00055         <span class="keyword">static</span> <span class="keywordtype">unsigned</span> <span class="keywordtype">int</span> <a class="code" href="classubcc1pi_1_1AnalysisHelper.html#a16f704a96831fa7f2926ae43c3017644">CountParticlesWithPDG</a>(<span class="keyword">const</span> <a class="code" href="namespaceubcc1pi.html#a42e409a54246ea6acba6d873b8eb696c">MCParticleVector</a> &amp;particles, <span class="keyword">const</span> <span class="keywordtype">int</span> pdg);
-<a name="l00056"></a>00056         <span class="keyword">static</span> <a class="code" href="classubcc1pi_1_1BacktrackHelper_1_1BacktrackerData.html" title="Class holding backtracking data.">BacktrackHelper::BacktrackerData</a> <a class="code" href="classubcc1pi_1_1AnalysisHelper.html#a0eecf386ca90ad73a6a7302341e8544d">GetBacktrackerData</a>(<span class="keyword">const</span> art::Event &amp;event, <span class="keyword">const</span> art::InputTag &amp;mcTruthLabel, <span class="keyword">const</span> art::InputTag &amp;mcParticleLabel, <span class="keyword">const</span> art::InputTag &amp;backtrackerLabel, <span class="keyword">const</span> art::InputTag &amp;pfParticleLabel);
-<a name="l00057"></a>00057         <span class="keyword">static</span> <a class="code" href="classubcc1pi_1_1BacktrackHelper_1_1SliceMetadata.html" title="Class holding the backtracking details of the slices.">BacktrackHelper::SliceMetadata</a> <a class="code" href="classubcc1pi_1_1AnalysisHelper.html#a6be17934162ea11ec528b154bd0b6bba">GetSliceMetadata</a>(<span class="keyword">const</span> art::Event &amp;event, <span class="keyword">const</span> art::InputTag &amp;mcTruthLabel, <span class="keyword">const</span> art::InputTag &amp;mcParticleLabel, <span class="keyword">const</span> art::InputTag &amp;backtrackerLabel, <span class="keyword">const</span> art::InputTag &amp;pfParticleLabel, <span class="keyword">const</span> art::InputTag &amp;sliceLabel, <span class="keyword">const</span> art::InputTag &amp;hitLabel);
-<a name="l00058"></a>00058 
-<a name="l00059"></a>00059     <span class="keyword">private</span>:<span class="comment"></span>
-<a name="l00060"></a>00060 <span class="comment">        /**</span>
-<a name="l00061"></a>00061 <span class="comment">         *  @brief  Get the first visible MCParticles in the hierarchy - these are the final state particles we expect to produce tracks and showers</span>
-<a name="l00062"></a>00062 <span class="comment">         *          E.g. Suppose a neutrino iteraction produced a pi0, this function would return the decay photons (since the pi0 itself doesn&apos;t produce any tracks / showers)</span>
-<a name="l00063"></a>00063 <span class="comment">         *</span>
-<a name="l00064"></a>00064 <span class="comment">         *  @param  allMCParticles the input MCParticles</span>
-<a name="l00065"></a>00065 <span class="comment">         *</span>
-<a name="l00066"></a>00066 <span class="comment">         *  @return the visible final state MCParticles</span>
-<a name="l00067"></a>00067 <span class="comment">         */</span>
-<a name="l00068"></a>00068         <span class="keyword">static</span> <a class="code" href="namespaceubcc1pi.html#a42e409a54246ea6acba6d873b8eb696c">MCParticleVector</a> <a class="code" href="classubcc1pi_1_1AnalysisHelper.html#aeba3c3da302c48282b3e11983efe3aad">GetVisibleFinalStates</a>(<span class="keyword">const</span> <a class="code" href="namespaceubcc1pi.html#a42e409a54246ea6acba6d873b8eb696c">MCParticleVector</a> &amp;allMCParticles);
-<a name="l00069"></a>00069 <span class="comment"></span>
-<a name="l00070"></a>00070 <span class="comment">        /**</span>
-<a name="l00071"></a>00071 <span class="comment">         *  @brief  Get the first visible MCParticles downstream of the input particle</span>
-<a name="l00072"></a>00072 <span class="comment">         *</span>
-<a name="l00073"></a>00073 <span class="comment">         *  @param  particle the input particle</span>
-<a name="l00074"></a>00074 <span class="comment">         *  @param  mcParticleMap the mapping from TrackId -&gt; MCParticle</span>
-<a name="l00075"></a>00075 <span class="comment">         *  @param  finalStates the output vector of final state particles to populate</span>
-<a name="l00076"></a>00076 <span class="comment">         */</span>
-<a name="l00077"></a>00077         <span class="keyword">static</span> <span class="keywordtype">void</span> <a class="code" href="classubcc1pi_1_1AnalysisHelper.html#aeba3c3da302c48282b3e11983efe3aad">GetVisibleFinalStates</a>(<span class="keyword">const</span> art::Ptr&lt;simb::MCParticle&gt; &amp;particle, <span class="keyword">const</span> <a class="code" href="namespaceubcc1pi.html#ad270925efcb22aadbfb3e59d150771b9" title="A map intended to hold the mapping from MCParticle.TrackId() -&amp;gt; MCParticle - for...">MCParticleMap</a> &amp;mcParticleMap, <a class="code" href="namespaceubcc1pi.html#a42e409a54246ea6acba6d873b8eb696c">MCParticleVector</a> &amp;finalStates);
-<a name="l00078"></a>00078 };
-<a name="l00079"></a>00079 
-<a name="l00080"></a>00080 } <span class="comment">// namespace ubcc1pi</span>
-<a name="l00081"></a>00081 
-<a name="l00082"></a>00082 <span class="preprocessor">#endif</span>
+<a name="l00032"></a>00032 <span class="comment">         *  @param  border the size of the border around the TPC volume</span>
+<a name="l00033"></a>00033 <span class="comment">         */</span>
+<a name="l00034"></a>00034         <span class="keyword">static</span> <span class="keywordtype">bool</span> <a class="code" href="classubcc1pi_1_1AnalysisHelper.html#a81c814448150742afe56dab8bdb67aa6" title="Check if a position is contained within the TPC with some border margin.">IsContained</a>(<span class="keyword">const</span> TVector3 &amp;point, <span class="keyword">const</span> <span class="keywordtype">float</span> border);
+<a name="l00035"></a>00035 <span class="comment"></span>
+<a name="l00036"></a>00036 <span class="comment">        /**</span>
+<a name="l00037"></a>00037 <span class="comment">         *  @brief  Check if a position lies in the fiducial volume</span>
+<a name="l00038"></a>00038 <span class="comment">         *</span>
+<a name="l00039"></a>00039 <span class="comment">         *  @param  point the point to check</span>
+<a name="l00040"></a>00040 <span class="comment">         */</span>
+<a name="l00041"></a>00041         <span class="keyword">static</span> <span class="keywordtype">bool</span> <a class="code" href="classubcc1pi_1_1AnalysisHelper.html#a97eb991dc3a2a34b7def5444753617fd" title="Check if a position lies in the fiducial volume.">IsFiducial</a>(<span class="keyword">const</span> TVector3 &amp;point);
+<a name="l00042"></a>00042 <span class="comment"></span>
+<a name="l00043"></a>00043 <span class="comment">        /**</span>
+<a name="l00044"></a>00044 <span class="comment">         *  @brief  Check if a MCParticle passes the momentum threshold to be considered by the analysis</span>
+<a name="l00045"></a>00045 <span class="comment">         *</span>
+<a name="l00046"></a>00046 <span class="comment">         *  @param  particle the particle to check</span>
+<a name="l00047"></a>00047 <span class="comment">         */</span>
+<a name="l00048"></a>00048         <span class="keyword">static</span> <span class="keywordtype">bool</span> <a class="code" href="classubcc1pi_1_1AnalysisHelper.html#a7784980335c87fc45a83b64cd1f25a77" title="Check if a MCParticle passes the momentum threshold to be considered by the analysis...">PassesMomentumThreshold</a>(<span class="keyword">const</span> art::Ptr&lt;simb::MCParticle&gt; &amp;particle);
+<a name="l00049"></a>00049 <span class="comment"></span>
+<a name="l00050"></a>00050 <span class="comment">        /**</span>
+<a name="l00051"></a>00051 <span class="comment">         *  @brief  Check if a MCParticle is considered visible to the detector</span>
+<a name="l00052"></a>00052 <span class="comment">         *</span>
+<a name="l00053"></a>00053 <span class="comment">         *  @param  particle the particle to check</span>
+<a name="l00054"></a>00054 <span class="comment">         */</span>
+<a name="l00055"></a>00055         <span class="keyword">static</span> <span class="keywordtype">bool</span> <a class="code" href="classubcc1pi_1_1AnalysisHelper.html#a8805f70cc8abcfd028b9c1f00efe7863" title="Check if a MCParticle is considered visible to the detector.">IsVisible</a>(<span class="keyword">const</span> art::Ptr&lt;simb::MCParticle&gt; &amp;particle);
+<a name="l00056"></a>00056 
+<a name="l00057"></a>00057         <span class="comment">// TODO add doxygen comments</span>
+<a name="l00058"></a>00058         <span class="keyword">static</span> <a class="code" href="namespaceubcc1pi.html#a42e409a54246ea6acba6d873b8eb696c">MCParticleVector</a> <a class="code" href="classubcc1pi_1_1AnalysisHelper.html#adea834a9d7d37d7b670a14a87a6dd288">GetPrimaryParticles</a>(<span class="keyword">const</span> <a class="code" href="classubcc1pi_1_1TruthHelper_1_1Interaction.html" title="The interaction class - represents a neutrino interaction.">TruthHelper::Interaction</a> &amp;interaction);
+<a name="l00059"></a>00059         <span class="keyword">static</span> <a class="code" href="namespaceubcc1pi.html#a42e409a54246ea6acba6d873b8eb696c">MCParticleVector</a> <a class="code" href="classubcc1pi_1_1AnalysisHelper.html#aeba3c3da302c48282b3e11983efe3aad">GetVisibleFinalStates</a>(<span class="keyword">const</span> <a class="code" href="classubcc1pi_1_1TruthHelper_1_1Interaction.html" title="The interaction class - represents a neutrino interaction.">TruthHelper::Interaction</a> &amp;interaction);
+<a name="l00060"></a>00060         <span class="keyword">static</span> <a class="code" href="namespaceubcc1pi.html#a42e409a54246ea6acba6d873b8eb696c">MCParticleVector</a> <a class="code" href="classubcc1pi_1_1AnalysisHelper.html#ad91614dfe95c04b72ab1b92b1e7c725f">GetReconstructableFinalStates</a>(<span class="keyword">const</span> <a class="code" href="classubcc1pi_1_1TruthHelper_1_1Interaction.html" title="The interaction class - represents a neutrino interaction.">TruthHelper::Interaction</a> &amp;interaction);
+<a name="l00061"></a>00061         <span class="keyword">static</span> <span class="keywordtype">bool</span> <a class="code" href="classubcc1pi_1_1AnalysisHelper.html#ad082a3639cf639dac54ebdc740dd0f2a">IsNeutrinoVertexFiducial</a>(<span class="keyword">const</span> <a class="code" href="classubcc1pi_1_1TruthHelper_1_1Interaction.html" title="The interaction class - represents a neutrino interaction.">TruthHelper::Interaction</a> &amp;interaction);
+<a name="l00062"></a>00062         <span class="keyword">static</span> <span class="keywordtype">bool</span> <a class="code" href="classubcc1pi_1_1AnalysisHelper.html#adfe9e4f5eff1afaa590aa6cc90406f4d">IsCC1PiSignal</a>(<span class="keyword">const</span> <a class="code" href="classubcc1pi_1_1TruthHelper_1_1Interaction.html" title="The interaction class - represents a neutrino interaction.">TruthHelper::Interaction</a> &amp;interaction);
+<a name="l00063"></a>00063         <span class="keyword">static</span> <span class="keywordtype">unsigned</span> <span class="keywordtype">int</span> <a class="code" href="classubcc1pi_1_1AnalysisHelper.html#a16f704a96831fa7f2926ae43c3017644">CountParticlesWithPDG</a>(<span class="keyword">const</span> <a class="code" href="namespaceubcc1pi.html#a42e409a54246ea6acba6d873b8eb696c">MCParticleVector</a> &amp;particles, <span class="keyword">const</span> <span class="keywordtype">int</span> pdg);
+<a name="l00064"></a>00064         <span class="keyword">static</span> <a class="code" href="classubcc1pi_1_1BacktrackHelper_1_1BacktrackerData.html" title="Class holding backtracking data.">BacktrackHelper::BacktrackerData</a> <a class="code" href="classubcc1pi_1_1AnalysisHelper.html#a0eecf386ca90ad73a6a7302341e8544d">GetBacktrackerData</a>(<span class="keyword">const</span> art::Event &amp;event, <span class="keyword">const</span> art::InputTag &amp;mcTruthLabel, <span class="keyword">const</span> art::InputTag &amp;mcParticleLabel, <span class="keyword">const</span> art::InputTag &amp;backtrackerLabel, <span class="keyword">const</span> art::InputTag &amp;pfParticleLabel);
+<a name="l00065"></a>00065         <span class="keyword">static</span> <a class="code" href="classubcc1pi_1_1BacktrackHelper_1_1SliceMetadata.html" title="Class holding the backtracking details of the slices.">BacktrackHelper::SliceMetadata</a> <a class="code" href="classubcc1pi_1_1AnalysisHelper.html#a6be17934162ea11ec528b154bd0b6bba">GetSliceMetadata</a>(<span class="keyword">const</span> art::Event &amp;event, <span class="keyword">const</span> art::InputTag &amp;mcTruthLabel, <span class="keyword">const</span> art::InputTag &amp;mcParticleLabel, <span class="keyword">const</span> art::InputTag &amp;backtrackerLabel, <span class="keyword">const</span> art::InputTag &amp;pfParticleLabel, <span class="keyword">const</span> art::InputTag &amp;sliceLabel, <span class="keyword">const</span> art::InputTag &amp;hitLabel);
+<a name="l00066"></a>00066 
+<a name="l00067"></a>00067     <span class="keyword">private</span>:<span class="comment"></span>
+<a name="l00068"></a>00068 <span class="comment">        /**</span>
+<a name="l00069"></a>00069 <span class="comment">         *  @brief  Get the first visible MCParticles in the hierarchy - these are the final state particles we expect to produce tracks and showers</span>
+<a name="l00070"></a>00070 <span class="comment">         *          E.g. Suppose a neutrino iteraction produced a pi0, this function would return the decay photons (since the pi0 itself doesn&apos;t produce any tracks / showers)</span>
+<a name="l00071"></a>00071 <span class="comment">         *</span>
+<a name="l00072"></a>00072 <span class="comment">         *  @param  allMCParticles the input MCParticles</span>
+<a name="l00073"></a>00073 <span class="comment">         *</span>
+<a name="l00074"></a>00074 <span class="comment">         *  @return the visible final state MCParticles</span>
+<a name="l00075"></a>00075 <span class="comment">         */</span>
+<a name="l00076"></a>00076         <span class="keyword">static</span> <a class="code" href="namespaceubcc1pi.html#a42e409a54246ea6acba6d873b8eb696c">MCParticleVector</a> <a class="code" href="classubcc1pi_1_1AnalysisHelper.html#aeba3c3da302c48282b3e11983efe3aad">GetVisibleFinalStates</a>(<span class="keyword">const</span> <a class="code" href="namespaceubcc1pi.html#a42e409a54246ea6acba6d873b8eb696c">MCParticleVector</a> &amp;allMCParticles);
+<a name="l00077"></a>00077 <span class="comment"></span>
+<a name="l00078"></a>00078 <span class="comment">        /**</span>
+<a name="l00079"></a>00079 <span class="comment">         *  @brief  Get the first visible MCParticles downstream of the input particle</span>
+<a name="l00080"></a>00080 <span class="comment">         *</span>
+<a name="l00081"></a>00081 <span class="comment">         *  @param  particle the input particle</span>
+<a name="l00082"></a>00082 <span class="comment">         *  @param  mcParticleMap the mapping from TrackId -&gt; MCParticle</span>
+<a name="l00083"></a>00083 <span class="comment">         *  @param  finalStates the output vector of final state particles to populate</span>
+<a name="l00084"></a>00084 <span class="comment">         */</span>
+<a name="l00085"></a>00085         <span class="keyword">static</span> <span class="keywordtype">void</span> <a class="code" href="classubcc1pi_1_1AnalysisHelper.html#aeba3c3da302c48282b3e11983efe3aad">GetVisibleFinalStates</a>(<span class="keyword">const</span> art::Ptr&lt;simb::MCParticle&gt; &amp;particle, <span class="keyword">const</span> <a class="code" href="namespaceubcc1pi.html#ad270925efcb22aadbfb3e59d150771b9" title="A map intended to hold the mapping from MCParticle.TrackId() -&amp;gt; MCParticle - for...">MCParticleMap</a> &amp;mcParticleMap, <a class="code" href="namespaceubcc1pi.html#a42e409a54246ea6acba6d873b8eb696c">MCParticleVector</a> &amp;finalStates);
+<a name="l00086"></a>00086 };
+<a name="l00087"></a>00087 
+<a name="l00088"></a>00088 } <span class="comment">// namespace ubcc1pi</span>
+<a name="l00089"></a>00089 
+<a name="l00090"></a>00090 <span class="preprocessor">#endif</span>
 </pre></div></div>
 <!--- window showing the filter options -->
 <div id="MSearchSelectWindow"
@@ -194,7 +202,7 @@ window.onload = initDynSections;
 <hr size="1"/>
 <address style="text-align: right;">
     <small>
-        Generated on Tue Jun 11 14:52:18 2019 for ubcc1pi by <a href="http://www.doxygen.org/index.html" target="_blank">doxygen</a> 1.6.1
+        Generated on Tue Jun 25 14:26:14 2019 for ubcc1pi by <a href="http://www.doxygen.org/index.html" target="_blank">doxygen</a> 1.6.1
     </small>
 </address>
 

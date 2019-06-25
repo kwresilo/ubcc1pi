@@ -14,41 +14,41 @@ services.TFileService: {fileName: "eventSelection.root"}
 
 physics:
 {
-#    producers:
-#    {
-#        pandoraAllAsTrack:           @local::microboone_pandoraTrackCreation
-#        pandoraAllAsTrackCaloSCE:    @local::microboone_reco_mcc8_producers.pandoracaloSCE
-#        pandoraAllAsTrackCaliSCE:    @local::microboone_reco_mcc8_producers.pandoracaliSCE
-#        pandoraAllAsTrackCaliPidSCE: @local::microboone_reco_mcc8_producers.pandoracalipidSCE
-#    }
+    producers:
+    {
+        pandoraAllAsTrack:           @local::microboone_pandoraTrackCreation
+        pandoraAllAsTrackCaloSCE:    @local::microboone_reco_mcc8_producers.pandoracaloSCE
+        pandoraAllAsTrackCaliSCE:    @local::microboone_reco_mcc8_producers.pandoracaliSCE
+        pandoraAllAsTrackCaliPidSCE: @local::microboone_reco_mcc8_producers.pandoracalipidSCE
+    }
 
     analyzers:
     {
         eventSelection: @local::event_selection
     }
 
-#    reco: [ pandoraAllAsTrack, pandoraAllAsTrackCaloSCE, pandoraAllAsTrackCaliSCE, pandoraAllAsTrackCaliPidSCE ]
+    reco: [ pandoraAllAsTrack, pandoraAllAsTrackCaloSCE, pandoraAllAsTrackCaliSCE, pandoraAllAsTrackCaliPidSCE ]
     ana: [ eventSelection ]
 
-#    trigger_paths: [ reco ]
+    trigger_paths: [ reco ]
     end_paths: [ ana ]
 }
 
-#physics.producers.pandoraAllAsTrack.PFParticleLabel:                  "pandora"
-#physics.producers.pandoraAllAsTrack.UseAllParticles:                  true
-#
-#physics.producers.pandoraAllAsTrackCaloSCE.TrackModuleLabel:          "pandoraAllAsTrack"
-#
-#physics.producers.pandoraAllAsTrackCaliSCE.TrackModuleLabel:          "pandoraAllAsTrack"
-#physics.producers.pandoraAllAsTrackCaliSCE.CalorimetryModuleLabel:    "pandoraAllAsTrackCaloSCE"
-#
-#physics.producers.pandoraAllAsTrackCaliPidSCE.TrackModuleLabel:       "pandoraAllAsTrack"
-#physics.producers.pandoraAllAsTrackCaliPidSCE.CalorimetryModuleLabel: "pandoraAllAsTrackCaliSCE"
-#         
-#physics.producers.pandoraAllAsTrackCaliPidSCE.ProducerLabels.CaloTrackAssn:    "pandoraAllAsTrackCaliSCE"
-#physics.producers.pandoraAllAsTrackCaliPidSCE.ProducerLabels.CalorimetryLabel: "pandoraAllAsTrackCaliSCE"
-#physics.producers.pandoraAllAsTrackCaliPidSCE.ProducerLabels.HitTrackAssn:     "pandoraAllAsTrack"
-#physics.producers.pandoraAllAsTrackCaliPidSCE.ProducerLabels.TrackLabel:       "pandoraAllAsTrack"
-#
-#physics.analyzers.eventSelection.TrackLabel: "pandoraAllAsTrack"
-#physics.analyzers.eventSelection.PIDLabel:   "pandoraAllAsTrackCaliPidSCE"
+physics.producers.pandoraAllAsTrack.PFParticleLabel:                  "pandora"
+physics.producers.pandoraAllAsTrack.UseAllParticles:                  true
+
+physics.producers.pandoraAllAsTrackCaloSCE.TrackModuleLabel:          "pandoraAllAsTrack"
+
+physics.producers.pandoraAllAsTrackCaliSCE.TrackModuleLabel:          "pandoraAllAsTrack"
+physics.producers.pandoraAllAsTrackCaliSCE.CalorimetryModuleLabel:    "pandoraAllAsTrackCaloSCE"
+
+physics.producers.pandoraAllAsTrackCaliPidSCE.TrackModuleLabel:       "pandoraAllAsTrack"
+physics.producers.pandoraAllAsTrackCaliPidSCE.CalorimetryModuleLabel: "pandoraAllAsTrackCaliSCE"
+         
+physics.producers.pandoraAllAsTrackCaliPidSCE.ProducerLabels.CaloTrackAssn:    "pandoraAllAsTrackCaliSCE"
+physics.producers.pandoraAllAsTrackCaliPidSCE.ProducerLabels.CalorimetryLabel: "pandoraAllAsTrackCaliSCE"
+physics.producers.pandoraAllAsTrackCaliPidSCE.ProducerLabels.HitTrackAssn:     "pandoraAllAsTrack"
+physics.producers.pandoraAllAsTrackCaliPidSCE.ProducerLabels.TrackLabel:       "pandoraAllAsTrack"
+
+physics.analyzers.eventSelection.TrackLabel: "pandoraAllAsTrack"
+physics.analyzers.eventSelection.PIDLabel:   "pandoraAllAsTrackCaliPidSCE"

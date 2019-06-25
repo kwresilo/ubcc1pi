@@ -22,7 +22,7 @@
 <!ENTITY inputDef        "prodgenie_bnb_nu_uboone_overlay_mcc9.0_run1_reco2">
 
 <!-- Job settings -->
-<!ENTITY numJobs         "260"> <!-- 260 -->
+<!ENTITY numJobs         "610"> <!-- 610 -->
 <!ENTITY maxFilesPerJob  "40">
 <!ENTITY numEvents       "9999999999999999999999999999999999999999999999999999999999999">
 <!-- NB. I use large number for numEvents to get all events in the files, it's not really the number of events that will be processed -->
@@ -43,7 +43,10 @@
 <!ENTITY truthStudyName  "truthStudy">
 <!ENTITY truthStudyFcl   "truth_study_driver.fcl">
 
-<!ENTITY eventSelectionName  "eventSelection-30052019">
+<!ENTITY pidStudyName    "pidStudy">
+<!ENTITY pidStudyFcl     "pid_study_driver_all_as_tracks.fcl">
+
+<!ENTITY eventSelectionName  "eventSelection">
 <!ENTITY eventSelectionFcl   "event_selection_driver.fcl">
 
 ]>
@@ -112,6 +115,29 @@
         <outdir>/pnfs/uboone/scratch/users/&username;/&projectName;/&truthStudyName;/</outdir> 
         <logdir>/pnfs/uboone/scratch/users/&username;/&projectName;/&truthStudyName;/</logdir> 
         <workdir>/pnfs/uboone/resilient/users/&username;/work/&projectName;/&truthStudyName;/</workdir> 
+
+        <!-- Options -->
+        <datatier>&dataTier;</datatier>
+        <schema>&schema;</schema>
+    </stage>
+    
+    <!-- =============================================================================================================================== -->
+    <!-- PID study -->
+    <!-- =============================================================================================================================== -->
+    <stage name="&pidStudyName;">
+        <!-- Settings -->
+        <fcl>&pidStudyFcl;</fcl>
+        <numjobs>&numJobs;</numjobs>
+        <maxfilesperjob>&maxFilesPerJob;</maxfilesperjob>
+        <numevents>&numEvents;</numevents>
+
+        <!-- Input files -->
+        <inputdef>&inputDef;</inputdef>
+
+        <!-- Output directories -->
+        <outdir>/pnfs/uboone/scratch/users/&username;/&projectName;/&pidStudyName;/</outdir> 
+        <logdir>/pnfs/uboone/scratch/users/&username;/&projectName;/&pidStudyName;/</logdir> 
+        <workdir>/pnfs/uboone/resilient/users/&username;/work/&projectName;/&pidStudyName;/</workdir> 
 
         <!-- Options -->
         <datatier>&dataTier;</datatier>

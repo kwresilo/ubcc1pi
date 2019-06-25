@@ -209,6 +209,13 @@ float RecoHelper::GetTrackScore(const art::Ptr<larpandoraobj::PFParticleMetadata
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
 
+float RecoHelper::GetTopologicalScore(const art::Ptr<larpandoraobj::PFParticleMetadata> &metadata)
+{
+    return RecoHelper::GetMetadataFloat(metadata, "NuScore");
+}
+
+// -----------------------------------------------------------------------------------------------------------------------------------------
+
 unsigned int RecoHelper::CountHitsInView(const HitVector &hits, const geo::View_t &view)
 {
     unsigned int count = 0;
