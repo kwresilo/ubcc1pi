@@ -361,7 +361,7 @@ window.onload = initDynSections;
 <a name="l00265"></a>00265     <span class="keyword">const</span> <a class="code" href="classubcc1pi_1_1TruthHelper_1_1Interaction.html" title="The interaction class - represents a neutrino interaction.">TruthHelper::Interaction</a> interaction(event, <a class="code" href="classubcc1pi_1_1EventSelection.html#ad5d85af976f7345531c4fdf74a6e84e6" title="The FHiCL configuration options.">m_config</a>().MCTruthLabel(), <a class="code" href="classubcc1pi_1_1EventSelection.html#ad5d85af976f7345531c4fdf74a6e84e6" title="The FHiCL configuration options.">m_config</a>().MCParticleLabel());
 <a name="l00266"></a>00266 
 <a name="l00267"></a>00267     <a class="code" href="classubcc1pi_1_1EventSelection.html#ab1cd5046a9ddeb71045f8378a476ca1b" title="The output event-level object.">m_outputEvent</a>.<a class="code" href="structubcc1pi_1_1EventSelection_1_1OutputEvent.html#abdbf4ba01503ff236ceffc12f7af8890" title="If the event is a true CC1Pi signal.">m_isSignal</a> = <a class="code" href="classubcc1pi_1_1AnalysisHelper.html#adfe9e4f5eff1afaa590aa6cc90406f4d">AnalysisHelper::IsCC1PiSignal</a>(interaction);
-<a name="l00268"></a>00268     <a class="code" href="classubcc1pi_1_1EventSelection.html#ab1cd5046a9ddeb71045f8378a476ca1b" title="The output event-level object.">m_outputEvent</a>.<a class="code" href="structubcc1pi_1_1EventSelection_1_1OutputEvent.html#ae17762ee3972dbab596a14e93bf6ff39" title="The interaction type string.">m_interaction</a> = <a class="code" href="classubcc1pi_1_1DebugHelper.html#afa3de270caa2516a65cd135df91bc398">DebugHelper::GetInteractionString</a>(interaction, <span class="keyword">true</span>);
+<a name="l00268"></a>00268     <a class="code" href="classubcc1pi_1_1EventSelection.html#ab1cd5046a9ddeb71045f8378a476ca1b" title="The output event-level object.">m_outputEvent</a>.<a class="code" href="structubcc1pi_1_1EventSelection_1_1OutputEvent.html#ae17762ee3972dbab596a14e93bf6ff39" title="The interaction type string.">m_interaction</a> = <a class="code" href="classubcc1pi_1_1DebugHelper.html#afa3de270caa2516a65cd135df91bc398" title="Get a string that describes a given interaction.">DebugHelper::GetInteractionString</a>(interaction, <span class="keyword">true</span>);
 <a name="l00269"></a>00269 
 <a name="l00270"></a>00270     <span class="keyword">const</span> <span class="keyword">auto</span> mcNeutrino = interaction.<a class="code" href="classubcc1pi_1_1TruthHelper_1_1Interaction.html#a401fba4175bb4b253e4cb4778f2ede93" title="Get the MCParticle of the neutrino.">GetNeutrino</a>();
 <a name="l00271"></a>00271     <a class="code" href="classubcc1pi_1_1EventSelection.html#ab1cd5046a9ddeb71045f8378a476ca1b" title="The output event-level object.">m_outputEvent</a>.<a class="code" href="structubcc1pi_1_1EventSelection_1_1OutputEvent.html#a7419780da7967f15c7a56d3df9c0bc98" title="The true neutrino energy.">m_trueNuE</a> = mcNeutrino.E();
@@ -995,7 +995,7 @@ window.onload = initDynSections;
 <hr size="1"/>
 <address style="text-align: right;">
     <small>
-        Generated on Tue Jun 25 14:26:14 2019 for ubcc1pi by <a href="http://www.doxygen.org/index.html" target="_blank">doxygen</a> 1.6.1
+        Generated on Thu Jun 27 13:24:08 2019 for ubcc1pi by <a href="http://www.doxygen.org/index.html" target="_blank">doxygen</a> 1.6.1
     </small>
 </address>
 
