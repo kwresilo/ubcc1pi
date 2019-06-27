@@ -363,7 +363,7 @@ window.onload = initDynSections;
 <a name="l00267"></a>00267     <a class="code" href="classubcc1pi_1_1EventSelection.html#ab1cd5046a9ddeb71045f8378a476ca1b" title="The output event-level object.">m_outputEvent</a>.<a class="code" href="structubcc1pi_1_1EventSelection_1_1OutputEvent.html#abdbf4ba01503ff236ceffc12f7af8890" title="If the event is a true CC1Pi signal.">m_isSignal</a> = <a class="code" href="classubcc1pi_1_1AnalysisHelper.html#adfe9e4f5eff1afaa590aa6cc90406f4d">AnalysisHelper::IsCC1PiSignal</a>(interaction);
 <a name="l00268"></a>00268     <a class="code" href="classubcc1pi_1_1EventSelection.html#ab1cd5046a9ddeb71045f8378a476ca1b" title="The output event-level object.">m_outputEvent</a>.<a class="code" href="structubcc1pi_1_1EventSelection_1_1OutputEvent.html#ae17762ee3972dbab596a14e93bf6ff39" title="The interaction type string.">m_interaction</a> = <a class="code" href="classubcc1pi_1_1DebugHelper.html#afa3de270caa2516a65cd135df91bc398" title="Get a string that describes a given interaction.">DebugHelper::GetInteractionString</a>(interaction, <span class="keyword">true</span>);
 <a name="l00269"></a>00269 
-<a name="l00270"></a>00270     <span class="keyword">const</span> <span class="keyword">auto</span> mcNeutrino = interaction.<a class="code" href="classubcc1pi_1_1TruthHelper_1_1Interaction.html#a401fba4175bb4b253e4cb4778f2ede93" title="Get the MCParticle of the neutrino.">GetNeutrino</a>();
+<a name="l00270"></a>00270     <span class="keyword">const</span> <span class="keyword">auto</span> mcNeutrino = interaction.<a class="code" href="classubcc1pi_1_1TruthHelper_1_1Interaction.html#a401fba4175bb4b253e4cb4778f2ede93" title="Get the neutrino MCParticle.">GetNeutrino</a>();
 <a name="l00271"></a>00271     <a class="code" href="classubcc1pi_1_1EventSelection.html#ab1cd5046a9ddeb71045f8378a476ca1b" title="The output event-level object.">m_outputEvent</a>.<a class="code" href="structubcc1pi_1_1EventSelection_1_1OutputEvent.html#a7419780da7967f15c7a56d3df9c0bc98" title="The true neutrino energy.">m_trueNuE</a> = mcNeutrino.E();
 <a name="l00272"></a>00272     <a class="code" href="classubcc1pi_1_1EventSelection.html#ab1cd5046a9ddeb71045f8378a476ca1b" title="The output event-level object.">m_outputEvent</a>.<a class="code" href="structubcc1pi_1_1EventSelection_1_1OutputEvent.html#a0a8f41aa2fafee7b56efa0f6a23982b3" title="The true neutrino vertex position.">m_trueNuVtx</a> = TVector3(mcNeutrino.Vx(), mcNeutrino.Vy(), mcNeutrino.Vz());
 <a name="l00273"></a>00273     <a class="code" href="classubcc1pi_1_1EventSelection.html#ab1cd5046a9ddeb71045f8378a476ca1b" title="The output event-level object.">m_outputEvent</a>.<a class="code" href="structubcc1pi_1_1EventSelection_1_1OutputEvent.html#a31ce0740a2c0b65ef47e0c150290cab3" title="If the neutrino interaction is fiducial.">m_isTrueNuFiducial</a> = <a class="code" href="classubcc1pi_1_1AnalysisHelper.html#ad082a3639cf639dac54ebdc740dd0f2a">AnalysisHelper::IsNeutrinoVertexFiducial</a>(interaction);
@@ -995,7 +995,7 @@ window.onload = initDynSections;
 <hr size="1"/>
 <address style="text-align: right;">
     <small>
-        Generated on Thu Jun 27 14:04:32 2019 for ubcc1pi by <a href="http://www.doxygen.org/index.html" target="_blank">doxygen</a> 1.6.1
+        Generated on Thu Jun 27 15:05:00 2019 for ubcc1pi by <a href="http://www.doxygen.org/index.html" target="_blank">doxygen</a> 1.6.1
     </small>
 </address>
 

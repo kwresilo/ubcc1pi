@@ -113,6 +113,7 @@ window.onload = initDynSections;
 <tr><td class="memItemLeft" align="right" valign="top">static bool&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classubcc1pi_1_1AnalysisHelper.html#a8805f70cc8abcfd028b9c1f00efe7863">IsVisible</a> (const art::Ptr&lt; simb::MCParticle &gt; &amp;particle)</td></tr>
 <tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">Check if a MCParticle is considered visible to the detector.  <a href="#a8805f70cc8abcfd028b9c1f00efe7863"></a><br/></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">static <a class="el" href="namespaceubcc1pi.html#a42e409a54246ea6acba6d873b8eb696c">MCParticleVector</a>&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classubcc1pi_1_1AnalysisHelper.html#adea834a9d7d37d7b670a14a87a6dd288">GetPrimaryParticles</a> (const <a class="el" href="classubcc1pi_1_1TruthHelper_1_1Interaction.html">TruthHelper::Interaction</a> &amp;interaction)</td></tr>
+<tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">Get the primary MCParticles from the input interaction.  <a href="#adea834a9d7d37d7b670a14a87a6dd288"></a><br/></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">static <a class="el" href="namespaceubcc1pi.html#a42e409a54246ea6acba6d873b8eb696c">MCParticleVector</a>&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classubcc1pi_1_1AnalysisHelper.html#aeba3c3da302c48282b3e11983efe3aad">GetVisibleFinalStates</a> (const <a class="el" href="classubcc1pi_1_1TruthHelper_1_1Interaction.html">TruthHelper::Interaction</a> &amp;interaction)</td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">static <a class="el" href="namespaceubcc1pi.html#a42e409a54246ea6acba6d873b8eb696c">MCParticleVector</a>&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classubcc1pi_1_1AnalysisHelper.html#ad91614dfe95c04b72ab1b92b1e7c725f">GetReconstructableFinalStates</a> (const <a class="el" href="classubcc1pi_1_1TruthHelper_1_1Interaction.html">TruthHelper::Interaction</a> &amp;interaction)</td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">static bool&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classubcc1pi_1_1AnalysisHelper.html#ad082a3639cf639dac54ebdc740dd0f2a">IsNeutrinoVertexFiducial</a> (const <a class="el" href="classubcc1pi_1_1TruthHelper_1_1Interaction.html">TruthHelper::Interaction</a> &amp;interaction)</td></tr>
@@ -158,6 +159,14 @@ window.onload = initDynSections;
       </table>
 </div>
 <div class="memdoc">
+<dl><dt><b>Parameters:</b></dt><dd>
+  <table border="0" cellspacing="2" cellpadding="0">
+    <tr><td valign="top"></td><td valign="top"><em>particles</em>&nbsp;</td><td></td></tr>
+    <tr><td valign="top"></td><td valign="top"><em>pdg</em>&nbsp;</td><td></td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="return"><dt><b>Returns:</b></dt><dd></dd></dl>
 
 <p>Definition at line <a class="el" href="AnalysisHelper_8cxx_source.html#l00214">214</a> of file <a class="el" href="AnalysisHelper_8cxx_source.html">AnalysisHelper.cxx</a>.</p>
 
@@ -205,6 +214,17 @@ window.onload = initDynSections;
       </table>
 </div>
 <div class="memdoc">
+<dl><dt><b>Parameters:</b></dt><dd>
+  <table border="0" cellspacing="2" cellpadding="0">
+    <tr><td valign="top"></td><td valign="top"><em>event</em>&nbsp;</td><td></td></tr>
+    <tr><td valign="top"></td><td valign="top"><em>mcTruthLabel</em>&nbsp;</td><td></td></tr>
+    <tr><td valign="top"></td><td valign="top"><em>mcParticleLabel</em>&nbsp;</td><td></td></tr>
+    <tr><td valign="top"></td><td valign="top"><em>backtrackerLabel</em>&nbsp;</td><td></td></tr>
+    <tr><td valign="top"></td><td valign="top"><em>pfParticleLabel</em>&nbsp;</td><td></td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="return"><dt><b>Returns:</b></dt><dd></dd></dl>
 
 <p>Definition at line <a class="el" href="AnalysisHelper_8cxx_source.html#l00229">229</a> of file <a class="el" href="AnalysisHelper_8cxx_source.html">AnalysisHelper.cxx</a>.</p>
 
@@ -226,6 +246,15 @@ window.onload = initDynSections;
 </div>
 <div class="memdoc">
 
+<p>Get the primary MCParticles from the input interaction. </p>
+<dl><dt><b>Parameters:</b></dt><dd>
+  <table border="0" cellspacing="2" cellpadding="0">
+    <tr><td valign="top"></td><td valign="top"><em>interaction</em>&nbsp;</td><td>the interaction</td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="return"><dt><b>Returns:</b></dt><dd>primary MCParticles </dd></dl>
+
 <p>Definition at line <a class="el" href="AnalysisHelper_8cxx_source.html#l00141">141</a> of file <a class="el" href="AnalysisHelper_8cxx_source.html">AnalysisHelper.cxx</a>.</p>
 
 </div>
@@ -245,6 +274,13 @@ window.onload = initDynSections;
       </table>
 </div>
 <div class="memdoc">
+<dl><dt><b>Parameters:</b></dt><dd>
+  <table border="0" cellspacing="2" cellpadding="0">
+    <tr><td valign="top"></td><td valign="top"><em>interaction</em>&nbsp;</td><td></td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="return"><dt><b>Returns:</b></dt><dd></dd></dl>
 
 <p>Definition at line <a class="el" href="AnalysisHelper_8cxx_source.html#l00155">155</a> of file <a class="el" href="AnalysisHelper_8cxx_source.html">AnalysisHelper.cxx</a>.</p>
 
@@ -304,6 +340,19 @@ window.onload = initDynSections;
       </table>
 </div>
 <div class="memdoc">
+<dl><dt><b>Parameters:</b></dt><dd>
+  <table border="0" cellspacing="2" cellpadding="0">
+    <tr><td valign="top"></td><td valign="top"><em>event</em>&nbsp;</td><td></td></tr>
+    <tr><td valign="top"></td><td valign="top"><em>mcTruthLabel</em>&nbsp;</td><td></td></tr>
+    <tr><td valign="top"></td><td valign="top"><em>mcParticleLabel</em>&nbsp;</td><td></td></tr>
+    <tr><td valign="top"></td><td valign="top"><em>backtrackerLabel</em>&nbsp;</td><td></td></tr>
+    <tr><td valign="top"></td><td valign="top"><em>pfParticleLabel</em>&nbsp;</td><td></td></tr>
+    <tr><td valign="top"></td><td valign="top"><em>sliceLabel</em>&nbsp;</td><td></td></tr>
+    <tr><td valign="top"></td><td valign="top"><em>hitLabel</em>&nbsp;</td><td></td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="return"><dt><b>Returns:</b></dt><dd></dd></dl>
 
 <p>Definition at line <a class="el" href="AnalysisHelper_8cxx_source.html#l00245">245</a> of file <a class="el" href="AnalysisHelper_8cxx_source.html">AnalysisHelper.cxx</a>.</p>
 
@@ -398,6 +447,13 @@ window.onload = initDynSections;
       </table>
 </div>
 <div class="memdoc">
+<dl><dt><b>Parameters:</b></dt><dd>
+  <table border="0" cellspacing="2" cellpadding="0">
+    <tr><td valign="top"></td><td valign="top"><em>interaction</em>&nbsp;</td><td></td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="return"><dt><b>Returns:</b></dt><dd></dd></dl>
 
 <p>Definition at line <a class="el" href="AnalysisHelper_8cxx_source.html#l00148">148</a> of file <a class="el" href="AnalysisHelper_8cxx_source.html">AnalysisHelper.cxx</a>.</p>
 
@@ -418,6 +474,13 @@ window.onload = initDynSections;
       </table>
 </div>
 <div class="memdoc">
+<dl><dt><b>Parameters:</b></dt><dd>
+  <table border="0" cellspacing="2" cellpadding="0">
+    <tr><td valign="top"></td><td valign="top"><em>interaction</em>&nbsp;</td><td></td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="return"><dt><b>Returns:</b></dt><dd></dd></dl>
 
 <p>Definition at line <a class="el" href="AnalysisHelper_8cxx_source.html#l00177">177</a> of file <a class="el" href="AnalysisHelper_8cxx_source.html">AnalysisHelper.cxx</a>.</p>
 
@@ -504,6 +567,13 @@ window.onload = initDynSections;
       </table>
 </div>
 <div class="memdoc">
+<dl><dt><b>Parameters:</b></dt><dd>
+  <table border="0" cellspacing="2" cellpadding="0">
+    <tr><td valign="top"></td><td valign="top"><em>interaction</em>&nbsp;</td><td></td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="return"><dt><b>Returns:</b></dt><dd></dd></dl>
 
 <p>Definition at line <a class="el" href="AnalysisHelper_8cxx_source.html#l00170">170</a> of file <a class="el" href="AnalysisHelper_8cxx_source.html">AnalysisHelper.cxx</a>.</p>
 
@@ -587,7 +657,7 @@ window.onload = initDynSections;
 <hr size="1"/>
 <address style="text-align: right;">
     <small>
-        Generated on Thu Jun 27 14:04:32 2019 for ubcc1pi by <a href="http://www.doxygen.org/index.html" target="_blank">doxygen</a> 1.6.1
+        Generated on Thu Jun 27 15:05:01 2019 for ubcc1pi by <a href="http://www.doxygen.org/index.html" target="_blank">doxygen</a> 1.6.1
     </small>
 </address>
 

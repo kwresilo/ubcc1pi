@@ -54,14 +54,87 @@ class AnalysisHelper
          */
         static bool IsVisible(const art::Ptr<simb::MCParticle> &particle);
 
-        // TODO add doxygen comments
+        /**
+         *  @brief  Get the primary MCParticles from the input interaction 
+         *
+         *  @param  interaction the interaction
+         *
+         *  @return primary MCParticles
+         */
         static MCParticleVector GetPrimaryParticles(const TruthHelper::Interaction &interaction);
+
+        /**
+         *  @brief  
+         *
+         *  @param  interaction
+         *
+         *  @return 
+         */
         static MCParticleVector GetVisibleFinalStates(const TruthHelper::Interaction &interaction);
+
+        /**
+         *  @brief  
+         *
+         *  @param  interaction
+         *
+         *  @return 
+         */
         static MCParticleVector GetReconstructableFinalStates(const TruthHelper::Interaction &interaction);
+
+        /**
+         *  @brief  
+         *
+         *  @param  interaction
+         *
+         *  @return 
+         */
         static bool IsNeutrinoVertexFiducial(const TruthHelper::Interaction &interaction);
+
+        /**
+         *  @brief  
+         *
+         *  @param  interaction
+         *
+         *  @return 
+         */
         static bool IsCC1PiSignal(const TruthHelper::Interaction &interaction);
+
+        /**
+         *  @brief  
+         *
+         *  @param  particles
+         *  @param  pdg
+         *
+         *  @return 
+         */
         static unsigned int CountParticlesWithPDG(const MCParticleVector &particles, const int pdg);
+
+        /**
+         *  @brief  
+         *
+         *  @param  event
+         *  @param  mcTruthLabel
+         *  @param  mcParticleLabel
+         *  @param  backtrackerLabel
+         *  @param  pfParticleLabel
+         *
+         *  @return 
+         */
         static BacktrackHelper::BacktrackerData GetBacktrackerData(const art::Event &event, const art::InputTag &mcTruthLabel, const art::InputTag &mcParticleLabel, const art::InputTag &backtrackerLabel, const art::InputTag &pfParticleLabel);
+
+        /**
+         *  @brief  
+         *
+         *  @param  event
+         *  @param  mcTruthLabel
+         *  @param  mcParticleLabel
+         *  @param  backtrackerLabel
+         *  @param  pfParticleLabel
+         *  @param  sliceLabel
+         *  @param  hitLabel
+         *
+         *  @return 
+         */
         static BacktrackHelper::SliceMetadata GetSliceMetadata(const art::Event &event, const art::InputTag &mcTruthLabel, const art::InputTag &mcParticleLabel, const art::InputTag &backtrackerLabel, const art::InputTag &pfParticleLabel, const art::InputTag &sliceLabel, const art::InputTag &hitLabel);
 
     private:

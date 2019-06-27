@@ -168,7 +168,7 @@ window.onload = initDynSections;
 <a name="l00072"></a>00072     <a class="code" href="classubcc1pi_1_1TruthStudy.html#aef3116094915a252686b76e3028f01e3" title="The output objects for all interactions.">m_interactionOutput</a>.<a class="code" href="structubcc1pi_1_1TruthStudy_1_1InteractionOutput.html#acf83eb4a6d4a01f3649a4dcaea0c4c12" title="The truth interaction type.">m_interaction</a> = <a class="code" href="classubcc1pi_1_1DebugHelper.html#afa3de270caa2516a65cd135df91bc398" title="Get a string that describes a given interaction.">DebugHelper::GetInteractionString</a>(interaction, <span class="keyword">true</span>);
 <a name="l00073"></a>00073     <a class="code" href="classubcc1pi_1_1TruthStudy.html#aef3116094915a252686b76e3028f01e3" title="The output objects for all interactions.">m_interactionOutput</a>.<a class="code" href="structubcc1pi_1_1TruthStudy_1_1InteractionOutput.html#acf995a61142a8df22357b8ddc5f6cb29" title="If the neutrino is fiducial.">m_isNuFiducial</a> = <a class="code" href="classubcc1pi_1_1AnalysisHelper.html#ad082a3639cf639dac54ebdc740dd0f2a">AnalysisHelper::IsNeutrinoVertexFiducial</a>(interaction);
 <a name="l00074"></a>00074     <a class="code" href="classubcc1pi_1_1TruthStudy.html#aef3116094915a252686b76e3028f01e3" title="The output objects for all interactions.">m_interactionOutput</a>.<a class="code" href="structubcc1pi_1_1TruthStudy_1_1InteractionOutput.html#a0ab0178af024ec77770fb6f9abfac825" title="If the event is a CC1Pi signal event.">m_isSignal</a> = <a class="code" href="classubcc1pi_1_1AnalysisHelper.html#adfe9e4f5eff1afaa590aa6cc90406f4d">AnalysisHelper::IsCC1PiSignal</a>(interaction);
-<a name="l00075"></a>00075     <a class="code" href="classubcc1pi_1_1TruthStudy.html#aef3116094915a252686b76e3028f01e3" title="The output objects for all interactions.">m_interactionOutput</a>.<a class="code" href="structubcc1pi_1_1TruthStudy_1_1InteractionOutput.html#ac8a23831a28cdd096a967b78ba3d2542" title="The neutrino energy.">m_nuE</a> = interaction.<a class="code" href="classubcc1pi_1_1TruthHelper_1_1Interaction.html#a401fba4175bb4b253e4cb4778f2ede93" title="Get the MCParticle of the neutrino.">GetNeutrino</a>().E();
+<a name="l00075"></a>00075     <a class="code" href="classubcc1pi_1_1TruthStudy.html#aef3116094915a252686b76e3028f01e3" title="The output objects for all interactions.">m_interactionOutput</a>.<a class="code" href="structubcc1pi_1_1TruthStudy_1_1InteractionOutput.html#ac8a23831a28cdd096a967b78ba3d2542" title="The neutrino energy.">m_nuE</a> = interaction.<a class="code" href="classubcc1pi_1_1TruthHelper_1_1Interaction.html#a401fba4175bb4b253e4cb4778f2ede93" title="Get the neutrino MCParticle.">GetNeutrino</a>().E();
 <a name="l00076"></a>00076 
 <a name="l00077"></a>00077     <span class="comment">// Count the particles by PDG</span>
 <a name="l00078"></a>00078     <span class="keyword">const</span> <span class="keyword">auto</span> particles = <a class="code" href="classubcc1pi_1_1AnalysisHelper.html#ad91614dfe95c04b72ab1b92b1e7c725f">AnalysisHelper::GetReconstructableFinalStates</a>(interaction);
@@ -240,7 +240,7 @@ window.onload = initDynSections;
 <hr size="1"/>
 <address style="text-align: right;">
     <small>
-        Generated on Thu Jun 27 14:04:32 2019 for ubcc1pi by <a href="http://www.doxygen.org/index.html" target="_blank">doxygen</a> 1.6.1
+        Generated on Thu Jun 27 15:05:00 2019 for ubcc1pi by <a href="http://www.doxygen.org/index.html" target="_blank">doxygen</a> 1.6.1
     </small>
 </address>
 

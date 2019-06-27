@@ -159,7 +159,7 @@ window.onload = initDynSections;
 <a name="l00063"></a>00063     <a class="code" href="classubcc1pi_1_1DebugHelper.html#a8ce418c62a4eede98d01b1b0177c5b33" title="Print a list item for a given property.">DebugHelper::PrintProperty</a>(<span class="stringliteral">&quot;Truth interaction&quot;</span>, <a class="code" href="classubcc1pi_1_1DebugHelper.html#afa3de270caa2516a65cd135df91bc398" title="Get a string that describes a given interaction.">DebugHelper::GetInteractionString</a>(interaction), depth);
 <a name="l00064"></a>00064 
 <a name="l00065"></a>00065     <a class="code" href="classubcc1pi_1_1DebugHelper.html#a8ce418c62a4eede98d01b1b0177c5b33" title="Print a list item for a given property.">DebugHelper::PrintProperty</a>(<span class="stringliteral">&quot;Primary Particles&quot;</span>, depth);
-<a name="l00066"></a>00066     <a class="code" href="classubcc1pi_1_1DebugHelper.html#a76d7fae32f0070e142ef2f97cec8c340" title="Print a summary of a vector of MCParticles.">DebugHelper::PrintSummary</a>(<a class="code" href="classubcc1pi_1_1AnalysisHelper.html#adea834a9d7d37d7b670a14a87a6dd288">AnalysisHelper::GetPrimaryParticles</a>(interaction), depth + 1);
+<a name="l00066"></a>00066     <a class="code" href="classubcc1pi_1_1DebugHelper.html#a76d7fae32f0070e142ef2f97cec8c340" title="Print a summary of a vector of MCParticles.">DebugHelper::PrintSummary</a>(<a class="code" href="classubcc1pi_1_1AnalysisHelper.html#adea834a9d7d37d7b670a14a87a6dd288" title="Get the primary MCParticles from the input interaction.">AnalysisHelper::GetPrimaryParticles</a>(interaction), depth + 1);
 <a name="l00067"></a>00067 
 <a name="l00068"></a>00068     <a class="code" href="classubcc1pi_1_1DebugHelper.html#a8ce418c62a4eede98d01b1b0177c5b33" title="Print a list item for a given property.">DebugHelper::PrintProperty</a>(<span class="stringliteral">&quot;Visible Final States&quot;</span>, depth);
 <a name="l00069"></a>00069     <a class="code" href="classubcc1pi_1_1DebugHelper.html#a76d7fae32f0070e142ef2f97cec8c340" title="Print a summary of a vector of MCParticles.">DebugHelper::PrintSummary</a>(<a class="code" href="classubcc1pi_1_1AnalysisHelper.html#aeba3c3da302c48282b3e11983efe3aad">AnalysisHelper::GetVisibleFinalStates</a>(interaction), depth + 1);
@@ -174,7 +174,7 @@ window.onload = initDynSections;
 <a name="l00078"></a>00078 {
 <a name="l00079"></a>00079     <span class="comment">// Convert the interaction type to a human readable string</span>
 <a name="l00080"></a>00080     std::string nuType;
-<a name="l00081"></a>00081     <span class="keyword">const</span> <span class="keyword">auto</span> neutrino = interaction.<a class="code" href="classubcc1pi_1_1TruthHelper_1_1Interaction.html#a401fba4175bb4b253e4cb4778f2ede93" title="Get the MCParticle of the neutrino.">GetNeutrino</a>();
+<a name="l00081"></a>00081     <span class="keyword">const</span> <span class="keyword">auto</span> neutrino = interaction.<a class="code" href="classubcc1pi_1_1TruthHelper_1_1Interaction.html#a401fba4175bb4b253e4cb4778f2ede93" title="Get the neutrino MCParticle.">GetNeutrino</a>();
 <a name="l00082"></a>00082     <span class="keywordflow">switch</span> (neutrino.PdgCode())
 <a name="l00083"></a>00083     {
 <a name="l00084"></a>00084         <span class="keywordflow">case</span> 12:
@@ -200,7 +200,7 @@ window.onload = initDynSections;
 <a name="l00104"></a>00104     }
 <a name="l00105"></a>00105 
 <a name="l00106"></a>00106     std::string ccnc;
-<a name="l00107"></a>00107     <span class="keywordflow">switch</span> (interaction.<a class="code" href="classubcc1pi_1_1TruthHelper_1_1Interaction.html#a6cfac919a7cded5a26458e445c2ab86a" title="Get the current type (charged or neutral).">GetCCNC</a>())
+<a name="l00107"></a>00107     <span class="keywordflow">switch</span> (interaction.<a class="code" href="classubcc1pi_1_1TruthHelper_1_1Interaction.html#a6cfac919a7cded5a26458e445c2ab86a" title="Get the interaction type CC vs. NC (charged current vs. neutral current).">GetCCNC</a>())
 <a name="l00108"></a>00108     {
 <a name="l00109"></a>00109         <span class="keywordflow">case</span> simb::kCC:
 <a name="l00110"></a>00110             ccnc = brief ? <span class="stringliteral">&quot;CC&quot;</span> : <span class="stringliteral">&quot;Charged-Current&quot;</span>;
@@ -383,7 +383,7 @@ window.onload = initDynSections;
 <hr size="1"/>
 <address style="text-align: right;">
     <small>
-        Generated on Thu Jun 27 14:04:32 2019 for ubcc1pi by <a href="http://www.doxygen.org/index.html" target="_blank">doxygen</a> 1.6.1
+        Generated on Thu Jun 27 15:05:00 2019 for ubcc1pi by <a href="http://www.doxygen.org/index.html" target="_blank">doxygen</a> 1.6.1
     </small>
 </address>
 

@@ -105,19 +105,20 @@ window.onload = initDynSections;
 <table border="0" cellpadding="0" cellspacing="0">
 <tr><td colspan="2"><h2>Public Member Functions</h2></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classubcc1pi_1_1TruthHelper_1_1Interaction.html#a0ba44a6df4387e9f19ff04229e0647ec">Interaction</a> ()</td></tr>
+<tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">No default constructor.  <a href="#a0ba44a6df4387e9f19ff04229e0647ec"></a><br/></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classubcc1pi_1_1TruthHelper_1_1Interaction.html#a4158afe3f060680a916f8f7e0422d09f">Interaction</a> (const art::Event &amp;event, const art::InputTag &amp;mcTruthLabel, const art::InputTag &amp;mcParticleLabel)</td></tr>
 <tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">Constructor.  <a href="#a4158afe3f060680a916f8f7e0422d09f"></a><br/></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">simb::MCParticle&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classubcc1pi_1_1TruthHelper_1_1Interaction.html#a401fba4175bb4b253e4cb4778f2ede93">GetNeutrino</a> () const </td></tr>
-<tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">Get the MCParticle of the neutrino.  <a href="#a401fba4175bb4b253e4cb4778f2ede93"></a><br/></td></tr>
+<tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">Get the neutrino MCParticle.  <a href="#a401fba4175bb4b253e4cb4778f2ede93"></a><br/></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">simb::curr_type_&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classubcc1pi_1_1TruthHelper_1_1Interaction.html#a6cfac919a7cded5a26458e445c2ab86a">GetCCNC</a> () const </td></tr>
-<tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">Get the current type (charged or neutral).  <a href="#a6cfac919a7cded5a26458e445c2ab86a"></a><br/></td></tr>
+<tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">Get the interaction type CC vs. NC (charged current vs. neutral current).  <a href="#a6cfac919a7cded5a26458e445c2ab86a"></a><br/></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">simb::int_type_&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classubcc1pi_1_1TruthHelper_1_1Interaction.html#affdf71e62090ef48b705d3b1440db3dc">GetInteractionMode</a> () const </td></tr>
 <tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">Get the interaction mode (QE, RES, DIS, ...).  <a href="#affdf71e62090ef48b705d3b1440db3dc"></a><br/></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top"><a class="el" href="namespaceubcc1pi.html#a42e409a54246ea6acba6d873b8eb696c">MCParticleVector</a>&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classubcc1pi_1_1TruthHelper_1_1Interaction.html#aab149c5796f07ea4cadb2ba30b1eea27">GetAllMCParticles</a> () const </td></tr>
 <tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">Get the full list of MCParticles associated with this interaction.  <a href="#aab149c5796f07ea4cadb2ba30b1eea27"></a><br/></td></tr>
 <tr><td colspan="2"><h2>Private Attributes</h2></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">simb::MCParticle&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classubcc1pi_1_1TruthHelper_1_1Interaction.html#aad41c9be4f23badee7b9804e01e838d2">m_neutrino</a></td></tr>
-<tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">Print the details of the interaction.  <a href="#aad41c9be4f23badee7b9804e01e838d2"></a><br/></td></tr>
+<tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">The neutrino MCParticle.  <a href="#aad41c9be4f23badee7b9804e01e838d2"></a><br/></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top"><a class="el" href="namespaceubcc1pi.html#a42e409a54246ea6acba6d873b8eb696c">MCParticleVector</a>&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classubcc1pi_1_1TruthHelper_1_1Interaction.html#a114a8eda2c6adee3a24709aff314dd2b">m_allMCParticles</a></td></tr>
 <tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">The MCParticles associated with the interaction.  <a href="#a114a8eda2c6adee3a24709aff314dd2b"></a><br/></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">simb::curr_type_&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classubcc1pi_1_1TruthHelper_1_1Interaction.html#ab7c2d679f1da70c335bb4860261cdf5b">m_ccnc</a></td></tr>
@@ -144,6 +145,8 @@ window.onload = initDynSections;
       </table>
 </div>
 <div class="memdoc">
+
+<p>No default constructor. </p>
 
 </div>
 </div>
@@ -209,6 +212,7 @@ window.onload = initDynSections;
 <div class="memdoc">
 
 <p>Get the full list of MCParticles associated with this interaction. </p>
+<dl class="return"><dt><b>Returns:</b></dt><dd>all MCParticles </dd></dl>
 
 <p>Definition at line <a class="el" href="TruthHelper_8cxx_source.html#l00180">180</a> of file <a class="el" href="TruthHelper_8cxx_source.html">TruthHelper.cxx</a>.</p>
 
@@ -229,7 +233,8 @@ window.onload = initDynSections;
 </div>
 <div class="memdoc">
 
-<p>Get the current type (charged or neutral). </p>
+<p>Get the interaction type CC vs. NC (charged current vs. neutral current). </p>
+<dl class="return"><dt><b>Returns:</b></dt><dd>the interaction type </dd></dl>
 
 <p>Definition at line <a class="el" href="TruthHelper_8cxx_source.html#l00166">166</a> of file <a class="el" href="TruthHelper_8cxx_source.html">TruthHelper.cxx</a>.</p>
 
@@ -251,6 +256,7 @@ window.onload = initDynSections;
 <div class="memdoc">
 
 <p>Get the interaction mode (QE, RES, DIS, ...). </p>
+<dl class="return"><dt><b>Returns:</b></dt><dd>the interaction mode </dd></dl>
 
 <p>Definition at line <a class="el" href="TruthHelper_8cxx_source.html#l00173">173</a> of file <a class="el" href="TruthHelper_8cxx_source.html">TruthHelper.cxx</a>.</p>
 
@@ -271,7 +277,8 @@ window.onload = initDynSections;
 </div>
 <div class="memdoc">
 
-<p>Get the MCParticle of the neutrino. </p>
+<p>Get the neutrino MCParticle. </p>
+<dl class="return"><dt><b>Returns:</b></dt><dd>neutrino MCParticle </dd></dl>
 
 <p>Definition at line <a class="el" href="TruthHelper_8cxx_source.html#l00159">159</a> of file <a class="el" href="TruthHelper_8cxx_source.html">TruthHelper.cxx</a>.</p>
 
@@ -291,7 +298,7 @@ window.onload = initDynSections;
 
 <p>The MCParticles associated with the interaction. </p>
 
-<p>Definition at line <a class="el" href="TruthHelper_8h_source.html#l00077">77</a> of file <a class="el" href="TruthHelper_8h_source.html">TruthHelper.h</a>.</p>
+<p>Definition at line <a class="el" href="TruthHelper_8h_source.html#l00083">83</a> of file <a class="el" href="TruthHelper_8h_source.html">TruthHelper.h</a>.</p>
 
 </div>
 </div>
@@ -308,7 +315,7 @@ window.onload = initDynSections;
 
 <p>If the iteraction is CC or NC. </p>
 
-<p>Definition at line <a class="el" href="TruthHelper_8h_source.html#l00079">79</a> of file <a class="el" href="TruthHelper_8h_source.html">TruthHelper.h</a>.</p>
+<p>Definition at line <a class="el" href="TruthHelper_8h_source.html#l00085">85</a> of file <a class="el" href="TruthHelper_8h_source.html">TruthHelper.h</a>.</p>
 
 </div>
 </div>
@@ -325,7 +332,7 @@ window.onload = initDynSections;
 
 <p>The interaction mode: QE, RES, DIS... </p>
 
-<p>Definition at line <a class="el" href="TruthHelper_8h_source.html#l00080">80</a> of file <a class="el" href="TruthHelper_8h_source.html">TruthHelper.h</a>.</p>
+<p>Definition at line <a class="el" href="TruthHelper_8h_source.html#l00086">86</a> of file <a class="el" href="TruthHelper_8h_source.html">TruthHelper.h</a>.</p>
 
 </div>
 </div>
@@ -340,10 +347,9 @@ window.onload = initDynSections;
 </div>
 <div class="memdoc">
 
-<p>Print the details of the interaction. </p>
-<p>The neutrino MCParticle </p>
+<p>The neutrino MCParticle. </p>
 
-<p>Definition at line <a class="el" href="TruthHelper_8h_source.html#l00076">76</a> of file <a class="el" href="TruthHelper_8h_source.html">TruthHelper.h</a>.</p>
+<p>Definition at line <a class="el" href="TruthHelper_8h_source.html#l00082">82</a> of file <a class="el" href="TruthHelper_8h_source.html">TruthHelper.h</a>.</p>
 
 </div>
 </div>
@@ -369,7 +375,7 @@ window.onload = initDynSections;
 <hr size="1"/>
 <address style="text-align: right;">
     <small>
-        Generated on Thu Jun 27 14:04:32 2019 for ubcc1pi by <a href="http://www.doxygen.org/index.html" target="_blank">doxygen</a> 1.6.1
+        Generated on Thu Jun 27 15:05:01 2019 for ubcc1pi by <a href="http://www.doxygen.org/index.html" target="_blank">doxygen</a> 1.6.1
     </small>
 </address>
 

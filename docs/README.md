@@ -4,9 +4,12 @@ This repository is documented using doxygen. To view the documentation for the c
 If you need to compile the documentation for another branch / commit, please `git clone` this repository and then follow these steps:
 
 ```
-# Let doxygen create the documentation
+# Make the documentation using doxygen
 cd ubcc1pi/docs
-doxygen
+./makedox
+
+# If there is any documented code, this script will tell you what and where you need to document!
+# Please do that, and then re-run makedox 
 
 # View the documentation in your web browser
 #     Please note, if you are using an ssh session then this will open up firefox on the remote machine.

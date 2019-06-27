@@ -35,7 +35,10 @@ class TruthHelper
         class Interaction
         {
             public:
-                // No default constructor
+                
+                /**
+                 *  @brief  No default constructor
+                 */
                 Interaction() = delete;
 
                 /**
@@ -48,29 +51,32 @@ class TruthHelper
                 Interaction(const art::Event &event, const art::InputTag &mcTruthLabel, const art::InputTag &mcParticleLabel);
 
                 /**
-                 *  @brief  Get the MCParticle of the neutrino
+                 *  @brief  Get the neutrino MCParticle
+                 *
+                 *  @return neutrino MCParticle
                  */
                 simb::MCParticle GetNeutrino() const;
 
                 /**
-                 *  @brief  Get the current type (charged or neutral)
+                 *  @brief  Get the interaction type CC vs. NC (charged current vs. neutral current) 
+                 *
+                 *  @return the interaction type
                  */
                 simb::curr_type_ GetCCNC() const;
 
                 /**
                  *  @brief  Get the interaction mode (QE, RES, DIS, ...)
+                 *
+                 *  @return the interaction mode
                  */
                 simb::int_type_ GetInteractionMode() const;
 
                 /**
                  *  @brief  Get the full list of MCParticles associated with this interaction
+                 *
+                 *  @return all MCParticles
                  */
                 MCParticleVector GetAllMCParticles() const;
-
-                /**
-                 *  @brief  Print the details of the interaction
-                 */
-                //void PrintInfo() const;
 
             private:
                 simb::MCParticle  m_neutrino;         ///< The neutrino MCParticle
@@ -147,8 +153,23 @@ class TruthHelper
          */
         static MCParticleVector GetDaughters(const art::Ptr<simb::MCParticle> &particle, const MCParticleMap &mcParticleMap);
         
-        // TODO doxygen comments
+        /**
+         *  @brief  Get the MCParticles downstream of the input particle 
+         *
+         *  @param  particle the input MCParticle
+         *  @param  mcParticleMap the mapping from TrackId -> MCParticle
+         *
+         *  @return the downstream MCParticles
+         */
         static MCParticleVector GetDownstreamParticles(const art::Ptr<simb::MCParticle> &particle, const MCParticleMap &mcParticleMap);
+
+        /**
+         *  @brief  Get the MCParticles downstream of the input particle
+         *
+         *  @param  particle the input MCParticle
+         *  @param  mcParticleMap the mapping from TrackId -> MCParticle
+         *  @param  downstreamParticles the output vector of downstream particles
+         */
         static void GetDownstreamParticles(const art::Ptr<simb::MCParticle> &particle, const MCParticleMap &mcParticleMap, MCParticleVector &downstreamParticles);
 };
 
