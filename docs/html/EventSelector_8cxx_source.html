@@ -148,7 +148,7 @@ window.onload = initDynSections;
 <a name="l00052"></a><a class="code" href="classubcc1pi_1_1EventSelector.html#ad3876cb969e6ca0940fa0acb74b5b118">00052</a> <span class="keywordtype">float</span> <a class="code" href="classubcc1pi_1_1EventSelector.html#ad3876cb969e6ca0940fa0acb74b5b118" title="Get the track vs. shower score for the given PFParticle.">EventSelector::GetTrackShowerScore</a>(<span class="keyword">const</span> art::Ptr&lt;recob::PFParticle&gt; &amp;pfParticle)<span class="keyword"> const</span>
 <a name="l00053"></a>00053 <span class="keyword"></span>{
 <a name="l00054"></a>00054     <span class="keyword">const</span> <span class="keyword">auto</span> metadata = <a class="code" href="classubcc1pi_1_1CollectionHelper.html#aef49ea81264de87954feb660c9d6fbda" title="Get the single object associated to a given input object.">CollectionHelper::GetSingleAssociated</a>(pfParticle, <a class="code" href="classubcc1pi_1_1EventSelector.html#a114a8ced157633f03a4cedd2a17e1317" title="The mapping from PFParticles to metadata.">m_pfParticleToMetadata</a>);
-<a name="l00055"></a>00055     <span class="keywordflow">return</span> <a class="code" href="classubcc1pi_1_1RecoHelper.html#aa7b3da3945f85595dfe6385e959d0132">RecoHelper::GetTrackScore</a>(metadata);
+<a name="l00055"></a>00055     <span class="keywordflow">return</span> <a class="code" href="classubcc1pi_1_1RecoHelper.html#aa7b3da3945f85595dfe6385e959d0132" title="Get the track vs. shower score assigned by pandora from a metadata object.">RecoHelper::GetTrackScore</a>(metadata);
 <a name="l00056"></a>00056 }
 <a name="l00057"></a>00057 
 <a name="l00058"></a>00058 <span class="comment">// -----------------------------------------------------------------------------------------------------------------------------------------</span>
@@ -331,7 +331,7 @@ window.onload = initDynSections;
 <hr size="1"/>
 <address style="text-align: right;">
     <small>
-        Generated on Thu Jun 27 13:25:59 2019 for ubcc1pi by <a href="http://www.doxygen.org/index.html" target="_blank">doxygen</a> 1.6.1
+        Generated on Thu Jun 27 14:03:08 2019 for ubcc1pi by <a href="http://www.doxygen.org/index.html" target="_blank">doxygen</a> 1.6.1
     </small>
 </address>
 
