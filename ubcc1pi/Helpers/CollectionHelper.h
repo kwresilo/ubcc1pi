@@ -49,21 +49,21 @@ using Association = std::unordered_map< art::Ptr<L>, Collection<R> >;
 template <typename L, typename R, typename D>
 using AssociationData = std::unordered_map< art::Ptr<L>, CollectionData<R, D> >;
 
-typedef Collection<simb::MCParticle> MCParticleVector;
-typedef Collection<recob::PFParticle> PFParticleVector;
-typedef Collection<recob::Hit> HitVector;
-typedef Collection<recob::Slice> SliceVector;
-typedef Collection<recob::Track> TrackVector;
-typedef Collection<anab::Calorimetry> CalorimetryVector;
+typedef Collection<simb::MCParticle> MCParticleVector;   ///< A collection of MCParticles
+typedef Collection<recob::PFParticle> PFParticleVector;  ///< A collection of PFParticles
+typedef Collection<recob::Hit> HitVector;                ///< A collection of Hits
+typedef Collection<recob::Slice> SliceVector;            ///< A collection of Slices
+typedef Collection<recob::Track> TrackVector;            ///< A colleciton of Tracks
+typedef Collection<anab::Calorimetry> CalorimetryVector; ///< A collection of Calorimetry objects
 
-typedef Association<recob::Hit, recob::PFParticle> HitsToPFParticles;
-typedef AssociationData<recob::Hit, simb::MCParticle, float> HitsToMCParticleWeights;
-typedef Association<recob::Slice, recob::Hit> SlicesToHits;
-typedef Association<recob::Slice, recob::PFParticle> SlicesToPFParticles;
-typedef Association<recob::PFParticle, recob::Hit> PFParticleToHits;
+typedef Association<recob::Hit, recob::PFParticle> HitsToPFParticles;                  ///< Association from Hit to PFParticle
+typedef AssociationData<recob::Hit, simb::MCParticle, float> HitsToMCParticleWeights;  ///< Association from Hit to MCParticle along with the charge contribution weight
+typedef Association<recob::Slice, recob::Hit> SlicesToHits;                            ///< Association from Slice to Hit
+typedef Association<recob::Slice, recob::PFParticle> SlicesToPFParticles;              ///< Association from Slice to PFParticle
+typedef Association<recob::PFParticle, recob::Hit> PFParticleToHits;                   ///< Association from PFParticle to Hit
                 
-typedef std::unordered_map<art::Ptr<recob::Hit>, bool> HitsToBool;
-typedef std::unordered_map<art::Ptr<recob::Slice>, bool> SlicesToBool;
+typedef std::unordered_map<art::Ptr<recob::Hit>, bool> HitsToBool;                     ///< Mapping from Hit to boolean
+typedef std::unordered_map<art::Ptr<recob::Slice>, bool> SlicesToBool;                 ///< Mapping from Slice to boolean
 
 
 /**

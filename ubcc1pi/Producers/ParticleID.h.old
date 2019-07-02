@@ -113,13 +113,76 @@ class ParticleID : public art::EDProducer
         void produce(art::Event &event);
 
     private:
+
+        /**
+         *  @brief  
+         *
+         *  @param  calos
+         *
+         *  @return 
+         */
         std::vector<std::pair<float, float> > GetCalorimetryPoints(const CalorimetryVector &calos) const;
+
+        /**
+         *  @brief  
+         *
+         *  @param  calo
+         *
+         *  @return 
+         */
         std::vector<std::pair<float, float> > GetCalorimetryPoints(const art::Ptr<anab::Calorimetry> &calo) const;
+
+        /**
+         *  @brief  
+         *
+         *  @param  points
+         */
         void SortPoints(std::vector< std::pair<float, float> > &points) const;
+
+        /**
+         *  @brief  
+         *
+         *  @param  points
+         *  @param  min
+         *  @param  max
+         *
+         *  @return 
+         */
         std::vector<std::pair<float, float> > GetPointsInRange(const std::vector< std::pair<float, float> > &points, const float min, const float max) const;
+
+        /**
+         *  @brief  
+         *
+         *  @param  points
+         *
+         *  @return 
+         */
         float GetMeandEdx(const std::vector<std::pair<float, float> > &points) const;
+
+        /**
+         *  @brief  
+         *
+         *  @param  points
+         *  @param  kernalWidth
+         *  @param  maxStepSize
+         *
+         *  @return 
+         */
         float GetMostProbabledEdx(const std::vector<std::pair<float, float> > &points, const float kernalWidth, const float maxStepSize) const;
+
+        /**
+         *  @brief  
+         *
+         *  @param  pfParticle
+         *  @param  backtrackerData
+         */
         void SetMatchedMCParticleInfo(const art::Ptr<recob::PFParticle> &pfParticle, const BacktrackHelper::BacktrackerData &backtrackerData);
+
+        /**
+         *  @brief  
+         *
+         *  @param  calos
+         */
         void OutputPoints(const CalorimetryVector &calos);
             
         art::EDProducer::Table<Config>  m_config;          ///< The FHiCL configuration options

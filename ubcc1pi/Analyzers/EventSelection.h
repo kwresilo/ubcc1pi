@@ -245,28 +245,193 @@ class EventSelection : public art::EDAnalyzer
         void analyze(const art::Event &event);
 
     private:
-      
-        // TODO doxygen comments
+
+        /**
+         *  @brief  Reset the output branches for the next event
+         */
         void ResetEventTree();
+
+        /**
+         *  @brief  Set the event metadata in the output branches (event number, run number, etc...)_
+         *
+         *  @param  event the art event
+         */
         void SetEventMetadata(const art::Event &event);
+
+        /**
+         *  @brief  Set the event level truth info about the neutrino interaction
+         *
+         *  @param  event the art event
+         */
         void SetEventTruthInfo(const art::Event &event);
+
+        /**
+         *  @brief  Select the MCParticle with the given PDG code (assumes each PDG is in the input vector at most once)
+         *
+         *  @param  mcParticles the input vector of MCParticles from which to selected the chosen particle
+         *  @param  pdgCode the PDG code to select
+         *
+         *  @return the MCParticle in the input vector with the desired PDG code
+         *  @throws if there wasn't exactly one MCParticle with the desired PDG code
+         */
         art::Ptr<simb::MCParticle> SelectMCParticleWithPdgCode(const MCParticleVector &mcParticles, const int pdgCode) const;
+
+        /**
+         *  @brief  Get the angle to the beam direction of the momentum vector of the input MCParticle
+         *
+         *  @param  mcParticle the input MCParticle
+         *
+         *  @return the theta angle
+         */
         float GetTheta(const art::Ptr<simb::MCParticle> &mcParticle) const;
+
+        /**
+         *  @brief  Get the angle around the beam direction of the momentum vector of the input MCParticle
+         *
+         *  @param  mcParticle the input MCParticle
+         *
+         *  @return the phi angle
+         */
         float GetPhi(const art::Ptr<simb::MCParticle> &mcParticle) const;
+
+        /**
+         *  @brief  Get the opening angle between two input MCParticles (muon & pion)
+         *
+         *  @param  muon the muon MCParticle
+         *  @param  pion the pion MCParticle
+         *
+         *  @return the opening angle between the particles (radians)
+         */
         float GetOpeningAngle(const art::Ptr<simb::MCParticle> &muon, const art::Ptr<simb::MCParticle> &pion) const;
+
+        /**
+         *  @brief  Set the reconstructed information about the event in the output branches
+         *
+         *  @param  event the art event
+         */
         void SetRecoInfo(const art::Event &event);
+
+        /**
+         *  @brief  Set the event-level reconstructed information in the output branches
+         *
+         *  @param  event the art event
+         *  @param  allPFParticles the complete vector of all PFParticles
+         *  @param  finalStates the neutrino final state PFParticles
+         *  @param  pfpToMetadata the mapping from PFParticles to metadata
+         *  @param  pSpaceChargeService the space charge service
+         */
         void SetEventRecoInfo(const art::Event &event, const PFParticleVector &allPFParticles, const PFParticleVector &finalStates, const Association<recob::PFParticle, larpandoraobj::PFParticleMetadata> &pfpToMetadata, const spacecharge::SpaceChargeService::provider_type *const pSpaceChargeService);
+
+        /**
+         *  @brief  Set the particle-level reconstructed information in the output branches
+         *
+         *  @param  index the index of the final state PFParticle 
+         *  @param  finalState the final state PFParticle to output
+         *  @param  backtrackerData the backtracking data
+         *  @param  pfpToTracks the mapping from PFParticles to Tracks
+         *  @param  trackToPIDs the mapping from Tracks to PID
+         *  @param  pfpToMetadata the mapping from PFParticles to metadata
+         *  @param  pSpaceChargeService the space charge service
+         */
         void SetPFParticleInfo(const unsigned int index, const art::Ptr<recob::PFParticle> &finalState, const BacktrackHelper::BacktrackerData &backtrackerData, const Association<recob::PFParticle, recob::Track> &pfpToTracks, const Association<recob::Track, anab::ParticleID> &trackToPIDs, const Association<recob::PFParticle, larpandoraobj::PFParticleMetadata> &pfpToMetadata, const spacecharge::SpaceChargeService::provider_type *const pSpaceChargeService);
+
+        /**
+         *  @brief  Set the MCParticle matching info for the current PFParticle to the output branches
+         *
+         *  @param  finalState the final state PFParticle to output
+         *  @param  backtrackerData the backtracking data
+         */
         void SetPFParticleMCParticleMatchInfo(const art::Ptr<recob::PFParticle> &finalState, const BacktrackHelper::BacktrackerData &backtrackerData);
+
+        /**
+         *  @brief  Set the PFParticle info from Pandora in the output branches
+         *
+         *  @param  finalState the final state PFParticle to output
+         *  @param  backtrackerData the backtracking data
+         *  @param  pfpToMetadata the mapping from PFParticles to metadata
+         */
         void SetPFParticlePandoraInfo(const art::Ptr<recob::PFParticle> &finalState, const BacktrackHelper::BacktrackerData &backtrackerData, const Association<recob::PFParticle, larpandoraobj::PFParticleMetadata> &pfpToMetadata);
+
+        /**
+         *  @brief  Set dummy track info for the current PFParticle 
+         */
         void SetDummyTrackInfo();
+
+        /**
+         *  @brief  Set the track info for the current PFParticle
+         *
+         *  @param  track the track to output
+         *  @param  pSpaceChargeService the space charge service
+         */
         void SetTrackInfo(const art::Ptr<recob::Track> &track, const spacecharge::SpaceChargeService::provider_type *const pSpaceChargeService);
+
+        /**
+         *  @brief  Get the angle of in the YZ plane from an input direction
+         *
+         *  @param  dir the input direction
+         *
+         *  @return the YZ angle
+         */
         float GetYZAngle(const TVector3 &dir);
+
+        /**
+         *  @brief  Set dummy PID info for the current PFParticle
+         */
         void SetDummyPIDInfo();
+
+        /**
+         *  @brief  Set the PID info for the currenct PFParticle
+         *
+         *  @param  pid the PID to output
+         *  @param  yzAngle the yz angle of the track
+         *  @param  nHitsU the number of hits in the U plane
+         *  @param  nHitsV the number of hits in the V plane
+         */
         void SetPIDInfo(const art::Ptr<anab::ParticleID> &pid, const float yzAngle, const int nHitsU, const int nHitsV);
+
+        /**
+         *  @brief  Get the view from the PID plane mask
+         *
+         *  @param  planeMask the plane mask from the PID
+         *
+         *  @return the view represented by the plane mask
+         */
         geo::View_t GetView(const std::bitset<8> &planeMask) const;
+
+        /**
+         *  @brief  Shorthand to set the PID variables for the given view in the output branches
+         *
+         *  @param  view the view to set (only the fields for this view will be populated)
+         *  @param  algoValue the value to set
+         *  @param  wValue the output value in the W plane
+         *  @param  uValue the output value in the U plane
+         *  @param  vValue the output value in the V plane
+         *  @param  wSet if the value in the W plane has been set
+         *  @param  uSet if the value in the U plane has been set
+         *  @param  vSet if the value in the V plane has been set
+         */
         void SetPIDVariables(const geo::View_t &view, const float algoValue, float &wValue, float &uValue, float &vValue, bool &wSet, bool &uSet, bool &vSet) const;
+
+        /**
+         *  @brief  Combine information from the induction planes using a YZ angle dependent weighted sum
+         *
+         *  @param  yzAngle the YZ angle of the track
+         *  @param  nHitsU the number of hits in the U plane
+         *  @param  nHitsV the number of hits in the V plane
+         *  @param  uValue the value of the variable in the U plane
+         *  @param  vValue the value of the variable in the V plane
+         *  @param  uSet if the U plane variable is available
+         *  @param  vSet if the V plane variable is available
+         *  @param  uvValue the ouput combined UV variable
+         *  @param  uvSet if the output combined UV variable is available
+         */
         void CombineInductionPlanes(const float yzAngle, const int nHitsU, const int nHitsV, const float uValue, const float vValue, const bool uSet, const bool vSet, float &uvValue, bool &uvSet) const;
+
+        /**
+         *  @brief  Sanity check that all of the output vectors have the expected size at this point
+         *
+         *  @param  index the index of the PFParticle we have just filled
+         */
         void ValidateOutputVectorSizes(const unsigned int index) const;
 
         

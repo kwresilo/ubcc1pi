@@ -121,6 +121,8 @@ class TruthHelper
          *  @brief  Check if an MCParticle is primary
          *
          *  @param  particle the particle to check
+         *
+         *  @return if the MCParticle is primary
          */
         static bool IsPrimary(const art::Ptr<simb::MCParticle> &particle);
 

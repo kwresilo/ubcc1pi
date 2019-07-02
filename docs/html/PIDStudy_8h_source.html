@@ -246,24 +246,59 @@ window.onload = initDynSections;
 <a name="l00150"></a>00150         <span class="keywordtype">void</span> <a class="code" href="classubcc1pi_1_1PIDStudy.html#a573fcf9fc008d970e4c9569d87d41bf1" title="Analyze an event.">analyze</a>(<span class="keyword">const</span> art::Event &amp;event);
 <a name="l00151"></a>00151 
 <a name="l00152"></a>00152     <span class="keyword">private</span>:
-<a name="l00153"></a>00153 
-<a name="l00154"></a>00154         <span class="keywordtype">void</span> <a class="code" href="classubcc1pi_1_1PIDStudy.html#a9dfaa7fb7e0e40942ac5dbb3d4c186ae">SetEventInfo</a>(<span class="keyword">const</span> art::Event &amp;event, <span class="keyword">const</span> <a class="code" href="namespaceubcc1pi.html#a6f66dc13c5a55147db5c84db67f6062b">PFParticleVector</a> &amp;allPFParticles);
-<a name="l00155"></a>00155         <span class="keywordtype">void</span> <a class="code" href="classubcc1pi_1_1PIDStudy.html#ac1f55b4a8d431d67979db4ac48117275">ResetParticleInfo</a>();
-<a name="l00156"></a>00156         <span class="keywordtype">void</span> <a class="code" href="classubcc1pi_1_1PIDStudy.html#a30199a37ea8cc6af6270a7103de9a02e">SetMatchedMCParticleInfo</a>(<span class="keyword">const</span> art::Ptr&lt;recob::PFParticle&gt; &amp;pfParticle, <span class="keyword">const</span> <a class="code" href="classubcc1pi_1_1BacktrackHelper_1_1BacktrackerData.html" title="Class holding backtracking data.">BacktrackHelper::BacktrackerData</a> &amp;backtrackerData);
-<a name="l00157"></a>00157         <span class="keywordtype">bool</span> <a class="code" href="classubcc1pi_1_1PIDStudy.html#abd58a231bfbcc0c11c90e82e66ac806c">GetTrack</a>(<span class="keyword">const</span> art::Ptr&lt;recob::PFParticle&gt; &amp;pfParticle, <span class="keyword">const</span> Association&lt;recob::PFParticle, recob::Track&gt; &amp;pfpToTrack, art::Ptr&lt;recob::Track&gt; &amp;track);
-<a name="l00158"></a>00158         geo::View_t <a class="code" href="classubcc1pi_1_1PIDStudy.html#a02332b2cff6beec99843ede2afdc4338">GetView</a>(<span class="keyword">const</span> std::bitset&lt;8&gt; &amp;planeMask) <span class="keyword">const</span>;
-<a name="l00159"></a>00159             
-<a name="l00160"></a><a class="code" href="classubcc1pi_1_1PIDStudy.html#ab769f2814b6897cb753bd5ba58bad0e4">00160</a>         art::EDAnalyzer::Table&lt;Config&gt;  <a class="code" href="classubcc1pi_1_1PIDStudy.html#ab769f2814b6897cb753bd5ba58bad0e4" title="The FHiCL configuration options.">m_config</a>;          <span class="comment">///&lt; The FHiCL configuration options</span>
-<a name="l00161"></a>00161 <span class="comment"></span>        
-<a name="l00162"></a><a class="code" href="classubcc1pi_1_1PIDStudy.html#a864ee800ea168d6bb1fbf68552f1b635">00162</a>         TTree                          *<a class="code" href="classubcc1pi_1_1PIDStudy.html#a864ee800ea168d6bb1fbf68552f1b635" title="The output tree for all particle level data.">m_pParticleTree</a>;  <span class="comment">///&lt; The output tree for all particle level data</span>
-<a name="l00163"></a><a class="code" href="classubcc1pi_1_1PIDStudy.html#aa8a43cfc0670911c57482cfc3d19b93f">00163</a> <span class="comment"></span>        <a class="code" href="structubcc1pi_1_1PIDStudy_1_1OutputParticle.html" title="The output PID algorithm level structure.">OutputParticle</a>                  <a class="code" href="classubcc1pi_1_1PIDStudy.html#aa8a43cfc0670911c57482cfc3d19b93f" title="The output particle-level object.">m_outputParticle</a>; <span class="comment">///&lt; The output particle-level object</span>
-<a name="l00164"></a>00164 <span class="comment"></span>};
-<a name="l00165"></a>00165 
-<a name="l00166"></a>00166 } <span class="comment">// namespace ubcc1pi</span>
-<a name="l00167"></a>00167 
-<a name="l00168"></a>00168 DEFINE_ART_MODULE(<a class="code" href="classubcc1pi_1_1PIDStudy.html" title="The PID study class.">ubcc1pi::PIDStudy</a>)
-<a name="l00169"></a>00169 
-<a name="l00170"></a>00170 <span class="preprocessor">#endif</span>
+<a name="l00153"></a>00153 <span class="comment"></span>
+<a name="l00154"></a>00154 <span class="comment">        /**</span>
+<a name="l00155"></a>00155 <span class="comment">         *  @brief  Set the event-level information in the output branches</span>
+<a name="l00156"></a>00156 <span class="comment">         *</span>
+<a name="l00157"></a>00157 <span class="comment">         *  @param  event the art event</span>
+<a name="l00158"></a>00158 <span class="comment">         *  @param  allPFParticles the vector of all PFParticles</span>
+<a name="l00159"></a>00159 <span class="comment">         */</span>
+<a name="l00160"></a>00160         <span class="keywordtype">void</span> <a class="code" href="classubcc1pi_1_1PIDStudy.html#a9dfaa7fb7e0e40942ac5dbb3d4c186ae" title="Set the event-level information in the output branches.">SetEventInfo</a>(<span class="keyword">const</span> art::Event &amp;event, <span class="keyword">const</span> <a class="code" href="namespaceubcc1pi.html#a6f66dc13c5a55147db5c84db67f6062b" title="A collection of PFParticles.">PFParticleVector</a> &amp;allPFParticles);
+<a name="l00161"></a>00161 <span class="comment"></span>
+<a name="l00162"></a>00162 <span class="comment">        /**</span>
+<a name="l00163"></a>00163 <span class="comment">         *  @brief  Reset the particle-level info in the output branches for the next entry</span>
+<a name="l00164"></a>00164 <span class="comment">         */</span>
+<a name="l00165"></a>00165         <span class="keywordtype">void</span> <a class="code" href="classubcc1pi_1_1PIDStudy.html#ac1f55b4a8d431d67979db4ac48117275" title="Reset the particle-level info in the output branches for the next entry.">ResetParticleInfo</a>();
+<a name="l00166"></a>00166 <span class="comment"></span>
+<a name="l00167"></a>00167 <span class="comment">        /**</span>
+<a name="l00168"></a>00168 <span class="comment">         *  @brief  Set the particle-level information about the PFParticle-&gt;MCParticle matching in the output branches</span>
+<a name="l00169"></a>00169 <span class="comment">         *</span>
+<a name="l00170"></a>00170 <span class="comment">         *  @param  pfParticle the PFParticle to set</span>
+<a name="l00171"></a>00171 <span class="comment">         *  @param  backtrackerData the precalculated backtracking data</span>
+<a name="l00172"></a>00172 <span class="comment">         */</span>
+<a name="l00173"></a>00173         <span class="keywordtype">void</span> <a class="code" href="classubcc1pi_1_1PIDStudy.html#a30199a37ea8cc6af6270a7103de9a02e" title="Set the particle-level information about the PFParticle-&amp;gt;MCParticle matching in...">SetMatchedMCParticleInfo</a>(<span class="keyword">const</span> art::Ptr&lt;recob::PFParticle&gt; &amp;pfParticle, <span class="keyword">const</span> <a class="code" href="classubcc1pi_1_1BacktrackHelper_1_1BacktrackerData.html" title="Class holding backtracking data.">BacktrackHelper::BacktrackerData</a> &amp;backtrackerData);
+<a name="l00174"></a>00174 <span class="comment"></span>
+<a name="l00175"></a>00175 <span class="comment">        /**</span>
+<a name="l00176"></a>00176 <span class="comment">         *  @brief  Get the track (if any) associated with the input PFParticle</span>
+<a name="l00177"></a>00177 <span class="comment">         *</span>
+<a name="l00178"></a>00178 <span class="comment">         *  @param  pfParticle the input PFParticle</span>
+<a name="l00179"></a>00179 <span class="comment">         *  @param  pfpToTrack the mapping from PFParticle to Tracks</span>
+<a name="l00180"></a>00180 <span class="comment">         *  @param  track the output Track</span>
+<a name="l00181"></a>00181 <span class="comment">         *</span>
+<a name="l00182"></a>00182 <span class="comment">         *  @return if there was an associated track</span>
+<a name="l00183"></a>00183 <span class="comment">         */</span>
+<a name="l00184"></a>00184         <span class="keywordtype">bool</span> <a class="code" href="classubcc1pi_1_1PIDStudy.html#abd58a231bfbcc0c11c90e82e66ac806c" title="Get the track (if any) associated with the input PFParticle.">GetTrack</a>(<span class="keyword">const</span> art::Ptr&lt;recob::PFParticle&gt; &amp;pfParticle, <span class="keyword">const</span> Association&lt;recob::PFParticle, recob::Track&gt; &amp;pfpToTrack, art::Ptr&lt;recob::Track&gt; &amp;track);
+<a name="l00185"></a>00185 <span class="comment"></span>
+<a name="l00186"></a>00186 <span class="comment">        /**</span>
+<a name="l00187"></a>00187 <span class="comment">         *  @brief  Convert the plane mask from the PID module to a view</span>
+<a name="l00188"></a>00188 <span class="comment">         *</span>
+<a name="l00189"></a>00189 <span class="comment">         *  @param  planeMask the input plane mask</span>
+<a name="l00190"></a>00190 <span class="comment">         *</span>
+<a name="l00191"></a>00191 <span class="comment">         *  @return the view represented by the plane mask</span>
+<a name="l00192"></a>00192 <span class="comment">         */</span>
+<a name="l00193"></a>00193         geo::View_t <a class="code" href="classubcc1pi_1_1PIDStudy.html#a02332b2cff6beec99843ede2afdc4338" title="Convert the plane mask from the PID module to a view.">GetView</a>(<span class="keyword">const</span> std::bitset&lt;8&gt; &amp;planeMask) <span class="keyword">const</span>;
+<a name="l00194"></a>00194             
+<a name="l00195"></a><a class="code" href="classubcc1pi_1_1PIDStudy.html#ab769f2814b6897cb753bd5ba58bad0e4">00195</a>         art::EDAnalyzer::Table&lt;Config&gt;  <a class="code" href="classubcc1pi_1_1PIDStudy.html#ab769f2814b6897cb753bd5ba58bad0e4" title="The FHiCL configuration options.">m_config</a>;         <span class="comment">///&lt; The FHiCL configuration options</span>
+<a name="l00196"></a>00196 <span class="comment"></span>        
+<a name="l00197"></a><a class="code" href="classubcc1pi_1_1PIDStudy.html#a864ee800ea168d6bb1fbf68552f1b635">00197</a>         TTree                          *<a class="code" href="classubcc1pi_1_1PIDStudy.html#a864ee800ea168d6bb1fbf68552f1b635" title="The output tree for all particle level data.">m_pParticleTree</a>;  <span class="comment">///&lt; The output tree for all particle level data</span>
+<a name="l00198"></a><a class="code" href="classubcc1pi_1_1PIDStudy.html#aa8a43cfc0670911c57482cfc3d19b93f">00198</a> <span class="comment"></span>        <a class="code" href="structubcc1pi_1_1PIDStudy_1_1OutputParticle.html" title="The output PID algorithm level structure.">OutputParticle</a>                  <a class="code" href="classubcc1pi_1_1PIDStudy.html#aa8a43cfc0670911c57482cfc3d19b93f" title="The output particle-level object.">m_outputParticle</a>; <span class="comment">///&lt; The output particle-level object</span>
+<a name="l00199"></a>00199 <span class="comment"></span>};
+<a name="l00200"></a>00200 
+<a name="l00201"></a>00201 } <span class="comment">// namespace ubcc1pi</span>
+<a name="l00202"></a>00202 
+<a name="l00203"></a>00203 DEFINE_ART_MODULE(<a class="code" href="classubcc1pi_1_1PIDStudy.html" title="The PID study class.">ubcc1pi::PIDStudy</a>)
+<a name="l00204"></a>00204 
+<a name="l00205"></a>00205 <span class="preprocessor">#endif</span>
 </pre></div></div>
 <!--- window showing the filter options -->
 <div id="MSearchSelectWindow"
@@ -282,7 +317,7 @@ window.onload = initDynSections;
 <hr size="1"/>
 <address style="text-align: right;">
     <small>
-        Generated on Thu Jun 27 15:05:00 2019 for ubcc1pi by <a href="http://www.doxygen.org/index.html" target="_blank">doxygen</a> 1.6.1
+        Generated on Tue Jul 2 11:50:54 2019 for ubcc1pi by <a href="http://www.doxygen.org/index.html" target="_blank">doxygen</a> 1.6.1
     </small>
 </address>
 

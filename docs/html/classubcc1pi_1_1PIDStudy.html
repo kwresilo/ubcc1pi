@@ -115,10 +115,15 @@ window.onload = initDynSections;
 <tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">Analyze an event.  <a href="#a573fcf9fc008d970e4c9569d87d41bf1"></a><br/></td></tr>
 <tr><td colspan="2"><h2>Private Member Functions</h2></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">void&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classubcc1pi_1_1PIDStudy.html#a9dfaa7fb7e0e40942ac5dbb3d4c186ae">SetEventInfo</a> (const art::Event &amp;event, const <a class="el" href="namespaceubcc1pi.html#a6f66dc13c5a55147db5c84db67f6062b">PFParticleVector</a> &amp;allPFParticles)</td></tr>
+<tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">Set the event-level information in the output branches.  <a href="#a9dfaa7fb7e0e40942ac5dbb3d4c186ae"></a><br/></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">void&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classubcc1pi_1_1PIDStudy.html#ac1f55b4a8d431d67979db4ac48117275">ResetParticleInfo</a> ()</td></tr>
+<tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">Reset the particle-level info in the output branches for the next entry.  <a href="#ac1f55b4a8d431d67979db4ac48117275"></a><br/></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">void&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classubcc1pi_1_1PIDStudy.html#a30199a37ea8cc6af6270a7103de9a02e">SetMatchedMCParticleInfo</a> (const art::Ptr&lt; recob::PFParticle &gt; &amp;pfParticle, const <a class="el" href="classubcc1pi_1_1BacktrackHelper_1_1BacktrackerData.html">BacktrackHelper::BacktrackerData</a> &amp;backtrackerData)</td></tr>
+<tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">Set the particle-level information about the PFParticle-&gt;MCParticle matching in the output branches.  <a href="#a30199a37ea8cc6af6270a7103de9a02e"></a><br/></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">bool&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classubcc1pi_1_1PIDStudy.html#abd58a231bfbcc0c11c90e82e66ac806c">GetTrack</a> (const art::Ptr&lt; recob::PFParticle &gt; &amp;pfParticle, const Association&lt; recob::PFParticle, recob::Track &gt; &amp;pfpToTrack, art::Ptr&lt; recob::Track &gt; &amp;track)</td></tr>
+<tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">Get the track (if any) associated with the input PFParticle.  <a href="#abd58a231bfbcc0c11c90e82e66ac806c"></a><br/></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">geo::View_t&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classubcc1pi_1_1PIDStudy.html#a02332b2cff6beec99843ede2afdc4338">GetView</a> (const std::bitset&lt; 8 &gt; &amp;planeMask) const </td></tr>
+<tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">Convert the plane mask from the PID module to a view.  <a href="#a02332b2cff6beec99843ede2afdc4338"></a><br/></td></tr>
 <tr><td colspan="2"><h2>Private Attributes</h2></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">art::EDAnalyzer::Table&lt; <a class="el" href="structubcc1pi_1_1PIDStudy_1_1Config.html">Config</a> &gt;&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classubcc1pi_1_1PIDStudy.html#ab769f2814b6897cb753bd5ba58bad0e4">m_config</a></td></tr>
 <tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">The FHiCL configuration options.  <a href="#ab769f2814b6897cb753bd5ba58bad0e4"></a><br/></td></tr>
@@ -220,6 +225,17 @@ window.onload = initDynSections;
 </div>
 <div class="memdoc">
 
+<p>Get the track (if any) associated with the input PFParticle. </p>
+<dl><dt><b>Parameters:</b></dt><dd>
+  <table border="0" cellspacing="2" cellpadding="0">
+    <tr><td valign="top"></td><td valign="top"><em>pfParticle</em>&nbsp;</td><td>the input PFParticle </td></tr>
+    <tr><td valign="top"></td><td valign="top"><em>pfpToTrack</em>&nbsp;</td><td>the mapping from PFParticle to Tracks </td></tr>
+    <tr><td valign="top"></td><td valign="top"><em>track</em>&nbsp;</td><td>the output Track</td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="return"><dt><b>Returns:</b></dt><dd>if there was an associated track </dd></dl>
+
 <p>Definition at line <a class="el" href="PIDStudy__module_8cc_source.html#l00392">392</a> of file <a class="el" href="PIDStudy__module_8cc_source.html">PIDStudy_module.cc</a>.</p>
 
 </div>
@@ -240,6 +256,15 @@ window.onload = initDynSections;
 </div>
 <div class="memdoc">
 
+<p>Convert the plane mask from the PID module to a view. </p>
+<dl><dt><b>Parameters:</b></dt><dd>
+  <table border="0" cellspacing="2" cellpadding="0">
+    <tr><td valign="top"></td><td valign="top"><em>planeMask</em>&nbsp;</td><td>the input plane mask</td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="return"><dt><b>Returns:</b></dt><dd>the view represented by the plane mask </dd></dl>
+
 <p>Definition at line <a class="el" href="PIDStudy__module_8cc_source.html#l00415">415</a> of file <a class="el" href="PIDStudy__module_8cc_source.html">PIDStudy_module.cc</a>.</p>
 
 </div>
@@ -258,6 +283,8 @@ window.onload = initDynSections;
       </table>
 </div>
 <div class="memdoc">
+
+<p>Reset the particle-level info in the output branches for the next entry. </p>
 
 <p>Definition at line <a class="el" href="PIDStudy__module_8cc_source.html#l00331">331</a> of file <a class="el" href="PIDStudy__module_8cc_source.html">PIDStudy_module.cc</a>.</p>
 
@@ -288,6 +315,15 @@ window.onload = initDynSections;
 </div>
 <div class="memdoc">
 
+<p>Set the event-level information in the output branches. </p>
+<dl><dt><b>Parameters:</b></dt><dd>
+  <table border="0" cellspacing="2" cellpadding="0">
+    <tr><td valign="top"></td><td valign="top"><em>event</em>&nbsp;</td><td>the art event </td></tr>
+    <tr><td valign="top"></td><td valign="top"><em>allPFParticles</em>&nbsp;</td><td>the vector of all PFParticles </td></tr>
+  </table>
+  </dd>
+</dl>
+
 <p>Definition at line <a class="el" href="PIDStudy__module_8cc_source.html#l00316">316</a> of file <a class="el" href="PIDStudy__module_8cc_source.html">PIDStudy_module.cc</a>.</p>
 
 </div>
@@ -317,6 +353,15 @@ window.onload = initDynSections;
 </div>
 <div class="memdoc">
 
+<p>Set the particle-level information about the PFParticle-&gt;MCParticle matching in the output branches. </p>
+<dl><dt><b>Parameters:</b></dt><dd>
+  <table border="0" cellspacing="2" cellpadding="0">
+    <tr><td valign="top"></td><td valign="top"><em>pfParticle</em>&nbsp;</td><td>the PFParticle to set </td></tr>
+    <tr><td valign="top"></td><td valign="top"><em>backtrackerData</em>&nbsp;</td><td>the precalculated backtracking data </td></tr>
+  </table>
+  </dd>
+</dl>
+
 <p>Definition at line <a class="el" href="PIDStudy__module_8cc_source.html#l00368">368</a> of file <a class="el" href="PIDStudy__module_8cc_source.html">PIDStudy_module.cc</a>.</p>
 
 </div>
@@ -335,7 +380,7 @@ window.onload = initDynSections;
 
 <p>The FHiCL configuration options. </p>
 
-<p>Definition at line <a class="el" href="PIDStudy_8h_source.html#l00160">160</a> of file <a class="el" href="PIDStudy_8h_source.html">PIDStudy.h</a>.</p>
+<p>Definition at line <a class="el" href="PIDStudy_8h_source.html#l00195">195</a> of file <a class="el" href="PIDStudy_8h_source.html">PIDStudy.h</a>.</p>
 
 </div>
 </div>
@@ -352,7 +397,7 @@ window.onload = initDynSections;
 
 <p>The output particle-level object. </p>
 
-<p>Definition at line <a class="el" href="PIDStudy_8h_source.html#l00163">163</a> of file <a class="el" href="PIDStudy_8h_source.html">PIDStudy.h</a>.</p>
+<p>Definition at line <a class="el" href="PIDStudy_8h_source.html#l00198">198</a> of file <a class="el" href="PIDStudy_8h_source.html">PIDStudy.h</a>.</p>
 
 </div>
 </div>
@@ -369,7 +414,7 @@ window.onload = initDynSections;
 
 <p>The output tree for all particle level data. </p>
 
-<p>Definition at line <a class="el" href="PIDStudy_8h_source.html#l00162">162</a> of file <a class="el" href="PIDStudy_8h_source.html">PIDStudy.h</a>.</p>
+<p>Definition at line <a class="el" href="PIDStudy_8h_source.html#l00197">197</a> of file <a class="el" href="PIDStudy_8h_source.html">PIDStudy.h</a>.</p>
 
 </div>
 </div>
@@ -395,7 +440,7 @@ window.onload = initDynSections;
 <hr size="1"/>
 <address style="text-align: right;">
     <small>
-        Generated on Thu Jun 27 15:05:01 2019 for ubcc1pi by <a href="http://www.doxygen.org/index.html" target="_blank">doxygen</a> 1.6.1
+        Generated on Tue Jul 2 11:50:54 2019 for ubcc1pi by <a href="http://www.doxygen.org/index.html" target="_blank">doxygen</a> 1.6.1
     </small>
 </address>
 

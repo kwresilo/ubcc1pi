@@ -29,9 +29,9 @@ class BacktrackHelper
         class BacktrackerData
         {
             public:
-                typedef std::unordered_map<art::Ptr<simb::MCParticle>, float> MCParticleToFloatMap;
-                typedef std::unordered_map<art::Ptr<recob::PFParticle>, float> PFParticleToFloatMap;
-                typedef AssociationData<recob::PFParticle, simb::MCParticle, float> MatchMap;
+                typedef std::unordered_map<art::Ptr<simb::MCParticle>, float> MCParticleToFloatMap;   ///< Mapping from MCParticles to floats
+                typedef std::unordered_map<art::Ptr<recob::PFParticle>, float> PFParticleToFloatMap;  ///< Mapping from PFParticles to floats
+                typedef AssociationData<recob::PFParticle, simb::MCParticle, float> MatchMap;         ///< Mapping from PFParticles to MCParticles along with the shared weight
 
                 /**
                  *  @brief  Constructor
@@ -147,11 +147,56 @@ class BacktrackHelper
 
             private:
 
-                // TODO doxygen comments
+                /**
+                 *  @brief  Check that PFParticles in the input map from hits -> PFParticles all exist in the input PFPartice vector
+                 *
+                 *  @param  pfParticles the input PFParticles
+                 *  @param  hitsToPfps the input mapping from hits to PFPs
+                 *
+                 *  @throws if an inconsistency is found
+                 */
                 void CheckConsistency(const PFParticleVector &pfParticles, const HitsToPFParticles &hitsToPfps) const;
+
+                /**
+                 *  @brief  Check that MCParticles in the input map from hits -> MCParticles all exist in the input MCPartice vector
+                 *
+                 *  @param  mcParticles the input MCParticles
+                 *  @param  hitsToMcps the input mapping from hits to MCPs
+                 *
+                 *  @throws if an inconsistency is found
+                 */
                 void CheckConsistency(const MCParticleVector &mcParticles, const HitsToMCParticleWeights &hitsToMcps) const;
+
+                /**
+                 *  @brief  Collect all of the hits stored in the input maps ensuring we don't double count
+                 *
+                 *  @param  hitsToPfps the input mapping from hits to PFParticles
+                 *  @param  hitsToMcps the input mapping from hits to MCParticles
+                 *
+                 *  @return an ordered vector of hits that exist in the input maps
+                 */
                 HitVector CollectHits(const HitsToPFParticles &hitsToPfps, const HitsToMCParticleWeights &hitsToMcps) const;
+
+                /**
+                 *  @brief  Get the PFParticle associated with a given hit 
+                 *
+                 *  @param  hit the input hit
+                 *  @param  hitsToPfps the input mapping from hits to PFParticles
+                 *  @param  outputParticle the output particle associated to the hit
+                 *
+                 *  @return if a PFParticle could be found (this will be false if the hit is unclustered)
+                 */
                 bool CollectPFParticle(const art::Ptr<recob::Hit> &hit, const HitsToPFParticles &hitsToPfps, art::Ptr<recob::PFParticle> &outputParticle) const;
+
+                /**
+                 *  @brief  Collect the MCParticles that are associated with a given hit along with their weights (= fraction of the hits charge contributed by the MCParticle)
+                 *
+                 *  @param  hit the input hit
+                 *  @param  hitsToMcps the input mapping from hits to MCParticle
+                 *  @param  outputParticleWeights the output collection of associated MCParticle-weight pairs
+                 *
+                 *  @return if any associated MCParticles could be found (this will be false if the hit is from an external background, overlays, noise)
+                 */
                 bool CollectMCParticleWeights(const art::Ptr<recob::Hit> &hit, const HitsToMCParticleWeights &hitsToMcps, CollectionData<simb::MCParticle, float> &outputParticleWeights) const;
 
                 MCParticleVector        m_mcParticles;         ///< The MCParticles
@@ -255,10 +300,10 @@ class BacktrackHelper
                  */
                 unsigned int CountNuInducedHits(const HitVector &hits) const;
 
-                SliceVector  m_slices;
-                SlicesToBool m_sliceToIsSelectedAsNu;
-                SlicesToHits m_slicesToHits;
-                HitsToBool   m_hitsToIsNuInduced;
+                SliceVector  m_slices;                  ///< The slices
+                SlicesToBool m_sliceToIsSelectedAsNu;   ///< The mapping from slices to a boolean noting if the slice was selected as a neutrino
+                SlicesToHits m_slicesToHits;            ///< The mapping from slices to hits in the slice
+                HitsToBool   m_hitsToIsNuInduced;       ///< The mapping from hits to a boolean noting if the hit has any of it's energy contributed by a true neutrino induced particle
         };
 
     /**

@@ -133,14 +133,18 @@ window.onload = initDynSections;
 <tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">Count the number of hits in the input vector that are neutrino induced.  <a href="#a625367c884f0a31aa715a17c0a0949a0"></a><br/></td></tr>
 <tr><td colspan="2"><h2>Private Attributes</h2></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top"><a class="el" href="namespaceubcc1pi.html#aa994f8a737de42fc8bf8f51e5b5ed363">SliceVector</a>&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classubcc1pi_1_1BacktrackHelper_1_1SliceMetadata.html#a5b27bf7bcb544af9b1d79002eecb5661">m_slices</a></td></tr>
+<tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">The slices.  <a href="#a5b27bf7bcb544af9b1d79002eecb5661"></a><br/></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top"><a class="el" href="namespaceubcc1pi.html#ad48fdc9041372ec7c0bfcfc3fe3b7217">SlicesToBool</a>&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classubcc1pi_1_1BacktrackHelper_1_1SliceMetadata.html#ab57a369b342d12ce152775c8723e8a83">m_sliceToIsSelectedAsNu</a></td></tr>
+<tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">The mapping from slices to a boolean noting if the slice was selected as a neutrino.  <a href="#ab57a369b342d12ce152775c8723e8a83"></a><br/></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top"><a class="el" href="namespaceubcc1pi.html#ab9236b7f2097980810f3f2737455749c">SlicesToHits</a>&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classubcc1pi_1_1BacktrackHelper_1_1SliceMetadata.html#a3783716de46b1708577acdd9f88b7c1d">m_slicesToHits</a></td></tr>
+<tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">The mapping from slices to hits in the slice.  <a href="#a3783716de46b1708577acdd9f88b7c1d"></a><br/></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top"><a class="el" href="namespaceubcc1pi.html#a8ce7e6a90e2e4a858a72ad75073a3f7e">HitsToBool</a>&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classubcc1pi_1_1BacktrackHelper_1_1SliceMetadata.html#a9dbf478ceb23fd64d4966d77eee4b3c8">m_hitsToIsNuInduced</a></td></tr>
+<tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">The mapping from hits to a boolean noting if the hit has any of it's energy contributed by a true neutrino induced particle.  <a href="#a9dbf478ceb23fd64d4966d77eee4b3c8"></a><br/></td></tr>
 </table>
 <hr/><a name="_details"></a><h2>Detailed Description</h2>
 <p>Class holding the backtracking details of the slices. </p>
 
-<p>Definition at line <a class="el" href="BacktrackHelper_8h_source.html#l00169">169</a> of file <a class="el" href="BacktrackHelper_8h_source.html">BacktrackHelper.h</a>.</p>
+<p>Definition at line <a class="el" href="BacktrackHelper_8h_source.html#l00214">214</a> of file <a class="el" href="BacktrackHelper_8h_source.html">BacktrackHelper.h</a>.</p>
 <hr/><h2>Constructor &amp; Destructor Documentation</h2>
 <a class="anchor" id="aa9e4f9bc521d6e76e72a488ecb6ad6e5"></a><!-- doxytag: member="ubcc1pi::BacktrackHelper::SliceMetadata::SliceMetadata" ref="aa9e4f9bc521d6e76e72a488ecb6ad6e5" args="(const SliceVector &amp;slices, const SlicesToBool &amp;sliceToIsSelectedAsNu, const SlicesToHits &amp;slicesToHits, const HitsToBool &amp;hitsToIsNuInduced)" -->
 <div class="memitem">
@@ -501,7 +505,9 @@ window.onload = initDynSections;
 </div>
 <div class="memdoc">
 
-<p>Definition at line <a class="el" href="BacktrackHelper_8h_source.html#l00261">261</a> of file <a class="el" href="BacktrackHelper_8h_source.html">BacktrackHelper.h</a>.</p>
+<p>The mapping from hits to a boolean noting if the hit has any of it's energy contributed by a true neutrino induced particle. </p>
+
+<p>Definition at line <a class="el" href="BacktrackHelper_8h_source.html#l00306">306</a> of file <a class="el" href="BacktrackHelper_8h_source.html">BacktrackHelper.h</a>.</p>
 
 </div>
 </div>
@@ -516,7 +522,9 @@ window.onload = initDynSections;
 </div>
 <div class="memdoc">
 
-<p>Definition at line <a class="el" href="BacktrackHelper_8h_source.html#l00258">258</a> of file <a class="el" href="BacktrackHelper_8h_source.html">BacktrackHelper.h</a>.</p>
+<p>The slices. </p>
+
+<p>Definition at line <a class="el" href="BacktrackHelper_8h_source.html#l00303">303</a> of file <a class="el" href="BacktrackHelper_8h_source.html">BacktrackHelper.h</a>.</p>
 
 </div>
 </div>
@@ -531,7 +539,9 @@ window.onload = initDynSections;
 </div>
 <div class="memdoc">
 
-<p>Definition at line <a class="el" href="BacktrackHelper_8h_source.html#l00260">260</a> of file <a class="el" href="BacktrackHelper_8h_source.html">BacktrackHelper.h</a>.</p>
+<p>The mapping from slices to hits in the slice. </p>
+
+<p>Definition at line <a class="el" href="BacktrackHelper_8h_source.html#l00305">305</a> of file <a class="el" href="BacktrackHelper_8h_source.html">BacktrackHelper.h</a>.</p>
 
 </div>
 </div>
@@ -546,7 +556,9 @@ window.onload = initDynSections;
 </div>
 <div class="memdoc">
 
-<p>Definition at line <a class="el" href="BacktrackHelper_8h_source.html#l00259">259</a> of file <a class="el" href="BacktrackHelper_8h_source.html">BacktrackHelper.h</a>.</p>
+<p>The mapping from slices to a boolean noting if the slice was selected as a neutrino. </p>
+
+<p>Definition at line <a class="el" href="BacktrackHelper_8h_source.html#l00304">304</a> of file <a class="el" href="BacktrackHelper_8h_source.html">BacktrackHelper.h</a>.</p>
 
 </div>
 </div>
@@ -572,7 +584,7 @@ window.onload = initDynSections;
 <hr size="1"/>
 <address style="text-align: right;">
     <small>
-        Generated on Thu Jun 27 15:05:01 2019 for ubcc1pi by <a href="http://www.doxygen.org/index.html" target="_blank">doxygen</a> 1.6.1
+        Generated on Tue Jul 2 11:50:54 2019 for ubcc1pi by <a href="http://www.doxygen.org/index.html" target="_blank">doxygen</a> 1.6.1
     </small>
 </address>
 

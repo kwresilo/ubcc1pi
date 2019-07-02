@@ -341,42 +341,207 @@ window.onload = initDynSections;
 <a name="l00245"></a>00245         <span class="keywordtype">void</span> <a class="code" href="classubcc1pi_1_1EventSelection.html#a46267dcc4422f5a9208bab5c2865bdd3" title="Analyze an event.">analyze</a>(<span class="keyword">const</span> art::Event &amp;event);
 <a name="l00246"></a>00246 
 <a name="l00247"></a>00247     <span class="keyword">private</span>:
-<a name="l00248"></a>00248       
-<a name="l00249"></a>00249         <span class="comment">// TODO doxygen comments</span>
-<a name="l00250"></a>00250         <span class="keywordtype">void</span> <a class="code" href="classubcc1pi_1_1EventSelection.html#a5b7c2c592266dd323cdf594f9fbd0551">ResetEventTree</a>();
-<a name="l00251"></a>00251         <span class="keywordtype">void</span> <a class="code" href="classubcc1pi_1_1EventSelection.html#acb94258e204883bc946704f5952c5bd1">SetEventMetadata</a>(<span class="keyword">const</span> art::Event &amp;event);
-<a name="l00252"></a>00252         <span class="keywordtype">void</span> <a class="code" href="classubcc1pi_1_1EventSelection.html#a05998ece0b5f95158bba4b164678fefa">SetEventTruthInfo</a>(<span class="keyword">const</span> art::Event &amp;event);
-<a name="l00253"></a>00253         art::Ptr&lt;simb::MCParticle&gt; <a class="code" href="classubcc1pi_1_1EventSelection.html#a95955812489ae97715672f15a28d286d">SelectMCParticleWithPdgCode</a>(<span class="keyword">const</span> <a class="code" href="namespaceubcc1pi.html#a42e409a54246ea6acba6d873b8eb696c">MCParticleVector</a> &amp;mcParticles, <span class="keyword">const</span> <span class="keywordtype">int</span> pdgCode) <span class="keyword">const</span>;
-<a name="l00254"></a>00254         <span class="keywordtype">float</span> <a class="code" href="classubcc1pi_1_1EventSelection.html#a5678657d938a91e52c51f597460b2e03">GetTheta</a>(<span class="keyword">const</span> art::Ptr&lt;simb::MCParticle&gt; &amp;mcParticle) <span class="keyword">const</span>;
-<a name="l00255"></a>00255         <span class="keywordtype">float</span> <a class="code" href="classubcc1pi_1_1EventSelection.html#a4c2687289e47147cfa72d92713f6e836">GetPhi</a>(<span class="keyword">const</span> art::Ptr&lt;simb::MCParticle&gt; &amp;mcParticle) <span class="keyword">const</span>;
-<a name="l00256"></a>00256         <span class="keywordtype">float</span> <a class="code" href="classubcc1pi_1_1EventSelection.html#a1e4afc00b17782bf9804aa1e1a935c6b">GetOpeningAngle</a>(<span class="keyword">const</span> art::Ptr&lt;simb::MCParticle&gt; &amp;muon, <span class="keyword">const</span> art::Ptr&lt;simb::MCParticle&gt; &amp;pion) <span class="keyword">const</span>;
-<a name="l00257"></a>00257         <span class="keywordtype">void</span> <a class="code" href="classubcc1pi_1_1EventSelection.html#a76ab3a4545e1efec8c3fb34e58c3e021">SetRecoInfo</a>(<span class="keyword">const</span> art::Event &amp;event);
-<a name="l00258"></a>00258         <span class="keywordtype">void</span> <a class="code" href="classubcc1pi_1_1EventSelection.html#a06ad37db1a381a66bc65b41543e36e4c">SetEventRecoInfo</a>(<span class="keyword">const</span> art::Event &amp;event, <span class="keyword">const</span> <a class="code" href="namespaceubcc1pi.html#a6f66dc13c5a55147db5c84db67f6062b">PFParticleVector</a> &amp;allPFParticles, <span class="keyword">const</span> <a class="code" href="namespaceubcc1pi.html#a6f66dc13c5a55147db5c84db67f6062b">PFParticleVector</a> &amp;finalStates, <span class="keyword">const</span> Association&lt;recob::PFParticle, larpandoraobj::PFParticleMetadata&gt; &amp;pfpToMetadata, <span class="keyword">const</span> spacecharge::SpaceChargeService::provider_type *<span class="keyword">const</span> pSpaceChargeService);
-<a name="l00259"></a>00259         <span class="keywordtype">void</span> <a class="code" href="classubcc1pi_1_1EventSelection.html#aece9f5903427f4668c57bf9eddbf8ca8">SetPFParticleInfo</a>(<span class="keyword">const</span> <span class="keywordtype">unsigned</span> <span class="keywordtype">int</span> index, <span class="keyword">const</span> art::Ptr&lt;recob::PFParticle&gt; &amp;finalState, <span class="keyword">const</span> <a class="code" href="classubcc1pi_1_1BacktrackHelper_1_1BacktrackerData.html" title="Class holding backtracking data.">BacktrackHelper::BacktrackerData</a> &amp;backtrackerData, <span class="keyword">const</span> Association&lt;recob::PFParticle, recob::Track&gt; &amp;pfpToTracks, <span class="keyword">const</span> Association&lt;recob::Track, anab::ParticleID&gt; &amp;trackToPIDs, <span class="keyword">const</span> Association&lt;recob::PFParticle, larpandoraobj::PFParticleMetadata&gt; &amp;pfpToMetadata, <span class="keyword">const</span> spacecharge::SpaceChargeService::provider_type *<span class="keyword">const</span> pSpaceChargeService);
-<a name="l00260"></a>00260         <span class="keywordtype">void</span> <a class="code" href="classubcc1pi_1_1EventSelection.html#a72fcb88b3cd5952633de75f7f0b707f2">SetPFParticleMCParticleMatchInfo</a>(<span class="keyword">const</span> art::Ptr&lt;recob::PFParticle&gt; &amp;finalState, <span class="keyword">const</span> <a class="code" href="classubcc1pi_1_1BacktrackHelper_1_1BacktrackerData.html" title="Class holding backtracking data.">BacktrackHelper::BacktrackerData</a> &amp;backtrackerData);
-<a name="l00261"></a>00261         <span class="keywordtype">void</span> <a class="code" href="classubcc1pi_1_1EventSelection.html#abc4565b9b1163a9adc0b63a1e6f21b94">SetPFParticlePandoraInfo</a>(<span class="keyword">const</span> art::Ptr&lt;recob::PFParticle&gt; &amp;finalState, <span class="keyword">const</span> <a class="code" href="classubcc1pi_1_1BacktrackHelper_1_1BacktrackerData.html" title="Class holding backtracking data.">BacktrackHelper::BacktrackerData</a> &amp;backtrackerData, <span class="keyword">const</span> Association&lt;recob::PFParticle, larpandoraobj::PFParticleMetadata&gt; &amp;pfpToMetadata);
-<a name="l00262"></a>00262         <span class="keywordtype">void</span> <a class="code" href="classubcc1pi_1_1EventSelection.html#af122f9aaa9d8e3ff0769667da2bf51dc">SetDummyTrackInfo</a>();
-<a name="l00263"></a>00263         <span class="keywordtype">void</span> <a class="code" href="classubcc1pi_1_1EventSelection.html#aae25cc9f45979ffda18d3cfe0b7360f9">SetTrackInfo</a>(<span class="keyword">const</span> art::Ptr&lt;recob::Track&gt; &amp;track, <span class="keyword">const</span> spacecharge::SpaceChargeService::provider_type *<span class="keyword">const</span> pSpaceChargeService);
-<a name="l00264"></a>00264         <span class="keywordtype">float</span> <a class="code" href="classubcc1pi_1_1EventSelection.html#a26eb43fee33b9b33f56fa4310d96c43d">GetYZAngle</a>(<span class="keyword">const</span> TVector3 &amp;dir);
-<a name="l00265"></a>00265         <span class="keywordtype">void</span> <a class="code" href="classubcc1pi_1_1EventSelection.html#ad030bef1282811035ecd93b442dd336d">SetDummyPIDInfo</a>();
-<a name="l00266"></a>00266         <span class="keywordtype">void</span> <a class="code" href="classubcc1pi_1_1EventSelection.html#a7e3602412cc3c113109b27c24f495b94">SetPIDInfo</a>(<span class="keyword">const</span> art::Ptr&lt;anab::ParticleID&gt; &amp;pid, <span class="keyword">const</span> <span class="keywordtype">float</span> yzAngle, <span class="keyword">const</span> <span class="keywordtype">int</span> nHitsU, <span class="keyword">const</span> <span class="keywordtype">int</span> nHitsV);
-<a name="l00267"></a>00267         geo::View_t <a class="code" href="classubcc1pi_1_1EventSelection.html#a1a4c1076d7aa8db25c92ad076765e322">GetView</a>(<span class="keyword">const</span> std::bitset&lt;8&gt; &amp;planeMask) <span class="keyword">const</span>;
-<a name="l00268"></a>00268         <span class="keywordtype">void</span> <a class="code" href="classubcc1pi_1_1EventSelection.html#a401293a6afd15d6e5066872201e32a26">SetPIDVariables</a>(<span class="keyword">const</span> geo::View_t &amp;view, <span class="keyword">const</span> <span class="keywordtype">float</span> algoValue, <span class="keywordtype">float</span> &amp;wValue, <span class="keywordtype">float</span> &amp;uValue, <span class="keywordtype">float</span> &amp;vValue, <span class="keywordtype">bool</span> &amp;wSet, <span class="keywordtype">bool</span> &amp;uSet, <span class="keywordtype">bool</span> &amp;vSet) <span class="keyword">const</span>;
-<a name="l00269"></a>00269         <span class="keywordtype">void</span> <a class="code" href="classubcc1pi_1_1EventSelection.html#afd5616b4c92117058d74d6662b34e9b1">CombineInductionPlanes</a>(<span class="keyword">const</span> <span class="keywordtype">float</span> yzAngle, <span class="keyword">const</span> <span class="keywordtype">int</span> nHitsU, <span class="keyword">const</span> <span class="keywordtype">int</span> nHitsV, <span class="keyword">const</span> <span class="keywordtype">float</span> uValue, <span class="keyword">const</span> <span class="keywordtype">float</span> vValue, <span class="keyword">const</span> <span class="keywordtype">bool</span> uSet, <span class="keyword">const</span> <span class="keywordtype">bool</span> vSet, <span class="keywordtype">float</span> &amp;uvValue, <span class="keywordtype">bool</span> &amp;uvSet) <span class="keyword">const</span>;
-<a name="l00270"></a>00270         <span class="keywordtype">void</span> <a class="code" href="classubcc1pi_1_1EventSelection.html#a6f2706aa29bfe5c20beb64a45babf798">ValidateOutputVectorSizes</a>(<span class="keyword">const</span> <span class="keywordtype">unsigned</span> <span class="keywordtype">int</span> index) <span class="keyword">const</span>;
-<a name="l00271"></a>00271 
-<a name="l00272"></a>00272         
-<a name="l00273"></a><a class="code" href="classubcc1pi_1_1EventSelection.html#ad5d85af976f7345531c4fdf74a6e84e6">00273</a>         art::EDAnalyzer::Table&lt;Config&gt;  <a class="code" href="classubcc1pi_1_1EventSelection.html#ad5d85af976f7345531c4fdf74a6e84e6" title="The FHiCL configuration options.">m_config</a>;          <span class="comment">///&lt; The FHiCL configuration options</span>
-<a name="l00274"></a>00274 <span class="comment"></span>        
-<a name="l00275"></a><a class="code" href="classubcc1pi_1_1EventSelection.html#a6ba26e7209711991c586d8fba170dd95">00275</a>         TTree                          *<a class="code" href="classubcc1pi_1_1EventSelection.html#a6ba26e7209711991c586d8fba170dd95" title="The output tree for all event level data.">m_pEventTree</a>;      <span class="comment">///&lt; The output tree for all event level data</span>
-<a name="l00276"></a><a class="code" href="classubcc1pi_1_1EventSelection.html#ab1cd5046a9ddeb71045f8378a476ca1b">00276</a> <span class="comment"></span>        <a class="code" href="structubcc1pi_1_1EventSelection_1_1OutputEvent.html" title="The output event level structure.">OutputEvent</a>                     <a class="code" href="classubcc1pi_1_1EventSelection.html#ab1cd5046a9ddeb71045f8378a476ca1b" title="The output event-level object.">m_outputEvent</a>;     <span class="comment">///&lt; The output event-level object</span>
-<a name="l00277"></a>00277 <span class="comment"></span>};
-<a name="l00278"></a>00278 
-<a name="l00279"></a>00279 } <span class="comment">// namespace ubcc1pi</span>
-<a name="l00280"></a>00280 
-<a name="l00281"></a>00281 DEFINE_ART_MODULE(<a class="code" href="classubcc1pi_1_1EventSelection.html" title="The PID study class.">ubcc1pi::EventSelection</a>)
-<a name="l00282"></a>00282 
-<a name="l00283"></a>00283 <span class="preprocessor">#endif</span>
+<a name="l00248"></a>00248 <span class="comment"></span>
+<a name="l00249"></a>00249 <span class="comment">        /**</span>
+<a name="l00250"></a>00250 <span class="comment">         *  @brief  Reset the output branches for the next event</span>
+<a name="l00251"></a>00251 <span class="comment">         */</span>
+<a name="l00252"></a>00252         <span class="keywordtype">void</span> <a class="code" href="classubcc1pi_1_1EventSelection.html#a5b7c2c592266dd323cdf594f9fbd0551" title="Reset the output branches for the next event.">ResetEventTree</a>();
+<a name="l00253"></a>00253 <span class="comment"></span>
+<a name="l00254"></a>00254 <span class="comment">        /**</span>
+<a name="l00255"></a>00255 <span class="comment">         *  @brief  Set the event metadata in the output branches (event number, run number, etc...)_</span>
+<a name="l00256"></a>00256 <span class="comment">         *</span>
+<a name="l00257"></a>00257 <span class="comment">         *  @param  event the art event</span>
+<a name="l00258"></a>00258 <span class="comment">         */</span>
+<a name="l00259"></a>00259         <span class="keywordtype">void</span> <a class="code" href="classubcc1pi_1_1EventSelection.html#acb94258e204883bc946704f5952c5bd1" title="Set the event metadata in the output branches (event number, run number, etc...)_...">SetEventMetadata</a>(<span class="keyword">const</span> art::Event &amp;event);
+<a name="l00260"></a>00260 <span class="comment"></span>
+<a name="l00261"></a>00261 <span class="comment">        /**</span>
+<a name="l00262"></a>00262 <span class="comment">         *  @brief  Set the event level truth info about the neutrino interaction</span>
+<a name="l00263"></a>00263 <span class="comment">         *</span>
+<a name="l00264"></a>00264 <span class="comment">         *  @param  event the art event</span>
+<a name="l00265"></a>00265 <span class="comment">         */</span>
+<a name="l00266"></a>00266         <span class="keywordtype">void</span> <a class="code" href="classubcc1pi_1_1EventSelection.html#a05998ece0b5f95158bba4b164678fefa" title="Set the event level truth info about the neutrino interaction.">SetEventTruthInfo</a>(<span class="keyword">const</span> art::Event &amp;event);
+<a name="l00267"></a>00267 <span class="comment"></span>
+<a name="l00268"></a>00268 <span class="comment">        /**</span>
+<a name="l00269"></a>00269 <span class="comment">         *  @brief  Select the MCParticle with the given PDG code (assumes each PDG is in the input vector at most once)</span>
+<a name="l00270"></a>00270 <span class="comment">         *</span>
+<a name="l00271"></a>00271 <span class="comment">         *  @param  mcParticles the input vector of MCParticles from which to selected the chosen particle</span>
+<a name="l00272"></a>00272 <span class="comment">         *  @param  pdgCode the PDG code to select</span>
+<a name="l00273"></a>00273 <span class="comment">         *</span>
+<a name="l00274"></a>00274 <span class="comment">         *  @return the MCParticle in the input vector with the desired PDG code</span>
+<a name="l00275"></a>00275 <span class="comment">         *  @throws if there wasn&apos;t exactly one MCParticle with the desired PDG code</span>
+<a name="l00276"></a>00276 <span class="comment">         */</span>
+<a name="l00277"></a>00277         art::Ptr&lt;simb::MCParticle&gt; <a class="code" href="classubcc1pi_1_1EventSelection.html#a95955812489ae97715672f15a28d286d" title="Select the MCParticle with the given PDG code (assumes each PDG is in the input vector...">SelectMCParticleWithPdgCode</a>(<span class="keyword">const</span> <a class="code" href="namespaceubcc1pi.html#a42e409a54246ea6acba6d873b8eb696c" title="A collection of MCParticles.">MCParticleVector</a> &amp;mcParticles, <span class="keyword">const</span> <span class="keywordtype">int</span> pdgCode) <span class="keyword">const</span>;
+<a name="l00278"></a>00278 <span class="comment"></span>
+<a name="l00279"></a>00279 <span class="comment">        /**</span>
+<a name="l00280"></a>00280 <span class="comment">         *  @brief  Get the angle to the beam direction of the momentum vector of the input MCParticle</span>
+<a name="l00281"></a>00281 <span class="comment">         *</span>
+<a name="l00282"></a>00282 <span class="comment">         *  @param  mcParticle the input MCParticle</span>
+<a name="l00283"></a>00283 <span class="comment">         *</span>
+<a name="l00284"></a>00284 <span class="comment">         *  @return the theta angle</span>
+<a name="l00285"></a>00285 <span class="comment">         */</span>
+<a name="l00286"></a>00286         <span class="keywordtype">float</span> <a class="code" href="classubcc1pi_1_1EventSelection.html#a5678657d938a91e52c51f597460b2e03" title="Get the angle to the beam direction of the momentum vector of the input MCParticle...">GetTheta</a>(<span class="keyword">const</span> art::Ptr&lt;simb::MCParticle&gt; &amp;mcParticle) <span class="keyword">const</span>;
+<a name="l00287"></a>00287 <span class="comment"></span>
+<a name="l00288"></a>00288 <span class="comment">        /**</span>
+<a name="l00289"></a>00289 <span class="comment">         *  @brief  Get the angle around the beam direction of the momentum vector of the input MCParticle</span>
+<a name="l00290"></a>00290 <span class="comment">         *</span>
+<a name="l00291"></a>00291 <span class="comment">         *  @param  mcParticle the input MCParticle</span>
+<a name="l00292"></a>00292 <span class="comment">         *</span>
+<a name="l00293"></a>00293 <span class="comment">         *  @return the phi angle</span>
+<a name="l00294"></a>00294 <span class="comment">         */</span>
+<a name="l00295"></a>00295         <span class="keywordtype">float</span> <a class="code" href="classubcc1pi_1_1EventSelection.html#a4c2687289e47147cfa72d92713f6e836" title="Get the angle around the beam direction of the momentum vector of the input MCParticle...">GetPhi</a>(<span class="keyword">const</span> art::Ptr&lt;simb::MCParticle&gt; &amp;mcParticle) <span class="keyword">const</span>;
+<a name="l00296"></a>00296 <span class="comment"></span>
+<a name="l00297"></a>00297 <span class="comment">        /**</span>
+<a name="l00298"></a>00298 <span class="comment">         *  @brief  Get the opening angle between two input MCParticles (muon &amp; pion)</span>
+<a name="l00299"></a>00299 <span class="comment">         *</span>
+<a name="l00300"></a>00300 <span class="comment">         *  @param  muon the muon MCParticle</span>
+<a name="l00301"></a>00301 <span class="comment">         *  @param  pion the pion MCParticle</span>
+<a name="l00302"></a>00302 <span class="comment">         *</span>
+<a name="l00303"></a>00303 <span class="comment">         *  @return the opening angle between the particles (radians)</span>
+<a name="l00304"></a>00304 <span class="comment">         */</span>
+<a name="l00305"></a>00305         <span class="keywordtype">float</span> <a class="code" href="classubcc1pi_1_1EventSelection.html#a1e4afc00b17782bf9804aa1e1a935c6b" title="Get the opening angle between two input MCParticles (muon &amp;amp; pion).">GetOpeningAngle</a>(<span class="keyword">const</span> art::Ptr&lt;simb::MCParticle&gt; &amp;muon, <span class="keyword">const</span> art::Ptr&lt;simb::MCParticle&gt; &amp;pion) <span class="keyword">const</span>;
+<a name="l00306"></a>00306 <span class="comment"></span>
+<a name="l00307"></a>00307 <span class="comment">        /**</span>
+<a name="l00308"></a>00308 <span class="comment">         *  @brief  Set the reconstructed information about the event in the output branches</span>
+<a name="l00309"></a>00309 <span class="comment">         *</span>
+<a name="l00310"></a>00310 <span class="comment">         *  @param  event the art event</span>
+<a name="l00311"></a>00311 <span class="comment">         */</span>
+<a name="l00312"></a>00312         <span class="keywordtype">void</span> <a class="code" href="classubcc1pi_1_1EventSelection.html#a76ab3a4545e1efec8c3fb34e58c3e021" title="Set the reconstructed information about the event in the output branches.">SetRecoInfo</a>(<span class="keyword">const</span> art::Event &amp;event);
+<a name="l00313"></a>00313 <span class="comment"></span>
+<a name="l00314"></a>00314 <span class="comment">        /**</span>
+<a name="l00315"></a>00315 <span class="comment">         *  @brief  Set the event-level reconstructed information in the output branches</span>
+<a name="l00316"></a>00316 <span class="comment">         *</span>
+<a name="l00317"></a>00317 <span class="comment">         *  @param  event the art event</span>
+<a name="l00318"></a>00318 <span class="comment">         *  @param  allPFParticles the complete vector of all PFParticles</span>
+<a name="l00319"></a>00319 <span class="comment">         *  @param  finalStates the neutrino final state PFParticles</span>
+<a name="l00320"></a>00320 <span class="comment">         *  @param  pfpToMetadata the mapping from PFParticles to metadata</span>
+<a name="l00321"></a>00321 <span class="comment">         *  @param  pSpaceChargeService the space charge service</span>
+<a name="l00322"></a>00322 <span class="comment">         */</span>
+<a name="l00323"></a>00323         <span class="keywordtype">void</span> <a class="code" href="classubcc1pi_1_1EventSelection.html#a06ad37db1a381a66bc65b41543e36e4c" title="Set the event-level reconstructed information in the output branches.">SetEventRecoInfo</a>(<span class="keyword">const</span> art::Event &amp;event, <span class="keyword">const</span> <a class="code" href="namespaceubcc1pi.html#a6f66dc13c5a55147db5c84db67f6062b" title="A collection of PFParticles.">PFParticleVector</a> &amp;allPFParticles, <span class="keyword">const</span> <a class="code" href="namespaceubcc1pi.html#a6f66dc13c5a55147db5c84db67f6062b" title="A collection of PFParticles.">PFParticleVector</a> &amp;finalStates, <span class="keyword">const</span> Association&lt;recob::PFParticle, larpandoraobj::PFParticleMetadata&gt; &amp;pfpToMetadata, <span class="keyword">const</span> spacecharge::SpaceChargeService::provider_type *<span class="keyword">const</span> pSpaceChargeService);
+<a name="l00324"></a>00324 <span class="comment"></span>
+<a name="l00325"></a>00325 <span class="comment">        /**</span>
+<a name="l00326"></a>00326 <span class="comment">         *  @brief  Set the particle-level reconstructed information in the output branches</span>
+<a name="l00327"></a>00327 <span class="comment">         *</span>
+<a name="l00328"></a>00328 <span class="comment">         *  @param  index the index of the final state PFParticle </span>
+<a name="l00329"></a>00329 <span class="comment">         *  @param  finalState the final state PFParticle to output</span>
+<a name="l00330"></a>00330 <span class="comment">         *  @param  backtrackerData the backtracking data</span>
+<a name="l00331"></a>00331 <span class="comment">         *  @param  pfpToTracks the mapping from PFParticles to Tracks</span>
+<a name="l00332"></a>00332 <span class="comment">         *  @param  trackToPIDs the mapping from Tracks to PID</span>
+<a name="l00333"></a>00333 <span class="comment">         *  @param  pfpToMetadata the mapping from PFParticles to metadata</span>
+<a name="l00334"></a>00334 <span class="comment">         *  @param  pSpaceChargeService the space charge service</span>
+<a name="l00335"></a>00335 <span class="comment">         */</span>
+<a name="l00336"></a>00336         <span class="keywordtype">void</span> <a class="code" href="classubcc1pi_1_1EventSelection.html#aece9f5903427f4668c57bf9eddbf8ca8" title="Set the particle-level reconstructed information in the output branches.">SetPFParticleInfo</a>(<span class="keyword">const</span> <span class="keywordtype">unsigned</span> <span class="keywordtype">int</span> index, <span class="keyword">const</span> art::Ptr&lt;recob::PFParticle&gt; &amp;finalState, <span class="keyword">const</span> <a class="code" href="classubcc1pi_1_1BacktrackHelper_1_1BacktrackerData.html" title="Class holding backtracking data.">BacktrackHelper::BacktrackerData</a> &amp;backtrackerData, <span class="keyword">const</span> Association&lt;recob::PFParticle, recob::Track&gt; &amp;pfpToTracks, <span class="keyword">const</span> Association&lt;recob::Track, anab::ParticleID&gt; &amp;trackToPIDs, <span class="keyword">const</span> Association&lt;recob::PFParticle, larpandoraobj::PFParticleMetadata&gt; &amp;pfpToMetadata, <span class="keyword">const</span> spacecharge::SpaceChargeService::provider_type *<span class="keyword">const</span> pSpaceChargeService);
+<a name="l00337"></a>00337 <span class="comment"></span>
+<a name="l00338"></a>00338 <span class="comment">        /**</span>
+<a name="l00339"></a>00339 <span class="comment">         *  @brief  Set the MCParticle matching info for the current PFParticle to the output branches</span>
+<a name="l00340"></a>00340 <span class="comment">         *</span>
+<a name="l00341"></a>00341 <span class="comment">         *  @param  finalState the final state PFParticle to output</span>
+<a name="l00342"></a>00342 <span class="comment">         *  @param  backtrackerData the backtracking data</span>
+<a name="l00343"></a>00343 <span class="comment">         */</span>
+<a name="l00344"></a>00344         <span class="keywordtype">void</span> <a class="code" href="classubcc1pi_1_1EventSelection.html#a72fcb88b3cd5952633de75f7f0b707f2" title="Set the MCParticle matching info for the current PFParticle to the output branches...">SetPFParticleMCParticleMatchInfo</a>(<span class="keyword">const</span> art::Ptr&lt;recob::PFParticle&gt; &amp;finalState, <span class="keyword">const</span> <a class="code" href="classubcc1pi_1_1BacktrackHelper_1_1BacktrackerData.html" title="Class holding backtracking data.">BacktrackHelper::BacktrackerData</a> &amp;backtrackerData);
+<a name="l00345"></a>00345 <span class="comment"></span>
+<a name="l00346"></a>00346 <span class="comment">        /**</span>
+<a name="l00347"></a>00347 <span class="comment">         *  @brief  Set the PFParticle info from Pandora in the output branches</span>
+<a name="l00348"></a>00348 <span class="comment">         *</span>
+<a name="l00349"></a>00349 <span class="comment">         *  @param  finalState the final state PFParticle to output</span>
+<a name="l00350"></a>00350 <span class="comment">         *  @param  backtrackerData the backtracking data</span>
+<a name="l00351"></a>00351 <span class="comment">         *  @param  pfpToMetadata the mapping from PFParticles to metadata</span>
+<a name="l00352"></a>00352 <span class="comment">         */</span>
+<a name="l00353"></a>00353         <span class="keywordtype">void</span> <a class="code" href="classubcc1pi_1_1EventSelection.html#abc4565b9b1163a9adc0b63a1e6f21b94" title="Set the PFParticle info from Pandora in the output branches.">SetPFParticlePandoraInfo</a>(<span class="keyword">const</span> art::Ptr&lt;recob::PFParticle&gt; &amp;finalState, <span class="keyword">const</span> <a class="code" href="classubcc1pi_1_1BacktrackHelper_1_1BacktrackerData.html" title="Class holding backtracking data.">BacktrackHelper::BacktrackerData</a> &amp;backtrackerData, <span class="keyword">const</span> Association&lt;recob::PFParticle, larpandoraobj::PFParticleMetadata&gt; &amp;pfpToMetadata);
+<a name="l00354"></a>00354 <span class="comment"></span>
+<a name="l00355"></a>00355 <span class="comment">        /**</span>
+<a name="l00356"></a>00356 <span class="comment">         *  @brief  Set dummy track info for the current PFParticle </span>
+<a name="l00357"></a>00357 <span class="comment">         */</span>
+<a name="l00358"></a>00358         <span class="keywordtype">void</span> <a class="code" href="classubcc1pi_1_1EventSelection.html#af122f9aaa9d8e3ff0769667da2bf51dc" title="Set dummy track info for the current PFParticle.">SetDummyTrackInfo</a>();
+<a name="l00359"></a>00359 <span class="comment"></span>
+<a name="l00360"></a>00360 <span class="comment">        /**</span>
+<a name="l00361"></a>00361 <span class="comment">         *  @brief  Set the track info for the current PFParticle</span>
+<a name="l00362"></a>00362 <span class="comment">         *</span>
+<a name="l00363"></a>00363 <span class="comment">         *  @param  track the track to output</span>
+<a name="l00364"></a>00364 <span class="comment">         *  @param  pSpaceChargeService the space charge service</span>
+<a name="l00365"></a>00365 <span class="comment">         */</span>
+<a name="l00366"></a>00366         <span class="keywordtype">void</span> <a class="code" href="classubcc1pi_1_1EventSelection.html#aae25cc9f45979ffda18d3cfe0b7360f9" title="Set the track info for the current PFParticle.">SetTrackInfo</a>(<span class="keyword">const</span> art::Ptr&lt;recob::Track&gt; &amp;track, <span class="keyword">const</span> spacecharge::SpaceChargeService::provider_type *<span class="keyword">const</span> pSpaceChargeService);
+<a name="l00367"></a>00367 <span class="comment"></span>
+<a name="l00368"></a>00368 <span class="comment">        /**</span>
+<a name="l00369"></a>00369 <span class="comment">         *  @brief  Get the angle of in the YZ plane from an input direction</span>
+<a name="l00370"></a>00370 <span class="comment">         *</span>
+<a name="l00371"></a>00371 <span class="comment">         *  @param  dir the input direction</span>
+<a name="l00372"></a>00372 <span class="comment">         *</span>
+<a name="l00373"></a>00373 <span class="comment">         *  @return the YZ angle</span>
+<a name="l00374"></a>00374 <span class="comment">         */</span>
+<a name="l00375"></a>00375         <span class="keywordtype">float</span> <a class="code" href="classubcc1pi_1_1EventSelection.html#a26eb43fee33b9b33f56fa4310d96c43d" title="Get the angle of in the YZ plane from an input direction.">GetYZAngle</a>(<span class="keyword">const</span> TVector3 &amp;dir);
+<a name="l00376"></a>00376 <span class="comment"></span>
+<a name="l00377"></a>00377 <span class="comment">        /**</span>
+<a name="l00378"></a>00378 <span class="comment">         *  @brief  Set dummy PID info for the current PFParticle</span>
+<a name="l00379"></a>00379 <span class="comment">         */</span>
+<a name="l00380"></a>00380         <span class="keywordtype">void</span> <a class="code" href="classubcc1pi_1_1EventSelection.html#ad030bef1282811035ecd93b442dd336d" title="Set dummy PID info for the current PFParticle.">SetDummyPIDInfo</a>();
+<a name="l00381"></a>00381 <span class="comment"></span>
+<a name="l00382"></a>00382 <span class="comment">        /**</span>
+<a name="l00383"></a>00383 <span class="comment">         *  @brief  Set the PID info for the currenct PFParticle</span>
+<a name="l00384"></a>00384 <span class="comment">         *</span>
+<a name="l00385"></a>00385 <span class="comment">         *  @param  pid the PID to output</span>
+<a name="l00386"></a>00386 <span class="comment">         *  @param  yzAngle the yz angle of the track</span>
+<a name="l00387"></a>00387 <span class="comment">         *  @param  nHitsU the number of hits in the U plane</span>
+<a name="l00388"></a>00388 <span class="comment">         *  @param  nHitsV the number of hits in the V plane</span>
+<a name="l00389"></a>00389 <span class="comment">         */</span>
+<a name="l00390"></a>00390         <span class="keywordtype">void</span> <a class="code" href="classubcc1pi_1_1EventSelection.html#a7e3602412cc3c113109b27c24f495b94" title="Set the PID info for the currenct PFParticle.">SetPIDInfo</a>(<span class="keyword">const</span> art::Ptr&lt;anab::ParticleID&gt; &amp;pid, <span class="keyword">const</span> <span class="keywordtype">float</span> yzAngle, <span class="keyword">const</span> <span class="keywordtype">int</span> nHitsU, <span class="keyword">const</span> <span class="keywordtype">int</span> nHitsV);
+<a name="l00391"></a>00391 <span class="comment"></span>
+<a name="l00392"></a>00392 <span class="comment">        /**</span>
+<a name="l00393"></a>00393 <span class="comment">         *  @brief  Get the view from the PID plane mask</span>
+<a name="l00394"></a>00394 <span class="comment">         *</span>
+<a name="l00395"></a>00395 <span class="comment">         *  @param  planeMask the plane mask from the PID</span>
+<a name="l00396"></a>00396 <span class="comment">         *</span>
+<a name="l00397"></a>00397 <span class="comment">         *  @return the view represented by the plane mask</span>
+<a name="l00398"></a>00398 <span class="comment">         */</span>
+<a name="l00399"></a>00399         geo::View_t <a class="code" href="classubcc1pi_1_1EventSelection.html#a1a4c1076d7aa8db25c92ad076765e322" title="Get the view from the PID plane mask.">GetView</a>(<span class="keyword">const</span> std::bitset&lt;8&gt; &amp;planeMask) <span class="keyword">const</span>;
+<a name="l00400"></a>00400 <span class="comment"></span>
+<a name="l00401"></a>00401 <span class="comment">        /**</span>
+<a name="l00402"></a>00402 <span class="comment">         *  @brief  Shorthand to set the PID variables for the given view in the output branches</span>
+<a name="l00403"></a>00403 <span class="comment">         *</span>
+<a name="l00404"></a>00404 <span class="comment">         *  @param  view the view to set (only the fields for this view will be populated)</span>
+<a name="l00405"></a>00405 <span class="comment">         *  @param  algoValue the value to set</span>
+<a name="l00406"></a>00406 <span class="comment">         *  @param  wValue the output value in the W plane</span>
+<a name="l00407"></a>00407 <span class="comment">         *  @param  uValue the output value in the U plane</span>
+<a name="l00408"></a>00408 <span class="comment">         *  @param  vValue the output value in the V plane</span>
+<a name="l00409"></a>00409 <span class="comment">         *  @param  wSet if the value in the W plane has been set</span>
+<a name="l00410"></a>00410 <span class="comment">         *  @param  uSet if the value in the U plane has been set</span>
+<a name="l00411"></a>00411 <span class="comment">         *  @param  vSet if the value in the V plane has been set</span>
+<a name="l00412"></a>00412 <span class="comment">         */</span>
+<a name="l00413"></a>00413         <span class="keywordtype">void</span> <a class="code" href="classubcc1pi_1_1EventSelection.html#a401293a6afd15d6e5066872201e32a26" title="Shorthand to set the PID variables for the given view in the output branches.">SetPIDVariables</a>(<span class="keyword">const</span> geo::View_t &amp;view, <span class="keyword">const</span> <span class="keywordtype">float</span> algoValue, <span class="keywordtype">float</span> &amp;wValue, <span class="keywordtype">float</span> &amp;uValue, <span class="keywordtype">float</span> &amp;vValue, <span class="keywordtype">bool</span> &amp;wSet, <span class="keywordtype">bool</span> &amp;uSet, <span class="keywordtype">bool</span> &amp;vSet) <span class="keyword">const</span>;
+<a name="l00414"></a>00414 <span class="comment"></span>
+<a name="l00415"></a>00415 <span class="comment">        /**</span>
+<a name="l00416"></a>00416 <span class="comment">         *  @brief  Combine information from the induction planes using a YZ angle dependent weighted sum</span>
+<a name="l00417"></a>00417 <span class="comment">         *</span>
+<a name="l00418"></a>00418 <span class="comment">         *  @param  yzAngle the YZ angle of the track</span>
+<a name="l00419"></a>00419 <span class="comment">         *  @param  nHitsU the number of hits in the U plane</span>
+<a name="l00420"></a>00420 <span class="comment">         *  @param  nHitsV the number of hits in the V plane</span>
+<a name="l00421"></a>00421 <span class="comment">         *  @param  uValue the value of the variable in the U plane</span>
+<a name="l00422"></a>00422 <span class="comment">         *  @param  vValue the value of the variable in the V plane</span>
+<a name="l00423"></a>00423 <span class="comment">         *  @param  uSet if the U plane variable is available</span>
+<a name="l00424"></a>00424 <span class="comment">         *  @param  vSet if the V plane variable is available</span>
+<a name="l00425"></a>00425 <span class="comment">         *  @param  uvValue the ouput combined UV variable</span>
+<a name="l00426"></a>00426 <span class="comment">         *  @param  uvSet if the output combined UV variable is available</span>
+<a name="l00427"></a>00427 <span class="comment">         */</span>
+<a name="l00428"></a>00428         <span class="keywordtype">void</span> <a class="code" href="classubcc1pi_1_1EventSelection.html#afd5616b4c92117058d74d6662b34e9b1" title="Combine information from the induction planes using a YZ angle dependent weighted...">CombineInductionPlanes</a>(<span class="keyword">const</span> <span class="keywordtype">float</span> yzAngle, <span class="keyword">const</span> <span class="keywordtype">int</span> nHitsU, <span class="keyword">const</span> <span class="keywordtype">int</span> nHitsV, <span class="keyword">const</span> <span class="keywordtype">float</span> uValue, <span class="keyword">const</span> <span class="keywordtype">float</span> vValue, <span class="keyword">const</span> <span class="keywordtype">bool</span> uSet, <span class="keyword">const</span> <span class="keywordtype">bool</span> vSet, <span class="keywordtype">float</span> &amp;uvValue, <span class="keywordtype">bool</span> &amp;uvSet) <span class="keyword">const</span>;
+<a name="l00429"></a>00429 <span class="comment"></span>
+<a name="l00430"></a>00430 <span class="comment">        /**</span>
+<a name="l00431"></a>00431 <span class="comment">         *  @brief  Sanity check that all of the output vectors have the expected size at this point</span>
+<a name="l00432"></a>00432 <span class="comment">         *</span>
+<a name="l00433"></a>00433 <span class="comment">         *  @param  index the index of the PFParticle we have just filled</span>
+<a name="l00434"></a>00434 <span class="comment">         */</span>
+<a name="l00435"></a>00435         <span class="keywordtype">void</span> <a class="code" href="classubcc1pi_1_1EventSelection.html#a6f2706aa29bfe5c20beb64a45babf798" title="Sanity check that all of the output vectors have the expected size at this point...">ValidateOutputVectorSizes</a>(<span class="keyword">const</span> <span class="keywordtype">unsigned</span> <span class="keywordtype">int</span> index) <span class="keyword">const</span>;
+<a name="l00436"></a>00436 
+<a name="l00437"></a>00437         
+<a name="l00438"></a><a class="code" href="classubcc1pi_1_1EventSelection.html#ad5d85af976f7345531c4fdf74a6e84e6">00438</a>         art::EDAnalyzer::Table&lt;Config&gt;  <a class="code" href="classubcc1pi_1_1EventSelection.html#ad5d85af976f7345531c4fdf74a6e84e6" title="The FHiCL configuration options.">m_config</a>;          <span class="comment">///&lt; The FHiCL configuration options</span>
+<a name="l00439"></a>00439 <span class="comment"></span>        
+<a name="l00440"></a><a class="code" href="classubcc1pi_1_1EventSelection.html#a6ba26e7209711991c586d8fba170dd95">00440</a>         TTree                          *<a class="code" href="classubcc1pi_1_1EventSelection.html#a6ba26e7209711991c586d8fba170dd95" title="The output tree for all event level data.">m_pEventTree</a>;      <span class="comment">///&lt; The output tree for all event level data</span>
+<a name="l00441"></a><a class="code" href="classubcc1pi_1_1EventSelection.html#ab1cd5046a9ddeb71045f8378a476ca1b">00441</a> <span class="comment"></span>        <a class="code" href="structubcc1pi_1_1EventSelection_1_1OutputEvent.html" title="The output event level structure.">OutputEvent</a>                     <a class="code" href="classubcc1pi_1_1EventSelection.html#ab1cd5046a9ddeb71045f8378a476ca1b" title="The output event-level object.">m_outputEvent</a>;     <span class="comment">///&lt; The output event-level object</span>
+<a name="l00442"></a>00442 <span class="comment"></span>};
+<a name="l00443"></a>00443 
+<a name="l00444"></a>00444 } <span class="comment">// namespace ubcc1pi</span>
+<a name="l00445"></a>00445 
+<a name="l00446"></a>00446 DEFINE_ART_MODULE(<a class="code" href="classubcc1pi_1_1EventSelection.html" title="The PID study class.">ubcc1pi::EventSelection</a>)
+<a name="l00447"></a>00447 
+<a name="l00448"></a>00448 <span class="preprocessor">#endif</span>
 </pre></div></div>
 <!--- window showing the filter options -->
 <div id="MSearchSelectWindow"
@@ -395,7 +560,7 @@ window.onload = initDynSections;
 <hr size="1"/>
 <address style="text-align: right;">
     <small>
-        Generated on Thu Jun 27 15:05:00 2019 for ubcc1pi by <a href="http://www.doxygen.org/index.html" target="_blank">doxygen</a> 1.6.1
+        Generated on Tue Jul 2 11:50:54 2019 for ubcc1pi by <a href="http://www.doxygen.org/index.html" target="_blank">doxygen</a> 1.6.1
     </small>
 </address>
 

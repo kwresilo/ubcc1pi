@@ -115,26 +115,47 @@ window.onload = initDynSections;
 <tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">Analyze an event.  <a href="#a46267dcc4422f5a9208bab5c2865bdd3"></a><br/></td></tr>
 <tr><td colspan="2"><h2>Private Member Functions</h2></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">void&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classubcc1pi_1_1EventSelection.html#a5b7c2c592266dd323cdf594f9fbd0551">ResetEventTree</a> ()</td></tr>
+<tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">Reset the output branches for the next event.  <a href="#a5b7c2c592266dd323cdf594f9fbd0551"></a><br/></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">void&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classubcc1pi_1_1EventSelection.html#acb94258e204883bc946704f5952c5bd1">SetEventMetadata</a> (const art::Event &amp;event)</td></tr>
+<tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">Set the event metadata in the output branches (event number, run number, etc...)_.  <a href="#acb94258e204883bc946704f5952c5bd1"></a><br/></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">void&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classubcc1pi_1_1EventSelection.html#a05998ece0b5f95158bba4b164678fefa">SetEventTruthInfo</a> (const art::Event &amp;event)</td></tr>
+<tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">Set the event level truth info about the neutrino interaction.  <a href="#a05998ece0b5f95158bba4b164678fefa"></a><br/></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">art::Ptr&lt; simb::MCParticle &gt;&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classubcc1pi_1_1EventSelection.html#a95955812489ae97715672f15a28d286d">SelectMCParticleWithPdgCode</a> (const <a class="el" href="namespaceubcc1pi.html#a42e409a54246ea6acba6d873b8eb696c">MCParticleVector</a> &amp;mcParticles, const int pdgCode) const </td></tr>
+<tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">Select the MCParticle with the given PDG code (assumes each PDG is in the input vector at most once).  <a href="#a95955812489ae97715672f15a28d286d"></a><br/></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">float&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classubcc1pi_1_1EventSelection.html#a5678657d938a91e52c51f597460b2e03">GetTheta</a> (const art::Ptr&lt; simb::MCParticle &gt; &amp;mcParticle) const </td></tr>
+<tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">Get the angle to the beam direction of the momentum vector of the input MCParticle.  <a href="#a5678657d938a91e52c51f597460b2e03"></a><br/></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">float&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classubcc1pi_1_1EventSelection.html#a4c2687289e47147cfa72d92713f6e836">GetPhi</a> (const art::Ptr&lt; simb::MCParticle &gt; &amp;mcParticle) const </td></tr>
+<tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">Get the angle around the beam direction of the momentum vector of the input MCParticle.  <a href="#a4c2687289e47147cfa72d92713f6e836"></a><br/></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">float&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classubcc1pi_1_1EventSelection.html#a1e4afc00b17782bf9804aa1e1a935c6b">GetOpeningAngle</a> (const art::Ptr&lt; simb::MCParticle &gt; &amp;muon, const art::Ptr&lt; simb::MCParticle &gt; &amp;pion) const </td></tr>
+<tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">Get the opening angle between two input MCParticles (muon &amp; pion).  <a href="#a1e4afc00b17782bf9804aa1e1a935c6b"></a><br/></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">void&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classubcc1pi_1_1EventSelection.html#a76ab3a4545e1efec8c3fb34e58c3e021">SetRecoInfo</a> (const art::Event &amp;event)</td></tr>
+<tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">Set the reconstructed information about the event in the output branches.  <a href="#a76ab3a4545e1efec8c3fb34e58c3e021"></a><br/></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">void&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classubcc1pi_1_1EventSelection.html#a06ad37db1a381a66bc65b41543e36e4c">SetEventRecoInfo</a> (const art::Event &amp;event, const <a class="el" href="namespaceubcc1pi.html#a6f66dc13c5a55147db5c84db67f6062b">PFParticleVector</a> &amp;allPFParticles, const <a class="el" href="namespaceubcc1pi.html#a6f66dc13c5a55147db5c84db67f6062b">PFParticleVector</a> &amp;finalStates, const Association&lt; recob::PFParticle, larpandoraobj::PFParticleMetadata &gt; &amp;pfpToMetadata, const spacecharge::SpaceChargeService::provider_type *const pSpaceChargeService)</td></tr>
+<tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">Set the event-level reconstructed information in the output branches.  <a href="#a06ad37db1a381a66bc65b41543e36e4c"></a><br/></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">void&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classubcc1pi_1_1EventSelection.html#aece9f5903427f4668c57bf9eddbf8ca8">SetPFParticleInfo</a> (const unsigned int index, const art::Ptr&lt; recob::PFParticle &gt; &amp;finalState, const <a class="el" href="classubcc1pi_1_1BacktrackHelper_1_1BacktrackerData.html">BacktrackHelper::BacktrackerData</a> &amp;backtrackerData, const Association&lt; recob::PFParticle, recob::Track &gt; &amp;pfpToTracks, const Association&lt; recob::Track, anab::ParticleID &gt; &amp;trackToPIDs, const Association&lt; recob::PFParticle, larpandoraobj::PFParticleMetadata &gt; &amp;pfpToMetadata, const spacecharge::SpaceChargeService::provider_type *const pSpaceChargeService)</td></tr>
+<tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">Set the particle-level reconstructed information in the output branches.  <a href="#aece9f5903427f4668c57bf9eddbf8ca8"></a><br/></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">void&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classubcc1pi_1_1EventSelection.html#a72fcb88b3cd5952633de75f7f0b707f2">SetPFParticleMCParticleMatchInfo</a> (const art::Ptr&lt; recob::PFParticle &gt; &amp;finalState, const <a class="el" href="classubcc1pi_1_1BacktrackHelper_1_1BacktrackerData.html">BacktrackHelper::BacktrackerData</a> &amp;backtrackerData)</td></tr>
+<tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">Set the MCParticle matching info for the current PFParticle to the output branches.  <a href="#a72fcb88b3cd5952633de75f7f0b707f2"></a><br/></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">void&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classubcc1pi_1_1EventSelection.html#abc4565b9b1163a9adc0b63a1e6f21b94">SetPFParticlePandoraInfo</a> (const art::Ptr&lt; recob::PFParticle &gt; &amp;finalState, const <a class="el" href="classubcc1pi_1_1BacktrackHelper_1_1BacktrackerData.html">BacktrackHelper::BacktrackerData</a> &amp;backtrackerData, const Association&lt; recob::PFParticle, larpandoraobj::PFParticleMetadata &gt; &amp;pfpToMetadata)</td></tr>
+<tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">Set the PFParticle info from Pandora in the output branches.  <a href="#abc4565b9b1163a9adc0b63a1e6f21b94"></a><br/></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">void&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classubcc1pi_1_1EventSelection.html#af122f9aaa9d8e3ff0769667da2bf51dc">SetDummyTrackInfo</a> ()</td></tr>
+<tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">Set dummy track info for the current PFParticle.  <a href="#af122f9aaa9d8e3ff0769667da2bf51dc"></a><br/></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">void&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classubcc1pi_1_1EventSelection.html#aae25cc9f45979ffda18d3cfe0b7360f9">SetTrackInfo</a> (const art::Ptr&lt; recob::Track &gt; &amp;track, const spacecharge::SpaceChargeService::provider_type *const pSpaceChargeService)</td></tr>
+<tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">Set the track info for the current PFParticle.  <a href="#aae25cc9f45979ffda18d3cfe0b7360f9"></a><br/></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">float&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classubcc1pi_1_1EventSelection.html#a26eb43fee33b9b33f56fa4310d96c43d">GetYZAngle</a> (const TVector3 &amp;dir)</td></tr>
+<tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">Get the angle of in the YZ plane from an input direction.  <a href="#a26eb43fee33b9b33f56fa4310d96c43d"></a><br/></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">void&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classubcc1pi_1_1EventSelection.html#ad030bef1282811035ecd93b442dd336d">SetDummyPIDInfo</a> ()</td></tr>
+<tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">Set dummy PID info for the current PFParticle.  <a href="#ad030bef1282811035ecd93b442dd336d"></a><br/></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">void&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classubcc1pi_1_1EventSelection.html#a7e3602412cc3c113109b27c24f495b94">SetPIDInfo</a> (const art::Ptr&lt; anab::ParticleID &gt; &amp;pid, const float yzAngle, const int nHitsU, const int nHitsV)</td></tr>
+<tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">Set the PID info for the currenct PFParticle.  <a href="#a7e3602412cc3c113109b27c24f495b94"></a><br/></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">geo::View_t&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classubcc1pi_1_1EventSelection.html#a1a4c1076d7aa8db25c92ad076765e322">GetView</a> (const std::bitset&lt; 8 &gt; &amp;planeMask) const </td></tr>
+<tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">Get the view from the PID plane mask.  <a href="#a1a4c1076d7aa8db25c92ad076765e322"></a><br/></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">void&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classubcc1pi_1_1EventSelection.html#a401293a6afd15d6e5066872201e32a26">SetPIDVariables</a> (const geo::View_t &amp;view, const float algoValue, float &amp;wValue, float &amp;uValue, float &amp;vValue, bool &amp;wSet, bool &amp;uSet, bool &amp;vSet) const </td></tr>
+<tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">Shorthand to set the PID variables for the given view in the output branches.  <a href="#a401293a6afd15d6e5066872201e32a26"></a><br/></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">void&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classubcc1pi_1_1EventSelection.html#afd5616b4c92117058d74d6662b34e9b1">CombineInductionPlanes</a> (const float yzAngle, const int nHitsU, const int nHitsV, const float uValue, const float vValue, const bool uSet, const bool vSet, float &amp;uvValue, bool &amp;uvSet) const </td></tr>
+<tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">Combine information from the induction planes using a YZ angle dependent weighted sum.  <a href="#afd5616b4c92117058d74d6662b34e9b1"></a><br/></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">void&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classubcc1pi_1_1EventSelection.html#a6f2706aa29bfe5c20beb64a45babf798">ValidateOutputVectorSizes</a> (const unsigned int index) const </td></tr>
+<tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">Sanity check that all of the output vectors have the expected size at this point.  <a href="#a6f2706aa29bfe5c20beb64a45babf798"></a><br/></td></tr>
 <tr><td colspan="2"><h2>Private Attributes</h2></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">art::EDAnalyzer::Table&lt; <a class="el" href="structubcc1pi_1_1EventSelection_1_1Config.html">Config</a> &gt;&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classubcc1pi_1_1EventSelection.html#ad5d85af976f7345531c4fdf74a6e84e6">m_config</a></td></tr>
 <tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">The FHiCL configuration options.  <a href="#ad5d85af976f7345531c4fdf74a6e84e6"></a><br/></td></tr>
@@ -272,6 +293,22 @@ window.onload = initDynSections;
 </div>
 <div class="memdoc">
 
+<p>Combine information from the induction planes using a YZ angle dependent weighted sum. </p>
+<dl><dt><b>Parameters:</b></dt><dd>
+  <table border="0" cellspacing="2" cellpadding="0">
+    <tr><td valign="top"></td><td valign="top"><em>yzAngle</em>&nbsp;</td><td>the YZ angle of the track </td></tr>
+    <tr><td valign="top"></td><td valign="top"><em>nHitsU</em>&nbsp;</td><td>the number of hits in the U plane </td></tr>
+    <tr><td valign="top"></td><td valign="top"><em>nHitsV</em>&nbsp;</td><td>the number of hits in the V plane </td></tr>
+    <tr><td valign="top"></td><td valign="top"><em>uValue</em>&nbsp;</td><td>the value of the variable in the U plane </td></tr>
+    <tr><td valign="top"></td><td valign="top"><em>vValue</em>&nbsp;</td><td>the value of the variable in the V plane </td></tr>
+    <tr><td valign="top"></td><td valign="top"><em>uSet</em>&nbsp;</td><td>if the U plane variable is available </td></tr>
+    <tr><td valign="top"></td><td valign="top"><em>vSet</em>&nbsp;</td><td>if the V plane variable is available </td></tr>
+    <tr><td valign="top"></td><td valign="top"><em>uvValue</em>&nbsp;</td><td>the ouput combined UV variable </td></tr>
+    <tr><td valign="top"></td><td valign="top"><em>uvSet</em>&nbsp;</td><td>if the output combined UV variable is available </td></tr>
+  </table>
+  </dd>
+</dl>
+
 <p>Definition at line <a class="el" href="EventSelection__module_8cc_source.html#l00774">774</a> of file <a class="el" href="EventSelection__module_8cc_source.html">EventSelection_module.cc</a>.</p>
 
 </div>
@@ -301,6 +338,16 @@ window.onload = initDynSections;
 </div>
 <div class="memdoc">
 
+<p>Get the opening angle between two input MCParticles (muon &amp; pion). </p>
+<dl><dt><b>Parameters:</b></dt><dd>
+  <table border="0" cellspacing="2" cellpadding="0">
+    <tr><td valign="top"></td><td valign="top"><em>muon</em>&nbsp;</td><td>the muon MCParticle </td></tr>
+    <tr><td valign="top"></td><td valign="top"><em>pion</em>&nbsp;</td><td>the pion MCParticle</td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="return"><dt><b>Returns:</b></dt><dd>the opening angle between the particles (radians) </dd></dl>
+
 <p>Definition at line <a class="el" href="EventSelection__module_8cc_source.html#l00346">346</a> of file <a class="el" href="EventSelection__module_8cc_source.html">EventSelection_module.cc</a>.</p>
 
 </div>
@@ -320,6 +367,15 @@ window.onload = initDynSections;
       </table>
 </div>
 <div class="memdoc">
+
+<p>Get the angle around the beam direction of the momentum vector of the input MCParticle. </p>
+<dl><dt><b>Parameters:</b></dt><dd>
+  <table border="0" cellspacing="2" cellpadding="0">
+    <tr><td valign="top"></td><td valign="top"><em>mcParticle</em>&nbsp;</td><td>the input MCParticle</td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="return"><dt><b>Returns:</b></dt><dd>the phi angle </dd></dl>
 
 <p>Definition at line <a class="el" href="EventSelection__module_8cc_source.html#l00339">339</a> of file <a class="el" href="EventSelection__module_8cc_source.html">EventSelection_module.cc</a>.</p>
 
@@ -341,6 +397,15 @@ window.onload = initDynSections;
 </div>
 <div class="memdoc">
 
+<p>Get the angle to the beam direction of the momentum vector of the input MCParticle. </p>
+<dl><dt><b>Parameters:</b></dt><dd>
+  <table border="0" cellspacing="2" cellpadding="0">
+    <tr><td valign="top"></td><td valign="top"><em>mcParticle</em>&nbsp;</td><td>the input MCParticle</td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="return"><dt><b>Returns:</b></dt><dd>the theta angle </dd></dl>
+
 <p>Definition at line <a class="el" href="EventSelection__module_8cc_source.html#l00332">332</a> of file <a class="el" href="EventSelection__module_8cc_source.html">EventSelection_module.cc</a>.</p>
 
 </div>
@@ -360,6 +425,15 @@ window.onload = initDynSections;
       </table>
 </div>
 <div class="memdoc">
+
+<p>Get the view from the PID plane mask. </p>
+<dl><dt><b>Parameters:</b></dt><dd>
+  <table border="0" cellspacing="2" cellpadding="0">
+    <tr><td valign="top"></td><td valign="top"><em>planeMask</em>&nbsp;</td><td>the plane mask from the PID</td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="return"><dt><b>Returns:</b></dt><dd>the view represented by the plane mask </dd></dl>
 
 <p>Definition at line <a class="el" href="EventSelection__module_8cc_source.html#l00730">730</a> of file <a class="el" href="EventSelection__module_8cc_source.html">EventSelection_module.cc</a>.</p>
 
@@ -381,6 +455,15 @@ window.onload = initDynSections;
 </div>
 <div class="memdoc">
 
+<p>Get the angle of in the YZ plane from an input direction. </p>
+<dl><dt><b>Parameters:</b></dt><dd>
+  <table border="0" cellspacing="2" cellpadding="0">
+    <tr><td valign="top"></td><td valign="top"><em>dir</em>&nbsp;</td><td>the input direction</td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="return"><dt><b>Returns:</b></dt><dd>the YZ angle </dd></dl>
+
 <p>Definition at line <a class="el" href="EventSelection__module_8cc_source.html#l00552">552</a> of file <a class="el" href="EventSelection__module_8cc_source.html">EventSelection_module.cc</a>.</p>
 
 </div>
@@ -399,6 +482,8 @@ window.onload = initDynSections;
       </table>
 </div>
 <div class="memdoc">
+
+<p>Reset the output branches for the next event. </p>
 
 <p>Definition at line <a class="el" href="EventSelection__module_8cc_source.html#l00153">153</a> of file <a class="el" href="EventSelection__module_8cc_source.html">EventSelection_module.cc</a>.</p>
 
@@ -429,6 +514,22 @@ window.onload = initDynSections;
 </div>
 <div class="memdoc">
 
+<p>Select the MCParticle with the given PDG code (assumes each PDG is in the input vector at most once). </p>
+<dl><dt><b>Parameters:</b></dt><dd>
+  <table border="0" cellspacing="2" cellpadding="0">
+    <tr><td valign="top"></td><td valign="top"><em>mcParticles</em>&nbsp;</td><td>the input vector of MCParticles from which to selected the chosen particle </td></tr>
+    <tr><td valign="top"></td><td valign="top"><em>pdgCode</em>&nbsp;</td><td>the PDG code to select</td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="return"><dt><b>Returns:</b></dt><dd>the MCParticle in the input vector with the desired PDG code </dd></dl>
+<dl><dt><b>Exceptions:</b></dt><dd>
+  <table border="0" cellspacing="2" cellpadding="0">
+    <tr><td valign="top"></td><td valign="top"><em>if</em>&nbsp;</td><td>there wasn't exactly one MCParticle with the desired PDG code </td></tr>
+  </table>
+  </dd>
+</dl>
+
 <p>Definition at line <a class="el" href="EventSelection__module_8cc_source.html#l00307">307</a> of file <a class="el" href="EventSelection__module_8cc_source.html">EventSelection_module.cc</a>.</p>
 
 </div>
@@ -447,6 +548,8 @@ window.onload = initDynSections;
       </table>
 </div>
 <div class="memdoc">
+
+<p>Set dummy PID info for the current PFParticle. </p>
 
 <p>Definition at line <a class="el" href="EventSelection__module_8cc_source.html#l00559">559</a> of file <a class="el" href="EventSelection__module_8cc_source.html">EventSelection_module.cc</a>.</p>
 
@@ -467,6 +570,8 @@ window.onload = initDynSections;
 </div>
 <div class="memdoc">
 
+<p>Set dummy track info for the current PFParticle. </p>
+
 <p>Definition at line <a class="el" href="EventSelection__module_8cc_source.html#l00510">510</a> of file <a class="el" href="EventSelection__module_8cc_source.html">EventSelection_module.cc</a>.</p>
 
 </div>
@@ -486,6 +591,14 @@ window.onload = initDynSections;
       </table>
 </div>
 <div class="memdoc">
+
+<p>Set the event metadata in the output branches (event number, run number, etc...)_. </p>
+<dl><dt><b>Parameters:</b></dt><dd>
+  <table border="0" cellspacing="2" cellpadding="0">
+    <tr><td valign="top"></td><td valign="top"><em>event</em>&nbsp;</td><td>the art event </td></tr>
+  </table>
+  </dd>
+</dl>
 
 <p>Definition at line <a class="el" href="EventSelection__module_8cc_source.html#l00254">254</a> of file <a class="el" href="EventSelection__module_8cc_source.html">EventSelection_module.cc</a>.</p>
 
@@ -534,6 +647,18 @@ window.onload = initDynSections;
 </div>
 <div class="memdoc">
 
+<p>Set the event-level reconstructed information in the output branches. </p>
+<dl><dt><b>Parameters:</b></dt><dd>
+  <table border="0" cellspacing="2" cellpadding="0">
+    <tr><td valign="top"></td><td valign="top"><em>event</em>&nbsp;</td><td>the art event </td></tr>
+    <tr><td valign="top"></td><td valign="top"><em>allPFParticles</em>&nbsp;</td><td>the complete vector of all PFParticles </td></tr>
+    <tr><td valign="top"></td><td valign="top"><em>finalStates</em>&nbsp;</td><td>the neutrino final state PFParticles </td></tr>
+    <tr><td valign="top"></td><td valign="top"><em>pfpToMetadata</em>&nbsp;</td><td>the mapping from PFParticles to metadata </td></tr>
+    <tr><td valign="top"></td><td valign="top"><em>pSpaceChargeService</em>&nbsp;</td><td>the space charge service </td></tr>
+  </table>
+  </dd>
+</dl>
+
 <p>Definition at line <a class="el" href="EventSelection__module_8cc_source.html#l00380">380</a> of file <a class="el" href="EventSelection__module_8cc_source.html">EventSelection_module.cc</a>.</p>
 
 </div>
@@ -553,6 +678,14 @@ window.onload = initDynSections;
       </table>
 </div>
 <div class="memdoc">
+
+<p>Set the event level truth info about the neutrino interaction. </p>
+<dl><dt><b>Parameters:</b></dt><dd>
+  <table border="0" cellspacing="2" cellpadding="0">
+    <tr><td valign="top"></td><td valign="top"><em>event</em>&nbsp;</td><td>the art event </td></tr>
+  </table>
+  </dd>
+</dl>
 
 <p>Definition at line <a class="el" href="EventSelection__module_8cc_source.html#l00263">263</a> of file <a class="el" href="EventSelection__module_8cc_source.html">EventSelection_module.cc</a>.</p>
 
@@ -613,6 +746,20 @@ window.onload = initDynSections;
 </div>
 <div class="memdoc">
 
+<p>Set the particle-level reconstructed information in the output branches. </p>
+<dl><dt><b>Parameters:</b></dt><dd>
+  <table border="0" cellspacing="2" cellpadding="0">
+    <tr><td valign="top"></td><td valign="top"><em>index</em>&nbsp;</td><td>the index of the final state PFParticle </td></tr>
+    <tr><td valign="top"></td><td valign="top"><em>finalState</em>&nbsp;</td><td>the final state PFParticle to output </td></tr>
+    <tr><td valign="top"></td><td valign="top"><em>backtrackerData</em>&nbsp;</td><td>the backtracking data </td></tr>
+    <tr><td valign="top"></td><td valign="top"><em>pfpToTracks</em>&nbsp;</td><td>the mapping from PFParticles to Tracks </td></tr>
+    <tr><td valign="top"></td><td valign="top"><em>trackToPIDs</em>&nbsp;</td><td>the mapping from Tracks to PID </td></tr>
+    <tr><td valign="top"></td><td valign="top"><em>pfpToMetadata</em>&nbsp;</td><td>the mapping from PFParticles to metadata </td></tr>
+    <tr><td valign="top"></td><td valign="top"><em>pSpaceChargeService</em>&nbsp;</td><td>the space charge service </td></tr>
+  </table>
+  </dd>
+</dl>
+
 <p>Definition at line <a class="el" href="EventSelection__module_8cc_source.html#l00418">418</a> of file <a class="el" href="EventSelection__module_8cc_source.html">EventSelection_module.cc</a>.</p>
 
 </div>
@@ -641,6 +788,15 @@ window.onload = initDynSections;
       </table>
 </div>
 <div class="memdoc">
+
+<p>Set the MCParticle matching info for the current PFParticle to the output branches. </p>
+<dl><dt><b>Parameters:</b></dt><dd>
+  <table border="0" cellspacing="2" cellpadding="0">
+    <tr><td valign="top"></td><td valign="top"><em>finalState</em>&nbsp;</td><td>the final state PFParticle to output </td></tr>
+    <tr><td valign="top"></td><td valign="top"><em>backtrackerData</em>&nbsp;</td><td>the backtracking data </td></tr>
+  </table>
+  </dd>
+</dl>
 
 <p>Definition at line <a class="el" href="EventSelection__module_8cc_source.html#l00456">456</a> of file <a class="el" href="EventSelection__module_8cc_source.html">EventSelection_module.cc</a>.</p>
 
@@ -676,6 +832,16 @@ window.onload = initDynSections;
       </table>
 </div>
 <div class="memdoc">
+
+<p>Set the PFParticle info from Pandora in the output branches. </p>
+<dl><dt><b>Parameters:</b></dt><dd>
+  <table border="0" cellspacing="2" cellpadding="0">
+    <tr><td valign="top"></td><td valign="top"><em>finalState</em>&nbsp;</td><td>the final state PFParticle to output </td></tr>
+    <tr><td valign="top"></td><td valign="top"><em>backtrackerData</em>&nbsp;</td><td>the backtracking data </td></tr>
+    <tr><td valign="top"></td><td valign="top"><em>pfpToMetadata</em>&nbsp;</td><td>the mapping from PFParticles to metadata </td></tr>
+  </table>
+  </dd>
+</dl>
 
 <p>Definition at line <a class="el" href="EventSelection__module_8cc_source.html#l00495">495</a> of file <a class="el" href="EventSelection__module_8cc_source.html">EventSelection_module.cc</a>.</p>
 
@@ -717,6 +883,17 @@ window.onload = initDynSections;
       </table>
 </div>
 <div class="memdoc">
+
+<p>Set the PID info for the currenct PFParticle. </p>
+<dl><dt><b>Parameters:</b></dt><dd>
+  <table border="0" cellspacing="2" cellpadding="0">
+    <tr><td valign="top"></td><td valign="top"><em>pid</em>&nbsp;</td><td>the PID to output </td></tr>
+    <tr><td valign="top"></td><td valign="top"><em>yzAngle</em>&nbsp;</td><td>the yz angle of the track </td></tr>
+    <tr><td valign="top"></td><td valign="top"><em>nHitsU</em>&nbsp;</td><td>the number of hits in the U plane </td></tr>
+    <tr><td valign="top"></td><td valign="top"><em>nHitsV</em>&nbsp;</td><td>the number of hits in the V plane </td></tr>
+  </table>
+  </dd>
+</dl>
 
 <p>Definition at line <a class="el" href="EventSelection__module_8cc_source.html#l00606">606</a> of file <a class="el" href="EventSelection__module_8cc_source.html">EventSelection_module.cc</a>.</p>
 
@@ -783,6 +960,21 @@ window.onload = initDynSections;
 </div>
 <div class="memdoc">
 
+<p>Shorthand to set the PID variables for the given view in the output branches. </p>
+<dl><dt><b>Parameters:</b></dt><dd>
+  <table border="0" cellspacing="2" cellpadding="0">
+    <tr><td valign="top"></td><td valign="top"><em>view</em>&nbsp;</td><td>the view to set (only the fields for this view will be populated) </td></tr>
+    <tr><td valign="top"></td><td valign="top"><em>algoValue</em>&nbsp;</td><td>the value to set </td></tr>
+    <tr><td valign="top"></td><td valign="top"><em>wValue</em>&nbsp;</td><td>the output value in the W plane </td></tr>
+    <tr><td valign="top"></td><td valign="top"><em>uValue</em>&nbsp;</td><td>the output value in the U plane </td></tr>
+    <tr><td valign="top"></td><td valign="top"><em>vValue</em>&nbsp;</td><td>the output value in the V plane </td></tr>
+    <tr><td valign="top"></td><td valign="top"><em>wSet</em>&nbsp;</td><td>if the value in the W plane has been set </td></tr>
+    <tr><td valign="top"></td><td valign="top"><em>uSet</em>&nbsp;</td><td>if the value in the U plane has been set </td></tr>
+    <tr><td valign="top"></td><td valign="top"><em>vSet</em>&nbsp;</td><td>if the value in the V plane has been set </td></tr>
+  </table>
+  </dd>
+</dl>
+
 <p>Definition at line <a class="el" href="EventSelection__module_8cc_source.html#l00751">751</a> of file <a class="el" href="EventSelection__module_8cc_source.html">EventSelection_module.cc</a>.</p>
 
 </div>
@@ -802,6 +994,14 @@ window.onload = initDynSections;
       </table>
 </div>
 <div class="memdoc">
+
+<p>Set the reconstructed information about the event in the output branches. </p>
+<dl><dt><b>Parameters:</b></dt><dd>
+  <table border="0" cellspacing="2" cellpadding="0">
+    <tr><td valign="top"></td><td valign="top"><em>event</em>&nbsp;</td><td>the art event </td></tr>
+  </table>
+  </dd>
+</dl>
 
 <p>Definition at line <a class="el" href="EventSelection__module_8cc_source.html#l00355">355</a> of file <a class="el" href="EventSelection__module_8cc_source.html">EventSelection_module.cc</a>.</p>
 
@@ -832,6 +1032,15 @@ window.onload = initDynSections;
 </div>
 <div class="memdoc">
 
+<p>Set the track info for the current PFParticle. </p>
+<dl><dt><b>Parameters:</b></dt><dd>
+  <table border="0" cellspacing="2" cellpadding="0">
+    <tr><td valign="top"></td><td valign="top"><em>track</em>&nbsp;</td><td>the track to output </td></tr>
+    <tr><td valign="top"></td><td valign="top"><em>pSpaceChargeService</em>&nbsp;</td><td>the space charge service </td></tr>
+  </table>
+  </dd>
+</dl>
+
 <p>Definition at line <a class="el" href="EventSelection__module_8cc_source.html#l00529">529</a> of file <a class="el" href="EventSelection__module_8cc_source.html">EventSelection_module.cc</a>.</p>
 
 </div>
@@ -852,6 +1061,14 @@ window.onload = initDynSections;
 </div>
 <div class="memdoc">
 
+<p>Sanity check that all of the output vectors have the expected size at this point. </p>
+<dl><dt><b>Parameters:</b></dt><dd>
+  <table border="0" cellspacing="2" cellpadding="0">
+    <tr><td valign="top"></td><td valign="top"><em>index</em>&nbsp;</td><td>the index of the PFParticle we have just filled </td></tr>
+  </table>
+  </dd>
+</dl>
+
 <p>Definition at line <a class="el" href="EventSelection__module_8cc_source.html#l00802">802</a> of file <a class="el" href="EventSelection__module_8cc_source.html">EventSelection_module.cc</a>.</p>
 
 </div>
@@ -870,7 +1087,7 @@ window.onload = initDynSections;
 
 <p>The FHiCL configuration options. </p>
 
-<p>Definition at line <a class="el" href="EventSelection_8h_source.html#l00273">273</a> of file <a class="el" href="EventSelection_8h_source.html">EventSelection.h</a>.</p>
+<p>Definition at line <a class="el" href="EventSelection_8h_source.html#l00438">438</a> of file <a class="el" href="EventSelection_8h_source.html">EventSelection.h</a>.</p>
 
 </div>
 </div>
@@ -887,7 +1104,7 @@ window.onload = initDynSections;
 
 <p>The output event-level object. </p>
 
-<p>Definition at line <a class="el" href="EventSelection_8h_source.html#l00276">276</a> of file <a class="el" href="EventSelection_8h_source.html">EventSelection.h</a>.</p>
+<p>Definition at line <a class="el" href="EventSelection_8h_source.html#l00441">441</a> of file <a class="el" href="EventSelection_8h_source.html">EventSelection.h</a>.</p>
 
 </div>
 </div>
@@ -904,7 +1121,7 @@ window.onload = initDynSections;
 
 <p>The output tree for all event level data. </p>
 
-<p>Definition at line <a class="el" href="EventSelection_8h_source.html#l00275">275</a> of file <a class="el" href="EventSelection_8h_source.html">EventSelection.h</a>.</p>
+<p>Definition at line <a class="el" href="EventSelection_8h_source.html#l00440">440</a> of file <a class="el" href="EventSelection_8h_source.html">EventSelection.h</a>.</p>
 
 </div>
 </div>
@@ -930,7 +1147,7 @@ window.onload = initDynSections;
 <hr size="1"/>
 <address style="text-align: right;">
     <small>
-        Generated on Thu Jun 27 15:05:01 2019 for ubcc1pi by <a href="http://www.doxygen.org/index.html" target="_blank">doxygen</a> 1.6.1
+        Generated on Tue Jul 2 11:50:54 2019 for ubcc1pi by <a href="http://www.doxygen.org/index.html" target="_blank">doxygen</a> 1.6.1
     </small>
 </address>
 

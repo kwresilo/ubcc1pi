@@ -105,7 +105,7 @@ window.onload = initDynSections;
 <a name="l00009"></a>00009 <span class="keyword">namespace </span>ubcc1pi
 <a name="l00010"></a>00010 {
 <a name="l00011"></a>00011 
-<a name="l00012"></a><a class="code" href="classubcc1pi_1_1RecoHelper.html#a5844feed162067a8d9149d702df5af1c">00012</a> <a class="code" href="namespaceubcc1pi.html#a191f1ccf6de87673e21719a2d401a00f" title="A map intended to hold the mapping from PFParticle.Self() -&amp;gt; PFParticle - for...">PFParticleMap</a> <a class="code" href="classubcc1pi_1_1RecoHelper.html#a5844feed162067a8d9149d702df5af1c" title="Get the mapping from PFParticle.Self() -&amp;gt; PFParticle.">RecoHelper::GetPFParticleMap</a>(<span class="keyword">const</span> <a class="code" href="namespaceubcc1pi.html#a6f66dc13c5a55147db5c84db67f6062b">PFParticleVector</a> &amp;allPFParticles)
+<a name="l00012"></a><a class="code" href="classubcc1pi_1_1RecoHelper.html#a5844feed162067a8d9149d702df5af1c">00012</a> <a class="code" href="namespaceubcc1pi.html#a191f1ccf6de87673e21719a2d401a00f" title="A map intended to hold the mapping from PFParticle.Self() -&amp;gt; PFParticle - for...">PFParticleMap</a> <a class="code" href="classubcc1pi_1_1RecoHelper.html#a5844feed162067a8d9149d702df5af1c" title="Get the mapping from PFParticle.Self() -&amp;gt; PFParticle.">RecoHelper::GetPFParticleMap</a>(<span class="keyword">const</span> <a class="code" href="namespaceubcc1pi.html#a6f66dc13c5a55147db5c84db67f6062b" title="A collection of PFParticles.">PFParticleVector</a> &amp;allPFParticles)
 <a name="l00013"></a>00013 {
 <a name="l00014"></a>00014     <a class="code" href="namespaceubcc1pi.html#a191f1ccf6de87673e21719a2d401a00f" title="A map intended to hold the mapping from PFParticle.Self() -&amp;gt; PFParticle - for...">PFParticleMap</a> pfParticleMap;
 <a name="l00015"></a>00015 
@@ -120,9 +120,9 @@ window.onload = initDynSections;
 <a name="l00024"></a>00024 
 <a name="l00025"></a>00025 <span class="comment">// -----------------------------------------------------------------------------------------------------------------------------------------</span>
 <a name="l00026"></a>00026 
-<a name="l00027"></a><a class="code" href="classubcc1pi_1_1RecoHelper.html#a183577bab3db220b26bcfe3b110db4a4">00027</a> <a class="code" href="namespaceubcc1pi.html#a6f66dc13c5a55147db5c84db67f6062b">PFParticleVector</a> <a class="code" href="classubcc1pi_1_1RecoHelper.html#a183577bab3db220b26bcfe3b110db4a4" title="Get all neutrino PFParticles in the input list.">RecoHelper::GetNeutrinos</a>(<span class="keyword">const</span> <a class="code" href="namespaceubcc1pi.html#a6f66dc13c5a55147db5c84db67f6062b">PFParticleVector</a> &amp;allPFParticles)
+<a name="l00027"></a><a class="code" href="classubcc1pi_1_1RecoHelper.html#a183577bab3db220b26bcfe3b110db4a4">00027</a> <a class="code" href="namespaceubcc1pi.html#a6f66dc13c5a55147db5c84db67f6062b" title="A collection of PFParticles.">PFParticleVector</a> <a class="code" href="classubcc1pi_1_1RecoHelper.html#a183577bab3db220b26bcfe3b110db4a4" title="Get all neutrino PFParticles in the input list.">RecoHelper::GetNeutrinos</a>(<span class="keyword">const</span> <a class="code" href="namespaceubcc1pi.html#a6f66dc13c5a55147db5c84db67f6062b" title="A collection of PFParticles.">PFParticleVector</a> &amp;allPFParticles)
 <a name="l00028"></a>00028 {
-<a name="l00029"></a>00029     <a class="code" href="namespaceubcc1pi.html#a6f66dc13c5a55147db5c84db67f6062b">PFParticleVector</a> neutrinos;
+<a name="l00029"></a>00029     <a class="code" href="namespaceubcc1pi.html#a6f66dc13c5a55147db5c84db67f6062b" title="A collection of PFParticles.">PFParticleVector</a> neutrinos;
 <a name="l00030"></a>00030 
 <a name="l00031"></a>00031     <span class="keywordflow">for</span> (<span class="keyword">const</span> <span class="keyword">auto</span> &amp;particle : allPFParticles)
 <a name="l00032"></a>00032     {
@@ -140,7 +140,7 @@ window.onload = initDynSections;
 <a name="l00044"></a>00044 
 <a name="l00045"></a>00045 <span class="comment">// -----------------------------------------------------------------------------------------------------------------------------------------</span>
 <a name="l00046"></a>00046 
-<a name="l00047"></a><a class="code" href="classubcc1pi_1_1RecoHelper.html#a8646717e211ae40d91695dad442bbe07">00047</a> art::Ptr&lt;recob::PFParticle&gt; <a class="code" href="classubcc1pi_1_1RecoHelper.html#a8646717e211ae40d91695dad442bbe07" title="Get a single neutrino from the input list.">RecoHelper::GetNeutrino</a>(<span class="keyword">const</span> <a class="code" href="namespaceubcc1pi.html#a6f66dc13c5a55147db5c84db67f6062b">PFParticleVector</a> &amp;allPFParticles)
+<a name="l00047"></a><a class="code" href="classubcc1pi_1_1RecoHelper.html#a8646717e211ae40d91695dad442bbe07">00047</a> art::Ptr&lt;recob::PFParticle&gt; <a class="code" href="classubcc1pi_1_1RecoHelper.html#a8646717e211ae40d91695dad442bbe07" title="Get a single neutrino from the input list.">RecoHelper::GetNeutrino</a>(<span class="keyword">const</span> <a class="code" href="namespaceubcc1pi.html#a6f66dc13c5a55147db5c84db67f6062b" title="A collection of PFParticles.">PFParticleVector</a> &amp;allPFParticles)
 <a name="l00048"></a>00048 {
 <a name="l00049"></a>00049     <span class="keyword">const</span> <span class="keyword">auto</span> &amp;neutrinos = <a class="code" href="classubcc1pi_1_1RecoHelper.html#a183577bab3db220b26bcfe3b110db4a4" title="Get all neutrino PFParticles in the input list.">RecoHelper::GetNeutrinos</a>(allPFParticles);
 <a name="l00050"></a>00050 
@@ -155,7 +155,7 @@ window.onload = initDynSections;
 <a name="l00059"></a>00059 
 <a name="l00060"></a>00060 <span class="comment">// -----------------------------------------------------------------------------------------------------------------------------------------</span>
 <a name="l00061"></a>00061 
-<a name="l00062"></a><a class="code" href="classubcc1pi_1_1RecoHelper.html#af71daaff8a5ce5c4e711d60058a4424a">00062</a> <a class="code" href="namespaceubcc1pi.html#a6f66dc13c5a55147db5c84db67f6062b">PFParticleVector</a> <a class="code" href="classubcc1pi_1_1RecoHelper.html#af71daaff8a5ce5c4e711d60058a4424a" title="Get the PFParticles that have been deemed the neutrino final states from the PFParticle...">RecoHelper::GetNeutrinoFinalStates</a>(<span class="keyword">const</span> <a class="code" href="namespaceubcc1pi.html#a6f66dc13c5a55147db5c84db67f6062b">PFParticleVector</a> &amp;allPFParticles)
+<a name="l00062"></a><a class="code" href="classubcc1pi_1_1RecoHelper.html#af71daaff8a5ce5c4e711d60058a4424a">00062</a> <a class="code" href="namespaceubcc1pi.html#a6f66dc13c5a55147db5c84db67f6062b" title="A collection of PFParticles.">PFParticleVector</a> <a class="code" href="classubcc1pi_1_1RecoHelper.html#af71daaff8a5ce5c4e711d60058a4424a" title="Get the PFParticles that have been deemed the neutrino final states from the PFParticle...">RecoHelper::GetNeutrinoFinalStates</a>(<span class="keyword">const</span> <a class="code" href="namespaceubcc1pi.html#a6f66dc13c5a55147db5c84db67f6062b" title="A collection of PFParticles.">PFParticleVector</a> &amp;allPFParticles)
 <a name="l00063"></a>00063 {
 <a name="l00064"></a>00064     <span class="comment">// Get the neutrino PFParticle - if there is one!</span>
 <a name="l00065"></a>00065     art::Ptr&lt;recob::PFParticle&gt; neutrino;
@@ -166,7 +166,7 @@ window.onload = initDynSections;
 <a name="l00070"></a>00070     <span class="keywordflow">catch</span> (<span class="keyword">const</span> cet::exception &amp;)
 <a name="l00071"></a>00071     {
 <a name="l00072"></a>00072         <span class="comment">// No neutrino found</span>
-<a name="l00073"></a>00073         <span class="keywordflow">return</span> <a class="code" href="namespaceubcc1pi.html#a6f66dc13c5a55147db5c84db67f6062b">PFParticleVector</a>();
+<a name="l00073"></a>00073         <span class="keywordflow">return</span> <a class="code" href="namespaceubcc1pi.html#a6f66dc13c5a55147db5c84db67f6062b" title="A collection of PFParticles.">PFParticleVector</a>();
 <a name="l00074"></a>00074     }
 <a name="l00075"></a>00075     
 <a name="l00076"></a>00076     <span class="keyword">const</span> <span class="keyword">auto</span> pfParticleMap = <a class="code" href="classubcc1pi_1_1RecoHelper.html#a5844feed162067a8d9149d702df5af1c" title="Get the mapping from PFParticle.Self() -&amp;gt; PFParticle.">RecoHelper::GetPFParticleMap</a>(allPFParticles);
@@ -175,7 +175,7 @@ window.onload = initDynSections;
 <a name="l00079"></a>00079 
 <a name="l00080"></a>00080 <span class="comment">// -----------------------------------------------------------------------------------------------------------------------------------------</span>
 <a name="l00081"></a>00081 
-<a name="l00082"></a><a class="code" href="classubcc1pi_1_1RecoHelper.html#a8df80cd3aa9c3d29113f9049ce1067cc">00082</a> TVector3 <a class="code" href="classubcc1pi_1_1RecoHelper.html#a8df80cd3aa9c3d29113f9049ce1067cc" title="Get the reconstructed neutrino interaction vertex position.">RecoHelper::GetRecoNeutrinoVertex</a>(<span class="keyword">const</span> art::Event &amp;event, <span class="keyword">const</span> <a class="code" href="namespaceubcc1pi.html#a6f66dc13c5a55147db5c84db67f6062b">PFParticleVector</a> &amp;allPFParticles, <span class="keyword">const</span> art::InputTag &amp;vertexLabel)
+<a name="l00082"></a><a class="code" href="classubcc1pi_1_1RecoHelper.html#a8df80cd3aa9c3d29113f9049ce1067cc">00082</a> TVector3 <a class="code" href="classubcc1pi_1_1RecoHelper.html#a8df80cd3aa9c3d29113f9049ce1067cc" title="Get the reconstructed neutrino interaction vertex position.">RecoHelper::GetRecoNeutrinoVertex</a>(<span class="keyword">const</span> art::Event &amp;event, <span class="keyword">const</span> <a class="code" href="namespaceubcc1pi.html#a6f66dc13c5a55147db5c84db67f6062b" title="A collection of PFParticles.">PFParticleVector</a> &amp;allPFParticles, <span class="keyword">const</span> art::InputTag &amp;vertexLabel)
 <a name="l00083"></a>00083 {
 <a name="l00084"></a>00084     <span class="keyword">const</span> <span class="keyword">auto</span> pfpToVertex = CollectionHelper::GetAssociation&lt;recob::PFParticle, recob::Vertex&gt;(event, vertexLabel);
 <a name="l00085"></a>00085 
@@ -208,9 +208,9 @@ window.onload = initDynSections;
 <a name="l00112"></a>00112 
 <a name="l00113"></a>00113 <span class="comment">// -----------------------------------------------------------------------------------------------------------------------------------------</span>
 <a name="l00114"></a>00114 
-<a name="l00115"></a><a class="code" href="classubcc1pi_1_1RecoHelper.html#a4f0df14148b8885c5f66888a7d7dc5ef">00115</a> <a class="code" href="namespaceubcc1pi.html#a6f66dc13c5a55147db5c84db67f6062b">PFParticleVector</a> <a class="code" href="classubcc1pi_1_1RecoHelper.html#a4f0df14148b8885c5f66888a7d7dc5ef" title="Get the daughters of the input PFParticle.">RecoHelper::GetDaughters</a>(<span class="keyword">const</span> art::Ptr&lt;recob::PFParticle&gt; &amp;particle, <span class="keyword">const</span> <a class="code" href="namespaceubcc1pi.html#a191f1ccf6de87673e21719a2d401a00f" title="A map intended to hold the mapping from PFParticle.Self() -&amp;gt; PFParticle - for...">PFParticleMap</a> &amp;pfParticleMap)
+<a name="l00115"></a><a class="code" href="classubcc1pi_1_1RecoHelper.html#a4f0df14148b8885c5f66888a7d7dc5ef">00115</a> <a class="code" href="namespaceubcc1pi.html#a6f66dc13c5a55147db5c84db67f6062b" title="A collection of PFParticles.">PFParticleVector</a> <a class="code" href="classubcc1pi_1_1RecoHelper.html#a4f0df14148b8885c5f66888a7d7dc5ef" title="Get the daughters of the input PFParticle.">RecoHelper::GetDaughters</a>(<span class="keyword">const</span> art::Ptr&lt;recob::PFParticle&gt; &amp;particle, <span class="keyword">const</span> <a class="code" href="namespaceubcc1pi.html#a191f1ccf6de87673e21719a2d401a00f" title="A map intended to hold the mapping from PFParticle.Self() -&amp;gt; PFParticle - for...">PFParticleMap</a> &amp;pfParticleMap)
 <a name="l00116"></a>00116 {
-<a name="l00117"></a>00117     <a class="code" href="namespaceubcc1pi.html#a6f66dc13c5a55147db5c84db67f6062b">PFParticleVector</a> daughters;
+<a name="l00117"></a>00117     <a class="code" href="namespaceubcc1pi.html#a6f66dc13c5a55147db5c84db67f6062b" title="A collection of PFParticles.">PFParticleVector</a> daughters;
 <a name="l00118"></a>00118 
 <a name="l00119"></a>00119     <span class="keywordflow">for</span> (<span class="keywordtype">int</span> i = 0; i &lt; particle-&gt;NumDaughters(); ++i)
 <a name="l00120"></a>00120     {
@@ -226,9 +226,9 @@ window.onload = initDynSections;
 <a name="l00130"></a>00130 
 <a name="l00131"></a>00131 <span class="comment">// -----------------------------------------------------------------------------------------------------------------------------------------</span>
 <a name="l00132"></a>00132 
-<a name="l00133"></a><a class="code" href="classubcc1pi_1_1RecoHelper.html#a8b20fe3bdcb94fd9a073312a25c77701">00133</a> <a class="code" href="namespaceubcc1pi.html#a6f66dc13c5a55147db5c84db67f6062b">PFParticleVector</a> <a class="code" href="classubcc1pi_1_1RecoHelper.html#a8b20fe3bdcb94fd9a073312a25c77701" title="Collect all particles downstream of the input PFParticle (including the particle...">RecoHelper::GetDownstreamParticles</a>(<span class="keyword">const</span> art::Ptr&lt;recob::PFParticle&gt; &amp;particle, <span class="keyword">const</span> <a class="code" href="namespaceubcc1pi.html#a191f1ccf6de87673e21719a2d401a00f" title="A map intended to hold the mapping from PFParticle.Self() -&amp;gt; PFParticle - for...">PFParticleMap</a> &amp;pfParticleMap)
+<a name="l00133"></a><a class="code" href="classubcc1pi_1_1RecoHelper.html#a8b20fe3bdcb94fd9a073312a25c77701">00133</a> <a class="code" href="namespaceubcc1pi.html#a6f66dc13c5a55147db5c84db67f6062b" title="A collection of PFParticles.">PFParticleVector</a> <a class="code" href="classubcc1pi_1_1RecoHelper.html#a8b20fe3bdcb94fd9a073312a25c77701" title="Collect all particles downstream of the input PFParticle (including the particle...">RecoHelper::GetDownstreamParticles</a>(<span class="keyword">const</span> art::Ptr&lt;recob::PFParticle&gt; &amp;particle, <span class="keyword">const</span> <a class="code" href="namespaceubcc1pi.html#a191f1ccf6de87673e21719a2d401a00f" title="A map intended to hold the mapping from PFParticle.Self() -&amp;gt; PFParticle - for...">PFParticleMap</a> &amp;pfParticleMap)
 <a name="l00134"></a>00134 {
-<a name="l00135"></a>00135     <a class="code" href="namespaceubcc1pi.html#a6f66dc13c5a55147db5c84db67f6062b">PFParticleVector</a> downstreamParticles;
+<a name="l00135"></a>00135     <a class="code" href="namespaceubcc1pi.html#a6f66dc13c5a55147db5c84db67f6062b" title="A collection of PFParticles.">PFParticleVector</a> downstreamParticles;
 <a name="l00136"></a>00136     <a class="code" href="classubcc1pi_1_1RecoHelper.html#a8b20fe3bdcb94fd9a073312a25c77701" title="Collect all particles downstream of the input PFParticle (including the particle...">RecoHelper::GetDownstreamParticles</a>(particle, pfParticleMap, downstreamParticles);
 <a name="l00137"></a>00137 
 <a name="l00138"></a>00138     <span class="keywordflow">return</span> downstreamParticles;
@@ -236,7 +236,7 @@ window.onload = initDynSections;
 <a name="l00140"></a>00140 
 <a name="l00141"></a>00141 <span class="comment">// -----------------------------------------------------------------------------------------------------------------------------------------</span>
 <a name="l00142"></a>00142 
-<a name="l00143"></a><a class="code" href="classubcc1pi_1_1RecoHelper.html#a155656490285003dc5bb36cc4c4756a6">00143</a> <span class="keywordtype">void</span> <a class="code" href="classubcc1pi_1_1RecoHelper.html#a8b20fe3bdcb94fd9a073312a25c77701" title="Collect all particles downstream of the input PFParticle (including the particle...">RecoHelper::GetDownstreamParticles</a>(<span class="keyword">const</span> art::Ptr&lt;recob::PFParticle&gt; &amp;particle, <span class="keyword">const</span> <a class="code" href="namespaceubcc1pi.html#a191f1ccf6de87673e21719a2d401a00f" title="A map intended to hold the mapping from PFParticle.Self() -&amp;gt; PFParticle - for...">PFParticleMap</a> &amp;pfParticleMap, <a class="code" href="namespaceubcc1pi.html#a6f66dc13c5a55147db5c84db67f6062b">PFParticleVector</a> &amp;downstreamParticles)
+<a name="l00143"></a><a class="code" href="classubcc1pi_1_1RecoHelper.html#a155656490285003dc5bb36cc4c4756a6">00143</a> <span class="keywordtype">void</span> <a class="code" href="classubcc1pi_1_1RecoHelper.html#a8b20fe3bdcb94fd9a073312a25c77701" title="Collect all particles downstream of the input PFParticle (including the particle...">RecoHelper::GetDownstreamParticles</a>(<span class="keyword">const</span> art::Ptr&lt;recob::PFParticle&gt; &amp;particle, <span class="keyword">const</span> <a class="code" href="namespaceubcc1pi.html#a191f1ccf6de87673e21719a2d401a00f" title="A map intended to hold the mapping from PFParticle.Self() -&amp;gt; PFParticle - for...">PFParticleMap</a> &amp;pfParticleMap, <a class="code" href="namespaceubcc1pi.html#a6f66dc13c5a55147db5c84db67f6062b" title="A collection of PFParticles.">PFParticleVector</a> &amp;downstreamParticles)
 <a name="l00144"></a>00144 {
 <a name="l00145"></a>00145     downstreamParticles.push_back(particle);
 <a name="l00146"></a>00146 
@@ -246,7 +246,7 @@ window.onload = initDynSections;
 <a name="l00150"></a>00150 
 <a name="l00151"></a>00151 <span class="comment">// -----------------------------------------------------------------------------------------------------------------------------------------</span>
 <a name="l00152"></a>00152         
-<a name="l00153"></a><a class="code" href="classubcc1pi_1_1RecoHelper.html#a598a6c917043afe29d14ef92e36c0249">00153</a> <span class="keywordtype">bool</span> <a class="code" href="classubcc1pi_1_1RecoHelper.html#a598a6c917043afe29d14ef92e36c0249" title="Determine if a given slice has been selected as a neutrino by looking at the PdgCodes...">RecoHelper::IsSliceSelectedAsNu</a>(<span class="keyword">const</span> art::Ptr&lt;recob::Slice&gt; &amp;slice, <span class="keyword">const</span> <a class="code" href="namespaceubcc1pi.html#af71288e330b74f94db7a05b62adc65bb">SlicesToPFParticles</a> &amp;slicesToPFParticles)
+<a name="l00153"></a><a class="code" href="classubcc1pi_1_1RecoHelper.html#a598a6c917043afe29d14ef92e36c0249">00153</a> <span class="keywordtype">bool</span> <a class="code" href="classubcc1pi_1_1RecoHelper.html#a598a6c917043afe29d14ef92e36c0249" title="Determine if a given slice has been selected as a neutrino by looking at the PdgCodes...">RecoHelper::IsSliceSelectedAsNu</a>(<span class="keyword">const</span> art::Ptr&lt;recob::Slice&gt; &amp;slice, <span class="keyword">const</span> <a class="code" href="namespaceubcc1pi.html#af71288e330b74f94db7a05b62adc65bb" title="Association from Slice to PFParticle.">SlicesToPFParticles</a> &amp;slicesToPFParticles)
 <a name="l00154"></a>00154 {
 <a name="l00155"></a>00155     <span class="keyword">const</span> <span class="keyword">auto</span> neutrinos = <a class="code" href="classubcc1pi_1_1RecoHelper.html#a183577bab3db220b26bcfe3b110db4a4" title="Get all neutrino PFParticles in the input list.">RecoHelper::GetNeutrinos</a>(<a class="code" href="classubcc1pi_1_1CollectionHelper.html#a5aa35d148efb229f796a112482902a67" title="Get the objects associated to a given input object.">CollectionHelper::GetManyAssociated</a>(slice, slicesToPFParticles));
 <a name="l00156"></a>00156     
@@ -312,7 +312,7 @@ window.onload = initDynSections;
 <a name="l00216"></a>00216 
 <a name="l00217"></a>00217 <span class="comment">// -----------------------------------------------------------------------------------------------------------------------------------------</span>
 <a name="l00218"></a>00218 
-<a name="l00219"></a><a class="code" href="classubcc1pi_1_1RecoHelper.html#a998ef45cbd255ffbda91475b54261173">00219</a> <span class="keywordtype">unsigned</span> <span class="keywordtype">int</span> <a class="code" href="classubcc1pi_1_1RecoHelper.html#a998ef45cbd255ffbda91475b54261173" title="Count the number of hits in a given view.">RecoHelper::CountHitsInView</a>(<span class="keyword">const</span> <a class="code" href="namespaceubcc1pi.html#aad18bb5924d1ff428402c8af4b72f1c0">HitVector</a> &amp;hits, <span class="keyword">const</span> geo::View_t &amp;view)
+<a name="l00219"></a><a class="code" href="classubcc1pi_1_1RecoHelper.html#a998ef45cbd255ffbda91475b54261173">00219</a> <span class="keywordtype">unsigned</span> <span class="keywordtype">int</span> <a class="code" href="classubcc1pi_1_1RecoHelper.html#a998ef45cbd255ffbda91475b54261173" title="Count the number of hits in a given view.">RecoHelper::CountHitsInView</a>(<span class="keyword">const</span> <a class="code" href="namespaceubcc1pi.html#aad18bb5924d1ff428402c8af4b72f1c0" title="A collection of Hits.">HitVector</a> &amp;hits, <span class="keyword">const</span> geo::View_t &amp;view)
 <a name="l00220"></a>00220 {
 <a name="l00221"></a>00221     <span class="keywordtype">unsigned</span> <span class="keywordtype">int</span> count = 0;
 <a name="l00222"></a>00222     <span class="keywordflow">for</span> (<span class="keyword">const</span> <span class="keyword">auto</span> &amp;hit : hits)
@@ -358,7 +358,7 @@ window.onload = initDynSections;
 <hr size="1"/>
 <address style="text-align: right;">
     <small>
-        Generated on Thu Jun 27 15:05:00 2019 for ubcc1pi by <a href="http://www.doxygen.org/index.html" target="_blank">doxygen</a> 1.6.1
+        Generated on Tue Jul 2 11:50:54 2019 for ubcc1pi by <a href="http://www.doxygen.org/index.html" target="_blank">doxygen</a> 1.6.1
     </small>
 </address>
 

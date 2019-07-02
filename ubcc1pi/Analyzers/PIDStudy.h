@@ -151,13 +151,48 @@ class PIDStudy : public art::EDAnalyzer
 
     private:
 
+        /**
+         *  @brief  Set the event-level information in the output branches
+         *
+         *  @param  event the art event
+         *  @param  allPFParticles the vector of all PFParticles
+         */
         void SetEventInfo(const art::Event &event, const PFParticleVector &allPFParticles);
+
+        /**
+         *  @brief  Reset the particle-level info in the output branches for the next entry
+         */
         void ResetParticleInfo();
+
+        /**
+         *  @brief  Set the particle-level information about the PFParticle->MCParticle matching in the output branches
+         *
+         *  @param  pfParticle the PFParticle to set
+         *  @param  backtrackerData the precalculated backtracking data
+         */
         void SetMatchedMCParticleInfo(const art::Ptr<recob::PFParticle> &pfParticle, const BacktrackHelper::BacktrackerData &backtrackerData);
+
+        /**
+         *  @brief  Get the track (if any) associated with the input PFParticle
+         *
+         *  @param  pfParticle the input PFParticle
+         *  @param  pfpToTrack the mapping from PFParticle to Tracks
+         *  @param  track the output Track
+         *
+         *  @return if there was an associated track
+         */
         bool GetTrack(const art::Ptr<recob::PFParticle> &pfParticle, const Association<recob::PFParticle, recob::Track> &pfpToTrack, art::Ptr<recob::Track> &track);
+
+        /**
+         *  @brief  Convert the plane mask from the PID module to a view
+         *
+         *  @param  planeMask the input plane mask
+         *
+         *  @return the view represented by the plane mask
+         */
         geo::View_t GetView(const std::bitset<8> &planeMask) const;
             
-        art::EDAnalyzer::Table<Config>  m_config;          ///< The FHiCL configuration options
+        art::EDAnalyzer::Table<Config>  m_config;         ///< The FHiCL configuration options
         
         TTree                          *m_pParticleTree;  ///< The output tree for all particle level data
         OutputParticle                  m_outputParticle; ///< The output particle-level object

@@ -2,7 +2,7 @@
 A LArSoft package for the selection and analysis of charged current single pion muon neutrino interactions in MicroBooNE
 
 ## Installation
-Setup your uBooNE suite LArSoft development area using `mrb` as usual (see [https://cdcvs.fnal.gov/redmine/projects/uboonecode/wiki/Uboone_guide](here) for more details). Then follow the steps below:
+Setup your uBooNE suite LArSoft development area using `mrb` as usual (see [here](https://cdcvs.fnal.gov/redmine/projects/uboonecode/wiki/Uboone_guide) for more details). Then follow the steps below:
 
 ```
 # Clone this package in your sources directory

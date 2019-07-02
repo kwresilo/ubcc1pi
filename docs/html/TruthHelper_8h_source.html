@@ -172,11 +172,11 @@ window.onload = initDynSections;
 <a name="l00076"></a>00076 <span class="comment">                 *</span>
 <a name="l00077"></a>00077 <span class="comment">                 *  @return all MCParticles</span>
 <a name="l00078"></a>00078 <span class="comment">                 */</span>
-<a name="l00079"></a>00079                 <a class="code" href="namespaceubcc1pi.html#a42e409a54246ea6acba6d873b8eb696c">MCParticleVector</a> <a class="code" href="classubcc1pi_1_1TruthHelper_1_1Interaction.html#aab149c5796f07ea4cadb2ba30b1eea27" title="Get the full list of MCParticles associated with this interaction.">GetAllMCParticles</a>() <span class="keyword">const</span>;
+<a name="l00079"></a>00079                 <a class="code" href="namespaceubcc1pi.html#a42e409a54246ea6acba6d873b8eb696c" title="A collection of MCParticles.">MCParticleVector</a> <a class="code" href="classubcc1pi_1_1TruthHelper_1_1Interaction.html#aab149c5796f07ea4cadb2ba30b1eea27" title="Get the full list of MCParticles associated with this interaction.">GetAllMCParticles</a>() <span class="keyword">const</span>;
 <a name="l00080"></a>00080 
 <a name="l00081"></a>00081             <span class="keyword">private</span>:
 <a name="l00082"></a><a class="code" href="classubcc1pi_1_1TruthHelper_1_1Interaction.html#aad41c9be4f23badee7b9804e01e838d2">00082</a>                 simb::MCParticle  <a class="code" href="classubcc1pi_1_1TruthHelper_1_1Interaction.html#aad41c9be4f23badee7b9804e01e838d2" title="The neutrino MCParticle.">m_neutrino</a>;         <span class="comment">///&lt; The neutrino MCParticle</span>
-<a name="l00083"></a><a class="code" href="classubcc1pi_1_1TruthHelper_1_1Interaction.html#a114a8eda2c6adee3a24709aff314dd2b">00083</a> <span class="comment"></span>                <a class="code" href="namespaceubcc1pi.html#a42e409a54246ea6acba6d873b8eb696c">MCParticleVector</a>  <a class="code" href="classubcc1pi_1_1TruthHelper_1_1Interaction.html#a114a8eda2c6adee3a24709aff314dd2b" title="The MCParticles associated with the interaction.">m_allMCParticles</a>;   <span class="comment">///&lt; The MCParticles associated with the interaction</span>
+<a name="l00083"></a><a class="code" href="classubcc1pi_1_1TruthHelper_1_1Interaction.html#a114a8eda2c6adee3a24709aff314dd2b">00083</a> <span class="comment"></span>                <a class="code" href="namespaceubcc1pi.html#a42e409a54246ea6acba6d873b8eb696c" title="A collection of MCParticles.">MCParticleVector</a>  <a class="code" href="classubcc1pi_1_1TruthHelper_1_1Interaction.html#a114a8eda2c6adee3a24709aff314dd2b" title="The MCParticles associated with the interaction.">m_allMCParticles</a>;   <span class="comment">///&lt; The MCParticles associated with the interaction</span>
 <a name="l00084"></a>00084 <span class="comment"></span>
 <a name="l00085"></a><a class="code" href="classubcc1pi_1_1TruthHelper_1_1Interaction.html#ab7c2d679f1da70c335bb4860261cdf5b">00085</a>                 simb::curr_type_  <a class="code" href="classubcc1pi_1_1TruthHelper_1_1Interaction.html#ab7c2d679f1da70c335bb4860261cdf5b" title="If the iteraction is CC or NC.">m_ccnc</a>;             <span class="comment">///&lt; If the iteraction is CC or NC</span>
 <a name="l00086"></a><a class="code" href="classubcc1pi_1_1TruthHelper_1_1Interaction.html#a32f98ca6843b46791ed3e57d668fa778">00086</a> <span class="comment"></span>                simb::int_type_   <a class="code" href="classubcc1pi_1_1TruthHelper_1_1Interaction.html#a32f98ca6843b46791ed3e57d668fa778" title="The interaction mode: QE, RES, DIS...">m_mode</a>;             <span class="comment">///&lt; The interaction mode: QE, RES, DIS...</span>
@@ -202,7 +202,7 @@ window.onload = initDynSections;
 <a name="l00106"></a>00106 <span class="comment">         *</span>
 <a name="l00107"></a>00107 <span class="comment">         *  @return the associated MCParticles</span>
 <a name="l00108"></a>00108 <span class="comment">         */</span>
-<a name="l00109"></a>00109         <span class="keyword">static</span> <a class="code" href="namespaceubcc1pi.html#a42e409a54246ea6acba6d873b8eb696c">MCParticleVector</a> <a class="code" href="classubcc1pi_1_1TruthHelper.html#a4d6f2b46ca8dc942d66116d372792a9e" title="Get the MCParticles associated to the input MCTruth.">GetMCParticlesFromMCTruth</a>(<span class="keyword">const</span> art::Event &amp;event, <span class="keyword">const</span> art::InputTag &amp;mcTruthLabel, <span class="keyword">const</span> art::InputTag &amp;mcParticleLabel, <span class="keyword">const</span> art::Ptr&lt;simb::MCTruth&gt; &amp;mcTruth);
+<a name="l00109"></a>00109         <span class="keyword">static</span> <a class="code" href="namespaceubcc1pi.html#a42e409a54246ea6acba6d873b8eb696c" title="A collection of MCParticles.">MCParticleVector</a> <a class="code" href="classubcc1pi_1_1TruthHelper.html#a4d6f2b46ca8dc942d66116d372792a9e" title="Get the MCParticles associated to the input MCTruth.">GetMCParticlesFromMCTruth</a>(<span class="keyword">const</span> art::Event &amp;event, <span class="keyword">const</span> art::InputTag &amp;mcTruthLabel, <span class="keyword">const</span> art::InputTag &amp;mcParticleLabel, <span class="keyword">const</span> art::Ptr&lt;simb::MCTruth&gt; &amp;mcTruth);
 <a name="l00110"></a>00110 <span class="comment"></span>
 <a name="l00111"></a>00111 <span class="comment">        /**</span>
 <a name="l00112"></a>00112 <span class="comment">         *  @brief  Get the primary MCParticles - the immediate products of the neutrino interaction leaving the nucleus</span>
@@ -211,67 +211,69 @@ window.onload = initDynSections;
 <a name="l00115"></a>00115 <span class="comment">         *</span>
 <a name="l00116"></a>00116 <span class="comment">         *  @return the primary MCParticles in the input list</span>
 <a name="l00117"></a>00117 <span class="comment">         */</span>
-<a name="l00118"></a>00118         <span class="keyword">static</span> <a class="code" href="namespaceubcc1pi.html#a42e409a54246ea6acba6d873b8eb696c">MCParticleVector</a> <a class="code" href="classubcc1pi_1_1TruthHelper.html#a09a117d495d2ba51c657eae472d10134" title="Get the primary MCParticles - the immediate products of the neutrino interaction...">GetPrimaryMCParticles</a>(<span class="keyword">const</span> <a class="code" href="namespaceubcc1pi.html#a42e409a54246ea6acba6d873b8eb696c">MCParticleVector</a> &amp;allMCParticles);
+<a name="l00118"></a>00118         <span class="keyword">static</span> <a class="code" href="namespaceubcc1pi.html#a42e409a54246ea6acba6d873b8eb696c" title="A collection of MCParticles.">MCParticleVector</a> <a class="code" href="classubcc1pi_1_1TruthHelper.html#a09a117d495d2ba51c657eae472d10134" title="Get the primary MCParticles - the immediate products of the neutrino interaction...">GetPrimaryMCParticles</a>(<span class="keyword">const</span> <a class="code" href="namespaceubcc1pi.html#a42e409a54246ea6acba6d873b8eb696c" title="A collection of MCParticles.">MCParticleVector</a> &amp;allMCParticles);
 <a name="l00119"></a>00119 <span class="comment"></span>
 <a name="l00120"></a>00120 <span class="comment">        /**</span>
 <a name="l00121"></a>00121 <span class="comment">         *  @brief  Check if an MCParticle is primary</span>
 <a name="l00122"></a>00122 <span class="comment">         *</span>
 <a name="l00123"></a>00123 <span class="comment">         *  @param  particle the particle to check</span>
-<a name="l00124"></a>00124 <span class="comment">         */</span>
-<a name="l00125"></a>00125         <span class="keyword">static</span> <span class="keywordtype">bool</span> <a class="code" href="classubcc1pi_1_1TruthHelper.html#ad6f3089ab19b98e771a7421d947a5634" title="Check if an MCParticle is primary.">IsPrimary</a>(<span class="keyword">const</span> art::Ptr&lt;simb::MCParticle&gt; &amp;particle);
-<a name="l00126"></a>00126 <span class="comment"></span>
-<a name="l00127"></a>00127 <span class="comment">        /**</span>
-<a name="l00128"></a>00128 <span class="comment">         *  @brief  Get the mapping from MCParticle.TrackId() -&gt; MCParticle</span>
-<a name="l00129"></a>00129 <span class="comment">         *</span>
-<a name="l00130"></a>00130 <span class="comment">         *  @param  allMCParticles the input MCParticles</span>
+<a name="l00124"></a>00124 <span class="comment">         *</span>
+<a name="l00125"></a>00125 <span class="comment">         *  @return if the MCParticle is primary</span>
+<a name="l00126"></a>00126 <span class="comment">         */</span>
+<a name="l00127"></a>00127         <span class="keyword">static</span> <span class="keywordtype">bool</span> <a class="code" href="classubcc1pi_1_1TruthHelper.html#ad6f3089ab19b98e771a7421d947a5634" title="Check if an MCParticle is primary.">IsPrimary</a>(<span class="keyword">const</span> art::Ptr&lt;simb::MCParticle&gt; &amp;particle);
+<a name="l00128"></a>00128 <span class="comment"></span>
+<a name="l00129"></a>00129 <span class="comment">        /**</span>
+<a name="l00130"></a>00130 <span class="comment">         *  @brief  Get the mapping from MCParticle.TrackId() -&gt; MCParticle</span>
 <a name="l00131"></a>00131 <span class="comment">         *</span>
-<a name="l00132"></a>00132 <span class="comment">         *  @return the output MCParticleMap map</span>
-<a name="l00133"></a>00133 <span class="comment">         */</span>
-<a name="l00134"></a>00134         <span class="keyword">static</span> <a class="code" href="namespaceubcc1pi.html#ad270925efcb22aadbfb3e59d150771b9" title="A map intended to hold the mapping from MCParticle.TrackId() -&amp;gt; MCParticle - for...">MCParticleMap</a> <a class="code" href="classubcc1pi_1_1TruthHelper.html#a9aa2f68b5c8e98de81805eb1b6eb7ced" title="Get the mapping from MCParticle.TrackId() -&amp;gt; MCParticle.">GetMCParticleMap</a>(<span class="keyword">const</span> <a class="code" href="namespaceubcc1pi.html#a42e409a54246ea6acba6d873b8eb696c">MCParticleVector</a> &amp;allMCParticles);
-<a name="l00135"></a>00135 <span class="comment"></span>
-<a name="l00136"></a>00136 <span class="comment">        /**</span>
-<a name="l00137"></a>00137 <span class="comment">         *  @brief  Get the mother MCParticle of the input particle</span>
-<a name="l00138"></a>00138 <span class="comment">         *</span>
-<a name="l00139"></a>00139 <span class="comment">         *  @param  particle the particle</span>
-<a name="l00140"></a>00140 <span class="comment">         *  @param  mcParticleMap the mapping from TrackId -&gt; MCParticle</span>
-<a name="l00141"></a>00141 <span class="comment">         *</span>
-<a name="l00142"></a>00142 <span class="comment">         *  @return the mother MCParticle</span>
-<a name="l00143"></a>00143 <span class="comment">         */</span>
-<a name="l00144"></a>00144         <span class="keyword">static</span> art::Ptr&lt;simb::MCParticle&gt; <a class="code" href="classubcc1pi_1_1TruthHelper.html#a00e5be93d2524e98fa8ee5be03f9a225" title="Get the mother MCParticle of the input particle.">GetMother</a>(<span class="keyword">const</span> art::Ptr&lt;simb::MCParticle&gt; &amp;particle, <span class="keyword">const</span> <a class="code" href="namespaceubcc1pi.html#ad270925efcb22aadbfb3e59d150771b9" title="A map intended to hold the mapping from MCParticle.TrackId() -&amp;gt; MCParticle - for...">MCParticleMap</a> &amp;mcParticleMap);
-<a name="l00145"></a>00145         <span class="comment"></span>
-<a name="l00146"></a>00146 <span class="comment">        /**</span>
-<a name="l00147"></a>00147 <span class="comment">         *  @brief  Get the daughter MCParticles of the input particle</span>
-<a name="l00148"></a>00148 <span class="comment">         *</span>
-<a name="l00149"></a>00149 <span class="comment">         *  @param  particle the particle</span>
-<a name="l00150"></a>00150 <span class="comment">         *  @param  mcParticleMap the mapping from TrackId -&gt; MCParticle</span>
-<a name="l00151"></a>00151 <span class="comment">         *</span>
-<a name="l00152"></a>00152 <span class="comment">         *  @return the daughter MCParticles</span>
-<a name="l00153"></a>00153 <span class="comment">         */</span>
-<a name="l00154"></a>00154         <span class="keyword">static</span> <a class="code" href="namespaceubcc1pi.html#a42e409a54246ea6acba6d873b8eb696c">MCParticleVector</a> <a class="code" href="classubcc1pi_1_1TruthHelper.html#aca685b9fe28e2bde5ab41415c1a4efd1" title="Get the daughter MCParticles of the input particle.">GetDaughters</a>(<span class="keyword">const</span> art::Ptr&lt;simb::MCParticle&gt; &amp;particle, <span class="keyword">const</span> <a class="code" href="namespaceubcc1pi.html#ad270925efcb22aadbfb3e59d150771b9" title="A map intended to hold the mapping from MCParticle.TrackId() -&amp;gt; MCParticle - for...">MCParticleMap</a> &amp;mcParticleMap);
-<a name="l00155"></a>00155         <span class="comment"></span>
-<a name="l00156"></a>00156 <span class="comment">        /**</span>
-<a name="l00157"></a>00157 <span class="comment">         *  @brief  Get the MCParticles downstream of the input particle </span>
-<a name="l00158"></a>00158 <span class="comment">         *</span>
-<a name="l00159"></a>00159 <span class="comment">         *  @param  particle the input MCParticle</span>
-<a name="l00160"></a>00160 <span class="comment">         *  @param  mcParticleMap the mapping from TrackId -&gt; MCParticle</span>
-<a name="l00161"></a>00161 <span class="comment">         *</span>
-<a name="l00162"></a>00162 <span class="comment">         *  @return the downstream MCParticles</span>
-<a name="l00163"></a>00163 <span class="comment">         */</span>
-<a name="l00164"></a>00164         <span class="keyword">static</span> <a class="code" href="namespaceubcc1pi.html#a42e409a54246ea6acba6d873b8eb696c">MCParticleVector</a> <a class="code" href="classubcc1pi_1_1TruthHelper.html#ad39fed8c89e9487778bb884cee23acf2" title="Get the MCParticles downstream of the input particle.">GetDownstreamParticles</a>(<span class="keyword">const</span> art::Ptr&lt;simb::MCParticle&gt; &amp;particle, <span class="keyword">const</span> <a class="code" href="namespaceubcc1pi.html#ad270925efcb22aadbfb3e59d150771b9" title="A map intended to hold the mapping from MCParticle.TrackId() -&amp;gt; MCParticle - for...">MCParticleMap</a> &amp;mcParticleMap);
-<a name="l00165"></a>00165 <span class="comment"></span>
-<a name="l00166"></a>00166 <span class="comment">        /**</span>
-<a name="l00167"></a>00167 <span class="comment">         *  @brief  Get the MCParticles downstream of the input particle</span>
-<a name="l00168"></a>00168 <span class="comment">         *</span>
-<a name="l00169"></a>00169 <span class="comment">         *  @param  particle the input MCParticle</span>
-<a name="l00170"></a>00170 <span class="comment">         *  @param  mcParticleMap the mapping from TrackId -&gt; MCParticle</span>
-<a name="l00171"></a>00171 <span class="comment">         *  @param  downstreamParticles the output vector of downstream particles</span>
-<a name="l00172"></a>00172 <span class="comment">         */</span>
-<a name="l00173"></a>00173         <span class="keyword">static</span> <span class="keywordtype">void</span> <a class="code" href="classubcc1pi_1_1TruthHelper.html#ad39fed8c89e9487778bb884cee23acf2" title="Get the MCParticles downstream of the input particle.">GetDownstreamParticles</a>(<span class="keyword">const</span> art::Ptr&lt;simb::MCParticle&gt; &amp;particle, <span class="keyword">const</span> <a class="code" href="namespaceubcc1pi.html#ad270925efcb22aadbfb3e59d150771b9" title="A map intended to hold the mapping from MCParticle.TrackId() -&amp;gt; MCParticle - for...">MCParticleMap</a> &amp;mcParticleMap, <a class="code" href="namespaceubcc1pi.html#a42e409a54246ea6acba6d873b8eb696c">MCParticleVector</a> &amp;downstreamParticles);
-<a name="l00174"></a>00174 };
-<a name="l00175"></a>00175 
-<a name="l00176"></a>00176 } <span class="comment">// namespace ubcc1pi</span>
+<a name="l00132"></a>00132 <span class="comment">         *  @param  allMCParticles the input MCParticles</span>
+<a name="l00133"></a>00133 <span class="comment">         *</span>
+<a name="l00134"></a>00134 <span class="comment">         *  @return the output MCParticleMap map</span>
+<a name="l00135"></a>00135 <span class="comment">         */</span>
+<a name="l00136"></a>00136         <span class="keyword">static</span> <a class="code" href="namespaceubcc1pi.html#ad270925efcb22aadbfb3e59d150771b9" title="A map intended to hold the mapping from MCParticle.TrackId() -&amp;gt; MCParticle - for...">MCParticleMap</a> <a class="code" href="classubcc1pi_1_1TruthHelper.html#a9aa2f68b5c8e98de81805eb1b6eb7ced" title="Get the mapping from MCParticle.TrackId() -&amp;gt; MCParticle.">GetMCParticleMap</a>(<span class="keyword">const</span> <a class="code" href="namespaceubcc1pi.html#a42e409a54246ea6acba6d873b8eb696c" title="A collection of MCParticles.">MCParticleVector</a> &amp;allMCParticles);
+<a name="l00137"></a>00137 <span class="comment"></span>
+<a name="l00138"></a>00138 <span class="comment">        /**</span>
+<a name="l00139"></a>00139 <span class="comment">         *  @brief  Get the mother MCParticle of the input particle</span>
+<a name="l00140"></a>00140 <span class="comment">         *</span>
+<a name="l00141"></a>00141 <span class="comment">         *  @param  particle the particle</span>
+<a name="l00142"></a>00142 <span class="comment">         *  @param  mcParticleMap the mapping from TrackId -&gt; MCParticle</span>
+<a name="l00143"></a>00143 <span class="comment">         *</span>
+<a name="l00144"></a>00144 <span class="comment">         *  @return the mother MCParticle</span>
+<a name="l00145"></a>00145 <span class="comment">         */</span>
+<a name="l00146"></a>00146         <span class="keyword">static</span> art::Ptr&lt;simb::MCParticle&gt; <a class="code" href="classubcc1pi_1_1TruthHelper.html#a00e5be93d2524e98fa8ee5be03f9a225" title="Get the mother MCParticle of the input particle.">GetMother</a>(<span class="keyword">const</span> art::Ptr&lt;simb::MCParticle&gt; &amp;particle, <span class="keyword">const</span> <a class="code" href="namespaceubcc1pi.html#ad270925efcb22aadbfb3e59d150771b9" title="A map intended to hold the mapping from MCParticle.TrackId() -&amp;gt; MCParticle - for...">MCParticleMap</a> &amp;mcParticleMap);
+<a name="l00147"></a>00147         <span class="comment"></span>
+<a name="l00148"></a>00148 <span class="comment">        /**</span>
+<a name="l00149"></a>00149 <span class="comment">         *  @brief  Get the daughter MCParticles of the input particle</span>
+<a name="l00150"></a>00150 <span class="comment">         *</span>
+<a name="l00151"></a>00151 <span class="comment">         *  @param  particle the particle</span>
+<a name="l00152"></a>00152 <span class="comment">         *  @param  mcParticleMap the mapping from TrackId -&gt; MCParticle</span>
+<a name="l00153"></a>00153 <span class="comment">         *</span>
+<a name="l00154"></a>00154 <span class="comment">         *  @return the daughter MCParticles</span>
+<a name="l00155"></a>00155 <span class="comment">         */</span>
+<a name="l00156"></a>00156         <span class="keyword">static</span> <a class="code" href="namespaceubcc1pi.html#a42e409a54246ea6acba6d873b8eb696c" title="A collection of MCParticles.">MCParticleVector</a> <a class="code" href="classubcc1pi_1_1TruthHelper.html#aca685b9fe28e2bde5ab41415c1a4efd1" title="Get the daughter MCParticles of the input particle.">GetDaughters</a>(<span class="keyword">const</span> art::Ptr&lt;simb::MCParticle&gt; &amp;particle, <span class="keyword">const</span> <a class="code" href="namespaceubcc1pi.html#ad270925efcb22aadbfb3e59d150771b9" title="A map intended to hold the mapping from MCParticle.TrackId() -&amp;gt; MCParticle - for...">MCParticleMap</a> &amp;mcParticleMap);
+<a name="l00157"></a>00157         <span class="comment"></span>
+<a name="l00158"></a>00158 <span class="comment">        /**</span>
+<a name="l00159"></a>00159 <span class="comment">         *  @brief  Get the MCParticles downstream of the input particle </span>
+<a name="l00160"></a>00160 <span class="comment">         *</span>
+<a name="l00161"></a>00161 <span class="comment">         *  @param  particle the input MCParticle</span>
+<a name="l00162"></a>00162 <span class="comment">         *  @param  mcParticleMap the mapping from TrackId -&gt; MCParticle</span>
+<a name="l00163"></a>00163 <span class="comment">         *</span>
+<a name="l00164"></a>00164 <span class="comment">         *  @return the downstream MCParticles</span>
+<a name="l00165"></a>00165 <span class="comment">         */</span>
+<a name="l00166"></a>00166         <span class="keyword">static</span> <a class="code" href="namespaceubcc1pi.html#a42e409a54246ea6acba6d873b8eb696c" title="A collection of MCParticles.">MCParticleVector</a> <a class="code" href="classubcc1pi_1_1TruthHelper.html#ad39fed8c89e9487778bb884cee23acf2" title="Get the MCParticles downstream of the input particle.">GetDownstreamParticles</a>(<span class="keyword">const</span> art::Ptr&lt;simb::MCParticle&gt; &amp;particle, <span class="keyword">const</span> <a class="code" href="namespaceubcc1pi.html#ad270925efcb22aadbfb3e59d150771b9" title="A map intended to hold the mapping from MCParticle.TrackId() -&amp;gt; MCParticle - for...">MCParticleMap</a> &amp;mcParticleMap);
+<a name="l00167"></a>00167 <span class="comment"></span>
+<a name="l00168"></a>00168 <span class="comment">        /**</span>
+<a name="l00169"></a>00169 <span class="comment">         *  @brief  Get the MCParticles downstream of the input particle</span>
+<a name="l00170"></a>00170 <span class="comment">         *</span>
+<a name="l00171"></a>00171 <span class="comment">         *  @param  particle the input MCParticle</span>
+<a name="l00172"></a>00172 <span class="comment">         *  @param  mcParticleMap the mapping from TrackId -&gt; MCParticle</span>
+<a name="l00173"></a>00173 <span class="comment">         *  @param  downstreamParticles the output vector of downstream particles</span>
+<a name="l00174"></a>00174 <span class="comment">         */</span>
+<a name="l00175"></a>00175         <span class="keyword">static</span> <span class="keywordtype">void</span> <a class="code" href="classubcc1pi_1_1TruthHelper.html#ad39fed8c89e9487778bb884cee23acf2" title="Get the MCParticles downstream of the input particle.">GetDownstreamParticles</a>(<span class="keyword">const</span> art::Ptr&lt;simb::MCParticle&gt; &amp;particle, <span class="keyword">const</span> <a class="code" href="namespaceubcc1pi.html#ad270925efcb22aadbfb3e59d150771b9" title="A map intended to hold the mapping from MCParticle.TrackId() -&amp;gt; MCParticle - for...">MCParticleMap</a> &amp;mcParticleMap, <a class="code" href="namespaceubcc1pi.html#a42e409a54246ea6acba6d873b8eb696c" title="A collection of MCParticles.">MCParticleVector</a> &amp;downstreamParticles);
+<a name="l00176"></a>00176 };
 <a name="l00177"></a>00177 
-<a name="l00178"></a>00178 <span class="preprocessor">#endif</span>
+<a name="l00178"></a>00178 } <span class="comment">// namespace ubcc1pi</span>
+<a name="l00179"></a>00179 
+<a name="l00180"></a>00180 <span class="preprocessor">#endif</span>
 </pre></div></div>
 <!--- window showing the filter options -->
 <div id="MSearchSelectWindow"
@@ -290,7 +292,7 @@ window.onload = initDynSections;
 <hr size="1"/>
 <address style="text-align: right;">
     <small>
-        Generated on Thu Jun 27 15:05:00 2019 for ubcc1pi by <a href="http://www.doxygen.org/index.html" target="_blank">doxygen</a> 1.6.1
+        Generated on Tue Jul 2 11:50:54 2019 for ubcc1pi by <a href="http://www.doxygen.org/index.html" target="_blank">doxygen</a> 1.6.1
     </small>
 </address>
 
