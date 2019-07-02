@@ -28,9 +28,3 @@ project.py --xml GridSettings.xml --stage <my stage> --status
 # Once your jobs start to finish you can find the output directory by running
 project.py --xml GridSettings.xml --stage <my stage> --outdir
 ```
-
-## Making plots
-```
-# Consult the README.md files for each individual study to work out how to make plots from these file!
-less ../<my study>/README.md
-```
