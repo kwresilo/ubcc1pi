@@ -54,6 +54,20 @@ EventSelection::EventSelection(const art::EDAnalyzer::Table<Config> &config) :
     m_pEventTree->Branch("truePiTheta", &m_outputEvent.m_truePiTheta);
     m_pEventTree->Branch("truePiPhi", &m_outputEvent.m_truePiPhi);
     m_pEventTree->Branch("trueMuPiAngle", &m_outputEvent.m_trueMuPiAngle);
+            
+    m_pEventTree->Branch("nMCParticles", &m_outputEvent.m_nMCParticles);
+    m_pEventTree->Branch("mcpIdVect", &m_outputEvent.m_mcpIdVect);
+    m_pEventTree->Branch("mcpPDGVect", &m_outputEvent.m_mcpPDGVect);
+    m_pEventTree->Branch("mcpIsTargetFinalStateVect", &m_outputEvent.m_mcpIsTargetFinalStateVect);
+    m_pEventTree->Branch("mcpProcessVect", &m_outputEvent.m_mcpProcessVect);
+    m_pEventTree->Branch("mcpMotherIdVect", &m_outputEvent.m_mcpMotherIdVect);
+    m_pEventTree->Branch("mcpNDaughtersVect", &m_outputEvent.m_mcpNDaughtersVect);
+    m_pEventTree->Branch("mcpDaughterIdsVect", &m_outputEvent.m_mcpDaughterIdsVect);
+    m_pEventTree->Branch("mcpEnergyVect", &m_outputEvent.m_mcpEnergyVect);
+    m_pEventTree->Branch("mcpMomentumVect", &m_outputEvent.m_mcpMomentumVect);
+    m_pEventTree->Branch("mcpMomentumXVect", &m_outputEvent.m_mcpMomentumXVect);
+    m_pEventTree->Branch("mcpMomentumYVect", &m_outputEvent.m_mcpMomentumYVect);
+    m_pEventTree->Branch("mcpMomentumZVect", &m_outputEvent.m_mcpMomentumZVect);
 
     m_pEventTree->Branch("hasRecoNeutrino", &m_outputEvent.m_hasRecoNeutrino);
     m_pEventTree->Branch("recoNuVtx", &m_outputEvent.m_recoNuVtx);
@@ -200,6 +214,19 @@ void EventSelection::ResetEventTree()
     m_outputEvent.m_truePiTheta = -std::numeric_limits<float>::max();
     m_outputEvent.m_truePiPhi = -std::numeric_limits<float>::max();
     m_outputEvent.m_trueMuPiAngle = -std::numeric_limits<float>::max();
+    m_outputEvent.m_nMCParticles = -std::numeric_limits<int>::max();
+    m_outputEvent.m_mcpIdVect.clear();
+    m_outputEvent.m_mcpPDGVect.clear();
+    m_outputEvent.m_mcpIsTargetFinalStateVect.clear();
+    m_outputEvent.m_mcpProcessVect.clear();
+    m_outputEvent.m_mcpMotherIdVect.clear();
+    m_outputEvent.m_mcpNDaughtersVect.clear();
+    m_outputEvent.m_mcpDaughterIdsVect.clear();
+    m_outputEvent.m_mcpEnergyVect.clear();
+    m_outputEvent.m_mcpMomentumVect.clear();
+    m_outputEvent.m_mcpMomentumXVect.clear();
+    m_outputEvent.m_mcpMomentumYVect.clear();
+    m_outputEvent.m_mcpMomentumZVect.clear();
     m_outputEvent.m_hasRecoNeutrino = false;
     m_outputEvent.m_recoNuVtx = TVector3(-std::numeric_limits<float>::max(), -std::numeric_limits<float>::max(), -std::numeric_limits<float>::max());
     m_outputEvent.m_isRecoNuFiducial = false;
@@ -326,6 +353,8 @@ void EventSelection::SetEventTruthInfo(const art::Event &event)
     m_outputEvent.m_nPositron = AnalysisHelper::CountParticlesWithPDG(mcParticles, -11);
     m_outputEvent.m_nTotal = mcParticles.size();
 
+    this->SetMCParticleInfo(interaction.GetAllMCParticles(), mcParticles);
+
     if (!m_outputEvent.m_isSignal)
         return;
     
@@ -340,6 +369,40 @@ void EventSelection::SetEventTruthInfo(const art::Event &event)
     m_outputEvent.m_truePiPhi = this->GetPhi(pion);
 
     m_outputEvent.m_trueMuPiAngle = this->GetOpeningAngle(muon, pion);
+}
+
+// -----------------------------------------------------------------------------------------------------------------------------------------
+
+void EventSelection::SetMCParticleInfo(const MCParticleVector &allMCParticles, const MCParticleVector &reconstrutableFinalStates)
+{
+    m_outputEvent.m_nMCParticles = allMCParticles.size();
+   
+
+    for (const auto &mcParticle : allMCParticles)
+    {
+        m_outputEvent.m_mcpIdVect.push_back(mcParticle->TrackId());
+        m_outputEvent.m_mcpPDGVect.push_back(mcParticle->PdgCode());
+
+        const auto isTargetFinalState = (std::find(reconstrutableFinalStates.begin(), reconstrutableFinalStates.end(), mcParticle) != reconstrutableFinalStates.end());
+        m_outputEvent.m_mcpIsTargetFinalStateVect.push_back(isTargetFinalState);
+
+        m_outputEvent.m_mcpProcessVect.push_back(mcParticle->Process());
+        m_outputEvent.m_mcpMotherIdVect.push_back(mcParticle->Mother());
+        m_outputEvent.m_mcpNDaughtersVect.push_back(mcParticle->NumberDaughters());
+
+        std::vector<int> daughterIds;
+        for (int i = 0; i < mcParticle->NumberDaughters(); ++i)
+        {
+            daughterIds.push_back(mcParticle->Daughter(i));
+        }
+        m_outputEvent.m_mcpDaughterIdsVect.push_back(daughterIds);
+
+        m_outputEvent.m_mcpEnergyVect.push_back(mcParticle->E());
+        m_outputEvent.m_mcpMomentumVect.push_back(mcParticle->P());
+        m_outputEvent.m_mcpMomentumXVect.push_back(mcParticle->Px());
+        m_outputEvent.m_mcpMomentumYVect.push_back(mcParticle->Py());
+        m_outputEvent.m_mcpMomentumZVect.push_back(mcParticle->Pz());
+    }
 }
 
 // -----------------------------------------------------------------------------------------------------------------------------------------

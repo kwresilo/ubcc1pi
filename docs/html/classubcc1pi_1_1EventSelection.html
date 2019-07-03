@@ -120,6 +120,8 @@ window.onload = initDynSections;
 <tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">Set the event metadata in the output branches (event number, run number, etc...)_.  <a href="#acb94258e204883bc946704f5952c5bd1"></a><br/></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">void&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classubcc1pi_1_1EventSelection.html#a05998ece0b5f95158bba4b164678fefa">SetEventTruthInfo</a> (const art::Event &amp;event)</td></tr>
 <tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">Set the event level truth info about the neutrino interaction.  <a href="#a05998ece0b5f95158bba4b164678fefa"></a><br/></td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">void&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classubcc1pi_1_1EventSelection.html#a4cfa39f01f7191feed56d856545e0def">SetMCParticleInfo</a> (const <a class="el" href="namespaceubcc1pi.html#a42e409a54246ea6acba6d873b8eb696c">MCParticleVector</a> &amp;allMCParticles, const <a class="el" href="namespaceubcc1pi.html#a42e409a54246ea6acba6d873b8eb696c">MCParticleVector</a> &amp;reconstrutableFinalStates)</td></tr>
+<tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">Set the information about all MCParticles in the event.  <a href="#a4cfa39f01f7191feed56d856545e0def"></a><br/></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">art::Ptr&lt; simb::MCParticle &gt;&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classubcc1pi_1_1EventSelection.html#a95955812489ae97715672f15a28d286d">SelectMCParticleWithPdgCode</a> (const <a class="el" href="namespaceubcc1pi.html#a42e409a54246ea6acba6d873b8eb696c">MCParticleVector</a> &amp;mcParticles, const int pdgCode) const </td></tr>
 <tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">Select the MCParticle with the given PDG code (assumes each PDG is in the input vector at most once).  <a href="#a95955812489ae97715672f15a28d286d"></a><br/></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">float&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classubcc1pi_1_1EventSelection.html#a5678657d938a91e52c51f597460b2e03">GetTheta</a> (const art::Ptr&lt; simb::MCParticle &gt; &amp;mcParticle) const </td></tr>
@@ -226,7 +228,7 @@ window.onload = initDynSections;
   </dd>
 </dl>
 
-<p>Definition at line <a class="el" href="EventSelection__module_8cc_source.html#l00162">162</a> of file <a class="el" href="EventSelection__module_8cc_source.html">EventSelection_module.cc</a>.</p>
+<p>Definition at line <a class="el" href="EventSelection__module_8cc_source.html#l00176">176</a> of file <a class="el" href="EventSelection__module_8cc_source.html">EventSelection_module.cc</a>.</p>
 
 </div>
 </div>
@@ -313,7 +315,7 @@ window.onload = initDynSections;
   </dd>
 </dl>
 
-<p>Definition at line <a class="el" href="EventSelection__module_8cc_source.html#l00938">938</a> of file <a class="el" href="EventSelection__module_8cc_source.html">EventSelection_module.cc</a>.</p>
+<p>Definition at line <a class="el" href="EventSelection__module_8cc_source.html#l01001">1001</a> of file <a class="el" href="EventSelection__module_8cc_source.html">EventSelection_module.cc</a>.</p>
 
 </div>
 </div>
@@ -352,7 +354,7 @@ window.onload = initDynSections;
 </dl>
 <dl class="return"><dt><b>Returns:</b></dt><dd>the opening angle between the particles (radians) </dd></dl>
 
-<p>Definition at line <a class="el" href="EventSelection__module_8cc_source.html#l00386">386</a> of file <a class="el" href="EventSelection__module_8cc_source.html">EventSelection_module.cc</a>.</p>
+<p>Definition at line <a class="el" href="EventSelection__module_8cc_source.html#l00449">449</a> of file <a class="el" href="EventSelection__module_8cc_source.html">EventSelection_module.cc</a>.</p>
 
 </div>
 </div>
@@ -381,7 +383,7 @@ window.onload = initDynSections;
 </dl>
 <dl class="return"><dt><b>Returns:</b></dt><dd>the phi angle </dd></dl>
 
-<p>Definition at line <a class="el" href="EventSelection__module_8cc_source.html#l00379">379</a> of file <a class="el" href="EventSelection__module_8cc_source.html">EventSelection_module.cc</a>.</p>
+<p>Definition at line <a class="el" href="EventSelection__module_8cc_source.html#l00442">442</a> of file <a class="el" href="EventSelection__module_8cc_source.html">EventSelection_module.cc</a>.</p>
 
 </div>
 </div>
@@ -410,7 +412,7 @@ window.onload = initDynSections;
 </dl>
 <dl class="return"><dt><b>Returns:</b></dt><dd>the theta angle </dd></dl>
 
-<p>Definition at line <a class="el" href="EventSelection__module_8cc_source.html#l00372">372</a> of file <a class="el" href="EventSelection__module_8cc_source.html">EventSelection_module.cc</a>.</p>
+<p>Definition at line <a class="el" href="EventSelection__module_8cc_source.html#l00435">435</a> of file <a class="el" href="EventSelection__module_8cc_source.html">EventSelection_module.cc</a>.</p>
 
 </div>
 </div>
@@ -439,7 +441,7 @@ window.onload = initDynSections;
 </dl>
 <dl class="return"><dt><b>Returns:</b></dt><dd>the view represented by the plane mask </dd></dl>
 
-<p>Definition at line <a class="el" href="EventSelection__module_8cc_source.html#l00894">894</a> of file <a class="el" href="EventSelection__module_8cc_source.html">EventSelection_module.cc</a>.</p>
+<p>Definition at line <a class="el" href="EventSelection__module_8cc_source.html#l00957">957</a> of file <a class="el" href="EventSelection__module_8cc_source.html">EventSelection_module.cc</a>.</p>
 
 </div>
 </div>
@@ -468,7 +470,7 @@ window.onload = initDynSections;
 </dl>
 <dl class="return"><dt><b>Returns:</b></dt><dd>the YZ angle </dd></dl>
 
-<p>Definition at line <a class="el" href="EventSelection__module_8cc_source.html#l00615">615</a> of file <a class="el" href="EventSelection__module_8cc_source.html">EventSelection_module.cc</a>.</p>
+<p>Definition at line <a class="el" href="EventSelection__module_8cc_source.html#l00678">678</a> of file <a class="el" href="EventSelection__module_8cc_source.html">EventSelection_module.cc</a>.</p>
 
 </div>
 </div>
@@ -489,7 +491,7 @@ window.onload = initDynSections;
 
 <p>Reset the output branches for the next event. </p>
 
-<p>Definition at line <a class="el" href="EventSelection__module_8cc_source.html#l00174">174</a> of file <a class="el" href="EventSelection__module_8cc_source.html">EventSelection_module.cc</a>.</p>
+<p>Definition at line <a class="el" href="EventSelection__module_8cc_source.html#l00188">188</a> of file <a class="el" href="EventSelection__module_8cc_source.html">EventSelection_module.cc</a>.</p>
 
 </div>
 </div>
@@ -534,7 +536,7 @@ window.onload = initDynSections;
   </dd>
 </dl>
 
-<p>Definition at line <a class="el" href="EventSelection__module_8cc_source.html#l00347">347</a> of file <a class="el" href="EventSelection__module_8cc_source.html">EventSelection_module.cc</a>.</p>
+<p>Definition at line <a class="el" href="EventSelection__module_8cc_source.html#l00410">410</a> of file <a class="el" href="EventSelection__module_8cc_source.html">EventSelection_module.cc</a>.</p>
 
 </div>
 </div>
@@ -562,7 +564,7 @@ window.onload = initDynSections;
   </dd>
 </dl>
 
-<p>Definition at line <a class="el" href="EventSelection__module_8cc_source.html#l00692">692</a> of file <a class="el" href="EventSelection__module_8cc_source.html">EventSelection_module.cc</a>.</p>
+<p>Definition at line <a class="el" href="EventSelection__module_8cc_source.html#l00755">755</a> of file <a class="el" href="EventSelection__module_8cc_source.html">EventSelection_module.cc</a>.</p>
 
 </div>
 </div>
@@ -583,7 +585,7 @@ window.onload = initDynSections;
 
 <p>Set dummy calorimetry info for the current PFParticle. </p>
 
-<p>Definition at line <a class="el" href="EventSelection__module_8cc_source.html#l00622">622</a> of file <a class="el" href="EventSelection__module_8cc_source.html">EventSelection_module.cc</a>.</p>
+<p>Definition at line <a class="el" href="EventSelection__module_8cc_source.html#l00685">685</a> of file <a class="el" href="EventSelection__module_8cc_source.html">EventSelection_module.cc</a>.</p>
 
 </div>
 </div>
@@ -604,7 +606,7 @@ window.onload = initDynSections;
 
 <p>Set dummy PID info for the current PFParticle. </p>
 
-<p>Definition at line <a class="el" href="EventSelection__module_8cc_source.html#l00636">636</a> of file <a class="el" href="EventSelection__module_8cc_source.html">EventSelection_module.cc</a>.</p>
+<p>Definition at line <a class="el" href="EventSelection__module_8cc_source.html#l00699">699</a> of file <a class="el" href="EventSelection__module_8cc_source.html">EventSelection_module.cc</a>.</p>
 
 </div>
 </div>
@@ -625,7 +627,7 @@ window.onload = initDynSections;
 
 <p>Set dummy track info for the current PFParticle. </p>
 
-<p>Definition at line <a class="el" href="EventSelection__module_8cc_source.html#l00569">569</a> of file <a class="el" href="EventSelection__module_8cc_source.html">EventSelection_module.cc</a>.</p>
+<p>Definition at line <a class="el" href="EventSelection__module_8cc_source.html#l00632">632</a> of file <a class="el" href="EventSelection__module_8cc_source.html">EventSelection_module.cc</a>.</p>
 
 </div>
 </div>
@@ -653,7 +655,7 @@ window.onload = initDynSections;
   </dd>
 </dl>
 
-<p>Definition at line <a class="el" href="EventSelection__module_8cc_source.html#l00294">294</a> of file <a class="el" href="EventSelection__module_8cc_source.html">EventSelection_module.cc</a>.</p>
+<p>Definition at line <a class="el" href="EventSelection__module_8cc_source.html#l00321">321</a> of file <a class="el" href="EventSelection__module_8cc_source.html">EventSelection_module.cc</a>.</p>
 
 </div>
 </div>
@@ -712,7 +714,7 @@ window.onload = initDynSections;
   </dd>
 </dl>
 
-<p>Definition at line <a class="el" href="EventSelection__module_8cc_source.html#l00421">421</a> of file <a class="el" href="EventSelection__module_8cc_source.html">EventSelection_module.cc</a>.</p>
+<p>Definition at line <a class="el" href="EventSelection__module_8cc_source.html#l00484">484</a> of file <a class="el" href="EventSelection__module_8cc_source.html">EventSelection_module.cc</a>.</p>
 
 </div>
 </div>
@@ -740,7 +742,45 @@ window.onload = initDynSections;
   </dd>
 </dl>
 
-<p>Definition at line <a class="el" href="EventSelection__module_8cc_source.html#l00303">303</a> of file <a class="el" href="EventSelection__module_8cc_source.html">EventSelection_module.cc</a>.</p>
+<p>Definition at line <a class="el" href="EventSelection__module_8cc_source.html#l00330">330</a> of file <a class="el" href="EventSelection__module_8cc_source.html">EventSelection_module.cc</a>.</p>
+
+</div>
+</div>
+<a class="anchor" id="a4cfa39f01f7191feed56d856545e0def"></a><!-- doxytag: member="ubcc1pi::EventSelection::SetMCParticleInfo" ref="a4cfa39f01f7191feed56d856545e0def" args="(const MCParticleVector &amp;allMCParticles, const MCParticleVector &amp;reconstrutableFinalStates)" -->
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void ubcc1pi::EventSelection::SetMCParticleInfo </td>
+          <td>(</td>
+          <td class="paramtype">const <a class="el" href="namespaceubcc1pi.html#a42e409a54246ea6acba6d873b8eb696c">MCParticleVector</a> &amp;&nbsp;</td>
+          <td class="paramname"> <em>allMCParticles</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const <a class="el" href="namespaceubcc1pi.html#a42e409a54246ea6acba6d873b8eb696c">MCParticleVector</a> &amp;&nbsp;</td>
+          <td class="paramname"> <em>reconstrutableFinalStates</em></td><td>&nbsp;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td><td><code> [private]</code></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+
+<p>Set the information about all MCParticles in the event. </p>
+<dl><dt><b>Parameters:</b></dt><dd>
+  <table border="0" cellspacing="2" cellpadding="0">
+    <tr><td valign="top"></td><td valign="top"><em>allMCParticles</em>&nbsp;</td><td>all of the MCParticles in the event </td></tr>
+    <tr><td valign="top"></td><td valign="top"><em>reconstrutableFinalStates</em>&nbsp;</td><td>the final state MCParticles that pass the momentum thresholds </td></tr>
+  </table>
+  </dd>
+</dl>
+
+<p>Definition at line <a class="el" href="EventSelection__module_8cc_source.html#l00376">376</a> of file <a class="el" href="EventSelection__module_8cc_source.html">EventSelection_module.cc</a>.</p>
 
 </div>
 </div>
@@ -820,7 +860,7 @@ window.onload = initDynSections;
   </dd>
 </dl>
 
-<p>Definition at line <a class="el" href="EventSelection__module_8cc_source.html#l00459">459</a> of file <a class="el" href="EventSelection__module_8cc_source.html">EventSelection_module.cc</a>.</p>
+<p>Definition at line <a class="el" href="EventSelection__module_8cc_source.html#l00522">522</a> of file <a class="el" href="EventSelection__module_8cc_source.html">EventSelection_module.cc</a>.</p>
 
 </div>
 </div>
@@ -858,7 +898,7 @@ window.onload = initDynSections;
   </dd>
 </dl>
 
-<p>Definition at line <a class="el" href="EventSelection__module_8cc_source.html#l00509">509</a> of file <a class="el" href="EventSelection__module_8cc_source.html">EventSelection_module.cc</a>.</p>
+<p>Definition at line <a class="el" href="EventSelection__module_8cc_source.html#l00572">572</a> of file <a class="el" href="EventSelection__module_8cc_source.html">EventSelection_module.cc</a>.</p>
 
 </div>
 </div>
@@ -903,7 +943,7 @@ window.onload = initDynSections;
   </dd>
 </dl>
 
-<p>Definition at line <a class="el" href="EventSelection__module_8cc_source.html#l00554">554</a> of file <a class="el" href="EventSelection__module_8cc_source.html">EventSelection_module.cc</a>.</p>
+<p>Definition at line <a class="el" href="EventSelection__module_8cc_source.html#l00617">617</a> of file <a class="el" href="EventSelection__module_8cc_source.html">EventSelection_module.cc</a>.</p>
 
 </div>
 </div>
@@ -955,7 +995,7 @@ window.onload = initDynSections;
   </dd>
 </dl>
 
-<p>Definition at line <a class="el" href="EventSelection__module_8cc_source.html#l00746">746</a> of file <a class="el" href="EventSelection__module_8cc_source.html">EventSelection_module.cc</a>.</p>
+<p>Definition at line <a class="el" href="EventSelection__module_8cc_source.html#l00809">809</a> of file <a class="el" href="EventSelection__module_8cc_source.html">EventSelection_module.cc</a>.</p>
 
 </div>
 </div>
@@ -1035,7 +1075,7 @@ window.onload = initDynSections;
   </dd>
 </dl>
 
-<p>Definition at line <a class="el" href="EventSelection__module_8cc_source.html#l00915">915</a> of file <a class="el" href="EventSelection__module_8cc_source.html">EventSelection_module.cc</a>.</p>
+<p>Definition at line <a class="el" href="EventSelection__module_8cc_source.html#l00978">978</a> of file <a class="el" href="EventSelection__module_8cc_source.html">EventSelection_module.cc</a>.</p>
 
 </div>
 </div>
@@ -1063,7 +1103,7 @@ window.onload = initDynSections;
   </dd>
 </dl>
 
-<p>Definition at line <a class="el" href="EventSelection__module_8cc_source.html#l00395">395</a> of file <a class="el" href="EventSelection__module_8cc_source.html">EventSelection_module.cc</a>.</p>
+<p>Definition at line <a class="el" href="EventSelection__module_8cc_source.html#l00458">458</a> of file <a class="el" href="EventSelection__module_8cc_source.html">EventSelection_module.cc</a>.</p>
 
 </div>
 </div>
@@ -1101,7 +1141,7 @@ window.onload = initDynSections;
   </dd>
 </dl>
 
-<p>Definition at line <a class="el" href="EventSelection__module_8cc_source.html#l00590">590</a> of file <a class="el" href="EventSelection__module_8cc_source.html">EventSelection_module.cc</a>.</p>
+<p>Definition at line <a class="el" href="EventSelection__module_8cc_source.html#l00653">653</a> of file <a class="el" href="EventSelection__module_8cc_source.html">EventSelection_module.cc</a>.</p>
 
 </div>
 </div>
@@ -1129,7 +1169,7 @@ window.onload = initDynSections;
   </dd>
 </dl>
 
-<p>Definition at line <a class="el" href="EventSelection__module_8cc_source.html#l00966">966</a> of file <a class="el" href="EventSelection__module_8cc_source.html">EventSelection_module.cc</a>.</p>
+<p>Definition at line <a class="el" href="EventSelection__module_8cc_source.html#l01029">1029</a> of file <a class="el" href="EventSelection__module_8cc_source.html">EventSelection_module.cc</a>.</p>
 
 </div>
 </div>
@@ -1147,7 +1187,7 @@ window.onload = initDynSections;
 
 <p>The FHiCL configuration options. </p>
 
-<p>Definition at line <a class="el" href="EventSelection_8h_source.html#l00484">484</a> of file <a class="el" href="EventSelection_8h_source.html">EventSelection.h</a>.</p>
+<p>Definition at line <a class="el" href="EventSelection_8h_source.html#l00518">518</a> of file <a class="el" href="EventSelection_8h_source.html">EventSelection.h</a>.</p>
 
 </div>
 </div>
@@ -1164,7 +1204,7 @@ window.onload = initDynSections;
 
 <p>The output event-level object. </p>
 
-<p>Definition at line <a class="el" href="EventSelection_8h_source.html#l00487">487</a> of file <a class="el" href="EventSelection_8h_source.html">EventSelection.h</a>.</p>
+<p>Definition at line <a class="el" href="EventSelection_8h_source.html#l00521">521</a> of file <a class="el" href="EventSelection_8h_source.html">EventSelection.h</a>.</p>
 
 </div>
 </div>
@@ -1181,7 +1221,7 @@ window.onload = initDynSections;
 
 <p>The output tree for all event level data. </p>
 
-<p>Definition at line <a class="el" href="EventSelection_8h_source.html#l00486">486</a> of file <a class="el" href="EventSelection_8h_source.html">EventSelection.h</a>.</p>
+<p>Definition at line <a class="el" href="EventSelection_8h_source.html#l00520">520</a> of file <a class="el" href="EventSelection_8h_source.html">EventSelection.h</a>.</p>
 
 </div>
 </div>
@@ -1207,7 +1247,7 @@ window.onload = initDynSections;
 <hr size="1"/>
 <address style="text-align: right;">
     <small>
-        Generated on Wed Jul 3 14:31:18 2019 for ubcc1pi by <a href="http://www.doxygen.org/index.html" target="_blank">doxygen</a> 1.6.1
+        Generated on Wed Jul 3 16:11:48 2019 for ubcc1pi by <a href="http://www.doxygen.org/index.html" target="_blank">doxygen</a> 1.6.1
     </small>
 </address>
 

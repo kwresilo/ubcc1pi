@@ -131,7 +131,33 @@ class EventSelection : public art::EDAnalyzer
             float        m_truePiPhi;                                      ///< The true pion phi
                                                                            
             float        m_trueMuPiAngle;                                  ///< The muon-pion opening angle
-                                                                           
+            
+            // MCParticles
+            int                            m_nMCParticles;                 ///< The number of MCParticles
+            std::vector<int>               m_mcpIdVect;                    ///< The unique ID of the MCParticle
+            std::vector<int>               m_mcpPDGVect;                   ///< The PDG code of the MCParticle
+            std::vector<bool>              m_mcpIsTargetFinalStateVect;    ///< If the MCParticle is a neutrino final state passing the reconstructability momentum thresholds
+            std::vector<std::string>       m_mcpProcessVect;               ///< The process name
+            std::vector<int>               m_mcpMotherIdVect;              ///< The unique ID of the mother of the MCParticle
+            std::vector<int>               m_mcpNDaughtersVect;            ///< The number of daughter MCParticles
+            std::vector<std::vector<int> > m_mcpDaughterIdsVect;           ///< The unique IDs of the daughter MCParticles
+            std::vector<float>             m_mcpEnergyVect;                ///< The energy of the MCParticle
+            std::vector<float>             m_mcpMomentumVect;              ///< The total momentum of the MCParticle
+            std::vector<float>             m_mcpMomentumXVect;             ///< The momentum of the MCParticle - X
+            std::vector<float>             m_mcpMomentumYVect;             ///< The momentum of the MCParticle - Y
+            std::vector<float>             m_mcpMomentumZVect;             ///< The momentum of the MCParticle - Z
+
+            // TODO Fill in the MCParticle -> Hit variables by updating the backtracker helper
+            /*
+            std::vector<int>               m_mcpNHitsUVect;                ///< The number of reconstructed hits that this MCParticle contributed to - U view
+            std::vector<int>               m_mcpNHitsVVect;                ///< The number of reconstructed hits that this MCParticle contributed to - V view
+            std::vector<int>               m_mcpNHitsWVect;                ///< The number of reconstructed hits that this MCParticle contributed to - W view
+            std::vector<float>             m_mcpNHitsUWeightVect;          ///< Same as NHits but weighted by the fraction of the hit's charge that came from this MCParticle - U view
+            std::vector<float>             m_mcpNHitsVWeightVect;          ///< Same as NHits but weighted by the fraction of the hit's charge that came from this MCParticle - V view
+            std::vector<float>             m_mcpNHitsWWeightVect;          ///< Same as NHits but weighted by the fraction of the hit's charge that came from this MCParticle - W view
+            std::vector<bool>              m_mcpIsReconstructable;         ///< If the MCParticle is deemed reconstructable based on how many hits it contributes to
+            */
+
             // Reconstructed information                                   
             bool                   m_hasRecoNeutrino;                      ///< If the event has a reconstructed neutrino
             TVector3               m_recoNuVtx;                            ///< The SCE corrected reco neutrino vertex position
@@ -297,6 +323,14 @@ class EventSelection : public art::EDAnalyzer
          *  @param  event the art event
          */
         void SetEventTruthInfo(const art::Event &event);
+
+        /**
+         *  @brief  Set the information about all MCParticles in the event
+         *
+         *  @param  allMCParticles all of the MCParticles in the event
+         *  @param  reconstrutableFinalStates the final state MCParticles that pass the momentum thresholds
+         */
+        void SetMCParticleInfo(const MCParticleVector &allMCParticles, const MCParticleVector &reconstrutableFinalStates);
 
         /**
          *  @brief  Select the MCParticle with the given PDG code (assumes each PDG is in the input vector at most once)
