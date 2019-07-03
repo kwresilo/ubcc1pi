@@ -65,6 +65,8 @@ EventSelection::EventSelection(const art::EDAnalyzer::Table<Config> &config) :
     m_pEventTree->Branch("truePdgCodeVect", &m_outputEvent.m_truePdgCodeVect);
     m_pEventTree->Branch("truthMatchCompletenessVect", &m_outputEvent.m_truthMatchCompletenessVect);
     m_pEventTree->Branch("truthMatchPurityVect", &m_outputEvent.m_truthMatchPurityVect);
+    m_pEventTree->Branch("trueEnergyVect", &m_outputEvent.m_trueEnergyVect);
+    m_pEventTree->Branch("trueKEVect", &m_outputEvent.m_trueKEVect);
     m_pEventTree->Branch("trueMomentumXVect", &m_outputEvent.m_trueMomentumXVect);
     m_pEventTree->Branch("trueMomentumYVect", &m_outputEvent.m_trueMomentumYVect);
     m_pEventTree->Branch("trueMomentumZVect", &m_outputEvent.m_trueMomentumZVect);
@@ -197,6 +199,8 @@ void EventSelection::ResetEventTree()
     m_outputEvent.m_truePdgCodeVect.clear();
     m_outputEvent.m_truthMatchCompletenessVect.clear();
     m_outputEvent.m_truthMatchPurityVect.clear();
+    m_outputEvent.m_trueEnergyVect.clear();
+    m_outputEvent.m_trueKEVect.clear();
     m_outputEvent.m_trueMomentumXVect.clear();
     m_outputEvent.m_trueMomentumYVect.clear();
     m_outputEvent.m_trueMomentumZVect.clear();
@@ -476,6 +480,8 @@ void EventSelection::SetPFParticleMCParticleMatchInfo(const art::Ptr<recob::PFPa
     int truePdgCode = -std::numeric_limits<int>::max();
     float truthMatchCompleteness = -std::numeric_limits<float>::max();
     float truthMatchPurity = -std::numeric_limits<float>::max();
+    float trueEnergy = -std::numeric_limits<float>::max();
+    float trueKE = -std::numeric_limits<float>::max();
     TVector3 trueMomentum = TVector3(-std::numeric_limits<float>::max(), -std::numeric_limits<float>::max(), -std::numeric_limits<float>::max());
     TVector3 trueStart = TVector3(-std::numeric_limits<float>::max(), -std::numeric_limits<float>::max(), -std::numeric_limits<float>::max());
 
@@ -487,6 +493,8 @@ void EventSelection::SetPFParticleMCParticleMatchInfo(const art::Ptr<recob::PFPa
         truePdgCode = matchedMCP->PdgCode();
         truthMatchCompleteness = backtrackerData.GetMatchCompleteness(finalState, matchedMCP);
         truthMatchPurity = backtrackerData.GetMatchPurity(finalState, matchedMCP);
+        trueEnergy = matchedMCP->E();
+        trueKE = matchedMCP->E() - matchedMCP->Mass();
         trueMomentum = TVector3(matchedMCP->Px(), matchedMCP->Py(), matchedMCP->Pz());
         trueStart = TVector3(matchedMCP->Vx(), matchedMCP->Vy(), matchedMCP->Vz());
         hasMatchedMCParticle = true;
@@ -499,6 +507,8 @@ void EventSelection::SetPFParticleMCParticleMatchInfo(const art::Ptr<recob::PFPa
     m_outputEvent.m_truePdgCodeVect.push_back(truePdgCode);
     m_outputEvent.m_truthMatchCompletenessVect.push_back(truthMatchCompleteness);
     m_outputEvent.m_truthMatchPurityVect.push_back(truthMatchPurity);
+    m_outputEvent.m_trueEnergyVect.push_back(trueEnergy);
+    m_outputEvent.m_trueKEVect.push_back(trueKE);
     m_outputEvent.m_trueMomentumXVect.push_back(trueMomentum.X());
     m_outputEvent.m_trueMomentumYVect.push_back(trueMomentum.Y());
     m_outputEvent.m_trueMomentumZVect.push_back(trueMomentum.Z());
@@ -867,6 +877,8 @@ void EventSelection::ValidateOutputVectorSizes(const unsigned int index) const
         m_outputEvent.m_truePdgCodeVect.size() != expectedSize ||
         m_outputEvent.m_truthMatchCompletenessVect.size() != expectedSize ||
         m_outputEvent.m_truthMatchPurityVect.size() != expectedSize ||
+        m_outputEvent.m_trueEnergyVect.size() != expectedSize ||
+        m_outputEvent.m_trueKEVect.size() != expectedSize ||
         m_outputEvent.m_trueMomentumXVect.size() != expectedSize ||
         m_outputEvent.m_trueMomentumYVect.size() != expectedSize ||
         m_outputEvent.m_trueMomentumZVect.size() != expectedSize ||

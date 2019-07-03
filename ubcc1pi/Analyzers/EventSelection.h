@@ -140,6 +140,8 @@ class EventSelection : public art::EDAnalyzer
             std::vector<int>       m_truePdgCodeVect;                      ///< The best matched MCParticles PDG code
             std::vector<float>     m_truthMatchCompletenessVect;           ///< The completeness of the match
             std::vector<float>     m_truthMatchPurityVect;                 ///< The purity of the match
+            std::vector<float>     m_trueEnergyVect;                       ///< The true energy of the particle
+            std::vector<float>     m_trueKEVect;                           ///< The true kinetic energy of the particle
             std::vector<float>     m_trueMomentumXVect;                    ///< The true momentum of the particle - X
             std::vector<float>     m_trueMomentumYVect;                    ///< The true momentum of the particle - Y
             std::vector<float>     m_trueMomentumZVect;                    ///< The true momentum of the particle - Z
