@@ -50,5 +50,6 @@ physics.producers.pandoraAllAsTrackCaliPidSCE.ProducerLabels.CalorimetryLabel: "
 physics.producers.pandoraAllAsTrackCaliPidSCE.ProducerLabels.HitTrackAssn:     "pandoraAllAsTrack"
 physics.producers.pandoraAllAsTrackCaliPidSCE.ProducerLabels.TrackLabel:       "pandoraAllAsTrack"
 
-physics.analyzers.eventSelection.TrackLabel: "pandoraAllAsTrack"
-physics.analyzers.eventSelection.PIDLabel:   "pandoraAllAsTrackCaliPidSCE"
+physics.analyzers.eventSelection.TrackLabel:         "pandoraAllAsTrack"
+physics.analyzers.eventSelection.CalorimetryLabel:   "pandoraAllAsTrackCaliSCE"
+physics.analyzers.eventSelection.PIDLabel:           "pandoraAllAsTrackCaliPidSCE"

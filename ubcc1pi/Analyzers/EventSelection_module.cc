@@ -93,6 +93,14 @@ EventSelection::EventSelection(const art::EDAnalyzer::Table<Config> &config) :
     m_pEventTree->Branch("nHitsVVect", &m_outputEvent.m_nHitsVVect);
     m_pEventTree->Branch("nHitsWVect", &m_outputEvent.m_nHitsWVect);
     m_pEventTree->Branch("trackShowerVect", &m_outputEvent.m_trackShowerVect);
+            
+    m_pEventTree->Branch("hasCalorimetryInfoVect", &m_outputEvent.m_hasCalorimetryInfoVect);
+    m_pEventTree->Branch("dedxPerHitUVect", &m_outputEvent.m_dedxPerHitUVect);
+    m_pEventTree->Branch("dedxPerHitVVect", &m_outputEvent.m_dedxPerHitVVect);
+    m_pEventTree->Branch("dedxPerHitWVect", &m_outputEvent.m_dedxPerHitWVect);
+    m_pEventTree->Branch("residualRangePerHitUVect", &m_outputEvent.m_residualRangePerHitUVect);
+    m_pEventTree->Branch("residualRangePerHitVVect", &m_outputEvent.m_residualRangePerHitVVect);
+    m_pEventTree->Branch("residualRangePerHitWVect", &m_outputEvent.m_residualRangePerHitWVect);
 
     m_pEventTree->Branch("hasPIDInfoVect", &m_outputEvent.m_hasPIDInfoVect);
 
@@ -224,6 +232,13 @@ void EventSelection::ResetEventTree()
     m_outputEvent.m_yzAngleVect.clear();
     m_outputEvent.m_lengthVect.clear();
     m_outputEvent.m_isContainedVect.clear();
+    m_outputEvent.m_hasCalorimetryInfoVect.clear();
+    m_outputEvent.m_dedxPerHitUVect.clear();
+    m_outputEvent.m_dedxPerHitVVect.clear();
+    m_outputEvent.m_dedxPerHitWVect.clear();
+    m_outputEvent.m_residualRangePerHitUVect.clear();
+    m_outputEvent.m_residualRangePerHitVVect.clear();
+    m_outputEvent.m_residualRangePerHitWVect.clear();
     m_outputEvent.m_hasPIDInfoVect.clear();
     m_outputEvent.m_isWChi2pAvailableVect.clear();
     m_outputEvent.m_chi2pWVect.clear();
@@ -381,6 +396,7 @@ void EventSelection::SetRecoInfo(const art::Event &event)
     const auto finalStates = RecoHelper::GetNeutrinoFinalStates(allPFParticles); 
     const auto pfpToTracks = CollectionHelper::GetAssociation<recob::PFParticle, recob::Track>(event, m_config().PFParticleLabel(), m_config().TrackLabel());
     const auto trackToPIDs = CollectionHelper::GetAssociation<recob::Track, anab::ParticleID>(event, m_config().TrackLabel(), m_config().PIDLabel());
+    const auto trackToCalorimetries = CollectionHelper::GetAssociation<recob::Track, anab::Calorimetry>(event, m_config().TrackLabel(), m_config().CalorimetryLabel());
     const auto pfpToMetadata = CollectionHelper::GetAssociation<recob::PFParticle, larpandoraobj::PFParticleMetadata>(event, m_config().PFParticleLabel());
     const auto pSpaceChargeService = RecoHelper::GetSpaceChargeService();
 
@@ -392,7 +408,7 @@ void EventSelection::SetRecoInfo(const art::Event &event)
 
     {
         const auto &finalState = finalStates.at(i);
-        this->SetPFParticleInfo(i, finalState, backtrackerData, pfpToTracks, trackToPIDs, pfpToMetadata, pSpaceChargeService);
+        this->SetPFParticleInfo(i, finalState, backtrackerData, pfpToTracks, trackToPIDs, trackToCalorimetries, pfpToMetadata, pSpaceChargeService);
     }
 }
 
@@ -436,7 +452,7 @@ void EventSelection::SetEventRecoInfo(const art::Event &event, const PFParticleV
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
 
-void EventSelection::SetPFParticleInfo(const unsigned int index, const art::Ptr<recob::PFParticle> &finalState, const BacktrackHelper::BacktrackerData &backtrackerData, const Association<recob::PFParticle, recob::Track> &pfpToTracks, const Association<recob::Track, anab::ParticleID> &trackToPIDs, const Association<recob::PFParticle, larpandoraobj::PFParticleMetadata> &pfpToMetadata, const spacecharge::SpaceChargeService::provider_type *const pSpaceChargeService)
+void EventSelection::SetPFParticleInfo(const unsigned int index, const art::Ptr<recob::PFParticle> &finalState, const BacktrackHelper::BacktrackerData &backtrackerData, const Association<recob::PFParticle, recob::Track> &pfpToTracks, const Association<recob::Track, anab::ParticleID> &trackToPIDs, const Association<recob::Track, anab::Calorimetry> &trackToCalorimetries, const Association<recob::PFParticle, larpandoraobj::PFParticleMetadata> &pfpToMetadata, const spacecharge::SpaceChargeService::provider_type *const pSpaceChargeService)
 {
     this->SetPFParticleMCParticleMatchInfo(finalState, backtrackerData);
     this->SetPFParticlePandoraInfo(finalState, backtrackerData, pfpToMetadata);
@@ -449,6 +465,7 @@ void EventSelection::SetPFParticleInfo(const unsigned int index, const art::Ptr<
     {
         this->SetDummyTrackInfo();
         this->SetDummyPIDInfo();
+        this->SetDummyCalorimetryInfo();
     }
     else
     {
@@ -457,6 +474,17 @@ void EventSelection::SetPFParticleInfo(const unsigned int index, const art::Ptr<
         this->SetTrackInfo(track, pSpaceChargeService);
         const auto yzAngle = m_outputEvent.m_yzAngleVect.back();
 
+        // Set the Calorimetry info if it's available
+        if (!CollectionHelper::HasAssociated(track, trackToCalorimetries))
+        {
+            this->SetDummyCalorimetryInfo();
+        }
+        else
+        {
+            const auto calos = CollectionHelper::GetManyAssociated(track, trackToCalorimetries);
+            this->SetCalorimetryInfo(calos);
+        }
+        
         // Set the PID info if it's available
         if (!CollectionHelper::HasAssociated(track, trackToPIDs))
         {
@@ -582,6 +610,20 @@ float EventSelection::GetYZAngle(const TVector3 &dir)
 }
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
+    
+void EventSelection::SetDummyCalorimetryInfo()
+{
+    const std::vector<float> dummy;
+    m_outputEvent.m_hasCalorimetryInfoVect.push_back(false);
+    m_outputEvent.m_dedxPerHitUVect.push_back(dummy);
+    m_outputEvent.m_dedxPerHitVVect.push_back(dummy);
+    m_outputEvent.m_dedxPerHitWVect.push_back(dummy);
+    m_outputEvent.m_residualRangePerHitUVect.push_back(dummy);
+    m_outputEvent.m_residualRangePerHitVVect.push_back(dummy);
+    m_outputEvent.m_residualRangePerHitWVect.push_back(dummy);
+}
+
+// -----------------------------------------------------------------------------------------------------------------------------------------
 
 void EventSelection::SetDummyPIDInfo()
 {
@@ -635,6 +677,60 @@ void EventSelection::SetDummyPIDInfo()
     m_outputEvent.m_braggRatioWVect.push_back(-std::numeric_limits<float>::max());
     m_outputEvent.m_isUVBraggRatioAvailableVect.push_back(false);
     m_outputEvent.m_braggRatioUVVect.push_back(-std::numeric_limits<float>::max());
+}
+
+// -----------------------------------------------------------------------------------------------------------------------------------------
+    
+void EventSelection::SetCalorimetryInfo(const CalorimetryVector &calos)
+{
+    if (calos.empty())
+        throw cet::exception("EventSelection::SetCalorimetryInfo") << " - Input vector of calorimetry objects is empty!" << std::endl;
+
+    std::vector<float> dedxPerHitU, dedxPerHitV, dedxPerHitW;
+    std::vector<float> residualRangePerHitU, residualRangePerHitV, residualRangePerHitW;
+
+    for (const auto &calo : calos)
+    {
+        switch (calo->PlaneID().Plane)
+        {
+            case 0:
+                if (!dedxPerHitU.empty() || !residualRangePerHitU.empty())
+                    throw cet::exception("EventSelection::SetCalorimetryInfo") << " - Multiple input calorimetry objects in plane 0 (U)" << std::endl;
+
+                dedxPerHitU = calo->dEdx();
+                residualRangePerHitU = calo->ResidualRange();
+
+                break;
+            case 1:
+                if (!dedxPerHitV.empty() || !residualRangePerHitV.empty())
+                    throw cet::exception("EventSelection::SetCalorimetryInfo") << " - Multiple input calorimetry objects in plane 1 (V)" << std::endl;
+                
+                dedxPerHitV = calo->dEdx();
+                residualRangePerHitV = calo->ResidualRange();
+
+                break;
+            case 2:
+                if (!dedxPerHitW.empty() || !residualRangePerHitW.empty())
+                    throw cet::exception("EventSelection::SetCalorimetryInfo") << " - Multiple input calorimetry objects in plane 2 (W)" << std::endl;
+                
+                dedxPerHitW = calo->dEdx();
+                residualRangePerHitW = calo->ResidualRange();
+
+                break;
+            default: break;
+        }
+    }
+
+    if (dedxPerHitU.size() != residualRangePerHitU.size() || dedxPerHitV.size() != residualRangePerHitV.size() || dedxPerHitW.size() != residualRangePerHitW.size())
+        throw cet::exception("EventSelection::SetCalorimetryInfo") << " - Invalid calorimetry object, different number of dedx and residual range points" << std::endl;
+
+    m_outputEvent.m_hasCalorimetryInfoVect.push_back(true);
+    m_outputEvent.m_dedxPerHitUVect.push_back(dedxPerHitU);
+    m_outputEvent.m_dedxPerHitVVect.push_back(dedxPerHitV);
+    m_outputEvent.m_dedxPerHitWVect.push_back(dedxPerHitW);
+    m_outputEvent.m_residualRangePerHitUVect.push_back(residualRangePerHitU);
+    m_outputEvent.m_residualRangePerHitVVect.push_back(residualRangePerHitV);
+    m_outputEvent.m_residualRangePerHitWVect.push_back(residualRangePerHitW);
 }
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
@@ -901,6 +997,14 @@ void EventSelection::ValidateOutputVectorSizes(const unsigned int index) const
         m_outputEvent.m_yzAngleVect.size() != expectedSize ||
         m_outputEvent.m_lengthVect.size() != expectedSize ||
         m_outputEvent.m_isContainedVect.size() != expectedSize ||
+        m_outputEvent.m_hasCalorimetryInfoVect.size() != expectedSize ||
+        m_outputEvent.m_dedxPerHitUVect.size() != expectedSize ||
+        m_outputEvent.m_dedxPerHitVVect.size() != expectedSize ||
+        m_outputEvent.m_dedxPerHitWVect.size() != expectedSize ||
+        m_outputEvent.m_residualRangePerHitUVect.size() != expectedSize ||
+        m_outputEvent.m_residualRangePerHitVVect.size() != expectedSize ||
+        m_outputEvent.m_residualRangePerHitWVect.size() != expectedSize ||
+        m_outputEvent.m_hasPIDInfoVect.size() != expectedSize ||
         m_outputEvent.m_isWChi2pAvailableVect.size() != expectedSize ||
         m_outputEvent.m_chi2pWVect.size() != expectedSize ||
         m_outputEvent.m_isUChi2pAvailableVect.size() != expectedSize ||

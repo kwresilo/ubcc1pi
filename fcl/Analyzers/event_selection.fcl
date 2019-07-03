@@ -10,6 +10,7 @@ event_selection:
     BacktrackerLabel:  "gaushitTruthMatch"
     PFParticleLabel:   "pandora"
     TrackLabel:        "pandora"
+    CalorimetryLabel:  "pandoracaliSCE"
     PIDLabel:          "pandoracalipidSCE"
     Sin2YZAngleCut:     0.175
     ContainmentBorder:  5

@@ -65,6 +65,12 @@ class EventSelection : public art::EDAnalyzer
                 fhicl::Comment("The label for the Track producer")
             };
             
+            fhicl::Atom<art::InputTag> CalorimetryLabel
+            {
+                fhicl::Name("CalorimetryLabel"),
+                fhicl::Comment("The label for the calorimetry producer")
+            };
+            
             fhicl::Atom<art::InputTag> PIDLabel
             {
                 fhicl::Name("PIDLabel"),
@@ -169,7 +175,17 @@ class EventSelection : public art::EDAnalyzer
             std::vector<float>     m_yzAngleVect;                          ///< The reconstructed angle in the YZ plane to the vertical
             std::vector<float>     m_lengthVect;                           ///< The reconstructed length
             std::vector<bool>      m_isContainedVect;                      ///< If the particle is contained within the detector
-                                                                           
+
+            // Calorimetry info
+            std::vector<bool>                m_hasCalorimetryInfoVect;     ///< If the PFParticle has an associated Calorimetry object
+            std::vector<std::vector<float> > m_dedxPerHitUVect;            ///< The dEdx at each hit point along the tracjectory in the U plane
+            std::vector<std::vector<float> > m_dedxPerHitVVect;            ///< The dEdx at each hit point along the tracjectory in the V plane
+            std::vector<std::vector<float> > m_dedxPerHitWVect;            ///< The dEdx at each hit point along the tracjectory in the W plane
+            std::vector<std::vector<float> > m_residualRangePerHitUVect;   ///< The residual range at each hit point along the tracjectory in the U plane
+            std::vector<std::vector<float> > m_residualRangePerHitVVect;   ///< The residual range at each hit point along the tracjectory in the V plane
+            std::vector<std::vector<float> > m_residualRangePerHitWVect;   ///< The residual range at each hit point along the tracjectory in the W plane
+
+            // PID info
             std::vector<bool>      m_hasPIDInfoVect;                       ///< If the PFParticle has an associated PID object
 
             // Chi2 proton
@@ -345,10 +361,11 @@ class EventSelection : public art::EDAnalyzer
          *  @param  backtrackerData the backtracking data
          *  @param  pfpToTracks the mapping from PFParticles to Tracks
          *  @param  trackToPIDs the mapping from Tracks to PID
+         *  @param  trackToCalorimetries the mapping from Tracks to Calorimetry
          *  @param  pfpToMetadata the mapping from PFParticles to metadata
          *  @param  pSpaceChargeService the space charge service
          */
-        void SetPFParticleInfo(const unsigned int index, const art::Ptr<recob::PFParticle> &finalState, const BacktrackHelper::BacktrackerData &backtrackerData, const Association<recob::PFParticle, recob::Track> &pfpToTracks, const Association<recob::Track, anab::ParticleID> &trackToPIDs, const Association<recob::PFParticle, larpandoraobj::PFParticleMetadata> &pfpToMetadata, const spacecharge::SpaceChargeService::provider_type *const pSpaceChargeService);
+        void SetPFParticleInfo(const unsigned int index, const art::Ptr<recob::PFParticle> &finalState, const BacktrackHelper::BacktrackerData &backtrackerData, const Association<recob::PFParticle, recob::Track> &pfpToTracks, const Association<recob::Track, anab::ParticleID> &trackToPIDs, const Association<recob::Track, anab::Calorimetry> &trackToCalorimetries, const Association<recob::PFParticle, larpandoraobj::PFParticleMetadata> &pfpToMetadata, const spacecharge::SpaceChargeService::provider_type *const pSpaceChargeService);
 
         /**
          *  @brief  Set the MCParticle matching info for the current PFParticle to the output branches
@@ -390,12 +407,24 @@ class EventSelection : public art::EDAnalyzer
         float GetYZAngle(const TVector3 &dir);
 
         /**
+         *  @brief  Set dummy calorimetry info for the current PFParticle
+         */
+        void SetDummyCalorimetryInfo();
+
+        /**
+         *  @brief  Set the calorimetry info for the current PFParticle
+         *
+         *  @param  calos the input vector of calorimetry object
+         */
+        void SetCalorimetryInfo(const CalorimetryVector &calos);
+
+        /**
          *  @brief  Set dummy PID info for the current PFParticle
          */
         void SetDummyPIDInfo();
 
         /**
-         *  @brief  Set the PID info for the currenct PFParticle
+         *  @brief  Set the PID info for the current PFParticle
          *
          *  @param  pid the PID to output
          *  @param  yzAngle the yz angle of the track
