@@ -168,7 +168,8 @@ class EventSelection : public art::EDAnalyzer
             int                    m_nFinalStatePFPs;                      ///< The number of reconstructed final state PFParticles
             
             // Truth matching
-            std::vector<bool>      m_hasMatchedMCParticleVect;             ///< If the particles have a matched MCParticle 
+            std::vector<bool>      m_hasMatchedMCParticleVect;             ///< If the particles have a matched MCParticle
+            std::vector<int>       m_matchedMCParticleIdVect;              ///< The ID of the matched MCParticle
             std::vector<int>       m_truePdgCodeVect;                      ///< The best matched MCParticles PDG code
             std::vector<float>     m_truthMatchCompletenessVect;           ///< The completeness of the match
             std::vector<float>     m_truthMatchPurityVect;                 ///< The purity of the match

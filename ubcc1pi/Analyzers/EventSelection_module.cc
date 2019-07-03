@@ -76,6 +76,7 @@ EventSelection::EventSelection(const art::EDAnalyzer::Table<Config> &config) :
     m_pEventTree->Branch("nFinalStatePFPs", &m_outputEvent.m_nFinalStatePFPs);
 
     m_pEventTree->Branch("hasMatchedMCParticleVect", &m_outputEvent.m_hasMatchedMCParticleVect);
+    m_pEventTree->Branch("matchedMCParticleIdVect", &m_outputEvent.m_matchedMCParticleIdVect);
     m_pEventTree->Branch("truePdgCodeVect", &m_outputEvent.m_truePdgCodeVect);
     m_pEventTree->Branch("truthMatchCompletenessVect", &m_outputEvent.m_truthMatchCompletenessVect);
     m_pEventTree->Branch("truthMatchPurityVect", &m_outputEvent.m_truthMatchPurityVect);
@@ -233,6 +234,7 @@ void EventSelection::ResetEventTree()
     m_outputEvent.m_topologicalScore = -std::numeric_limits<float>::max();
     m_outputEvent.m_nFinalStatePFPs = -std::numeric_limits<int>::max();
     m_outputEvent.m_hasMatchedMCParticleVect.clear();
+    m_outputEvent.m_matchedMCParticleIdVect.clear();
     m_outputEvent.m_truePdgCodeVect.clear();
     m_outputEvent.m_truthMatchCompletenessVect.clear();
     m_outputEvent.m_truthMatchPurityVect.clear();
@@ -572,6 +574,7 @@ void EventSelection::SetPFParticleInfo(const unsigned int index, const art::Ptr<
 void EventSelection::SetPFParticleMCParticleMatchInfo(const art::Ptr<recob::PFParticle> &finalState, const BacktrackHelper::BacktrackerData &backtrackerData)
 {
     bool hasMatchedMCParticle = false;
+    int matchedMCParticleId = -std::numeric_limits<int>::max();
     int truePdgCode = -std::numeric_limits<int>::max();
     float truthMatchCompleteness = -std::numeric_limits<float>::max();
     float truthMatchPurity = -std::numeric_limits<float>::max();
@@ -585,6 +588,7 @@ void EventSelection::SetPFParticleMCParticleMatchInfo(const art::Ptr<recob::PFPa
         // ATTN this is the line that would throw if the PFParticle doesn't match to any MCParticle
         const auto matchedMCP = backtrackerData.GetBestMatchedMCParticle(finalState);
 
+        matchedMCParticleId = matchedMCP->TrackId();
         truePdgCode = matchedMCP->PdgCode();
         truthMatchCompleteness = backtrackerData.GetMatchCompleteness(finalState, matchedMCP);
         truthMatchPurity = backtrackerData.GetMatchPurity(finalState, matchedMCP);
@@ -599,6 +603,7 @@ void EventSelection::SetPFParticleMCParticleMatchInfo(const art::Ptr<recob::PFPa
     }
 
     m_outputEvent.m_hasMatchedMCParticleVect.push_back(hasMatchedMCParticle);
+    m_outputEvent.m_matchedMCParticleIdVect.push_back(matchedMCParticleId);
     m_outputEvent.m_truePdgCodeVect.push_back(truePdgCode);
     m_outputEvent.m_truthMatchCompletenessVect.push_back(truthMatchCompleteness);
     m_outputEvent.m_truthMatchPurityVect.push_back(truthMatchPurity);
@@ -1041,6 +1046,7 @@ void EventSelection::ValidateOutputVectorSizes(const unsigned int index) const
         throw cet::exception("EventSelection::ValidateOutputVectorSizes") << " - Particle index out of range: " << expectedSize << " / " << m_outputEvent.m_nFinalStatePFPs << std::endl;
 
     if (m_outputEvent.m_hasMatchedMCParticleVect.size() != expectedSize ||
+        m_outputEvent.m_matchedMCParticleIdVect.size() != expectedSize ||
         m_outputEvent.m_truePdgCodeVect.size() != expectedSize ||
         m_outputEvent.m_truthMatchCompletenessVect.size() != expectedSize ||
         m_outputEvent.m_truthMatchPurityVect.size() != expectedSize ||
