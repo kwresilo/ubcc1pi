@@ -85,6 +85,8 @@ EventSelection::EventSelection(const art::EDAnalyzer::Table<Config> &config) :
     m_pEventTree->Branch("directionXVect", &m_outputEvent.m_directionXVect);
     m_pEventTree->Branch("directionYVect", &m_outputEvent.m_directionYVect);
     m_pEventTree->Branch("directionZVect", &m_outputEvent.m_directionZVect);
+    m_pEventTree->Branch("thetaVect", &m_outputEvent.m_thetaVect);
+    m_pEventTree->Branch("phiVect", &m_outputEvent.m_phiVect);
     m_pEventTree->Branch("yzAngleVect", &m_outputEvent.m_yzAngleVect);
     m_pEventTree->Branch("lengthVect", &m_outputEvent.m_lengthVect);
     m_pEventTree->Branch("isContainedVect", &m_outputEvent.m_isContainedVect);
@@ -229,6 +231,8 @@ void EventSelection::ResetEventTree()
     m_outputEvent.m_directionXVect.clear();
     m_outputEvent.m_directionYVect.clear();
     m_outputEvent.m_directionZVect.clear();
+    m_outputEvent.m_thetaVect.clear();
+    m_outputEvent.m_phiVect.clear();
     m_outputEvent.m_yzAngleVect.clear();
     m_outputEvent.m_lengthVect.clear();
     m_outputEvent.m_isContainedVect.clear();
@@ -574,6 +578,8 @@ void EventSelection::SetDummyTrackInfo()
     m_outputEvent.m_directionXVect.push_back(-std::numeric_limits<float>::max());
     m_outputEvent.m_directionYVect.push_back(-std::numeric_limits<float>::max());
     m_outputEvent.m_directionZVect.push_back(-std::numeric_limits<float>::max());
+    m_outputEvent.m_thetaVect.push_back(-std::numeric_limits<float>::max());
+    m_outputEvent.m_phiVect.push_back(-std::numeric_limits<float>::max());
     m_outputEvent.m_yzAngleVect.push_back(-std::numeric_limits<float>::max());
     m_outputEvent.m_lengthVect.push_back(-std::numeric_limits<float>::max());
     m_outputEvent.m_isContainedVect.push_back(false);
@@ -597,6 +603,8 @@ void EventSelection::SetTrackInfo(const art::Ptr<recob::Track> &track, const spa
     m_outputEvent.m_directionXVect.push_back(dir.X());
     m_outputEvent.m_directionYVect.push_back(dir.Y());
     m_outputEvent.m_directionZVect.push_back(dir.Z());
+    m_outputEvent.m_thetaVect.push_back(track->Theta());
+    m_outputEvent.m_phiVect.push_back(track->Phi());
     m_outputEvent.m_yzAngleVect.push_back(this->GetYZAngle(dir));
     m_outputEvent.m_lengthVect.push_back(track->Length());
     m_outputEvent.m_isContainedVect.push_back(AnalysisHelper::IsContained(start, m_config().ContainmentBorder()) && AnalysisHelper::IsContained(end, m_config().ContainmentBorder()));
@@ -994,6 +1002,8 @@ void EventSelection::ValidateOutputVectorSizes(const unsigned int index) const
         m_outputEvent.m_directionXVect.size() != expectedSize ||
         m_outputEvent.m_directionYVect.size() != expectedSize ||
         m_outputEvent.m_directionZVect.size() != expectedSize ||
+        m_outputEvent.m_thetaVect.size() != expectedSize ||
+        m_outputEvent.m_phiVect.size() != expectedSize ||
         m_outputEvent.m_yzAngleVect.size() != expectedSize ||
         m_outputEvent.m_lengthVect.size() != expectedSize ||
         m_outputEvent.m_isContainedVect.size() != expectedSize ||

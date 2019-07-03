@@ -172,6 +172,8 @@ class EventSelection : public art::EDAnalyzer
             std::vector<float>     m_directionXVect;                       ///< The reconstructed direction of the particle - X
             std::vector<float>     m_directionYVect;                       ///< The reconstructed direction of the particle - Y
             std::vector<float>     m_directionZVect;                       ///< The reconstructed direction of the particle - Z
+            std::vector<float>     m_thetaVect;                            ///< The reconstructed angle to the beam direction
+            std::vector<float>     m_phiVect;                              ///< The reconstructed angle aroun the beam direction
             std::vector<float>     m_yzAngleVect;                          ///< The reconstructed angle in the YZ plane to the vertical
             std::vector<float>     m_lengthVect;                           ///< The reconstructed length
             std::vector<bool>      m_isContainedVect;                      ///< If the particle is contained within the detector
