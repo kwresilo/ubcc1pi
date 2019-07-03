@@ -112,6 +112,15 @@ EventSelection::EventSelection(const art::EDAnalyzer::Table<Config> &config) :
     m_pEventTree->Branch("isUVBraggpAvailableVect", &m_outputEvent.m_isUVBraggpAvailableVect);
     m_pEventTree->Branch("braggpUVVect", &m_outputEvent.m_braggpUVVect);
 
+    m_pEventTree->Branch("isWBraggpBackwardAvailableVect", &m_outputEvent.m_isWBraggpBackwardAvailableVect);
+    m_pEventTree->Branch("braggpBackwardWVect", &m_outputEvent.m_braggpBackwardWVect);
+    m_pEventTree->Branch("isUBraggpBackwardAvailableVect", &m_outputEvent.m_isUBraggpBackwardAvailableVect);
+    m_pEventTree->Branch("braggpBackwardUVect", &m_outputEvent.m_braggpBackwardUVect);
+    m_pEventTree->Branch("isVBraggpBackwardAvailableVect", &m_outputEvent.m_isVBraggpBackwardAvailableVect);
+    m_pEventTree->Branch("braggpBackwardVVect", &m_outputEvent.m_braggpBackwardVVect);
+    m_pEventTree->Branch("isUVBraggpBackwardAvailableVect", &m_outputEvent.m_isUVBraggpBackwardAvailableVect);
+    m_pEventTree->Branch("braggpBackwardUVVect", &m_outputEvent.m_braggpBackwardUVVect);
+
     m_pEventTree->Branch("isWBraggMIPAvailableVect", &m_outputEvent.m_isWBraggMIPAvailableVect);
     m_pEventTree->Branch("braggMIPWVect", &m_outputEvent.m_braggMIPWVect);
     m_pEventTree->Branch("isUBraggMIPAvailableVect", &m_outputEvent.m_isUBraggMIPAvailableVect);
@@ -228,6 +237,14 @@ void EventSelection::ResetEventTree()
     m_outputEvent.m_braggpVVect.clear();
     m_outputEvent.m_isUVBraggpAvailableVect.clear();
     m_outputEvent.m_braggpUVVect.clear();
+    m_outputEvent.m_isWBraggpBackwardAvailableVect.clear();
+    m_outputEvent.m_braggpBackwardWVect.clear();
+    m_outputEvent.m_isUBraggpBackwardAvailableVect.clear();
+    m_outputEvent.m_braggpBackwardUVect.clear();
+    m_outputEvent.m_isVBraggpBackwardAvailableVect.clear();
+    m_outputEvent.m_braggpBackwardVVect.clear();
+    m_outputEvent.m_isUVBraggpBackwardAvailableVect.clear();
+    m_outputEvent.m_braggpBackwardUVVect.clear();
     m_outputEvent.m_isWBraggMIPAvailableVect.clear();
     m_outputEvent.m_braggMIPWVect.clear();
     m_outputEvent.m_isUBraggMIPAvailableVect.clear();
@@ -577,6 +594,15 @@ void EventSelection::SetDummyPIDInfo()
     m_outputEvent.m_braggpVVect.push_back(-std::numeric_limits<float>::max());
     m_outputEvent.m_isUVBraggpAvailableVect.push_back(false);
     m_outputEvent.m_braggpUVVect.push_back(-std::numeric_limits<float>::max());
+    
+    m_outputEvent.m_isWBraggpBackwardAvailableVect.push_back(false);
+    m_outputEvent.m_braggpBackwardWVect.push_back(-std::numeric_limits<float>::max());
+    m_outputEvent.m_isUBraggpBackwardAvailableVect.push_back(false);
+    m_outputEvent.m_braggpBackwardUVect.push_back(-std::numeric_limits<float>::max());
+    m_outputEvent.m_isVBraggpBackwardAvailableVect.push_back(false);
+    m_outputEvent.m_braggpBackwardVVect.push_back(-std::numeric_limits<float>::max());
+    m_outputEvent.m_isUVBraggpBackwardAvailableVect.push_back(false);
+    m_outputEvent.m_braggpBackwardUVVect.push_back(-std::numeric_limits<float>::max());
 
     m_outputEvent.m_isWBraggMIPAvailableVect.push_back(false);
     m_outputEvent.m_braggMIPWVect.push_back(-std::numeric_limits<float>::max());
@@ -615,6 +641,11 @@ void EventSelection::SetPIDInfo(const art::Ptr<anab::ParticleID> &pid, const flo
     float braggpU = -std::numeric_limits<float>::max();
     float braggpV = -std::numeric_limits<float>::max();
     float braggpUV = -std::numeric_limits<float>::max();
+    
+    float braggpBackwardW = -std::numeric_limits<float>::max();
+    float braggpBackwardU = -std::numeric_limits<float>::max();
+    float braggpBackwardV = -std::numeric_limits<float>::max();
+    float braggpBackwardUV = -std::numeric_limits<float>::max();
 
     float braggMIPW = -std::numeric_limits<float>::max();
     float braggMIPU = -std::numeric_limits<float>::max();
@@ -635,6 +666,11 @@ void EventSelection::SetPIDInfo(const art::Ptr<anab::ParticleID> &pid, const flo
     bool isUBraggpAvailable = false;
     bool isVBraggpAvailable = false;
     bool isUVBraggpAvailable = false;
+    
+    bool isWBraggpBackwardAvailable = false;
+    bool isUBraggpBackwardAvailable = false;
+    bool isVBraggpBackwardAvailable = false;
+    bool isUVBraggpBackwardAvailable = false;
 
     bool isWBraggMIPAvailable = false;
     bool isUBraggMIPAvailable = false;
@@ -659,6 +695,10 @@ void EventSelection::SetPIDInfo(const art::Ptr<anab::ParticleID> &pid, const flo
         if (algo.fAlgName == "BraggPeakLLH" && algo.fTrackDir == anab::kForward && algo.fAssumedPdg == 2212)
             this->SetPIDVariables(view, algo.fValue, braggpW, braggpU, braggpV, isWBraggpAvailable, isUBraggpAvailable, isVBraggpAvailable);
         
+        // Bragg Likelihood algorithm under the proton hypothesis - backward going track
+        if (algo.fAlgName == "BraggPeakLLH" && algo.fTrackDir == anab::kBackward && algo.fAssumedPdg == 2212)
+            this->SetPIDVariables(view, algo.fValue, braggpBackwardW, braggpBackwardU, braggpBackwardV, isWBraggpBackwardAvailable, isUBraggpBackwardAvailable, isVBraggpBackwardAvailable);
+        
         // Bragg Likelihood algorithm under the MIP hypothesis - forward going track
         if (algo.fAlgName == "BraggPeakLLH" && algo.fTrackDir == anab::kForward && algo.fAssumedPdg == 0)
             this->SetPIDVariables(view, algo.fValue, braggMIPW, braggMIPU, braggMIPV, isWBraggMIPAvailable, isUBraggMIPAvailable, isVBraggMIPAvailable);
@@ -671,6 +711,7 @@ void EventSelection::SetPIDInfo(const art::Ptr<anab::ParticleID> &pid, const flo
     // Set the combined induction plane variables
     this->CombineInductionPlanes(yzAngle, nHitsU, nHitsV, chi2pU, chi2pV, isUChi2pAvailable, isVChi2pAvailable, chi2pUV, isUVChi2pAvailable);
     this->CombineInductionPlanes(yzAngle, nHitsU, nHitsV, braggpU, braggpV, isUBraggpAvailable, isVBraggpAvailable, braggpUV, isUVBraggpAvailable);
+    this->CombineInductionPlanes(yzAngle, nHitsU, nHitsV, braggpBackwardU, braggpBackwardV, isUBraggpBackwardAvailable, isVBraggpBackwardAvailable, braggpBackwardUV, isUVBraggpBackwardAvailable);
     this->CombineInductionPlanes(yzAngle, nHitsU, nHitsV, braggMIPU, braggMIPV, isUBraggMIPAvailable, isVBraggMIPAvailable, braggMIPUV, isUVBraggMIPAvailable);
     this->CombineInductionPlanes(yzAngle, nHitsU, nHitsV, braggMIPBackwardU, braggMIPBackwardV, isUBraggMIPBackwardAvailable, isVBraggMIPBackwardAvailable, braggMIPBackwardUV, isUVBraggMIPBackwardAvailable);
 
@@ -700,6 +741,15 @@ void EventSelection::SetPIDInfo(const art::Ptr<anab::ParticleID> &pid, const flo
     m_outputEvent.m_braggpVVect.push_back(braggpV);
     m_outputEvent.m_isUVBraggpAvailableVect.push_back(isUVBraggpAvailable);
     m_outputEvent.m_braggpUVVect.push_back(braggpUV);
+    
+    m_outputEvent.m_isWBraggpBackwardAvailableVect.push_back(isWBraggpBackwardAvailable);
+    m_outputEvent.m_braggpBackwardWVect.push_back(braggpBackwardW);
+    m_outputEvent.m_isUBraggpBackwardAvailableVect.push_back(isUBraggpBackwardAvailable);
+    m_outputEvent.m_braggpBackwardUVect.push_back(braggpBackwardU);
+    m_outputEvent.m_isVBraggpBackwardAvailableVect.push_back(isVBraggpBackwardAvailable);
+    m_outputEvent.m_braggpBackwardVVect.push_back(braggpBackwardV);
+    m_outputEvent.m_isUVBraggpBackwardAvailableVect.push_back(isUVBraggpBackwardAvailable);
+    m_outputEvent.m_braggpBackwardUVVect.push_back(braggpBackwardUV);
 
     m_outputEvent.m_isWBraggMIPAvailableVect.push_back(isWBraggMIPAvailable);
     m_outputEvent.m_braggMIPWVect.push_back(braggMIPW);
@@ -855,6 +905,14 @@ void EventSelection::ValidateOutputVectorSizes(const unsigned int index) const
         m_outputEvent.m_braggpVVect.size() != expectedSize ||
         m_outputEvent.m_isUVBraggpAvailableVect.size() != expectedSize ||
         m_outputEvent.m_braggpUVVect.size() != expectedSize ||
+        m_outputEvent.m_isWBraggpBackwardAvailableVect.size() != expectedSize ||
+        m_outputEvent.m_braggpBackwardWVect.size() != expectedSize ||
+        m_outputEvent.m_isUBraggpBackwardAvailableVect.size() != expectedSize ||
+        m_outputEvent.m_braggpBackwardUVect.size() != expectedSize ||
+        m_outputEvent.m_isVBraggpBackwardAvailableVect.size() != expectedSize ||
+        m_outputEvent.m_braggpBackwardVVect.size() != expectedSize ||
+        m_outputEvent.m_isUVBraggpBackwardAvailableVect.size() != expectedSize ||
+        m_outputEvent.m_braggpBackwardUVVect.size() != expectedSize ||
         m_outputEvent.m_isWBraggMIPAvailableVect.size() != expectedSize ||
         m_outputEvent.m_braggMIPWVect.size() != expectedSize ||
         m_outputEvent.m_isUBraggMIPAvailableVect.size() != expectedSize ||
