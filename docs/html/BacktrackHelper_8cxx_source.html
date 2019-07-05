@@ -220,538 +220,596 @@ window.onload = initDynSections;
 <a name="l00124"></a>00124 
 <a name="l00125"></a>00125 <span class="comment">// -----------------------------------------------------------------------------------------------------------------------------------------</span>
 <a name="l00126"></a>00126 
-<a name="l00127"></a><a class="code" href="classubcc1pi_1_1BacktrackHelper_1_1BacktrackerData.html#ac1315a974ad087e46869cfde4d9693f4">00127</a> <a class="code" href="classubcc1pi_1_1BacktrackHelper_1_1BacktrackerData.html#ac1315a974ad087e46869cfde4d9693f4" title="Constructor.">BacktrackHelper::BacktrackerData::BacktrackerData</a>(<span class="keyword">const</span> <a class="code" href="namespaceubcc1pi.html#a6f66dc13c5a55147db5c84db67f6062b" title="A collection of PFParticles.">PFParticleVector</a> &amp;pfParticles, <span class="keyword">const</span> <a class="code" href="namespaceubcc1pi.html#a42e409a54246ea6acba6d873b8eb696c" title="A collection of MCParticles.">MCParticleVector</a> &amp;mcParticles, <span class="keyword">const</span> <a class="code" href="namespaceubcc1pi.html#a679f75d7e515d88fd2b37057e0d681bb" title="Association from Hit to PFParticle.">HitsToPFParticles</a> &amp;hitsToPfps, <span class="keyword">const</span> <a class="code" href="namespaceubcc1pi.html#a9c8db99d0f284acb6b95013a2527c00d" title="Association from Hit to MCParticle along with the charge contribution weight.">HitsToMCParticleWeights</a> &amp;hitsToMcps) :
-<a name="l00128"></a>00128     m_mcParticles(mcParticles),
-<a name="l00129"></a>00129     m_pfParticles(pfParticles),
-<a name="l00130"></a>00130     m_hitsToMcps(hitsToMcps),
-<a name="l00131"></a>00131     m_hitsToPfps(hitsToPfps)
-<a name="l00132"></a>00132 {
-<a name="l00133"></a>00133     this-&gt;<a class="code" href="classubcc1pi_1_1BacktrackHelper_1_1BacktrackerData.html#a76e0d6aa2e9d56a181b6e413e1f04fd5" title="Check that PFParticles in the input map from hits -&amp;gt; PFParticles all exist in...">CheckConsistency</a>(<a class="code" href="classubcc1pi_1_1BacktrackHelper_1_1BacktrackerData.html#afe7d6c4e411e617b8b040d31ee4fbcfa" title="The MCParticles.">m_mcParticles</a>, hitsToMcps);
-<a name="l00134"></a>00134     this-&gt;<a class="code" href="classubcc1pi_1_1BacktrackHelper_1_1BacktrackerData.html#a76e0d6aa2e9d56a181b6e413e1f04fd5" title="Check that PFParticles in the input map from hits -&amp;gt; PFParticles all exist in...">CheckConsistency</a>(<a class="code" href="classubcc1pi_1_1BacktrackHelper_1_1BacktrackerData.html#abba6aa55941f7402db0e417434ab9770" title="The PFParticles.">m_pfParticles</a>, hitsToPfps);
-<a name="l00135"></a>00135 
-<a name="l00136"></a>00136     <span class="keyword">const</span> <span class="keyword">auto</span> allHits = this-&gt;<a class="code" href="classubcc1pi_1_1BacktrackHelper_1_1BacktrackerData.html#a6e4522f01e739136cdc925415a115955" title="Collect all of the hits stored in the input maps ensuring we don&amp;#39;t double count...">CollectHits</a>(hitsToPfps, hitsToMcps);
-<a name="l00137"></a>00137 
-<a name="l00138"></a>00138     <span class="keywordflow">for</span> (<span class="keyword">const</span> <span class="keyword">auto</span> &amp;hit : this-&gt;<a class="code" href="classubcc1pi_1_1BacktrackHelper_1_1BacktrackerData.html#a6e4522f01e739136cdc925415a115955" title="Collect all of the hits stored in the input maps ensuring we don&amp;#39;t double count...">CollectHits</a>(hitsToPfps, hitsToMcps))
-<a name="l00139"></a>00139     {
-<a name="l00140"></a>00140         art::Ptr&lt;recob::PFParticle&gt; pfParticle;
-<a name="l00141"></a>00141         <span class="keyword">const</span> <span class="keywordtype">bool</span> hasPFParticle = this-&gt;<a class="code" href="classubcc1pi_1_1BacktrackHelper_1_1BacktrackerData.html#a39f4fd91b8a453ad697651a2576c887d" title="Get the PFParticle associated with a given hit.">CollectPFParticle</a>(hit, hitsToPfps, pfParticle);
-<a name="l00142"></a>00142         
-<a name="l00143"></a>00143         CollectionData&lt;simb::MCParticle, float&gt; mcParticleWeights;
-<a name="l00144"></a>00144         <span class="keyword">const</span> <span class="keywordtype">bool</span> hasMCParticles = this-&gt;<a class="code" href="classubcc1pi_1_1BacktrackHelper_1_1BacktrackerData.html#a3364917f1b04112aa8a1dbfd5048c936" title="Collect the MCParticles that are associated with a given hit along with their weights...">CollectMCParticleWeights</a>(hit, hitsToMcps, mcParticleWeights);
-<a name="l00145"></a>00145 
-<a name="l00146"></a>00146         <span class="comment">// Fill the PFParticle weight map</span>
-<a name="l00147"></a>00147         <span class="keywordflow">if</span> (hasPFParticle)
+<a name="l00127"></a><a class="code" href="classubcc1pi_1_1BacktrackHelper.html#ab945346624ce1489b8ad6c43f3fcecf7">00127</a> <span class="keywordtype">int</span> <a class="code" href="classubcc1pi_1_1BacktrackHelper.html#ab945346624ce1489b8ad6c43f3fcecf7" title="Count the number of hits associated with a given MCParticle in a given view.">BacktrackHelper::CountHitsInView</a>(<span class="keyword">const</span> art::Ptr&lt;simb::MCParticle&gt; &amp;mcParticle, <span class="keyword">const</span> AssociationData&lt;simb::MCParticle, recob::Hit, anab::BackTrackerHitMatchingData&gt; &amp;mcParticleToHits, <span class="keyword">const</span> geo::View_t &amp;view)
+<a name="l00128"></a>00128 {
+<a name="l00129"></a>00129     <span class="keywordflow">try</span>
+<a name="l00130"></a>00130     {
+<a name="l00131"></a>00131         <span class="keywordflow">return</span> <a class="code" href="classubcc1pi_1_1BacktrackHelper.html#ab945346624ce1489b8ad6c43f3fcecf7" title="Count the number of hits associated with a given MCParticle in a given view.">RecoHelper::CountHitsInView</a>(<a class="code" href="classubcc1pi_1_1CollectionHelper.html#a5aa35d148efb229f796a112482902a67" title="Get the objects associated to a given input object.">CollectionHelper::GetManyAssociated</a>(mcParticle, mcParticleToHits), view);
+<a name="l00132"></a>00132     }
+<a name="l00133"></a>00133     <span class="keywordflow">catch</span> (<span class="keyword">const</span> cet::exception &amp;)
+<a name="l00134"></a>00134     {
+<a name="l00135"></a>00135         <span class="keywordflow">return</span> 0;
+<a name="l00136"></a>00136     }
+<a name="l00137"></a>00137 }
+<a name="l00138"></a>00138 
+<a name="l00139"></a>00139 <span class="comment">// -----------------------------------------------------------------------------------------------------------------------------------------</span>
+<a name="l00140"></a>00140 
+<a name="l00141"></a><a class="code" href="classubcc1pi_1_1BacktrackHelper.html#a80216431ad18602eaf1b59938733362f">00141</a> <span class="keywordtype">int</span> <a class="code" href="classubcc1pi_1_1BacktrackHelper.html#a80216431ad18602eaf1b59938733362f" title="Count the number of &amp;quot;good&amp;quot; hits associated with a given MCParticle in a...">BacktrackHelper::CountGoodHitsInView</a>(<span class="keyword">const</span> art::Ptr&lt;simb::MCParticle&gt; &amp;mcParticle, <span class="keyword">const</span> AssociationData&lt;simb::MCParticle, recob::Hit, anab::BackTrackerHitMatchingData&gt; &amp;mcParticleToHits, <span class="keyword">const</span> geo::View_t &amp;view)
+<a name="l00142"></a>00142 {
+<a name="l00143"></a>00143     <a class="code" href="namespaceubcc1pi.html#aad18bb5924d1ff428402c8af4b72f1c0" title="A collection of Hits.">HitVector</a> hits;
+<a name="l00144"></a>00144 
+<a name="l00145"></a>00145     <span class="keywordflow">try</span>
+<a name="l00146"></a>00146     {
+<a name="l00147"></a>00147         <span class="keywordflow">for</span> (<span class="keyword">const</span> <span class="keyword">auto</span> &amp;entry : <a class="code" href="classubcc1pi_1_1CollectionHelper.html#aada59fad3b5a521a03d63b15516882e7" title="Get the objects associated to a given input object with data.">CollectionHelper::GetManyAssociatedWithData</a>(mcParticle, mcParticleToHits))
 <a name="l00148"></a>00148         {
-<a name="l00149"></a>00149             <span class="comment">// Check if we already have an entry for this particle</span>
-<a name="l00150"></a>00150             <span class="keywordflow">if</span> (<a class="code" href="classubcc1pi_1_1BacktrackHelper_1_1BacktrackerData.html#adf044f8d9cdd2646af0d26cf96d36305" title="The mapping from PFParticle to the total weight (= number of hits).">m_pfParticleWeightMap</a>.find(pfParticle) == <a class="code" href="classubcc1pi_1_1BacktrackHelper_1_1BacktrackerData.html#adf044f8d9cdd2646af0d26cf96d36305" title="The mapping from PFParticle to the total weight (= number of hits).">m_pfParticleWeightMap</a>.end())
-<a name="l00151"></a>00151                 <a class="code" href="classubcc1pi_1_1BacktrackHelper_1_1BacktrackerData.html#adf044f8d9cdd2646af0d26cf96d36305" title="The mapping from PFParticle to the total weight (= number of hits).">m_pfParticleWeightMap</a>.emplace(pfParticle, 0.f);
-<a name="l00152"></a>00152 
-<a name="l00153"></a>00153             <a class="code" href="classubcc1pi_1_1BacktrackHelper_1_1BacktrackerData.html#adf044f8d9cdd2646af0d26cf96d36305" title="The mapping from PFParticle to the total weight (= number of hits).">m_pfParticleWeightMap</a>.at(pfParticle) += 1.f;
-<a name="l00154"></a>00154         }
-<a name="l00155"></a>00155         
-<a name="l00156"></a>00156         <span class="comment">// Fill the MCParticle weight map</span>
-<a name="l00157"></a>00157         <span class="keywordflow">if</span> (hasMCParticles)
-<a name="l00158"></a>00158         {
-<a name="l00159"></a>00159             <span class="keywordflow">for</span> (<span class="keyword">const</span> <span class="keyword">auto</span> &amp;entry : mcParticleWeights)
-<a name="l00160"></a>00160             {
-<a name="l00161"></a>00161                 <span class="keyword">const</span> <span class="keyword">auto</span> mcParticle = entry.first;
-<a name="l00162"></a>00162                 <span class="keyword">const</span> <span class="keyword">auto</span> weight = entry.second;
-<a name="l00163"></a>00163             
-<a name="l00164"></a>00164                 <span class="comment">// Check if we already have an entry for this particle</span>
-<a name="l00165"></a>00165                 <span class="keywordflow">if</span> (<a class="code" href="classubcc1pi_1_1BacktrackHelper_1_1BacktrackerData.html#af04206fc120aa8717e4aa86ab9e47c72" title="The mapping from MCParticle to the total weight (= weighted number of hits).">m_mcParticleWeightMap</a>.find(mcParticle) == <a class="code" href="classubcc1pi_1_1BacktrackHelper_1_1BacktrackerData.html#af04206fc120aa8717e4aa86ab9e47c72" title="The mapping from MCParticle to the total weight (= weighted number of hits).">m_mcParticleWeightMap</a>.end())
-<a name="l00166"></a>00166                     <a class="code" href="classubcc1pi_1_1BacktrackHelper_1_1BacktrackerData.html#af04206fc120aa8717e4aa86ab9e47c72" title="The mapping from MCParticle to the total weight (= weighted number of hits).">m_mcParticleWeightMap</a>.emplace(mcParticle, 0.f);
-<a name="l00167"></a>00167     
-<a name="l00168"></a>00168                 <a class="code" href="classubcc1pi_1_1BacktrackHelper_1_1BacktrackerData.html#af04206fc120aa8717e4aa86ab9e47c72" title="The mapping from MCParticle to the total weight (= weighted number of hits).">m_mcParticleWeightMap</a>.at(mcParticle) += weight;
-<a name="l00169"></a>00169                 
-<a name="l00170"></a>00170                 <span class="comment">// Fill the PFParticle -&gt; MCParticle matched weight map</span>
-<a name="l00171"></a>00171                 <span class="keywordflow">if</span> (hasPFParticle)
-<a name="l00172"></a>00172                 {
-<a name="l00173"></a>00173                     <span class="comment">// Get the map entry for this PFParticle, creating it if it doesn&apos;t exist</span>
-<a name="l00174"></a>00174                     <span class="keyword">auto</span> &amp;entry = <a class="code" href="classubcc1pi_1_1BacktrackHelper_1_1BacktrackerData.html#a622fd1b767b090773759fa5cf365bafb" title="The matching between PFParticles and MCParticles along with the shared weight.">m_matchMap</a>[pfParticle];
-<a name="l00175"></a>00175 
-<a name="l00176"></a>00176                     <span class="keyword">auto</span> iter = std::find_if(entry.begin(), entry.end(), [&amp;](<span class="keyword">const</span> <span class="keyword">auto</span> &amp;x){<span class="keywordflow">return</span> x.first == mcParticle;});
-<a name="l00177"></a>00177                     <span class="keywordflow">if</span> (iter == entry.end())
-<a name="l00178"></a>00178                     {
-<a name="l00179"></a>00179                         entry.emplace_back(mcParticle, weight);
-<a name="l00180"></a>00180                     }
-<a name="l00181"></a>00181                     <span class="keywordflow">else</span>
-<a name="l00182"></a>00182                     {
-<a name="l00183"></a>00183                         iter-&gt;second += weight;
-<a name="l00184"></a>00184                     }
-<a name="l00185"></a>00185                 }
-<a name="l00186"></a>00186             }
-<a name="l00187"></a>00187         }
-<a name="l00188"></a>00188     }
-<a name="l00189"></a>00189 }
-<a name="l00190"></a>00190 
-<a name="l00191"></a>00191 <span class="comment">// -----------------------------------------------------------------------------------------------------------------------------------------</span>
-<a name="l00192"></a>00192 
-<a name="l00193"></a><a class="code" href="classubcc1pi_1_1BacktrackHelper_1_1BacktrackerData.html#a0917037ff959924c0d47d94ebac53f1f">00193</a> <span class="keywordtype">void</span> <a class="code" href="classubcc1pi_1_1BacktrackHelper_1_1BacktrackerData.html#a76e0d6aa2e9d56a181b6e413e1f04fd5" title="Check that PFParticles in the input map from hits -&amp;gt; PFParticles all exist in...">BacktrackHelper::BacktrackerData::CheckConsistency</a>(<span class="keyword">const</span> <a class="code" href="namespaceubcc1pi.html#a42e409a54246ea6acba6d873b8eb696c" title="A collection of MCParticles.">MCParticleVector</a> &amp;mcParticles, <span class="keyword">const</span> <a class="code" href="namespaceubcc1pi.html#a9c8db99d0f284acb6b95013a2527c00d" title="Association from Hit to MCParticle along with the charge contribution weight.">HitsToMCParticleWeights</a> &amp;hitsToMcps)<span class="keyword"> const</span>
-<a name="l00194"></a>00194 <span class="keyword"></span>{
-<a name="l00195"></a>00195     <span class="keywordflow">for</span> (<span class="keyword">const</span> <span class="keyword">auto</span> &amp;entry : hitsToMcps)
-<a name="l00196"></a>00196     {
-<a name="l00197"></a>00197         <span class="keywordflow">for</span> (<span class="keyword">const</span> <span class="keyword">auto</span> &amp;mcpWeightPair : entry.second)
-<a name="l00198"></a>00198         {
-<a name="l00199"></a>00199             <span class="keywordflow">if</span> (std::find(mcParticles.begin(), mcParticles.end(), mcpWeightPair.first) == mcParticles.end())
-<a name="l00200"></a>00200                 <span class="keywordflow">throw</span> cet::exception(<span class="stringliteral">&quot;BacktrackerData::CheckConsistency&quot;</span>) &lt;&lt; <span class="stringliteral">&quot; - MCParticle from input map isn&apos;t in the input vector.&quot;</span> &lt;&lt; std::endl;
-<a name="l00201"></a>00201         }
-<a name="l00202"></a>00202     }
-<a name="l00203"></a>00203 }
-<a name="l00204"></a>00204 
-<a name="l00205"></a>00205 <span class="comment">// -----------------------------------------------------------------------------------------------------------------------------------------</span>
-<a name="l00206"></a>00206 
-<a name="l00207"></a><a class="code" href="classubcc1pi_1_1BacktrackHelper_1_1BacktrackerData.html#a76e0d6aa2e9d56a181b6e413e1f04fd5">00207</a> <span class="keywordtype">void</span> <a class="code" href="classubcc1pi_1_1BacktrackHelper_1_1BacktrackerData.html#a76e0d6aa2e9d56a181b6e413e1f04fd5" title="Check that PFParticles in the input map from hits -&amp;gt; PFParticles all exist in...">BacktrackHelper::BacktrackerData::CheckConsistency</a>(<span class="keyword">const</span> <a class="code" href="namespaceubcc1pi.html#a6f66dc13c5a55147db5c84db67f6062b" title="A collection of PFParticles.">PFParticleVector</a> &amp;pfParticles, <span class="keyword">const</span> <a class="code" href="namespaceubcc1pi.html#a679f75d7e515d88fd2b37057e0d681bb" title="Association from Hit to PFParticle.">HitsToPFParticles</a> &amp;hitsToPfps)<span class="keyword"> const</span>
-<a name="l00208"></a>00208 <span class="keyword"></span>{
-<a name="l00209"></a>00209     <span class="keywordflow">for</span> (<span class="keyword">const</span> <span class="keyword">auto</span> &amp;entry : hitsToPfps)
-<a name="l00210"></a>00210     {
-<a name="l00211"></a>00211         <span class="keywordflow">for</span> (<span class="keyword">const</span> <span class="keyword">auto</span> &amp;pfParticle : entry.second)
-<a name="l00212"></a>00212         {
-<a name="l00213"></a>00213             <span class="keywordflow">if</span> (std::find(pfParticles.begin(), pfParticles.end(), pfParticle) == pfParticles.end())
-<a name="l00214"></a>00214                 <span class="keywordflow">throw</span> cet::exception(<span class="stringliteral">&quot;BacktrackerData::CheckConsistency&quot;</span>) &lt;&lt; <span class="stringliteral">&quot; - PFParticle from input map isn&apos;t in the input vector.&quot;</span> &lt;&lt; std::endl;
-<a name="l00215"></a>00215         }
-<a name="l00216"></a>00216     }
-<a name="l00217"></a>00217 }
-<a name="l00218"></a>00218 
-<a name="l00219"></a>00219 <span class="comment">// -----------------------------------------------------------------------------------------------------------------------------------------</span>
-<a name="l00220"></a>00220 
-<a name="l00221"></a><a class="code" href="classubcc1pi_1_1BacktrackHelper_1_1BacktrackerData.html#a6e4522f01e739136cdc925415a115955">00221</a> <a class="code" href="namespaceubcc1pi.html#aad18bb5924d1ff428402c8af4b72f1c0" title="A collection of Hits.">HitVector</a> <a class="code" href="classubcc1pi_1_1BacktrackHelper_1_1BacktrackerData.html#a6e4522f01e739136cdc925415a115955" title="Collect all of the hits stored in the input maps ensuring we don&amp;#39;t double count...">BacktrackHelper::BacktrackerData::CollectHits</a>(<span class="keyword">const</span> <a class="code" href="namespaceubcc1pi.html#a679f75d7e515d88fd2b37057e0d681bb" title="Association from Hit to PFParticle.">HitsToPFParticles</a> &amp;hitsToPfps, <span class="keyword">const</span> <a class="code" href="namespaceubcc1pi.html#a9c8db99d0f284acb6b95013a2527c00d" title="Association from Hit to MCParticle along with the charge contribution weight.">HitsToMCParticleWeights</a> &amp;hitsToMcps)<span class="keyword"> const</span>
-<a name="l00222"></a>00222 <span class="keyword"></span>{
-<a name="l00223"></a>00223     <a class="code" href="namespaceubcc1pi.html#aad18bb5924d1ff428402c8af4b72f1c0" title="A collection of Hits.">HitVector</a> hits;
-<a name="l00224"></a>00224     
-<a name="l00225"></a>00225     <span class="keywordflow">for</span> (<span class="keyword">const</span> <span class="keyword">auto</span> &amp;entry : hitsToPfps)
-<a name="l00226"></a>00226     {
-<a name="l00227"></a>00227         <span class="keywordflow">if</span> (std::find(hits.begin(), hits.end(), entry.first) == hits.end())
-<a name="l00228"></a>00228             hits.push_back(entry.first);
-<a name="l00229"></a>00229     }
-<a name="l00230"></a>00230     
-<a name="l00231"></a>00231     <span class="keywordflow">for</span> (<span class="keyword">const</span> <span class="keyword">auto</span> &amp;entry : hitsToMcps)
-<a name="l00232"></a>00232     {
-<a name="l00233"></a>00233         <span class="keywordflow">if</span> (std::find(hits.begin(), hits.end(), entry.first) == hits.end())
-<a name="l00234"></a>00234             hits.push_back(entry.first);
-<a name="l00235"></a>00235     }
-<a name="l00236"></a>00236 
-<a name="l00237"></a>00237     <span class="comment">// Sort the hits to ensure reproducibility</span>
-<a name="l00238"></a>00238     std::sort(hits.begin(), hits.end(), [](<span class="keyword">const</span> <span class="keyword">auto</span> &amp;hit1, <span class="keyword">const</span> <span class="keyword">auto</span> &amp;hit2){<span class="keywordflow">return</span> hit1-&gt;PeakTime() &lt; hit2-&gt;PeakTime();});
-<a name="l00239"></a>00239 
-<a name="l00240"></a>00240     <span class="keywordflow">return</span> hits;
-<a name="l00241"></a>00241 }
-<a name="l00242"></a>00242 
-<a name="l00243"></a>00243 <span class="comment">// -----------------------------------------------------------------------------------------------------------------------------------------</span>
-<a name="l00244"></a>00244 
-<a name="l00245"></a><a class="code" href="classubcc1pi_1_1BacktrackHelper_1_1BacktrackerData.html#a39f4fd91b8a453ad697651a2576c887d">00245</a> <span class="keywordtype">bool</span> <a class="code" href="classubcc1pi_1_1BacktrackHelper_1_1BacktrackerData.html#a39f4fd91b8a453ad697651a2576c887d" title="Get the PFParticle associated with a given hit.">BacktrackHelper::BacktrackerData::CollectPFParticle</a>(<span class="keyword">const</span> art::Ptr&lt;recob::Hit&gt; &amp;hit, <span class="keyword">const</span> <a class="code" href="namespaceubcc1pi.html#a679f75d7e515d88fd2b37057e0d681bb" title="Association from Hit to PFParticle.">HitsToPFParticles</a> &amp;hitsToPfps, art::Ptr&lt;recob::PFParticle&gt; &amp;outputParticle)<span class="keyword"> const</span>
-<a name="l00246"></a>00246 <span class="keyword"></span>{
-<a name="l00247"></a>00247     <span class="keywordflow">try</span>
-<a name="l00248"></a>00248     {
-<a name="l00249"></a>00249         outputParticle = <a class="code" href="classubcc1pi_1_1CollectionHelper.html#aef49ea81264de87954feb660c9d6fbda" title="Get the single object associated to a given input object.">CollectionHelper::GetSingleAssociated</a>(hit, hitsToPfps);
-<a name="l00250"></a>00250         <span class="keywordflow">return</span> <span class="keyword">true</span>;
-<a name="l00251"></a>00251     }
-<a name="l00252"></a>00252     <span class="keywordflow">catch</span> (<span class="keyword">const</span> cet::exception &amp;)
-<a name="l00253"></a>00253     {
-<a name="l00254"></a>00254         <span class="keywordflow">return</span> <span class="keyword">false</span>;
-<a name="l00255"></a>00255     }
-<a name="l00256"></a>00256 }
-<a name="l00257"></a>00257 
-<a name="l00258"></a>00258 <span class="comment">// -----------------------------------------------------------------------------------------------------------------------------------------</span>
-<a name="l00259"></a>00259 
-<a name="l00260"></a><a class="code" href="classubcc1pi_1_1BacktrackHelper_1_1BacktrackerData.html#a3364917f1b04112aa8a1dbfd5048c936">00260</a> <span class="keywordtype">bool</span> <a class="code" href="classubcc1pi_1_1BacktrackHelper_1_1BacktrackerData.html#a3364917f1b04112aa8a1dbfd5048c936" title="Collect the MCParticles that are associated with a given hit along with their weights...">BacktrackHelper::BacktrackerData::CollectMCParticleWeights</a>(<span class="keyword">const</span> art::Ptr&lt;recob::Hit&gt; &amp;hit, <span class="keyword">const</span> <a class="code" href="namespaceubcc1pi.html#a9c8db99d0f284acb6b95013a2527c00d" title="Association from Hit to MCParticle along with the charge contribution weight.">HitsToMCParticleWeights</a> &amp;hitsToMcps, CollectionData&lt;simb::MCParticle, float&gt; &amp;outputParticleWeights)<span class="keyword"> const</span>
-<a name="l00261"></a>00261 <span class="keyword"></span>{
-<a name="l00262"></a>00262     <span class="keywordflow">try</span>
-<a name="l00263"></a>00263     {
-<a name="l00264"></a>00264         outputParticleWeights = <a class="code" href="classubcc1pi_1_1CollectionHelper.html#aada59fad3b5a521a03d63b15516882e7" title="Get the objects associated to a given input object with data.">CollectionHelper::GetManyAssociatedWithData</a>(hit, hitsToMcps);
-<a name="l00265"></a>00265         <span class="keywordflow">return</span> <span class="keyword">true</span>;
-<a name="l00266"></a>00266     }
-<a name="l00267"></a>00267     <span class="keywordflow">catch</span> (<span class="keyword">const</span> cet::exception &amp;)
+<a name="l00149"></a>00149             <span class="keywordflow">if</span> (entry.second.ideFraction &gt; 0.5f)
+<a name="l00150"></a>00150                 hits.push_back(entry.first);
+<a name="l00151"></a>00151         }
+<a name="l00152"></a>00152     }
+<a name="l00153"></a>00153     <span class="keywordflow">catch</span> (<span class="keyword">const</span> cet::exception &amp;)
+<a name="l00154"></a>00154     {
+<a name="l00155"></a>00155         <span class="keywordflow">return</span> 0;
+<a name="l00156"></a>00156     }
+<a name="l00157"></a>00157 
+<a name="l00158"></a>00158     <span class="keywordflow">return</span> <a class="code" href="classubcc1pi_1_1BacktrackHelper.html#ab945346624ce1489b8ad6c43f3fcecf7" title="Count the number of hits associated with a given MCParticle in a given view.">RecoHelper::CountHitsInView</a>(hits, view);
+<a name="l00159"></a>00159 }
+<a name="l00160"></a>00160 
+<a name="l00161"></a>00161 <span class="comment">// -----------------------------------------------------------------------------------------------------------------------------------------</span>
+<a name="l00162"></a>00162 
+<a name="l00163"></a><a class="code" href="classubcc1pi_1_1BacktrackHelper.html#a8c9a4ce6758c077dd22d82f0f0691186">00163</a> <span class="keywordtype">float</span> <a class="code" href="classubcc1pi_1_1BacktrackHelper.html#a8c9a4ce6758c077dd22d82f0f0691186" title="Count the total hit weight associated with a given MCParticle in a given view.">BacktrackHelper::GetHitWeightInView</a>(<span class="keyword">const</span> art::Ptr&lt;simb::MCParticle&gt; &amp;mcParticle, <span class="keyword">const</span> AssociationData&lt;simb::MCParticle, recob::Hit, anab::BackTrackerHitMatchingData&gt; &amp;mcParticleToHits, <span class="keyword">const</span> geo::View_t &amp;view)
+<a name="l00164"></a>00164 {
+<a name="l00165"></a>00165     <span class="keywordtype">float</span> hitWeight = 0.f;
+<a name="l00166"></a>00166 
+<a name="l00167"></a>00167     <span class="keywordflow">try</span>
+<a name="l00168"></a>00168     {
+<a name="l00169"></a>00169         <span class="keywordflow">for</span> (<span class="keyword">const</span> <span class="keyword">auto</span> &amp;entry : <a class="code" href="classubcc1pi_1_1CollectionHelper.html#aada59fad3b5a521a03d63b15516882e7" title="Get the objects associated to a given input object with data.">CollectionHelper::GetManyAssociatedWithData</a>(mcParticle, mcParticleToHits))
+<a name="l00170"></a>00170         {
+<a name="l00171"></a>00171             <span class="keywordflow">if</span> (entry.first-&gt;View() == view)
+<a name="l00172"></a>00172                 hitWeight += entry.second.ideFraction;
+<a name="l00173"></a>00173         }
+<a name="l00174"></a>00174     }
+<a name="l00175"></a>00175     <span class="keywordflow">catch</span> (<span class="keyword">const</span> cet::exception &amp;)
+<a name="l00176"></a>00176     {
+<a name="l00177"></a>00177         <span class="keywordflow">return</span> 0.f;
+<a name="l00178"></a>00178     }
+<a name="l00179"></a>00179 
+<a name="l00180"></a>00180     <span class="keywordflow">return</span> hitWeight;
+<a name="l00181"></a>00181 }
+<a name="l00182"></a>00182 
+<a name="l00183"></a>00183 <span class="comment">// -----------------------------------------------------------------------------------------------------------------------------------------</span>
+<a name="l00184"></a>00184 
+<a name="l00185"></a><a class="code" href="classubcc1pi_1_1BacktrackHelper_1_1BacktrackerData.html#ac1315a974ad087e46869cfde4d9693f4">00185</a> <a class="code" href="classubcc1pi_1_1BacktrackHelper_1_1BacktrackerData.html#ac1315a974ad087e46869cfde4d9693f4" title="Constructor.">BacktrackHelper::BacktrackerData::BacktrackerData</a>(<span class="keyword">const</span> <a class="code" href="namespaceubcc1pi.html#a6f66dc13c5a55147db5c84db67f6062b" title="A collection of PFParticles.">PFParticleVector</a> &amp;pfParticles, <span class="keyword">const</span> <a class="code" href="namespaceubcc1pi.html#a42e409a54246ea6acba6d873b8eb696c" title="A collection of MCParticles.">MCParticleVector</a> &amp;mcParticles, <span class="keyword">const</span> <a class="code" href="namespaceubcc1pi.html#a679f75d7e515d88fd2b37057e0d681bb" title="Association from Hit to PFParticle.">HitsToPFParticles</a> &amp;hitsToPfps, <span class="keyword">const</span> <a class="code" href="namespaceubcc1pi.html#a9c8db99d0f284acb6b95013a2527c00d" title="Association from Hit to MCParticle along with the charge contribution weight.">HitsToMCParticleWeights</a> &amp;hitsToMcps) :
+<a name="l00186"></a>00186     m_mcParticles(mcParticles),
+<a name="l00187"></a>00187     m_pfParticles(pfParticles),
+<a name="l00188"></a>00188     m_hitsToMcps(hitsToMcps),
+<a name="l00189"></a>00189     m_hitsToPfps(hitsToPfps)
+<a name="l00190"></a>00190 {
+<a name="l00191"></a>00191     this-&gt;<a class="code" href="classubcc1pi_1_1BacktrackHelper_1_1BacktrackerData.html#a76e0d6aa2e9d56a181b6e413e1f04fd5" title="Check that PFParticles in the input map from hits -&amp;gt; PFParticles all exist in...">CheckConsistency</a>(<a class="code" href="classubcc1pi_1_1BacktrackHelper_1_1BacktrackerData.html#afe7d6c4e411e617b8b040d31ee4fbcfa" title="The MCParticles.">m_mcParticles</a>, hitsToMcps);
+<a name="l00192"></a>00192     this-&gt;<a class="code" href="classubcc1pi_1_1BacktrackHelper_1_1BacktrackerData.html#a76e0d6aa2e9d56a181b6e413e1f04fd5" title="Check that PFParticles in the input map from hits -&amp;gt; PFParticles all exist in...">CheckConsistency</a>(<a class="code" href="classubcc1pi_1_1BacktrackHelper_1_1BacktrackerData.html#abba6aa55941f7402db0e417434ab9770" title="The PFParticles.">m_pfParticles</a>, hitsToPfps);
+<a name="l00193"></a>00193 
+<a name="l00194"></a>00194     <span class="keyword">const</span> <span class="keyword">auto</span> allHits = this-&gt;<a class="code" href="classubcc1pi_1_1BacktrackHelper_1_1BacktrackerData.html#a6e4522f01e739136cdc925415a115955" title="Collect all of the hits stored in the input maps ensuring we don&amp;#39;t double count...">CollectHits</a>(hitsToPfps, hitsToMcps);
+<a name="l00195"></a>00195 
+<a name="l00196"></a>00196     <span class="keywordflow">for</span> (<span class="keyword">const</span> <span class="keyword">auto</span> &amp;hit : this-&gt;<a class="code" href="classubcc1pi_1_1BacktrackHelper_1_1BacktrackerData.html#a6e4522f01e739136cdc925415a115955" title="Collect all of the hits stored in the input maps ensuring we don&amp;#39;t double count...">CollectHits</a>(hitsToPfps, hitsToMcps))
+<a name="l00197"></a>00197     {
+<a name="l00198"></a>00198         art::Ptr&lt;recob::PFParticle&gt; pfParticle;
+<a name="l00199"></a>00199         <span class="keyword">const</span> <span class="keywordtype">bool</span> hasPFParticle = this-&gt;<a class="code" href="classubcc1pi_1_1BacktrackHelper_1_1BacktrackerData.html#a39f4fd91b8a453ad697651a2576c887d" title="Get the PFParticle associated with a given hit.">CollectPFParticle</a>(hit, hitsToPfps, pfParticle);
+<a name="l00200"></a>00200         
+<a name="l00201"></a>00201         CollectionData&lt;simb::MCParticle, float&gt; mcParticleWeights;
+<a name="l00202"></a>00202         <span class="keyword">const</span> <span class="keywordtype">bool</span> hasMCParticles = this-&gt;<a class="code" href="classubcc1pi_1_1BacktrackHelper_1_1BacktrackerData.html#a3364917f1b04112aa8a1dbfd5048c936" title="Collect the MCParticles that are associated with a given hit along with their weights...">CollectMCParticleWeights</a>(hit, hitsToMcps, mcParticleWeights);
+<a name="l00203"></a>00203 
+<a name="l00204"></a>00204         <span class="comment">// Fill the PFParticle weight map</span>
+<a name="l00205"></a>00205         <span class="keywordflow">if</span> (hasPFParticle)
+<a name="l00206"></a>00206         {
+<a name="l00207"></a>00207             <span class="comment">// Check if we already have an entry for this particle</span>
+<a name="l00208"></a>00208             <span class="keywordflow">if</span> (<a class="code" href="classubcc1pi_1_1BacktrackHelper_1_1BacktrackerData.html#adf044f8d9cdd2646af0d26cf96d36305" title="The mapping from PFParticle to the total weight (= number of hits).">m_pfParticleWeightMap</a>.find(pfParticle) == <a class="code" href="classubcc1pi_1_1BacktrackHelper_1_1BacktrackerData.html#adf044f8d9cdd2646af0d26cf96d36305" title="The mapping from PFParticle to the total weight (= number of hits).">m_pfParticleWeightMap</a>.end())
+<a name="l00209"></a>00209                 <a class="code" href="classubcc1pi_1_1BacktrackHelper_1_1BacktrackerData.html#adf044f8d9cdd2646af0d26cf96d36305" title="The mapping from PFParticle to the total weight (= number of hits).">m_pfParticleWeightMap</a>.emplace(pfParticle, 0.f);
+<a name="l00210"></a>00210 
+<a name="l00211"></a>00211             <a class="code" href="classubcc1pi_1_1BacktrackHelper_1_1BacktrackerData.html#adf044f8d9cdd2646af0d26cf96d36305" title="The mapping from PFParticle to the total weight (= number of hits).">m_pfParticleWeightMap</a>.at(pfParticle) += 1.f;
+<a name="l00212"></a>00212         }
+<a name="l00213"></a>00213         
+<a name="l00214"></a>00214         <span class="comment">// Fill the MCParticle weight map</span>
+<a name="l00215"></a>00215         <span class="keywordflow">if</span> (hasMCParticles)
+<a name="l00216"></a>00216         {
+<a name="l00217"></a>00217             <span class="keywordflow">for</span> (<span class="keyword">const</span> <span class="keyword">auto</span> &amp;entry : mcParticleWeights)
+<a name="l00218"></a>00218             {
+<a name="l00219"></a>00219                 <span class="keyword">const</span> <span class="keyword">auto</span> mcParticle = entry.first;
+<a name="l00220"></a>00220                 <span class="keyword">const</span> <span class="keyword">auto</span> weight = entry.second;
+<a name="l00221"></a>00221             
+<a name="l00222"></a>00222                 <span class="comment">// Check if we already have an entry for this particle</span>
+<a name="l00223"></a>00223                 <span class="keywordflow">if</span> (<a class="code" href="classubcc1pi_1_1BacktrackHelper_1_1BacktrackerData.html#af04206fc120aa8717e4aa86ab9e47c72" title="The mapping from MCParticle to the total weight (= weighted number of hits).">m_mcParticleWeightMap</a>.find(mcParticle) == <a class="code" href="classubcc1pi_1_1BacktrackHelper_1_1BacktrackerData.html#af04206fc120aa8717e4aa86ab9e47c72" title="The mapping from MCParticle to the total weight (= weighted number of hits).">m_mcParticleWeightMap</a>.end())
+<a name="l00224"></a>00224                     <a class="code" href="classubcc1pi_1_1BacktrackHelper_1_1BacktrackerData.html#af04206fc120aa8717e4aa86ab9e47c72" title="The mapping from MCParticle to the total weight (= weighted number of hits).">m_mcParticleWeightMap</a>.emplace(mcParticle, 0.f);
+<a name="l00225"></a>00225     
+<a name="l00226"></a>00226                 <a class="code" href="classubcc1pi_1_1BacktrackHelper_1_1BacktrackerData.html#af04206fc120aa8717e4aa86ab9e47c72" title="The mapping from MCParticle to the total weight (= weighted number of hits).">m_mcParticleWeightMap</a>.at(mcParticle) += weight;
+<a name="l00227"></a>00227                 
+<a name="l00228"></a>00228                 <span class="comment">// Fill the PFParticle -&gt; MCParticle matched weight map</span>
+<a name="l00229"></a>00229                 <span class="keywordflow">if</span> (hasPFParticle)
+<a name="l00230"></a>00230                 {
+<a name="l00231"></a>00231                     <span class="comment">// Get the map entry for this PFParticle, creating it if it doesn&apos;t exist</span>
+<a name="l00232"></a>00232                     <span class="keyword">auto</span> &amp;entry = <a class="code" href="classubcc1pi_1_1BacktrackHelper_1_1BacktrackerData.html#a622fd1b767b090773759fa5cf365bafb" title="The matching between PFParticles and MCParticles along with the shared weight.">m_matchMap</a>[pfParticle];
+<a name="l00233"></a>00233 
+<a name="l00234"></a>00234                     <span class="keyword">auto</span> iter = std::find_if(entry.begin(), entry.end(), [&amp;](<span class="keyword">const</span> <span class="keyword">auto</span> &amp;x){<span class="keywordflow">return</span> x.first == mcParticle;});
+<a name="l00235"></a>00235                     <span class="keywordflow">if</span> (iter == entry.end())
+<a name="l00236"></a>00236                     {
+<a name="l00237"></a>00237                         entry.emplace_back(mcParticle, weight);
+<a name="l00238"></a>00238                     }
+<a name="l00239"></a>00239                     <span class="keywordflow">else</span>
+<a name="l00240"></a>00240                     {
+<a name="l00241"></a>00241                         iter-&gt;second += weight;
+<a name="l00242"></a>00242                     }
+<a name="l00243"></a>00243                 }
+<a name="l00244"></a>00244             }
+<a name="l00245"></a>00245         }
+<a name="l00246"></a>00246     }
+<a name="l00247"></a>00247 }
+<a name="l00248"></a>00248 
+<a name="l00249"></a>00249 <span class="comment">// -----------------------------------------------------------------------------------------------------------------------------------------</span>
+<a name="l00250"></a>00250 
+<a name="l00251"></a><a class="code" href="classubcc1pi_1_1BacktrackHelper_1_1BacktrackerData.html#a0917037ff959924c0d47d94ebac53f1f">00251</a> <span class="keywordtype">void</span> <a class="code" href="classubcc1pi_1_1BacktrackHelper_1_1BacktrackerData.html#a76e0d6aa2e9d56a181b6e413e1f04fd5" title="Check that PFParticles in the input map from hits -&amp;gt; PFParticles all exist in...">BacktrackHelper::BacktrackerData::CheckConsistency</a>(<span class="keyword">const</span> <a class="code" href="namespaceubcc1pi.html#a42e409a54246ea6acba6d873b8eb696c" title="A collection of MCParticles.">MCParticleVector</a> &amp;mcParticles, <span class="keyword">const</span> <a class="code" href="namespaceubcc1pi.html#a9c8db99d0f284acb6b95013a2527c00d" title="Association from Hit to MCParticle along with the charge contribution weight.">HitsToMCParticleWeights</a> &amp;hitsToMcps)<span class="keyword"> const</span>
+<a name="l00252"></a>00252 <span class="keyword"></span>{
+<a name="l00253"></a>00253     <span class="keywordflow">for</span> (<span class="keyword">const</span> <span class="keyword">auto</span> &amp;entry : hitsToMcps)
+<a name="l00254"></a>00254     {
+<a name="l00255"></a>00255         <span class="keywordflow">for</span> (<span class="keyword">const</span> <span class="keyword">auto</span> &amp;mcpWeightPair : entry.second)
+<a name="l00256"></a>00256         {
+<a name="l00257"></a>00257             <span class="keywordflow">if</span> (std::find(mcParticles.begin(), mcParticles.end(), mcpWeightPair.first) == mcParticles.end())
+<a name="l00258"></a>00258                 <span class="keywordflow">throw</span> cet::exception(<span class="stringliteral">&quot;BacktrackerData::CheckConsistency&quot;</span>) &lt;&lt; <span class="stringliteral">&quot; - MCParticle from input map isn&apos;t in the input vector.&quot;</span> &lt;&lt; std::endl;
+<a name="l00259"></a>00259         }
+<a name="l00260"></a>00260     }
+<a name="l00261"></a>00261 }
+<a name="l00262"></a>00262 
+<a name="l00263"></a>00263 <span class="comment">// -----------------------------------------------------------------------------------------------------------------------------------------</span>
+<a name="l00264"></a>00264 
+<a name="l00265"></a><a class="code" href="classubcc1pi_1_1BacktrackHelper_1_1BacktrackerData.html#a76e0d6aa2e9d56a181b6e413e1f04fd5">00265</a> <span class="keywordtype">void</span> <a class="code" href="classubcc1pi_1_1BacktrackHelper_1_1BacktrackerData.html#a76e0d6aa2e9d56a181b6e413e1f04fd5" title="Check that PFParticles in the input map from hits -&amp;gt; PFParticles all exist in...">BacktrackHelper::BacktrackerData::CheckConsistency</a>(<span class="keyword">const</span> <a class="code" href="namespaceubcc1pi.html#a6f66dc13c5a55147db5c84db67f6062b" title="A collection of PFParticles.">PFParticleVector</a> &amp;pfParticles, <span class="keyword">const</span> <a class="code" href="namespaceubcc1pi.html#a679f75d7e515d88fd2b37057e0d681bb" title="Association from Hit to PFParticle.">HitsToPFParticles</a> &amp;hitsToPfps)<span class="keyword"> const</span>
+<a name="l00266"></a>00266 <span class="keyword"></span>{
+<a name="l00267"></a>00267     <span class="keywordflow">for</span> (<span class="keyword">const</span> <span class="keyword">auto</span> &amp;entry : hitsToPfps)
 <a name="l00268"></a>00268     {
-<a name="l00269"></a>00269         <span class="keywordflow">return</span> <span class="keyword">false</span>;
-<a name="l00270"></a>00270     }
-<a name="l00271"></a>00271 }
-<a name="l00272"></a>00272 
-<a name="l00273"></a>00273 <span class="comment">// -----------------------------------------------------------------------------------------------------------------------------------------</span>
-<a name="l00274"></a>00274                 
-<a name="l00275"></a><a class="code" href="classubcc1pi_1_1BacktrackHelper_1_1BacktrackerData.html#a1a8d273212e2aabcc854cd5ff190b319">00275</a> <a class="code" href="namespaceubcc1pi.html#a42e409a54246ea6acba6d873b8eb696c" title="A collection of MCParticles.">MCParticleVector</a> <a class="code" href="classubcc1pi_1_1BacktrackHelper_1_1BacktrackerData.html#a1a8d273212e2aabcc854cd5ff190b319" title="Get the MCParticles.">BacktrackHelper::BacktrackerData::GetMCParticles</a>()<span class="keyword"> const</span>
-<a name="l00276"></a>00276 <span class="keyword"></span>{
-<a name="l00277"></a>00277     <span class="keywordflow">return</span> <a class="code" href="classubcc1pi_1_1BacktrackHelper_1_1BacktrackerData.html#afe7d6c4e411e617b8b040d31ee4fbcfa" title="The MCParticles.">m_mcParticles</a>;
-<a name="l00278"></a>00278 }
-<a name="l00279"></a>00279 
-<a name="l00280"></a>00280 <span class="comment">// -----------------------------------------------------------------------------------------------------------------------------------------</span>
-<a name="l00281"></a>00281 
-<a name="l00282"></a><a class="code" href="classubcc1pi_1_1BacktrackHelper_1_1BacktrackerData.html#a6c072195afa69da6d4d8ff6adb41bfed">00282</a> <a class="code" href="namespaceubcc1pi.html#a6f66dc13c5a55147db5c84db67f6062b" title="A collection of PFParticles.">PFParticleVector</a> <a class="code" href="classubcc1pi_1_1BacktrackHelper_1_1BacktrackerData.html#a6c072195afa69da6d4d8ff6adb41bfed" title="Get the PFParticles.">BacktrackHelper::BacktrackerData::GetPFParticles</a>()<span class="keyword"> const</span>
-<a name="l00283"></a>00283 <span class="keyword"></span>{    
-<a name="l00284"></a>00284     <span class="keywordflow">return</span> <a class="code" href="classubcc1pi_1_1BacktrackHelper_1_1BacktrackerData.html#abba6aa55941f7402db0e417434ab9770" title="The PFParticles.">m_pfParticles</a>;
-<a name="l00285"></a>00285 }
-<a name="l00286"></a>00286 
-<a name="l00287"></a>00287 <span class="comment">// -----------------------------------------------------------------------------------------------------------------------------------------</span>
-<a name="l00288"></a>00288 
-<a name="l00289"></a><a class="code" href="classubcc1pi_1_1BacktrackHelper_1_1BacktrackerData.html#a0b0a97de0d99588bedd5510be8649a2c">00289</a> <span class="keywordtype">unsigned</span> <span class="keywordtype">int</span> <a class="code" href="classubcc1pi_1_1BacktrackHelper_1_1BacktrackerData.html#a0b0a97de0d99588bedd5510be8649a2c" title="Get the number of hits associated with a given PFParticle.">BacktrackHelper::BacktrackerData::GetNHits</a>(<span class="keyword">const</span> art::Ptr&lt;recob::PFParticle&gt; &amp;pfParticle)<span class="keyword"> const</span>
-<a name="l00290"></a>00290 <span class="keyword"></span>{
-<a name="l00291"></a>00291     <span class="keywordflow">return</span> <span class="keyword">static_cast&lt;</span><span class="keywordtype">unsigned</span> <span class="keywordtype">int</span><span class="keyword">&gt;</span>(std::round(this-&gt;<a class="code" href="classubcc1pi_1_1BacktrackHelper_1_1BacktrackerData.html#a5d45b96730887e759cc634de06618048" title="Get the weight associated with a given PFParticle (= the number of hits).">GetWeight</a>(pfParticle)));
-<a name="l00292"></a>00292 }
-<a name="l00293"></a>00293 
-<a name="l00294"></a>00294 <span class="comment">// -----------------------------------------------------------------------------------------------------------------------------------------</span>
-<a name="l00295"></a>00295 
-<a name="l00296"></a><a class="code" href="classubcc1pi_1_1BacktrackHelper_1_1BacktrackerData.html#a5d45b96730887e759cc634de06618048">00296</a> <span class="keywordtype">float</span> <a class="code" href="classubcc1pi_1_1BacktrackHelper_1_1BacktrackerData.html#a5d45b96730887e759cc634de06618048" title="Get the weight associated with a given PFParticle (= the number of hits).">BacktrackHelper::BacktrackerData::GetWeight</a>(<span class="keyword">const</span> art::Ptr&lt;recob::PFParticle&gt; &amp;pfParticle)<span class="keyword"> const</span>
-<a name="l00297"></a>00297 <span class="keyword"></span>{
-<a name="l00298"></a>00298     <span class="keyword">const</span> <span class="keyword">auto</span> iter = <a class="code" href="classubcc1pi_1_1BacktrackHelper_1_1BacktrackerData.html#adf044f8d9cdd2646af0d26cf96d36305" title="The mapping from PFParticle to the total weight (= number of hits).">m_pfParticleWeightMap</a>.find(pfParticle);
-<a name="l00299"></a>00299 
-<a name="l00300"></a>00300     <span class="keywordflow">if</span> (iter == <a class="code" href="classubcc1pi_1_1BacktrackHelper_1_1BacktrackerData.html#adf044f8d9cdd2646af0d26cf96d36305" title="The mapping from PFParticle to the total weight (= number of hits).">m_pfParticleWeightMap</a>.end())
-<a name="l00301"></a>00301         <span class="keywordflow">return</span> 0.f;
+<a name="l00269"></a>00269         <span class="keywordflow">for</span> (<span class="keyword">const</span> <span class="keyword">auto</span> &amp;pfParticle : entry.second)
+<a name="l00270"></a>00270         {
+<a name="l00271"></a>00271             <span class="keywordflow">if</span> (std::find(pfParticles.begin(), pfParticles.end(), pfParticle) == pfParticles.end())
+<a name="l00272"></a>00272                 <span class="keywordflow">throw</span> cet::exception(<span class="stringliteral">&quot;BacktrackerData::CheckConsistency&quot;</span>) &lt;&lt; <span class="stringliteral">&quot; - PFParticle from input map isn&apos;t in the input vector.&quot;</span> &lt;&lt; std::endl;
+<a name="l00273"></a>00273         }
+<a name="l00274"></a>00274     }
+<a name="l00275"></a>00275 }
+<a name="l00276"></a>00276 
+<a name="l00277"></a>00277 <span class="comment">// -----------------------------------------------------------------------------------------------------------------------------------------</span>
+<a name="l00278"></a>00278 
+<a name="l00279"></a><a class="code" href="classubcc1pi_1_1BacktrackHelper_1_1BacktrackerData.html#a6e4522f01e739136cdc925415a115955">00279</a> <a class="code" href="namespaceubcc1pi.html#aad18bb5924d1ff428402c8af4b72f1c0" title="A collection of Hits.">HitVector</a> <a class="code" href="classubcc1pi_1_1BacktrackHelper_1_1BacktrackerData.html#a6e4522f01e739136cdc925415a115955" title="Collect all of the hits stored in the input maps ensuring we don&amp;#39;t double count...">BacktrackHelper::BacktrackerData::CollectHits</a>(<span class="keyword">const</span> <a class="code" href="namespaceubcc1pi.html#a679f75d7e515d88fd2b37057e0d681bb" title="Association from Hit to PFParticle.">HitsToPFParticles</a> &amp;hitsToPfps, <span class="keyword">const</span> <a class="code" href="namespaceubcc1pi.html#a9c8db99d0f284acb6b95013a2527c00d" title="Association from Hit to MCParticle along with the charge contribution weight.">HitsToMCParticleWeights</a> &amp;hitsToMcps)<span class="keyword"> const</span>
+<a name="l00280"></a>00280 <span class="keyword"></span>{
+<a name="l00281"></a>00281     <a class="code" href="namespaceubcc1pi.html#aad18bb5924d1ff428402c8af4b72f1c0" title="A collection of Hits.">HitVector</a> hits;
+<a name="l00282"></a>00282     
+<a name="l00283"></a>00283     <span class="keywordflow">for</span> (<span class="keyword">const</span> <span class="keyword">auto</span> &amp;entry : hitsToPfps)
+<a name="l00284"></a>00284     {
+<a name="l00285"></a>00285         <span class="keywordflow">if</span> (std::find(hits.begin(), hits.end(), entry.first) == hits.end())
+<a name="l00286"></a>00286             hits.push_back(entry.first);
+<a name="l00287"></a>00287     }
+<a name="l00288"></a>00288     
+<a name="l00289"></a>00289     <span class="keywordflow">for</span> (<span class="keyword">const</span> <span class="keyword">auto</span> &amp;entry : hitsToMcps)
+<a name="l00290"></a>00290     {
+<a name="l00291"></a>00291         <span class="keywordflow">if</span> (std::find(hits.begin(), hits.end(), entry.first) == hits.end())
+<a name="l00292"></a>00292             hits.push_back(entry.first);
+<a name="l00293"></a>00293     }
+<a name="l00294"></a>00294 
+<a name="l00295"></a>00295     <span class="comment">// Sort the hits to ensure reproducibility</span>
+<a name="l00296"></a>00296     std::sort(hits.begin(), hits.end(), [](<span class="keyword">const</span> <span class="keyword">auto</span> &amp;hit1, <span class="keyword">const</span> <span class="keyword">auto</span> &amp;hit2){<span class="keywordflow">return</span> hit1-&gt;PeakTime() &lt; hit2-&gt;PeakTime();});
+<a name="l00297"></a>00297 
+<a name="l00298"></a>00298     <span class="keywordflow">return</span> hits;
+<a name="l00299"></a>00299 }
+<a name="l00300"></a>00300 
+<a name="l00301"></a>00301 <span class="comment">// -----------------------------------------------------------------------------------------------------------------------------------------</span>
 <a name="l00302"></a>00302 
-<a name="l00303"></a>00303     <span class="keywordflow">return</span> iter-&gt;second;
-<a name="l00304"></a>00304 }
-<a name="l00305"></a>00305 
-<a name="l00306"></a>00306 <span class="comment">// -----------------------------------------------------------------------------------------------------------------------------------------</span>
-<a name="l00307"></a>00307 
-<a name="l00308"></a><a class="code" href="classubcc1pi_1_1BacktrackHelper_1_1BacktrackerData.html#ab907df18cdecf05f5d754cf32d46c94d">00308</a> <span class="keywordtype">float</span> <a class="code" href="classubcc1pi_1_1BacktrackHelper_1_1BacktrackerData.html#a5d45b96730887e759cc634de06618048" title="Get the weight associated with a given PFParticle (= the number of hits).">BacktrackHelper::BacktrackerData::GetWeight</a>(<span class="keyword">const</span> art::Ptr&lt;simb::MCParticle&gt; &amp;mcParticle)<span class="keyword"> const</span>
-<a name="l00309"></a>00309 <span class="keyword"></span>{
-<a name="l00310"></a>00310     <span class="keyword">const</span> <span class="keyword">auto</span> iter = <a class="code" href="classubcc1pi_1_1BacktrackHelper_1_1BacktrackerData.html#af04206fc120aa8717e4aa86ab9e47c72" title="The mapping from MCParticle to the total weight (= weighted number of hits).">m_mcParticleWeightMap</a>.find(mcParticle);
-<a name="l00311"></a>00311 
-<a name="l00312"></a>00312     <span class="keywordflow">if</span> (iter == <a class="code" href="classubcc1pi_1_1BacktrackHelper_1_1BacktrackerData.html#af04206fc120aa8717e4aa86ab9e47c72" title="The mapping from MCParticle to the total weight (= weighted number of hits).">m_mcParticleWeightMap</a>.end())
-<a name="l00313"></a>00313         <span class="keywordflow">return</span> 0.f;
-<a name="l00314"></a>00314 
-<a name="l00315"></a>00315     <span class="keywordflow">return</span> iter-&gt;second;
-<a name="l00316"></a>00316 }
+<a name="l00303"></a><a class="code" href="classubcc1pi_1_1BacktrackHelper_1_1BacktrackerData.html#a39f4fd91b8a453ad697651a2576c887d">00303</a> <span class="keywordtype">bool</span> <a class="code" href="classubcc1pi_1_1BacktrackHelper_1_1BacktrackerData.html#a39f4fd91b8a453ad697651a2576c887d" title="Get the PFParticle associated with a given hit.">BacktrackHelper::BacktrackerData::CollectPFParticle</a>(<span class="keyword">const</span> art::Ptr&lt;recob::Hit&gt; &amp;hit, <span class="keyword">const</span> <a class="code" href="namespaceubcc1pi.html#a679f75d7e515d88fd2b37057e0d681bb" title="Association from Hit to PFParticle.">HitsToPFParticles</a> &amp;hitsToPfps, art::Ptr&lt;recob::PFParticle&gt; &amp;outputParticle)<span class="keyword"> const</span>
+<a name="l00304"></a>00304 <span class="keyword"></span>{
+<a name="l00305"></a>00305     <span class="keywordflow">try</span>
+<a name="l00306"></a>00306     {
+<a name="l00307"></a>00307         outputParticle = <a class="code" href="classubcc1pi_1_1CollectionHelper.html#aef49ea81264de87954feb660c9d6fbda" title="Get the single object associated to a given input object.">CollectionHelper::GetSingleAssociated</a>(hit, hitsToPfps);
+<a name="l00308"></a>00308         <span class="keywordflow">return</span> <span class="keyword">true</span>;
+<a name="l00309"></a>00309     }
+<a name="l00310"></a>00310     <span class="keywordflow">catch</span> (<span class="keyword">const</span> cet::exception &amp;)
+<a name="l00311"></a>00311     {
+<a name="l00312"></a>00312         <span class="keywordflow">return</span> <span class="keyword">false</span>;
+<a name="l00313"></a>00313     }
+<a name="l00314"></a>00314 }
+<a name="l00315"></a>00315 
+<a name="l00316"></a>00316 <span class="comment">// -----------------------------------------------------------------------------------------------------------------------------------------</span>
 <a name="l00317"></a>00317 
-<a name="l00318"></a>00318 <span class="comment">// -----------------------------------------------------------------------------------------------------------------------------------------</span>
-<a name="l00319"></a>00319 
-<a name="l00320"></a><a class="code" href="classubcc1pi_1_1BacktrackHelper_1_1BacktrackerData.html#a9a1113ff1e392071ee88da790db9b3c3">00320</a> <a class="code" href="namespaceubcc1pi.html#aad18bb5924d1ff428402c8af4b72f1c0" title="A collection of Hits.">HitVector</a> <a class="code" href="classubcc1pi_1_1BacktrackHelper_1_1BacktrackerData.html#a9a1113ff1e392071ee88da790db9b3c3" title="Get all hits that are associated the MCParticle with any weight.">BacktrackHelper::BacktrackerData::GetHits</a>(<span class="keyword">const</span> art::Ptr&lt;simb::MCParticle&gt; &amp;mcParticle)<span class="keyword"> const</span>
-<a name="l00321"></a>00321 <span class="keyword"></span>{
-<a name="l00322"></a>00322     <a class="code" href="namespaceubcc1pi.html#aad18bb5924d1ff428402c8af4b72f1c0" title="A collection of Hits.">HitVector</a> hits;
-<a name="l00323"></a>00323 
-<a name="l00324"></a>00324     <span class="keywordflow">for</span> (<span class="keyword">const</span> <span class="keyword">auto</span> &amp;entry : <a class="code" href="classubcc1pi_1_1BacktrackHelper_1_1BacktrackerData.html#a5fdea3cfff2614e2b2305c3d78ca466b" title="The mapping from hits to MCParticle along with the associated weights.">m_hitsToMcps</a>)
-<a name="l00325"></a>00325     {
-<a name="l00326"></a>00326         <span class="keywordflow">for</span> (<span class="keyword">const</span> <span class="keyword">auto</span> &amp;pair : entry.second)
-<a name="l00327"></a>00327         {
-<a name="l00328"></a>00328             <span class="keywordflow">if</span> (pair.first == mcParticle)
-<a name="l00329"></a>00329             {
-<a name="l00330"></a>00330                 <span class="keywordflow">if</span> (std::find(hits.begin(), hits.end(), entry.first) != hits.end())
-<a name="l00331"></a>00331                     <span class="keywordflow">throw</span> cet::exception(<span class="stringliteral">&quot;BacktrackerData::GetHits&quot;</span>) &lt;&lt; <span class="stringliteral">&quot; - Found repeated hits associated to the input MCParticle&quot;</span> &lt;&lt; std::endl;
-<a name="l00332"></a>00332 
-<a name="l00333"></a>00333                 hits.push_back(entry.first);
-<a name="l00334"></a>00334             }
-<a name="l00335"></a>00335         }
-<a name="l00336"></a>00336     }
+<a name="l00318"></a><a class="code" href="classubcc1pi_1_1BacktrackHelper_1_1BacktrackerData.html#a3364917f1b04112aa8a1dbfd5048c936">00318</a> <span class="keywordtype">bool</span> <a class="code" href="classubcc1pi_1_1BacktrackHelper_1_1BacktrackerData.html#a3364917f1b04112aa8a1dbfd5048c936" title="Collect the MCParticles that are associated with a given hit along with their weights...">BacktrackHelper::BacktrackerData::CollectMCParticleWeights</a>(<span class="keyword">const</span> art::Ptr&lt;recob::Hit&gt; &amp;hit, <span class="keyword">const</span> <a class="code" href="namespaceubcc1pi.html#a9c8db99d0f284acb6b95013a2527c00d" title="Association from Hit to MCParticle along with the charge contribution weight.">HitsToMCParticleWeights</a> &amp;hitsToMcps, CollectionData&lt;simb::MCParticle, float&gt; &amp;outputParticleWeights)<span class="keyword"> const</span>
+<a name="l00319"></a>00319 <span class="keyword"></span>{
+<a name="l00320"></a>00320     <span class="keywordflow">try</span>
+<a name="l00321"></a>00321     {
+<a name="l00322"></a>00322         outputParticleWeights = <a class="code" href="classubcc1pi_1_1CollectionHelper.html#aada59fad3b5a521a03d63b15516882e7" title="Get the objects associated to a given input object with data.">CollectionHelper::GetManyAssociatedWithData</a>(hit, hitsToMcps);
+<a name="l00323"></a>00323         <span class="keywordflow">return</span> <span class="keyword">true</span>;
+<a name="l00324"></a>00324     }
+<a name="l00325"></a>00325     <span class="keywordflow">catch</span> (<span class="keyword">const</span> cet::exception &amp;)
+<a name="l00326"></a>00326     {
+<a name="l00327"></a>00327         <span class="keywordflow">return</span> <span class="keyword">false</span>;
+<a name="l00328"></a>00328     }
+<a name="l00329"></a>00329 }
+<a name="l00330"></a>00330 
+<a name="l00331"></a>00331 <span class="comment">// -----------------------------------------------------------------------------------------------------------------------------------------</span>
+<a name="l00332"></a>00332                 
+<a name="l00333"></a><a class="code" href="classubcc1pi_1_1BacktrackHelper_1_1BacktrackerData.html#a1a8d273212e2aabcc854cd5ff190b319">00333</a> <a class="code" href="namespaceubcc1pi.html#a42e409a54246ea6acba6d873b8eb696c" title="A collection of MCParticles.">MCParticleVector</a> <a class="code" href="classubcc1pi_1_1BacktrackHelper_1_1BacktrackerData.html#a1a8d273212e2aabcc854cd5ff190b319" title="Get the MCParticles.">BacktrackHelper::BacktrackerData::GetMCParticles</a>()<span class="keyword"> const</span>
+<a name="l00334"></a>00334 <span class="keyword"></span>{
+<a name="l00335"></a>00335     <span class="keywordflow">return</span> <a class="code" href="classubcc1pi_1_1BacktrackHelper_1_1BacktrackerData.html#afe7d6c4e411e617b8b040d31ee4fbcfa" title="The MCParticles.">m_mcParticles</a>;
+<a name="l00336"></a>00336 }
 <a name="l00337"></a>00337 
-<a name="l00338"></a>00338     <span class="keywordflow">return</span> hits;
-<a name="l00339"></a>00339 }
-<a name="l00340"></a>00340 
-<a name="l00341"></a>00341 <span class="comment">// -----------------------------------------------------------------------------------------------------------------------------------------</span>
-<a name="l00342"></a>00342 
-<a name="l00343"></a><a class="code" href="classubcc1pi_1_1BacktrackHelper_1_1BacktrackerData.html#a645ec144c36a84894de51b5963b06ae1">00343</a> <a class="code" href="namespaceubcc1pi.html#aad18bb5924d1ff428402c8af4b72f1c0" title="A collection of Hits.">HitVector</a> <a class="code" href="classubcc1pi_1_1BacktrackHelper_1_1BacktrackerData.html#a9a1113ff1e392071ee88da790db9b3c3" title="Get all hits that are associated the MCParticle with any weight.">BacktrackHelper::BacktrackerData::GetHits</a>(<span class="keyword">const</span> art::Ptr&lt;recob::PFParticle&gt; &amp;pfParticle)<span class="keyword"> const</span>
-<a name="l00344"></a>00344 <span class="keyword"></span>{
-<a name="l00345"></a>00345     <a class="code" href="namespaceubcc1pi.html#aad18bb5924d1ff428402c8af4b72f1c0" title="A collection of Hits.">HitVector</a> hits;
+<a name="l00338"></a>00338 <span class="comment">// -----------------------------------------------------------------------------------------------------------------------------------------</span>
+<a name="l00339"></a>00339 
+<a name="l00340"></a><a class="code" href="classubcc1pi_1_1BacktrackHelper_1_1BacktrackerData.html#a6c072195afa69da6d4d8ff6adb41bfed">00340</a> <a class="code" href="namespaceubcc1pi.html#a6f66dc13c5a55147db5c84db67f6062b" title="A collection of PFParticles.">PFParticleVector</a> <a class="code" href="classubcc1pi_1_1BacktrackHelper_1_1BacktrackerData.html#a6c072195afa69da6d4d8ff6adb41bfed" title="Get the PFParticles.">BacktrackHelper::BacktrackerData::GetPFParticles</a>()<span class="keyword"> const</span>
+<a name="l00341"></a>00341 <span class="keyword"></span>{    
+<a name="l00342"></a>00342     <span class="keywordflow">return</span> <a class="code" href="classubcc1pi_1_1BacktrackHelper_1_1BacktrackerData.html#abba6aa55941f7402db0e417434ab9770" title="The PFParticles.">m_pfParticles</a>;
+<a name="l00343"></a>00343 }
+<a name="l00344"></a>00344 
+<a name="l00345"></a>00345 <span class="comment">// -----------------------------------------------------------------------------------------------------------------------------------------</span>
 <a name="l00346"></a>00346 
-<a name="l00347"></a>00347     <span class="keywordflow">for</span> (<span class="keyword">const</span> <span class="keyword">auto</span> &amp;entry : <a class="code" href="classubcc1pi_1_1BacktrackHelper_1_1BacktrackerData.html#aff15edca942c31529a216b1273384861" title="The mapping from hits to PFParticles.">m_hitsToPfps</a>)
-<a name="l00348"></a>00348     {
-<a name="l00349"></a>00349         <span class="keywordflow">for</span> (<span class="keyword">const</span> <span class="keyword">auto</span> &amp;pfp : entry.second)
-<a name="l00350"></a>00350         {
-<a name="l00351"></a>00351             <span class="keywordflow">if</span> (pfp == pfParticle)
-<a name="l00352"></a>00352             {
-<a name="l00353"></a>00353                 <span class="keywordflow">if</span> (std::find(hits.begin(), hits.end(), entry.first) != hits.end())
-<a name="l00354"></a>00354                     <span class="keywordflow">throw</span> cet::exception(<span class="stringliteral">&quot;BacktrackerData::GetHits&quot;</span>) &lt;&lt; <span class="stringliteral">&quot; - Found repeated hits associated to the input PFParticle&quot;</span> &lt;&lt; std::endl;
-<a name="l00355"></a>00355 
-<a name="l00356"></a>00356                 hits.push_back(entry.first);
-<a name="l00357"></a>00357             }
-<a name="l00358"></a>00358         }
-<a name="l00359"></a>00359     }
+<a name="l00347"></a><a class="code" href="classubcc1pi_1_1BacktrackHelper_1_1BacktrackerData.html#a0b0a97de0d99588bedd5510be8649a2c">00347</a> <span class="keywordtype">unsigned</span> <span class="keywordtype">int</span> <a class="code" href="classubcc1pi_1_1BacktrackHelper_1_1BacktrackerData.html#a0b0a97de0d99588bedd5510be8649a2c" title="Get the number of hits associated with a given PFParticle.">BacktrackHelper::BacktrackerData::GetNHits</a>(<span class="keyword">const</span> art::Ptr&lt;recob::PFParticle&gt; &amp;pfParticle)<span class="keyword"> const</span>
+<a name="l00348"></a>00348 <span class="keyword"></span>{
+<a name="l00349"></a>00349     <span class="keywordflow">return</span> <span class="keyword">static_cast&lt;</span><span class="keywordtype">unsigned</span> <span class="keywordtype">int</span><span class="keyword">&gt;</span>(std::round(this-&gt;<a class="code" href="classubcc1pi_1_1BacktrackHelper_1_1BacktrackerData.html#a5d45b96730887e759cc634de06618048" title="Get the weight associated with a given PFParticle (= the number of hits).">GetWeight</a>(pfParticle)));
+<a name="l00350"></a>00350 }
+<a name="l00351"></a>00351 
+<a name="l00352"></a>00352 <span class="comment">// -----------------------------------------------------------------------------------------------------------------------------------------</span>
+<a name="l00353"></a>00353 
+<a name="l00354"></a><a class="code" href="classubcc1pi_1_1BacktrackHelper_1_1BacktrackerData.html#a5d45b96730887e759cc634de06618048">00354</a> <span class="keywordtype">float</span> <a class="code" href="classubcc1pi_1_1BacktrackHelper_1_1BacktrackerData.html#a5d45b96730887e759cc634de06618048" title="Get the weight associated with a given PFParticle (= the number of hits).">BacktrackHelper::BacktrackerData::GetWeight</a>(<span class="keyword">const</span> art::Ptr&lt;recob::PFParticle&gt; &amp;pfParticle)<span class="keyword"> const</span>
+<a name="l00355"></a>00355 <span class="keyword"></span>{
+<a name="l00356"></a>00356     <span class="keyword">const</span> <span class="keyword">auto</span> iter = <a class="code" href="classubcc1pi_1_1BacktrackHelper_1_1BacktrackerData.html#adf044f8d9cdd2646af0d26cf96d36305" title="The mapping from PFParticle to the total weight (= number of hits).">m_pfParticleWeightMap</a>.find(pfParticle);
+<a name="l00357"></a>00357 
+<a name="l00358"></a>00358     <span class="keywordflow">if</span> (iter == <a class="code" href="classubcc1pi_1_1BacktrackHelper_1_1BacktrackerData.html#adf044f8d9cdd2646af0d26cf96d36305" title="The mapping from PFParticle to the total weight (= number of hits).">m_pfParticleWeightMap</a>.end())
+<a name="l00359"></a>00359         <span class="keywordflow">return</span> 0.f;
 <a name="l00360"></a>00360 
-<a name="l00361"></a>00361     <span class="keywordflow">return</span> hits;
+<a name="l00361"></a>00361     <span class="keywordflow">return</span> iter-&gt;second;
 <a name="l00362"></a>00362 }
 <a name="l00363"></a>00363 
 <a name="l00364"></a>00364 <span class="comment">// -----------------------------------------------------------------------------------------------------------------------------------------</span>
 <a name="l00365"></a>00365 
-<a name="l00366"></a><a class="code" href="classubcc1pi_1_1BacktrackHelper_1_1BacktrackerData.html#a48fa660eec95653e9a2151abfccc6dc1">00366</a> <span class="keywordtype">float</span> <a class="code" href="classubcc1pi_1_1BacktrackHelper_1_1BacktrackerData.html#a48fa660eec95653e9a2151abfccc6dc1" title="Get the weight of a given PFParticle-MCParticle pair.">BacktrackHelper::BacktrackerData::GetMatchWeight</a>(<span class="keyword">const</span> art::Ptr&lt;recob::PFParticle&gt; &amp;pfParticle, <span class="keyword">const</span> art::Ptr&lt;simb::MCParticle&gt; &amp;mcParticle)<span class="keyword"> const</span>
+<a name="l00366"></a><a class="code" href="classubcc1pi_1_1BacktrackHelper_1_1BacktrackerData.html#ab907df18cdecf05f5d754cf32d46c94d">00366</a> <span class="keywordtype">float</span> <a class="code" href="classubcc1pi_1_1BacktrackHelper_1_1BacktrackerData.html#a5d45b96730887e759cc634de06618048" title="Get the weight associated with a given PFParticle (= the number of hits).">BacktrackHelper::BacktrackerData::GetWeight</a>(<span class="keyword">const</span> art::Ptr&lt;simb::MCParticle&gt; &amp;mcParticle)<span class="keyword"> const</span>
 <a name="l00367"></a>00367 <span class="keyword"></span>{
-<a name="l00368"></a>00368     <span class="keyword">const</span> <span class="keyword">auto</span> iter = <a class="code" href="classubcc1pi_1_1BacktrackHelper_1_1BacktrackerData.html#a622fd1b767b090773759fa5cf365bafb" title="The matching between PFParticles and MCParticles along with the shared weight.">m_matchMap</a>.find(pfParticle);
+<a name="l00368"></a>00368     <span class="keyword">const</span> <span class="keyword">auto</span> iter = <a class="code" href="classubcc1pi_1_1BacktrackHelper_1_1BacktrackerData.html#af04206fc120aa8717e4aa86ab9e47c72" title="The mapping from MCParticle to the total weight (= weighted number of hits).">m_mcParticleWeightMap</a>.find(mcParticle);
 <a name="l00369"></a>00369 
-<a name="l00370"></a>00370     <span class="comment">// There were no entries for this PFParticle - MCParticle pair, so the match weight is zero</span>
-<a name="l00371"></a>00371     <span class="keywordflow">if</span> (iter == <a class="code" href="classubcc1pi_1_1BacktrackHelper_1_1BacktrackerData.html#a622fd1b767b090773759fa5cf365bafb" title="The matching between PFParticles and MCParticles along with the shared weight.">m_matchMap</a>.end())
-<a name="l00372"></a>00372         <span class="keywordflow">return</span> 0.f;
-<a name="l00373"></a>00373 
-<a name="l00374"></a>00374     <span class="keywordflow">for</span> (<span class="keyword">const</span> <span class="keyword">auto</span> &amp;entry : iter-&gt;second)
-<a name="l00375"></a>00375     {
-<a name="l00376"></a>00376         <span class="keywordflow">if</span> (entry.first == mcParticle)
-<a name="l00377"></a>00377             <span class="keywordflow">return</span> entry.second;
-<a name="l00378"></a>00378     }
-<a name="l00379"></a>00379 
-<a name="l00380"></a>00380     <span class="comment">// There were no entries for this PFParticle - MCParticle pair, so the match weight is zero</span>
-<a name="l00381"></a>00381     <span class="keywordflow">return</span> 0.f;
-<a name="l00382"></a>00382 }
-<a name="l00383"></a>00383 
-<a name="l00384"></a>00384 <span class="comment">// -----------------------------------------------------------------------------------------------------------------------------------------</span>
-<a name="l00385"></a>00385                 
-<a name="l00386"></a><a class="code" href="classubcc1pi_1_1BacktrackHelper_1_1BacktrackerData.html#a8f5fa5a741e52e1549fb4dd67213de88">00386</a> <span class="keywordtype">float</span> <a class="code" href="classubcc1pi_1_1BacktrackHelper_1_1BacktrackerData.html#a8f5fa5a741e52e1549fb4dd67213de88" title="Get the purity of a given PFParticle-MCParticle pair = shared weight / PFParticle...">BacktrackHelper::BacktrackerData::GetMatchPurity</a>(<span class="keyword">const</span> art::Ptr&lt;recob::PFParticle&gt; &amp;pfParticle, <span class="keyword">const</span> art::Ptr&lt;simb::MCParticle&gt; &amp;mcParticle)<span class="keyword"> const</span>
-<a name="l00387"></a>00387 <span class="keyword"></span>{
-<a name="l00388"></a>00388     <span class="keyword">const</span> <span class="keyword">auto</span> pfWeight = this-&gt;<a class="code" href="classubcc1pi_1_1BacktrackHelper_1_1BacktrackerData.html#a5d45b96730887e759cc634de06618048" title="Get the weight associated with a given PFParticle (= the number of hits).">GetWeight</a>(pfParticle);
-<a name="l00389"></a>00389 
-<a name="l00390"></a>00390     <span class="keywordflow">if</span> (pfWeight &lt; std::numeric_limits&lt;float&gt;::epsilon())
-<a name="l00391"></a>00391     {
-<a name="l00392"></a>00392         <span class="comment">// Input PFParticle has no associated hits</span>
-<a name="l00393"></a>00393         <span class="keywordflow">return</span> -1.f;
+<a name="l00370"></a>00370     <span class="keywordflow">if</span> (iter == <a class="code" href="classubcc1pi_1_1BacktrackHelper_1_1BacktrackerData.html#af04206fc120aa8717e4aa86ab9e47c72" title="The mapping from MCParticle to the total weight (= weighted number of hits).">m_mcParticleWeightMap</a>.end())
+<a name="l00371"></a>00371         <span class="keywordflow">return</span> 0.f;
+<a name="l00372"></a>00372 
+<a name="l00373"></a>00373     <span class="keywordflow">return</span> iter-&gt;second;
+<a name="l00374"></a>00374 }
+<a name="l00375"></a>00375 
+<a name="l00376"></a>00376 <span class="comment">// -----------------------------------------------------------------------------------------------------------------------------------------</span>
+<a name="l00377"></a>00377 
+<a name="l00378"></a><a class="code" href="classubcc1pi_1_1BacktrackHelper_1_1BacktrackerData.html#a9a1113ff1e392071ee88da790db9b3c3">00378</a> <a class="code" href="namespaceubcc1pi.html#aad18bb5924d1ff428402c8af4b72f1c0" title="A collection of Hits.">HitVector</a> <a class="code" href="classubcc1pi_1_1BacktrackHelper_1_1BacktrackerData.html#a9a1113ff1e392071ee88da790db9b3c3" title="Get all hits that are associated the MCParticle with any weight.">BacktrackHelper::BacktrackerData::GetHits</a>(<span class="keyword">const</span> art::Ptr&lt;simb::MCParticle&gt; &amp;mcParticle)<span class="keyword"> const</span>
+<a name="l00379"></a>00379 <span class="keyword"></span>{
+<a name="l00380"></a>00380     <a class="code" href="namespaceubcc1pi.html#aad18bb5924d1ff428402c8af4b72f1c0" title="A collection of Hits.">HitVector</a> hits;
+<a name="l00381"></a>00381 
+<a name="l00382"></a>00382     <span class="keywordflow">for</span> (<span class="keyword">const</span> <span class="keyword">auto</span> &amp;entry : <a class="code" href="classubcc1pi_1_1BacktrackHelper_1_1BacktrackerData.html#a5fdea3cfff2614e2b2305c3d78ca466b" title="The mapping from hits to MCParticle along with the associated weights.">m_hitsToMcps</a>)
+<a name="l00383"></a>00383     {
+<a name="l00384"></a>00384         <span class="keywordflow">for</span> (<span class="keyword">const</span> <span class="keyword">auto</span> &amp;pair : entry.second)
+<a name="l00385"></a>00385         {
+<a name="l00386"></a>00386             <span class="keywordflow">if</span> (pair.first == mcParticle)
+<a name="l00387"></a>00387             {
+<a name="l00388"></a>00388                 <span class="keywordflow">if</span> (std::find(hits.begin(), hits.end(), entry.first) != hits.end())
+<a name="l00389"></a>00389                     <span class="keywordflow">throw</span> cet::exception(<span class="stringliteral">&quot;BacktrackerData::GetHits&quot;</span>) &lt;&lt; <span class="stringliteral">&quot; - Found repeated hits associated to the input MCParticle&quot;</span> &lt;&lt; std::endl;
+<a name="l00390"></a>00390 
+<a name="l00391"></a>00391                 hits.push_back(entry.first);
+<a name="l00392"></a>00392             }
+<a name="l00393"></a>00393         }
 <a name="l00394"></a>00394     }
 <a name="l00395"></a>00395 
-<a name="l00396"></a>00396     <span class="keywordflow">return</span> this-&gt;<a class="code" href="classubcc1pi_1_1BacktrackHelper_1_1BacktrackerData.html#a48fa660eec95653e9a2151abfccc6dc1" title="Get the weight of a given PFParticle-MCParticle pair.">GetMatchWeight</a>(pfParticle, mcParticle) / pfWeight;
+<a name="l00396"></a>00396     <span class="keywordflow">return</span> hits;
 <a name="l00397"></a>00397 }
 <a name="l00398"></a>00398 
 <a name="l00399"></a>00399 <span class="comment">// -----------------------------------------------------------------------------------------------------------------------------------------</span>
 <a name="l00400"></a>00400 
-<a name="l00401"></a><a class="code" href="classubcc1pi_1_1BacktrackHelper_1_1BacktrackerData.html#a5d62542a22cb2d0f17795c03ca0b7c6e">00401</a> <span class="keywordtype">float</span> <a class="code" href="classubcc1pi_1_1BacktrackHelper_1_1BacktrackerData.html#a5d62542a22cb2d0f17795c03ca0b7c6e" title="Get the completeness a given PFParticle-MCParticle pair = shared weight / MCParticle...">BacktrackHelper::BacktrackerData::GetMatchCompleteness</a>(<span class="keyword">const</span> art::Ptr&lt;recob::PFParticle&gt; &amp;pfParticle, <span class="keyword">const</span> art::Ptr&lt;simb::MCParticle&gt; &amp;mcParticle)<span class="keyword"> const</span>
+<a name="l00401"></a><a class="code" href="classubcc1pi_1_1BacktrackHelper_1_1BacktrackerData.html#a645ec144c36a84894de51b5963b06ae1">00401</a> <a class="code" href="namespaceubcc1pi.html#aad18bb5924d1ff428402c8af4b72f1c0" title="A collection of Hits.">HitVector</a> <a class="code" href="classubcc1pi_1_1BacktrackHelper_1_1BacktrackerData.html#a9a1113ff1e392071ee88da790db9b3c3" title="Get all hits that are associated the MCParticle with any weight.">BacktrackHelper::BacktrackerData::GetHits</a>(<span class="keyword">const</span> art::Ptr&lt;recob::PFParticle&gt; &amp;pfParticle)<span class="keyword"> const</span>
 <a name="l00402"></a>00402 <span class="keyword"></span>{
-<a name="l00403"></a>00403     <span class="keyword">const</span> <span class="keyword">auto</span> mcWeight = this-&gt;<a class="code" href="classubcc1pi_1_1BacktrackHelper_1_1BacktrackerData.html#a5d45b96730887e759cc634de06618048" title="Get the weight associated with a given PFParticle (= the number of hits).">GetWeight</a>(mcParticle);
+<a name="l00403"></a>00403     <a class="code" href="namespaceubcc1pi.html#aad18bb5924d1ff428402c8af4b72f1c0" title="A collection of Hits.">HitVector</a> hits;
 <a name="l00404"></a>00404 
-<a name="l00405"></a>00405     <span class="keywordflow">if</span> (mcWeight &lt; std::numeric_limits&lt;float&gt;::epsilon())
+<a name="l00405"></a>00405     <span class="keywordflow">for</span> (<span class="keyword">const</span> <span class="keyword">auto</span> &amp;entry : <a class="code" href="classubcc1pi_1_1BacktrackHelper_1_1BacktrackerData.html#aff15edca942c31529a216b1273384861" title="The mapping from hits to PFParticles.">m_hitsToPfps</a>)
 <a name="l00406"></a>00406     {
-<a name="l00407"></a>00407         <span class="comment">// Input MCParticle has no associated hits</span>
-<a name="l00408"></a>00408         <span class="keywordflow">return</span> -1.f;
-<a name="l00409"></a>00409     }
-<a name="l00410"></a>00410 
-<a name="l00411"></a>00411     <span class="keywordflow">return</span> this-&gt;<a class="code" href="classubcc1pi_1_1BacktrackHelper_1_1BacktrackerData.html#a48fa660eec95653e9a2151abfccc6dc1" title="Get the weight of a given PFParticle-MCParticle pair.">GetMatchWeight</a>(pfParticle, mcParticle) / mcWeight;
-<a name="l00412"></a>00412 }
+<a name="l00407"></a>00407         <span class="keywordflow">for</span> (<span class="keyword">const</span> <span class="keyword">auto</span> &amp;pfp : entry.second)
+<a name="l00408"></a>00408         {
+<a name="l00409"></a>00409             <span class="keywordflow">if</span> (pfp == pfParticle)
+<a name="l00410"></a>00410             {
+<a name="l00411"></a>00411                 <span class="keywordflow">if</span> (std::find(hits.begin(), hits.end(), entry.first) != hits.end())
+<a name="l00412"></a>00412                     <span class="keywordflow">throw</span> cet::exception(<span class="stringliteral">&quot;BacktrackerData::GetHits&quot;</span>) &lt;&lt; <span class="stringliteral">&quot; - Found repeated hits associated to the input PFParticle&quot;</span> &lt;&lt; std::endl;
 <a name="l00413"></a>00413 
-<a name="l00414"></a>00414 <span class="comment">// -----------------------------------------------------------------------------------------------------------------------------------------</span>
-<a name="l00415"></a>00415 
-<a name="l00416"></a><a class="code" href="classubcc1pi_1_1BacktrackHelper_1_1BacktrackerData.html#a278df2088e0b86a416da69c7f8f8ee97">00416</a> art::Ptr&lt;simb::MCParticle&gt; <a class="code" href="classubcc1pi_1_1BacktrackHelper_1_1BacktrackerData.html#a278df2088e0b86a416da69c7f8f8ee97" title="Get the MCParticle with the highest weighted match to the given PFParticle.">BacktrackHelper::BacktrackerData::GetBestMatchedMCParticle</a>(<span class="keyword">const</span> art::Ptr&lt;recob::PFParticle&gt; &amp;pfParticle)<span class="keyword"> const</span>
-<a name="l00417"></a>00417 <span class="keyword"></span>{
-<a name="l00418"></a>00418     art::Ptr&lt;simb::MCParticle&gt; bestMCParticle;
-<a name="l00419"></a>00419     <span class="keywordtype">float</span> bestWeight = -std::numeric_limits&lt;float&gt;::max();
-<a name="l00420"></a>00420 
-<a name="l00421"></a>00421     <span class="keywordflow">for</span> (<span class="keyword">const</span> <span class="keyword">auto</span> &amp;mcParticle : <a class="code" href="classubcc1pi_1_1BacktrackHelper_1_1BacktrackerData.html#afe7d6c4e411e617b8b040d31ee4fbcfa" title="The MCParticles.">m_mcParticles</a>)
-<a name="l00422"></a>00422     {
-<a name="l00423"></a>00423         <span class="keyword">const</span> <span class="keyword">auto</span> weight = this-&gt;<a class="code" href="classubcc1pi_1_1BacktrackHelper_1_1BacktrackerData.html#a48fa660eec95653e9a2151abfccc6dc1" title="Get the weight of a given PFParticle-MCParticle pair.">GetMatchWeight</a>(pfParticle, mcParticle);
-<a name="l00424"></a>00424 
-<a name="l00425"></a>00425         <span class="keywordflow">if</span> (weight &lt; bestWeight)
-<a name="l00426"></a>00426             <span class="keywordflow">continue</span>;
+<a name="l00414"></a>00414                 hits.push_back(entry.first);
+<a name="l00415"></a>00415             }
+<a name="l00416"></a>00416         }
+<a name="l00417"></a>00417     }
+<a name="l00418"></a>00418 
+<a name="l00419"></a>00419     <span class="keywordflow">return</span> hits;
+<a name="l00420"></a>00420 }
+<a name="l00421"></a>00421 
+<a name="l00422"></a>00422 <span class="comment">// -----------------------------------------------------------------------------------------------------------------------------------------</span>
+<a name="l00423"></a>00423 
+<a name="l00424"></a><a class="code" href="classubcc1pi_1_1BacktrackHelper_1_1BacktrackerData.html#a48fa660eec95653e9a2151abfccc6dc1">00424</a> <span class="keywordtype">float</span> <a class="code" href="classubcc1pi_1_1BacktrackHelper_1_1BacktrackerData.html#a48fa660eec95653e9a2151abfccc6dc1" title="Get the weight of a given PFParticle-MCParticle pair.">BacktrackHelper::BacktrackerData::GetMatchWeight</a>(<span class="keyword">const</span> art::Ptr&lt;recob::PFParticle&gt; &amp;pfParticle, <span class="keyword">const</span> art::Ptr&lt;simb::MCParticle&gt; &amp;mcParticle)<span class="keyword"> const</span>
+<a name="l00425"></a>00425 <span class="keyword"></span>{
+<a name="l00426"></a>00426     <span class="keyword">const</span> <span class="keyword">auto</span> iter = <a class="code" href="classubcc1pi_1_1BacktrackHelper_1_1BacktrackerData.html#a622fd1b767b090773759fa5cf365bafb" title="The matching between PFParticles and MCParticles along with the shared weight.">m_matchMap</a>.find(pfParticle);
 <a name="l00427"></a>00427 
-<a name="l00428"></a>00428         bestWeight = weight;
-<a name="l00429"></a>00429         bestMCParticle = mcParticle;
-<a name="l00430"></a>00430     }
+<a name="l00428"></a>00428     <span class="comment">// There were no entries for this PFParticle - MCParticle pair, so the match weight is zero</span>
+<a name="l00429"></a>00429     <span class="keywordflow">if</span> (iter == <a class="code" href="classubcc1pi_1_1BacktrackHelper_1_1BacktrackerData.html#a622fd1b767b090773759fa5cf365bafb" title="The matching between PFParticles and MCParticles along with the shared weight.">m_matchMap</a>.end())
+<a name="l00430"></a>00430         <span class="keywordflow">return</span> 0.f;
 <a name="l00431"></a>00431 
-<a name="l00432"></a>00432     <span class="keywordflow">if</span> (bestWeight &lt; std::numeric_limits&lt;float&gt;::epsilon())
-<a name="l00433"></a>00433         <span class="keywordflow">throw</span> cet::exception(<span class="stringliteral">&quot;BacktrackerData::GetBestMatchedMCParticle&quot;</span>) &lt;&lt; <span class="stringliteral">&quot; - Input PFParticle matches to no MCParticles - comes from noise!&quot;</span> &lt;&lt; std::endl;
-<a name="l00434"></a>00434 
-<a name="l00435"></a>00435     <span class="keywordflow">return</span> bestMCParticle;
-<a name="l00436"></a>00436 }
+<a name="l00432"></a>00432     <span class="keywordflow">for</span> (<span class="keyword">const</span> <span class="keyword">auto</span> &amp;entry : iter-&gt;second)
+<a name="l00433"></a>00433     {
+<a name="l00434"></a>00434         <span class="keywordflow">if</span> (entry.first == mcParticle)
+<a name="l00435"></a>00435             <span class="keywordflow">return</span> entry.second;
+<a name="l00436"></a>00436     }
 <a name="l00437"></a>00437 
-<a name="l00438"></a>00438 <span class="comment">// -----------------------------------------------------------------------------------------------------------------------------------------</span>
-<a name="l00439"></a>00439 
-<a name="l00440"></a><a class="code" href="classubcc1pi_1_1BacktrackHelper_1_1BacktrackerData.html#a5cffbe33dac0dde02fb445a5520c2a8a">00440</a> <a class="code" href="namespaceubcc1pi.html#a6f66dc13c5a55147db5c84db67f6062b" title="A collection of PFParticles.">PFParticleVector</a> <a class="code" href="classubcc1pi_1_1BacktrackHelper_1_1BacktrackerData.html#a5cffbe33dac0dde02fb445a5520c2a8a" title="Get the PFParticles which have the given MCParticle as their strongest match.">BacktrackHelper::BacktrackerData::GetBestMatchedPFParticles</a>(<span class="keyword">const</span> art::Ptr&lt;simb::MCParticle&gt; &amp;mcParticle)<span class="keyword"> const</span>
-<a name="l00441"></a>00441 <span class="keyword"></span>{
-<a name="l00442"></a>00442     <a class="code" href="namespaceubcc1pi.html#a6f66dc13c5a55147db5c84db67f6062b" title="A collection of PFParticles.">PFParticleVector</a> pfParticles;
-<a name="l00443"></a>00443 
-<a name="l00444"></a>00444     <span class="keywordflow">for</span> (<span class="keyword">const</span> <span class="keyword">auto</span> &amp;pfParticle : <a class="code" href="classubcc1pi_1_1BacktrackHelper_1_1BacktrackerData.html#abba6aa55941f7402db0e417434ab9770" title="The PFParticles.">m_pfParticles</a>)
-<a name="l00445"></a>00445     {
-<a name="l00446"></a>00446         <span class="keywordflow">try</span>
-<a name="l00447"></a>00447         {
-<a name="l00448"></a>00448             <span class="keywordflow">if</span> (this-&gt;<a class="code" href="classubcc1pi_1_1BacktrackHelper_1_1BacktrackerData.html#a278df2088e0b86a416da69c7f8f8ee97" title="Get the MCParticle with the highest weighted match to the given PFParticle.">GetBestMatchedMCParticle</a>(pfParticle) == mcParticle)
-<a name="l00449"></a>00449                 pfParticles.push_back(pfParticle);
-<a name="l00450"></a>00450         }
-<a name="l00451"></a>00451         <span class="keywordflow">catch</span> (<span class="keyword">const</span> cet::exception &amp;)
-<a name="l00452"></a>00452         {
-<a name="l00453"></a>00453         }
-<a name="l00454"></a>00454     }
-<a name="l00455"></a>00455 
-<a name="l00456"></a>00456     <span class="keywordflow">return</span> pfParticles;
-<a name="l00457"></a>00457 }
+<a name="l00438"></a>00438     <span class="comment">// There were no entries for this PFParticle - MCParticle pair, so the match weight is zero</span>
+<a name="l00439"></a>00439     <span class="keywordflow">return</span> 0.f;
+<a name="l00440"></a>00440 }
+<a name="l00441"></a>00441 
+<a name="l00442"></a>00442 <span class="comment">// -----------------------------------------------------------------------------------------------------------------------------------------</span>
+<a name="l00443"></a>00443                 
+<a name="l00444"></a><a class="code" href="classubcc1pi_1_1BacktrackHelper_1_1BacktrackerData.html#a8f5fa5a741e52e1549fb4dd67213de88">00444</a> <span class="keywordtype">float</span> <a class="code" href="classubcc1pi_1_1BacktrackHelper_1_1BacktrackerData.html#a8f5fa5a741e52e1549fb4dd67213de88" title="Get the purity of a given PFParticle-MCParticle pair = shared weight / PFParticle...">BacktrackHelper::BacktrackerData::GetMatchPurity</a>(<span class="keyword">const</span> art::Ptr&lt;recob::PFParticle&gt; &amp;pfParticle, <span class="keyword">const</span> art::Ptr&lt;simb::MCParticle&gt; &amp;mcParticle)<span class="keyword"> const</span>
+<a name="l00445"></a>00445 <span class="keyword"></span>{
+<a name="l00446"></a>00446     <span class="keyword">const</span> <span class="keyword">auto</span> pfWeight = this-&gt;<a class="code" href="classubcc1pi_1_1BacktrackHelper_1_1BacktrackerData.html#a5d45b96730887e759cc634de06618048" title="Get the weight associated with a given PFParticle (= the number of hits).">GetWeight</a>(pfParticle);
+<a name="l00447"></a>00447 
+<a name="l00448"></a>00448     <span class="keywordflow">if</span> (pfWeight &lt; std::numeric_limits&lt;float&gt;::epsilon())
+<a name="l00449"></a>00449     {
+<a name="l00450"></a>00450         <span class="comment">// Input PFParticle has no associated hits</span>
+<a name="l00451"></a>00451         <span class="keywordflow">return</span> -1.f;
+<a name="l00452"></a>00452     }
+<a name="l00453"></a>00453 
+<a name="l00454"></a>00454     <span class="keywordflow">return</span> this-&gt;<a class="code" href="classubcc1pi_1_1BacktrackHelper_1_1BacktrackerData.html#a48fa660eec95653e9a2151abfccc6dc1" title="Get the weight of a given PFParticle-MCParticle pair.">GetMatchWeight</a>(pfParticle, mcParticle) / pfWeight;
+<a name="l00455"></a>00455 }
+<a name="l00456"></a>00456 
+<a name="l00457"></a>00457 <span class="comment">// -----------------------------------------------------------------------------------------------------------------------------------------</span>
 <a name="l00458"></a>00458 
-<a name="l00459"></a>00459 <span class="comment">// -----------------------------------------------------------------------------------------------------------------------------------------</span>
-<a name="l00460"></a>00460                 
-<a name="l00461"></a><a class="code" href="classubcc1pi_1_1BacktrackHelper_1_1BacktrackerData.html#aaaef7d8975bdddf6df79a2386affeead">00461</a> <span class="keywordtype">float</span> <a class="code" href="classubcc1pi_1_1BacktrackHelper_1_1BacktrackerData.html#a5d45b96730887e759cc634de06618048" title="Get the weight associated with a given PFParticle (= the number of hits).">BacktrackHelper::BacktrackerData::GetWeight</a>(<span class="keyword">const</span> art::Ptr&lt;recob::Hit&gt; &amp;hit, <span class="keyword">const</span> art::Ptr&lt;simb::MCParticle&gt; &amp;mcParticle)<span class="keyword"> const</span>
-<a name="l00462"></a>00462 <span class="keyword"></span>{
-<a name="l00463"></a>00463     CollectionData&lt;simb::MCParticle, float&gt; mcParticleWeights;
-<a name="l00464"></a>00464     <span class="keyword">const</span> <span class="keywordtype">bool</span> hasMCParticles = this-&gt;<a class="code" href="classubcc1pi_1_1BacktrackHelper_1_1BacktrackerData.html#a3364917f1b04112aa8a1dbfd5048c936" title="Collect the MCParticles that are associated with a given hit along with their weights...">CollectMCParticleWeights</a>(hit, <a class="code" href="classubcc1pi_1_1BacktrackHelper_1_1BacktrackerData.html#a5fdea3cfff2614e2b2305c3d78ca466b" title="The mapping from hits to MCParticle along with the associated weights.">m_hitsToMcps</a>, mcParticleWeights);
-<a name="l00465"></a>00465 
-<a name="l00466"></a>00466     <span class="keywordflow">if</span> (!hasMCParticles)
-<a name="l00467"></a>00467         <span class="keywordflow">return</span> 0.f;
+<a name="l00459"></a><a class="code" href="classubcc1pi_1_1BacktrackHelper_1_1BacktrackerData.html#a5d62542a22cb2d0f17795c03ca0b7c6e">00459</a> <span class="keywordtype">float</span> <a class="code" href="classubcc1pi_1_1BacktrackHelper_1_1BacktrackerData.html#a5d62542a22cb2d0f17795c03ca0b7c6e" title="Get the completeness a given PFParticle-MCParticle pair = shared weight / MCParticle...">BacktrackHelper::BacktrackerData::GetMatchCompleteness</a>(<span class="keyword">const</span> art::Ptr&lt;recob::PFParticle&gt; &amp;pfParticle, <span class="keyword">const</span> art::Ptr&lt;simb::MCParticle&gt; &amp;mcParticle)<span class="keyword"> const</span>
+<a name="l00460"></a>00460 <span class="keyword"></span>{
+<a name="l00461"></a>00461     <span class="keyword">const</span> <span class="keyword">auto</span> mcWeight = this-&gt;<a class="code" href="classubcc1pi_1_1BacktrackHelper_1_1BacktrackerData.html#a5d45b96730887e759cc634de06618048" title="Get the weight associated with a given PFParticle (= the number of hits).">GetWeight</a>(mcParticle);
+<a name="l00462"></a>00462 
+<a name="l00463"></a>00463     <span class="keywordflow">if</span> (mcWeight &lt; std::numeric_limits&lt;float&gt;::epsilon())
+<a name="l00464"></a>00464     {
+<a name="l00465"></a>00465         <span class="comment">// Input MCParticle has no associated hits</span>
+<a name="l00466"></a>00466         <span class="keywordflow">return</span> -1.f;
+<a name="l00467"></a>00467     }
 <a name="l00468"></a>00468 
-<a name="l00469"></a>00469     <span class="keywordtype">float</span> weight = 0.f;
-<a name="l00470"></a>00470     <span class="keywordflow">for</span> (<span class="keyword">const</span> <span class="keyword">auto</span> &amp;entry : mcParticleWeights)
-<a name="l00471"></a>00471     {
-<a name="l00472"></a>00472         <span class="keywordflow">if</span> (mcParticle == entry.first)
-<a name="l00473"></a>00473             weight += entry.second;
-<a name="l00474"></a>00474     }
-<a name="l00475"></a>00475 
-<a name="l00476"></a>00476     <span class="keywordflow">return</span> weight;
-<a name="l00477"></a>00477 }
+<a name="l00469"></a>00469     <span class="keywordflow">return</span> this-&gt;<a class="code" href="classubcc1pi_1_1BacktrackHelper_1_1BacktrackerData.html#a48fa660eec95653e9a2151abfccc6dc1" title="Get the weight of a given PFParticle-MCParticle pair.">GetMatchWeight</a>(pfParticle, mcParticle) / mcWeight;
+<a name="l00470"></a>00470 }
+<a name="l00471"></a>00471 
+<a name="l00472"></a>00472 <span class="comment">// -----------------------------------------------------------------------------------------------------------------------------------------</span>
+<a name="l00473"></a>00473 
+<a name="l00474"></a><a class="code" href="classubcc1pi_1_1BacktrackHelper_1_1BacktrackerData.html#a278df2088e0b86a416da69c7f8f8ee97">00474</a> art::Ptr&lt;simb::MCParticle&gt; <a class="code" href="classubcc1pi_1_1BacktrackHelper_1_1BacktrackerData.html#a278df2088e0b86a416da69c7f8f8ee97" title="Get the MCParticle with the highest weighted match to the given PFParticle.">BacktrackHelper::BacktrackerData::GetBestMatchedMCParticle</a>(<span class="keyword">const</span> art::Ptr&lt;recob::PFParticle&gt; &amp;pfParticle)<span class="keyword"> const</span>
+<a name="l00475"></a>00475 <span class="keyword"></span>{
+<a name="l00476"></a>00476     art::Ptr&lt;simb::MCParticle&gt; bestMCParticle;
+<a name="l00477"></a>00477     <span class="keywordtype">float</span> bestWeight = -std::numeric_limits&lt;float&gt;::max();
 <a name="l00478"></a>00478 
-<a name="l00479"></a>00479 <span class="comment">// -----------------------------------------------------------------------------------------------------------------------------------------</span>
-<a name="l00480"></a>00480                 
-<a name="l00481"></a><a class="code" href="classubcc1pi_1_1BacktrackHelper_1_1BacktrackerData.html#a26ee59613ffcc3501af5f1d1ee26d49c">00481</a> <span class="keywordtype">float</span> <a class="code" href="classubcc1pi_1_1BacktrackHelper_1_1BacktrackerData.html#a5d45b96730887e759cc634de06618048" title="Get the weight associated with a given PFParticle (= the number of hits).">BacktrackHelper::BacktrackerData::GetWeight</a>(<span class="keyword">const</span> <a class="code" href="namespaceubcc1pi.html#aad18bb5924d1ff428402c8af4b72f1c0" title="A collection of Hits.">HitVector</a> &amp;hits, <span class="keyword">const</span> art::Ptr&lt;simb::MCParticle&gt; &amp;mcParticle)<span class="keyword"> const</span>
-<a name="l00482"></a>00482 <span class="keyword"></span>{
-<a name="l00483"></a>00483     <span class="keywordtype">float</span> weight = 0.f;
-<a name="l00484"></a>00484     <span class="keywordflow">for</span> (<span class="keyword">const</span> <span class="keyword">auto</span> &amp;hit : hits)
-<a name="l00485"></a>00485     {
-<a name="l00486"></a>00486         weight += this-&gt;<a class="code" href="classubcc1pi_1_1BacktrackHelper_1_1BacktrackerData.html#a5d45b96730887e759cc634de06618048" title="Get the weight associated with a given PFParticle (= the number of hits).">GetWeight</a>(hit, mcParticle);
-<a name="l00487"></a>00487     }
-<a name="l00488"></a>00488 
-<a name="l00489"></a>00489     <span class="keywordflow">return</span> weight;
-<a name="l00490"></a>00490 }
-<a name="l00491"></a>00491 
-<a name="l00492"></a>00492 <span class="comment">// -----------------------------------------------------------------------------------------------------------------------------------------</span>
-<a name="l00493"></a>00493 <span class="comment">// -----------------------------------------------------------------------------------------------------------------------------------------</span>
-<a name="l00494"></a>00494                 
-<a name="l00495"></a><a class="code" href="classubcc1pi_1_1BacktrackHelper_1_1SliceMetadata.html#aa9e4f9bc521d6e76e72a488ecb6ad6e5">00495</a> <a class="code" href="classubcc1pi_1_1BacktrackHelper_1_1SliceMetadata.html#aa9e4f9bc521d6e76e72a488ecb6ad6e5" title="Constructor.">BacktrackHelper::SliceMetadata::SliceMetadata</a>(<span class="keyword">const</span> <a class="code" href="namespaceubcc1pi.html#aa994f8a737de42fc8bf8f51e5b5ed363" title="A collection of Slices.">SliceVector</a> &amp;slices, <span class="keyword">const</span> <a class="code" href="namespaceubcc1pi.html#ad48fdc9041372ec7c0bfcfc3fe3b7217" title="Mapping from Slice to boolean.">SlicesToBool</a> &amp;sliceToIsSelectedAsNu, <span class="keyword">const</span> <a class="code" href="namespaceubcc1pi.html#ab9236b7f2097980810f3f2737455749c" title="Association from Slice to Hit.">SlicesToHits</a> &amp;slicesToHits, <span class="keyword">const</span> <a class="code" href="namespaceubcc1pi.html#a8ce7e6a90e2e4a858a72ad75073a3f7e" title="Mapping from Hit to boolean.">HitsToBool</a> &amp;hitsToIsNuInduced) :
-<a name="l00496"></a>00496     m_slices(slices),
-<a name="l00497"></a>00497     m_sliceToIsSelectedAsNu(sliceToIsSelectedAsNu),
-<a name="l00498"></a>00498     m_slicesToHits(slicesToHits),
-<a name="l00499"></a>00499     m_hitsToIsNuInduced(hitsToIsNuInduced)
-<a name="l00500"></a>00500 {
-<a name="l00501"></a>00501 }
-<a name="l00502"></a>00502 
-<a name="l00503"></a>00503 <span class="comment">// -----------------------------------------------------------------------------------------------------------------------------------------</span>
-<a name="l00504"></a>00504 
-<a name="l00505"></a><a class="code" href="classubcc1pi_1_1BacktrackHelper_1_1SliceMetadata.html#a67cb3c839bb4fcea1eccb32bff9a9d4e">00505</a> <a class="code" href="namespaceubcc1pi.html#aa994f8a737de42fc8bf8f51e5b5ed363" title="A collection of Slices.">SliceVector</a> <a class="code" href="classubcc1pi_1_1BacktrackHelper_1_1SliceMetadata.html#a67cb3c839bb4fcea1eccb32bff9a9d4e" title="Get the slices.">BacktrackHelper::SliceMetadata::GetSlices</a>()<span class="keyword"> const</span>
-<a name="l00506"></a>00506 <span class="keyword"></span>{
-<a name="l00507"></a>00507     <span class="keywordflow">return</span> <a class="code" href="classubcc1pi_1_1BacktrackHelper_1_1SliceMetadata.html#a5b27bf7bcb544af9b1d79002eecb5661" title="The slices.">m_slices</a>;
-<a name="l00508"></a>00508 }
-<a name="l00509"></a>00509 
-<a name="l00510"></a>00510 <span class="comment">// -----------------------------------------------------------------------------------------------------------------------------------------</span>
-<a name="l00511"></a>00511 
-<a name="l00512"></a><a class="code" href="classubcc1pi_1_1BacktrackHelper_1_1SliceMetadata.html#ad9adc94bb2108988a9007ea11d5eb0cd">00512</a> <a class="code" href="namespaceubcc1pi.html#aa994f8a737de42fc8bf8f51e5b5ed363" title="A collection of Slices.">SliceVector</a> <a class="code" href="classubcc1pi_1_1BacktrackHelper_1_1SliceMetadata.html#ad9adc94bb2108988a9007ea11d5eb0cd" title="Get the slices that have been selected a neutrinos.">BacktrackHelper::SliceMetadata::GetSelectedNeutrinoSlices</a>()<span class="keyword"> const</span>
-<a name="l00513"></a>00513 <span class="keyword"></span>{
-<a name="l00514"></a>00514     <a class="code" href="namespaceubcc1pi.html#aa994f8a737de42fc8bf8f51e5b5ed363" title="A collection of Slices.">SliceVector</a> neutrinos;
-<a name="l00515"></a>00515     <span class="keywordflow">for</span> (<span class="keyword">const</span> <span class="keyword">auto</span> &amp;slice : <a class="code" href="classubcc1pi_1_1BacktrackHelper_1_1SliceMetadata.html#a5b27bf7bcb544af9b1d79002eecb5661" title="The slices.">m_slices</a>)
-<a name="l00516"></a>00516     {
-<a name="l00517"></a>00517         <span class="keyword">const</span> <span class="keyword">auto</span> iter = <a class="code" href="classubcc1pi_1_1BacktrackHelper_1_1SliceMetadata.html#ab57a369b342d12ce152775c8723e8a83" title="The mapping from slices to a boolean noting if the slice was selected as a neutrino...">m_sliceToIsSelectedAsNu</a>.find(slice);
-<a name="l00518"></a>00518         <span class="keywordflow">if</span> (iter == <a class="code" href="classubcc1pi_1_1BacktrackHelper_1_1SliceMetadata.html#ab57a369b342d12ce152775c8723e8a83" title="The mapping from slices to a boolean noting if the slice was selected as a neutrino...">m_sliceToIsSelectedAsNu</a>.end())
-<a name="l00519"></a>00519             <span class="keywordflow">throw</span> cet::exception(<span class="stringliteral">&quot;SliceMetadata::GetSelectedNeutrinoSlices&quot;</span>) &lt;&lt; <span class="stringliteral">&quot; - map entry for slice is missing.&quot;</span> &lt;&lt; std::endl;
-<a name="l00520"></a>00520 
-<a name="l00521"></a>00521         <span class="keywordflow">if</span> (iter-&gt;second)
-<a name="l00522"></a>00522             neutrinos.push_back(slice);
-<a name="l00523"></a>00523     }
-<a name="l00524"></a>00524 
-<a name="l00525"></a>00525     <span class="keywordflow">return</span> neutrinos;
-<a name="l00526"></a>00526 }
-<a name="l00527"></a>00527 
-<a name="l00528"></a>00528 <span class="comment">// -----------------------------------------------------------------------------------------------------------------------------------------</span>
-<a name="l00529"></a>00529 
-<a name="l00530"></a><a class="code" href="classubcc1pi_1_1BacktrackHelper_1_1SliceMetadata.html#a56e9b21ca6b62257f4ef49bccecf3988">00530</a> <span class="keywordtype">float</span> <a class="code" href="classubcc1pi_1_1BacktrackHelper_1_1SliceMetadata.html#a56e9b21ca6b62257f4ef49bccecf3988" title="Get the purity of a given slice purity = fraction of the hits in the slice that are...">BacktrackHelper::SliceMetadata::GetPurity</a>(<span class="keyword">const</span> art::Ptr&lt;recob::Slice&gt; &amp;slice)<span class="keyword"> const</span>
-<a name="l00531"></a>00531 <span class="keyword"></span>{
-<a name="l00532"></a>00532     <span class="keyword">const</span> <span class="keyword">auto</span> nHits = this-&gt;<a class="code" href="classubcc1pi_1_1BacktrackHelper_1_1SliceMetadata.html#ab021c38b5f7c9f983ff4edd0755e1e02" title="Get the number of hits in the slice.">GetNumberOfHits</a>(slice);
+<a name="l00479"></a>00479     <span class="keywordflow">for</span> (<span class="keyword">const</span> <span class="keyword">auto</span> &amp;mcParticle : <a class="code" href="classubcc1pi_1_1BacktrackHelper_1_1BacktrackerData.html#afe7d6c4e411e617b8b040d31ee4fbcfa" title="The MCParticles.">m_mcParticles</a>)
+<a name="l00480"></a>00480     {
+<a name="l00481"></a>00481         <span class="keyword">const</span> <span class="keyword">auto</span> weight = this-&gt;<a class="code" href="classubcc1pi_1_1BacktrackHelper_1_1BacktrackerData.html#a48fa660eec95653e9a2151abfccc6dc1" title="Get the weight of a given PFParticle-MCParticle pair.">GetMatchWeight</a>(pfParticle, mcParticle);
+<a name="l00482"></a>00482 
+<a name="l00483"></a>00483         <span class="keywordflow">if</span> (weight &lt; bestWeight)
+<a name="l00484"></a>00484             <span class="keywordflow">continue</span>;
+<a name="l00485"></a>00485 
+<a name="l00486"></a>00486         bestWeight = weight;
+<a name="l00487"></a>00487         bestMCParticle = mcParticle;
+<a name="l00488"></a>00488     }
+<a name="l00489"></a>00489 
+<a name="l00490"></a>00490     <span class="keywordflow">if</span> (bestWeight &lt; std::numeric_limits&lt;float&gt;::epsilon())
+<a name="l00491"></a>00491         <span class="keywordflow">throw</span> cet::exception(<span class="stringliteral">&quot;BacktrackerData::GetBestMatchedMCParticle&quot;</span>) &lt;&lt; <span class="stringliteral">&quot; - Input PFParticle matches to no MCParticles - comes from noise!&quot;</span> &lt;&lt; std::endl;
+<a name="l00492"></a>00492 
+<a name="l00493"></a>00493     <span class="keywordflow">return</span> bestMCParticle;
+<a name="l00494"></a>00494 }
+<a name="l00495"></a>00495 
+<a name="l00496"></a>00496 <span class="comment">// -----------------------------------------------------------------------------------------------------------------------------------------</span>
+<a name="l00497"></a>00497 
+<a name="l00498"></a><a class="code" href="classubcc1pi_1_1BacktrackHelper_1_1BacktrackerData.html#a5cffbe33dac0dde02fb445a5520c2a8a">00498</a> <a class="code" href="namespaceubcc1pi.html#a6f66dc13c5a55147db5c84db67f6062b" title="A collection of PFParticles.">PFParticleVector</a> <a class="code" href="classubcc1pi_1_1BacktrackHelper_1_1BacktrackerData.html#a5cffbe33dac0dde02fb445a5520c2a8a" title="Get the PFParticles which have the given MCParticle as their strongest match.">BacktrackHelper::BacktrackerData::GetBestMatchedPFParticles</a>(<span class="keyword">const</span> art::Ptr&lt;simb::MCParticle&gt; &amp;mcParticle)<span class="keyword"> const</span>
+<a name="l00499"></a>00499 <span class="keyword"></span>{
+<a name="l00500"></a>00500     <a class="code" href="namespaceubcc1pi.html#a6f66dc13c5a55147db5c84db67f6062b" title="A collection of PFParticles.">PFParticleVector</a> pfParticles;
+<a name="l00501"></a>00501 
+<a name="l00502"></a>00502     <span class="keywordflow">for</span> (<span class="keyword">const</span> <span class="keyword">auto</span> &amp;pfParticle : <a class="code" href="classubcc1pi_1_1BacktrackHelper_1_1BacktrackerData.html#abba6aa55941f7402db0e417434ab9770" title="The PFParticles.">m_pfParticles</a>)
+<a name="l00503"></a>00503     {
+<a name="l00504"></a>00504         <span class="keywordflow">try</span>
+<a name="l00505"></a>00505         {
+<a name="l00506"></a>00506             <span class="keywordflow">if</span> (this-&gt;<a class="code" href="classubcc1pi_1_1BacktrackHelper_1_1BacktrackerData.html#a278df2088e0b86a416da69c7f8f8ee97" title="Get the MCParticle with the highest weighted match to the given PFParticle.">GetBestMatchedMCParticle</a>(pfParticle) == mcParticle)
+<a name="l00507"></a>00507                 pfParticles.push_back(pfParticle);
+<a name="l00508"></a>00508         }
+<a name="l00509"></a>00509         <span class="keywordflow">catch</span> (<span class="keyword">const</span> cet::exception &amp;)
+<a name="l00510"></a>00510         {
+<a name="l00511"></a>00511         }
+<a name="l00512"></a>00512     }
+<a name="l00513"></a>00513 
+<a name="l00514"></a>00514     <span class="keywordflow">return</span> pfParticles;
+<a name="l00515"></a>00515 }
+<a name="l00516"></a>00516 
+<a name="l00517"></a>00517 <span class="comment">// -----------------------------------------------------------------------------------------------------------------------------------------</span>
+<a name="l00518"></a>00518                 
+<a name="l00519"></a><a class="code" href="classubcc1pi_1_1BacktrackHelper_1_1BacktrackerData.html#aaaef7d8975bdddf6df79a2386affeead">00519</a> <span class="keywordtype">float</span> <a class="code" href="classubcc1pi_1_1BacktrackHelper_1_1BacktrackerData.html#a5d45b96730887e759cc634de06618048" title="Get the weight associated with a given PFParticle (= the number of hits).">BacktrackHelper::BacktrackerData::GetWeight</a>(<span class="keyword">const</span> art::Ptr&lt;recob::Hit&gt; &amp;hit, <span class="keyword">const</span> art::Ptr&lt;simb::MCParticle&gt; &amp;mcParticle)<span class="keyword"> const</span>
+<a name="l00520"></a>00520 <span class="keyword"></span>{
+<a name="l00521"></a>00521     CollectionData&lt;simb::MCParticle, float&gt; mcParticleWeights;
+<a name="l00522"></a>00522     <span class="keyword">const</span> <span class="keywordtype">bool</span> hasMCParticles = this-&gt;<a class="code" href="classubcc1pi_1_1BacktrackHelper_1_1BacktrackerData.html#a3364917f1b04112aa8a1dbfd5048c936" title="Collect the MCParticles that are associated with a given hit along with their weights...">CollectMCParticleWeights</a>(hit, <a class="code" href="classubcc1pi_1_1BacktrackHelper_1_1BacktrackerData.html#a5fdea3cfff2614e2b2305c3d78ca466b" title="The mapping from hits to MCParticle along with the associated weights.">m_hitsToMcps</a>, mcParticleWeights);
+<a name="l00523"></a>00523 
+<a name="l00524"></a>00524     <span class="keywordflow">if</span> (!hasMCParticles)
+<a name="l00525"></a>00525         <span class="keywordflow">return</span> 0.f;
+<a name="l00526"></a>00526 
+<a name="l00527"></a>00527     <span class="keywordtype">float</span> weight = 0.f;
+<a name="l00528"></a>00528     <span class="keywordflow">for</span> (<span class="keyword">const</span> <span class="keyword">auto</span> &amp;entry : mcParticleWeights)
+<a name="l00529"></a>00529     {
+<a name="l00530"></a>00530         <span class="keywordflow">if</span> (mcParticle == entry.first)
+<a name="l00531"></a>00531             weight += entry.second;
+<a name="l00532"></a>00532     }
 <a name="l00533"></a>00533 
-<a name="l00534"></a>00534     <span class="keywordflow">if</span> (nHits == 0)
-<a name="l00535"></a>00535         <span class="keywordflow">throw</span> cet::exception(<span class="stringliteral">&quot;SliceMetadata::GetPurity&quot;</span>) &lt;&lt; <span class="stringliteral">&quot; - slice has no hits.&quot;</span> &lt;&lt; std::endl;
+<a name="l00534"></a>00534     <span class="keywordflow">return</span> weight;
+<a name="l00535"></a>00535 }
 <a name="l00536"></a>00536 
-<a name="l00537"></a>00537     <span class="keywordflow">return</span> (static_cast&lt;float&gt;(this-&gt;<a class="code" href="classubcc1pi_1_1BacktrackHelper_1_1SliceMetadata.html#a4f2227db1c79a1ccd51c19d09908f6a6" title="Get the number of neutrino induced hits in the slice.">GetNumberOfNuInducedHits</a>(slice)) / static_cast&lt;float&gt;(nHits));
-<a name="l00538"></a>00538 }
-<a name="l00539"></a>00539 
-<a name="l00540"></a>00540 <span class="comment">// -----------------------------------------------------------------------------------------------------------------------------------------</span>
-<a name="l00541"></a>00541                 
-<a name="l00542"></a><a class="code" href="classubcc1pi_1_1BacktrackHelper_1_1SliceMetadata.html#a14cf6b514a261bb389f4e1052ab6dcc0">00542</a> <span class="keywordtype">float</span> <a class="code" href="classubcc1pi_1_1BacktrackHelper_1_1SliceMetadata.html#a14cf6b514a261bb389f4e1052ab6dcc0" title="Get the completeness of a given slice completeness = fraction of the neutrino induced...">BacktrackHelper::SliceMetadata::GetCompleteness</a>(<span class="keyword">const</span> art::Ptr&lt;recob::Slice&gt; &amp;slice)<span class="keyword"> const</span>
-<a name="l00543"></a>00543 <span class="keyword"></span>{
-<a name="l00544"></a>00544     <span class="keyword">const</span> <span class="keyword">auto</span> nNuHits = this-&gt;<a class="code" href="classubcc1pi_1_1BacktrackHelper_1_1SliceMetadata.html#ab40aca65872d1c3ed6e2afd8031d30de" title="Get the total number of neutrino induced hits.">GetTotalNumberOfNuInducedHits</a>();
-<a name="l00545"></a>00545 
-<a name="l00546"></a>00546     <span class="keywordflow">if</span> (nNuHits == 0)
-<a name="l00547"></a>00547         <span class="keywordflow">throw</span> cet::exception(<span class="stringliteral">&quot;SliceMetadata::GetCompleteness&quot;</span>) &lt;&lt; <span class="stringliteral">&quot; - there are no neutrino hits.&quot;</span> &lt;&lt; std::endl;
-<a name="l00548"></a>00548 
-<a name="l00549"></a>00549     <span class="keywordflow">return</span> (static_cast&lt;float&gt;(this-&gt;<a class="code" href="classubcc1pi_1_1BacktrackHelper_1_1SliceMetadata.html#a4f2227db1c79a1ccd51c19d09908f6a6" title="Get the number of neutrino induced hits in the slice.">GetNumberOfNuInducedHits</a>(slice)) / static_cast&lt;float&gt;(nNuHits));
-<a name="l00550"></a>00550 }
-<a name="l00551"></a>00551 
-<a name="l00552"></a>00552 <span class="comment">// -----------------------------------------------------------------------------------------------------------------------------------------</span>
-<a name="l00553"></a>00553 
-<a name="l00554"></a><a class="code" href="classubcc1pi_1_1BacktrackHelper_1_1SliceMetadata.html#ab021c38b5f7c9f983ff4edd0755e1e02">00554</a> <span class="keywordtype">unsigned</span> <span class="keywordtype">int</span> <a class="code" href="classubcc1pi_1_1BacktrackHelper_1_1SliceMetadata.html#ab021c38b5f7c9f983ff4edd0755e1e02" title="Get the number of hits in the slice.">BacktrackHelper::SliceMetadata::GetNumberOfHits</a>(<span class="keyword">const</span> art::Ptr&lt;recob::Slice&gt; &amp;slice)<span class="keyword"> const</span>
-<a name="l00555"></a>00555 <span class="keyword"></span>{
-<a name="l00556"></a>00556     <span class="keywordflow">return</span> <a class="code" href="classubcc1pi_1_1CollectionHelper.html#a5aa35d148efb229f796a112482902a67" title="Get the objects associated to a given input object.">CollectionHelper::GetManyAssociated</a>(slice, <a class="code" href="classubcc1pi_1_1BacktrackHelper_1_1SliceMetadata.html#a3783716de46b1708577acdd9f88b7c1d" title="The mapping from slices to hits in the slice.">m_slicesToHits</a>).size();
-<a name="l00557"></a>00557 }
-<a name="l00558"></a>00558 
-<a name="l00559"></a>00559 <span class="comment">// -----------------------------------------------------------------------------------------------------------------------------------------</span>
+<a name="l00537"></a>00537 <span class="comment">// -----------------------------------------------------------------------------------------------------------------------------------------</span>
+<a name="l00538"></a>00538                 
+<a name="l00539"></a><a class="code" href="classubcc1pi_1_1BacktrackHelper_1_1BacktrackerData.html#a26ee59613ffcc3501af5f1d1ee26d49c">00539</a> <span class="keywordtype">float</span> <a class="code" href="classubcc1pi_1_1BacktrackHelper_1_1BacktrackerData.html#a5d45b96730887e759cc634de06618048" title="Get the weight associated with a given PFParticle (= the number of hits).">BacktrackHelper::BacktrackerData::GetWeight</a>(<span class="keyword">const</span> <a class="code" href="namespaceubcc1pi.html#aad18bb5924d1ff428402c8af4b72f1c0" title="A collection of Hits.">HitVector</a> &amp;hits, <span class="keyword">const</span> art::Ptr&lt;simb::MCParticle&gt; &amp;mcParticle)<span class="keyword"> const</span>
+<a name="l00540"></a>00540 <span class="keyword"></span>{
+<a name="l00541"></a>00541     <span class="keywordtype">float</span> weight = 0.f;
+<a name="l00542"></a>00542     <span class="keywordflow">for</span> (<span class="keyword">const</span> <span class="keyword">auto</span> &amp;hit : hits)
+<a name="l00543"></a>00543     {
+<a name="l00544"></a>00544         weight += this-&gt;<a class="code" href="classubcc1pi_1_1BacktrackHelper_1_1BacktrackerData.html#a5d45b96730887e759cc634de06618048" title="Get the weight associated with a given PFParticle (= the number of hits).">GetWeight</a>(hit, mcParticle);
+<a name="l00545"></a>00545     }
+<a name="l00546"></a>00546 
+<a name="l00547"></a>00547     <span class="keywordflow">return</span> weight;
+<a name="l00548"></a>00548 }
+<a name="l00549"></a>00549 
+<a name="l00550"></a>00550 <span class="comment">// -----------------------------------------------------------------------------------------------------------------------------------------</span>
+<a name="l00551"></a>00551 <span class="comment">// -----------------------------------------------------------------------------------------------------------------------------------------</span>
+<a name="l00552"></a>00552                 
+<a name="l00553"></a><a class="code" href="classubcc1pi_1_1BacktrackHelper_1_1SliceMetadata.html#aa9e4f9bc521d6e76e72a488ecb6ad6e5">00553</a> <a class="code" href="classubcc1pi_1_1BacktrackHelper_1_1SliceMetadata.html#aa9e4f9bc521d6e76e72a488ecb6ad6e5" title="Constructor.">BacktrackHelper::SliceMetadata::SliceMetadata</a>(<span class="keyword">const</span> <a class="code" href="namespaceubcc1pi.html#aa994f8a737de42fc8bf8f51e5b5ed363" title="A collection of Slices.">SliceVector</a> &amp;slices, <span class="keyword">const</span> <a class="code" href="namespaceubcc1pi.html#ad48fdc9041372ec7c0bfcfc3fe3b7217" title="Mapping from Slice to boolean.">SlicesToBool</a> &amp;sliceToIsSelectedAsNu, <span class="keyword">const</span> <a class="code" href="namespaceubcc1pi.html#ab9236b7f2097980810f3f2737455749c" title="Association from Slice to Hit.">SlicesToHits</a> &amp;slicesToHits, <span class="keyword">const</span> <a class="code" href="namespaceubcc1pi.html#a8ce7e6a90e2e4a858a72ad75073a3f7e" title="Mapping from Hit to boolean.">HitsToBool</a> &amp;hitsToIsNuInduced) :
+<a name="l00554"></a>00554     m_slices(slices),
+<a name="l00555"></a>00555     m_sliceToIsSelectedAsNu(sliceToIsSelectedAsNu),
+<a name="l00556"></a>00556     m_slicesToHits(slicesToHits),
+<a name="l00557"></a>00557     m_hitsToIsNuInduced(hitsToIsNuInduced)
+<a name="l00558"></a>00558 {
+<a name="l00559"></a>00559 }
 <a name="l00560"></a>00560 
-<a name="l00561"></a><a class="code" href="classubcc1pi_1_1BacktrackHelper_1_1SliceMetadata.html#aae510d6fed0b92b80abdb01261668008">00561</a> <a class="code" href="namespaceubcc1pi.html#aad18bb5924d1ff428402c8af4b72f1c0" title="A collection of Hits.">HitVector</a> <a class="code" href="classubcc1pi_1_1BacktrackHelper_1_1SliceMetadata.html#aae510d6fed0b92b80abdb01261668008" title="Get the hits in the given slice.">BacktrackHelper::SliceMetadata::GetHits</a>(<span class="keyword">const</span> art::Ptr&lt;recob::Slice&gt; &amp;slice)<span class="keyword"> const</span>
-<a name="l00562"></a>00562 <span class="keyword"></span>{
-<a name="l00563"></a>00563     <span class="keywordflow">return</span> <a class="code" href="classubcc1pi_1_1CollectionHelper.html#a5aa35d148efb229f796a112482902a67" title="Get the objects associated to a given input object.">CollectionHelper::GetManyAssociated</a>(slice, <a class="code" href="classubcc1pi_1_1BacktrackHelper_1_1SliceMetadata.html#a3783716de46b1708577acdd9f88b7c1d" title="The mapping from slices to hits in the slice.">m_slicesToHits</a>);
-<a name="l00564"></a>00564 }
-<a name="l00565"></a>00565 
-<a name="l00566"></a>00566 <span class="comment">// -----------------------------------------------------------------------------------------------------------------------------------------</span>
+<a name="l00561"></a>00561 <span class="comment">// -----------------------------------------------------------------------------------------------------------------------------------------</span>
+<a name="l00562"></a>00562 
+<a name="l00563"></a><a class="code" href="classubcc1pi_1_1BacktrackHelper_1_1SliceMetadata.html#a67cb3c839bb4fcea1eccb32bff9a9d4e">00563</a> <a class="code" href="namespaceubcc1pi.html#aa994f8a737de42fc8bf8f51e5b5ed363" title="A collection of Slices.">SliceVector</a> <a class="code" href="classubcc1pi_1_1BacktrackHelper_1_1SliceMetadata.html#a67cb3c839bb4fcea1eccb32bff9a9d4e" title="Get the slices.">BacktrackHelper::SliceMetadata::GetSlices</a>()<span class="keyword"> const</span>
+<a name="l00564"></a>00564 <span class="keyword"></span>{
+<a name="l00565"></a>00565     <span class="keywordflow">return</span> <a class="code" href="classubcc1pi_1_1BacktrackHelper_1_1SliceMetadata.html#a5b27bf7bcb544af9b1d79002eecb5661" title="The slices.">m_slices</a>;
+<a name="l00566"></a>00566 }
 <a name="l00567"></a>00567 
-<a name="l00568"></a><a class="code" href="classubcc1pi_1_1BacktrackHelper_1_1SliceMetadata.html#a4f2227db1c79a1ccd51c19d09908f6a6">00568</a> <span class="keywordtype">unsigned</span> <span class="keywordtype">int</span> <a class="code" href="classubcc1pi_1_1BacktrackHelper_1_1SliceMetadata.html#a4f2227db1c79a1ccd51c19d09908f6a6" title="Get the number of neutrino induced hits in the slice.">BacktrackHelper::SliceMetadata::GetNumberOfNuInducedHits</a>(<span class="keyword">const</span> art::Ptr&lt;recob::Slice&gt; &amp;slice)<span class="keyword"> const</span>
-<a name="l00569"></a>00569 <span class="keyword"></span>{
-<a name="l00570"></a>00570     <span class="keywordflow">return</span> this-&gt;<a class="code" href="classubcc1pi_1_1BacktrackHelper_1_1SliceMetadata.html#a625367c884f0a31aa715a17c0a0949a0" title="Count the number of hits in the input vector that are neutrino induced.">CountNuInducedHits</a>(<a class="code" href="classubcc1pi_1_1CollectionHelper.html#a5aa35d148efb229f796a112482902a67" title="Get the objects associated to a given input object.">CollectionHelper::GetManyAssociated</a>(slice, <a class="code" href="classubcc1pi_1_1BacktrackHelper_1_1SliceMetadata.html#a3783716de46b1708577acdd9f88b7c1d" title="The mapping from slices to hits in the slice.">m_slicesToHits</a>));
-<a name="l00571"></a>00571 }
-<a name="l00572"></a>00572 
-<a name="l00573"></a>00573 <span class="comment">// -----------------------------------------------------------------------------------------------------------------------------------------</span>
-<a name="l00574"></a>00574                 
-<a name="l00575"></a><a class="code" href="classubcc1pi_1_1BacktrackHelper_1_1SliceMetadata.html#ab40aca65872d1c3ed6e2afd8031d30de">00575</a> <span class="keywordtype">unsigned</span> <span class="keywordtype">int</span> <a class="code" href="classubcc1pi_1_1BacktrackHelper_1_1SliceMetadata.html#ab40aca65872d1c3ed6e2afd8031d30de" title="Get the total number of neutrino induced hits.">BacktrackHelper::SliceMetadata::GetTotalNumberOfNuInducedHits</a>()<span class="keyword"> const</span>
-<a name="l00576"></a>00576 <span class="keyword"></span>{
-<a name="l00577"></a>00577     <span class="keywordflow">return</span> this-&gt;<a class="code" href="classubcc1pi_1_1BacktrackHelper_1_1SliceMetadata.html#a625367c884f0a31aa715a17c0a0949a0" title="Count the number of hits in the input vector that are neutrino induced.">CountNuInducedHits</a>(this-&gt;<a class="code" href="classubcc1pi_1_1BacktrackHelper_1_1SliceMetadata.html#a0c760e74f6fb0dc0390afd53bcbf9ba0" title="Get all hits in the event through the slices.">GetAllHits</a>());
-<a name="l00578"></a>00578 }
-<a name="l00579"></a>00579 
-<a name="l00580"></a>00580 <span class="comment">// -----------------------------------------------------------------------------------------------------------------------------------------</span>
-<a name="l00581"></a>00581 
-<a name="l00582"></a><a class="code" href="classubcc1pi_1_1BacktrackHelper_1_1SliceMetadata.html#a8f66604753714e61261df01f8fd5d6d4">00582</a> art::Ptr&lt;recob::Slice&gt; <a class="code" href="classubcc1pi_1_1BacktrackHelper_1_1SliceMetadata.html#a8f66604753714e61261df01f8fd5d6d4" title="Get the slice with the largest completeness.">BacktrackHelper::SliceMetadata::GetMostCompleteSlice</a>()<span class="keyword"> const</span>
-<a name="l00583"></a>00583 <span class="keyword"></span>{
-<a name="l00584"></a>00584     <span class="keywordflow">if</span> (this-&gt;<a class="code" href="classubcc1pi_1_1BacktrackHelper_1_1SliceMetadata.html#ab40aca65872d1c3ed6e2afd8031d30de" title="Get the total number of neutrino induced hits.">GetTotalNumberOfNuInducedHits</a>() == 0)
-<a name="l00585"></a>00585         <span class="keywordflow">throw</span> cet::exception(<span class="stringliteral">&quot;SliceMetadata::GetMostCompleteSlice&quot;</span>) &lt;&lt; <span class="stringliteral">&quot; - there are no neutrino hits! No slice is more complete than any other&quot;</span> &lt;&lt; std::endl;
-<a name="l00586"></a>00586 
-<a name="l00587"></a>00587     <span class="keywordflow">if</span> (<a class="code" href="classubcc1pi_1_1BacktrackHelper_1_1SliceMetadata.html#a5b27bf7bcb544af9b1d79002eecb5661" title="The slices.">m_slices</a>.empty())
-<a name="l00588"></a>00588         <span class="keywordflow">throw</span> cet::exception(<span class="stringliteral">&quot;SliceMetadata::GetMostCompleteSlice&quot;</span>) &lt;&lt; <span class="stringliteral">&quot; - there are no slices to choose from.&quot;</span> &lt;&lt; std::endl;
-<a name="l00589"></a>00589 
-<a name="l00590"></a>00590     <span class="keywordtype">float</span> bestCompleteness = -std::numeric_limits&lt;float&gt;::max();
-<a name="l00591"></a>00591     art::Ptr&lt;recob::Slice&gt; mostCompleteSlice;
-<a name="l00592"></a>00592     <span class="keywordtype">bool</span> foundMostCompleteSlice = <span class="keyword">false</span>;
-<a name="l00593"></a>00593 
-<a name="l00594"></a>00594     <span class="keywordflow">for</span> (<span class="keyword">const</span> <span class="keyword">auto</span> &amp;slice : <a class="code" href="classubcc1pi_1_1BacktrackHelper_1_1SliceMetadata.html#a5b27bf7bcb544af9b1d79002eecb5661" title="The slices.">m_slices</a>)
-<a name="l00595"></a>00595     {
-<a name="l00596"></a>00596         <span class="keyword">const</span> <span class="keyword">auto</span> completeness = this-&gt;<a class="code" href="classubcc1pi_1_1BacktrackHelper_1_1SliceMetadata.html#a14cf6b514a261bb389f4e1052ab6dcc0" title="Get the completeness of a given slice completeness = fraction of the neutrino induced...">GetCompleteness</a>(slice);
-<a name="l00597"></a>00597         <span class="keywordflow">if</span> (completeness &lt; bestCompleteness)
-<a name="l00598"></a>00598             <span class="keywordflow">continue</span>;
-<a name="l00599"></a>00599 
-<a name="l00600"></a>00600         bestCompleteness = completeness;
-<a name="l00601"></a>00601         mostCompleteSlice = slice;
-<a name="l00602"></a>00602         foundMostCompleteSlice = <span class="keyword">true</span>;
-<a name="l00603"></a>00603     }
-<a name="l00604"></a>00604 
-<a name="l00605"></a>00605     <span class="keywordflow">if</span> (!foundMostCompleteSlice)
-<a name="l00606"></a>00606         <span class="keywordflow">throw</span> cet::exception(<span class="stringliteral">&quot;SliceMetadata::GetMostCompleteSlice&quot;</span>) &lt;&lt; <span class="stringliteral">&quot; - couldn&apos;t find the most complete slice&quot;</span> &lt;&lt; std::endl;
-<a name="l00607"></a>00607 
-<a name="l00608"></a>00608     <span class="keywordflow">return</span> mostCompleteSlice;
-<a name="l00609"></a>00609 }
-<a name="l00610"></a>00610 
-<a name="l00611"></a>00611 <span class="comment">// -----------------------------------------------------------------------------------------------------------------------------------------</span>
-<a name="l00612"></a>00612                 
-<a name="l00613"></a><a class="code" href="classubcc1pi_1_1BacktrackHelper_1_1SliceMetadata.html#a6f8ef72c837db9c44baf97146cb63fcc">00613</a> <span class="keywordtype">bool</span> <a class="code" href="classubcc1pi_1_1BacktrackHelper_1_1SliceMetadata.html#a6f8ef72c837db9c44baf97146cb63fcc" title="Determine if the most complete slice has been selected as a neutrino.">BacktrackHelper::SliceMetadata::IsMostCompleteSliceSelected</a>()<span class="keyword"> const</span>
-<a name="l00614"></a>00614 <span class="keyword"></span>{
-<a name="l00615"></a>00615     <span class="keyword">const</span> <span class="keyword">auto</span> iter = <a class="code" href="classubcc1pi_1_1BacktrackHelper_1_1SliceMetadata.html#ab57a369b342d12ce152775c8723e8a83" title="The mapping from slices to a boolean noting if the slice was selected as a neutrino...">m_sliceToIsSelectedAsNu</a>.find(this-&gt;<a class="code" href="classubcc1pi_1_1BacktrackHelper_1_1SliceMetadata.html#a8f66604753714e61261df01f8fd5d6d4" title="Get the slice with the largest completeness.">GetMostCompleteSlice</a>());
-<a name="l00616"></a>00616     <span class="keywordflow">if</span> (iter == <a class="code" href="classubcc1pi_1_1BacktrackHelper_1_1SliceMetadata.html#ab57a369b342d12ce152775c8723e8a83" title="The mapping from slices to a boolean noting if the slice was selected as a neutrino...">m_sliceToIsSelectedAsNu</a>.end())
-<a name="l00617"></a>00617         <span class="keywordflow">throw</span> cet::exception(<span class="stringliteral">&quot;SliceMetadata::IsMostCompleteSliceSelected&quot;</span>) &lt;&lt; <span class="stringliteral">&quot; - map entry for slice is missing.&quot;</span> &lt;&lt; std::endl;
+<a name="l00568"></a>00568 <span class="comment">// -----------------------------------------------------------------------------------------------------------------------------------------</span>
+<a name="l00569"></a>00569 
+<a name="l00570"></a><a class="code" href="classubcc1pi_1_1BacktrackHelper_1_1SliceMetadata.html#ad9adc94bb2108988a9007ea11d5eb0cd">00570</a> <a class="code" href="namespaceubcc1pi.html#aa994f8a737de42fc8bf8f51e5b5ed363" title="A collection of Slices.">SliceVector</a> <a class="code" href="classubcc1pi_1_1BacktrackHelper_1_1SliceMetadata.html#ad9adc94bb2108988a9007ea11d5eb0cd" title="Get the slices that have been selected a neutrinos.">BacktrackHelper::SliceMetadata::GetSelectedNeutrinoSlices</a>()<span class="keyword"> const</span>
+<a name="l00571"></a>00571 <span class="keyword"></span>{
+<a name="l00572"></a>00572     <a class="code" href="namespaceubcc1pi.html#aa994f8a737de42fc8bf8f51e5b5ed363" title="A collection of Slices.">SliceVector</a> neutrinos;
+<a name="l00573"></a>00573     <span class="keywordflow">for</span> (<span class="keyword">const</span> <span class="keyword">auto</span> &amp;slice : <a class="code" href="classubcc1pi_1_1BacktrackHelper_1_1SliceMetadata.html#a5b27bf7bcb544af9b1d79002eecb5661" title="The slices.">m_slices</a>)
+<a name="l00574"></a>00574     {
+<a name="l00575"></a>00575         <span class="keyword">const</span> <span class="keyword">auto</span> iter = <a class="code" href="classubcc1pi_1_1BacktrackHelper_1_1SliceMetadata.html#ab57a369b342d12ce152775c8723e8a83" title="The mapping from slices to a boolean noting if the slice was selected as a neutrino...">m_sliceToIsSelectedAsNu</a>.find(slice);
+<a name="l00576"></a>00576         <span class="keywordflow">if</span> (iter == <a class="code" href="classubcc1pi_1_1BacktrackHelper_1_1SliceMetadata.html#ab57a369b342d12ce152775c8723e8a83" title="The mapping from slices to a boolean noting if the slice was selected as a neutrino...">m_sliceToIsSelectedAsNu</a>.end())
+<a name="l00577"></a>00577             <span class="keywordflow">throw</span> cet::exception(<span class="stringliteral">&quot;SliceMetadata::GetSelectedNeutrinoSlices&quot;</span>) &lt;&lt; <span class="stringliteral">&quot; - map entry for slice is missing.&quot;</span> &lt;&lt; std::endl;
+<a name="l00578"></a>00578 
+<a name="l00579"></a>00579         <span class="keywordflow">if</span> (iter-&gt;second)
+<a name="l00580"></a>00580             neutrinos.push_back(slice);
+<a name="l00581"></a>00581     }
+<a name="l00582"></a>00582 
+<a name="l00583"></a>00583     <span class="keywordflow">return</span> neutrinos;
+<a name="l00584"></a>00584 }
+<a name="l00585"></a>00585 
+<a name="l00586"></a>00586 <span class="comment">// -----------------------------------------------------------------------------------------------------------------------------------------</span>
+<a name="l00587"></a>00587 
+<a name="l00588"></a><a class="code" href="classubcc1pi_1_1BacktrackHelper_1_1SliceMetadata.html#a56e9b21ca6b62257f4ef49bccecf3988">00588</a> <span class="keywordtype">float</span> <a class="code" href="classubcc1pi_1_1BacktrackHelper_1_1SliceMetadata.html#a56e9b21ca6b62257f4ef49bccecf3988" title="Get the purity of a given slice purity = fraction of the hits in the slice that are...">BacktrackHelper::SliceMetadata::GetPurity</a>(<span class="keyword">const</span> art::Ptr&lt;recob::Slice&gt; &amp;slice)<span class="keyword"> const</span>
+<a name="l00589"></a>00589 <span class="keyword"></span>{
+<a name="l00590"></a>00590     <span class="keyword">const</span> <span class="keyword">auto</span> nHits = this-&gt;<a class="code" href="classubcc1pi_1_1BacktrackHelper_1_1SliceMetadata.html#ab021c38b5f7c9f983ff4edd0755e1e02" title="Get the number of hits in the slice.">GetNumberOfHits</a>(slice);
+<a name="l00591"></a>00591 
+<a name="l00592"></a>00592     <span class="keywordflow">if</span> (nHits == 0)
+<a name="l00593"></a>00593         <span class="keywordflow">throw</span> cet::exception(<span class="stringliteral">&quot;SliceMetadata::GetPurity&quot;</span>) &lt;&lt; <span class="stringliteral">&quot; - slice has no hits.&quot;</span> &lt;&lt; std::endl;
+<a name="l00594"></a>00594 
+<a name="l00595"></a>00595     <span class="keywordflow">return</span> (static_cast&lt;float&gt;(this-&gt;<a class="code" href="classubcc1pi_1_1BacktrackHelper_1_1SliceMetadata.html#a4f2227db1c79a1ccd51c19d09908f6a6" title="Get the number of neutrino induced hits in the slice.">GetNumberOfNuInducedHits</a>(slice)) / static_cast&lt;float&gt;(nHits));
+<a name="l00596"></a>00596 }
+<a name="l00597"></a>00597 
+<a name="l00598"></a>00598 <span class="comment">// -----------------------------------------------------------------------------------------------------------------------------------------</span>
+<a name="l00599"></a>00599                 
+<a name="l00600"></a><a class="code" href="classubcc1pi_1_1BacktrackHelper_1_1SliceMetadata.html#a14cf6b514a261bb389f4e1052ab6dcc0">00600</a> <span class="keywordtype">float</span> <a class="code" href="classubcc1pi_1_1BacktrackHelper_1_1SliceMetadata.html#a14cf6b514a261bb389f4e1052ab6dcc0" title="Get the completeness of a given slice completeness = fraction of the neutrino induced...">BacktrackHelper::SliceMetadata::GetCompleteness</a>(<span class="keyword">const</span> art::Ptr&lt;recob::Slice&gt; &amp;slice)<span class="keyword"> const</span>
+<a name="l00601"></a>00601 <span class="keyword"></span>{
+<a name="l00602"></a>00602     <span class="keyword">const</span> <span class="keyword">auto</span> nNuHits = this-&gt;<a class="code" href="classubcc1pi_1_1BacktrackHelper_1_1SliceMetadata.html#ab40aca65872d1c3ed6e2afd8031d30de" title="Get the total number of neutrino induced hits.">GetTotalNumberOfNuInducedHits</a>();
+<a name="l00603"></a>00603 
+<a name="l00604"></a>00604     <span class="keywordflow">if</span> (nNuHits == 0)
+<a name="l00605"></a>00605         <span class="keywordflow">throw</span> cet::exception(<span class="stringliteral">&quot;SliceMetadata::GetCompleteness&quot;</span>) &lt;&lt; <span class="stringliteral">&quot; - there are no neutrino hits.&quot;</span> &lt;&lt; std::endl;
+<a name="l00606"></a>00606 
+<a name="l00607"></a>00607     <span class="keywordflow">return</span> (static_cast&lt;float&gt;(this-&gt;<a class="code" href="classubcc1pi_1_1BacktrackHelper_1_1SliceMetadata.html#a4f2227db1c79a1ccd51c19d09908f6a6" title="Get the number of neutrino induced hits in the slice.">GetNumberOfNuInducedHits</a>(slice)) / static_cast&lt;float&gt;(nNuHits));
+<a name="l00608"></a>00608 }
+<a name="l00609"></a>00609 
+<a name="l00610"></a>00610 <span class="comment">// -----------------------------------------------------------------------------------------------------------------------------------------</span>
+<a name="l00611"></a>00611 
+<a name="l00612"></a><a class="code" href="classubcc1pi_1_1BacktrackHelper_1_1SliceMetadata.html#ab021c38b5f7c9f983ff4edd0755e1e02">00612</a> <span class="keywordtype">unsigned</span> <span class="keywordtype">int</span> <a class="code" href="classubcc1pi_1_1BacktrackHelper_1_1SliceMetadata.html#ab021c38b5f7c9f983ff4edd0755e1e02" title="Get the number of hits in the slice.">BacktrackHelper::SliceMetadata::GetNumberOfHits</a>(<span class="keyword">const</span> art::Ptr&lt;recob::Slice&gt; &amp;slice)<span class="keyword"> const</span>
+<a name="l00613"></a>00613 <span class="keyword"></span>{
+<a name="l00614"></a>00614     <span class="keywordflow">return</span> <a class="code" href="classubcc1pi_1_1CollectionHelper.html#a5aa35d148efb229f796a112482902a67" title="Get the objects associated to a given input object.">CollectionHelper::GetManyAssociated</a>(slice, <a class="code" href="classubcc1pi_1_1BacktrackHelper_1_1SliceMetadata.html#a3783716de46b1708577acdd9f88b7c1d" title="The mapping from slices to hits in the slice.">m_slicesToHits</a>).size();
+<a name="l00615"></a>00615 }
+<a name="l00616"></a>00616 
+<a name="l00617"></a>00617 <span class="comment">// -----------------------------------------------------------------------------------------------------------------------------------------</span>
 <a name="l00618"></a>00618 
-<a name="l00619"></a>00619     <span class="keywordflow">return</span> iter-&gt;second;
-<a name="l00620"></a>00620 }
-<a name="l00621"></a>00621 
-<a name="l00622"></a>00622 <span class="comment">// -----------------------------------------------------------------------------------------------------------------------------------------</span>
-<a name="l00623"></a>00623                 
-<a name="l00624"></a><a class="code" href="classubcc1pi_1_1BacktrackHelper_1_1SliceMetadata.html#a0c760e74f6fb0dc0390afd53bcbf9ba0">00624</a> <a class="code" href="namespaceubcc1pi.html#aad18bb5924d1ff428402c8af4b72f1c0" title="A collection of Hits.">HitVector</a> <a class="code" href="classubcc1pi_1_1BacktrackHelper_1_1SliceMetadata.html#a0c760e74f6fb0dc0390afd53bcbf9ba0" title="Get all hits in the event through the slices.">BacktrackHelper::SliceMetadata::GetAllHits</a>()<span class="keyword"> const</span>
-<a name="l00625"></a>00625 <span class="keyword"></span>{
-<a name="l00626"></a>00626     <a class="code" href="namespaceubcc1pi.html#aad18bb5924d1ff428402c8af4b72f1c0" title="A collection of Hits.">HitVector</a> outputHits;
-<a name="l00627"></a>00627 
-<a name="l00628"></a>00628     <span class="keywordflow">for</span> (<span class="keyword">const</span> <span class="keyword">auto</span> &amp;slice : <a class="code" href="classubcc1pi_1_1BacktrackHelper_1_1SliceMetadata.html#a5b27bf7bcb544af9b1d79002eecb5661" title="The slices.">m_slices</a>)
-<a name="l00629"></a>00629     {
-<a name="l00630"></a>00630         <span class="keywordflow">for</span> (<span class="keyword">const</span> <span class="keyword">auto</span> &amp;hit : <a class="code" href="classubcc1pi_1_1CollectionHelper.html#a5aa35d148efb229f796a112482902a67" title="Get the objects associated to a given input object.">CollectionHelper::GetManyAssociated</a>(slice, <a class="code" href="classubcc1pi_1_1BacktrackHelper_1_1SliceMetadata.html#a3783716de46b1708577acdd9f88b7c1d" title="The mapping from slices to hits in the slice.">m_slicesToHits</a>))
-<a name="l00631"></a>00631         {
-<a name="l00632"></a>00632             outputHits.push_back(hit);
-<a name="l00633"></a>00633         }
-<a name="l00634"></a>00634     }
-<a name="l00635"></a>00635 
-<a name="l00636"></a>00636     <span class="keywordflow">return</span> outputHits;
-<a name="l00637"></a>00637 }
-<a name="l00638"></a>00638 
-<a name="l00639"></a>00639 <span class="comment">// -----------------------------------------------------------------------------------------------------------------------------------------</span>
-<a name="l00640"></a>00640 
-<a name="l00641"></a><a class="code" href="classubcc1pi_1_1BacktrackHelper_1_1SliceMetadata.html#a625367c884f0a31aa715a17c0a0949a0">00641</a> <span class="keywordtype">unsigned</span> <span class="keywordtype">int</span> <a class="code" href="classubcc1pi_1_1BacktrackHelper_1_1SliceMetadata.html#a625367c884f0a31aa715a17c0a0949a0" title="Count the number of hits in the input vector that are neutrino induced.">BacktrackHelper::SliceMetadata::CountNuInducedHits</a>(<span class="keyword">const</span> <a class="code" href="namespaceubcc1pi.html#aad18bb5924d1ff428402c8af4b72f1c0" title="A collection of Hits.">HitVector</a> &amp;hits)<span class="keyword"> const</span>
-<a name="l00642"></a>00642 <span class="keyword"></span>{
-<a name="l00643"></a>00643     <span class="keywordtype">unsigned</span> <span class="keywordtype">int</span> nNuInducedHits = 0;
+<a name="l00619"></a><a class="code" href="classubcc1pi_1_1BacktrackHelper_1_1SliceMetadata.html#aae510d6fed0b92b80abdb01261668008">00619</a> <a class="code" href="namespaceubcc1pi.html#aad18bb5924d1ff428402c8af4b72f1c0" title="A collection of Hits.">HitVector</a> <a class="code" href="classubcc1pi_1_1BacktrackHelper_1_1SliceMetadata.html#aae510d6fed0b92b80abdb01261668008" title="Get the hits in the given slice.">BacktrackHelper::SliceMetadata::GetHits</a>(<span class="keyword">const</span> art::Ptr&lt;recob::Slice&gt; &amp;slice)<span class="keyword"> const</span>
+<a name="l00620"></a>00620 <span class="keyword"></span>{
+<a name="l00621"></a>00621     <span class="keywordflow">return</span> <a class="code" href="classubcc1pi_1_1CollectionHelper.html#a5aa35d148efb229f796a112482902a67" title="Get the objects associated to a given input object.">CollectionHelper::GetManyAssociated</a>(slice, <a class="code" href="classubcc1pi_1_1BacktrackHelper_1_1SliceMetadata.html#a3783716de46b1708577acdd9f88b7c1d" title="The mapping from slices to hits in the slice.">m_slicesToHits</a>);
+<a name="l00622"></a>00622 }
+<a name="l00623"></a>00623 
+<a name="l00624"></a>00624 <span class="comment">// -----------------------------------------------------------------------------------------------------------------------------------------</span>
+<a name="l00625"></a>00625 
+<a name="l00626"></a><a class="code" href="classubcc1pi_1_1BacktrackHelper_1_1SliceMetadata.html#a4f2227db1c79a1ccd51c19d09908f6a6">00626</a> <span class="keywordtype">unsigned</span> <span class="keywordtype">int</span> <a class="code" href="classubcc1pi_1_1BacktrackHelper_1_1SliceMetadata.html#a4f2227db1c79a1ccd51c19d09908f6a6" title="Get the number of neutrino induced hits in the slice.">BacktrackHelper::SliceMetadata::GetNumberOfNuInducedHits</a>(<span class="keyword">const</span> art::Ptr&lt;recob::Slice&gt; &amp;slice)<span class="keyword"> const</span>
+<a name="l00627"></a>00627 <span class="keyword"></span>{
+<a name="l00628"></a>00628     <span class="keywordflow">return</span> this-&gt;<a class="code" href="classubcc1pi_1_1BacktrackHelper_1_1SliceMetadata.html#a625367c884f0a31aa715a17c0a0949a0" title="Count the number of hits in the input vector that are neutrino induced.">CountNuInducedHits</a>(<a class="code" href="classubcc1pi_1_1CollectionHelper.html#a5aa35d148efb229f796a112482902a67" title="Get the objects associated to a given input object.">CollectionHelper::GetManyAssociated</a>(slice, <a class="code" href="classubcc1pi_1_1BacktrackHelper_1_1SliceMetadata.html#a3783716de46b1708577acdd9f88b7c1d" title="The mapping from slices to hits in the slice.">m_slicesToHits</a>));
+<a name="l00629"></a>00629 }
+<a name="l00630"></a>00630 
+<a name="l00631"></a>00631 <span class="comment">// -----------------------------------------------------------------------------------------------------------------------------------------</span>
+<a name="l00632"></a>00632                 
+<a name="l00633"></a><a class="code" href="classubcc1pi_1_1BacktrackHelper_1_1SliceMetadata.html#ab40aca65872d1c3ed6e2afd8031d30de">00633</a> <span class="keywordtype">unsigned</span> <span class="keywordtype">int</span> <a class="code" href="classubcc1pi_1_1BacktrackHelper_1_1SliceMetadata.html#ab40aca65872d1c3ed6e2afd8031d30de" title="Get the total number of neutrino induced hits.">BacktrackHelper::SliceMetadata::GetTotalNumberOfNuInducedHits</a>()<span class="keyword"> const</span>
+<a name="l00634"></a>00634 <span class="keyword"></span>{
+<a name="l00635"></a>00635     <span class="keywordflow">return</span> this-&gt;<a class="code" href="classubcc1pi_1_1BacktrackHelper_1_1SliceMetadata.html#a625367c884f0a31aa715a17c0a0949a0" title="Count the number of hits in the input vector that are neutrino induced.">CountNuInducedHits</a>(this-&gt;<a class="code" href="classubcc1pi_1_1BacktrackHelper_1_1SliceMetadata.html#a0c760e74f6fb0dc0390afd53bcbf9ba0" title="Get all hits in the event through the slices.">GetAllHits</a>());
+<a name="l00636"></a>00636 }
+<a name="l00637"></a>00637 
+<a name="l00638"></a>00638 <span class="comment">// -----------------------------------------------------------------------------------------------------------------------------------------</span>
+<a name="l00639"></a>00639 
+<a name="l00640"></a><a class="code" href="classubcc1pi_1_1BacktrackHelper_1_1SliceMetadata.html#a8f66604753714e61261df01f8fd5d6d4">00640</a> art::Ptr&lt;recob::Slice&gt; <a class="code" href="classubcc1pi_1_1BacktrackHelper_1_1SliceMetadata.html#a8f66604753714e61261df01f8fd5d6d4" title="Get the slice with the largest completeness.">BacktrackHelper::SliceMetadata::GetMostCompleteSlice</a>()<span class="keyword"> const</span>
+<a name="l00641"></a>00641 <span class="keyword"></span>{
+<a name="l00642"></a>00642     <span class="keywordflow">if</span> (this-&gt;<a class="code" href="classubcc1pi_1_1BacktrackHelper_1_1SliceMetadata.html#ab40aca65872d1c3ed6e2afd8031d30de" title="Get the total number of neutrino induced hits.">GetTotalNumberOfNuInducedHits</a>() == 0)
+<a name="l00643"></a>00643         <span class="keywordflow">throw</span> cet::exception(<span class="stringliteral">&quot;SliceMetadata::GetMostCompleteSlice&quot;</span>) &lt;&lt; <span class="stringliteral">&quot; - there are no neutrino hits! No slice is more complete than any other&quot;</span> &lt;&lt; std::endl;
 <a name="l00644"></a>00644 
-<a name="l00645"></a>00645     <span class="keywordflow">for</span> (<span class="keyword">const</span> <span class="keyword">auto</span> &amp;hit : hits)
-<a name="l00646"></a>00646     {
-<a name="l00647"></a>00647         <span class="keyword">const</span> <span class="keyword">auto</span> iter = <a class="code" href="classubcc1pi_1_1BacktrackHelper_1_1SliceMetadata.html#a9dbf478ceb23fd64d4966d77eee4b3c8" title="The mapping from hits to a boolean noting if the hit has any of it&amp;#39;s energy contributed...">m_hitsToIsNuInduced</a>.find(hit);
-<a name="l00648"></a>00648         <span class="keywordflow">if</span> (iter == <a class="code" href="classubcc1pi_1_1BacktrackHelper_1_1SliceMetadata.html#a9dbf478ceb23fd64d4966d77eee4b3c8" title="The mapping from hits to a boolean noting if the hit has any of it&amp;#39;s energy contributed...">m_hitsToIsNuInduced</a>.end())
-<a name="l00649"></a>00649             <span class="keywordflow">throw</span> cet::exception(<span class="stringliteral">&quot;SliceMetadata::CountNuInducedHits&quot;</span>) &lt;&lt; <span class="stringliteral">&quot; - map entry for hit is missing.&quot;</span> &lt;&lt; std::endl;
-<a name="l00650"></a>00650 
-<a name="l00651"></a>00651         <span class="keywordflow">if</span> (iter-&gt;second)
-<a name="l00652"></a>00652             nNuInducedHits++;
-<a name="l00653"></a>00653     }
-<a name="l00654"></a>00654 
-<a name="l00655"></a>00655     <span class="keywordflow">return</span> nNuInducedHits;
-<a name="l00656"></a>00656 }
+<a name="l00645"></a>00645     <span class="keywordflow">if</span> (<a class="code" href="classubcc1pi_1_1BacktrackHelper_1_1SliceMetadata.html#a5b27bf7bcb544af9b1d79002eecb5661" title="The slices.">m_slices</a>.empty())
+<a name="l00646"></a>00646         <span class="keywordflow">throw</span> cet::exception(<span class="stringliteral">&quot;SliceMetadata::GetMostCompleteSlice&quot;</span>) &lt;&lt; <span class="stringliteral">&quot; - there are no slices to choose from.&quot;</span> &lt;&lt; std::endl;
+<a name="l00647"></a>00647 
+<a name="l00648"></a>00648     <span class="keywordtype">float</span> bestCompleteness = -std::numeric_limits&lt;float&gt;::max();
+<a name="l00649"></a>00649     art::Ptr&lt;recob::Slice&gt; mostCompleteSlice;
+<a name="l00650"></a>00650     <span class="keywordtype">bool</span> foundMostCompleteSlice = <span class="keyword">false</span>;
+<a name="l00651"></a>00651 
+<a name="l00652"></a>00652     <span class="keywordflow">for</span> (<span class="keyword">const</span> <span class="keyword">auto</span> &amp;slice : <a class="code" href="classubcc1pi_1_1BacktrackHelper_1_1SliceMetadata.html#a5b27bf7bcb544af9b1d79002eecb5661" title="The slices.">m_slices</a>)
+<a name="l00653"></a>00653     {
+<a name="l00654"></a>00654         <span class="keyword">const</span> <span class="keyword">auto</span> completeness = this-&gt;<a class="code" href="classubcc1pi_1_1BacktrackHelper_1_1SliceMetadata.html#a14cf6b514a261bb389f4e1052ab6dcc0" title="Get the completeness of a given slice completeness = fraction of the neutrino induced...">GetCompleteness</a>(slice);
+<a name="l00655"></a>00655         <span class="keywordflow">if</span> (completeness &lt; bestCompleteness)
+<a name="l00656"></a>00656             <span class="keywordflow">continue</span>;
 <a name="l00657"></a>00657 
-<a name="l00658"></a>00658 } <span class="comment">// namespace ubcc1pi</span>
+<a name="l00658"></a>00658         bestCompleteness = completeness;
+<a name="l00659"></a>00659         mostCompleteSlice = slice;
+<a name="l00660"></a>00660         foundMostCompleteSlice = <span class="keyword">true</span>;
+<a name="l00661"></a>00661     }
+<a name="l00662"></a>00662 
+<a name="l00663"></a>00663     <span class="keywordflow">if</span> (!foundMostCompleteSlice)
+<a name="l00664"></a>00664         <span class="keywordflow">throw</span> cet::exception(<span class="stringliteral">&quot;SliceMetadata::GetMostCompleteSlice&quot;</span>) &lt;&lt; <span class="stringliteral">&quot; - couldn&apos;t find the most complete slice&quot;</span> &lt;&lt; std::endl;
+<a name="l00665"></a>00665 
+<a name="l00666"></a>00666     <span class="keywordflow">return</span> mostCompleteSlice;
+<a name="l00667"></a>00667 }
+<a name="l00668"></a>00668 
+<a name="l00669"></a>00669 <span class="comment">// -----------------------------------------------------------------------------------------------------------------------------------------</span>
+<a name="l00670"></a>00670                 
+<a name="l00671"></a><a class="code" href="classubcc1pi_1_1BacktrackHelper_1_1SliceMetadata.html#a6f8ef72c837db9c44baf97146cb63fcc">00671</a> <span class="keywordtype">bool</span> <a class="code" href="classubcc1pi_1_1BacktrackHelper_1_1SliceMetadata.html#a6f8ef72c837db9c44baf97146cb63fcc" title="Determine if the most complete slice has been selected as a neutrino.">BacktrackHelper::SliceMetadata::IsMostCompleteSliceSelected</a>()<span class="keyword"> const</span>
+<a name="l00672"></a>00672 <span class="keyword"></span>{
+<a name="l00673"></a>00673     <span class="keyword">const</span> <span class="keyword">auto</span> iter = <a class="code" href="classubcc1pi_1_1BacktrackHelper_1_1SliceMetadata.html#ab57a369b342d12ce152775c8723e8a83" title="The mapping from slices to a boolean noting if the slice was selected as a neutrino...">m_sliceToIsSelectedAsNu</a>.find(this-&gt;<a class="code" href="classubcc1pi_1_1BacktrackHelper_1_1SliceMetadata.html#a8f66604753714e61261df01f8fd5d6d4" title="Get the slice with the largest completeness.">GetMostCompleteSlice</a>());
+<a name="l00674"></a>00674     <span class="keywordflow">if</span> (iter == <a class="code" href="classubcc1pi_1_1BacktrackHelper_1_1SliceMetadata.html#ab57a369b342d12ce152775c8723e8a83" title="The mapping from slices to a boolean noting if the slice was selected as a neutrino...">m_sliceToIsSelectedAsNu</a>.end())
+<a name="l00675"></a>00675         <span class="keywordflow">throw</span> cet::exception(<span class="stringliteral">&quot;SliceMetadata::IsMostCompleteSliceSelected&quot;</span>) &lt;&lt; <span class="stringliteral">&quot; - map entry for slice is missing.&quot;</span> &lt;&lt; std::endl;
+<a name="l00676"></a>00676 
+<a name="l00677"></a>00677     <span class="keywordflow">return</span> iter-&gt;second;
+<a name="l00678"></a>00678 }
+<a name="l00679"></a>00679 
+<a name="l00680"></a>00680 <span class="comment">// -----------------------------------------------------------------------------------------------------------------------------------------</span>
+<a name="l00681"></a>00681                 
+<a name="l00682"></a><a class="code" href="classubcc1pi_1_1BacktrackHelper_1_1SliceMetadata.html#a0c760e74f6fb0dc0390afd53bcbf9ba0">00682</a> <a class="code" href="namespaceubcc1pi.html#aad18bb5924d1ff428402c8af4b72f1c0" title="A collection of Hits.">HitVector</a> <a class="code" href="classubcc1pi_1_1BacktrackHelper_1_1SliceMetadata.html#a0c760e74f6fb0dc0390afd53bcbf9ba0" title="Get all hits in the event through the slices.">BacktrackHelper::SliceMetadata::GetAllHits</a>()<span class="keyword"> const</span>
+<a name="l00683"></a>00683 <span class="keyword"></span>{
+<a name="l00684"></a>00684     <a class="code" href="namespaceubcc1pi.html#aad18bb5924d1ff428402c8af4b72f1c0" title="A collection of Hits.">HitVector</a> outputHits;
+<a name="l00685"></a>00685 
+<a name="l00686"></a>00686     <span class="keywordflow">for</span> (<span class="keyword">const</span> <span class="keyword">auto</span> &amp;slice : <a class="code" href="classubcc1pi_1_1BacktrackHelper_1_1SliceMetadata.html#a5b27bf7bcb544af9b1d79002eecb5661" title="The slices.">m_slices</a>)
+<a name="l00687"></a>00687     {
+<a name="l00688"></a>00688         <span class="keywordflow">for</span> (<span class="keyword">const</span> <span class="keyword">auto</span> &amp;hit : <a class="code" href="classubcc1pi_1_1CollectionHelper.html#a5aa35d148efb229f796a112482902a67" title="Get the objects associated to a given input object.">CollectionHelper::GetManyAssociated</a>(slice, <a class="code" href="classubcc1pi_1_1BacktrackHelper_1_1SliceMetadata.html#a3783716de46b1708577acdd9f88b7c1d" title="The mapping from slices to hits in the slice.">m_slicesToHits</a>))
+<a name="l00689"></a>00689         {
+<a name="l00690"></a>00690             outputHits.push_back(hit);
+<a name="l00691"></a>00691         }
+<a name="l00692"></a>00692     }
+<a name="l00693"></a>00693 
+<a name="l00694"></a>00694     <span class="keywordflow">return</span> outputHits;
+<a name="l00695"></a>00695 }
+<a name="l00696"></a>00696 
+<a name="l00697"></a>00697 <span class="comment">// -----------------------------------------------------------------------------------------------------------------------------------------</span>
+<a name="l00698"></a>00698 
+<a name="l00699"></a><a class="code" href="classubcc1pi_1_1BacktrackHelper_1_1SliceMetadata.html#a625367c884f0a31aa715a17c0a0949a0">00699</a> <span class="keywordtype">unsigned</span> <span class="keywordtype">int</span> <a class="code" href="classubcc1pi_1_1BacktrackHelper_1_1SliceMetadata.html#a625367c884f0a31aa715a17c0a0949a0" title="Count the number of hits in the input vector that are neutrino induced.">BacktrackHelper::SliceMetadata::CountNuInducedHits</a>(<span class="keyword">const</span> <a class="code" href="namespaceubcc1pi.html#aad18bb5924d1ff428402c8af4b72f1c0" title="A collection of Hits.">HitVector</a> &amp;hits)<span class="keyword"> const</span>
+<a name="l00700"></a>00700 <span class="keyword"></span>{
+<a name="l00701"></a>00701     <span class="keywordtype">unsigned</span> <span class="keywordtype">int</span> nNuInducedHits = 0;
+<a name="l00702"></a>00702 
+<a name="l00703"></a>00703     <span class="keywordflow">for</span> (<span class="keyword">const</span> <span class="keyword">auto</span> &amp;hit : hits)
+<a name="l00704"></a>00704     {
+<a name="l00705"></a>00705         <span class="keyword">const</span> <span class="keyword">auto</span> iter = <a class="code" href="classubcc1pi_1_1BacktrackHelper_1_1SliceMetadata.html#a9dbf478ceb23fd64d4966d77eee4b3c8" title="The mapping from hits to a boolean noting if the hit has any of it&amp;#39;s energy contributed...">m_hitsToIsNuInduced</a>.find(hit);
+<a name="l00706"></a>00706         <span class="keywordflow">if</span> (iter == <a class="code" href="classubcc1pi_1_1BacktrackHelper_1_1SliceMetadata.html#a9dbf478ceb23fd64d4966d77eee4b3c8" title="The mapping from hits to a boolean noting if the hit has any of it&amp;#39;s energy contributed...">m_hitsToIsNuInduced</a>.end())
+<a name="l00707"></a>00707             <span class="keywordflow">throw</span> cet::exception(<span class="stringliteral">&quot;SliceMetadata::CountNuInducedHits&quot;</span>) &lt;&lt; <span class="stringliteral">&quot; - map entry for hit is missing.&quot;</span> &lt;&lt; std::endl;
+<a name="l00708"></a>00708 
+<a name="l00709"></a>00709         <span class="keywordflow">if</span> (iter-&gt;second)
+<a name="l00710"></a>00710             nNuInducedHits++;
+<a name="l00711"></a>00711     }
+<a name="l00712"></a>00712 
+<a name="l00713"></a>00713     <span class="keywordflow">return</span> nNuInducedHits;
+<a name="l00714"></a>00714 }
+<a name="l00715"></a>00715 
+<a name="l00716"></a>00716 } <span class="comment">// namespace ubcc1pi</span>
 </pre></div></div>
 <!--- window showing the filter options -->
 <div id="MSearchSelectWindow"
@@ -770,7 +828,7 @@ window.onload = initDynSections;
 <hr size="1"/>
 <address style="text-align: right;">
     <small>
-        Generated on Tue Jul 2 12:09:58 2019 for ubcc1pi by <a href="http://www.doxygen.org/index.html" target="_blank">doxygen</a> 1.6.1
+        Generated on Fri Jul 5 11:45:32 2019 for ubcc1pi by <a href="http://www.doxygen.org/index.html" target="_blank">doxygen</a> 1.6.1
     </small>
 </address>
 

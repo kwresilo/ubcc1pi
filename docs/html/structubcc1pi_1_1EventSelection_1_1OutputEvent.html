@@ -158,6 +158,50 @@ window.onload = initDynSections;
 <tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">The true pion phi.  <a href="#a52d53fa62fecb949bb9934d94b7dd358"></a><br/></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">float&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="structubcc1pi_1_1EventSelection_1_1OutputEvent.html#adfacbccf25aa1ee813b1fab0b9e03e16">m_trueMuPiAngle</a></td></tr>
 <tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">The muon-pion opening angle.  <a href="#adfacbccf25aa1ee813b1fab0b9e03e16"></a><br/></td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">int&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="structubcc1pi_1_1EventSelection_1_1OutputEvent.html#aa6024f7f94ab43eb752043482389fe50">m_nMCParticles</a></td></tr>
+<tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">The number of MCParticles.  <a href="#aa6024f7f94ab43eb752043482389fe50"></a><br/></td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">std::vector&lt; int &gt;&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="structubcc1pi_1_1EventSelection_1_1OutputEvent.html#a5a2dc8beaa2e738d57f6848b71e2d648">m_mcpIdVect</a></td></tr>
+<tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">The unique ID of the MCParticle.  <a href="#a5a2dc8beaa2e738d57f6848b71e2d648"></a><br/></td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">std::vector&lt; int &gt;&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="structubcc1pi_1_1EventSelection_1_1OutputEvent.html#a3eb59ebd4bd5e0d97234e9690c90d979">m_mcpPDGVect</a></td></tr>
+<tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">The PDG code of the MCParticle.  <a href="#a3eb59ebd4bd5e0d97234e9690c90d979"></a><br/></td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">std::vector&lt; bool &gt;&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="structubcc1pi_1_1EventSelection_1_1OutputEvent.html#a47a6b0a5601be3f578c798dd5f033e0a">m_mcpIsTargetFinalStateVect</a></td></tr>
+<tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">If the MCParticle is a neutrino final state passing the reconstructability momentum thresholds.  <a href="#a47a6b0a5601be3f578c798dd5f033e0a"></a><br/></td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">std::vector&lt; std::string &gt;&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="structubcc1pi_1_1EventSelection_1_1OutputEvent.html#a9f4b2d46fb10e3c822981f6e584decf1">m_mcpProcessVect</a></td></tr>
+<tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">The process name.  <a href="#a9f4b2d46fb10e3c822981f6e584decf1"></a><br/></td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">std::vector&lt; int &gt;&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="structubcc1pi_1_1EventSelection_1_1OutputEvent.html#a306e2a502e7358432ff52372c5c00055">m_mcpMotherIdVect</a></td></tr>
+<tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">The unique ID of the mother of the MCParticle.  <a href="#a306e2a502e7358432ff52372c5c00055"></a><br/></td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">std::vector&lt; int &gt;&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="structubcc1pi_1_1EventSelection_1_1OutputEvent.html#a8a0cf8745886313ca8236a7f6f0d0395">m_mcpNDaughtersVect</a></td></tr>
+<tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">The number of daughter MCParticles.  <a href="#a8a0cf8745886313ca8236a7f6f0d0395"></a><br/></td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">std::vector&lt; std::vector&lt; int &gt; &gt;&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="structubcc1pi_1_1EventSelection_1_1OutputEvent.html#aab6191372a67189a29782d5549b240a9">m_mcpDaughterIdsVect</a></td></tr>
+<tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">The unique IDs of the daughter MCParticles.  <a href="#aab6191372a67189a29782d5549b240a9"></a><br/></td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">std::vector&lt; float &gt;&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="structubcc1pi_1_1EventSelection_1_1OutputEvent.html#a96721816e8035d6913a0baa71777c6d7">m_mcpEnergyVect</a></td></tr>
+<tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">The energy of the MCParticle.  <a href="#a96721816e8035d6913a0baa71777c6d7"></a><br/></td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">std::vector&lt; float &gt;&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="structubcc1pi_1_1EventSelection_1_1OutputEvent.html#a563f7ca687601cb514f9989c0e1d4424">m_mcpMomentumVect</a></td></tr>
+<tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">The total momentum of the MCParticle.  <a href="#a563f7ca687601cb514f9989c0e1d4424"></a><br/></td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">std::vector&lt; float &gt;&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="structubcc1pi_1_1EventSelection_1_1OutputEvent.html#a1c7d9e6a52c74052c4e3c6378e9b7b9e">m_mcpMomentumXVect</a></td></tr>
+<tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">The momentum of the MCParticle - X.  <a href="#a1c7d9e6a52c74052c4e3c6378e9b7b9e"></a><br/></td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">std::vector&lt; float &gt;&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="structubcc1pi_1_1EventSelection_1_1OutputEvent.html#ae9a6944deb484222362e6212d42ff92c">m_mcpMomentumYVect</a></td></tr>
+<tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">The momentum of the MCParticle - Y.  <a href="#ae9a6944deb484222362e6212d42ff92c"></a><br/></td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">std::vector&lt; float &gt;&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="structubcc1pi_1_1EventSelection_1_1OutputEvent.html#adbf104ba2d2eec19ec555ddc225faa7e">m_mcpMomentumZVect</a></td></tr>
+<tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">The momentum of the MCParticle - Z.  <a href="#adbf104ba2d2eec19ec555ddc225faa7e"></a><br/></td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">std::vector&lt; int &gt;&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="structubcc1pi_1_1EventSelection_1_1OutputEvent.html#a8ee138ddfb5bd7056d93a2948fb8eef6">m_mcpNHitsUVect</a></td></tr>
+<tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">The number of reconstructed hits that this MCParticle contributed to - U view.  <a href="#a8ee138ddfb5bd7056d93a2948fb8eef6"></a><br/></td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">std::vector&lt; int &gt;&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="structubcc1pi_1_1EventSelection_1_1OutputEvent.html#a2699ec7c31b14a5af1acf53ec57ab206">m_mcpNHitsVVect</a></td></tr>
+<tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">The number of reconstructed hits that this MCParticle contributed to - V view.  <a href="#a2699ec7c31b14a5af1acf53ec57ab206"></a><br/></td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">std::vector&lt; int &gt;&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="structubcc1pi_1_1EventSelection_1_1OutputEvent.html#a73c6baaa484e72e9af5165cabb49d06a">m_mcpNHitsWVect</a></td></tr>
+<tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">The number of reconstructed hits that this MCParticle contributed to - W view.  <a href="#a73c6baaa484e72e9af5165cabb49d06a"></a><br/></td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">std::vector&lt; int &gt;&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="structubcc1pi_1_1EventSelection_1_1OutputEvent.html#a74a92b36cb907e04177fa4afc8af9968">m_mcpNGoodHitsUVect</a></td></tr>
+<tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">Only cont hits for which the MCParticle contribute more than 1/2 of the charge - U view.  <a href="#a74a92b36cb907e04177fa4afc8af9968"></a><br/></td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">std::vector&lt; int &gt;&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="structubcc1pi_1_1EventSelection_1_1OutputEvent.html#a6c24cf6ab09906311403fffe76a4cd12">m_mcpNGoodHitsVVect</a></td></tr>
+<tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">Only cont hits for which the MCParticle contribute more than 1/2 of the charge - V view.  <a href="#a6c24cf6ab09906311403fffe76a4cd12"></a><br/></td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">std::vector&lt; int &gt;&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="structubcc1pi_1_1EventSelection_1_1OutputEvent.html#a3d64eb949a48ffe8e65b6392cb1deb5a">m_mcpNGoodHitsWVect</a></td></tr>
+<tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">Only cont hits for which the MCParticle contribute more than 1/2 of the charge - W view.  <a href="#a3d64eb949a48ffe8e65b6392cb1deb5a"></a><br/></td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">std::vector&lt; float &gt;&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="structubcc1pi_1_1EventSelection_1_1OutputEvent.html#a0be01a62f65fba60b7ff46ba30dc2e7a">m_mcpHitWeightUVect</a></td></tr>
+<tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">The total hit weight that the MCParticle contributed - U view.  <a href="#a0be01a62f65fba60b7ff46ba30dc2e7a"></a><br/></td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">std::vector&lt; float &gt;&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="structubcc1pi_1_1EventSelection_1_1OutputEvent.html#a8c744f1f2bdd7001b8adc26d3bb13c88">m_mcpHitWeightVVect</a></td></tr>
+<tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">The total hit weight that the MCParticle contributed - V view.  <a href="#a8c744f1f2bdd7001b8adc26d3bb13c88"></a><br/></td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">std::vector&lt; float &gt;&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="structubcc1pi_1_1EventSelection_1_1OutputEvent.html#a8fc78dcc142b03c0f61441ef28cffab1">m_mcpHitWeightWVect</a></td></tr>
+<tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">The total hit weight that the MCParticle contributed - W view.  <a href="#a8fc78dcc142b03c0f61441ef28cffab1"></a><br/></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">bool&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="structubcc1pi_1_1EventSelection_1_1OutputEvent.html#adb81ecf766aa14d80a408e96c248cfc8">m_hasRecoNeutrino</a></td></tr>
 <tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">If the event has a reconstructed neutrino.  <a href="#adb81ecf766aa14d80a408e96c248cfc8"></a><br/></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">TVector3&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="structubcc1pi_1_1EventSelection_1_1OutputEvent.html#a35d0d0d3599d64a15f7e974d094c905b">m_recoNuVtx</a></td></tr>
@@ -170,12 +214,18 @@ window.onload = initDynSections;
 <tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">The number of reconstructed final state PFParticles.  <a href="#ac3c8a3e8b1b91385cbbae0c07466b666"></a><br/></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">std::vector&lt; bool &gt;&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="structubcc1pi_1_1EventSelection_1_1OutputEvent.html#aeadf6bb6b3e6dcc7cbe8e64e244524c6">m_hasMatchedMCParticleVect</a></td></tr>
 <tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">If the particles have a matched MCParticle.  <a href="#aeadf6bb6b3e6dcc7cbe8e64e244524c6"></a><br/></td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">std::vector&lt; int &gt;&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="structubcc1pi_1_1EventSelection_1_1OutputEvent.html#a44227fbbb2b3362806e047d940d108a5">m_matchedMCParticleIdVect</a></td></tr>
+<tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">The ID of the matched MCParticle.  <a href="#a44227fbbb2b3362806e047d940d108a5"></a><br/></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">std::vector&lt; int &gt;&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="structubcc1pi_1_1EventSelection_1_1OutputEvent.html#aca58925d70529100edaa35087cb19e9c">m_truePdgCodeVect</a></td></tr>
 <tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">The best matched MCParticles PDG code.  <a href="#aca58925d70529100edaa35087cb19e9c"></a><br/></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">std::vector&lt; float &gt;&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="structubcc1pi_1_1EventSelection_1_1OutputEvent.html#ae33ef8f2c928ce1a87bfaa80d716ecfd">m_truthMatchCompletenessVect</a></td></tr>
 <tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">The completeness of the match.  <a href="#ae33ef8f2c928ce1a87bfaa80d716ecfd"></a><br/></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">std::vector&lt; float &gt;&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="structubcc1pi_1_1EventSelection_1_1OutputEvent.html#a0154d22453cbb0774b6e37ddab6168da">m_truthMatchPurityVect</a></td></tr>
 <tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">The purity of the match.  <a href="#a0154d22453cbb0774b6e37ddab6168da"></a><br/></td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">std::vector&lt; float &gt;&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="structubcc1pi_1_1EventSelection_1_1OutputEvent.html#ad51884dacb342bf9e0575cb53bd8007a">m_trueEnergyVect</a></td></tr>
+<tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">The true energy of the particle.  <a href="#ad51884dacb342bf9e0575cb53bd8007a"></a><br/></td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">std::vector&lt; float &gt;&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="structubcc1pi_1_1EventSelection_1_1OutputEvent.html#afb42a429da50472fb8c1b7f6544ef021">m_trueKEVect</a></td></tr>
+<tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">The true kinetic energy of the particle.  <a href="#afb42a429da50472fb8c1b7f6544ef021"></a><br/></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">std::vector&lt; float &gt;&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="structubcc1pi_1_1EventSelection_1_1OutputEvent.html#a4269b2103e563822d012a9b241d01269">m_trueMomentumXVect</a></td></tr>
 <tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">The true momentum of the particle - X.  <a href="#a4269b2103e563822d012a9b241d01269"></a><br/></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">std::vector&lt; float &gt;&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="structubcc1pi_1_1EventSelection_1_1OutputEvent.html#ad22560516f26f96e5618eb0e65f7887c">m_trueMomentumYVect</a></td></tr>
@@ -216,12 +266,30 @@ window.onload = initDynSections;
 <tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">The reconstructed direction of the particle - Y.  <a href="#a8029260d109f69edf1999cb7b534e2f0"></a><br/></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">std::vector&lt; float &gt;&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="structubcc1pi_1_1EventSelection_1_1OutputEvent.html#aa6e21baf5e50b60dbe807ad6aeaf734b">m_directionZVect</a></td></tr>
 <tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">The reconstructed direction of the particle - Z.  <a href="#aa6e21baf5e50b60dbe807ad6aeaf734b"></a><br/></td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">std::vector&lt; float &gt;&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="structubcc1pi_1_1EventSelection_1_1OutputEvent.html#a36bb331b03910f13e2e4fbc5bbeaabc7">m_thetaVect</a></td></tr>
+<tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">The reconstructed angle to the beam direction.  <a href="#a36bb331b03910f13e2e4fbc5bbeaabc7"></a><br/></td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">std::vector&lt; float &gt;&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="structubcc1pi_1_1EventSelection_1_1OutputEvent.html#a26702ae3cbcbdb34be7b6fd68e38c29b">m_phiVect</a></td></tr>
+<tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">The reconstructed angle aroun the beam direction.  <a href="#a26702ae3cbcbdb34be7b6fd68e38c29b"></a><br/></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">std::vector&lt; float &gt;&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="structubcc1pi_1_1EventSelection_1_1OutputEvent.html#a6ef4e3f3e8f1c42f768ca8a6a0955c5f">m_yzAngleVect</a></td></tr>
 <tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">The reconstructed angle in the YZ plane to the vertical.  <a href="#a6ef4e3f3e8f1c42f768ca8a6a0955c5f"></a><br/></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">std::vector&lt; float &gt;&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="structubcc1pi_1_1EventSelection_1_1OutputEvent.html#ab3e4d18500a892e9b7dda72fcffd37ea">m_lengthVect</a></td></tr>
 <tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">The reconstructed length.  <a href="#ab3e4d18500a892e9b7dda72fcffd37ea"></a><br/></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">std::vector&lt; bool &gt;&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="structubcc1pi_1_1EventSelection_1_1OutputEvent.html#a37471b14c8acc4262bce758bb8fc6914">m_isContainedVect</a></td></tr>
 <tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">If the particle is contained within the detector.  <a href="#a37471b14c8acc4262bce758bb8fc6914"></a><br/></td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">std::vector&lt; bool &gt;&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="structubcc1pi_1_1EventSelection_1_1OutputEvent.html#a16a0d358c0011a01110099d4602605c4">m_hasCalorimetryInfoVect</a></td></tr>
+<tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">If the PFParticle has an associated Calorimetry object.  <a href="#a16a0d358c0011a01110099d4602605c4"></a><br/></td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">std::vector&lt; std::vector&lt; float &gt; &gt;&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="structubcc1pi_1_1EventSelection_1_1OutputEvent.html#a25af2e37c5115ca7f3738f39e0b8d618">m_dedxPerHitUVect</a></td></tr>
+<tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">The dEdx at each hit point along the tracjectory in the U plane.  <a href="#a25af2e37c5115ca7f3738f39e0b8d618"></a><br/></td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">std::vector&lt; std::vector&lt; float &gt; &gt;&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="structubcc1pi_1_1EventSelection_1_1OutputEvent.html#aa76533834b758ffb79820c7209771780">m_dedxPerHitVVect</a></td></tr>
+<tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">The dEdx at each hit point along the tracjectory in the V plane.  <a href="#aa76533834b758ffb79820c7209771780"></a><br/></td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">std::vector&lt; std::vector&lt; float &gt; &gt;&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="structubcc1pi_1_1EventSelection_1_1OutputEvent.html#a9424418e21714f8637ccb9c4b7a1b092">m_dedxPerHitWVect</a></td></tr>
+<tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">The dEdx at each hit point along the tracjectory in the W plane.  <a href="#a9424418e21714f8637ccb9c4b7a1b092"></a><br/></td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">std::vector&lt; std::vector&lt; float &gt; &gt;&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="structubcc1pi_1_1EventSelection_1_1OutputEvent.html#aaac9a8f6e7297c8ac4f1bf4da81ad13c">m_residualRangePerHitUVect</a></td></tr>
+<tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">The residual range at each hit point along the tracjectory in the U plane.  <a href="#aaac9a8f6e7297c8ac4f1bf4da81ad13c"></a><br/></td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">std::vector&lt; std::vector&lt; float &gt; &gt;&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="structubcc1pi_1_1EventSelection_1_1OutputEvent.html#a6035022c36314b741d25562c00310a7b">m_residualRangePerHitVVect</a></td></tr>
+<tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">The residual range at each hit point along the tracjectory in the V plane.  <a href="#a6035022c36314b741d25562c00310a7b"></a><br/></td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">std::vector&lt; std::vector&lt; float &gt; &gt;&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="structubcc1pi_1_1EventSelection_1_1OutputEvent.html#a71ebe5e4262c220c4861a7934b0cf9b7">m_residualRangePerHitWVect</a></td></tr>
+<tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">The residual range at each hit point along the tracjectory in the W plane.  <a href="#a71ebe5e4262c220c4861a7934b0cf9b7"></a><br/></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">std::vector&lt; bool &gt;&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="structubcc1pi_1_1EventSelection_1_1OutputEvent.html#adb95a00feba9b9058ab64aa8317d4f5f">m_hasPIDInfoVect</a></td></tr>
 <tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">If the PFParticle has an associated PID object.  <a href="#adb95a00feba9b9058ab64aa8317d4f5f"></a><br/></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">std::vector&lt; bool &gt;&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="structubcc1pi_1_1EventSelection_1_1OutputEvent.html#aa130e84b99249a7569e7e89d41016e76">m_isWChi2pAvailableVect</a></td></tr>
@@ -256,6 +324,22 @@ window.onload = initDynSections;
 <tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">If the weighted average Bragg proton over the U &amp; V planes is available.  <a href="#a2d1d270b24d0486b2df570890bdbf214"></a><br/></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">std::vector&lt; float &gt;&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="structubcc1pi_1_1EventSelection_1_1OutputEvent.html#a940e028422961db0d57ae7217697447b">m_braggpUVVect</a></td></tr>
 <tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">The weighted average Bragg proton over the U &amp; V planes.  <a href="#a940e028422961db0d57ae7217697447b"></a><br/></td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">std::vector&lt; bool &gt;&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="structubcc1pi_1_1EventSelection_1_1OutputEvent.html#a6d2b8ed86cb4cef46fc58f16746b028a">m_isWBraggpBackwardAvailableVect</a></td></tr>
+<tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">If the backward Bragg proton is available for the W plane.  <a href="#a6d2b8ed86cb4cef46fc58f16746b028a"></a><br/></td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">std::vector&lt; float &gt;&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="structubcc1pi_1_1EventSelection_1_1OutputEvent.html#a6fb1eeb11de852e71f48ee1e3ddb78bc">m_braggpBackwardWVect</a></td></tr>
+<tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">The backward Bragg proton for the W plane.  <a href="#a6fb1eeb11de852e71f48ee1e3ddb78bc"></a><br/></td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">std::vector&lt; bool &gt;&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="structubcc1pi_1_1EventSelection_1_1OutputEvent.html#a2b4efa2227d818bd95a1a90e22db70ee">m_isUBraggpBackwardAvailableVect</a></td></tr>
+<tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">If the backward Bragg proton is available for the U plane.  <a href="#a2b4efa2227d818bd95a1a90e22db70ee"></a><br/></td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">std::vector&lt; float &gt;&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="structubcc1pi_1_1EventSelection_1_1OutputEvent.html#a28d3c293be990189417815db7d7cd0fa">m_braggpBackwardUVect</a></td></tr>
+<tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">The backward Bragg proton for the U plane.  <a href="#a28d3c293be990189417815db7d7cd0fa"></a><br/></td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">std::vector&lt; bool &gt;&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="structubcc1pi_1_1EventSelection_1_1OutputEvent.html#a19414ac1b3bd306b506d31e66d8f91bf">m_isVBraggpBackwardAvailableVect</a></td></tr>
+<tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">If the backward Bragg proton is available for the V plane.  <a href="#a19414ac1b3bd306b506d31e66d8f91bf"></a><br/></td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">std::vector&lt; float &gt;&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="structubcc1pi_1_1EventSelection_1_1OutputEvent.html#a245f4e721d80da0b0bf21fe183a10d04">m_braggpBackwardVVect</a></td></tr>
+<tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">The backward Bragg proton for the V plane.  <a href="#a245f4e721d80da0b0bf21fe183a10d04"></a><br/></td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">std::vector&lt; bool &gt;&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="structubcc1pi_1_1EventSelection_1_1OutputEvent.html#a21de399266954d98fa5402bc24f7cfdb">m_isUVBraggpBackwardAvailableVect</a></td></tr>
+<tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">If the weighted average backward Bragg proton over the U &amp; V planes is available.  <a href="#a21de399266954d98fa5402bc24f7cfdb"></a><br/></td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">std::vector&lt; float &gt;&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="structubcc1pi_1_1EventSelection_1_1OutputEvent.html#a7af029bbed4f152a80c2c03913f46de2">m_braggpBackwardUVVect</a></td></tr>
+<tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">The weighted average backward Bragg proton over the U &amp; V planes.  <a href="#a7af029bbed4f152a80c2c03913f46de2"></a><br/></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">std::vector&lt; bool &gt;&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="structubcc1pi_1_1EventSelection_1_1OutputEvent.html#a706f95e68cfccd23f523820db1cdcf3d">m_isWBraggMIPAvailableVect</a></td></tr>
 <tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">If the Bragg MIP is available for the W plane.  <a href="#a706f95e68cfccd23f523820db1cdcf3d"></a><br/></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">std::vector&lt; float &gt;&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="structubcc1pi_1_1EventSelection_1_1OutputEvent.html#a3e9a33c225905c38038061a6869ac59c">m_braggMIPWVect</a></td></tr>
@@ -300,7 +384,7 @@ window.onload = initDynSections;
 <hr/><a name="_details"></a><h2>Detailed Description</h2>
 <p>The output event level structure. </p>
 
-<p>Definition at line <a class="el" href="EventSelection_8h_source.html#l00090">90</a> of file <a class="el" href="EventSelection_8h_source.html">EventSelection.h</a>.</p>
+<p>Definition at line <a class="el" href="EventSelection_8h_source.html#l00096">96</a> of file <a class="el" href="EventSelection_8h_source.html">EventSelection.h</a>.</p>
 <hr/><h2>Member Data Documentation</h2>
 <a class="anchor" id="a2af814beee4de30c9b193b3ea15e6cc3"></a><!-- doxytag: member="ubcc1pi::EventSelection::OutputEvent::m_braggMIPBackwardUVect" ref="a2af814beee4de30c9b193b3ea15e6cc3" args="" -->
 <div class="memitem">
@@ -315,7 +399,7 @@ window.onload = initDynSections;
 
 <p>The Bragg MIP for the U plane fitted backwards. </p>
 
-<p>Definition at line <a class="el" href="EventSelection_8h_source.html#l00217">217</a> of file <a class="el" href="EventSelection_8h_source.html">EventSelection.h</a>.</p>
+<p>Definition at line <a class="el" href="EventSelection_8h_source.html#l00276">276</a> of file <a class="el" href="EventSelection_8h_source.html">EventSelection.h</a>.</p>
 
 </div>
 </div>
@@ -332,7 +416,7 @@ window.onload = initDynSections;
 
 <p>The weighted average Bragg MIP over the U &amp; V planes fitted backwards. </p>
 
-<p>Definition at line <a class="el" href="EventSelection_8h_source.html#l00223">223</a> of file <a class="el" href="EventSelection_8h_source.html">EventSelection.h</a>.</p>
+<p>Definition at line <a class="el" href="EventSelection_8h_source.html#l00282">282</a> of file <a class="el" href="EventSelection_8h_source.html">EventSelection.h</a>.</p>
 
 </div>
 </div>
@@ -349,7 +433,7 @@ window.onload = initDynSections;
 
 <p>The Bragg MIP for the V plane fitted backwards. </p>
 
-<p>Definition at line <a class="el" href="EventSelection_8h_source.html#l00220">220</a> of file <a class="el" href="EventSelection_8h_source.html">EventSelection.h</a>.</p>
+<p>Definition at line <a class="el" href="EventSelection_8h_source.html#l00279">279</a> of file <a class="el" href="EventSelection_8h_source.html">EventSelection.h</a>.</p>
 
 </div>
 </div>
@@ -366,7 +450,7 @@ window.onload = initDynSections;
 
 <p>The Bragg MIP for the W plane fitted backwards. </p>
 
-<p>Definition at line <a class="el" href="EventSelection_8h_source.html#l00214">214</a> of file <a class="el" href="EventSelection_8h_source.html">EventSelection.h</a>.</p>
+<p>Definition at line <a class="el" href="EventSelection_8h_source.html#l00273">273</a> of file <a class="el" href="EventSelection_8h_source.html">EventSelection.h</a>.</p>
 
 </div>
 </div>
@@ -383,7 +467,7 @@ window.onload = initDynSections;
 
 <p>The Bragg MIP for the U plane. </p>
 
-<p>Definition at line <a class="el" href="EventSelection_8h_source.html#l00204">204</a> of file <a class="el" href="EventSelection_8h_source.html">EventSelection.h</a>.</p>
+<p>Definition at line <a class="el" href="EventSelection_8h_source.html#l00263">263</a> of file <a class="el" href="EventSelection_8h_source.html">EventSelection.h</a>.</p>
 
 </div>
 </div>
@@ -400,7 +484,7 @@ window.onload = initDynSections;
 
 <p>The weighted average Bragg MIP over the U &amp; V planes. </p>
 
-<p>Definition at line <a class="el" href="EventSelection_8h_source.html#l00210">210</a> of file <a class="el" href="EventSelection_8h_source.html">EventSelection.h</a>.</p>
+<p>Definition at line <a class="el" href="EventSelection_8h_source.html#l00269">269</a> of file <a class="el" href="EventSelection_8h_source.html">EventSelection.h</a>.</p>
 
 </div>
 </div>
@@ -417,7 +501,7 @@ window.onload = initDynSections;
 
 <p>The Bragg MIP for the V plane. </p>
 
-<p>Definition at line <a class="el" href="EventSelection_8h_source.html#l00207">207</a> of file <a class="el" href="EventSelection_8h_source.html">EventSelection.h</a>.</p>
+<p>Definition at line <a class="el" href="EventSelection_8h_source.html#l00266">266</a> of file <a class="el" href="EventSelection_8h_source.html">EventSelection.h</a>.</p>
 
 </div>
 </div>
@@ -434,7 +518,75 @@ window.onload = initDynSections;
 
 <p>The Bragg MIP for the W plane. </p>
 
-<p>Definition at line <a class="el" href="EventSelection_8h_source.html#l00201">201</a> of file <a class="el" href="EventSelection_8h_source.html">EventSelection.h</a>.</p>
+<p>Definition at line <a class="el" href="EventSelection_8h_source.html#l00260">260</a> of file <a class="el" href="EventSelection_8h_source.html">EventSelection.h</a>.</p>
+
+</div>
+</div>
+<a class="anchor" id="a28d3c293be990189417815db7d7cd0fa"></a><!-- doxytag: member="ubcc1pi::EventSelection::OutputEvent::m_braggpBackwardUVect" ref="a28d3c293be990189417815db7d7cd0fa" args="" -->
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">std::vector&lt;float&gt; <a class="el" href="structubcc1pi_1_1EventSelection_1_1OutputEvent.html#a28d3c293be990189417815db7d7cd0fa">ubcc1pi::EventSelection::OutputEvent::m_braggpBackwardUVect</a></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+
+<p>The backward Bragg proton for the U plane. </p>
+
+<p>Definition at line <a class="el" href="EventSelection_8h_source.html#l00250">250</a> of file <a class="el" href="EventSelection_8h_source.html">EventSelection.h</a>.</p>
+
+</div>
+</div>
+<a class="anchor" id="a7af029bbed4f152a80c2c03913f46de2"></a><!-- doxytag: member="ubcc1pi::EventSelection::OutputEvent::m_braggpBackwardUVVect" ref="a7af029bbed4f152a80c2c03913f46de2" args="" -->
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">std::vector&lt;float&gt; <a class="el" href="structubcc1pi_1_1EventSelection_1_1OutputEvent.html#a7af029bbed4f152a80c2c03913f46de2">ubcc1pi::EventSelection::OutputEvent::m_braggpBackwardUVVect</a></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+
+<p>The weighted average backward Bragg proton over the U &amp; V planes. </p>
+
+<p>Definition at line <a class="el" href="EventSelection_8h_source.html#l00256">256</a> of file <a class="el" href="EventSelection_8h_source.html">EventSelection.h</a>.</p>
+
+</div>
+</div>
+<a class="anchor" id="a245f4e721d80da0b0bf21fe183a10d04"></a><!-- doxytag: member="ubcc1pi::EventSelection::OutputEvent::m_braggpBackwardVVect" ref="a245f4e721d80da0b0bf21fe183a10d04" args="" -->
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">std::vector&lt;float&gt; <a class="el" href="structubcc1pi_1_1EventSelection_1_1OutputEvent.html#a245f4e721d80da0b0bf21fe183a10d04">ubcc1pi::EventSelection::OutputEvent::m_braggpBackwardVVect</a></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+
+<p>The backward Bragg proton for the V plane. </p>
+
+<p>Definition at line <a class="el" href="EventSelection_8h_source.html#l00253">253</a> of file <a class="el" href="EventSelection_8h_source.html">EventSelection.h</a>.</p>
+
+</div>
+</div>
+<a class="anchor" id="a6fb1eeb11de852e71f48ee1e3ddb78bc"></a><!-- doxytag: member="ubcc1pi::EventSelection::OutputEvent::m_braggpBackwardWVect" ref="a6fb1eeb11de852e71f48ee1e3ddb78bc" args="" -->
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">std::vector&lt;float&gt; <a class="el" href="structubcc1pi_1_1EventSelection_1_1OutputEvent.html#a6fb1eeb11de852e71f48ee1e3ddb78bc">ubcc1pi::EventSelection::OutputEvent::m_braggpBackwardWVect</a></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+
+<p>The backward Bragg proton for the W plane. </p>
+
+<p>Definition at line <a class="el" href="EventSelection_8h_source.html#l00247">247</a> of file <a class="el" href="EventSelection_8h_source.html">EventSelection.h</a>.</p>
 
 </div>
 </div>
@@ -451,7 +603,7 @@ window.onload = initDynSections;
 
 <p>The Bragg proton for the U plane. </p>
 
-<p>Definition at line <a class="el" href="EventSelection_8h_source.html#l00191">191</a> of file <a class="el" href="EventSelection_8h_source.html">EventSelection.h</a>.</p>
+<p>Definition at line <a class="el" href="EventSelection_8h_source.html#l00237">237</a> of file <a class="el" href="EventSelection_8h_source.html">EventSelection.h</a>.</p>
 
 </div>
 </div>
@@ -468,7 +620,7 @@ window.onload = initDynSections;
 
 <p>The weighted average Bragg proton over the U &amp; V planes. </p>
 
-<p>Definition at line <a class="el" href="EventSelection_8h_source.html#l00197">197</a> of file <a class="el" href="EventSelection_8h_source.html">EventSelection.h</a>.</p>
+<p>Definition at line <a class="el" href="EventSelection_8h_source.html#l00243">243</a> of file <a class="el" href="EventSelection_8h_source.html">EventSelection.h</a>.</p>
 
 </div>
 </div>
@@ -485,7 +637,7 @@ window.onload = initDynSections;
 
 <p>The Bragg proton for the V plane. </p>
 
-<p>Definition at line <a class="el" href="EventSelection_8h_source.html#l00194">194</a> of file <a class="el" href="EventSelection_8h_source.html">EventSelection.h</a>.</p>
+<p>Definition at line <a class="el" href="EventSelection_8h_source.html#l00240">240</a> of file <a class="el" href="EventSelection_8h_source.html">EventSelection.h</a>.</p>
 
 </div>
 </div>
@@ -502,7 +654,7 @@ window.onload = initDynSections;
 
 <p>The Bragg proton for the W plane. </p>
 
-<p>Definition at line <a class="el" href="EventSelection_8h_source.html#l00188">188</a> of file <a class="el" href="EventSelection_8h_source.html">EventSelection.h</a>.</p>
+<p>Definition at line <a class="el" href="EventSelection_8h_source.html#l00234">234</a> of file <a class="el" href="EventSelection_8h_source.html">EventSelection.h</a>.</p>
 
 </div>
 </div>
@@ -519,7 +671,7 @@ window.onload = initDynSections;
 
 <p>The weighted average Bragg MIP over the U &amp; V planes. </p>
 
-<p>Definition at line <a class="el" href="EventSelection_8h_source.html#l00230">230</a> of file <a class="el" href="EventSelection_8h_source.html">EventSelection.h</a>.</p>
+<p>Definition at line <a class="el" href="EventSelection_8h_source.html#l00289">289</a> of file <a class="el" href="EventSelection_8h_source.html">EventSelection.h</a>.</p>
 
 </div>
 </div>
@@ -536,7 +688,7 @@ window.onload = initDynSections;
 
 <p>The Bragg ratio for the W plane. </p>
 
-<p>Definition at line <a class="el" href="EventSelection_8h_source.html#l00227">227</a> of file <a class="el" href="EventSelection_8h_source.html">EventSelection.h</a>.</p>
+<p>Definition at line <a class="el" href="EventSelection_8h_source.html#l00286">286</a> of file <a class="el" href="EventSelection_8h_source.html">EventSelection.h</a>.</p>
 
 </div>
 </div>
@@ -553,7 +705,7 @@ window.onload = initDynSections;
 
 <p>The chi2 proton for the U plane. </p>
 
-<p>Definition at line <a class="el" href="EventSelection_8h_source.html#l00178">178</a> of file <a class="el" href="EventSelection_8h_source.html">EventSelection.h</a>.</p>
+<p>Definition at line <a class="el" href="EventSelection_8h_source.html#l00224">224</a> of file <a class="el" href="EventSelection_8h_source.html">EventSelection.h</a>.</p>
 
 </div>
 </div>
@@ -570,7 +722,7 @@ window.onload = initDynSections;
 
 <p>The weighted average chi2 proton over the U &amp; V planes. </p>
 
-<p>Definition at line <a class="el" href="EventSelection_8h_source.html#l00184">184</a> of file <a class="el" href="EventSelection_8h_source.html">EventSelection.h</a>.</p>
+<p>Definition at line <a class="el" href="EventSelection_8h_source.html#l00230">230</a> of file <a class="el" href="EventSelection_8h_source.html">EventSelection.h</a>.</p>
 
 </div>
 </div>
@@ -587,7 +739,7 @@ window.onload = initDynSections;
 
 <p>The chi2 proton for the V plane. </p>
 
-<p>Definition at line <a class="el" href="EventSelection_8h_source.html#l00181">181</a> of file <a class="el" href="EventSelection_8h_source.html">EventSelection.h</a>.</p>
+<p>Definition at line <a class="el" href="EventSelection_8h_source.html#l00227">227</a> of file <a class="el" href="EventSelection_8h_source.html">EventSelection.h</a>.</p>
 
 </div>
 </div>
@@ -604,7 +756,58 @@ window.onload = initDynSections;
 
 <p>The chi2 proton for the W plane. </p>
 
-<p>Definition at line <a class="el" href="EventSelection_8h_source.html#l00175">175</a> of file <a class="el" href="EventSelection_8h_source.html">EventSelection.h</a>.</p>
+<p>Definition at line <a class="el" href="EventSelection_8h_source.html#l00221">221</a> of file <a class="el" href="EventSelection_8h_source.html">EventSelection.h</a>.</p>
+
+</div>
+</div>
+<a class="anchor" id="a25af2e37c5115ca7f3738f39e0b8d618"></a><!-- doxytag: member="ubcc1pi::EventSelection::OutputEvent::m_dedxPerHitUVect" ref="a25af2e37c5115ca7f3738f39e0b8d618" args="" -->
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">std::vector&lt;std::vector&lt;float&gt; &gt; <a class="el" href="structubcc1pi_1_1EventSelection_1_1OutputEvent.html#a25af2e37c5115ca7f3738f39e0b8d618">ubcc1pi::EventSelection::OutputEvent::m_dedxPerHitUVect</a></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+
+<p>The dEdx at each hit point along the tracjectory in the U plane. </p>
+
+<p>Definition at line <a class="el" href="EventSelection_8h_source.html#l00209">209</a> of file <a class="el" href="EventSelection_8h_source.html">EventSelection.h</a>.</p>
+
+</div>
+</div>
+<a class="anchor" id="aa76533834b758ffb79820c7209771780"></a><!-- doxytag: member="ubcc1pi::EventSelection::OutputEvent::m_dedxPerHitVVect" ref="aa76533834b758ffb79820c7209771780" args="" -->
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">std::vector&lt;std::vector&lt;float&gt; &gt; <a class="el" href="structubcc1pi_1_1EventSelection_1_1OutputEvent.html#aa76533834b758ffb79820c7209771780">ubcc1pi::EventSelection::OutputEvent::m_dedxPerHitVVect</a></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+
+<p>The dEdx at each hit point along the tracjectory in the V plane. </p>
+
+<p>Definition at line <a class="el" href="EventSelection_8h_source.html#l00210">210</a> of file <a class="el" href="EventSelection_8h_source.html">EventSelection.h</a>.</p>
+
+</div>
+</div>
+<a class="anchor" id="a9424418e21714f8637ccb9c4b7a1b092"></a><!-- doxytag: member="ubcc1pi::EventSelection::OutputEvent::m_dedxPerHitWVect" ref="a9424418e21714f8637ccb9c4b7a1b092" args="" -->
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">std::vector&lt;std::vector&lt;float&gt; &gt; <a class="el" href="structubcc1pi_1_1EventSelection_1_1OutputEvent.html#a9424418e21714f8637ccb9c4b7a1b092">ubcc1pi::EventSelection::OutputEvent::m_dedxPerHitWVect</a></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+
+<p>The dEdx at each hit point along the tracjectory in the W plane. </p>
+
+<p>Definition at line <a class="el" href="EventSelection_8h_source.html#l00211">211</a> of file <a class="el" href="EventSelection_8h_source.html">EventSelection.h</a>.</p>
 
 </div>
 </div>
@@ -621,7 +824,7 @@ window.onload = initDynSections;
 
 <p>The reconstructed direction of the particle - X. </p>
 
-<p>Definition at line <a class="el" href="EventSelection_8h_source.html#l00164">164</a> of file <a class="el" href="EventSelection_8h_source.html">EventSelection.h</a>.</p>
+<p>Definition at line <a class="el" href="EventSelection_8h_source.html#l00198">198</a> of file <a class="el" href="EventSelection_8h_source.html">EventSelection.h</a>.</p>
 
 </div>
 </div>
@@ -638,7 +841,7 @@ window.onload = initDynSections;
 
 <p>The reconstructed direction of the particle - Y. </p>
 
-<p>Definition at line <a class="el" href="EventSelection_8h_source.html#l00165">165</a> of file <a class="el" href="EventSelection_8h_source.html">EventSelection.h</a>.</p>
+<p>Definition at line <a class="el" href="EventSelection_8h_source.html#l00199">199</a> of file <a class="el" href="EventSelection_8h_source.html">EventSelection.h</a>.</p>
 
 </div>
 </div>
@@ -655,7 +858,7 @@ window.onload = initDynSections;
 
 <p>The reconstructed direction of the particle - Z. </p>
 
-<p>Definition at line <a class="el" href="EventSelection_8h_source.html#l00166">166</a> of file <a class="el" href="EventSelection_8h_source.html">EventSelection.h</a>.</p>
+<p>Definition at line <a class="el" href="EventSelection_8h_source.html#l00200">200</a> of file <a class="el" href="EventSelection_8h_source.html">EventSelection.h</a>.</p>
 
 </div>
 </div>
@@ -672,7 +875,7 @@ window.onload = initDynSections;
 
 <p>The SCE corrected reconstructed end position of the particle - X. </p>
 
-<p>Definition at line <a class="el" href="EventSelection_8h_source.html#l00161">161</a> of file <a class="el" href="EventSelection_8h_source.html">EventSelection.h</a>.</p>
+<p>Definition at line <a class="el" href="EventSelection_8h_source.html#l00195">195</a> of file <a class="el" href="EventSelection_8h_source.html">EventSelection.h</a>.</p>
 
 </div>
 </div>
@@ -689,7 +892,7 @@ window.onload = initDynSections;
 
 <p>The SCE corrected reconstructed end position of the particle - Y. </p>
 
-<p>Definition at line <a class="el" href="EventSelection_8h_source.html#l00162">162</a> of file <a class="el" href="EventSelection_8h_source.html">EventSelection.h</a>.</p>
+<p>Definition at line <a class="el" href="EventSelection_8h_source.html#l00196">196</a> of file <a class="el" href="EventSelection_8h_source.html">EventSelection.h</a>.</p>
 
 </div>
 </div>
@@ -706,7 +909,7 @@ window.onload = initDynSections;
 
 <p>The SCE corrected reconstructed end position of the particle - Z. </p>
 
-<p>Definition at line <a class="el" href="EventSelection_8h_source.html#l00163">163</a> of file <a class="el" href="EventSelection_8h_source.html">EventSelection.h</a>.</p>
+<p>Definition at line <a class="el" href="EventSelection_8h_source.html#l00197">197</a> of file <a class="el" href="EventSelection_8h_source.html">EventSelection.h</a>.</p>
 
 </div>
 </div>
@@ -723,7 +926,24 @@ window.onload = initDynSections;
 
 <p>The event number. </p>
 
-<p>Definition at line <a class="el" href="EventSelection_8h_source.html#l00095">95</a> of file <a class="el" href="EventSelection_8h_source.html">EventSelection.h</a>.</p>
+<p>Definition at line <a class="el" href="EventSelection_8h_source.html#l00101">101</a> of file <a class="el" href="EventSelection_8h_source.html">EventSelection.h</a>.</p>
+
+</div>
+</div>
+<a class="anchor" id="a16a0d358c0011a01110099d4602605c4"></a><!-- doxytag: member="ubcc1pi::EventSelection::OutputEvent::m_hasCalorimetryInfoVect" ref="a16a0d358c0011a01110099d4602605c4" args="" -->
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">std::vector&lt;bool&gt; <a class="el" href="structubcc1pi_1_1EventSelection_1_1OutputEvent.html#a16a0d358c0011a01110099d4602605c4">ubcc1pi::EventSelection::OutputEvent::m_hasCalorimetryInfoVect</a></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+
+<p>If the PFParticle has an associated Calorimetry object. </p>
+
+<p>Definition at line <a class="el" href="EventSelection_8h_source.html#l00208">208</a> of file <a class="el" href="EventSelection_8h_source.html">EventSelection.h</a>.</p>
 
 </div>
 </div>
@@ -740,7 +960,7 @@ window.onload = initDynSections;
 
 <p>If the particles have a matched MCParticle. </p>
 
-<p>Definition at line <a class="el" href="EventSelection_8h_source.html#l00139">139</a> of file <a class="el" href="EventSelection_8h_source.html">EventSelection.h</a>.</p>
+<p>Definition at line <a class="el" href="EventSelection_8h_source.html#l00170">170</a> of file <a class="el" href="EventSelection_8h_source.html">EventSelection.h</a>.</p>
 
 </div>
 </div>
@@ -757,7 +977,7 @@ window.onload = initDynSections;
 
 <p>If the PFParticle has an associated PID object. </p>
 
-<p>Definition at line <a class="el" href="EventSelection_8h_source.html#l00171">171</a> of file <a class="el" href="EventSelection_8h_source.html">EventSelection.h</a>.</p>
+<p>Definition at line <a class="el" href="EventSelection_8h_source.html#l00217">217</a> of file <a class="el" href="EventSelection_8h_source.html">EventSelection.h</a>.</p>
 
 </div>
 </div>
@@ -774,7 +994,7 @@ window.onload = initDynSections;
 
 <p>If the event has a reconstructed neutrino. </p>
 
-<p>Definition at line <a class="el" href="EventSelection_8h_source.html#l00130">130</a> of file <a class="el" href="EventSelection_8h_source.html">EventSelection.h</a>.</p>
+<p>Definition at line <a class="el" href="EventSelection_8h_source.html#l00161">161</a> of file <a class="el" href="EventSelection_8h_source.html">EventSelection.h</a>.</p>
 
 </div>
 </div>
@@ -791,7 +1011,7 @@ window.onload = initDynSections;
 
 <p>If the PFParticle has an associated track. </p>
 
-<p>Definition at line <a class="el" href="EventSelection_8h_source.html#l00157">157</a> of file <a class="el" href="EventSelection_8h_source.html">EventSelection.h</a>.</p>
+<p>Definition at line <a class="el" href="EventSelection_8h_source.html#l00191">191</a> of file <a class="el" href="EventSelection_8h_source.html">EventSelection.h</a>.</p>
 
 </div>
 </div>
@@ -808,7 +1028,7 @@ window.onload = initDynSections;
 
 <p>The interaction type string. </p>
 
-<p>Definition at line <a class="el" href="EventSelection_8h_source.html#l00099">99</a> of file <a class="el" href="EventSelection_8h_source.html">EventSelection.h</a>.</p>
+<p>Definition at line <a class="el" href="EventSelection_8h_source.html#l00105">105</a> of file <a class="el" href="EventSelection_8h_source.html">EventSelection.h</a>.</p>
 
 </div>
 </div>
@@ -825,7 +1045,7 @@ window.onload = initDynSections;
 
 <p>If the particle is contained within the detector. </p>
 
-<p>Definition at line <a class="el" href="EventSelection_8h_source.html#l00169">169</a> of file <a class="el" href="EventSelection_8h_source.html">EventSelection.h</a>.</p>
+<p>Definition at line <a class="el" href="EventSelection_8h_source.html#l00205">205</a> of file <a class="el" href="EventSelection_8h_source.html">EventSelection.h</a>.</p>
 
 </div>
 </div>
@@ -842,7 +1062,7 @@ window.onload = initDynSections;
 
 <p>If the reconstructed vertex is fiducial. </p>
 
-<p>Definition at line <a class="el" href="EventSelection_8h_source.html#l00132">132</a> of file <a class="el" href="EventSelection_8h_source.html">EventSelection.h</a>.</p>
+<p>Definition at line <a class="el" href="EventSelection_8h_source.html#l00163">163</a> of file <a class="el" href="EventSelection_8h_source.html">EventSelection.h</a>.</p>
 
 </div>
 </div>
@@ -859,7 +1079,7 @@ window.onload = initDynSections;
 
 <p>If the event is a true CC1Pi signal. </p>
 
-<p>Definition at line <a class="el" href="EventSelection_8h_source.html#l00098">98</a> of file <a class="el" href="EventSelection_8h_source.html">EventSelection.h</a>.</p>
+<p>Definition at line <a class="el" href="EventSelection_8h_source.html#l00104">104</a> of file <a class="el" href="EventSelection_8h_source.html">EventSelection.h</a>.</p>
 
 </div>
 </div>
@@ -876,7 +1096,7 @@ window.onload = initDynSections;
 
 <p>If the neutrino interaction is fiducial. </p>
 
-<p>Definition at line <a class="el" href="EventSelection_8h_source.html#l00102">102</a> of file <a class="el" href="EventSelection_8h_source.html">EventSelection.h</a>.</p>
+<p>Definition at line <a class="el" href="EventSelection_8h_source.html#l00108">108</a> of file <a class="el" href="EventSelection_8h_source.html">EventSelection.h</a>.</p>
 
 </div>
 </div>
@@ -893,7 +1113,7 @@ window.onload = initDynSections;
 
 <p>If the Bragg MIP is available for the U plane. </p>
 
-<p>Definition at line <a class="el" href="EventSelection_8h_source.html#l00203">203</a> of file <a class="el" href="EventSelection_8h_source.html">EventSelection.h</a>.</p>
+<p>Definition at line <a class="el" href="EventSelection_8h_source.html#l00262">262</a> of file <a class="el" href="EventSelection_8h_source.html">EventSelection.h</a>.</p>
 
 </div>
 </div>
@@ -910,7 +1130,7 @@ window.onload = initDynSections;
 
 <p>If the Bragg MIP is available for the U plane fitted backwards. </p>
 
-<p>Definition at line <a class="el" href="EventSelection_8h_source.html#l00216">216</a> of file <a class="el" href="EventSelection_8h_source.html">EventSelection.h</a>.</p>
+<p>Definition at line <a class="el" href="EventSelection_8h_source.html#l00275">275</a> of file <a class="el" href="EventSelection_8h_source.html">EventSelection.h</a>.</p>
 
 </div>
 </div>
@@ -927,7 +1147,24 @@ window.onload = initDynSections;
 
 <p>If the Bragg proton is available for the U plane. </p>
 
-<p>Definition at line <a class="el" href="EventSelection_8h_source.html#l00190">190</a> of file <a class="el" href="EventSelection_8h_source.html">EventSelection.h</a>.</p>
+<p>Definition at line <a class="el" href="EventSelection_8h_source.html#l00236">236</a> of file <a class="el" href="EventSelection_8h_source.html">EventSelection.h</a>.</p>
+
+</div>
+</div>
+<a class="anchor" id="a2b4efa2227d818bd95a1a90e22db70ee"></a><!-- doxytag: member="ubcc1pi::EventSelection::OutputEvent::m_isUBraggpBackwardAvailableVect" ref="a2b4efa2227d818bd95a1a90e22db70ee" args="" -->
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">std::vector&lt;bool&gt; <a class="el" href="structubcc1pi_1_1EventSelection_1_1OutputEvent.html#a2b4efa2227d818bd95a1a90e22db70ee">ubcc1pi::EventSelection::OutputEvent::m_isUBraggpBackwardAvailableVect</a></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+
+<p>If the backward Bragg proton is available for the U plane. </p>
+
+<p>Definition at line <a class="el" href="EventSelection_8h_source.html#l00249">249</a> of file <a class="el" href="EventSelection_8h_source.html">EventSelection.h</a>.</p>
 
 </div>
 </div>
@@ -944,7 +1181,7 @@ window.onload = initDynSections;
 
 <p>If the chi2 proton is available for the U plane. </p>
 
-<p>Definition at line <a class="el" href="EventSelection_8h_source.html#l00177">177</a> of file <a class="el" href="EventSelection_8h_source.html">EventSelection.h</a>.</p>
+<p>Definition at line <a class="el" href="EventSelection_8h_source.html#l00223">223</a> of file <a class="el" href="EventSelection_8h_source.html">EventSelection.h</a>.</p>
 
 </div>
 </div>
@@ -961,7 +1198,7 @@ window.onload = initDynSections;
 
 <p>If the weighted average Bragg MIP over the U &amp; V planes is available. </p>
 
-<p>Definition at line <a class="el" href="EventSelection_8h_source.html#l00209">209</a> of file <a class="el" href="EventSelection_8h_source.html">EventSelection.h</a>.</p>
+<p>Definition at line <a class="el" href="EventSelection_8h_source.html#l00268">268</a> of file <a class="el" href="EventSelection_8h_source.html">EventSelection.h</a>.</p>
 
 </div>
 </div>
@@ -978,7 +1215,7 @@ window.onload = initDynSections;
 
 <p>If the weighted average Bragg MIP over the U &amp; V planes is available fitted backwards. </p>
 
-<p>Definition at line <a class="el" href="EventSelection_8h_source.html#l00222">222</a> of file <a class="el" href="EventSelection_8h_source.html">EventSelection.h</a>.</p>
+<p>Definition at line <a class="el" href="EventSelection_8h_source.html#l00281">281</a> of file <a class="el" href="EventSelection_8h_source.html">EventSelection.h</a>.</p>
 
 </div>
 </div>
@@ -995,7 +1232,24 @@ window.onload = initDynSections;
 
 <p>If the weighted average Bragg proton over the U &amp; V planes is available. </p>
 
-<p>Definition at line <a class="el" href="EventSelection_8h_source.html#l00196">196</a> of file <a class="el" href="EventSelection_8h_source.html">EventSelection.h</a>.</p>
+<p>Definition at line <a class="el" href="EventSelection_8h_source.html#l00242">242</a> of file <a class="el" href="EventSelection_8h_source.html">EventSelection.h</a>.</p>
+
+</div>
+</div>
+<a class="anchor" id="a21de399266954d98fa5402bc24f7cfdb"></a><!-- doxytag: member="ubcc1pi::EventSelection::OutputEvent::m_isUVBraggpBackwardAvailableVect" ref="a21de399266954d98fa5402bc24f7cfdb" args="" -->
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">std::vector&lt;bool&gt; <a class="el" href="structubcc1pi_1_1EventSelection_1_1OutputEvent.html#a21de399266954d98fa5402bc24f7cfdb">ubcc1pi::EventSelection::OutputEvent::m_isUVBraggpBackwardAvailableVect</a></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+
+<p>If the weighted average backward Bragg proton over the U &amp; V planes is available. </p>
+
+<p>Definition at line <a class="el" href="EventSelection_8h_source.html#l00255">255</a> of file <a class="el" href="EventSelection_8h_source.html">EventSelection.h</a>.</p>
 
 </div>
 </div>
@@ -1012,7 +1266,7 @@ window.onload = initDynSections;
 
 <p>If the weighted average Bragg ratio over the U &amp; V planes is available. </p>
 
-<p>Definition at line <a class="el" href="EventSelection_8h_source.html#l00229">229</a> of file <a class="el" href="EventSelection_8h_source.html">EventSelection.h</a>.</p>
+<p>Definition at line <a class="el" href="EventSelection_8h_source.html#l00288">288</a> of file <a class="el" href="EventSelection_8h_source.html">EventSelection.h</a>.</p>
 
 </div>
 </div>
@@ -1029,7 +1283,7 @@ window.onload = initDynSections;
 
 <p>If the weighted average chi2 proton over the U &amp; V planes is available. </p>
 
-<p>Definition at line <a class="el" href="EventSelection_8h_source.html#l00183">183</a> of file <a class="el" href="EventSelection_8h_source.html">EventSelection.h</a>.</p>
+<p>Definition at line <a class="el" href="EventSelection_8h_source.html#l00229">229</a> of file <a class="el" href="EventSelection_8h_source.html">EventSelection.h</a>.</p>
 
 </div>
 </div>
@@ -1046,7 +1300,7 @@ window.onload = initDynSections;
 
 <p>If the Bragg MIP is available for the V plane. </p>
 
-<p>Definition at line <a class="el" href="EventSelection_8h_source.html#l00206">206</a> of file <a class="el" href="EventSelection_8h_source.html">EventSelection.h</a>.</p>
+<p>Definition at line <a class="el" href="EventSelection_8h_source.html#l00265">265</a> of file <a class="el" href="EventSelection_8h_source.html">EventSelection.h</a>.</p>
 
 </div>
 </div>
@@ -1063,7 +1317,7 @@ window.onload = initDynSections;
 
 <p>If the Bragg MIP is available for the V plane fitted backwards. </p>
 
-<p>Definition at line <a class="el" href="EventSelection_8h_source.html#l00219">219</a> of file <a class="el" href="EventSelection_8h_source.html">EventSelection.h</a>.</p>
+<p>Definition at line <a class="el" href="EventSelection_8h_source.html#l00278">278</a> of file <a class="el" href="EventSelection_8h_source.html">EventSelection.h</a>.</p>
 
 </div>
 </div>
@@ -1080,7 +1334,24 @@ window.onload = initDynSections;
 
 <p>If the Bragg proton is available for the V plane. </p>
 
-<p>Definition at line <a class="el" href="EventSelection_8h_source.html#l00193">193</a> of file <a class="el" href="EventSelection_8h_source.html">EventSelection.h</a>.</p>
+<p>Definition at line <a class="el" href="EventSelection_8h_source.html#l00239">239</a> of file <a class="el" href="EventSelection_8h_source.html">EventSelection.h</a>.</p>
+
+</div>
+</div>
+<a class="anchor" id="a19414ac1b3bd306b506d31e66d8f91bf"></a><!-- doxytag: member="ubcc1pi::EventSelection::OutputEvent::m_isVBraggpBackwardAvailableVect" ref="a19414ac1b3bd306b506d31e66d8f91bf" args="" -->
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">std::vector&lt;bool&gt; <a class="el" href="structubcc1pi_1_1EventSelection_1_1OutputEvent.html#a19414ac1b3bd306b506d31e66d8f91bf">ubcc1pi::EventSelection::OutputEvent::m_isVBraggpBackwardAvailableVect</a></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+
+<p>If the backward Bragg proton is available for the V plane. </p>
+
+<p>Definition at line <a class="el" href="EventSelection_8h_source.html#l00252">252</a> of file <a class="el" href="EventSelection_8h_source.html">EventSelection.h</a>.</p>
 
 </div>
 </div>
@@ -1097,7 +1368,7 @@ window.onload = initDynSections;
 
 <p>If the chi2 proton is available for the V plane. </p>
 
-<p>Definition at line <a class="el" href="EventSelection_8h_source.html#l00180">180</a> of file <a class="el" href="EventSelection_8h_source.html">EventSelection.h</a>.</p>
+<p>Definition at line <a class="el" href="EventSelection_8h_source.html#l00226">226</a> of file <a class="el" href="EventSelection_8h_source.html">EventSelection.h</a>.</p>
 
 </div>
 </div>
@@ -1114,7 +1385,7 @@ window.onload = initDynSections;
 
 <p>If the Bragg MIP is available for the W plane. </p>
 
-<p>Definition at line <a class="el" href="EventSelection_8h_source.html#l00200">200</a> of file <a class="el" href="EventSelection_8h_source.html">EventSelection.h</a>.</p>
+<p>Definition at line <a class="el" href="EventSelection_8h_source.html#l00259">259</a> of file <a class="el" href="EventSelection_8h_source.html">EventSelection.h</a>.</p>
 
 </div>
 </div>
@@ -1131,7 +1402,7 @@ window.onload = initDynSections;
 
 <p>If the Bragg MIP is available for the W plane fitted backwards. </p>
 
-<p>Definition at line <a class="el" href="EventSelection_8h_source.html#l00213">213</a> of file <a class="el" href="EventSelection_8h_source.html">EventSelection.h</a>.</p>
+<p>Definition at line <a class="el" href="EventSelection_8h_source.html#l00272">272</a> of file <a class="el" href="EventSelection_8h_source.html">EventSelection.h</a>.</p>
 
 </div>
 </div>
@@ -1148,7 +1419,24 @@ window.onload = initDynSections;
 
 <p>If the Bragg proton is available for the W plane. </p>
 
-<p>Definition at line <a class="el" href="EventSelection_8h_source.html#l00187">187</a> of file <a class="el" href="EventSelection_8h_source.html">EventSelection.h</a>.</p>
+<p>Definition at line <a class="el" href="EventSelection_8h_source.html#l00233">233</a> of file <a class="el" href="EventSelection_8h_source.html">EventSelection.h</a>.</p>
+
+</div>
+</div>
+<a class="anchor" id="a6d2b8ed86cb4cef46fc58f16746b028a"></a><!-- doxytag: member="ubcc1pi::EventSelection::OutputEvent::m_isWBraggpBackwardAvailableVect" ref="a6d2b8ed86cb4cef46fc58f16746b028a" args="" -->
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">std::vector&lt;bool&gt; <a class="el" href="structubcc1pi_1_1EventSelection_1_1OutputEvent.html#a6d2b8ed86cb4cef46fc58f16746b028a">ubcc1pi::EventSelection::OutputEvent::m_isWBraggpBackwardAvailableVect</a></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+
+<p>If the backward Bragg proton is available for the W plane. </p>
+
+<p>Definition at line <a class="el" href="EventSelection_8h_source.html#l00246">246</a> of file <a class="el" href="EventSelection_8h_source.html">EventSelection.h</a>.</p>
 
 </div>
 </div>
@@ -1165,7 +1453,7 @@ window.onload = initDynSections;
 
 <p>If the Bragg ratio is available for the W plane. </p>
 
-<p>Definition at line <a class="el" href="EventSelection_8h_source.html#l00226">226</a> of file <a class="el" href="EventSelection_8h_source.html">EventSelection.h</a>.</p>
+<p>Definition at line <a class="el" href="EventSelection_8h_source.html#l00285">285</a> of file <a class="el" href="EventSelection_8h_source.html">EventSelection.h</a>.</p>
 
 </div>
 </div>
@@ -1182,7 +1470,7 @@ window.onload = initDynSections;
 
 <p>If the chi2 proton is available for the W plane. </p>
 
-<p>Definition at line <a class="el" href="EventSelection_8h_source.html#l00174">174</a> of file <a class="el" href="EventSelection_8h_source.html">EventSelection.h</a>.</p>
+<p>Definition at line <a class="el" href="EventSelection_8h_source.html#l00220">220</a> of file <a class="el" href="EventSelection_8h_source.html">EventSelection.h</a>.</p>
 
 </div>
 </div>
@@ -1199,7 +1487,381 @@ window.onload = initDynSections;
 
 <p>The reconstructed length. </p>
 
-<p>Definition at line <a class="el" href="EventSelection_8h_source.html#l00168">168</a> of file <a class="el" href="EventSelection_8h_source.html">EventSelection.h</a>.</p>
+<p>Definition at line <a class="el" href="EventSelection_8h_source.html#l00204">204</a> of file <a class="el" href="EventSelection_8h_source.html">EventSelection.h</a>.</p>
+
+</div>
+</div>
+<a class="anchor" id="a44227fbbb2b3362806e047d940d108a5"></a><!-- doxytag: member="ubcc1pi::EventSelection::OutputEvent::m_matchedMCParticleIdVect" ref="a44227fbbb2b3362806e047d940d108a5" args="" -->
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">std::vector&lt;int&gt; <a class="el" href="structubcc1pi_1_1EventSelection_1_1OutputEvent.html#a44227fbbb2b3362806e047d940d108a5">ubcc1pi::EventSelection::OutputEvent::m_matchedMCParticleIdVect</a></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+
+<p>The ID of the matched MCParticle. </p>
+
+<p>Definition at line <a class="el" href="EventSelection_8h_source.html#l00171">171</a> of file <a class="el" href="EventSelection_8h_source.html">EventSelection.h</a>.</p>
+
+</div>
+</div>
+<a class="anchor" id="aab6191372a67189a29782d5549b240a9"></a><!-- doxytag: member="ubcc1pi::EventSelection::OutputEvent::m_mcpDaughterIdsVect" ref="aab6191372a67189a29782d5549b240a9" args="" -->
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">std::vector&lt;std::vector&lt;int&gt; &gt; <a class="el" href="structubcc1pi_1_1EventSelection_1_1OutputEvent.html#aab6191372a67189a29782d5549b240a9">ubcc1pi::EventSelection::OutputEvent::m_mcpDaughterIdsVect</a></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+
+<p>The unique IDs of the daughter MCParticles. </p>
+
+<p>Definition at line <a class="el" href="EventSelection_8h_source.html#l00143">143</a> of file <a class="el" href="EventSelection_8h_source.html">EventSelection.h</a>.</p>
+
+</div>
+</div>
+<a class="anchor" id="a96721816e8035d6913a0baa71777c6d7"></a><!-- doxytag: member="ubcc1pi::EventSelection::OutputEvent::m_mcpEnergyVect" ref="a96721816e8035d6913a0baa71777c6d7" args="" -->
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">std::vector&lt;float&gt; <a class="el" href="structubcc1pi_1_1EventSelection_1_1OutputEvent.html#a96721816e8035d6913a0baa71777c6d7">ubcc1pi::EventSelection::OutputEvent::m_mcpEnergyVect</a></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+
+<p>The energy of the MCParticle. </p>
+
+<p>Definition at line <a class="el" href="EventSelection_8h_source.html#l00144">144</a> of file <a class="el" href="EventSelection_8h_source.html">EventSelection.h</a>.</p>
+
+</div>
+</div>
+<a class="anchor" id="a0be01a62f65fba60b7ff46ba30dc2e7a"></a><!-- doxytag: member="ubcc1pi::EventSelection::OutputEvent::m_mcpHitWeightUVect" ref="a0be01a62f65fba60b7ff46ba30dc2e7a" args="" -->
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">std::vector&lt;float&gt; <a class="el" href="structubcc1pi_1_1EventSelection_1_1OutputEvent.html#a0be01a62f65fba60b7ff46ba30dc2e7a">ubcc1pi::EventSelection::OutputEvent::m_mcpHitWeightUVect</a></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+
+<p>The total hit weight that the MCParticle contributed - U view. </p>
+
+<p>Definition at line <a class="el" href="EventSelection_8h_source.html#l00156">156</a> of file <a class="el" href="EventSelection_8h_source.html">EventSelection.h</a>.</p>
+
+</div>
+</div>
+<a class="anchor" id="a8c744f1f2bdd7001b8adc26d3bb13c88"></a><!-- doxytag: member="ubcc1pi::EventSelection::OutputEvent::m_mcpHitWeightVVect" ref="a8c744f1f2bdd7001b8adc26d3bb13c88" args="" -->
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">std::vector&lt;float&gt; <a class="el" href="structubcc1pi_1_1EventSelection_1_1OutputEvent.html#a8c744f1f2bdd7001b8adc26d3bb13c88">ubcc1pi::EventSelection::OutputEvent::m_mcpHitWeightVVect</a></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+
+<p>The total hit weight that the MCParticle contributed - V view. </p>
+
+<p>Definition at line <a class="el" href="EventSelection_8h_source.html#l00157">157</a> of file <a class="el" href="EventSelection_8h_source.html">EventSelection.h</a>.</p>
+
+</div>
+</div>
+<a class="anchor" id="a8fc78dcc142b03c0f61441ef28cffab1"></a><!-- doxytag: member="ubcc1pi::EventSelection::OutputEvent::m_mcpHitWeightWVect" ref="a8fc78dcc142b03c0f61441ef28cffab1" args="" -->
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">std::vector&lt;float&gt; <a class="el" href="structubcc1pi_1_1EventSelection_1_1OutputEvent.html#a8fc78dcc142b03c0f61441ef28cffab1">ubcc1pi::EventSelection::OutputEvent::m_mcpHitWeightWVect</a></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+
+<p>The total hit weight that the MCParticle contributed - W view. </p>
+
+<p>Definition at line <a class="el" href="EventSelection_8h_source.html#l00158">158</a> of file <a class="el" href="EventSelection_8h_source.html">EventSelection.h</a>.</p>
+
+</div>
+</div>
+<a class="anchor" id="a5a2dc8beaa2e738d57f6848b71e2d648"></a><!-- doxytag: member="ubcc1pi::EventSelection::OutputEvent::m_mcpIdVect" ref="a5a2dc8beaa2e738d57f6848b71e2d648" args="" -->
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">std::vector&lt;int&gt; <a class="el" href="structubcc1pi_1_1EventSelection_1_1OutputEvent.html#a5a2dc8beaa2e738d57f6848b71e2d648">ubcc1pi::EventSelection::OutputEvent::m_mcpIdVect</a></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+
+<p>The unique ID of the MCParticle. </p>
+
+<p>Definition at line <a class="el" href="EventSelection_8h_source.html#l00137">137</a> of file <a class="el" href="EventSelection_8h_source.html">EventSelection.h</a>.</p>
+
+</div>
+</div>
+<a class="anchor" id="a47a6b0a5601be3f578c798dd5f033e0a"></a><!-- doxytag: member="ubcc1pi::EventSelection::OutputEvent::m_mcpIsTargetFinalStateVect" ref="a47a6b0a5601be3f578c798dd5f033e0a" args="" -->
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">std::vector&lt;bool&gt; <a class="el" href="structubcc1pi_1_1EventSelection_1_1OutputEvent.html#a47a6b0a5601be3f578c798dd5f033e0a">ubcc1pi::EventSelection::OutputEvent::m_mcpIsTargetFinalStateVect</a></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+
+<p>If the MCParticle is a neutrino final state passing the reconstructability momentum thresholds. </p>
+
+<p>Definition at line <a class="el" href="EventSelection_8h_source.html#l00139">139</a> of file <a class="el" href="EventSelection_8h_source.html">EventSelection.h</a>.</p>
+
+</div>
+</div>
+<a class="anchor" id="a563f7ca687601cb514f9989c0e1d4424"></a><!-- doxytag: member="ubcc1pi::EventSelection::OutputEvent::m_mcpMomentumVect" ref="a563f7ca687601cb514f9989c0e1d4424" args="" -->
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">std::vector&lt;float&gt; <a class="el" href="structubcc1pi_1_1EventSelection_1_1OutputEvent.html#a563f7ca687601cb514f9989c0e1d4424">ubcc1pi::EventSelection::OutputEvent::m_mcpMomentumVect</a></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+
+<p>The total momentum of the MCParticle. </p>
+
+<p>Definition at line <a class="el" href="EventSelection_8h_source.html#l00145">145</a> of file <a class="el" href="EventSelection_8h_source.html">EventSelection.h</a>.</p>
+
+</div>
+</div>
+<a class="anchor" id="a1c7d9e6a52c74052c4e3c6378e9b7b9e"></a><!-- doxytag: member="ubcc1pi::EventSelection::OutputEvent::m_mcpMomentumXVect" ref="a1c7d9e6a52c74052c4e3c6378e9b7b9e" args="" -->
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">std::vector&lt;float&gt; <a class="el" href="structubcc1pi_1_1EventSelection_1_1OutputEvent.html#a1c7d9e6a52c74052c4e3c6378e9b7b9e">ubcc1pi::EventSelection::OutputEvent::m_mcpMomentumXVect</a></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+
+<p>The momentum of the MCParticle - X. </p>
+
+<p>Definition at line <a class="el" href="EventSelection_8h_source.html#l00146">146</a> of file <a class="el" href="EventSelection_8h_source.html">EventSelection.h</a>.</p>
+
+</div>
+</div>
+<a class="anchor" id="ae9a6944deb484222362e6212d42ff92c"></a><!-- doxytag: member="ubcc1pi::EventSelection::OutputEvent::m_mcpMomentumYVect" ref="ae9a6944deb484222362e6212d42ff92c" args="" -->
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">std::vector&lt;float&gt; <a class="el" href="structubcc1pi_1_1EventSelection_1_1OutputEvent.html#ae9a6944deb484222362e6212d42ff92c">ubcc1pi::EventSelection::OutputEvent::m_mcpMomentumYVect</a></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+
+<p>The momentum of the MCParticle - Y. </p>
+
+<p>Definition at line <a class="el" href="EventSelection_8h_source.html#l00147">147</a> of file <a class="el" href="EventSelection_8h_source.html">EventSelection.h</a>.</p>
+
+</div>
+</div>
+<a class="anchor" id="adbf104ba2d2eec19ec555ddc225faa7e"></a><!-- doxytag: member="ubcc1pi::EventSelection::OutputEvent::m_mcpMomentumZVect" ref="adbf104ba2d2eec19ec555ddc225faa7e" args="" -->
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">std::vector&lt;float&gt; <a class="el" href="structubcc1pi_1_1EventSelection_1_1OutputEvent.html#adbf104ba2d2eec19ec555ddc225faa7e">ubcc1pi::EventSelection::OutputEvent::m_mcpMomentumZVect</a></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+
+<p>The momentum of the MCParticle - Z. </p>
+
+<p>Definition at line <a class="el" href="EventSelection_8h_source.html#l00148">148</a> of file <a class="el" href="EventSelection_8h_source.html">EventSelection.h</a>.</p>
+
+</div>
+</div>
+<a class="anchor" id="a306e2a502e7358432ff52372c5c00055"></a><!-- doxytag: member="ubcc1pi::EventSelection::OutputEvent::m_mcpMotherIdVect" ref="a306e2a502e7358432ff52372c5c00055" args="" -->
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">std::vector&lt;int&gt; <a class="el" href="structubcc1pi_1_1EventSelection_1_1OutputEvent.html#a306e2a502e7358432ff52372c5c00055">ubcc1pi::EventSelection::OutputEvent::m_mcpMotherIdVect</a></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+
+<p>The unique ID of the mother of the MCParticle. </p>
+
+<p>Definition at line <a class="el" href="EventSelection_8h_source.html#l00141">141</a> of file <a class="el" href="EventSelection_8h_source.html">EventSelection.h</a>.</p>
+
+</div>
+</div>
+<a class="anchor" id="a8a0cf8745886313ca8236a7f6f0d0395"></a><!-- doxytag: member="ubcc1pi::EventSelection::OutputEvent::m_mcpNDaughtersVect" ref="a8a0cf8745886313ca8236a7f6f0d0395" args="" -->
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">std::vector&lt;int&gt; <a class="el" href="structubcc1pi_1_1EventSelection_1_1OutputEvent.html#a8a0cf8745886313ca8236a7f6f0d0395">ubcc1pi::EventSelection::OutputEvent::m_mcpNDaughtersVect</a></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+
+<p>The number of daughter MCParticles. </p>
+
+<p>Definition at line <a class="el" href="EventSelection_8h_source.html#l00142">142</a> of file <a class="el" href="EventSelection_8h_source.html">EventSelection.h</a>.</p>
+
+</div>
+</div>
+<a class="anchor" id="a74a92b36cb907e04177fa4afc8af9968"></a><!-- doxytag: member="ubcc1pi::EventSelection::OutputEvent::m_mcpNGoodHitsUVect" ref="a74a92b36cb907e04177fa4afc8af9968" args="" -->
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">std::vector&lt;int&gt; <a class="el" href="structubcc1pi_1_1EventSelection_1_1OutputEvent.html#a74a92b36cb907e04177fa4afc8af9968">ubcc1pi::EventSelection::OutputEvent::m_mcpNGoodHitsUVect</a></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+
+<p>Only cont hits for which the MCParticle contribute more than 1/2 of the charge - U view. </p>
+
+<p>Definition at line <a class="el" href="EventSelection_8h_source.html#l00153">153</a> of file <a class="el" href="EventSelection_8h_source.html">EventSelection.h</a>.</p>
+
+</div>
+</div>
+<a class="anchor" id="a6c24cf6ab09906311403fffe76a4cd12"></a><!-- doxytag: member="ubcc1pi::EventSelection::OutputEvent::m_mcpNGoodHitsVVect" ref="a6c24cf6ab09906311403fffe76a4cd12" args="" -->
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">std::vector&lt;int&gt; <a class="el" href="structubcc1pi_1_1EventSelection_1_1OutputEvent.html#a6c24cf6ab09906311403fffe76a4cd12">ubcc1pi::EventSelection::OutputEvent::m_mcpNGoodHitsVVect</a></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+
+<p>Only cont hits for which the MCParticle contribute more than 1/2 of the charge - V view. </p>
+
+<p>Definition at line <a class="el" href="EventSelection_8h_source.html#l00154">154</a> of file <a class="el" href="EventSelection_8h_source.html">EventSelection.h</a>.</p>
+
+</div>
+</div>
+<a class="anchor" id="a3d64eb949a48ffe8e65b6392cb1deb5a"></a><!-- doxytag: member="ubcc1pi::EventSelection::OutputEvent::m_mcpNGoodHitsWVect" ref="a3d64eb949a48ffe8e65b6392cb1deb5a" args="" -->
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">std::vector&lt;int&gt; <a class="el" href="structubcc1pi_1_1EventSelection_1_1OutputEvent.html#a3d64eb949a48ffe8e65b6392cb1deb5a">ubcc1pi::EventSelection::OutputEvent::m_mcpNGoodHitsWVect</a></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+
+<p>Only cont hits for which the MCParticle contribute more than 1/2 of the charge - W view. </p>
+
+<p>Definition at line <a class="el" href="EventSelection_8h_source.html#l00155">155</a> of file <a class="el" href="EventSelection_8h_source.html">EventSelection.h</a>.</p>
+
+</div>
+</div>
+<a class="anchor" id="a8ee138ddfb5bd7056d93a2948fb8eef6"></a><!-- doxytag: member="ubcc1pi::EventSelection::OutputEvent::m_mcpNHitsUVect" ref="a8ee138ddfb5bd7056d93a2948fb8eef6" args="" -->
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">std::vector&lt;int&gt; <a class="el" href="structubcc1pi_1_1EventSelection_1_1OutputEvent.html#a8ee138ddfb5bd7056d93a2948fb8eef6">ubcc1pi::EventSelection::OutputEvent::m_mcpNHitsUVect</a></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+
+<p>The number of reconstructed hits that this MCParticle contributed to - U view. </p>
+
+<p>Definition at line <a class="el" href="EventSelection_8h_source.html#l00150">150</a> of file <a class="el" href="EventSelection_8h_source.html">EventSelection.h</a>.</p>
+
+</div>
+</div>
+<a class="anchor" id="a2699ec7c31b14a5af1acf53ec57ab206"></a><!-- doxytag: member="ubcc1pi::EventSelection::OutputEvent::m_mcpNHitsVVect" ref="a2699ec7c31b14a5af1acf53ec57ab206" args="" -->
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">std::vector&lt;int&gt; <a class="el" href="structubcc1pi_1_1EventSelection_1_1OutputEvent.html#a2699ec7c31b14a5af1acf53ec57ab206">ubcc1pi::EventSelection::OutputEvent::m_mcpNHitsVVect</a></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+
+<p>The number of reconstructed hits that this MCParticle contributed to - V view. </p>
+
+<p>Definition at line <a class="el" href="EventSelection_8h_source.html#l00151">151</a> of file <a class="el" href="EventSelection_8h_source.html">EventSelection.h</a>.</p>
+
+</div>
+</div>
+<a class="anchor" id="a73c6baaa484e72e9af5165cabb49d06a"></a><!-- doxytag: member="ubcc1pi::EventSelection::OutputEvent::m_mcpNHitsWVect" ref="a73c6baaa484e72e9af5165cabb49d06a" args="" -->
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">std::vector&lt;int&gt; <a class="el" href="structubcc1pi_1_1EventSelection_1_1OutputEvent.html#a73c6baaa484e72e9af5165cabb49d06a">ubcc1pi::EventSelection::OutputEvent::m_mcpNHitsWVect</a></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+
+<p>The number of reconstructed hits that this MCParticle contributed to - W view. </p>
+
+<p>Definition at line <a class="el" href="EventSelection_8h_source.html#l00152">152</a> of file <a class="el" href="EventSelection_8h_source.html">EventSelection.h</a>.</p>
+
+</div>
+</div>
+<a class="anchor" id="a3eb59ebd4bd5e0d97234e9690c90d979"></a><!-- doxytag: member="ubcc1pi::EventSelection::OutputEvent::m_mcpPDGVect" ref="a3eb59ebd4bd5e0d97234e9690c90d979" args="" -->
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">std::vector&lt;int&gt; <a class="el" href="structubcc1pi_1_1EventSelection_1_1OutputEvent.html#a3eb59ebd4bd5e0d97234e9690c90d979">ubcc1pi::EventSelection::OutputEvent::m_mcpPDGVect</a></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+
+<p>The PDG code of the MCParticle. </p>
+
+<p>Definition at line <a class="el" href="EventSelection_8h_source.html#l00138">138</a> of file <a class="el" href="EventSelection_8h_source.html">EventSelection.h</a>.</p>
+
+</div>
+</div>
+<a class="anchor" id="a9f4b2d46fb10e3c822981f6e584decf1"></a><!-- doxytag: member="ubcc1pi::EventSelection::OutputEvent::m_mcpProcessVect" ref="a9f4b2d46fb10e3c822981f6e584decf1" args="" -->
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">std::vector&lt;std::string&gt; <a class="el" href="structubcc1pi_1_1EventSelection_1_1OutputEvent.html#a9f4b2d46fb10e3c822981f6e584decf1">ubcc1pi::EventSelection::OutputEvent::m_mcpProcessVect</a></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+
+<p>The process name. </p>
+
+<p>Definition at line <a class="el" href="EventSelection_8h_source.html#l00140">140</a> of file <a class="el" href="EventSelection_8h_source.html">EventSelection.h</a>.</p>
 
 </div>
 </div>
@@ -1216,7 +1878,7 @@ window.onload = initDynSections;
 
 <p>The number of e. </p>
 
-<p>Definition at line <a class="el" href="EventSelection_8h_source.html#l00114">114</a> of file <a class="el" href="EventSelection_8h_source.html">EventSelection.h</a>.</p>
+<p>Definition at line <a class="el" href="EventSelection_8h_source.html#l00120">120</a> of file <a class="el" href="EventSelection_8h_source.html">EventSelection.h</a>.</p>
 
 </div>
 </div>
@@ -1233,7 +1895,7 @@ window.onload = initDynSections;
 
 <p>The number of reconstructed final state PFParticles. </p>
 
-<p>Definition at line <a class="el" href="EventSelection_8h_source.html#l00136">136</a> of file <a class="el" href="EventSelection_8h_source.html">EventSelection.h</a>.</p>
+<p>Definition at line <a class="el" href="EventSelection_8h_source.html#l00167">167</a> of file <a class="el" href="EventSelection_8h_source.html">EventSelection.h</a>.</p>
 
 </div>
 </div>
@@ -1250,7 +1912,7 @@ window.onload = initDynSections;
 
 <p>The number of hits in the U view. </p>
 
-<p>Definition at line <a class="el" href="EventSelection_8h_source.html#l00151">151</a> of file <a class="el" href="EventSelection_8h_source.html">EventSelection.h</a>.</p>
+<p>Definition at line <a class="el" href="EventSelection_8h_source.html#l00185">185</a> of file <a class="el" href="EventSelection_8h_source.html">EventSelection.h</a>.</p>
 
 </div>
 </div>
@@ -1267,7 +1929,7 @@ window.onload = initDynSections;
 
 <p>The number of hits in the V view. </p>
 
-<p>Definition at line <a class="el" href="EventSelection_8h_source.html#l00152">152</a> of file <a class="el" href="EventSelection_8h_source.html">EventSelection.h</a>.</p>
+<p>Definition at line <a class="el" href="EventSelection_8h_source.html#l00186">186</a> of file <a class="el" href="EventSelection_8h_source.html">EventSelection.h</a>.</p>
 
 </div>
 </div>
@@ -1284,7 +1946,7 @@ window.onload = initDynSections;
 
 <p>The number of hits in the W view. </p>
 
-<p>Definition at line <a class="el" href="EventSelection_8h_source.html#l00153">153</a> of file <a class="el" href="EventSelection_8h_source.html">EventSelection.h</a>.</p>
+<p>Definition at line <a class="el" href="EventSelection_8h_source.html#l00187">187</a> of file <a class="el" href="EventSelection_8h_source.html">EventSelection.h</a>.</p>
 
 </div>
 </div>
@@ -1301,7 +1963,7 @@ window.onload = initDynSections;
 
 <p>The number of K-. </p>
 
-<p>Definition at line <a class="el" href="EventSelection_8h_source.html#l00110">110</a> of file <a class="el" href="EventSelection_8h_source.html">EventSelection.h</a>.</p>
+<p>Definition at line <a class="el" href="EventSelection_8h_source.html#l00116">116</a> of file <a class="el" href="EventSelection_8h_source.html">EventSelection.h</a>.</p>
 
 </div>
 </div>
@@ -1318,7 +1980,24 @@ window.onload = initDynSections;
 
 <p>The number of K+. </p>
 
-<p>Definition at line <a class="el" href="EventSelection_8h_source.html#l00109">109</a> of file <a class="el" href="EventSelection_8h_source.html">EventSelection.h</a>.</p>
+<p>Definition at line <a class="el" href="EventSelection_8h_source.html#l00115">115</a> of file <a class="el" href="EventSelection_8h_source.html">EventSelection.h</a>.</p>
+
+</div>
+</div>
+<a class="anchor" id="aa6024f7f94ab43eb752043482389fe50"></a><!-- doxytag: member="ubcc1pi::EventSelection::OutputEvent::m_nMCParticles" ref="aa6024f7f94ab43eb752043482389fe50" args="" -->
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">int <a class="el" href="structubcc1pi_1_1EventSelection_1_1OutputEvent.html#aa6024f7f94ab43eb752043482389fe50">ubcc1pi::EventSelection::OutputEvent::m_nMCParticles</a></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+
+<p>The number of MCParticles. </p>
+
+<p>Definition at line <a class="el" href="EventSelection_8h_source.html#l00136">136</a> of file <a class="el" href="EventSelection_8h_source.html">EventSelection.h</a>.</p>
 
 </div>
 </div>
@@ -1335,7 +2014,7 @@ window.onload = initDynSections;
 
 <p>The number of mu-. </p>
 
-<p>Definition at line <a class="el" href="EventSelection_8h_source.html#l00105">105</a> of file <a class="el" href="EventSelection_8h_source.html">EventSelection.h</a>.</p>
+<p>Definition at line <a class="el" href="EventSelection_8h_source.html#l00111">111</a> of file <a class="el" href="EventSelection_8h_source.html">EventSelection.h</a>.</p>
 
 </div>
 </div>
@@ -1352,7 +2031,7 @@ window.onload = initDynSections;
 
 <p>The number of mu+. </p>
 
-<p>Definition at line <a class="el" href="EventSelection_8h_source.html#l00106">106</a> of file <a class="el" href="EventSelection_8h_source.html">EventSelection.h</a>.</p>
+<p>Definition at line <a class="el" href="EventSelection_8h_source.html#l00112">112</a> of file <a class="el" href="EventSelection_8h_source.html">EventSelection.h</a>.</p>
 
 </div>
 </div>
@@ -1369,7 +2048,7 @@ window.onload = initDynSections;
 
 <p>The number of n. </p>
 
-<p>Definition at line <a class="el" href="EventSelection_8h_source.html#l00112">112</a> of file <a class="el" href="EventSelection_8h_source.html">EventSelection.h</a>.</p>
+<p>Definition at line <a class="el" href="EventSelection_8h_source.html#l00118">118</a> of file <a class="el" href="EventSelection_8h_source.html">EventSelection.h</a>.</p>
 
 </div>
 </div>
@@ -1386,7 +2065,7 @@ window.onload = initDynSections;
 
 <p>The number of gamma. </p>
 
-<p>Definition at line <a class="el" href="EventSelection_8h_source.html#l00113">113</a> of file <a class="el" href="EventSelection_8h_source.html">EventSelection.h</a>.</p>
+<p>Definition at line <a class="el" href="EventSelection_8h_source.html#l00119">119</a> of file <a class="el" href="EventSelection_8h_source.html">EventSelection.h</a>.</p>
 
 </div>
 </div>
@@ -1403,7 +2082,7 @@ window.onload = initDynSections;
 
 <p>The number of pi-. </p>
 
-<p>Definition at line <a class="el" href="EventSelection_8h_source.html#l00108">108</a> of file <a class="el" href="EventSelection_8h_source.html">EventSelection.h</a>.</p>
+<p>Definition at line <a class="el" href="EventSelection_8h_source.html#l00114">114</a> of file <a class="el" href="EventSelection_8h_source.html">EventSelection.h</a>.</p>
 
 </div>
 </div>
@@ -1420,7 +2099,7 @@ window.onload = initDynSections;
 
 <p>The number of pi+. </p>
 
-<p>Definition at line <a class="el" href="EventSelection_8h_source.html#l00107">107</a> of file <a class="el" href="EventSelection_8h_source.html">EventSelection.h</a>.</p>
+<p>Definition at line <a class="el" href="EventSelection_8h_source.html#l00113">113</a> of file <a class="el" href="EventSelection_8h_source.html">EventSelection.h</a>.</p>
 
 </div>
 </div>
@@ -1437,7 +2116,7 @@ window.onload = initDynSections;
 
 <p>The number of e+. </p>
 
-<p>Definition at line <a class="el" href="EventSelection_8h_source.html#l00115">115</a> of file <a class="el" href="EventSelection_8h_source.html">EventSelection.h</a>.</p>
+<p>Definition at line <a class="el" href="EventSelection_8h_source.html#l00121">121</a> of file <a class="el" href="EventSelection_8h_source.html">EventSelection.h</a>.</p>
 
 </div>
 </div>
@@ -1454,7 +2133,7 @@ window.onload = initDynSections;
 
 <p>The number of p. </p>
 
-<p>Definition at line <a class="el" href="EventSelection_8h_source.html#l00111">111</a> of file <a class="el" href="EventSelection_8h_source.html">EventSelection.h</a>.</p>
+<p>Definition at line <a class="el" href="EventSelection_8h_source.html#l00117">117</a> of file <a class="el" href="EventSelection_8h_source.html">EventSelection.h</a>.</p>
 
 </div>
 </div>
@@ -1471,7 +2150,24 @@ window.onload = initDynSections;
 
 <p>The total number of particles. </p>
 
-<p>Definition at line <a class="el" href="EventSelection_8h_source.html#l00116">116</a> of file <a class="el" href="EventSelection_8h_source.html">EventSelection.h</a>.</p>
+<p>Definition at line <a class="el" href="EventSelection_8h_source.html#l00122">122</a> of file <a class="el" href="EventSelection_8h_source.html">EventSelection.h</a>.</p>
+
+</div>
+</div>
+<a class="anchor" id="a26702ae3cbcbdb34be7b6fd68e38c29b"></a><!-- doxytag: member="ubcc1pi::EventSelection::OutputEvent::m_phiVect" ref="a26702ae3cbcbdb34be7b6fd68e38c29b" args="" -->
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">std::vector&lt;float&gt; <a class="el" href="structubcc1pi_1_1EventSelection_1_1OutputEvent.html#a26702ae3cbcbdb34be7b6fd68e38c29b">ubcc1pi::EventSelection::OutputEvent::m_phiVect</a></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+
+<p>The reconstructed angle aroun the beam direction. </p>
+
+<p>Definition at line <a class="el" href="EventSelection_8h_source.html#l00202">202</a> of file <a class="el" href="EventSelection_8h_source.html">EventSelection.h</a>.</p>
 
 </div>
 </div>
@@ -1488,7 +2184,58 @@ window.onload = initDynSections;
 
 <p>The SCE corrected reco neutrino vertex position. </p>
 
-<p>Definition at line <a class="el" href="EventSelection_8h_source.html#l00131">131</a> of file <a class="el" href="EventSelection_8h_source.html">EventSelection.h</a>.</p>
+<p>Definition at line <a class="el" href="EventSelection_8h_source.html#l00162">162</a> of file <a class="el" href="EventSelection_8h_source.html">EventSelection.h</a>.</p>
+
+</div>
+</div>
+<a class="anchor" id="aaac9a8f6e7297c8ac4f1bf4da81ad13c"></a><!-- doxytag: member="ubcc1pi::EventSelection::OutputEvent::m_residualRangePerHitUVect" ref="aaac9a8f6e7297c8ac4f1bf4da81ad13c" args="" -->
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">std::vector&lt;std::vector&lt;float&gt; &gt; <a class="el" href="structubcc1pi_1_1EventSelection_1_1OutputEvent.html#aaac9a8f6e7297c8ac4f1bf4da81ad13c">ubcc1pi::EventSelection::OutputEvent::m_residualRangePerHitUVect</a></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+
+<p>The residual range at each hit point along the tracjectory in the U plane. </p>
+
+<p>Definition at line <a class="el" href="EventSelection_8h_source.html#l00212">212</a> of file <a class="el" href="EventSelection_8h_source.html">EventSelection.h</a>.</p>
+
+</div>
+</div>
+<a class="anchor" id="a6035022c36314b741d25562c00310a7b"></a><!-- doxytag: member="ubcc1pi::EventSelection::OutputEvent::m_residualRangePerHitVVect" ref="a6035022c36314b741d25562c00310a7b" args="" -->
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">std::vector&lt;std::vector&lt;float&gt; &gt; <a class="el" href="structubcc1pi_1_1EventSelection_1_1OutputEvent.html#a6035022c36314b741d25562c00310a7b">ubcc1pi::EventSelection::OutputEvent::m_residualRangePerHitVVect</a></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+
+<p>The residual range at each hit point along the tracjectory in the V plane. </p>
+
+<p>Definition at line <a class="el" href="EventSelection_8h_source.html#l00213">213</a> of file <a class="el" href="EventSelection_8h_source.html">EventSelection.h</a>.</p>
+
+</div>
+</div>
+<a class="anchor" id="a71ebe5e4262c220c4861a7934b0cf9b7"></a><!-- doxytag: member="ubcc1pi::EventSelection::OutputEvent::m_residualRangePerHitWVect" ref="a71ebe5e4262c220c4861a7934b0cf9b7" args="" -->
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">std::vector&lt;std::vector&lt;float&gt; &gt; <a class="el" href="structubcc1pi_1_1EventSelection_1_1OutputEvent.html#a71ebe5e4262c220c4861a7934b0cf9b7">ubcc1pi::EventSelection::OutputEvent::m_residualRangePerHitWVect</a></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+
+<p>The residual range at each hit point along the tracjectory in the W plane. </p>
+
+<p>Definition at line <a class="el" href="EventSelection_8h_source.html#l00214">214</a> of file <a class="el" href="EventSelection_8h_source.html">EventSelection.h</a>.</p>
 
 </div>
 </div>
@@ -1505,7 +2252,7 @@ window.onload = initDynSections;
 
 <p>The run number. </p>
 
-<p>Definition at line <a class="el" href="EventSelection_8h_source.html#l00093">93</a> of file <a class="el" href="EventSelection_8h_source.html">EventSelection.h</a>.</p>
+<p>Definition at line <a class="el" href="EventSelection_8h_source.html#l00099">99</a> of file <a class="el" href="EventSelection_8h_source.html">EventSelection.h</a>.</p>
 
 </div>
 </div>
@@ -1522,7 +2269,7 @@ window.onload = initDynSections;
 
 <p>The SCE corrected reconstructed start position of the particle - X. </p>
 
-<p>Definition at line <a class="el" href="EventSelection_8h_source.html#l00158">158</a> of file <a class="el" href="EventSelection_8h_source.html">EventSelection.h</a>.</p>
+<p>Definition at line <a class="el" href="EventSelection_8h_source.html#l00192">192</a> of file <a class="el" href="EventSelection_8h_source.html">EventSelection.h</a>.</p>
 
 </div>
 </div>
@@ -1539,7 +2286,7 @@ window.onload = initDynSections;
 
 <p>The SCE corrected reconstructed start position of the particle - Y. </p>
 
-<p>Definition at line <a class="el" href="EventSelection_8h_source.html#l00159">159</a> of file <a class="el" href="EventSelection_8h_source.html">EventSelection.h</a>.</p>
+<p>Definition at line <a class="el" href="EventSelection_8h_source.html#l00193">193</a> of file <a class="el" href="EventSelection_8h_source.html">EventSelection.h</a>.</p>
 
 </div>
 </div>
@@ -1556,7 +2303,7 @@ window.onload = initDynSections;
 
 <p>The SCE corrected reconstructed start position of the particle - Z. </p>
 
-<p>Definition at line <a class="el" href="EventSelection_8h_source.html#l00160">160</a> of file <a class="el" href="EventSelection_8h_source.html">EventSelection.h</a>.</p>
+<p>Definition at line <a class="el" href="EventSelection_8h_source.html#l00194">194</a> of file <a class="el" href="EventSelection_8h_source.html">EventSelection.h</a>.</p>
 
 </div>
 </div>
@@ -1573,7 +2320,24 @@ window.onload = initDynSections;
 
 <p>The subrun number. </p>
 
-<p>Definition at line <a class="el" href="EventSelection_8h_source.html#l00094">94</a> of file <a class="el" href="EventSelection_8h_source.html">EventSelection.h</a>.</p>
+<p>Definition at line <a class="el" href="EventSelection_8h_source.html#l00100">100</a> of file <a class="el" href="EventSelection_8h_source.html">EventSelection.h</a>.</p>
+
+</div>
+</div>
+<a class="anchor" id="a36bb331b03910f13e2e4fbc5bbeaabc7"></a><!-- doxytag: member="ubcc1pi::EventSelection::OutputEvent::m_thetaVect" ref="a36bb331b03910f13e2e4fbc5bbeaabc7" args="" -->
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">std::vector&lt;float&gt; <a class="el" href="structubcc1pi_1_1EventSelection_1_1OutputEvent.html#a36bb331b03910f13e2e4fbc5bbeaabc7">ubcc1pi::EventSelection::OutputEvent::m_thetaVect</a></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+
+<p>The reconstructed angle to the beam direction. </p>
+
+<p>Definition at line <a class="el" href="EventSelection_8h_source.html#l00201">201</a> of file <a class="el" href="EventSelection_8h_source.html">EventSelection.h</a>.</p>
 
 </div>
 </div>
@@ -1590,7 +2354,7 @@ window.onload = initDynSections;
 
 <p>The pandora neutrino ID topological score for this slice. </p>
 
-<p>Definition at line <a class="el" href="EventSelection_8h_source.html#l00133">133</a> of file <a class="el" href="EventSelection_8h_source.html">EventSelection.h</a>.</p>
+<p>Definition at line <a class="el" href="EventSelection_8h_source.html#l00164">164</a> of file <a class="el" href="EventSelection_8h_source.html">EventSelection.h</a>.</p>
 
 </div>
 </div>
@@ -1607,7 +2371,41 @@ window.onload = initDynSections;
 
 <p>The pandora track vs. shower score. </p>
 
-<p>Definition at line <a class="el" href="EventSelection_8h_source.html#l00154">154</a> of file <a class="el" href="EventSelection_8h_source.html">EventSelection.h</a>.</p>
+<p>Definition at line <a class="el" href="EventSelection_8h_source.html#l00188">188</a> of file <a class="el" href="EventSelection_8h_source.html">EventSelection.h</a>.</p>
+
+</div>
+</div>
+<a class="anchor" id="ad51884dacb342bf9e0575cb53bd8007a"></a><!-- doxytag: member="ubcc1pi::EventSelection::OutputEvent::m_trueEnergyVect" ref="ad51884dacb342bf9e0575cb53bd8007a" args="" -->
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">std::vector&lt;float&gt; <a class="el" href="structubcc1pi_1_1EventSelection_1_1OutputEvent.html#ad51884dacb342bf9e0575cb53bd8007a">ubcc1pi::EventSelection::OutputEvent::m_trueEnergyVect</a></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+
+<p>The true energy of the particle. </p>
+
+<p>Definition at line <a class="el" href="EventSelection_8h_source.html#l00175">175</a> of file <a class="el" href="EventSelection_8h_source.html">EventSelection.h</a>.</p>
+
+</div>
+</div>
+<a class="anchor" id="afb42a429da50472fb8c1b7f6544ef021"></a><!-- doxytag: member="ubcc1pi::EventSelection::OutputEvent::m_trueKEVect" ref="afb42a429da50472fb8c1b7f6544ef021" args="" -->
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">std::vector&lt;float&gt; <a class="el" href="structubcc1pi_1_1EventSelection_1_1OutputEvent.html#afb42a429da50472fb8c1b7f6544ef021">ubcc1pi::EventSelection::OutputEvent::m_trueKEVect</a></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+
+<p>The true kinetic energy of the particle. </p>
+
+<p>Definition at line <a class="el" href="EventSelection_8h_source.html#l00176">176</a> of file <a class="el" href="EventSelection_8h_source.html">EventSelection.h</a>.</p>
 
 </div>
 </div>
@@ -1624,7 +2422,7 @@ window.onload = initDynSections;
 
 <p>The true momentum of the particle - X. </p>
 
-<p>Definition at line <a class="el" href="EventSelection_8h_source.html#l00143">143</a> of file <a class="el" href="EventSelection_8h_source.html">EventSelection.h</a>.</p>
+<p>Definition at line <a class="el" href="EventSelection_8h_source.html#l00177">177</a> of file <a class="el" href="EventSelection_8h_source.html">EventSelection.h</a>.</p>
 
 </div>
 </div>
@@ -1641,7 +2439,7 @@ window.onload = initDynSections;
 
 <p>The true momentum of the particle - Y. </p>
 
-<p>Definition at line <a class="el" href="EventSelection_8h_source.html#l00144">144</a> of file <a class="el" href="EventSelection_8h_source.html">EventSelection.h</a>.</p>
+<p>Definition at line <a class="el" href="EventSelection_8h_source.html#l00178">178</a> of file <a class="el" href="EventSelection_8h_source.html">EventSelection.h</a>.</p>
 
 </div>
 </div>
@@ -1658,7 +2456,7 @@ window.onload = initDynSections;
 
 <p>The true momentum of the particle - Z. </p>
 
-<p>Definition at line <a class="el" href="EventSelection_8h_source.html#l00145">145</a> of file <a class="el" href="EventSelection_8h_source.html">EventSelection.h</a>.</p>
+<p>Definition at line <a class="el" href="EventSelection_8h_source.html#l00179">179</a> of file <a class="el" href="EventSelection_8h_source.html">EventSelection.h</a>.</p>
 
 </div>
 </div>
@@ -1675,7 +2473,7 @@ window.onload = initDynSections;
 
 <p>The true muon energy. </p>
 
-<p>Definition at line <a class="el" href="EventSelection_8h_source.html#l00119">119</a> of file <a class="el" href="EventSelection_8h_source.html">EventSelection.h</a>.</p>
+<p>Definition at line <a class="el" href="EventSelection_8h_source.html#l00125">125</a> of file <a class="el" href="EventSelection_8h_source.html">EventSelection.h</a>.</p>
 
 </div>
 </div>
@@ -1692,7 +2490,7 @@ window.onload = initDynSections;
 
 <p>The true muon phi (angle about beam). </p>
 
-<p>Definition at line <a class="el" href="EventSelection_8h_source.html#l00121">121</a> of file <a class="el" href="EventSelection_8h_source.html">EventSelection.h</a>.</p>
+<p>Definition at line <a class="el" href="EventSelection_8h_source.html#l00127">127</a> of file <a class="el" href="EventSelection_8h_source.html">EventSelection.h</a>.</p>
 
 </div>
 </div>
@@ -1709,7 +2507,7 @@ window.onload = initDynSections;
 
 <p>The muon-pion opening angle. </p>
 
-<p>Definition at line <a class="el" href="EventSelection_8h_source.html#l00127">127</a> of file <a class="el" href="EventSelection_8h_source.html">EventSelection.h</a>.</p>
+<p>Definition at line <a class="el" href="EventSelection_8h_source.html#l00133">133</a> of file <a class="el" href="EventSelection_8h_source.html">EventSelection.h</a>.</p>
 
 </div>
 </div>
@@ -1726,7 +2524,7 @@ window.onload = initDynSections;
 
 <p>The true muon theta (angle to beam). </p>
 
-<p>Definition at line <a class="el" href="EventSelection_8h_source.html#l00120">120</a> of file <a class="el" href="EventSelection_8h_source.html">EventSelection.h</a>.</p>
+<p>Definition at line <a class="el" href="EventSelection_8h_source.html#l00126">126</a> of file <a class="el" href="EventSelection_8h_source.html">EventSelection.h</a>.</p>
 
 </div>
 </div>
@@ -1743,7 +2541,7 @@ window.onload = initDynSections;
 
 <p>The true neutrino energy. </p>
 
-<p>Definition at line <a class="el" href="EventSelection_8h_source.html#l00100">100</a> of file <a class="el" href="EventSelection_8h_source.html">EventSelection.h</a>.</p>
+<p>Definition at line <a class="el" href="EventSelection_8h_source.html#l00106">106</a> of file <a class="el" href="EventSelection_8h_source.html">EventSelection.h</a>.</p>
 
 </div>
 </div>
@@ -1760,7 +2558,7 @@ window.onload = initDynSections;
 
 <p>The true neutrino vertex position. </p>
 
-<p>Definition at line <a class="el" href="EventSelection_8h_source.html#l00101">101</a> of file <a class="el" href="EventSelection_8h_source.html">EventSelection.h</a>.</p>
+<p>Definition at line <a class="el" href="EventSelection_8h_source.html#l00107">107</a> of file <a class="el" href="EventSelection_8h_source.html">EventSelection.h</a>.</p>
 
 </div>
 </div>
@@ -1777,7 +2575,7 @@ window.onload = initDynSections;
 
 <p>The best matched MCParticles PDG code. </p>
 
-<p>Definition at line <a class="el" href="EventSelection_8h_source.html#l00140">140</a> of file <a class="el" href="EventSelection_8h_source.html">EventSelection.h</a>.</p>
+<p>Definition at line <a class="el" href="EventSelection_8h_source.html#l00172">172</a> of file <a class="el" href="EventSelection_8h_source.html">EventSelection.h</a>.</p>
 
 </div>
 </div>
@@ -1794,7 +2592,7 @@ window.onload = initDynSections;
 
 <p>The true pion energy. </p>
 
-<p>Definition at line <a class="el" href="EventSelection_8h_source.html#l00123">123</a> of file <a class="el" href="EventSelection_8h_source.html">EventSelection.h</a>.</p>
+<p>Definition at line <a class="el" href="EventSelection_8h_source.html#l00129">129</a> of file <a class="el" href="EventSelection_8h_source.html">EventSelection.h</a>.</p>
 
 </div>
 </div>
@@ -1811,7 +2609,7 @@ window.onload = initDynSections;
 
 <p>The true pion phi. </p>
 
-<p>Definition at line <a class="el" href="EventSelection_8h_source.html#l00125">125</a> of file <a class="el" href="EventSelection_8h_source.html">EventSelection.h</a>.</p>
+<p>Definition at line <a class="el" href="EventSelection_8h_source.html#l00131">131</a> of file <a class="el" href="EventSelection_8h_source.html">EventSelection.h</a>.</p>
 
 </div>
 </div>
@@ -1828,7 +2626,7 @@ window.onload = initDynSections;
 
 <p>The true pion theta. </p>
 
-<p>Definition at line <a class="el" href="EventSelection_8h_source.html#l00124">124</a> of file <a class="el" href="EventSelection_8h_source.html">EventSelection.h</a>.</p>
+<p>Definition at line <a class="el" href="EventSelection_8h_source.html#l00130">130</a> of file <a class="el" href="EventSelection_8h_source.html">EventSelection.h</a>.</p>
 
 </div>
 </div>
@@ -1845,7 +2643,7 @@ window.onload = initDynSections;
 
 <p>The true start position of the particle - X. </p>
 
-<p>Definition at line <a class="el" href="EventSelection_8h_source.html#l00146">146</a> of file <a class="el" href="EventSelection_8h_source.html">EventSelection.h</a>.</p>
+<p>Definition at line <a class="el" href="EventSelection_8h_source.html#l00180">180</a> of file <a class="el" href="EventSelection_8h_source.html">EventSelection.h</a>.</p>
 
 </div>
 </div>
@@ -1862,7 +2660,7 @@ window.onload = initDynSections;
 
 <p>The true start position of the particle - Y. </p>
 
-<p>Definition at line <a class="el" href="EventSelection_8h_source.html#l00147">147</a> of file <a class="el" href="EventSelection_8h_source.html">EventSelection.h</a>.</p>
+<p>Definition at line <a class="el" href="EventSelection_8h_source.html#l00181">181</a> of file <a class="el" href="EventSelection_8h_source.html">EventSelection.h</a>.</p>
 
 </div>
 </div>
@@ -1879,7 +2677,7 @@ window.onload = initDynSections;
 
 <p>The true start position of the particle - Z. </p>
 
-<p>Definition at line <a class="el" href="EventSelection_8h_source.html#l00148">148</a> of file <a class="el" href="EventSelection_8h_source.html">EventSelection.h</a>.</p>
+<p>Definition at line <a class="el" href="EventSelection_8h_source.html#l00182">182</a> of file <a class="el" href="EventSelection_8h_source.html">EventSelection.h</a>.</p>
 
 </div>
 </div>
@@ -1896,7 +2694,7 @@ window.onload = initDynSections;
 
 <p>The completeness of the match. </p>
 
-<p>Definition at line <a class="el" href="EventSelection_8h_source.html#l00141">141</a> of file <a class="el" href="EventSelection_8h_source.html">EventSelection.h</a>.</p>
+<p>Definition at line <a class="el" href="EventSelection_8h_source.html#l00173">173</a> of file <a class="el" href="EventSelection_8h_source.html">EventSelection.h</a>.</p>
 
 </div>
 </div>
@@ -1913,7 +2711,7 @@ window.onload = initDynSections;
 
 <p>The purity of the match. </p>
 
-<p>Definition at line <a class="el" href="EventSelection_8h_source.html#l00142">142</a> of file <a class="el" href="EventSelection_8h_source.html">EventSelection.h</a>.</p>
+<p>Definition at line <a class="el" href="EventSelection_8h_source.html#l00174">174</a> of file <a class="el" href="EventSelection_8h_source.html">EventSelection.h</a>.</p>
 
 </div>
 </div>
@@ -1930,7 +2728,7 @@ window.onload = initDynSections;
 
 <p>The reconstructed angle in the YZ plane to the vertical. </p>
 
-<p>Definition at line <a class="el" href="EventSelection_8h_source.html#l00167">167</a> of file <a class="el" href="EventSelection_8h_source.html">EventSelection.h</a>.</p>
+<p>Definition at line <a class="el" href="EventSelection_8h_source.html#l00203">203</a> of file <a class="el" href="EventSelection_8h_source.html">EventSelection.h</a>.</p>
 
 </div>
 </div>
@@ -1955,7 +2753,7 @@ window.onload = initDynSections;
 <hr size="1"/>
 <address style="text-align: right;">
     <small>
-        Generated on Tue Jul 2 12:09:58 2019 for ubcc1pi by <a href="http://www.doxygen.org/index.html" target="_blank">doxygen</a> 1.6.1
+        Generated on Fri Jul 5 11:45:32 2019 for ubcc1pi by <a href="http://www.doxygen.org/index.html" target="_blank">doxygen</a> 1.6.1
     </small>
 </address>
 

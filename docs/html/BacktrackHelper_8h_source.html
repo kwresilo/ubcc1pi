@@ -431,11 +431,44 @@ window.onload = initDynSections;
 <a name="l00335"></a>00335 <span class="comment">     *  @param  nuMCParticles the input vector of neutrino induced MCParticles</span>
 <a name="l00336"></a>00336 <span class="comment">     */</span>
 <a name="l00337"></a>00337     <span class="keyword">static</span> <a class="code" href="namespaceubcc1pi.html#a8ce7e6a90e2e4a858a72ad75073a3f7e" title="Mapping from Hit to boolean.">HitsToBool</a> <a class="code" href="classubcc1pi_1_1BacktrackHelper.html#a3205636d4c461b7f245ecf895cba020e" title="Get the mapping from all hits, to whether the hit is induced (at least in part) by...">GetHitsToIsNuInducedMap</a>(<span class="keyword">const</span> art::Event &amp;event, <span class="keyword">const</span> art::InputTag &amp;hitLabel, <span class="keyword">const</span> art::InputTag &amp;mcParticleLabel, <span class="keyword">const</span> art::InputTag &amp;backtrackerLabel, <span class="keyword">const</span> <a class="code" href="namespaceubcc1pi.html#a42e409a54246ea6acba6d873b8eb696c" title="A collection of MCParticles.">MCParticleVector</a> &amp;nuMCParticles);
-<a name="l00338"></a>00338 };
-<a name="l00339"></a>00339 
-<a name="l00340"></a>00340 } <span class="comment">// namespace ubcc1pi</span>
-<a name="l00341"></a>00341 
-<a name="l00342"></a>00342 <span class="preprocessor">#endif</span>
+<a name="l00338"></a>00338 <span class="comment"></span>
+<a name="l00339"></a>00339 <span class="comment">    /**</span>
+<a name="l00340"></a>00340 <span class="comment">     *  @brief  Count the number of hits associated with a given MCParticle in a given view</span>
+<a name="l00341"></a>00341 <span class="comment">     *</span>
+<a name="l00342"></a>00342 <span class="comment">     *  @param  mcParticle the MCParticle in question</span>
+<a name="l00343"></a>00343 <span class="comment">     *  @param  mcParticleToHits the mapping from MCParticles to hits</span>
+<a name="l00344"></a>00344 <span class="comment">     *  @param  view the view to use</span>
+<a name="l00345"></a>00345 <span class="comment">     *</span>
+<a name="l00346"></a>00346 <span class="comment">     *  @return the number of hits</span>
+<a name="l00347"></a>00347 <span class="comment">     */</span>
+<a name="l00348"></a>00348     <span class="keyword">static</span> <span class="keywordtype">int</span> <a class="code" href="classubcc1pi_1_1BacktrackHelper.html#ab945346624ce1489b8ad6c43f3fcecf7" title="Count the number of hits associated with a given MCParticle in a given view.">CountHitsInView</a>(<span class="keyword">const</span> art::Ptr&lt;simb::MCParticle&gt; &amp;mcParticle, <span class="keyword">const</span> AssociationData&lt;simb::MCParticle, recob::Hit, anab::BackTrackerHitMatchingData&gt; &amp;mcParticleToHits, <span class="keyword">const</span> geo::View_t &amp;view);
+<a name="l00349"></a>00349 <span class="comment"></span>
+<a name="l00350"></a>00350 <span class="comment">    /**</span>
+<a name="l00351"></a>00351 <span class="comment">     *  @brief  Count the number of &quot;good&quot; hits associated with a given MCParticle in a given view for which the MCParticle contributed at least 1/2 of the charge of the hit</span>
+<a name="l00352"></a>00352 <span class="comment">     *</span>
+<a name="l00353"></a>00353 <span class="comment">     *  @param  mcParticle the MCParticle in question</span>
+<a name="l00354"></a>00354 <span class="comment">     *  @param  mcParticleToHits the mapping from MCParticles to hits</span>
+<a name="l00355"></a>00355 <span class="comment">     *  @param  view the view to use</span>
+<a name="l00356"></a>00356 <span class="comment">     *</span>
+<a name="l00357"></a>00357 <span class="comment">     *  @return the number of good hits</span>
+<a name="l00358"></a>00358 <span class="comment">     */</span>
+<a name="l00359"></a>00359     <span class="keyword">static</span> <span class="keywordtype">int</span> <a class="code" href="classubcc1pi_1_1BacktrackHelper.html#a80216431ad18602eaf1b59938733362f" title="Count the number of &amp;quot;good&amp;quot; hits associated with a given MCParticle in a...">CountGoodHitsInView</a>(<span class="keyword">const</span> art::Ptr&lt;simb::MCParticle&gt; &amp;mcParticle, <span class="keyword">const</span> AssociationData&lt;simb::MCParticle, recob::Hit, anab::BackTrackerHitMatchingData&gt; &amp;mcParticleToHits, <span class="keyword">const</span> geo::View_t &amp;view);
+<a name="l00360"></a>00360 <span class="comment"></span>
+<a name="l00361"></a>00361 <span class="comment">    /**</span>
+<a name="l00362"></a>00362 <span class="comment">     *  @brief  Count the total hit weight associated with a given MCParticle in a given view</span>
+<a name="l00363"></a>00363 <span class="comment">     *</span>
+<a name="l00364"></a>00364 <span class="comment">     *  @param  mcParticle the MCParticle in question</span>
+<a name="l00365"></a>00365 <span class="comment">     *  @param  mcParticleToHits the mapping from MCParticles to hits</span>
+<a name="l00366"></a>00366 <span class="comment">     *  @param  view the view to use</span>
+<a name="l00367"></a>00367 <span class="comment">     *</span>
+<a name="l00368"></a>00368 <span class="comment">     *  @return the hit weight</span>
+<a name="l00369"></a>00369 <span class="comment">     */</span>
+<a name="l00370"></a>00370     <span class="keyword">static</span> <span class="keywordtype">float</span> <a class="code" href="classubcc1pi_1_1BacktrackHelper.html#a8c9a4ce6758c077dd22d82f0f0691186" title="Count the total hit weight associated with a given MCParticle in a given view.">GetHitWeightInView</a>(<span class="keyword">const</span> art::Ptr&lt;simb::MCParticle&gt; &amp;mcParticle, <span class="keyword">const</span> AssociationData&lt;simb::MCParticle, recob::Hit, anab::BackTrackerHitMatchingData&gt; &amp;mcParticleToHits, <span class="keyword">const</span> geo::View_t &amp;view);
+<a name="l00371"></a>00371 };
+<a name="l00372"></a>00372 
+<a name="l00373"></a>00373 } <span class="comment">// namespace ubcc1pi</span>
+<a name="l00374"></a>00374 
+<a name="l00375"></a>00375 <span class="preprocessor">#endif</span>
 </pre></div></div>
 <!--- window showing the filter options -->
 <div id="MSearchSelectWindow"
@@ -454,7 +487,7 @@ window.onload = initDynSections;
 <hr size="1"/>
 <address style="text-align: right;">
     <small>
-        Generated on Tue Jul 2 12:09:58 2019 for ubcc1pi by <a href="http://www.doxygen.org/index.html" target="_blank">doxygen</a> 1.6.1
+        Generated on Fri Jul 5 11:45:32 2019 for ubcc1pi by <a href="http://www.doxygen.org/index.html" target="_blank">doxygen</a> 1.6.1
     </small>
 </address>
 
