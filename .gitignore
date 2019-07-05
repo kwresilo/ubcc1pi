@@ -1,2 +1,3 @@
 *.bak
 docs/warnings.txt
+docs/html/*
