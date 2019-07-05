@@ -68,6 +68,15 @@ EventSelection::EventSelection(const art::EDAnalyzer::Table<Config> &config) :
     m_pEventTree->Branch("mcpMomentumXVect", &m_outputEvent.m_mcpMomentumXVect);
     m_pEventTree->Branch("mcpMomentumYVect", &m_outputEvent.m_mcpMomentumYVect);
     m_pEventTree->Branch("mcpMomentumZVect", &m_outputEvent.m_mcpMomentumZVect);
+    m_pEventTree->Branch("mcpNHitsUVect", &m_outputEvent.m_mcpNHitsUVect);
+    m_pEventTree->Branch("mcpNHitsVVect", &m_outputEvent.m_mcpNHitsVVect);
+    m_pEventTree->Branch("mcpNHitsWVect", &m_outputEvent.m_mcpNHitsWVect);
+    m_pEventTree->Branch("mcpNGoodHitsUVect", &m_outputEvent.m_mcpNGoodHitsUVect);
+    m_pEventTree->Branch("mcpNGoodHitsVVect", &m_outputEvent.m_mcpNGoodHitsVVect);
+    m_pEventTree->Branch("mcpNGoodHitsWVect", &m_outputEvent.m_mcpNGoodHitsWVect);
+    m_pEventTree->Branch("mcpHitWeightUVect", &m_outputEvent.m_mcpHitWeightUVect);
+    m_pEventTree->Branch("mcpHitWeightVVect", &m_outputEvent.m_mcpHitWeightVVect);
+    m_pEventTree->Branch("mcpHitWeightWVect", &m_outputEvent.m_mcpHitWeightWVect);
 
     m_pEventTree->Branch("hasRecoNeutrino", &m_outputEvent.m_hasRecoNeutrino);
     m_pEventTree->Branch("recoNuVtx", &m_outputEvent.m_recoNuVtx);
@@ -228,6 +237,15 @@ void EventSelection::ResetEventTree()
     m_outputEvent.m_mcpMomentumXVect.clear();
     m_outputEvent.m_mcpMomentumYVect.clear();
     m_outputEvent.m_mcpMomentumZVect.clear();
+    m_outputEvent.m_mcpNHitsUVect.clear();
+    m_outputEvent.m_mcpNHitsVVect.clear();
+    m_outputEvent.m_mcpNHitsWVect.clear();
+    m_outputEvent.m_mcpNGoodHitsUVect.clear();
+    m_outputEvent.m_mcpNGoodHitsVVect.clear();
+    m_outputEvent.m_mcpNGoodHitsWVect.clear();
+    m_outputEvent.m_mcpHitWeightUVect.clear();
+    m_outputEvent.m_mcpHitWeightVVect.clear();
+    m_outputEvent.m_mcpHitWeightWVect.clear();
     m_outputEvent.m_hasRecoNeutrino = false;
     m_outputEvent.m_recoNuVtx = TVector3(-std::numeric_limits<float>::max(), -std::numeric_limits<float>::max(), -std::numeric_limits<float>::max());
     m_outputEvent.m_isRecoNuFiducial = false;
@@ -355,7 +373,8 @@ void EventSelection::SetEventTruthInfo(const art::Event &event)
     m_outputEvent.m_nPositron = AnalysisHelper::CountParticlesWithPDG(mcParticles, -11);
     m_outputEvent.m_nTotal = mcParticles.size();
 
-    this->SetMCParticleInfo(interaction.GetAllMCParticles(), mcParticles);
+    const auto mcParticleToHits = CollectionHelper::GetAssociationWithData<simb::MCParticle, recob::Hit, anab::BackTrackerHitMatchingData>(event, m_config().MCParticleLabel(), m_config().BacktrackerLabel());
+    this->SetMCParticleInfo(interaction.GetAllMCParticles(), mcParticles, mcParticleToHits);
 
     if (!m_outputEvent.m_isSignal)
         return;
@@ -375,10 +394,9 @@ void EventSelection::SetEventTruthInfo(const art::Event &event)
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
 
-void EventSelection::SetMCParticleInfo(const MCParticleVector &allMCParticles, const MCParticleVector &reconstrutableFinalStates)
+void EventSelection::SetMCParticleInfo(const MCParticleVector &allMCParticles, const MCParticleVector &reconstrutableFinalStates, const AssociationData<simb::MCParticle, recob::Hit, anab::BackTrackerHitMatchingData> &mcParticleToHits)
 {
     m_outputEvent.m_nMCParticles = allMCParticles.size();
-   
 
     for (const auto &mcParticle : allMCParticles)
     {
@@ -404,8 +422,21 @@ void EventSelection::SetMCParticleInfo(const MCParticleVector &allMCParticles, c
         m_outputEvent.m_mcpMomentumXVect.push_back(mcParticle->Px());
         m_outputEvent.m_mcpMomentumYVect.push_back(mcParticle->Py());
         m_outputEvent.m_mcpMomentumZVect.push_back(mcParticle->Pz());
+    
+        m_outputEvent.m_mcpNHitsUVect.push_back(BacktrackHelper::CountHitsInView(mcParticle, mcParticleToHits, geo::kU));
+        m_outputEvent.m_mcpNHitsVVect.push_back(BacktrackHelper::CountHitsInView(mcParticle, mcParticleToHits, geo::kV));
+        m_outputEvent.m_mcpNHitsWVect.push_back(BacktrackHelper::CountHitsInView(mcParticle, mcParticleToHits, geo::kW));
+        m_outputEvent.m_mcpNGoodHitsUVect.push_back(BacktrackHelper::CountGoodHitsInView(mcParticle, mcParticleToHits, geo::kU));
+        m_outputEvent.m_mcpNGoodHitsVVect.push_back(BacktrackHelper::CountGoodHitsInView(mcParticle, mcParticleToHits, geo::kV));
+        m_outputEvent.m_mcpNGoodHitsWVect.push_back(BacktrackHelper::CountGoodHitsInView(mcParticle, mcParticleToHits, geo::kW));
+        m_outputEvent.m_mcpHitWeightUVect.push_back(BacktrackHelper::GetHitWeightInView(mcParticle, mcParticleToHits, geo::kU));
+        m_outputEvent.m_mcpHitWeightVVect.push_back(BacktrackHelper::GetHitWeightInView(mcParticle, mcParticleToHits, geo::kV));
+        m_outputEvent.m_mcpHitWeightWVect.push_back(BacktrackHelper::GetHitWeightInView(mcParticle, mcParticleToHits, geo::kW));
     }
 }
+
+// -----------------------------------------------------------------------------------------------------------------------------------------
+
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
 

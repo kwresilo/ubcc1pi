@@ -115,6 +115,12 @@ window.onload = initDynSections;
 <tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">Get the mapping from neutrino final state MCParticles to hits, folding in all downstream particles.  <a href="#af267328d4f76279b5ab7225f86067059"></a><br/></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">static <a class="el" href="namespaceubcc1pi.html#a8ce7e6a90e2e4a858a72ad75073a3f7e">HitsToBool</a>&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classubcc1pi_1_1BacktrackHelper.html#a3205636d4c461b7f245ecf895cba020e">GetHitsToIsNuInducedMap</a> (const art::Event &amp;event, const art::InputTag &amp;hitLabel, const art::InputTag &amp;mcParticleLabel, const art::InputTag &amp;backtrackerLabel, const <a class="el" href="namespaceubcc1pi.html#a42e409a54246ea6acba6d873b8eb696c">MCParticleVector</a> &amp;nuMCParticles)</td></tr>
 <tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">Get the mapping from all hits, to whether the hit is induced (at least in part) by a neutrino induced MCParticle.  <a href="#a3205636d4c461b7f245ecf895cba020e"></a><br/></td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">static int&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classubcc1pi_1_1BacktrackHelper.html#ab945346624ce1489b8ad6c43f3fcecf7">CountHitsInView</a> (const art::Ptr&lt; simb::MCParticle &gt; &amp;mcParticle, const AssociationData&lt; simb::MCParticle, recob::Hit, anab::BackTrackerHitMatchingData &gt; &amp;mcParticleToHits, const geo::View_t &amp;view)</td></tr>
+<tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">Count the number of hits associated with a given MCParticle in a given view.  <a href="#ab945346624ce1489b8ad6c43f3fcecf7"></a><br/></td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">static int&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classubcc1pi_1_1BacktrackHelper.html#a80216431ad18602eaf1b59938733362f">CountGoodHitsInView</a> (const art::Ptr&lt; simb::MCParticle &gt; &amp;mcParticle, const AssociationData&lt; simb::MCParticle, recob::Hit, anab::BackTrackerHitMatchingData &gt; &amp;mcParticleToHits, const geo::View_t &amp;view)</td></tr>
+<tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">Count the number of "good" hits associated with a given MCParticle in a given view for which the MCParticle contributed at least 1/2 of the charge of the hit.  <a href="#a80216431ad18602eaf1b59938733362f"></a><br/></td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">static float&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classubcc1pi_1_1BacktrackHelper.html#a8c9a4ce6758c077dd22d82f0f0691186">GetHitWeightInView</a> (const art::Ptr&lt; simb::MCParticle &gt; &amp;mcParticle, const AssociationData&lt; simb::MCParticle, recob::Hit, anab::BackTrackerHitMatchingData &gt; &amp;mcParticleToHits, const geo::View_t &amp;view)</td></tr>
+<tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">Count the total hit weight associated with a given MCParticle in a given view.  <a href="#a8c9a4ce6758c077dd22d82f0f0691186"></a><br/></td></tr>
 </table>
 <hr/><a name="_details"></a><h2>Detailed Description</h2>
 <p>The backtrack helper class. </p>
@@ -122,6 +128,98 @@ window.onload = initDynSections;
 
 <p>Definition at line <a class="el" href="BacktrackHelper_8h_source.html#l00023">23</a> of file <a class="el" href="BacktrackHelper_8h_source.html">BacktrackHelper.h</a>.</p>
 <hr/><h2>Member Function Documentation</h2>
+<a class="anchor" id="a80216431ad18602eaf1b59938733362f"></a><!-- doxytag: member="ubcc1pi::BacktrackHelper::CountGoodHitsInView" ref="a80216431ad18602eaf1b59938733362f" args="(const art::Ptr&lt; simb::MCParticle &gt; &amp;mcParticle, const AssociationData&lt; simb::MCParticle, recob::Hit, anab::BackTrackerHitMatchingData &gt; &amp;mcParticleToHits, const geo::View_t &amp;view)" -->
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">int ubcc1pi::BacktrackHelper::CountGoodHitsInView </td>
+          <td>(</td>
+          <td class="paramtype">const art::Ptr&lt; simb::MCParticle &gt; &amp;&nbsp;</td>
+          <td class="paramname"> <em>mcParticle</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const AssociationData&lt; simb::MCParticle, recob::Hit, anab::BackTrackerHitMatchingData &gt; &amp;&nbsp;</td>
+          <td class="paramname"> <em>mcParticleToHits</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const geo::View_t &amp;&nbsp;</td>
+          <td class="paramname"> <em>view</em></td><td>&nbsp;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td><td><code> [static]</code></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+
+<p>Count the number of "good" hits associated with a given MCParticle in a given view for which the MCParticle contributed at least 1/2 of the charge of the hit. </p>
+<dl><dt><b>Parameters:</b></dt><dd>
+  <table border="0" cellspacing="2" cellpadding="0">
+    <tr><td valign="top"></td><td valign="top"><em>mcParticle</em>&nbsp;</td><td>the MCParticle in question </td></tr>
+    <tr><td valign="top"></td><td valign="top"><em>mcParticleToHits</em>&nbsp;</td><td>the mapping from MCParticles to hits </td></tr>
+    <tr><td valign="top"></td><td valign="top"><em>view</em>&nbsp;</td><td>the view to use</td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="return"><dt><b>Returns:</b></dt><dd>the number of good hits </dd></dl>
+
+<p>Definition at line <a class="el" href="BacktrackHelper_8cxx_source.html#l00141">141</a> of file <a class="el" href="BacktrackHelper_8cxx_source.html">BacktrackHelper.cxx</a>.</p>
+
+</div>
+</div>
+<a class="anchor" id="ab945346624ce1489b8ad6c43f3fcecf7"></a><!-- doxytag: member="ubcc1pi::BacktrackHelper::CountHitsInView" ref="ab945346624ce1489b8ad6c43f3fcecf7" args="(const art::Ptr&lt; simb::MCParticle &gt; &amp;mcParticle, const AssociationData&lt; simb::MCParticle, recob::Hit, anab::BackTrackerHitMatchingData &gt; &amp;mcParticleToHits, const geo::View_t &amp;view)" -->
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">int ubcc1pi::BacktrackHelper::CountHitsInView </td>
+          <td>(</td>
+          <td class="paramtype">const art::Ptr&lt; simb::MCParticle &gt; &amp;&nbsp;</td>
+          <td class="paramname"> <em>mcParticle</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const AssociationData&lt; simb::MCParticle, recob::Hit, anab::BackTrackerHitMatchingData &gt; &amp;&nbsp;</td>
+          <td class="paramname"> <em>mcParticleToHits</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const geo::View_t &amp;&nbsp;</td>
+          <td class="paramname"> <em>view</em></td><td>&nbsp;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td><td><code> [static]</code></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+
+<p>Count the number of hits associated with a given MCParticle in a given view. </p>
+<dl><dt><b>Parameters:</b></dt><dd>
+  <table border="0" cellspacing="2" cellpadding="0">
+    <tr><td valign="top"></td><td valign="top"><em>mcParticle</em>&nbsp;</td><td>the MCParticle in question </td></tr>
+    <tr><td valign="top"></td><td valign="top"><em>mcParticleToHits</em>&nbsp;</td><td>the mapping from MCParticles to hits </td></tr>
+    <tr><td valign="top"></td><td valign="top"><em>view</em>&nbsp;</td><td>the view to use</td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="return"><dt><b>Returns:</b></dt><dd>the number of hits </dd></dl>
+
+<p>Definition at line <a class="el" href="BacktrackHelper_8cxx_source.html#l00127">127</a> of file <a class="el" href="BacktrackHelper_8cxx_source.html">BacktrackHelper.cxx</a>.</p>
+
+</div>
+</div>
 <a class="anchor" id="a3205636d4c461b7f245ecf895cba020e"></a><!-- doxytag: member="ubcc1pi::BacktrackHelper::GetHitsToIsNuInducedMap" ref="a3205636d4c461b7f245ecf895cba020e" args="(const art::Event &amp;event, const art::InputTag &amp;hitLabel, const art::InputTag &amp;mcParticleLabel, const art::InputTag &amp;backtrackerLabel, const MCParticleVector &amp;nuMCParticles)" -->
 <div class="memitem">
 <div class="memproto">
@@ -278,6 +376,52 @@ window.onload = initDynSections;
 
 </div>
 </div>
+<a class="anchor" id="a8c9a4ce6758c077dd22d82f0f0691186"></a><!-- doxytag: member="ubcc1pi::BacktrackHelper::GetHitWeightInView" ref="a8c9a4ce6758c077dd22d82f0f0691186" args="(const art::Ptr&lt; simb::MCParticle &gt; &amp;mcParticle, const AssociationData&lt; simb::MCParticle, recob::Hit, anab::BackTrackerHitMatchingData &gt; &amp;mcParticleToHits, const geo::View_t &amp;view)" -->
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">float ubcc1pi::BacktrackHelper::GetHitWeightInView </td>
+          <td>(</td>
+          <td class="paramtype">const art::Ptr&lt; simb::MCParticle &gt; &amp;&nbsp;</td>
+          <td class="paramname"> <em>mcParticle</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const AssociationData&lt; simb::MCParticle, recob::Hit, anab::BackTrackerHitMatchingData &gt; &amp;&nbsp;</td>
+          <td class="paramname"> <em>mcParticleToHits</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const geo::View_t &amp;&nbsp;</td>
+          <td class="paramname"> <em>view</em></td><td>&nbsp;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td><td><code> [static]</code></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+
+<p>Count the total hit weight associated with a given MCParticle in a given view. </p>
+<dl><dt><b>Parameters:</b></dt><dd>
+  <table border="0" cellspacing="2" cellpadding="0">
+    <tr><td valign="top"></td><td valign="top"><em>mcParticle</em>&nbsp;</td><td>the MCParticle in question </td></tr>
+    <tr><td valign="top"></td><td valign="top"><em>mcParticleToHits</em>&nbsp;</td><td>the mapping from MCParticles to hits </td></tr>
+    <tr><td valign="top"></td><td valign="top"><em>view</em>&nbsp;</td><td>the view to use</td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="return"><dt><b>Returns:</b></dt><dd>the hit weight </dd></dl>
+
+<p>Definition at line <a class="el" href="BacktrackHelper_8cxx_source.html#l00163">163</a> of file <a class="el" href="BacktrackHelper_8cxx_source.html">BacktrackHelper.cxx</a>.</p>
+
+</div>
+</div>
 <hr/>The documentation for this class was generated from the following files:<ul>
 <li><a class="el" href="BacktrackHelper_8h_source.html">BacktrackHelper.h</a></li>
 <li><a class="el" href="BacktrackHelper_8cxx_source.html">BacktrackHelper.cxx</a></li>
@@ -300,7 +444,7 @@ window.onload = initDynSections;
 <hr size="1"/>
 <address style="text-align: right;">
     <small>
-        Generated on Wed Jul 3 16:34:11 2019 for ubcc1pi by <a href="http://www.doxygen.org/index.html" target="_blank">doxygen</a> 1.6.1
+        Generated on Fri Jul 5 11:24:41 2019 for ubcc1pi by <a href="http://www.doxygen.org/index.html" target="_blank">doxygen</a> 1.6.1
     </small>
 </address>
 

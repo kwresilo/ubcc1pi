@@ -147,16 +147,15 @@ class EventSelection : public art::EDAnalyzer
             std::vector<float>             m_mcpMomentumYVect;             ///< The momentum of the MCParticle - Y
             std::vector<float>             m_mcpMomentumZVect;             ///< The momentum of the MCParticle - Z
 
-            // TODO Fill in the MCParticle -> Hit variables by updating the backtracker helper
-            /*
             std::vector<int>               m_mcpNHitsUVect;                ///< The number of reconstructed hits that this MCParticle contributed to - U view
             std::vector<int>               m_mcpNHitsVVect;                ///< The number of reconstructed hits that this MCParticle contributed to - V view
             std::vector<int>               m_mcpNHitsWVect;                ///< The number of reconstructed hits that this MCParticle contributed to - W view
-            std::vector<float>             m_mcpNHitsUWeightVect;          ///< Same as NHits but weighted by the fraction of the hit's charge that came from this MCParticle - U view
-            std::vector<float>             m_mcpNHitsVWeightVect;          ///< Same as NHits but weighted by the fraction of the hit's charge that came from this MCParticle - V view
-            std::vector<float>             m_mcpNHitsWWeightVect;          ///< Same as NHits but weighted by the fraction of the hit's charge that came from this MCParticle - W view
-            std::vector<bool>              m_mcpIsReconstructable;         ///< If the MCParticle is deemed reconstructable based on how many hits it contributes to
-            */
+            std::vector<int>               m_mcpNGoodHitsUVect;            ///< Only cont hits for which the MCParticle contribute more than 1/2 of the charge - U view
+            std::vector<int>               m_mcpNGoodHitsVVect;            ///< Only cont hits for which the MCParticle contribute more than 1/2 of the charge - V view
+            std::vector<int>               m_mcpNGoodHitsWVect;            ///< Only cont hits for which the MCParticle contribute more than 1/2 of the charge - W view
+            std::vector<float>             m_mcpHitWeightUVect;            ///< The total hit weight that the MCParticle contributed - U view
+            std::vector<float>             m_mcpHitWeightVVect;            ///< The total hit weight that the MCParticle contributed - V view
+            std::vector<float>             m_mcpHitWeightWVect;            ///< The total hit weight that the MCParticle contributed - W view
 
             // Reconstructed information                                   
             bool                   m_hasRecoNeutrino;                      ///< If the event has a reconstructed neutrino
@@ -330,8 +329,9 @@ class EventSelection : public art::EDAnalyzer
          *
          *  @param  allMCParticles all of the MCParticles in the event
          *  @param  reconstrutableFinalStates the final state MCParticles that pass the momentum thresholds
+         *  @param  mcParticleToHits the mapping from MCParticle to hits along with the backtracker matching data
          */
-        void SetMCParticleInfo(const MCParticleVector &allMCParticles, const MCParticleVector &reconstrutableFinalStates);
+        void SetMCParticleInfo(const MCParticleVector &allMCParticles, const MCParticleVector &reconstrutableFinalStates, const AssociationData<simb::MCParticle, recob::Hit, anab::BackTrackerHitMatchingData> &mcParticleToHits);
 
         /**
          *  @brief  Select the MCParticle with the given PDG code (assumes each PDG is in the input vector at most once)

@@ -335,6 +335,39 @@ class BacktrackHelper
      *  @param  nuMCParticles the input vector of neutrino induced MCParticles
      */
     static HitsToBool GetHitsToIsNuInducedMap(const art::Event &event, const art::InputTag &hitLabel, const art::InputTag &mcParticleLabel, const art::InputTag &backtrackerLabel, const MCParticleVector &nuMCParticles);
+
+    /**
+     *  @brief  Count the number of hits associated with a given MCParticle in a given view
+     *
+     *  @param  mcParticle the MCParticle in question
+     *  @param  mcParticleToHits the mapping from MCParticles to hits
+     *  @param  view the view to use
+     *
+     *  @return the number of hits
+     */
+    static int CountHitsInView(const art::Ptr<simb::MCParticle> &mcParticle, const AssociationData<simb::MCParticle, recob::Hit, anab::BackTrackerHitMatchingData> &mcParticleToHits, const geo::View_t &view);
+
+    /**
+     *  @brief  Count the number of "good" hits associated with a given MCParticle in a given view for which the MCParticle contributed at least 1/2 of the charge of the hit
+     *
+     *  @param  mcParticle the MCParticle in question
+     *  @param  mcParticleToHits the mapping from MCParticles to hits
+     *  @param  view the view to use
+     *
+     *  @return the number of good hits
+     */
+    static int CountGoodHitsInView(const art::Ptr<simb::MCParticle> &mcParticle, const AssociationData<simb::MCParticle, recob::Hit, anab::BackTrackerHitMatchingData> &mcParticleToHits, const geo::View_t &view);
+
+    /**
+     *  @brief  Count the total hit weight associated with a given MCParticle in a given view
+     *
+     *  @param  mcParticle the MCParticle in question
+     *  @param  mcParticleToHits the mapping from MCParticles to hits
+     *  @param  view the view to use
+     *
+     *  @return the hit weight
+     */
+    static float GetHitWeightInView(const art::Ptr<simb::MCParticle> &mcParticle, const AssociationData<simb::MCParticle, recob::Hit, anab::BackTrackerHitMatchingData> &mcParticleToHits, const geo::View_t &view);
 };
 
 } // namespace ubcc1pi
