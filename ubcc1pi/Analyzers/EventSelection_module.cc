@@ -323,6 +323,7 @@ void EventSelection::ResetEventTree()
     m_outputEvent.m_braggMIPVVect.clear();
     m_outputEvent.m_isUVBraggMIPAvailableVect.clear();
     m_outputEvent.m_braggMIPUVVect.clear();
+    m_outputEvent.m_isWBraggMIPBackwardAvailableVect.clear();
     m_outputEvent.m_braggMIPBackwardWVect.clear();
     m_outputEvent.m_isUBraggMIPBackwardAvailableVect.clear();
     m_outputEvent.m_braggMIPBackwardUVect.clear();
@@ -1076,92 +1077,254 @@ void EventSelection::ValidateOutputVectorSizes(const unsigned int index) const
     if (static_cast<unsigned int>(m_outputEvent.m_nFinalStatePFPs) < expectedSize)
         throw cet::exception("EventSelection::ValidateOutputVectorSizes") << " - Particle index out of range: " << expectedSize << " / " << m_outputEvent.m_nFinalStatePFPs << std::endl;
 
-    if (m_outputEvent.m_hasMatchedMCParticleVect.size() != expectedSize ||
-        m_outputEvent.m_matchedMCParticleIdVect.size() != expectedSize ||
-        m_outputEvent.m_truePdgCodeVect.size() != expectedSize ||
-        m_outputEvent.m_truthMatchCompletenessVect.size() != expectedSize ||
-        m_outputEvent.m_truthMatchPurityVect.size() != expectedSize ||
-        m_outputEvent.m_trueEnergyVect.size() != expectedSize ||
-        m_outputEvent.m_trueKEVect.size() != expectedSize ||
-        m_outputEvent.m_trueMomentumXVect.size() != expectedSize ||
-        m_outputEvent.m_trueMomentumYVect.size() != expectedSize ||
-        m_outputEvent.m_trueMomentumZVect.size() != expectedSize ||
-        m_outputEvent.m_trueStartXVect.size() != expectedSize ||
-        m_outputEvent.m_trueStartYVect.size() != expectedSize ||
-        m_outputEvent.m_trueStartZVect.size() != expectedSize ||
-        m_outputEvent.m_nHitsUVect.size() != expectedSize ||
-        m_outputEvent.m_nHitsVVect.size() != expectedSize ||
-        m_outputEvent.m_nHitsWVect.size() != expectedSize ||
-        m_outputEvent.m_trackShowerVect.size() != expectedSize ||
-        m_outputEvent.m_startXVect.size() != expectedSize ||
-        m_outputEvent.m_startYVect.size() != expectedSize ||
-        m_outputEvent.m_startZVect.size() != expectedSize ||
-        m_outputEvent.m_endXVect.size() != expectedSize ||
-        m_outputEvent.m_endYVect.size() != expectedSize ||
-        m_outputEvent.m_endZVect.size() != expectedSize ||
-        m_outputEvent.m_directionXVect.size() != expectedSize ||
-        m_outputEvent.m_directionYVect.size() != expectedSize ||
-        m_outputEvent.m_directionZVect.size() != expectedSize ||
-        m_outputEvent.m_thetaVect.size() != expectedSize ||
-        m_outputEvent.m_phiVect.size() != expectedSize ||
-        m_outputEvent.m_yzAngleVect.size() != expectedSize ||
-        m_outputEvent.m_lengthVect.size() != expectedSize ||
-        m_outputEvent.m_isContainedVect.size() != expectedSize ||
-        m_outputEvent.m_hasCalorimetryInfoVect.size() != expectedSize ||
-        m_outputEvent.m_dedxPerHitUVect.size() != expectedSize ||
-        m_outputEvent.m_dedxPerHitVVect.size() != expectedSize ||
-        m_outputEvent.m_dedxPerHitWVect.size() != expectedSize ||
-        m_outputEvent.m_residualRangePerHitUVect.size() != expectedSize ||
-        m_outputEvent.m_residualRangePerHitVVect.size() != expectedSize ||
-        m_outputEvent.m_residualRangePerHitWVect.size() != expectedSize ||
-        m_outputEvent.m_hasPIDInfoVect.size() != expectedSize ||
-        m_outputEvent.m_isWChi2pAvailableVect.size() != expectedSize ||
-        m_outputEvent.m_chi2pWVect.size() != expectedSize ||
-        m_outputEvent.m_isUChi2pAvailableVect.size() != expectedSize ||
-        m_outputEvent.m_chi2pUVect.size() != expectedSize ||
-        m_outputEvent.m_isVChi2pAvailableVect.size() != expectedSize ||
-        m_outputEvent.m_chi2pVVect.size() != expectedSize ||
-        m_outputEvent.m_isUVChi2pAvailableVect.size() != expectedSize ||
-        m_outputEvent.m_chi2pUVVect.size() != expectedSize ||
-        m_outputEvent.m_isWBraggpAvailableVect.size() != expectedSize ||
-        m_outputEvent.m_braggpWVect.size() != expectedSize ||
-        m_outputEvent.m_isUBraggpAvailableVect.size() != expectedSize ||
-        m_outputEvent.m_braggpUVect.size() != expectedSize ||
-        m_outputEvent.m_isVBraggpAvailableVect.size() != expectedSize ||
-        m_outputEvent.m_braggpVVect.size() != expectedSize ||
-        m_outputEvent.m_isUVBraggpAvailableVect.size() != expectedSize ||
-        m_outputEvent.m_braggpUVVect.size() != expectedSize ||
-        m_outputEvent.m_isWBraggpBackwardAvailableVect.size() != expectedSize ||
-        m_outputEvent.m_braggpBackwardWVect.size() != expectedSize ||
-        m_outputEvent.m_isUBraggpBackwardAvailableVect.size() != expectedSize ||
-        m_outputEvent.m_braggpBackwardUVect.size() != expectedSize ||
-        m_outputEvent.m_isVBraggpBackwardAvailableVect.size() != expectedSize ||
-        m_outputEvent.m_braggpBackwardVVect.size() != expectedSize ||
-        m_outputEvent.m_isUVBraggpBackwardAvailableVect.size() != expectedSize ||
-        m_outputEvent.m_braggpBackwardUVVect.size() != expectedSize ||
-        m_outputEvent.m_isWBraggMIPAvailableVect.size() != expectedSize ||
-        m_outputEvent.m_braggMIPWVect.size() != expectedSize ||
-        m_outputEvent.m_isUBraggMIPAvailableVect.size() != expectedSize ||
-        m_outputEvent.m_braggMIPUVect.size() != expectedSize ||
-        m_outputEvent.m_isVBraggMIPAvailableVect.size() != expectedSize ||
-        m_outputEvent.m_braggMIPVVect.size() != expectedSize ||
-        m_outputEvent.m_isUVBraggMIPAvailableVect.size() != expectedSize ||
-        m_outputEvent.m_braggMIPUVVect.size() != expectedSize ||
-        m_outputEvent.m_isWBraggMIPBackwardAvailableVect.size() != expectedSize ||
-        m_outputEvent.m_braggMIPBackwardWVect.size() != expectedSize ||
-        m_outputEvent.m_isUBraggMIPBackwardAvailableVect.size() != expectedSize ||
-        m_outputEvent.m_braggMIPBackwardUVect.size() != expectedSize ||
-        m_outputEvent.m_isVBraggMIPBackwardAvailableVect.size() != expectedSize ||
-        m_outputEvent.m_braggMIPBackwardVVect.size() != expectedSize ||
-        m_outputEvent.m_isUVBraggMIPBackwardAvailableVect.size() != expectedSize ||
-        m_outputEvent.m_braggMIPBackwardUVVect.size() != expectedSize ||
-        m_outputEvent.m_isWBraggRatioAvailableVect.size() != expectedSize ||
-        m_outputEvent.m_braggRatioWVect.size() != expectedSize ||
-        m_outputEvent.m_isUVBraggRatioAvailableVect.size() != expectedSize ||
-        m_outputEvent.m_braggRatioUVVect.size() != expectedSize)
-    {
-        throw cet::exception("EventSelection::ValidateOutputVectorSizes") << " - Output particle vectors are out of sync!" << std::endl;
-    }
+    if (m_outputEvent.m_hasMatchedMCParticleVect.size() != expectedSize)
+        throw cet::exception("EventSelection::ValidateOutputVectorSizes") << "m_hasMatchedMCParticleVect - is out of sync" << std::endl;
+
+    if (m_outputEvent.m_matchedMCParticleIdVect.size() != expectedSize)
+        throw cet::exception("EventSelection::ValidateOutputVectorSizes") << "m_matchedMCParticleIdVect - is out of sync" << std::endl;
+
+    if (m_outputEvent.m_truePdgCodeVect.size() != expectedSize)
+        throw cet::exception("EventSelection::ValidateOutputVectorSizes") << "m_truePdgCodeVect - is out of sync" << std::endl;
+
+    if (m_outputEvent.m_truthMatchCompletenessVect.size() != expectedSize)
+        throw cet::exception("EventSelection::ValidateOutputVectorSizes") << "m_truthMatchCompletenessVect - is out of sync" << std::endl;
+
+    if (m_outputEvent.m_truthMatchPurityVect.size() != expectedSize)
+        throw cet::exception("EventSelection::ValidateOutputVectorSizes") << "m_truthMatchPurityVect - is out of sync" << std::endl;
+
+    if (m_outputEvent.m_trueEnergyVect.size() != expectedSize)
+        throw cet::exception("EventSelection::ValidateOutputVectorSizes") << "m_trueEnergyVect - is out of sync" << std::endl;
+
+    if (m_outputEvent.m_trueKEVect.size() != expectedSize)
+        throw cet::exception("EventSelection::ValidateOutputVectorSizes") << "m_trueKEVect - is out of sync" << std::endl;
+
+    if (m_outputEvent.m_trueMomentumXVect.size() != expectedSize)
+        throw cet::exception("EventSelection::ValidateOutputVectorSizes") << "m_trueMomentumXVect - is out of sync" << std::endl;
+
+    if (m_outputEvent.m_trueMomentumYVect.size() != expectedSize)
+        throw cet::exception("EventSelection::ValidateOutputVectorSizes") << "m_trueMomentumYVect - is out of sync" << std::endl;
+
+    if (m_outputEvent.m_trueMomentumZVect.size() != expectedSize)
+        throw cet::exception("EventSelection::ValidateOutputVectorSizes") << "m_trueMomentumZVect - is out of sync" << std::endl;
+
+    if (m_outputEvent.m_trueStartXVect.size() != expectedSize)
+        throw cet::exception("EventSelection::ValidateOutputVectorSizes") << "m_trueStartXVect - is out of sync" << std::endl;
+
+    if (m_outputEvent.m_trueStartYVect.size() != expectedSize)
+        throw cet::exception("EventSelection::ValidateOutputVectorSizes") << "m_trueStartYVect - is out of sync" << std::endl;
+
+    if (m_outputEvent.m_trueStartZVect.size() != expectedSize)
+        throw cet::exception("EventSelection::ValidateOutputVectorSizes") << "m_trueStartZVect - is out of sync" << std::endl;
+
+    if (m_outputEvent.m_nHitsUVect.size() != expectedSize)
+        throw cet::exception("EventSelection::ValidateOutputVectorSizes") << "m_nHitsUVect - is out of sync" << std::endl;
+
+    if (m_outputEvent.m_nHitsVVect.size() != expectedSize)
+        throw cet::exception("EventSelection::ValidateOutputVectorSizes") << "m_nHitsVVect - is out of sync" << std::endl;
+
+    if (m_outputEvent.m_nHitsWVect.size() != expectedSize)
+        throw cet::exception("EventSelection::ValidateOutputVectorSizes") << "m_nHitsWVect - is out of sync" << std::endl;
+
+    if (m_outputEvent.m_trackShowerVect.size() != expectedSize)
+        throw cet::exception("EventSelection::ValidateOutputVectorSizes") << "m_trackShowerVect - is out of sync" << std::endl;
+
+    if (m_outputEvent.m_startXVect.size() != expectedSize)
+        throw cet::exception("EventSelection::ValidateOutputVectorSizes") << "m_startXVect - is out of sync" << std::endl;
+
+    if (m_outputEvent.m_startYVect.size() != expectedSize)
+        throw cet::exception("EventSelection::ValidateOutputVectorSizes") << "m_startYVect - is out of sync" << std::endl;
+
+    if (m_outputEvent.m_startZVect.size() != expectedSize)
+        throw cet::exception("EventSelection::ValidateOutputVectorSizes") << "m_startZVect - is out of sync" << std::endl;
+
+    if (m_outputEvent.m_endXVect.size() != expectedSize)
+        throw cet::exception("EventSelection::ValidateOutputVectorSizes") << "m_endXVect - is out of sync" << std::endl;
+
+    if (m_outputEvent.m_endYVect.size() != expectedSize)
+        throw cet::exception("EventSelection::ValidateOutputVectorSizes") << "m_endYVect - is out of sync" << std::endl;
+
+    if (m_outputEvent.m_endZVect.size() != expectedSize)
+        throw cet::exception("EventSelection::ValidateOutputVectorSizes") << "m_endZVect - is out of sync" << std::endl;
+
+    if (m_outputEvent.m_directionXVect.size() != expectedSize)
+        throw cet::exception("EventSelection::ValidateOutputVectorSizes") << "m_directionXVect - is out of sync" << std::endl;
+
+    if (m_outputEvent.m_directionYVect.size() != expectedSize)
+        throw cet::exception("EventSelection::ValidateOutputVectorSizes") << "m_directionYVect - is out of sync" << std::endl;
+
+    if (m_outputEvent.m_directionZVect.size() != expectedSize)
+        throw cet::exception("EventSelection::ValidateOutputVectorSizes") << "m_directionZVect - is out of sync" << std::endl;
+
+    if (m_outputEvent.m_thetaVect.size() != expectedSize)
+        throw cet::exception("EventSelection::ValidateOutputVectorSizes") << "m_thetaVect - is out of sync" << std::endl;
+
+    if (m_outputEvent.m_phiVect.size() != expectedSize)
+        throw cet::exception("EventSelection::ValidateOutputVectorSizes") << "m_phiVect - is out of sync" << std::endl;
+
+    if (m_outputEvent.m_yzAngleVect.size() != expectedSize)
+        throw cet::exception("EventSelection::ValidateOutputVectorSizes") << "m_yzAngleVect - is out of sync" << std::endl;
+
+    if (m_outputEvent.m_lengthVect.size() != expectedSize)
+        throw cet::exception("EventSelection::ValidateOutputVectorSizes") << "m_lengthVect - is out of sync" << std::endl;
+
+    if (m_outputEvent.m_isContainedVect.size() != expectedSize)
+        throw cet::exception("EventSelection::ValidateOutputVectorSizes") << "m_isContainedVect - is out of sync" << std::endl;
+
+    if (m_outputEvent.m_hasCalorimetryInfoVect.size() != expectedSize)
+        throw cet::exception("EventSelection::ValidateOutputVectorSizes") << "m_hasCalorimetryInfoVect - is out of sync" << std::endl;
+
+    if (m_outputEvent.m_dedxPerHitUVect.size() != expectedSize)
+        throw cet::exception("EventSelection::ValidateOutputVectorSizes") << "m_dedxPerHitUVect - is out of sync" << std::endl;
+
+    if (m_outputEvent.m_dedxPerHitVVect.size() != expectedSize)
+        throw cet::exception("EventSelection::ValidateOutputVectorSizes") << "m_dedxPerHitVVect - is out of sync" << std::endl;
+
+    if (m_outputEvent.m_dedxPerHitWVect.size() != expectedSize)
+        throw cet::exception("EventSelection::ValidateOutputVectorSizes") << "m_dedxPerHitWVect - is out of sync" << std::endl;
+
+    if (m_outputEvent.m_residualRangePerHitUVect.size() != expectedSize)
+        throw cet::exception("EventSelection::ValidateOutputVectorSizes") << "m_residualRangePerHitUVect - is out of sync" << std::endl;
+
+    if (m_outputEvent.m_residualRangePerHitVVect.size() != expectedSize)
+        throw cet::exception("EventSelection::ValidateOutputVectorSizes") << "m_residualRangePerHitVVect - is out of sync" << std::endl;
+
+    if (m_outputEvent.m_residualRangePerHitWVect.size() != expectedSize)
+        throw cet::exception("EventSelection::ValidateOutputVectorSizes") << "m_residualRangePerHitWVect - is out of sync" << std::endl;
+
+    if (m_outputEvent.m_hasPIDInfoVect.size() != expectedSize)
+        throw cet::exception("EventSelection::ValidateOutputVectorSizes") << "m_hasPIDInfoVect - is out of sync" << std::endl;
+
+    if (m_outputEvent.m_isWChi2pAvailableVect.size() != expectedSize)
+        throw cet::exception("EventSelection::ValidateOutputVectorSizes") << "m_isWChi2pAvailableVect - is out of sync" << std::endl;
+
+    if (m_outputEvent.m_chi2pWVect.size() != expectedSize)
+        throw cet::exception("EventSelection::ValidateOutputVectorSizes") << "m_chi2pWVect - is out of sync" << std::endl;
+
+    if (m_outputEvent.m_isUChi2pAvailableVect.size() != expectedSize)
+        throw cet::exception("EventSelection::ValidateOutputVectorSizes") << "m_isUChi2pAvailableVect - is out of sync" << std::endl;
+
+    if (m_outputEvent.m_chi2pUVect.size() != expectedSize)
+        throw cet::exception("EventSelection::ValidateOutputVectorSizes") << "m_chi2pUVect - is out of sync" << std::endl;
+
+    if (m_outputEvent.m_isVChi2pAvailableVect.size() != expectedSize)
+        throw cet::exception("EventSelection::ValidateOutputVectorSizes") << "m_isVChi2pAvailableVect - is out of sync" << std::endl;
+
+    if (m_outputEvent.m_chi2pVVect.size() != expectedSize)
+        throw cet::exception("EventSelection::ValidateOutputVectorSizes") << "m_chi2pVVect - is out of sync" << std::endl;
+
+    if (m_outputEvent.m_isUVChi2pAvailableVect.size() != expectedSize)
+        throw cet::exception("EventSelection::ValidateOutputVectorSizes") << "m_isUVChi2pAvailableVect - is out of sync" << std::endl;
+
+    if (m_outputEvent.m_chi2pUVVect.size() != expectedSize)
+        throw cet::exception("EventSelection::ValidateOutputVectorSizes") << "m_chi2pUVVect - is out of sync" << std::endl;
+
+    if (m_outputEvent.m_isWBraggpAvailableVect.size() != expectedSize)
+        throw cet::exception("EventSelection::ValidateOutputVectorSizes") << "m_isWBraggpAvailableVect - is out of sync" << std::endl;
+
+    if (m_outputEvent.m_braggpWVect.size() != expectedSize)
+        throw cet::exception("EventSelection::ValidateOutputVectorSizes") << "m_braggpWVect - is out of sync" << std::endl;
+
+    if (m_outputEvent.m_isUBraggpAvailableVect.size() != expectedSize)
+        throw cet::exception("EventSelection::ValidateOutputVectorSizes") << "m_isUBraggpAvailableVect - is out of sync" << std::endl;
+
+    if (m_outputEvent.m_braggpUVect.size() != expectedSize)
+        throw cet::exception("EventSelection::ValidateOutputVectorSizes") << "m_braggpUVect - is out of sync" << std::endl;
+
+    if (m_outputEvent.m_isVBraggpAvailableVect.size() != expectedSize)
+        throw cet::exception("EventSelection::ValidateOutputVectorSizes") << "m_isVBraggpAvailableVect - is out of sync" << std::endl;
+
+    if (m_outputEvent.m_braggpVVect.size() != expectedSize)
+        throw cet::exception("EventSelection::ValidateOutputVectorSizes") << "m_braggpVVect - is out of sync" << std::endl;
+
+    if (m_outputEvent.m_isUVBraggpAvailableVect.size() != expectedSize)
+        throw cet::exception("EventSelection::ValidateOutputVectorSizes") << "m_isUVBraggpAvailableVect - is out of sync" << std::endl;
+
+    if (m_outputEvent.m_braggpUVVect.size() != expectedSize)
+        throw cet::exception("EventSelection::ValidateOutputVectorSizes") << "m_braggpUVVect - is out of sync" << std::endl;
+
+    if (m_outputEvent.m_isWBraggpBackwardAvailableVect.size() != expectedSize)
+        throw cet::exception("EventSelection::ValidateOutputVectorSizes") << "m_isWBraggpBackwardAvailableVect - is out of sync" << std::endl;
+
+    if (m_outputEvent.m_braggpBackwardWVect.size() != expectedSize)
+        throw cet::exception("EventSelection::ValidateOutputVectorSizes") << "m_braggpBackwardWVect - is out of sync" << std::endl;
+
+    if (m_outputEvent.m_isUBraggpBackwardAvailableVect.size() != expectedSize)
+        throw cet::exception("EventSelection::ValidateOutputVectorSizes") << "m_isUBraggpBackwardAvailableVect - is out of sync" << std::endl;
+
+    if (m_outputEvent.m_braggpBackwardUVect.size() != expectedSize)
+        throw cet::exception("EventSelection::ValidateOutputVectorSizes") << "m_braggpBackwardUVect - is out of sync" << std::endl;
+
+    if (m_outputEvent.m_isVBraggpBackwardAvailableVect.size() != expectedSize)
+        throw cet::exception("EventSelection::ValidateOutputVectorSizes") << "m_isVBraggpBackwardAvailableVect - is out of sync" << std::endl;
+
+    if (m_outputEvent.m_braggpBackwardVVect.size() != expectedSize)
+        throw cet::exception("EventSelection::ValidateOutputVectorSizes") << "m_braggpBackwardVVect - is out of sync" << std::endl;
+
+    if (m_outputEvent.m_isUVBraggpBackwardAvailableVect.size() != expectedSize)
+        throw cet::exception("EventSelection::ValidateOutputVectorSizes") << "m_isUVBraggpBackwardAvailableVect - is out of sync" << std::endl;
+
+    if (m_outputEvent.m_braggpBackwardUVVect.size() != expectedSize)
+        throw cet::exception("EventSelection::ValidateOutputVectorSizes") << "m_braggpBackwardUVVect - is out of sync" << std::endl;
+
+    if (m_outputEvent.m_isWBraggMIPAvailableVect.size() != expectedSize)
+        throw cet::exception("EventSelection::ValidateOutputVectorSizes") << "m_isWBraggMIPAvailableVect - is out of sync" << std::endl;
+
+    if (m_outputEvent.m_braggMIPWVect.size() != expectedSize)
+        throw cet::exception("EventSelection::ValidateOutputVectorSizes") << "m_braggMIPWVect - is out of sync" << std::endl;
+
+    if (m_outputEvent.m_isUBraggMIPAvailableVect.size() != expectedSize)
+        throw cet::exception("EventSelection::ValidateOutputVectorSizes") << "m_isUBraggMIPAvailableVect - is out of sync" << std::endl;
+
+    if (m_outputEvent.m_braggMIPUVect.size() != expectedSize)
+        throw cet::exception("EventSelection::ValidateOutputVectorSizes") << "m_braggMIPUVect - is out of sync" << std::endl;
+
+    if (m_outputEvent.m_isVBraggMIPAvailableVect.size() != expectedSize)
+        throw cet::exception("EventSelection::ValidateOutputVectorSizes") << "m_isVBraggMIPAvailableVect - is out of sync" << std::endl;
+
+    if (m_outputEvent.m_braggMIPVVect.size() != expectedSize)
+        throw cet::exception("EventSelection::ValidateOutputVectorSizes") << "m_braggMIPVVect - is out of sync" << std::endl;
+
+    if (m_outputEvent.m_isUVBraggMIPAvailableVect.size() != expectedSize)
+        throw cet::exception("EventSelection::ValidateOutputVectorSizes") << "m_isUVBraggMIPAvailableVect - is out of sync" << std::endl;
+
+    if (m_outputEvent.m_braggMIPUVVect.size() != expectedSize)
+        throw cet::exception("EventSelection::ValidateOutputVectorSizes") << "m_braggMIPUVVect - is out of sync" << std::endl;
+
+    if (m_outputEvent.m_isWBraggMIPBackwardAvailableVect.size() != expectedSize)
+        throw cet::exception("EventSelection::ValidateOutputVectorSizes") << "m_isWBraggMIPBackwardAvailableVect - is out of sync" << std::endl;
+
+    if (m_outputEvent.m_braggMIPBackwardWVect.size() != expectedSize)
+        throw cet::exception("EventSelection::ValidateOutputVectorSizes") << "m_braggMIPBackwardWVect - is out of sync" << std::endl;
+
+    if (m_outputEvent.m_isUBraggMIPBackwardAvailableVect.size() != expectedSize)
+        throw cet::exception("EventSelection::ValidateOutputVectorSizes") << "m_isUBraggMIPBackwardAvailableVect - is out of sync" << std::endl;
+
+    if (m_outputEvent.m_braggMIPBackwardUVect.size() != expectedSize)
+        throw cet::exception("EventSelection::ValidateOutputVectorSizes") << "m_braggMIPBackwardUVect - is out of sync" << std::endl;
+
+    if (m_outputEvent.m_isVBraggMIPBackwardAvailableVect.size() != expectedSize)
+        throw cet::exception("EventSelection::ValidateOutputVectorSizes") << "m_isVBraggMIPBackwardAvailableVect - is out of sync" << std::endl;
+
+    if (m_outputEvent.m_braggMIPBackwardVVect.size() != expectedSize)
+        throw cet::exception("EventSelection::ValidateOutputVectorSizes") << "m_braggMIPBackwardVVect - is out of sync" << std::endl;
+
+    if (m_outputEvent.m_isUVBraggMIPBackwardAvailableVect.size() != expectedSize)
+        throw cet::exception("EventSelection::ValidateOutputVectorSizes") << "m_isUVBraggMIPBackwardAvailableVect - is out of sync" << std::endl;
+
+    if (m_outputEvent.m_braggMIPBackwardUVVect.size() != expectedSize)
+        throw cet::exception("EventSelection::ValidateOutputVectorSizes") << "m_braggMIPBackwardUVVect - is out of sync" << std::endl;
+
+    if (m_outputEvent.m_isWBraggRatioAvailableVect.size() != expectedSize)
+        throw cet::exception("EventSelection::ValidateOutputVectorSizes") << "m_isWBraggRatioAvailableVect - is out of sync" << std::endl;
+
+    if (m_outputEvent.m_braggRatioWVect.size() != expectedSize)
+        throw cet::exception("EventSelection::ValidateOutputVectorSizes") << "m_braggRatioWVect - is out of sync" << std::endl;
+
+    if (m_outputEvent.m_isUVBraggRatioAvailableVect.size() != expectedSize)
+        throw cet::exception("EventSelection::ValidateOutputVectorSizes") << "m_isUVBraggRatioAvailableVect - is out of sync" << std::endl;
+
+    if (m_outputEvent.m_braggRatioUVVect.size() != expectedSize)
+        throw cet::exception("EventSelection::ValidateOutputVectorSizes") << "m_braggRatioUVVect - is out of sync" << std::endl;
 }
 
 } // namespace ubcc1pi
