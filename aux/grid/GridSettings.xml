@@ -22,7 +22,7 @@
 <!ENTITY inputDef        "prodgenie_bnb_nu_uboone_overlay_mcc9.0_run1_reco2">
 
 <!-- Job settings -->
-<!ENTITY numJobs         "5"> <!-- 610 -->
+<!ENTITY numJobs         "10"> <!-- 610 -->
 <!ENTITY maxFilesPerJob  "40">
 <!ENTITY numEvents       "9999999">
 <!-- NB. I use large number for numEvents to get all events in the files, it's not really the number of events that will be processed -->

@@ -5,8 +5,9 @@ truth_study:
     module_type: "TruthStudy"
 
     # Input labels
-    MCTruthLabel:    "generator"
-    MCParticleLabel: "largeant"
+    MCTruthLabel:     "generator"
+    MCParticleLabel:  "largeant"
+    BacktrackerLabel: "gaushitTruthMatch"
 }
 
 END_PROLOG

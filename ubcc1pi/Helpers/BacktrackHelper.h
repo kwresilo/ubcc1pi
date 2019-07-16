@@ -326,6 +326,15 @@ class BacktrackHelper
     static HitsToMCParticleWeights GetHitToMCParticleWeightMap(const art::Event &event, const art::InputTag &mcParticleLabel, const art::InputTag &backtrackerLabel, const MCParticleVector &finalStates);
 
     /**
+     *  @brief  Convert the input map from having backtracker hit matching data, to just a float for the MCPartile -> Hit weight
+     *
+     *  @param  mcParticleToHits the input mapping from MCParticles to hits
+     *
+     *  @return the output mapping in the required format
+     */
+    static MCParticlesToHitWeights GetMCParticleToHitWeightsMap(const AssociationData<simb::MCParticle, recob::Hit, anab::BackTrackerHitMatchingData> &mcParticleToHits);
+
+    /**
      *  @brief  Get the mapping from all hits, to whether the hit is induced (at least in part) by a neutrino induced MCParticle
      *
      *  @param  event the art event
@@ -368,6 +377,39 @@ class BacktrackHelper
      *  @return the hit weight
      */
     static float GetHitWeightInView(const art::Ptr<simb::MCParticle> &mcParticle, const AssociationData<simb::MCParticle, recob::Hit, anab::BackTrackerHitMatchingData> &mcParticleToHits, const geo::View_t &view);
+    
+    /**
+     *  @brief  Count the number of hits associated with a given MCParticle in a given view
+     *
+     *  @param  mcParticle the MCParticle in question
+     *  @param  mcParticleToHits the mapping from MCParticles to hits
+     *  @param  view the view to use
+     *
+     *  @return the number of hits
+     */
+    static int CountHitsInView(const art::Ptr<simb::MCParticle> &mcParticle, const MCParticlesToHitWeights &mcParticleToHits, const geo::View_t &view);
+
+    /**
+     *  @brief  Count the number of "good" hits associated with a given MCParticle in a given view for which the MCParticle contributed at least 1/2 of the charge of the hit
+     *
+     *  @param  mcParticle the MCParticle in question
+     *  @param  mcParticleToHits the mapping from MCParticles to hits
+     *  @param  view the view to use
+     *
+     *  @return the number of good hits
+     */
+    static int CountGoodHitsInView(const art::Ptr<simb::MCParticle> &mcParticle, const MCParticlesToHitWeights &mcParticleToHits, const geo::View_t &view);
+
+    /**
+     *  @brief  Count the total hit weight associated with a given MCParticle in a given view
+     *
+     *  @param  mcParticle the MCParticle in question
+     *  @param  mcParticleToHits the mapping from MCParticles to hits
+     *  @param  view the view to use
+     *
+     *  @return the hit weight
+     */
+    static float GetHitWeightInView(const art::Ptr<simb::MCParticle> &mcParticle, const MCParticlesToHitWeights &mcParticleToHits, const geo::View_t &view);
 };
 
 } // namespace ubcc1pi
