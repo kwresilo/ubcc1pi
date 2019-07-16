@@ -124,6 +124,27 @@ HitsToBool BacktrackHelper::GetHitsToIsNuInducedMap(const art::Event &event, con
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
 
+MCParticlesToHitWeights BacktrackHelper::GetMCParticleToHitWeightsMap(const AssociationData<simb::MCParticle, recob::Hit, anab::BackTrackerHitMatchingData>                 &mcParticleToHits)
+{
+    MCParticlesToHitWeights outputMap;
+
+    for (const auto &entry : mcParticleToHits)
+    {
+        const auto mcParticle = entry.first;
+        for (const auto &pair : entry.second)
+        {
+            const auto hit = pair.first;
+            const auto weight = pair.second.ideFraction;
+
+            outputMap[mcParticle].emplace_back(hit, weight);
+        }
+    }
+
+    return outputMap;
+}
+
+// -----------------------------------------------------------------------------------------------------------------------------------------
+
 int BacktrackHelper::CountHitsInView(const art::Ptr<simb::MCParticle> &mcParticle, const AssociationData<simb::MCParticle, recob::Hit, anab::BackTrackerHitMatchingData> &mcParticleToHits, const geo::View_t &view)
 {
     try
@@ -170,6 +191,64 @@ float BacktrackHelper::GetHitWeightInView(const art::Ptr<simb::MCParticle> &mcPa
         {
             if (entry.first->View() == view)
                 hitWeight += entry.second.ideFraction;
+        }
+    }
+    catch (const cet::exception &)
+    {
+        return 0.f;
+    }
+
+    return hitWeight;
+}
+
+// -----------------------------------------------------------------------------------------------------------------------------------------
+
+int BacktrackHelper::CountHitsInView(const art::Ptr<simb::MCParticle> &mcParticle, const MCParticlesToHitWeights &mcParticleToHits, const geo::View_t &view)
+{
+    try
+    {
+        return RecoHelper::CountHitsInView(CollectionHelper::GetManyAssociated(mcParticle, mcParticleToHits), view);
+    }
+    catch (const cet::exception &)
+    {
+        return 0;
+    }
+}
+
+// -----------------------------------------------------------------------------------------------------------------------------------------
+
+int BacktrackHelper::CountGoodHitsInView(const art::Ptr<simb::MCParticle> &mcParticle, const MCParticlesToHitWeights &mcParticleToHits, const geo::View_t &view)
+{
+    HitVector hits;
+
+    try
+    {
+        for (const auto &entry : CollectionHelper::GetManyAssociatedWithData(mcParticle, mcParticleToHits))
+        {
+            if (entry.second > 0.5f)
+                hits.push_back(entry.first);
+        }
+    }
+    catch (const cet::exception &)
+    {
+        return 0;
+    }
+
+    return RecoHelper::CountHitsInView(hits, view);
+}
+
+// -----------------------------------------------------------------------------------------------------------------------------------------
+
+float BacktrackHelper::GetHitWeightInView(const art::Ptr<simb::MCParticle> &mcParticle, const MCParticlesToHitWeights &mcParticleToHits, const geo::View_t &view)
+{
+    float hitWeight = 0.f;
+
+    try
+    {
+        for (const auto &entry : CollectionHelper::GetManyAssociatedWithData(mcParticle, mcParticleToHits))
+        {
+            if (entry.first->View() == view)
+                hitWeight += entry.second;
         }
     }
     catch (const cet::exception &)

@@ -90,8 +90,6 @@ class DebugHelper
          */
         static void Print(const BacktrackHelper::SliceMetadata &sliceMetadata, const unsigned int depth = 0);
 
-    private:
-
         /**
          *  @brief  Print a header line
          *
@@ -118,7 +116,9 @@ class DebugHelper
          */
         template <typename T>
         static void PrintProperty(const std::string &key, const T &value, const unsigned int depth = 0);
-        
+       
+    private:
+
         static unsigned int m_indent;     ///< The number of spaces to an indent
         static unsigned int m_lineWidth;  ///< The number of characters in a horizontal rule
         static unsigned int m_keyWidth;   ///< The number of characters to a key

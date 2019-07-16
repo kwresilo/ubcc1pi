@@ -773,6 +773,7 @@ void EventSelection::SetDummyPIDInfo()
     m_outputEvent.m_isUVBraggMIPAvailableVect.push_back(false);
     m_outputEvent.m_braggMIPUVVect.push_back(-std::numeric_limits<float>::max());
 
+    m_outputEvent.m_isWBraggMIPBackwardAvailableVect.push_back(false);
     m_outputEvent.m_braggMIPBackwardWVect.push_back(-std::numeric_limits<float>::max());
     m_outputEvent.m_isUBraggMIPBackwardAvailableVect.push_back(false);
     m_outputEvent.m_braggMIPBackwardUVect.push_back(-std::numeric_limits<float>::max());

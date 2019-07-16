@@ -20,6 +20,13 @@ void DebugHelper::Print(const art::Ptr<simb::MCParticle> &particle, const unsign
     DebugHelper::PrintProperty("ID", particle->TrackId(), depth);
     DebugHelper::PrintProperty("PDG", particle->PdgCode(), depth);
     DebugHelper::PrintProperty("Momentum", particle->P(), depth);
+    DebugHelper::PrintProperty("Time", particle->T(), depth);
+    DebugHelper::PrintProperty("Process", particle->Process(), depth);
+    DebugHelper::PrintProperty("End Time", particle->EndT(), depth);
+    DebugHelper::PrintProperty("End Process", particle->EndProcess(), depth);
+    DebugHelper::PrintProperty("Lifetime", particle->EndT() - particle->T(), depth);
+    DebugHelper::PrintProperty("Length", (particle->EndPosition() - particle->Position()).Vect().Mag(), depth);
+    DebugHelper::PrintProperty("Depth", depth, depth);
 }
 
 // -----------------------------------------------------------------------------------------------------------------------------------------

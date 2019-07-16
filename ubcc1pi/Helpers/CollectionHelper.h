@@ -58,6 +58,7 @@ typedef Collection<anab::Calorimetry> CalorimetryVector; ///< A collection of Ca
 
 typedef Association<recob::Hit, recob::PFParticle> HitsToPFParticles;                  ///< Association from Hit to PFParticle
 typedef AssociationData<recob::Hit, simb::MCParticle, float> HitsToMCParticleWeights;  ///< Association from Hit to MCParticle along with the charge contribution weight
+typedef AssociationData<simb::MCParticle, recob::Hit, float> MCParticlesToHitWeights;  ///< Association from MCParticle to Hits along with the charge contribution weight
 typedef Association<recob::Slice, recob::Hit> SlicesToHits;                            ///< Association from Slice to Hit
 typedef Association<recob::Slice, recob::PFParticle> SlicesToPFParticles;              ///< Association from Slice to PFParticle
 typedef Association<recob::PFParticle, recob::Hit> PFParticleToHits;                   ///< Association from PFParticle to Hit
