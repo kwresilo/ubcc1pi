@@ -19,10 +19,10 @@
 -->
 
 <!-- Input files -->
-<!ENTITY inputDef        "prodgenie_bnb_nu_uboone_overlay_mcc9.0_run1_reco2">
+<!ENTITY inputDef        "prodgenie_bnb_nu_uboone_overlay_mcc9.1_run1_reco2">
 
 <!-- Job settings -->
-<!ENTITY numJobs         "10"> <!-- 610 -->
+<!ENTITY numJobs         "10"> <!-- 605 jobs total at 40 files / job (24198 files) --> 
 <!ENTITY maxFilesPerJob  "40">
 <!ENTITY numEvents       "9999999">
 <!-- NB. I use large number for numEvents to get all events in the files, it's not really the number of events that will be processed -->
@@ -47,6 +47,9 @@
 
 <!ENTITY eventSelectionName  "eventSelection">
 <!ENTITY eventSelectionFcl   "event_selection_driver.fcl">
+
+<!ENTITY energyEstimatorName  "energyEstimator">
+<!ENTITY energyEstimatorFcl   "energy_estimator_driver.fcl">
 
 ]>
 
@@ -141,6 +144,30 @@
         <outdir>/pnfs/uboone/scratch/users/&username;/&projectName;/&eventSelectionName;/</outdir> 
         <logdir>/pnfs/uboone/scratch/users/&username;/&projectName;/&eventSelectionName;/</logdir> 
         <workdir>/pnfs/uboone/resilient/users/&username;/work/&projectName;/&eventSelectionName;/</workdir> 
+
+        <!-- Options -->
+        <datatier>&dataTier;</datatier>
+        <schema>&schema;</schema>
+    </stage>
+    
+    
+    <!-- =============================================================================================================================== -->
+    <!-- Energy Estimator -->
+    <!-- =============================================================================================================================== -->
+    <stage name="&energyEstimatorName;">
+        <!-- Settings -->
+        <fcl>&energyEstimatorFcl;</fcl>
+        <numjobs>&numJobs;</numjobs>
+        <maxfilesperjob>&maxFilesPerJob;</maxfilesperjob>
+        <numevents>&numEvents;</numevents>
+
+        <!-- Input files -->
+        <inputdef>&inputDef;</inputdef>
+
+        <!-- Output directories -->
+        <outdir>/pnfs/uboone/scratch/users/&username;/&projectName;/&energyEstimatorName;/</outdir> 
+        <logdir>/pnfs/uboone/scratch/users/&username;/&projectName;/&energyEstimatorName;/</logdir> 
+        <workdir>/pnfs/uboone/resilient/users/&username;/work/&projectName;/&energyEstimatorName;/</workdir> 
 
         <!-- Options -->
         <datatier>&dataTier;</datatier>

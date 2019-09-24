@@ -62,6 +62,8 @@ typedef AssociationData<simb::MCParticle, recob::Hit, float> MCParticlesToHitWei
 typedef Association<recob::Slice, recob::Hit> SlicesToHits;                            ///< Association from Slice to Hit
 typedef Association<recob::Slice, recob::PFParticle> SlicesToPFParticles;              ///< Association from Slice to PFParticle
 typedef Association<recob::PFParticle, recob::Hit> PFParticleToHits;                   ///< Association from PFParticle to Hit
+typedef Association<recob::PFParticle, recob::Track> PFParticleToTracks;               ///< Association from PFParticle to Tracks
+typedef Association<recob::PFParticle, recob::PFParticle> PFParticleToPFParticles;     ///< Association from PFParticle to PFParticles
                 
 typedef std::unordered_map<art::Ptr<recob::Hit>, bool> HitsToBool;                     ///< Mapping from Hit to boolean
 typedef std::unordered_map<art::Ptr<recob::Slice>, bool> SlicesToBool;                 ///< Mapping from Slice to boolean

@@ -1,0 +1,55 @@
+#include "energy_estimator_study.fcl"
+#include "reco_uboone_mcc9_8_driver_stage2.fcl"
+
+process_name: EnergyEstimator
+
+source:
+{
+    module_type:                RootInput
+    maxEvents:                 -1
+    saveMemoryObjectThreshold:  0
+}
+
+services.TFileService: {fileName: "energyEstimator.root"}
+
+physics:
+{
+    producers:
+    {
+        pandoraAllAsTrack:           @local::microboone_pandoraTrackCreation
+        pandoraAllAsTrackCaloSCE:    @local::microboone_reco_mcc8_producers.pandoracaloSCE
+        pandoraAllAsTrackCaliSCE:    @local::microboone_reco_mcc8_producers.pandoracaliSCE
+        pandoraAllAsTrackCaliPidSCE: @local::microboone_reco_mcc8_producers.pandoracalipidSCE
+    }
+
+    analyzers:
+    {
+        energyEstimator: @local::energy_estimator_study
+    }
+
+    reco: [ pandoraAllAsTrack, pandoraAllAsTrackCaloSCE, pandoraAllAsTrackCaliSCE, pandoraAllAsTrackCaliPidSCE ]
+    ana: [ energyEstimator ]
+
+    trigger_paths: [ reco ]
+    end_paths: [ ana ]
+}
+
+physics.producers.pandoraAllAsTrack.PFParticleLabel:                  "pandora"
+physics.producers.pandoraAllAsTrack.UseAllParticles:                  true
+
+physics.producers.pandoraAllAsTrackCaloSCE.TrackModuleLabel:          "pandoraAllAsTrack"
+
+physics.producers.pandoraAllAsTrackCaliSCE.TrackModuleLabel:          "pandoraAllAsTrack"
+physics.producers.pandoraAllAsTrackCaliSCE.CalorimetryModuleLabel:    "pandoraAllAsTrackCaloSCE"
+
+physics.producers.pandoraAllAsTrackCaliPidSCE.TrackModuleLabel:       "pandoraAllAsTrack"
+physics.producers.pandoraAllAsTrackCaliPidSCE.CalorimetryModuleLabel: "pandoraAllAsTrackCaliSCE"
+         
+physics.producers.pandoraAllAsTrackCaliPidSCE.ProducerLabels.CaloTrackAssn:    "pandoraAllAsTrackCaliSCE"
+physics.producers.pandoraAllAsTrackCaliPidSCE.ProducerLabels.CalorimetryLabel: "pandoraAllAsTrackCaliSCE"
+physics.producers.pandoraAllAsTrackCaliPidSCE.ProducerLabels.HitTrackAssn:     "pandoraAllAsTrack"
+physics.producers.pandoraAllAsTrackCaliPidSCE.ProducerLabels.TrackLabel:       "pandoraAllAsTrack"
+
+physics.analyzers.energyEstimator.TrackLabel:         "pandoraAllAsTrack"
+physics.analyzers.energyEstimator.CalorimetryLabel:   "pandoraAllAsTrackCaliSCE"
+physics.analyzers.energyEstimator.PIDLabel:           "pandoraAllAsTrackCaliPidSCE"

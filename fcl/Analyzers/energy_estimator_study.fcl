@@ -1,0 +1,17 @@
+BEGIN_PROLOG
+
+energy_estimator_study:
+{
+    module_type: "EnergyEstimator"
+
+    # Input labels
+    MCTruthLabel:      "generator"
+    MCParticleLabel:   "largeant"
+    BacktrackerLabel:  "gaushitTruthMatch"
+    PFParticleLabel:   "pandora"
+    TrackLabel:        "pandora"
+    CalorimetryLabel:  "pandoracaliSCE"
+    PIDLabel:          "pandoracalipidSCE"
+}
+
+END_PROLOG
