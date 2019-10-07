@@ -24,4 +24,4 @@ mrbslp
 
 ## Documentation
 
-Please see <https://a-d-smith.github.io/ubcc1pi/> for documentation of the master branch. Or look in [/docs/](docs/) to build your own.
+Please see <https://a-d-smith.github.io/ubcc1pi/> for documentation (may be out of date). Or look in [/docs/](docs/) to build your own.
