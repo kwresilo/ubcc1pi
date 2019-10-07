@@ -20,6 +20,8 @@ doxygen Doxyfile &> /dev/null
 N_ISSUES=`wc -l warnings.txt | cut -d ' ' -f 1`
 if [ $N_ISSUES -eq 0 ]; then
     echo; echo "No issues found! Safe to push :)"
+    echo "To add the documentation to the next commit use:"
+    echo "git add --force html/"
     exit 0
 fi
 echo; echo "There were $N_ISSUES issues with the documentation :("

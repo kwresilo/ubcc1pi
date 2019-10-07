@@ -12,6 +12,10 @@ cd ubcc1pi/docs
 # If you are developing the code... if there is any undocumented code, this script will tell you what and where you need to document!
 # Please do that, and then re-run makedox 
 
+# By default the html output is ignored by git so diffs containing C++ changes aren't obscured by documentation updates. To add the new
+# documentation forcefully run:
+git add --force html/
+
 # View the documentation in your web browser
 #     Please note, if you are using an ssh session then this will open up firefox on the remote machine.
 #     You may prefer to copy the docs to your local machine, or if you just need the master branch - view the docs hosted above.
