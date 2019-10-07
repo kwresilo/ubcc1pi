@@ -70,12 +70,12 @@ class PFParticleHierarchy : public art::EDProducer
         void produce(art::Event &event);
 
     private:
-        typedef std::unordered_map<art::Ptr<recob::PFParticle>, std::vector<TVector3> > PFParticlesToPoints;
-        typedef AssociationData<recob::PFParticle, recob::PFParticle, float> PFParticlePairSeparationMap;
-        typedef AssociationData<recob::PFParticle, recob::PFParticle, TVector3> PFParticlePairMatchPositionMap;
-        typedef std::unordered_map<art::Ptr<recob::PFParticle>, float> PFParticleToFloatMap;
-        typedef std::unordered_map<art::Ptr<recob::PFParticle>, size_t> PFParticleToIndexMap;
-        typedef std::unordered_map<size_t, size_t> IdToIdMap;
+        typedef std::unordered_map<art::Ptr<recob::PFParticle>, std::vector<TVector3> > PFParticlesToPoints;     ///< Mapping from PFParticle to 3D point
+        typedef AssociationData<recob::PFParticle, recob::PFParticle, float> PFParticlePairSeparationMap;        ///< Mapping from PFParticle pairs to float (used to hold separation)
+        typedef AssociationData<recob::PFParticle, recob::PFParticle, TVector3> PFParticlePairMatchPositionMap;  ///< Mapping from PFParticle pairs to a 3D point
+        typedef std::unordered_map<art::Ptr<recob::PFParticle>, float> PFParticleToFloatMap;                     ///< Mapping from PFParticle to float
+        typedef std::unordered_map<art::Ptr<recob::PFParticle>, size_t> PFParticleToIndexMap;                    ///< Mapping from PFParticle to size_t (used to ghold PFP incides)
+        typedef std::unordered_map<size_t, size_t> IdToIdMap;                                                    ///< Mapping between size_t's (used to hold PFP ID relationships)
 
         /**
          *  @brief  The match point class
@@ -143,8 +143,8 @@ class PFParticleHierarchy : public art::EDProducer
                 PFParticleToFloatMap        m_pfParticleDistances; ///< The cached distances of PFParticles to this point
         };
         
-        typedef std::vector<std::shared_ptr<MatchPoint> > MatchPointVector;
-        typedef std::map<art::Ptr<recob::PFParticle>, std::shared_ptr<MatchPoint> > PFParticleToMatchPointMap;
+        typedef std::vector<std::shared_ptr<MatchPoint> > MatchPointVector;                                     ///< Vector of match points
+        typedef std::map<art::Ptr<recob::PFParticle>, std::shared_ptr<MatchPoint> > PFParticleToMatchPointMap;  ///< Mapping from PFParticles to match points
 
         /**
          *  @brief  Collect the neutrino induced PFParticles from the event
