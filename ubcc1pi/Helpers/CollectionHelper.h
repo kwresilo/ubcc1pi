@@ -25,6 +25,7 @@
 #include "lardataobj/RecoBase/Shower.h"
 #include "lardataobj/RecoBase/PFParticleMetadata.h"
 #include "lardataobj/RecoBase/Vertex.h"
+#include "lardataobj/RecoBase/SpacePoint.h"
 
 #include "lardataobj/AnalysisBase/ParticleID.h"
 #include "lardataobj/AnalysisBase/BackTrackerMatchingData.h"
@@ -309,8 +310,12 @@ inline Collection<R> CollectionHelper::GetManyAssociated(const art::Ptr<L> &obje
 {
     const auto iter = association.find(objectL);
 
+    // ATTN previously threw here. Changed, but need to test if this impacts any existing modules
     if (iter == association.end())
-        throw cet::exception("CollectionHelper::GetManyAssociated") << " - No association entry found for the input object." << std::endl;
+    {
+        return Collection<R>();
+        //throw cet::exception("CollectionHelper::GetManyAssociated") << " - No association entry found for the input object." << std::endl;
+    }
 
     return iter->second;
 }
@@ -425,8 +430,12 @@ inline CollectionData<R, D> CollectionHelper::GetManyAssociatedWithData(const ar
 {
     const auto iter = association.find(objectL);
 
+    // ATTN previously threw here. Changed, but need to test if this impacts any existing modules
     if (iter == association.end())
-        throw cet::exception("CollectionHelper::GetManyAssociated") << " - No association entry found for the input object." << std::endl;
+    {
+        return CollectionData<R, D>();
+        //throw cet::exception("CollectionHelper::GetManyAssociated") << " - No association entry found for the input object." << std::endl;
+    }
 
     return iter->second;
 }

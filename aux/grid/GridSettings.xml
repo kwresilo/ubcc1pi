@@ -10,7 +10,7 @@
 <!ENTITY username        "asmith">
 
 <!-- LArSoft version -->
-<!ENTITY tag             "v08_00_00_13">
+<!ENTITY tag             "v08_00_00_18">
 <!ENTITY qual            "e17:prof">
 
 <!--
@@ -22,7 +22,7 @@
 <!ENTITY inputDef        "prodgenie_bnb_nu_uboone_overlay_mcc9.1_run1_reco2">
 
 <!-- Job settings -->
-<!ENTITY numJobs         "10"> <!-- 605 jobs total at 40 files / job (24198 files) --> 
+<!ENTITY numJobs         "605"> <!-- 605 jobs total at 40 files / job (24198 files) --> 
 <!ENTITY maxFilesPerJob  "40">
 <!ENTITY numEvents       "9999999">
 <!-- NB. I use large number for numEvents to get all events in the files, it's not really the number of events that will be processed -->

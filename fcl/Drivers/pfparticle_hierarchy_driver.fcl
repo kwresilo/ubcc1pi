@@ -1,0 +1,33 @@
+#include "pfparticle_hierarchy.fcl"
+#include "reco_uboone_mcc9_8_driver_stage2.fcl"
+
+process_name: PFParticleHierarchy
+
+source:
+{
+    module_type:                RootInput
+    maxEvents:                 -1
+    saveMemoryObjectThreshold:  0
+}
+
+services.TFileService: {fileName: "pfparticleHierarchy.root"}
+
+outputs.out1.fileName: "%ifb_%tc_pfpHierarchy.root"
+
+physics:
+{
+    producers:
+    {
+        pfParticleHierarchy: @local::pfparticle_hierarchy
+    }
+
+    analyzers:
+    {
+    }
+
+    reco: [ pfParticleHierarchy ]
+    stream1: [ out1 ]
+
+    trigger_paths: [ reco ]
+    end_paths: [ stream1 ]
+}

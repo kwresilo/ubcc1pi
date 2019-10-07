@@ -23,6 +23,16 @@ PFParticleMap RecoHelper::GetPFParticleMap(const PFParticleVector &allPFParticle
 }
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
+        
+bool RecoHelper::IsNeutrino(const art::Ptr<recob::PFParticle> &pfParticle)
+{
+    const auto pdg = std::abs(pfParticle->PdgCode());
+    return (pdg == 12 ||  // Nue
+            pdg == 14 ||  // Numu
+            pdg == 16 );  // Nutau
+}
+
+// -----------------------------------------------------------------------------------------------------------------------------------------
 
 PFParticleVector RecoHelper::GetNeutrinos(const PFParticleVector &allPFParticles)
 {
@@ -30,13 +40,8 @@ PFParticleVector RecoHelper::GetNeutrinos(const PFParticleVector &allPFParticles
 
     for (const auto &particle : allPFParticles)
     {
-        const auto pdg = particle->PdgCode();
-        if (pdg == 12 || // Nue
-            pdg == 14 || // Numu
-            pdg == 16 )  // Nutau
-        {
+        if (RecoHelper::IsNeutrino(particle))
             neutrinos.push_back(particle);
-        }
     }
             
     return neutrinos;

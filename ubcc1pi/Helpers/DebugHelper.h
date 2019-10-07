@@ -65,6 +65,14 @@ class DebugHelper
         static void Print(const art::Ptr<recob::PFParticle> &particle, const unsigned int depth = 0);
 
         /**
+         *  @brief  Print a vector of PFParticles
+         *
+         *  @param  particles the PFParticles to print
+         *  @param  depth the number of indents to use, for hierarchical information
+         */
+        static void Print(const PFParticleVector &particles, const unsigned int depth = 0);
+
+        /**
          *  @brief  Print backtracker data
          *
          *  @param  data the backtracker data to print

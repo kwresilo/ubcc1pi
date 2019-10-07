@@ -37,6 +37,15 @@ class RecoHelper
         static PFParticleMap GetPFParticleMap(const PFParticleVector &allPFParticles);
 
         /**
+         *  @brief  Check if the input PFParticle is a reconstructed neutrino 
+         *
+         *  @param  pfParticle the input PFParticle
+         *
+         *  @return if the particle is a neutrino
+         */
+        static bool IsNeutrino(const art::Ptr<recob::PFParticle> &pfParticle);
+
+        /**
          *  @brief  Get all neutrino PFParticles in the input list
          *
          *  @param  allPFParticles the input vector of PFParticles

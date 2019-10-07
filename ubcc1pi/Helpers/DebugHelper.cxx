@@ -187,7 +187,16 @@ void DebugHelper::Print(const art::Ptr<recob::PFParticle> &particle, const unsig
 {
     DebugHelper::PrintHeader("PFParticle", depth);
     DebugHelper::PrintProperty("ID", particle->Self(), depth);
+    DebugHelper::PrintProperty("Parent", particle->Parent(), depth);
     DebugHelper::PrintProperty("PDG", particle->PdgCode(), depth);
+}
+
+// -----------------------------------------------------------------------------------------------------------------------------------------
+        
+void DebugHelper::Print(const PFParticleVector &particles, const unsigned int depth)
+{
+    for (const auto &particle : particles)
+        DebugHelper::Print(particle, depth);
 }
 
 // -----------------------------------------------------------------------------------------------------------------------------------------

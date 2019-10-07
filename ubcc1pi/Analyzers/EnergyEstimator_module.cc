@@ -91,9 +91,6 @@ void EnergyEstimator::analyze(const art::Event &event)
     {
         this->ResetParticleTree();
 
-        std::cout << "Final state" << std::endl;
-        std::cout << "  - Reco PDG : " << pfParticle->PdgCode() << std::endl;
-
         // Get the matched MCParticle
         art::Ptr<simb::MCParticle> matchedMCParticle;
         try
