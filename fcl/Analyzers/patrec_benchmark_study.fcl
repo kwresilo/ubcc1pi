@@ -1,0 +1,17 @@
+BEGIN_PROLOG
+
+patrec_benchmark_study:
+{
+    module_type: "PatrecBenchmarkStudy"
+
+    # Input labels
+    MCTruthLabel:             "generator"
+    MCParticleLabel:          "largeant"
+    BacktrackerLabel:         "gaushitTruthMatch"
+    PFParticleLabel:          "pandora"
+    AlternatePFParticleLabel: "pfParticleHierarchy"
+    SliceLabel:               "pandora"
+    HitLabel:                 "gaushit"
+}
+
+END_PROLOG

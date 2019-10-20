@@ -63,6 +63,7 @@ class AnalysisHelper
          */
         static MCParticleVector GetPrimaryParticles(const TruthHelper::Interaction &interaction);
 
+        // TODO fill in final doxygen!
         /**
          *  @brief  
          *
@@ -108,7 +109,7 @@ class AnalysisHelper
          *  @return 
          */
         static unsigned int CountParticlesWithPDG(const MCParticleVector &particles, const int pdg);
-
+        
         /**
          *  @brief  
          *
@@ -121,6 +122,20 @@ class AnalysisHelper
          *  @return 
          */
         static BacktrackHelper::BacktrackerData GetBacktrackerData(const art::Event &event, const art::InputTag &mcTruthLabel, const art::InputTag &mcParticleLabel, const art::InputTag &backtrackerLabel, const art::InputTag &pfParticleLabel);
+
+        /**
+         *  @brief  
+         *
+         *  @param  event
+         *  @param  mcTruthLabel
+         *  @param  mcParticleLabel
+         *  @param  backtrackerLabel
+         *  @param  pfParticleLabel
+         *  @param  alternatePFParticleLabel
+         *
+         *  @return 
+         */
+        static BacktrackHelper::BacktrackerData GetBacktrackerData(const art::Event &event, const art::InputTag &mcTruthLabel, const art::InputTag &mcParticleLabel, const art::InputTag &backtrackerLabel, const art::InputTag &pfParticleLabel, const art::InputTag &alternatePFParticleLabel);
 
         /**
          *  @brief  

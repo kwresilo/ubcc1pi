@@ -73,8 +73,11 @@ bool AnalysisHelper::PassesMomentumThreshold(const art::Ptr<simb::MCParticle> &p
 {
     // The mapping from PDG code to momentum threshold (GeV)
     std::map<int, float> pdgToThresholdMap;
-    pdgToThresholdMap.emplace(2212, 0.3);
+
+    // Neutrons are never considered to be reconstructable by having an "infinite" momentum threshold 
     pdgToThresholdMap.emplace(2112, std::numeric_limits<float>::max());
+
+    // pdgToThresholdMap.emplace(2212, 0.3); // ATTN. Here we can apply a momentum threshold to the protons in the signal definition
 
     // If we haven't specified this PDG code then assume the threshold is zero - the particle passes by default
     const auto iter = pdgToThresholdMap.find(particle->PdgCode());
@@ -228,13 +231,20 @@ unsigned int AnalysisHelper::CountParticlesWithPDG(const MCParticleVector &parti
 
 BacktrackHelper::BacktrackerData AnalysisHelper::GetBacktrackerData(const art::Event &event, const art::InputTag &mcTruthLabel, const art::InputTag &mcParticleLabel, const art::InputTag &backtrackerLabel, const art::InputTag &pfParticleLabel)
 {
+    return AnalysisHelper::GetBacktrackerData(event, mcTruthLabel, mcParticleLabel, backtrackerLabel, pfParticleLabel, pfParticleLabel);
+}
+
+// -----------------------------------------------------------------------------------------------------------------------------------------
+
+BacktrackHelper::BacktrackerData AnalysisHelper::GetBacktrackerData(const art::Event &event, const art::InputTag &mcTruthLabel, const art::InputTag &mcParticleLabel, const art::InputTag &backtrackerLabel, const art::InputTag &pfParticleLabel, const art::InputTag &alternatePFParticleLabel)
+{
     const TruthHelper::Interaction interaction(event, mcTruthLabel, mcParticleLabel);
-    const auto allPFParticles = CollectionHelper::GetCollection<recob::PFParticle>(event, pfParticleLabel);
+    const auto allPFParticles = CollectionHelper::GetCollection<recob::PFParticle>(event, alternatePFParticleLabel);
 
     const auto finalStatePFParticles = RecoHelper::GetNeutrinoFinalStates(allPFParticles);
     const auto finalStateMCParticles = AnalysisHelper::GetReconstructableFinalStates(interaction);
 
-    const auto hitsToPfps = BacktrackHelper::GetHitToPFParticleMap(event, pfParticleLabel, finalStatePFParticles);
+    const auto hitsToPfps = BacktrackHelper::GetHitToPFParticleMap(event, pfParticleLabel, alternatePFParticleLabel, finalStatePFParticles);
     const auto hitsToMcps = BacktrackHelper::GetHitToMCParticleWeightMap(event, mcParticleLabel, backtrackerLabel, finalStateMCParticles);
 
     return BacktrackHelper::BacktrackerData(finalStatePFParticles, finalStateMCParticles, hitsToPfps, hitsToMcps);

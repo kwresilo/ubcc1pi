@@ -45,6 +45,9 @@
 <!ENTITY pidStudyName    "pidStudy">
 <!ENTITY pidStudyFcl     "pid_study_driver_all_as_tracks.fcl">
 
+<!ENTITY patrecBenchmarkStudyName    "patrecBenchmarkStudy">
+<!ENTITY patrecBenchmarkStudyFcl     "patrec_benchmark_study_driver.fcl">
+
 <!ENTITY eventSelectionName  "eventSelection">
 <!ENTITY eventSelectionFcl   "event_selection_driver.fcl">
 
@@ -121,6 +124,29 @@
         <outdir>/pnfs/uboone/scratch/users/&username;/&projectName;/&pidStudyName;/</outdir> 
         <logdir>/pnfs/uboone/scratch/users/&username;/&projectName;/&pidStudyName;/</logdir> 
         <workdir>/pnfs/uboone/resilient/users/&username;/work/&projectName;/&pidStudyName;/</workdir> 
+
+        <!-- Options -->
+        <datatier>&dataTier;</datatier>
+        <schema>&schema;</schema>
+    </stage>
+    
+    <!-- =============================================================================================================================== -->
+    <!-- Patrec Benchmark study -->
+    <!-- =============================================================================================================================== -->
+    <stage name="&patrecBenchmarkStudyName;">
+        <!-- Settings -->
+        <fcl>&patrecBenchmarkStudyFcl;</fcl>
+        <numjobs>&numJobs;</numjobs>
+        <maxfilesperjob>&maxFilesPerJob;</maxfilesperjob>
+        <numevents>&numEvents;</numevents>
+
+        <!-- Input files -->
+        <inputdef>&inputDef;</inputdef>
+
+        <!-- Output directories -->
+        <outdir>/pnfs/uboone/scratch/users/&username;/&projectName;/&patrecBenchmarkStudyName;/</outdir> 
+        <logdir>/pnfs/uboone/scratch/users/&username;/&projectName;/&patrecBenchmarkStudyName;/</logdir> 
+        <workdir>/pnfs/uboone/resilient/users/&username;/work/&projectName;/&patrecBenchmarkStudyName;/</workdir> 
 
         <!-- Options -->
         <datatier>&dataTier;</datatier>
