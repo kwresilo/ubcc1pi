@@ -15,8 +15,15 @@ class Particle
         TVector3 start;
         TVector3 end;
         TVector3 direction;
-        float chi2pW;
-        float chi2pUV;
+        float length;
+        float braggpW;
+        float braggMIPW;
+        float braggpUV;
+        float braggMIPUV;
+        bool hasMatchedMCParticle;
+        int truePdgCode;
+        float truthMatchPurity;
+        float truthMatchCompleteness;
 };
 
 // =========================================================================================================================================
@@ -81,6 +88,13 @@ class EventManager
         bool isTrueNuFiducial = false;
         bool isSignal = false;
         float trueNuE = -std::numeric_limits<float>::max();
+        float trueMuEnergy = -std::numeric_limits<float>::max();
+        float trueMuTheta = -std::numeric_limits<float>::max();
+        float trueMuPhi = -std::numeric_limits<float>::max();
+        float truePiEnergy = -std::numeric_limits<float>::max();
+        float truePiTheta = -std::numeric_limits<float>::max();
+        float truePiPhi = -std::numeric_limits<float>::max();
+        float trueMuPiAngle = -std::numeric_limits<float>::max();
         int nMuMinus = -std::numeric_limits<int>::max();
         int nMuPlus = -std::numeric_limits<int>::max();
         int nPiPlus = -std::numeric_limits<int>::max();
@@ -126,6 +140,7 @@ class EventManager
         // Particle info
         std::vector<bool> *hasTrackInfoVect = nullptr;
         std::vector<bool> *isContainedVect = nullptr;
+        std::vector<float> *lengthVect = nullptr;
         std::vector<float> *startXVect = nullptr;
         std::vector<float> *startYVect = nullptr;
         std::vector<float> *startZVect = nullptr;
@@ -136,9 +151,14 @@ class EventManager
         std::vector<float> *directionYVect = nullptr;
         std::vector<float> *directionZVect = nullptr;
         std::vector<float> *trackShowerVect = nullptr;
-        std::vector<float> *chi2pWVect = nullptr;
-        std::vector<float> *chi2pUVVect = nullptr;
-        
+        std::vector<float> *braggpWVect = nullptr;
+        std::vector<float> *braggMIPWVect = nullptr;
+        std::vector<float> *braggpUVVect = nullptr;
+        std::vector<float> *braggMIPUVVect = nullptr;
+        std::vector<bool> *hasMatchedMCParticleVect = nullptr;
+        std::vector<int> *truePdgCodeVect = nullptr;
+        std::vector<float> *truthMatchPurityVect = nullptr;
+        std::vector<float> *truthMatchCompletenessVect = nullptr;
 };
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
@@ -184,6 +204,13 @@ void EventManager::SetBranchAddresses()
     m_tree->SetBranchAddress("isTrueNuFiducial", &isTrueNuFiducial);
     m_tree->SetBranchAddress("isSignal", &isSignal);
     m_tree->SetBranchAddress("trueNuE", &trueNuE);
+    m_tree->SetBranchAddress("trueMuEnergy", &trueMuEnergy);
+    m_tree->SetBranchAddress("trueMuTheta", &trueMuTheta);
+    m_tree->SetBranchAddress("trueMuPhi", &trueMuPhi);
+    m_tree->SetBranchAddress("truePiEnergy", &truePiEnergy);
+    m_tree->SetBranchAddress("truePiTheta", &truePiTheta);
+    m_tree->SetBranchAddress("truePiPhi", &truePiPhi);
+    m_tree->SetBranchAddress("trueMuPiAngle", &trueMuPiAngle);
     m_tree->SetBranchAddress("nMuMinus", &nMuMinus);
     m_tree->SetBranchAddress("nMuPlus", &nMuPlus);
     m_tree->SetBranchAddress("nPiPlus", &nPiPlus);
@@ -201,6 +228,7 @@ void EventManager::SetBranchAddresses()
     m_tree->SetBranchAddress("nFinalStatePFPs", &nFinalStatePFPs);
     m_tree->SetBranchAddress("recoNuVtx", &recoNuVtx);
     m_tree->SetBranchAddress("hasTrackInfoVect", &hasTrackInfoVect);
+    m_tree->SetBranchAddress("lengthVect", &lengthVect);
     m_tree->SetBranchAddress("isContainedVect", &isContainedVect);
     m_tree->SetBranchAddress("startXVect", &startXVect);
     m_tree->SetBranchAddress("startYVect", &startYVect);
@@ -212,8 +240,14 @@ void EventManager::SetBranchAddresses()
     m_tree->SetBranchAddress("directionYVect", &directionYVect);
     m_tree->SetBranchAddress("directionZVect", &directionZVect);
     m_tree->SetBranchAddress("trackShowerVect", &trackShowerVect);
-    m_tree->SetBranchAddress("chi2pWVect", &chi2pWVect);
-    m_tree->SetBranchAddress("chi2pUVVect", &chi2pUVVect);
+    m_tree->SetBranchAddress("braggpWVect", &braggpWVect);
+    m_tree->SetBranchAddress("braggMIPWVect", &braggMIPWVect);
+    m_tree->SetBranchAddress("braggpUVVect", &braggpUVVect);
+    m_tree->SetBranchAddress("braggMIPUVVect", &braggMIPUVVect);
+    m_tree->SetBranchAddress("hasMatchedMCParticleVect", &hasMatchedMCParticleVect);
+    m_tree->SetBranchAddress("truePdgCodeVect", &truePdgCodeVect);
+    m_tree->SetBranchAddress("truthMatchPurityVect", &truthMatchPurityVect);
+    m_tree->SetBranchAddress("truthMatchCompletenessVect", &truthMatchCompletenessVect);
 }
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
@@ -231,12 +265,19 @@ void EventManager::LoadEvent(const unsigned int eventIndex)
         p.index = index;
         p.trackShower = trackShowerVect->at(index);
         p.hasTrackInfo = hasTrackInfoVect->at(index);
+        p.length = lengthVect->at(index);
         p.isContained = isContainedVect->at(index);
         p.start = TVector3(startXVect->at(index), startYVect->at(index), startZVect->at(index));
         p.end = TVector3(endXVect->at(index), endYVect->at(index), endZVect->at(index));
         p.direction = TVector3(directionXVect->at(index), directionYVect->at(index), directionZVect->at(index));
-        p.chi2pW = chi2pWVect->at(index);
-        p.chi2pUV = chi2pUVVect->at(index);
+        p.braggpW = braggpWVect->at(index);
+        p.braggMIPW = braggMIPWVect->at(index);
+        p.braggpUV = braggpUVVect->at(index);
+        p.braggMIPUV = braggMIPUVVect->at(index);
+        p.hasMatchedMCParticle = hasMatchedMCParticleVect->at(index);
+        p.truePdgCode = truePdgCodeVect->at(index);
+        p.truthMatchPurity = truthMatchPurityVect->at(index);
+        p.truthMatchCompleteness = truthMatchCompletenessVect->at(index);
 
         m_particles.push_back(p);
     }
@@ -278,7 +319,7 @@ std::string EventManager::GetTopologyString() const
     std::string interaction;
     
     if (!isTrueNuFiducial)
-        return "non-fiducial  ";
+        interaction += "non-fiducial  ";
  
     if (isSignal)
         interaction += "signal  ";
@@ -614,12 +655,11 @@ class EventPlot
          *
          *  @param  title the title of the plot
          *  @param  xAxisLabel the x-axis label
-         *  @param  yAxisLabel the y-axis label
          *  @param  nBins the number of bins
          *  @param  min the minimum value
          *  @param  max the maximum value
          */
-        EventPlot(const std::string &title, const std::string &xAxisLabel, const std::string &yAxisLabel, const unsigned int nBins, const float min, const float max);
+        EventPlot(const std::string &title, const std::string &xAxisLabel, const unsigned int nBins, const float min, const float max);
 
         /**
          *  @brief  Destructor
@@ -636,15 +676,16 @@ class EventPlot
 
         /**
          *  @brief  Draw the histograms and save them to a file
+         *
+         *  @param  cuts the cuts to draw, also make comparison plots to the first cut
          */
-        void Draw() const;
+        void Draw(const std::vector<std::string> &cuts) const;
 
     private:
         typedef std::unordered_map<std::string, TH1F*> StringToHistMap;
 
         std::string   m_title;
         std::string   m_xAxisLabel;
-        std::string   m_yAxisLabel;
         unsigned int  m_nBins;
         float         m_min;
         float         m_max;
@@ -655,10 +696,9 @@ class EventPlot
 // -----------------------------------------------------------------------------------------------------------------------------------------
 // -----------------------------------------------------------------------------------------------------------------------------------------
 
-EventPlot::EventPlot(const std::string &title, const std::string &xAxisLabel, const std::string &yAxisLabel, const unsigned int nBins, const float min, const float max) :
+EventPlot::EventPlot(const std::string &title, const std::string &xAxisLabel, const unsigned int nBins, const float min, const float max) :
     m_title(title),
     m_xAxisLabel(xAxisLabel),
-    m_yAxisLabel(yAxisLabel),
     m_nBins(nBins),
     m_min(min),
     m_max(max)
@@ -689,24 +729,73 @@ void EventPlot::Fill(const float &value, const std::string &cut)
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
 
-void EventPlot::Draw() const
+void EventPlot::Draw(const std::vector<std::string> &cuts) const
 {
+    if (cuts.empty())
+        throw std::invalid_argument("Can't draw, input cut vector is empty");
+
+    // Get the first histogram (to compare to)
+    const auto firstCut = cuts.front();
+    const auto iterFirst = m_cutToHistMap.find(firstCut);
+    if (iterFirst == m_cutToHistMap.end())
+        throw std::invalid_argument("Can't draw, unknown first cut: " + firstCut);
+    
+    // Remove nasty characters from the title
     auto cleanTitle = m_title;
     cleanTitle.erase(std::remove_if(cleanTitle.begin(), cleanTitle.end(), [](char c) { return !isalpha(c); } ), cleanTitle.end());
 
-    TCanvas c;
+    const auto pHistFirst = static_cast<TH1F*>(iterFirst->second->Clone((cleanTitle + "_clone").c_str()));
+    pHistFirst->SetLineWidth(2);
+    pHistFirst->SetLineColor(kAzure - 2);
+    pHistFirst->SetFillColor(kAzure - 2);
+    pHistFirst->SetFillStyle(0);
+    
+    pHistFirst->GetXaxis()->SetTitle(m_xAxisLabel.c_str());
+    pHistFirst->GetYaxis()->SetTitle("Number of events");
+    const auto firstMax = pHistFirst->GetMaximum();
 
-    // ATTN This map is unordered, possible reproducibility issue in the future if the code is changed. Beware.
-    for (const auto &entry : m_cutToHistMap)
+    // Set up the canvas
+    TCanvas *c = new TCanvas();
+    gStyle->SetOptStat(false);
+
+    // Draw the histograms
+    for (unsigned int cutNumber = 0; cutNumber < cuts.size(); ++cutNumber)
     {
-        auto cleanCut = entry.first;
+        const auto cut = cuts.at(cutNumber);
+
+        // Find the histogram for this cut
+        const auto iter = m_cutToHistMap.find(cut);
+        if (iter == m_cutToHistMap.end())
+            throw std::invalid_argument("Can't draw, unknown cut: " + cut);
+
+        auto cleanCut = iter->first;
         cleanCut.erase(std::remove_if(cleanCut.begin(), cleanCut.end(), [](char c) { return !isalpha(c); } ), cleanCut.end());
         
-        auto pHist = entry.second;
+        // Make the plot
+        auto pHist = iter->second;
         pHist->SetLineWidth(2);
-        pHist->Draw("hist");
-        c.SaveAs((cleanTitle + "_" + cleanCut + ".png").c_str());
+        pHist->SetLineColor(kOrange - 2);
+        pHist->SetFillColor(kOrange - 2);
+        pHist->SetFillStyle(0);
+        
+        const auto yMax = 1.1f * std::max(pHist->GetMaximum(), firstMax);
+        pHistFirst->GetYaxis()->SetRangeUser(0, yMax);
+        
+        pHistFirst->DrawCopy("hist");
+        pHistFirst->SetFillStyle(3001);
+        pHistFirst->Draw("e2 same");
+
+        pHist->DrawCopy("hist same");
+        pHist->SetFillStyle(3002);
+        pHist->Draw("e2 same");
+
+        c->SaveAs((cleanTitle + "_" + std::to_string(cutNumber) + "_" + cleanCut + ".png").c_str());
+
+        pHistFirst->SetFillStyle(0);
+        pHist->SetFillStyle(0);
     }
+
+    delete c;
 }
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
@@ -895,6 +984,143 @@ std::vector<Particle> GetSecondaryCandidates(const std::vector<Particle> &allPar
     return outputParticles;
 }
 
+// -----------------------------------------------------------------------------------------------------------------------------------------
+
+/**
+ *  @brief  Get the particles from the input vector that are uncontained
+ *
+ *  @param  particles the input vector of particles
+ *
+ *  @return the uncontained particles
+ */
+std::vector<Particle> GetUncontainedParticles(const std::vector<Particle> &particles)
+{
+    std::vector<Particle> outputParticles;
+
+    for (const auto &particle : particles)
+    {
+        if (!particle.isContained)
+            outputParticles.push_back(particle);
+    }
+
+    return outputParticles;
+}
+
+// -----------------------------------------------------------------------------------------------------------------------------------------
+
+/**
+ *  @brief  Check if the input particle has PID info available from the W plane
+ *
+ *  @param  particle the input particle
+ *
+ *  @return bool
+ */
+bool HasPIDWAvailable(const Particle &particle)
+{
+    const auto hasBraggpW = (particle.braggpW >= -std::numeric_limits<float>::epsilon());
+    const auto hasBraggMIPW = (particle.braggMIPW >= -std::numeric_limits<float>::epsilon());
+    
+    return (hasBraggpW && hasBraggMIPW);
+}
+
+// -----------------------------------------------------------------------------------------------------------------------------------------
+
+/**
+ *  @brief  Check if the input particle has PID info available from the UV planes
+ *
+ *  @param  particle the input particle
+ *
+ *  @return bool
+ */
+bool HasPIDUVAvailable(const Particle &particle)
+{
+    const auto hasBraggpUV = (particle.braggpUV >= -std::numeric_limits<float>::epsilon());
+    const auto hasBraggMIPUV = (particle.braggMIPUV >= -std::numeric_limits<float>::epsilon());
+
+    return (hasBraggpUV && hasBraggMIPUV);
+}
+
+// -----------------------------------------------------------------------------------------------------------------------------------------
+
+/**
+ *  @brief  Check if the input particle has all required PID info available
+ *
+ *  @param  particle the input particle
+ *
+ *  @return bool
+ */
+bool HasPIDAvailable(const Particle &particle)
+{
+    const auto hasTrackShower = (particle.trackShower >= -std::numeric_limits<float>::epsilon());
+    const auto hasLength = (particle.length >= -std::numeric_limits<float>::epsilon());
+
+    const auto hasPIDW = HasPIDWAvailable(particle);
+    const auto hasPIDUV = HasPIDUVAvailable(particle);
+
+    return (hasTrackShower && hasLength && (hasPIDW || hasPIDUV));
+}
+
+// -----------------------------------------------------------------------------------------------------------------------------------------
+
+/**
+ *  @brief  Check if all of the input particles have all of the required PID information available
+ *
+ *  @param  particles the input particles
+ *
+ *  @return bool
+ */
+bool HasPIDAvailable(const std::vector<Particle> &particles)
+{
+    for (const auto &particle : particles)
+    {
+        if (!HasPIDAvailable(particle))
+            return false;
+    }
+
+    return true;
+}
+
+// -----------------------------------------------------------------------------------------------------------------------------------------
+
+/**
+ *  @brief  Get the proton candidates
+ *
+ *  @param  particles the input vector of particles
+ *
+ *  @return the proton candidates
+ */
+std::vector<Particle> GetProtonCandidates(const std::vector<Particle> &particles)
+{
+    std::vector<Particle> outputParticles;
+
+    for (const auto &particle : particles)
+    {
+        if (!particle.isContained)
+            continue;
+
+        if (!HasPIDAvailable(particle))
+            continue;
+    
+        if (particle.trackShower < 0.5)
+            continue;
+
+        if (particle.length > 250)
+            continue;
+
+        const auto hasPIDW = HasPIDWAvailable(particle);
+        if (hasPIDW && (std::log(particle.braggpW) < -3 || std::log(particle.braggMIPW) > -2.5))
+            continue;
+
+        const auto hasPIDUV = HasPIDUVAvailable(particle);
+        if (hasPIDUV && (std::log(particle.braggpUV) < -3 || std::log(particle.braggMIPUV) > -2.5))
+            continue;
+
+        outputParticles.push_back(particle);
+    }
+
+    return outputParticles;
+}
+
 } // namespace cc1pievsel
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
@@ -912,9 +1138,10 @@ void makeSelectionTableNew()
     // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     const unsigned int nEvents = std::numeric_limits<unsigned int>::max();
 
-    const float primaryDist = 7.f;    // The maximum distance from which a particle can start from the vertex to be called a primary
-    const float crDist = 14.3f * 3;   // The distance from a primary beyond which we believe a particle is a cosmic ray (3 * radiation length)
-    const float secondaryDist = 7.f;  // The maximum distance between a secondary particle and a primary
+    const float minTopologicalScore = 0.05f; // The minimum topological score for an event to be selected
+    const float primaryDist = 7.f;           // The maximum distance from which a particle can start from the vertex to be called a primary
+    const float crDist = 14.3f * 3;          // The distance from a primary beyond which we believe a particle is a cosmic ray (3 * radiation length)
+    const float secondaryDist = 14.3f;       // The maximum distance between a secondary particle and a primary
 
     // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -945,7 +1172,7 @@ void makeSelectionTableNew()
         if (primaryCandidates.size() < 2)
             continue;
         
-        counter.AddEventPassingCut("min2Primaries", topology, eventIndex);
+        counter.AddEventPassingCut("minTwoPrimaries", topology, eventIndex);
         
         // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         // Insist that all other PFParticles start close to one of the primaries, or are very well far away (CR)
@@ -959,6 +1186,42 @@ void makeSelectionTableNew()
             continue;
         
         counter.AddEventPassingCut("validSecondaries", topology, eventIndex);
+        
+        // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        // Insist as most one primary particle is uncontained
+        // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        const auto uncontainedParticles = GetUncontainedParticles(primaryCandidates);
+        if (uncontainedParticles.size() > 1)
+            continue;
+        
+        counter.AddEventPassingCut("maxOneUncontained", topology, eventIndex);
+        
+        // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        // Insist that all primary candidates have the required PID info
+        // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        const auto isPIDAvailable = HasPIDAvailable(primaryCandidates);
+        if (!isPIDAvailable)
+            continue;
+        
+        counter.AddEventPassingCut("pidAvailable", topology, eventIndex);
+        
+        // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        // Insist that there are exactly 2 non-proton candidates
+        // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        const auto protonCandidates = GetProtonCandidates(primaryCandidates);
+        if (protonCandidates.size() + 2 != primaryCandidates.size())
+            continue;
+        
+        counter.AddEventPassingCut("twoNonProtons", topology, eventIndex);
+        
+        // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        // Insist that the pandora topological neutrino score isn't very low
+        // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        if (em.topologicalScore < minTopologicalScore)
+            continue;
+        
+        counter.AddEventPassingCut("topological", topology, eventIndex);
+
     }
 
     counter.PrintBreakdown();
@@ -966,9 +1229,21 @@ void makeSelectionTableNew()
     // Now go through the events again and make the plots. This could be done more efficiently, by making the plots at the same time as
     // doing the selection, but this is good enough for me.
     
+    const auto pi = std::acos(0) * 2;
+    EventPlot trueNuEPlot("True Neutrino Energy", "Neutrino Energy [GeV]", 100, 0, 4);
+    EventPlot trueMuEnergyPlot("True Muon Energy", "Muon Energy [GeV]", 100, 0, 3);
+    EventPlot trueMuThetaPlot("True Muon Theta", "Muon Theta [rad]", 100, 0, pi);
+    EventPlot trueMuPhiPlot("True Muon Phi", "Muon Phi [rad]", 100, -pi, pi);
+    EventPlot truePiEnergyPlot("True Pion Energy", "Pion Energy [GeV]", 100, 0, 3);
+    EventPlot truePiThetaPlot("True Pion Theta", "Pion Theta [rad]", 100, 0, pi);
+    EventPlot truePiPhiPlot("True Pion Phi", "Pion Phi [rad]", 100, -pi, pi);
+    EventPlot trueMuPiAnglePlot("True Muon-Pion Opening Angle", "Opening angle [rad]", 100, 0, pi);
+    EventPlot trueNProton("Proton Multiplicity", "Number of protons", 6, 0, 6);
 
-    EventPlot trueNuEPlot("True Neutrino Energy", "Neutrino Energy [GeV]", "Number of signal events", 100, 0, 4);
-    
+    EventPlot nExtPFPsPlot("Number Of External Particles", "Number of external particles", 5, 0, 5);
+    EventPlot pionCompletenessPlot("Pion Completeness", "Pion completeness", 100, 0, 1);
+    EventPlot muonCompletenessPlot("Muon Completeness", "Muon completeness", 100, 0, 1);
+
     // For speed make the mapping from event index to the cuts passed for the signal events
     std::map<unsigned int, std::vector<std::string> > eventIndexToCutMap;
     for (const auto &cut : counter.GetCuts())
@@ -988,259 +1263,59 @@ void makeSelectionTableNew()
         for (const auto &cut : cutsPassed)
         {
             trueNuEPlot.Fill(em.trueNuE, cut);
-        }
-    }
+            trueMuEnergyPlot.Fill(em.trueMuEnergy, cut);
+            trueMuThetaPlot.Fill(em.trueMuTheta, cut);
+            trueMuPhiPlot.Fill(em.trueMuPhi, cut);
+            truePiEnergyPlot.Fill(em.truePiEnergy, cut);
+            truePiThetaPlot.Fill(em.truePiTheta, cut);
+            truePiPhiPlot.Fill(em.truePiPhi, cut);
+            trueMuPiAnglePlot.Fill(em.trueMuPiAngle, cut);
+            trueNProton.Fill(em.nProton, cut);
     
-    trueNuEPlot.Draw();
+            // Count the number of external particles not identifed as a cosmic-ray
+            int nExtPFPs = 0;
+            const auto allParticles = em.GetParticles();
+            const auto recoNuVtx = *em.recoNuVtx;
+            const auto primaryCandidates = GetParticlesNearVertex(allParticles, recoNuVtx, primaryDist);
+            const auto crCandidates = GetCRCandidates(allParticles, primaryCandidates, recoNuVtx, crDist);
 
-    /*
-    std::map<std::string, std::vector<unsigned int> > totalMap;
-    std::map<std::string, std::vector<unsigned int> > selectedMap;
+            // Sum the completenesses of the best matched particles
+            float pionCompleteness = 0.f;
+            float muonCompleteness = 0.f;
 
-    for (unsigned int i = 0; i < std::min(9999999u, static_cast<unsigned int>(tree->GetEntries())); ++i)
-    {
-        tree->GetEntry(i);
-
-        const auto interaction = GetInteractionType();
-        totalMap[interaction].push_back(i);
-
-        if (!isRecoNuFiducial)
-            continue;
-
-        // Collect the PFParticles that start near the vertex - these are the candidate primaries
-        std::vector<unsigned int> pfpsNearVertex;
-        for (unsigned int j = 0; j < nFinalStatePFPs; ++j)
-        {
-            const auto hasTrackInfo = hasTrackInfoVect->at(j);
-            if (!hasTrackInfo)
-                continue;
-
-            const auto startX = startXVect->at(j);
-            const auto startY = startYVect->at(j);
-            const auto startZ = startZVect->at(j);
-            const auto start = TVector3(startX, startY, startZ);
-
-            if (IsNear(*recoNuVtx, start, 4.f))
-                pfpsNearVertex.push_back(j);
-        }
-
-        // Insist that we have at least 2 PFParticles starting near to the vertex (muon & pion)
-        if (pfpsNearVertex.size() < 2)
-            continue;
-
-        // Insist that all other PFParticles start near the end point of one of the candidate primaries
-        // or are far away and track like (CR in the slice)
-        bool areSecondariesViable = true;
-        for (unsigned int j = 0; j < nFinalStatePFPs; ++j)
-        {
-            // Don't consider the primary candidates in this loop
-            if (std::find(pfpsNearVertex.begin(), pfpsNearVertex.end(), j) != pfpsNearVertex.end())
-                continue;
-            
-            const auto startX = startXVect->at(j);
-            const auto startY = startYVect->at(j);
-            const auto startZ = startZVect->at(j);
-            const auto start = TVector3(startX, startY, startZ);
-            
-            const auto endX = endXVect->at(j);
-            const auto endY = endYVect->at(j);
-            const auto endZ = endZVect->at(j);
-            const auto end = TVector3(endX, endY, endZ);
-            
-            const auto trackShower = trackShowerVect->at(j);
-
-            // Check if it's near an existing primary (the ones near the vertex)
-            bool foundNearPrimary = false;
-            for (unsigned int k = 0; k < pfpsNearVertex.size(); ++k)
+            for (const auto &particle : em.GetParticles())
             {
-                const auto primaryIndex = pfpsNearVertex.at(k);
-                const auto primaryEndX = endXVect->at(primaryIndex);
-                const auto primaryEndY = endYVect->at(primaryIndex);
-                const auto primaryEndZ = endZVect->at(primaryIndex);
-                const auto primaryEnd = TVector3(primaryEndX, primaryEndY, primaryEndZ);
+                // Skip the particles we have already identified as CRs
+                if (!ContainsParticle(crCandidates, particle) && !particle.hasMatchedMCParticle)
+                    nExtPFPs++;
 
-                if (IsNear(start, primaryEnd, 4.f) || IsNear(end, primaryEnd, 4.f))
-                {
-                    foundNearPrimary = true;
-                    break;
-                }
-            }
-        
-            // Check if it's far from all other existing primaries
-            bool foundFarAway = true;
-            for (unsigned int k = 0; k < pfpsNearVertex.size(); ++k)
-            {
-                const auto primaryIndex = pfpsNearVertex.at(k);
-                const auto primaryStartX = endXVect->at(primaryIndex);
-                const auto primaryStartY = endYVect->at(primaryIndex);
-                const auto primaryStartZ = endZVect->at(primaryIndex);
-                const auto primaryStart = TVector3(primaryStartX, primaryStartY, primaryStartZ);
-                const auto primaryEndX = endXVect->at(primaryIndex);
-                const auto primaryEndY = endYVect->at(primaryIndex);
-                const auto primaryEndZ = endZVect->at(primaryIndex);
-                const auto primaryEnd = TVector3(primaryEndX, primaryEndY, primaryEndZ);
-
-                if (IsNear(start, primaryStart, 42.f) || IsNear(start, primaryEnd, 42.f) ||
-                    IsNear(end, primaryStart, 42.f) || IsNear(end, primaryEnd, 42.f))
-                {
-                    foundFarAway = false;
-                    break;
-                }
+                // Add up the pion completeness
+                if (particle.hasMatchedMCParticle && particle.truePdgCode == 211)
+                    pionCompleteness += particle.truthMatchCompleteness;
+                
+                // Add up the muon completeness
+                if (particle.hasMatchedMCParticle && particle.truePdgCode == 13)
+                    muonCompleteness += particle.truthMatchCompleteness;
             }
 
-            // Must be nearby an existing primary particle end point, or far away and track like (CR)
-            if (!foundNearPrimary && !(foundFarAway && trackShower > 0.5))
-            {
-                areSecondariesViable = false;
-                break;
-            }
+            nExtPFPsPlot.Fill(nExtPFPs, cut);
+            pionCompletenessPlot.Fill(pionCompleteness, cut);
+            muonCompletenessPlot.Fill(muonCompleteness, cut);
         }
-        
-        if (!areSecondariesViable)
-            continue;
-
-        // Find the number of uncontained particles, and flag the index of the last one as the muon (used later)
-        unsigned int nUncontained = 0;
-        unsigned int muonIndex = std::numeric_limits<unsigned int>::max();
-        for (unsigned int k = 0; k < pfpsNearVertex.size(); ++k)
-        {
-            const auto primaryIndex = pfpsNearVertex.at(k);
-            const auto isContained = isContainedVect->at(primaryIndex);
-
-            if (!isContained)
-            {
-                nUncontained++;
-                muonIndex = primaryIndex;
-            }
-        }
-
-        // Insist that only one primary PFParticle can be uncontained, and if so call it the muon
-        if (nUncontained > 1)
-            continue;
-
-        // Find the proton candidates
-        std::vector<unsigned int> protons;
-        for (unsigned int k = 0; k < pfpsNearVertex.size(); ++k)
-        {
-            const auto primaryIndex = pfpsNearVertex.at(k);
-
-            const auto trackShower = trackShowerVect->at(primaryIndex);
-            const auto chi2pW = chi2pWVect->at(primaryIndex);
-            const auto chi2pUV = chi2pUVVect->at(primaryIndex);
-
-            const auto hasTrackShower = (trackShower > -0.5);
-            const auto hasChi2pW = (chi2pW > -0.5);
-            const auto hasChi2pUV = (chi2pUV > -0.5);
-
-            // The proton can't be the muon
-            if (nUncontained == 1 && primaryIndex == muonIndex)
-                continue;
-        
-            // Must have the PID info
-            if (!hasTrackShower || (!hasChi2pW && !hasChi2pUV))
-                continue;
-
-            // Proton must be vaguely track-like
-            if (trackShower < 0.2)
-                continue;
-
-            // Proton must have a decent chi2 under proton hypothesis
-            if (((hasChi2pW && chi2pW > 60) || !hasChi2pW) && ((hasChi2pUV && chi2pUV > 30) || !hasChi2pUV))
-                continue;
-
-            protons.push_back(primaryIndex);
-        }
-
-        // Insist that we have 2 non-proton primaries (the muon & the pion)
-        if (protons.size() + 2 != pfpsNearVertex.size())
-            continue;
-
-        // Make sure that the muon & pion candidates aren't back-to-back
-        std::vector<unsigned int> muonPions;
-        for (unsigned int k = 0; k < pfpsNearVertex.size(); ++k)
-        {
-            const auto primaryIndex = pfpsNearVertex.at(k);
-
-            if (std::find(protons.begin(), protons.end(), primaryIndex) != protons.end())
-                continue;
-
-            muonPions.push_back(primaryIndex);
-        }
-
-        // Check to see if we ballzed up
-        if (muonPions.size() != 2)
-        {
-            std::cerr << "Logic error, got " << muonPions.size() << " muon/pion candidates. We should have 2"  << std::endl;
-            return 1;
-        }
-
-        const auto muonPionIndex0 = muonPions.at(0);
-        const auto muonPionIndex1 = muonPions.at(1);
-
-        std::cout << "----------------------" << std::endl;
-        std::cout << run << " " << subRun << " " << event << std::endl;
-        std::cout << interaction << std::endl;
-        std::cout << "nPFPs     : " << nFinalStatePFPs << std::endl;
-        std::cout << "primaries : " << pfpsNearVertex.size() << std::endl;
-        std::cin.get();
-
-        // No back to backsies
-        const auto muonPionDirection0 = TVector3(directionXVect->at(muonPionIndex0), directionYVect->at(muonPionIndex0), directionZVect->at(muonPionIndex0));
-        const auto muonPionDirection1 = TVector3(directionXVect->at(muonPionIndex1), directionYVect->at(muonPionIndex1), directionZVect->at(muonPionIndex1));
-
-        if (muonPionDirection0.Dot(muonPionDirection1 * (-1)) > 0.99)
-            continue;
-
-        if (topologicalScore < 0.1)
-            continue;
-
-        selectedMap[interaction].push_back(i);
-    }
-
-
-    // Sort the interactions, signal first, then backgrounds ordered by the number selected
-    std::vector<std::pair<std::string, unsigned int> > selectedVector;
-    unsigned int totalSelected = 0;
-    for (const auto &entry : totalMap)
-    {
-        const auto interaction = entry.first;
-        const auto selectedIter = selectedMap.find(entry.first);
-        const auto nSelected = (selectedIter == selectedMap.end()) ? 0 : selectedIter->second.size();
-        totalSelected += nSelected;
-        selectedVector.emplace_back(interaction, nSelected);
     }
    
-    // Do the sort
-    std::sort(selectedVector.begin(), selectedVector.end(), [](const std::pair<std::string, unsigned int> &a, const std::pair<std::string, unsigned int> &b) -> bool {
-        const bool isASignal = (a.first.substr(0, std::min(6u, static_cast<unsigned int>(a.first.length()))) == "signal");
-        const bool isBSignal = (b.first.substr(0, std::min(6u, static_cast<unsigned int>(b.first.length()))) == "signal");
+    const auto allCuts = counter.GetCuts();
+    trueNuEPlot.Draw(allCuts);
+    trueMuEnergyPlot.Draw(allCuts);
+    trueMuThetaPlot.Draw(allCuts);
+    trueMuPhiPlot.Draw(allCuts);
+    truePiEnergyPlot.Draw(allCuts);
+    truePiThetaPlot.Draw(allCuts);
+    truePiPhiPlot.Draw(allCuts);
+    trueMuPiAnglePlot.Draw(allCuts);
+    trueNProtonPlot.Draw(allCuts);
+    nExtPFPsPlot.Draw(allCuts);
+    pionCompletenessPlot.Draw(allCuts);
+    muonCompletenessPlot.Draw(allCuts);
 
-        if (isASignal && !isBSignal)
-            return true;
-        
-        if (!isASignal && isBSignal)
-            return false;
-
-        if (a.second == b.second || (isASignal && isASignal))
-            return a.first < b.first;
-
-        return a.second > b.second;
-    });
-
-    // Print the outcome
-    std::cout << std::setw(60) << "interaction  " << "| " << std::setw(8) << "selected" << " / " << std::setw(6) << "total" << " | " << std::setw(10) << "efficiency" << " | " << std::setw(10) << "purity" << std::endl;
-    for (unsigned int i = 0; i < selectedVector.size(); ++i)
-    {
-        const auto entry = selectedVector.at(i);
-        const auto interaction = entry.first;
-        const auto nTotal = totalMap.at(interaction).size();
-        const auto nSelected = entry.second;
-        const auto efficiency = static_cast<float>(nSelected) / static_cast<float>(nTotal);
-        const auto purity = static_cast<float>(nSelected) / static_cast<float>(totalSelected);
-
-        if (i < 20)
-            std::cout << std::setw(60) << interaction << "| " << std::setw(8) << nSelected << " / " << std::setw(6) << nTotal << " | " << std::setw(10) << efficiency << " | " << std::setw(10) << purity << std::endl;
-    }
-    
-    */
 }
