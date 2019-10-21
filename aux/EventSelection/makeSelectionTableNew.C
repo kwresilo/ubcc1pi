@@ -265,6 +265,13 @@ std::vector<Particle> EventManager::GetParticles() const
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
 
+bool IsSignal(const std::string &topology)
+{
+    return (topology.substr(0, std::min(6u, static_cast<unsigned int>(topology.length()))) == "signal");
+}
+
+// -----------------------------------------------------------------------------------------------------------------------------------------
+
 std::string EventManager::GetTopologyString() const
 {
     const int nOther = nTotal - nMuMinus - nMuPlus - nPiPlus - nPiMinus - nKPlus - nKMinus - nProton - nNeutron - nPhoton - nElectron - nPositron;
@@ -349,6 +356,31 @@ class SelectionCounter
          */
         void PrintPerformance(const std::string &cut, const unsigned int nTopologies = 20);
 
+        /**
+         *  @brief  Get the list of cuts applied in the order they were first seen
+         *
+         *  @return the names of the cuts
+         */
+        std::vector<std::string> GetCuts() const;
+
+        /**
+         *  @brief  Get the indices of the events passing the cut
+         *
+         *  @param  cut the cut
+         *
+         *  @return the event indices
+         */
+        std::vector<unsigned int> GetEventIndices(const std::string &cut) const;
+        
+        /**
+         *  @brief  Get the indices of the signal events passing the cut
+         *
+         *  @param  cut the cut
+         *
+         *  @return the event indices
+         */
+        std::vector<unsigned int> GetSignalEventIndices(const std::string &cut) const;
+
     private:
         /**
          *  @brief  Get the vector of topologies ordered by the number that pass a given cut
@@ -357,7 +389,7 @@ class SelectionCounter
          *
          *  @return the topologies
          */
-        std::vector<std::string> GetOrderedTopologies(const std::string &cut);
+        std::vector<std::string> GetOrderedTopologies(const std::string &cut) const;
 
         std::vector<std::string>                            m_cuts; ///< The vector of cuts in the order they were seen
         std::vector<std::string>                            m_topologies; ///< The vector of topologies seen
@@ -382,25 +414,71 @@ void SelectionCounter::AddEventPassingCut(const std::string &cut, const std::str
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
         
-std::vector<std::string> SelectionCounter::GetOrderedTopologies(const std::string &cut)
+std::vector<std::string> SelectionCounter::GetCuts() const
 {
-    // ATTN non const as we want to add empty entries for topologiesn not seen by this cut
-    auto iter = m_cutMap.find(cut);
+    return m_cuts;
+}
+
+// -----------------------------------------------------------------------------------------------------------------------------------------
+       
+std::vector<unsigned int> SelectionCounter::GetEventIndices(const std::string &cut) const
+{
+    const auto iter = m_cutMap.find(cut);
+    if (iter == m_cutMap.end())
+        throw std::invalid_argument("Can't get event indices for unknown cut: " + cut);
+
+    std::vector<unsigned int> eventIndices;
+    for (const auto &entry : iter->second)
+        eventIndices.insert(eventIndices.end(), entry.second.begin(), entry.second.end());
+    
+    std::sort(eventIndices.begin(), eventIndices.end());
+
+    return eventIndices;
+}
+
+// -----------------------------------------------------------------------------------------------------------------------------------------
+       
+std::vector<unsigned int> SelectionCounter::GetSignalEventIndices(const std::string &cut) const
+{
+    const auto iter = m_cutMap.find(cut);
+    if (iter == m_cutMap.end())
+        throw std::invalid_argument("Can't get event indices for unknown cut: " + cut);
+
+    std::vector<unsigned int> eventIndices;
+    for (const auto &entry : iter->second)
+    {
+        if (IsSignal(entry.first))
+            eventIndices.insert(eventIndices.end(), entry.second.begin(), entry.second.end());
+    }
+
+    std::sort(eventIndices.begin(), eventIndices.end());
+
+    return eventIndices;
+}
+
+// -----------------------------------------------------------------------------------------------------------------------------------------
+        
+std::vector<std::string> SelectionCounter::GetOrderedTopologies(const std::string &cut) const
+{
+    const auto iter = m_cutMap.find(cut);
     if (iter == m_cutMap.end())
         throw std::invalid_argument("Can't get topologies ordered by events passing unknown cut: " + cut);
 
     // Convert the map to a vector so we can sort it
-    auto topologyToEventsMap = iter->second;
+    const auto &topologyToEventsMap = iter->second;
     std::vector<std::pair<std::string, unsigned int> > topologyNEventsVector;
     for (const auto &topology : m_topologies)
-        topologyNEventsVector.emplace_back(topology, topologyToEventsMap[topology].size());
+    {
+        const auto iterTop = topologyToEventsMap.find(topology);
+        topologyNEventsVector.emplace_back(topology, (iterTop == topologyToEventsMap.end()) ? 0 : iterTop->second.size());
+    }
 
     // Do the sort
     std::sort(topologyNEventsVector.begin(), topologyNEventsVector.end(), [](const std::pair<std::string, unsigned int> &a, const std::pair<std::string, unsigned int> &b) -> bool {
 
         // Work out if either are signal topologies
-        const bool isASignal = (a.first.substr(0, std::min(6u, static_cast<unsigned int>(a.first.length()))) == "signal");
-        const bool isBSignal = (b.first.substr(0, std::min(6u, static_cast<unsigned int>(b.first.length()))) == "signal");
+        const bool isASignal = IsSignal(a.first); 
+        const bool isBSignal = IsSignal(b.first);
 
         // Always order a signal topology before a background
         if (isASignal && !isBSignal)
@@ -453,7 +531,7 @@ void SelectionCounter::PrintPerformance(const std::string &cut, const unsigned i
     const auto topologies = this->GetOrderedTopologies(cut);
 
     std::cout << std::string(140, '-') << std::endl;
-    std::cout << "Comparing performance between : " << firstCut << " & " << cut << std::endl;
+    std::cout << "Comparing performance between : " << firstCut << " -> " << cut << std::endl;
 
     // Get the total number of events passing the cut, and count the integrated signal
     unsigned int nTotal = 0;
@@ -465,7 +543,7 @@ void SelectionCounter::PrintPerformance(const std::string &cut, const unsigned i
         nTotal += m_cutMap[cut][topology].size();
         nTotalInitial += m_cutMap[firstCut][topology].size();
         
-        const bool isSignal = (topology.substr(0, std::min(6u, static_cast<unsigned int>(topology.length()))) == "signal");
+        const bool isSignal = IsSignal(topology); 
         if (!isSignal)
             continue;
 
@@ -526,23 +604,296 @@ void SelectionCounter::PrintPerformance(const std::string &cut, const unsigned i
 // =========================================================================================================================================
 
 /**
- *  @brief  Determine if two 3D positions are with the specified separation
- *
- *  @param  posA the first position
- *  @param  posB the second position
- *  @param  cut the maximum separation threshold
- *
- *  @return bool - true if the separation between posA and posB is within the cut
+ *  @brief  The event level plot class. Holds event-level plots after various cuts
  */
-/*
-bool IsNear(const TVector3 &posA, const TVector3 &posB, const float cut)
+class EventPlot
 {
-    return ((posA - posB).Mag2() < cut * cut);
+    public:
+        /**
+         *  @brief  Constructor
+         *
+         *  @param  title the title of the plot
+         *  @param  xAxisLabel the x-axis label
+         *  @param  yAxisLabel the y-axis label
+         *  @param  nBins the number of bins
+         *  @param  min the minimum value
+         *  @param  max the maximum value
+         */
+        EventPlot(const std::string &title, const std::string &xAxisLabel, const std::string &yAxisLabel, const unsigned int nBins, const float min, const float max);
+
+        /**
+         *  @brief  Destructor
+         */
+        ~EventPlot();
+
+        /**
+         *  @brief  Fill the histogram related to the supplied cut at the given value
+         *
+         *  @param  value value to fill
+         *  @param  cut the cut to use
+         */
+        void Fill(const float &value, const std::string &cut);
+
+        /**
+         *  @brief  Draw the histograms and save them to a file
+         */
+        void Draw() const;
+
+    private:
+        typedef std::unordered_map<std::string, TH1F*> StringToHistMap;
+
+        std::string   m_title;
+        std::string   m_xAxisLabel;
+        std::string   m_yAxisLabel;
+        unsigned int  m_nBins;
+        float         m_min;
+        float         m_max;
+
+        StringToHistMap m_cutToHistMap;
+};
+
+// -----------------------------------------------------------------------------------------------------------------------------------------
+// -----------------------------------------------------------------------------------------------------------------------------------------
+
+EventPlot::EventPlot(const std::string &title, const std::string &xAxisLabel, const std::string &yAxisLabel, const unsigned int nBins, const float min, const float max) :
+    m_title(title),
+    m_xAxisLabel(xAxisLabel),
+    m_yAxisLabel(yAxisLabel),
+    m_nBins(nBins),
+    m_min(min),
+    m_max(max)
+{
 }
-*/
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
 
+EventPlot::~EventPlot()
+{
+    for (auto &entry : m_cutToHistMap)
+        entry.second->Delete();
+}
+
+// -----------------------------------------------------------------------------------------------------------------------------------------
+
+void EventPlot::Fill(const float &value, const std::string &cut)
+{
+    auto iter = m_cutToHistMap.find(cut);
+    if (iter == m_cutToHistMap.end())
+    {
+        const auto name = (m_title + "_" + cut).c_str();
+        m_cutToHistMap.emplace(cut, new TH1F(name, m_title.c_str(), m_nBins, m_min, m_max));
+    }
+
+    m_cutToHistMap.at(cut)->Fill(value);
+}
+
+// -----------------------------------------------------------------------------------------------------------------------------------------
+
+void EventPlot::Draw() const
+{
+    auto cleanTitle = m_title;
+    cleanTitle.erase(std::remove_if(cleanTitle.begin(), cleanTitle.end(), [](char c) { return !isalpha(c); } ), cleanTitle.end());
+
+    TCanvas c;
+
+    // ATTN This map is unordered, possible reproducibility issue in the future if the code is changed. Beware.
+    for (const auto &entry : m_cutToHistMap)
+    {
+        auto cleanCut = entry.first;
+        cleanCut.erase(std::remove_if(cleanCut.begin(), cleanCut.end(), [](char c) { return !isalpha(c); } ), cleanCut.end());
+        
+        auto pHist = entry.second;
+        pHist->SetLineWidth(2);
+        pHist->Draw("hist");
+        c.SaveAs((cleanTitle + "_" + cleanCut + ".png").c_str());
+    }
+}
+
+// -----------------------------------------------------------------------------------------------------------------------------------------
+
+// =========================================================================================================================================
+// =========================================================================================================================================
+
+/**
+ *  @brief  Get the particles in the input vector that start within the the supplied threshold of the neutrino vertex
+ *
+ *  @param  allParticles the complete list of primary PFParticles from Pandora
+ *  @param  recoNuVtx the reconstructed neutrino vertex position
+ *  @param  primaryDist the threshold separation from the vertex
+ *
+ *  @return the particles passing the threshold
+ */
+std::vector<Particle> GetParticlesNearVertex(const std::vector<Particle> &allParticles, const TVector3 &recoNuVtx, const float primaryDist)
+{
+    std::vector<Particle> outputParticles;
+    const float cut2 = primaryDist * primaryDist;
+
+    for (const auto &particle : allParticles)
+    {       
+        if ((particle.start - recoNuVtx).Mag2() < cut2)
+            outputParticles.push_back(particle);
+    }
+
+    return outputParticles;
+}
+
+// -----------------------------------------------------------------------------------------------------------------------------------------
+
+/**
+ *  @brief  Check if the input vector of particles contains the test particle
+ *
+ *  @param  particles the input vector of particles
+ *  @param  testParticle the test particle
+ *
+ *  @return boolean, true if particles contains testParticle
+ */
+bool ContainsParticle(const std::vector<Particle> &particles, const Particle &testParticle)
+{
+    for (const auto &particle : particles)
+    {
+        if (particle.index == testParticle.index)
+            return true;
+    }
+
+    return false;
+}
+
+// -----------------------------------------------------------------------------------------------------------------------------------------
+
+/**
+ *  @brief  Check if two collections of particles are identical
+ *
+ *  @param  collectionA vector of vector of particles
+ *  @param  collectionB vector of vector of particles
+ *
+ *  @return boolean, true if all particles in collectionA are the same as those in collectionB
+ */
+bool AreParticlesIdentical(const std::vector< std::vector<Particle> > &collectionA, const std::vector< std::vector<Particle> > &collectionB)
+{
+    // Get the particle indices from the A collection
+    std::vector<unsigned int> indicesA;
+    for (const auto &particlesA : collectionA)
+    {
+        for (const auto &particleA : particlesA)
+        {
+            indicesA.push_back(particleA.index);
+        }
+    }
+    
+    // Get the particle indices from the B collection
+    std::vector<unsigned int> indicesB;
+    for (const auto &particlesB : collectionB)
+    {
+        for (const auto &particleB : particlesB)
+        {
+            indicesB.push_back(particleB.index);
+        }
+    }
+
+    if (indicesA.size() != indicesB.size())
+        return false;
+
+    // Sort the vectors and check if they match
+    std::sort(indicesA.begin(), indicesA.end());
+    std::sort(indicesB.begin(), indicesB.end());
+
+    return (indicesA == indicesB);
+}
+
+// -----------------------------------------------------------------------------------------------------------------------------------------
+        
+/**
+ *  @brief  Get the cosmic ray candidates
+ *
+ *  @param  allParticles the complete list of particles from Pandora
+ *  @param  primaryCandidates the primary candidate particles
+ *  @param  recoNuVtx the reconstructed neutrino vertex
+ *  @param  crDist the threshold distance beyond which a particle is considered a cosmic-ray
+ *
+ *  @return the CR candidates
+ */
+std::vector<Particle> GetCRCandidates(const std::vector<Particle> &allParticles, const std::vector<Particle> &primaryCandidates, const TVector3 &recoNuVtx, const float crDist)
+{
+    std::vector<Particle> outputParticles;
+    const float cut2 = crDist * crDist;
+
+    for (const auto &particle : allParticles)
+    {
+        // Skip the primary candidates
+        if (ContainsParticle(primaryCandidates, particle))
+            continue;
+
+        // The particle must be well separated from the neutrino vertex
+        if ((particle.start - recoNuVtx).Mag2() < cut2)
+            continue;
+
+        // The particle must be well separated from the primary candidates
+        bool isWellSeparated = true;
+        for (const auto &primary : primaryCandidates)
+        {
+            if ((particle.start - primary.start).Mag2() < cut2 || (particle.start - primary.end).Mag2() < cut2)
+            {
+                isWellSeparated = false;
+                break;
+            }
+        }
+
+        if (!isWellSeparated)
+            continue;
+
+        // The particle is well separated from the rest of the neutrino interaction, so call it ca cosmic-ray
+        outputParticles.push_back(particle);
+    }
+
+    return outputParticles;
+}
+
+// -----------------------------------------------------------------------------------------------------------------------------------------
+        
+/**
+ *  @brief  Get the candidate secondary particles (daughters of primaries)
+ *
+ *  @param  allParticles the full list of particles from Pandora
+ *  @param  primaryCandidates the list of primary candidate particles
+ *  @param  crCandidates the list of cosmic-ray candidate particles
+ *  @param  secondaryDist the distance within which a particle is considered a possible daughter of a primary
+ *
+ *  @return the secondary candidates
+ */
+std::vector<Particle> GetSecondaryCandidates(const std::vector<Particle> &allParticles, const std::vector<Particle> &primaryCandidates, const std::vector<Particle> &crCandidates, const float secondaryDist)
+{
+    std::vector<Particle> outputParticles;
+    const float cut2 = secondaryDist * secondaryDist;
+
+    for (const auto &particle : allParticles)
+    {
+        // Skip the primary candidates
+        if (ContainsParticle(primaryCandidates, particle))
+            continue;
+        
+        // Skip the CR candidates
+        if (ContainsParticle(crCandidates, particle))
+            continue;
+
+        // Check if this particle starts near the end of a primary
+        bool isNearPrimary = false;
+        for (const auto &primary : primaryCandidates)
+        {
+            if ((particle.start - primary.end).Mag2() < cut2)
+            {
+                isNearPrimary = true;
+                break;
+            }
+        }
+
+        if (!isNearPrimary)
+            continue;
+
+        outputParticles.push_back(particle);
+    }
+    
+    return outputParticles;
+}
 
 } // namespace cc1pievsel
 
@@ -556,7 +907,16 @@ using namespace cc1pievsel;
  */
 void makeSelectionTableNew()
 {
+    // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    // Configuration
+    // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     const unsigned int nEvents = std::numeric_limits<unsigned int>::max();
+
+    const float primaryDist = 7.f;    // The maximum distance from which a particle can start from the vertex to be called a primary
+    const float crDist = 14.3f * 3;   // The distance from a primary beyond which we believe a particle is a cosmic ray (3 * radiation length)
+    const float secondaryDist = 7.f;  // The maximum distance between a secondary particle and a primary
+
+    // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
     EventManager em("/uboone/data/users/asmith/ubcc1pi/19062019/eventSelection.root");
     SelectionCounter counter;
@@ -566,18 +926,72 @@ void makeSelectionTableNew()
     {
         em.LoadEvent(eventIndex);
         const auto topology = em.GetTopologyString();
-
         counter.AddEventPassingCut("all", topology, eventIndex);
+        
+        // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        // Insist that the reconstructed neutrino is fiducial
+        // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        if (!em.isRecoNuFiducial)
+            continue;
 
+        counter.AddEventPassingCut("fiducial", topology, eventIndex);
+        
+        // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        // Insist that there are at least 2 PFParticles that start near the vertex
+        // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         const auto allParticles = em.GetParticles();
-        if (allParticles.size() < 2)
+        const auto recoNuVtx = *em.recoNuVtx;
+        const auto primaryCandidates = GetParticlesNearVertex(allParticles, recoNuVtx, primaryDist);
+        if (primaryCandidates.size() < 2)
             continue;
         
-        counter.AddEventPassingCut("min2Particles", topology, eventIndex);
+        counter.AddEventPassingCut("min2Primaries", topology, eventIndex);
+        
+        // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        // Insist that all other PFParticles start close to one of the primaries, or are very well far away (CR)
+        // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        const auto crCandidates = GetCRCandidates(allParticles, primaryCandidates, recoNuVtx, crDist);
+        const auto secondaryCandidates = GetSecondaryCandidates(allParticles, primaryCandidates, crCandidates, secondaryDist);
+
+        // Check that every particle has fallen into one of the categories
+        const auto areAllParticlesClassified = AreParticlesIdentical({allParticles}, {primaryCandidates, crCandidates, secondaryCandidates});
+        if (!areAllParticlesClassified)
+            continue;
+        
+        counter.AddEventPassingCut("validSecondaries", topology, eventIndex);
     }
 
     counter.PrintBreakdown();
     
+    // Now go through the events again and make the plots. This could be done more efficiently, by making the plots at the same time as
+    // doing the selection, but this is good enough for me.
+    
+
+    EventPlot trueNuEPlot("True Neutrino Energy", "Neutrino Energy [GeV]", "Number of signal events", 100, 0, 4);
+    
+    // For speed make the mapping from event index to the cuts passed for the signal events
+    std::map<unsigned int, std::vector<std::string> > eventIndexToCutMap;
+    for (const auto &cut : counter.GetCuts())
+    {
+        const auto selectedIndices = counter.GetSignalEventIndices(cut);
+        for (const auto index : selectedIndices)
+            eventIndexToCutMap[index].push_back(cut);
+    }
+   
+    // Now fill the plots
+    for (const auto entry : eventIndexToCutMap)
+    {
+        const auto eventIndex = entry.first;
+        const auto cutsPassed = entry.second;
+        em.LoadEvent(eventIndex);
+
+        for (const auto &cut : cutsPassed)
+        {
+            trueNuEPlot.Fill(em.trueNuE, cut);
+        }
+    }
+    
+    trueNuEPlot.Draw();
 
     /*
     std::map<std::string, std::vector<unsigned int> > totalMap;
