@@ -9,6 +9,9 @@ class Particle
     public:
         unsigned int index;
 
+        int nHitsU;
+        int nHitsV;
+        int nHitsW;
         float trackShower;
         bool hasTrackInfo;
         bool isContained;
@@ -138,6 +141,9 @@ class EventManager
         std::vector<Particle> m_particles;
         
         // Particle info
+        std::vector<int> *nHitsUVect = nullptr;
+        std::vector<int> *nHitsVVect = nullptr;
+        std::vector<int> *nHitsWVect = nullptr;
         std::vector<bool> *hasTrackInfoVect = nullptr;
         std::vector<bool> *isContainedVect = nullptr;
         std::vector<float> *lengthVect = nullptr;
@@ -227,6 +233,9 @@ void EventManager::SetBranchAddresses()
     m_tree->SetBranchAddress("isRecoNuFiducial", &isRecoNuFiducial);
     m_tree->SetBranchAddress("nFinalStatePFPs", &nFinalStatePFPs);
     m_tree->SetBranchAddress("recoNuVtx", &recoNuVtx);
+    m_tree->SetBranchAddress("nHitsUVect", &nHitsUVect);
+    m_tree->SetBranchAddress("nHitsVVect", &nHitsVVect);
+    m_tree->SetBranchAddress("nHitsWVect", &nHitsWVect);
     m_tree->SetBranchAddress("hasTrackInfoVect", &hasTrackInfoVect);
     m_tree->SetBranchAddress("lengthVect", &lengthVect);
     m_tree->SetBranchAddress("isContainedVect", &isContainedVect);
@@ -263,6 +272,10 @@ void EventManager::LoadEvent(const unsigned int eventIndex)
     {
         Particle p;
         p.index = index;
+
+        p.nHitsU = nHitsUVect->at(index);
+        p.nHitsV = nHitsVVect->at(index);
+        p.nHitsW = nHitsWVect->at(index);
         p.trackShower = trackShowerVect->at(index);
         p.hasTrackInfo = hasTrackInfoVect->at(index);
         p.length = lengthVect->at(index);
@@ -319,7 +332,7 @@ std::string EventManager::GetTopologyString() const
     std::string interaction;
     
     if (!isTrueNuFiducial)
-        interaction += "non-fiducial  ";
+        return "non-fiducial  ";
  
     if (isSignal)
         interaction += "signal  ";
@@ -342,9 +355,6 @@ std::string EventManager::GetTopologyString() const
     if (nKMinus != 0)
         interaction += std::to_string(nKMinus) + " K-  ";
 
-    if (nProton != 0)
-        interaction += std::to_string(nProton) + " p  ";
-
     if (nNeutron != 0)
         interaction += std::to_string(nNeutron) + " n  ";
 
@@ -359,6 +369,12 @@ std::string EventManager::GetTopologyString() const
     
     if (nOther != 0)
         interaction += std::to_string(nOther) + " ?  ";
+    
+    /*
+    if (nProton != 0)
+        interaction += std::to_string(nProton) + " p  ";
+    */
+    interaction += "X p  ";
 
     return interaction;
 }
@@ -944,15 +960,14 @@ std::vector<Particle> GetCRCandidates(const std::vector<Particle> &allParticles,
  *
  *  @param  allParticles the full list of particles from Pandora
  *  @param  primaryCandidates the list of primary candidate particles
- *  @param  crCandidates the list of cosmic-ray candidate particles
- *  @param  secondaryDist the distance within which a particle is considered a possible daughter of a primary
+ *  @param  secondaryDist the threshold distance
  *
  *  @return the secondary candidates
  */
-std::vector<Particle> GetSecondaryCandidates(const std::vector<Particle> &allParticles, const std::vector<Particle> &primaryCandidates, const std::vector<Particle> &crCandidates, const float secondaryDist)
+std::vector<Particle> GetSecondaryCandidates(const std::vector<Particle> &allParticles, const std::vector<Particle> &primaryCandidates, const float secondaryDist)
 {
     std::vector<Particle> outputParticles;
-    const float cut2 = secondaryDist * secondaryDist;
+    const auto dist2 = secondaryDist * secondaryDist;
 
     for (const auto &particle : allParticles)
     {
@@ -960,22 +975,18 @@ std::vector<Particle> GetSecondaryCandidates(const std::vector<Particle> &allPar
         if (ContainsParticle(primaryCandidates, particle))
             continue;
         
-        // Skip the CR candidates
-        if (ContainsParticle(crCandidates, particle))
-            continue;
-
-        // Check if this particle starts near the end of a primary
-        bool isNearPrimary = false;
+        // Check if this particle starts nearer to the end of a primary than to the vertex
+        bool isNearPrimaryEnd = false;
         for (const auto &primary : primaryCandidates)
         {
-            if ((particle.start - primary.end).Mag2() < cut2)
+            if ((particle.start - primary.end).Mag2() < dist2)
             {
-                isNearPrimary = true;
+                isNearPrimaryEnd = true;
                 break;
             }
         }
 
-        if (!isNearPrimary)
+        if (!isNearPrimaryEnd)
             continue;
 
         outputParticles.push_back(particle);
@@ -1083,37 +1094,91 @@ bool HasPIDAvailable(const std::vector<Particle> &particles)
 // -----------------------------------------------------------------------------------------------------------------------------------------
 
 /**
- *  @brief  Get the proton candidates
+ *  @brief  Get the muon candidates
  *
  *  @param  particles the input vector of particles
  *
- *  @return the proton candidates
+ *  @return the muon candidates
  */
-std::vector<Particle> GetProtonCandidates(const std::vector<Particle> &particles)
+std::vector<Particle> GetMuonCandidates(const std::vector<Particle> &particles)
 {
     std::vector<Particle> outputParticles;
 
     for (const auto &particle : particles)
     {
         if (!particle.isContained)
+        {
+            outputParticles.push_back(particle);
+            continue;
+        }
+
+        if (!HasPIDAvailable(particle))
+            continue;
+
+        if (particle.trackShower < 0.8)
+            continue;
+        
+        const auto hasPIDW = HasPIDWAvailable(particle);
+        if (hasPIDW && std::log(particle.braggpW / particle.braggMIPW) > 0.f && particle.length < 250.f)
+            continue;
+
+        if (!hasPIDW)
+        {
+            const auto hasPIDUV = HasPIDUVAvailable(particle);
+            if (!hasPIDUV)
+                throw std::logic_error("Particle has no PID for W or UV, these should have been filtered out already!");
+
+            if (std::log(particle.braggpUV / particle.braggMIPUV) > 0.f && particle.length < 250.f)
+                continue;
+        }
+
+        outputParticles.push_back(particle);
+    }
+
+    return outputParticles;
+}
+
+// -----------------------------------------------------------------------------------------------------------------------------------------
+
+/**
+ *  @brief  Get the proton candidates
+ *
+ *  @param  particles the input vector of particles
+ *  @param  muonCandidates the muon candidates
+ *
+ *  @return the proton candidates
+ */
+std::vector<Particle> GetProtonCandidates(const std::vector<Particle> &particles, const std::vector<Particle> &muonCandidates)
+{
+    std::vector<Particle> outputParticles;
+
+    for (const auto &particle : particles)
+    {
+        if (ContainsParticle(muonCandidates, particle))
+            continue;
+
+        if (!particle.isContained)
             continue;
 
         if (!HasPIDAvailable(particle))
             continue;
-    
+
         if (particle.trackShower < 0.5)
             continue;
-
-        if (particle.length > 250)
-            continue;
-
+        
         const auto hasPIDW = HasPIDWAvailable(particle);
-        if (hasPIDW && (std::log(particle.braggpW) < -3 || std::log(particle.braggMIPW) > -2.5))
+        if (hasPIDW && std::log(particle.braggpW / particle.braggMIPW) < 2.f)
             continue;
 
-        const auto hasPIDUV = HasPIDUVAvailable(particle);
-        if (hasPIDUV && (std::log(particle.braggpUV) < -3 || std::log(particle.braggMIPUV) > -2.5))
-            continue;
+        if (!hasPIDW)
+        {
+            const auto hasPIDUV = HasPIDUVAvailable(particle);
+            if (!hasPIDUV)
+                throw std::logic_error("Particle has no PID for W or UV, these should have been filtered out already!");
+
+            if (std::log(particle.braggpUV / particle.braggMIPUV) < 2.f)
+                continue;
+        }
 
         outputParticles.push_back(particle);
     }
@@ -1138,10 +1203,10 @@ void makeSelectionTableNew()
     // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     const unsigned int nEvents = std::numeric_limits<unsigned int>::max();
 
-    const float minTopologicalScore = 0.05f; // The minimum topological score for an event to be selected
-    const float primaryDist = 7.f;           // The maximum distance from which a particle can start from the vertex to be called a primary
-    const float crDist = 14.3f * 3;          // The distance from a primary beyond which we believe a particle is a cosmic ray (3 * radiation length)
-    const float secondaryDist = 14.3f;       // The maximum distance between a secondary particle and a primary
+    const float minTopologicalScore = 0.05f;     // The minimum topological score for an event to be selected
+    const float primaryDist = 5.f;               // The maximum distance from which a particle can start from the vertex to be called a primary
+    const float secondaryDist = 5.f;             // The maximum distance from which a particle can start from a primary to be called a secondary
+    const float maxOpeningAngle = 2.6f;          // The maximum reconstructed muon-pion opening angle
 
     // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -1164,32 +1229,12 @@ void makeSelectionTableNew()
         counter.AddEventPassingCut("fiducial", topology, eventIndex);
         
         // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-        // Insist that there are at least 2 PFParticles that start near the vertex
+        // Insist as most one primary particle is uncontained
         // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         const auto allParticles = em.GetParticles();
         const auto recoNuVtx = *em.recoNuVtx;
         const auto primaryCandidates = GetParticlesNearVertex(allParticles, recoNuVtx, primaryDist);
-        if (primaryCandidates.size() < 2)
-            continue;
-        
-        counter.AddEventPassingCut("minTwoPrimaries", topology, eventIndex);
-        
-        // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-        // Insist that all other PFParticles start close to one of the primaries, or are very well far away (CR)
-        // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-        const auto crCandidates = GetCRCandidates(allParticles, primaryCandidates, recoNuVtx, crDist);
-        const auto secondaryCandidates = GetSecondaryCandidates(allParticles, primaryCandidates, crCandidates, secondaryDist);
 
-        // Check that every particle has fallen into one of the categories
-        const auto areAllParticlesClassified = AreParticlesIdentical({allParticles}, {primaryCandidates, crCandidates, secondaryCandidates});
-        if (!areAllParticlesClassified)
-            continue;
-        
-        counter.AddEventPassingCut("validSecondaries", topology, eventIndex);
-        
-        // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-        // Insist as most one primary particle is uncontained
-        // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         const auto uncontainedParticles = GetUncontainedParticles(primaryCandidates);
         if (uncontainedParticles.size() > 1)
             continue;
@@ -1206,14 +1251,77 @@ void makeSelectionTableNew()
         counter.AddEventPassingCut("pidAvailable", topology, eventIndex);
         
         // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        // Insist that there are at least 2 PFParticles that start near the vertex
+        // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        if (primaryCandidates.size() < 2)
+            continue;
+        
+        counter.AddEventPassingCut("minTwoPrimaries", topology, eventIndex);
+        
+        // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        // Insist that there is at least one muon candidate
+        // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        const auto muonCandidates = GetMuonCandidates(primaryCandidates);
+        if (muonCandidates.empty())
+            continue;
+        
+        counter.AddEventPassingCut("minOneMuon", topology, eventIndex);
+
+        // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         // Insist that there are exactly 2 non-proton candidates
         // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-        const auto protonCandidates = GetProtonCandidates(primaryCandidates);
+        const auto protonCandidates = GetProtonCandidates(primaryCandidates, muonCandidates);
         if (protonCandidates.size() + 2 != primaryCandidates.size())
             continue;
         
         counter.AddEventPassingCut("twoNonProtons", topology, eventIndex);
         
+        // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        // Insist that muon and pion opening angle isn't too large
+        // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        std::vector<TVector3> directions;
+        for (const auto &particle : primaryCandidates)
+        {
+            if (ContainsParticle(protonCandidates, particle))
+                continue;
+
+            directions.push_back(particle.direction);
+        }
+        
+        if (directions.size() != 2)
+            throw std::logic_error("More than 2 mu/pi candidates selected. Something has gone wrong");
+
+        const auto theta = std::acos(directions.front().Dot(directions.back()));
+        if (theta > maxOpeningAngle)
+            continue;
+
+        counter.AddEventPassingCut("notBackToBack", topology, eventIndex);
+        
+        // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        // Insist that there aren't shower like primary looking particles we haven't considered as primaries
+        // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        const auto secondaryCandidates = GetSecondaryCandidates(allParticles, primaryCandidates, secondaryDist);
+
+        float nShowers = 0;
+        for (const auto &particle : allParticles)
+        {
+            if (ContainsParticle(primaryCandidates, particle))
+                continue;
+            
+            if (ContainsParticle(secondaryCandidates, particle))
+                continue;
+
+            if (particle.trackShower > 0.5)
+                continue;
+
+            nShowers++;
+        }
+
+        if (nShowers > 0)
+            continue;
+        
+        counter.AddEventPassingCut("showerCut", topology, eventIndex);
+
         // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         // Insist that the pandora topological neutrino score isn't very low
         // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -1238,9 +1346,8 @@ void makeSelectionTableNew()
     EventPlot truePiThetaPlot("True Pion Theta", "Pion Theta [rad]", 100, 0, pi);
     EventPlot truePiPhiPlot("True Pion Phi", "Pion Phi [rad]", 100, -pi, pi);
     EventPlot trueMuPiAnglePlot("True Muon-Pion Opening Angle", "Opening angle [rad]", 100, 0, pi);
-    EventPlot trueNProton("Proton Multiplicity", "Number of protons", 6, 0, 6);
+    EventPlot trueNProtonPlot("Proton Multiplicity", "Number of protons", 6, 0, 6);
 
-    EventPlot nExtPFPsPlot("Number Of External Particles", "Number of external particles", 5, 0, 5);
     EventPlot pionCompletenessPlot("Pion Completeness", "Pion completeness", 100, 0, 1);
     EventPlot muonCompletenessPlot("Muon Completeness", "Muon completeness", 100, 0, 1);
 
@@ -1270,25 +1377,14 @@ void makeSelectionTableNew()
             truePiThetaPlot.Fill(em.truePiTheta, cut);
             truePiPhiPlot.Fill(em.truePiPhi, cut);
             trueMuPiAnglePlot.Fill(em.trueMuPiAngle, cut);
-            trueNProton.Fill(em.nProton, cut);
+            trueNProtonPlot.Fill(em.nProton, cut);
     
-            // Count the number of external particles not identifed as a cosmic-ray
-            int nExtPFPs = 0;
-            const auto allParticles = em.GetParticles();
-            const auto recoNuVtx = *em.recoNuVtx;
-            const auto primaryCandidates = GetParticlesNearVertex(allParticles, recoNuVtx, primaryDist);
-            const auto crCandidates = GetCRCandidates(allParticles, primaryCandidates, recoNuVtx, crDist);
-
             // Sum the completenesses of the best matched particles
             float pionCompleteness = 0.f;
             float muonCompleteness = 0.f;
 
             for (const auto &particle : em.GetParticles())
             {
-                // Skip the particles we have already identified as CRs
-                if (!ContainsParticle(crCandidates, particle) && !particle.hasMatchedMCParticle)
-                    nExtPFPs++;
-
                 // Add up the pion completeness
                 if (particle.hasMatchedMCParticle && particle.truePdgCode == 211)
                     pionCompleteness += particle.truthMatchCompleteness;
@@ -1298,7 +1394,6 @@ void makeSelectionTableNew()
                     muonCompleteness += particle.truthMatchCompleteness;
             }
 
-            nExtPFPsPlot.Fill(nExtPFPs, cut);
             pionCompletenessPlot.Fill(pionCompleteness, cut);
             muonCompletenessPlot.Fill(muonCompleteness, cut);
         }
@@ -1314,7 +1409,6 @@ void makeSelectionTableNew()
     truePiPhiPlot.Draw(allCuts);
     trueMuPiAnglePlot.Draw(allCuts);
     trueNProtonPlot.Draw(allCuts);
-    nExtPFPsPlot.Draw(allCuts);
     pionCompletenessPlot.Draw(allCuts);
     muonCompletenessPlot.Draw(allCuts);
 
