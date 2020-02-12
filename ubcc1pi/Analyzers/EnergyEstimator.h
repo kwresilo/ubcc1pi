@@ -109,12 +109,39 @@ class EnergyEstimator : public art::EDAnalyzer
             float        m_trueEndPointDist;      ///< The true start-end distance
 
             // Reco particle variables
-            bool         m_hasTrack;              ///< Has an associated track
-            TVector3     m_start;                 ///< The start position (SCE corrected)
-            TVector3     m_end;                   ///< The end position (SCE corrected)
-            float        m_length;                ///< The track-length (Not SCE corrected)
-            float        m_range;                 ///< The range of the particle (SCE corrected)
-            float        m_endPointDist;          ///< The start-end distance (SCE corrected)
+            int          m_generation;              ///< The generation of the PFParticle (0 = neutrino, 1 = final state, 2 = secondary, ...)
+            bool         m_isPrimary;               ///< If the generation is 1, a final state particle
+            int          m_nDaughters;              ///< The number of daughter PFParticles
+            float        m_integratedRange;         ///< The summed range of this PFParticle and all parents in the hierarchy
+            bool         m_hasTrack;                ///< Has an associated track
+            TVector3     m_start;                   ///< The start position (SCE corrected)
+            TVector3     m_end;                     ///< The end position (SCE corrected)
+            float        m_thetaYZ;                 ///< The angle to Z in the YZ plane
+            float        m_thetaXZ;                 ///< The angle to Z in the XZ plane
+            float        m_thetaXY;                 ///< The angle to Y in the XY plane
+            float        m_length;                  ///< The track-length (Not SCE corrected)
+            float        m_range;                   ///< The range of the particle (SCE corrected)
+            float        m_endPointDist;            ///< The start-end distance (SCE corrected)
+            float        m_parentCosOpeningAngle;   ///< The opening angle to the parent track
+            float        m_daughterCosOpeningAngle; ///< The opening angle to the longest daughter track
+    
+            bool         m_hasPid;                  ///< If the particle has PID available
+            float        m_muonLikelihoodU;         ///< The likelihood of a muon in the U view
+            float        m_muonLikelihoodV;         ///< The likelihood of a muon in the V view
+            float        m_muonLikelihoodW;         ///< The likelihood of a muon in the W view
+            float        m_pionLikelihoodU;         ///< The likelihood of a pion in the U view
+            float        m_pionLikelihoodV;         ///< The likelihood of a pion in the V view 
+            float        m_pionLikelihoodW;         ///< The likelihood of a pion in the W view 
+            float        m_protonLikelihoodU;       ///< The likelihood of a proton in the U view
+            float        m_protonLikelihoodV;       ///< The likelihood of a proton in the V view 
+            float        m_protonLikelihoodW;       ///< The likelihood of a proton in the W view 
+            float        m_mipLikelihoodU;          ///< The likelihood of a MIP in the U view 
+            float        m_mipLikelihoodV;          ///< The likelihood of a MIP in the V view 
+            float        m_mipLikelihoodW;          ///< The likelihood of a MIP in the W view 
+
+            bool         m_shouldUseMuon;           ///< If this particle makes the best candidate in it's hierarchy to be used when calculating the range of a muon
+            bool         m_shouldUsePion;           ///< If this particle makes the best candidate in it's hierarchy to be used when calculating the range of a pion
+            bool         m_shouldUseProton;         ///< If this particle makes the best candidate in it's hierarchy to be used when calculating the range of a proton
         };
 
         /**
@@ -130,6 +157,17 @@ class EnergyEstimator : public art::EDAnalyzer
          *  @param  event the event to analyze
          */
         void analyze(const art::Event &event);
+
+        /**
+         *  @brief  Get the track associated with a PFParticle
+         *
+         *  @param  pfParticle the input PFParticle
+         *  @param  pfpToTrack the PFParticle to Track mapping
+         *  @param  track the output track
+         *
+         *  @return bool, true if there was an associated track
+         */
+        bool GetTrack(const art::Ptr<recob::PFParticle> &pfParticle, const PFParticleToTracks &pfpToTrack, art::Ptr<recob::Track> &track) const;
 
         /**
          *  @brief  Get the range of an MCParticle by following all of it's trajectory points
@@ -160,6 +198,18 @@ class EnergyEstimator : public art::EDAnalyzer
         float GetRange(const art::Ptr<recob::Track> &track, const spacecharge::SpaceChargeService::provider_type *const pSpaceChargeService) const;
 
         /**
+         *  @brief  Get the summed range of the input PFParticle and all of its parents 
+         *
+         *  @param  pfParticle the input PFParticle
+         *  @param  pfParticleMap the input PFParticle hierarchy map
+         *  @param  pfpToTrack the input mapping from PFParticles to Tracks
+         *  @param  pSpaceChargeService the spacecharge service
+         *
+         *  @return the integrated range
+         */
+        float GetIntegratedRange(const art::Ptr<recob::PFParticle> &pfParticle, const PFParticleMap &pfParticleMap, const PFParticleToTracks &pfpToTrack, const spacecharge::SpaceChargeService::provider_type *const pSpaceChargeService) const;
+
+        /**
          *  @brief  Get the straight line distance from a track's by start and end trajectory points
          *
          *  @param  track the track
@@ -177,6 +227,29 @@ class EnergyEstimator : public art::EDAnalyzer
          *  @return the vector of valid points
          */
         std::vector<size_t> GetValidPoints(const art::Ptr<recob::Track> &track) const;
+
+        /**
+         *  @brief  Get the opening angle between two tracks
+         *
+         *  @param  daughterTrack the daughter track
+         *  @param  parentTrack the parent track
+         *
+         *  @return the opening angle
+         */
+        float GetCosOpeningAngle(const art::Ptr<recob::Track> &daughterTrack, const art::Ptr<recob::Track> &parentTrack) const;
+
+        /**
+         *  @brief  Check if the input PFParticle is a good candidate to use for the energy calculation
+         *
+         *  @param  pfParticle the input PFParticle
+         *  @param  pfParticleMap the input PFParticle mapping
+         *  @param  pfpToTrack the input PFParticle to track mapping
+         *  @param  trackToPID the input track to PID mapping
+         *  @param  pdgCode the input PDG code we are trying for
+         *
+         *  @return if this PFParticle makes the best candidate in it's hierarchy
+         */
+        bool CheckIfShouldUseForCalculation(const art::Ptr<recob::PFParticle> &pfParticle, const PFParticleMap &pfParticleMap, const PFParticleToTracks &pfpToTrack, const TrackToPIDs &trackToPID, unsigned int pdgCode) const;
 
         /**
          *  @brief  Reset the output object to dummy values, ready for the next PFParticle to fill

@@ -176,6 +176,22 @@ void RecoHelper::GetDownstreamParticles(const art::Ptr<recob::PFParticle> &parti
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
         
+unsigned int RecoHelper::GetGeneration(const art::Ptr<recob::PFParticle> &particle, const PFParticleMap &pfParticleMap)
+{
+    unsigned int generation = 0;
+
+    art::Ptr<recob::PFParticle> nextParticle = particle;
+    while (!nextParticle->IsPrimary())
+    {
+        nextParticle = RecoHelper::GetParent(nextParticle, pfParticleMap);
+        generation++;
+    }
+
+    return generation;
+}
+
+// -----------------------------------------------------------------------------------------------------------------------------------------
+        
 bool RecoHelper::IsSliceSelectedAsNu(const art::Ptr<recob::Slice> &slice, const SlicesToPFParticles &slicesToPFParticles)
 {
     const auto neutrinos = RecoHelper::GetNeutrinos(CollectionHelper::GetManyAssociated(slice, slicesToPFParticles));
@@ -267,6 +283,61 @@ TVector3 RecoHelper::CorrectForSpaceCharge(const TVector3 &position, const space
 {
     const auto offset = pSpaceChargeService->GetCalPosOffsets(geo::Point_t(position.X(), position.Y(), position.Z()));
     return TVector3(position.X() - offset.X(), position.Y() + offset.Y(), position.Z() + offset.Z());
+}
+
+// -----------------------------------------------------------------------------------------------------------------------------------------
+            
+float RecoHelper::GetPidScore(const art::Ptr<anab::ParticleID> &pid, const std::function<bool(const anab::sParticleIDAlgScores &)> &fCriteria)
+{
+    bool found = false;
+    float score = -std::numeric_limits<float>::max();
+
+    for (const auto &algo : pid->ParticleIDAlgScores())
+    {
+        if (!fCriteria(algo))
+            continue;
+
+        if (found)
+            throw cet::exception("RecoHelper::GetPidScore") << " - Ambiguous criteria supplied." << std::endl;
+
+        found = true;
+        score = algo.fValue;
+    }
+
+    return score;
+}
+
+// -----------------------------------------------------------------------------------------------------------------------------------------
+
+geo::View_t RecoHelper::GetView(const std::bitset<8> &planeMask)
+{
+    // Here is a hack to get around a bug in the PID code. Some algorithms call W = 0, U = 1, V = 2. But others call W = 7, U = 6, V = 5
+    const bool usesW = planeMask.test(0) || planeMask.test(7);
+    const bool usesU = planeMask.test(1) || planeMask.test(6);
+    const bool usesV = planeMask.test(2) || planeMask.test(5);
+    
+    if (usesW && !usesU && !usesV)
+        return geo::kW;
+    
+    if (!usesW && usesU && !usesV)
+        return geo::kU;
+    
+    if (!usesW && !usesU && usesV)
+        return geo::kV;
+
+    return geo::kUnknown;
+}
+
+// -----------------------------------------------------------------------------------------------------------------------------------------
+
+float RecoHelper::GetBraggLikelihood(const art::Ptr<anab::ParticleID> &pid, const int &pdg, const geo::View_t &view)
+{
+    return RecoHelper::GetPidScore(pid, [&](const anab::sParticleIDAlgScores &algo) -> bool {
+        return (algo.fAlgName == "BraggPeakLLH"              &&
+                algo.fTrackDir == anab::kForward             &&
+                algo.fAssumedPdg == pdg                      &&
+                RecoHelper::GetView(algo.fPlaneMask) == view );
+    });
 }
 
 } // namespace ubcc1pi

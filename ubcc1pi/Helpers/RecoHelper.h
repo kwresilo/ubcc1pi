@@ -12,6 +12,7 @@
 #include "larevt/SpaceChargeServices/SpaceChargeService.h"
 
 #include <unordered_map>
+#include <functional>
 
 namespace ubcc1pi
 {
@@ -133,6 +134,16 @@ class RecoHelper
         static void GetDownstreamParticles(const art::Ptr<recob::PFParticle> &particle, const PFParticleMap &pfParticleMap, PFParticleVector &downstreamParticles);
 
         /**
+         *  @brief  Get the generation of a given PFParticle in the hierarchy
+         *
+         *  @param  particle the input PFParticle
+         *  @param  pfParticleMap the PFParticle mapping
+         *
+         *  @return the generation
+         */
+        static unsigned int GetGeneration(const art::Ptr<recob::PFParticle> &particle, const PFParticleMap &pfParticleMap);
+
+        /**
          *  @brief  Determine if a given slice has been selected as a neutrino by looking at the PdgCodes of its PFParticles
          *
          *  @param  slice the slice to check
@@ -226,6 +237,36 @@ class RecoHelper
          *  @return the space charge corrected 3D position
          */
         static TVector3 CorrectForSpaceCharge(const TVector3 &position, const spacecharge::SpaceChargeService::provider_type *const pSpaceChargeService);
+
+        /**
+         *  @brief  Get the score associated with a given PID criteria
+         *
+         *  @param  pid the input pid object
+         *  @param  fCriteria a function that returns true if a given algorithm score passes some criteria
+         *
+         *  @return the score
+         */
+        static float GetPidScore(const art::Ptr<anab::ParticleID> &pid, const std::function<bool(const anab::sParticleIDAlgScores &)> &fCriteria);
+
+        /**
+         *  @brief  Convert a plane mask from a PID algorithm into a human readable view
+         *
+         *  @param  planeMask the input plane mask
+         *
+         *  @return the view
+         */
+        static geo::View_t GetView(const std::bitset<8> &planeMask);
+
+        /**
+         *  @brief  Get the bragg likelihood from a PID object
+         *
+         *  @param  pid the input pid
+         *  @param  pdg the assumed pdg
+         *  @param  view the view
+         *
+         *  @return the bragg likelihood
+         */
+        static float GetBraggLikelihood(const art::Ptr<anab::ParticleID> &pid, const int &pdg, const geo::View_t &view);
 };
 
 } // namespace ubcc1pi
