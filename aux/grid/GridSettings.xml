@@ -77,7 +77,7 @@
     <!-- Set up the project -->
     <!-- =============================================================================================================================== -->
     <group>uboone</group>
-    <os>SL6</os>
+    <os>SL7</os>
     <resource>DEDICATED,OPPORTUNISTIC</resource>
 
     <numjobs>&numJobs;</numjobs>
@@ -186,6 +186,7 @@
         <numjobs>&numJobs;</numjobs>
         <maxfilesperjob>&maxFilesPerJob;</maxfilesperjob>
         <numevents>&numEvents;</numevents>
+        <initsource>/pnfs/uboone/resilient/users/&username;/scripts/&projectName;/setupSearchPath.sh</initsource>
 
         <!-- Input files -->
         <inputdef>&inputDef;</inputdef>
@@ -198,5 +199,6 @@
         <!-- Options -->
         <datatier>&dataTier;</datatier>
         <schema>&schema;</schema>
+        <memory>4000</memory>
     </stage>
 </project>

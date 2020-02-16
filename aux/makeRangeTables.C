@@ -195,12 +195,31 @@ void MakeRangeTables(const Parameters &p)
     float trueKE;
     pTree->SetBranchAddress("trueKE", &trueKE);
     
+    float trueMomentum;
+    pTree->SetBranchAddress("trueMomentum", &trueMomentum);
+    
     float trueRange;
     pTree->SetBranchAddress("trueRange", &trueRange);
     
     float range;
     pTree->SetBranchAddress("range", &range);
+    
+    bool isPrimary;
+    pTree->SetBranchAddress("isPrimary", &isPrimary);
 
+    /*
+    int generation;
+    pTree->SetBranchAddress("generation", &generation);
+    
+    float integratedRange;
+    pTree->SetBranchAddress("integratedRange", &integratedRange);
+    
+    bool shouldUseMuon;
+    pTree->SetBranchAddress("shouldUseMuon", &shouldUseMuon);
+    
+    bool shouldUsePion;
+    pTree->SetBranchAddress("shouldUsePion", &shouldUsePion);
+    */
 
     // Extract the KEs and ranges
     std::vector<float> muonRanges, pionRanges, muonKEs, pionKEs, muonRecoRanges, pionRecoRanges;
@@ -208,8 +227,8 @@ void MakeRangeTables(const Parameters &p)
     {
         pTree->GetEntry(i);
 
-        // Ensure we only have PFParticles that match to golden MCParticles
-        if (!hasMatchedMCParticle || trueMatchCompleteness <= 0.5f || !isGolden)
+        // Ensure we only have primary PFParticles that match to golden MCParticles
+        if (!hasMatchedMCParticle || trueMatchCompleteness <= 0.5f || !isGolden || !isPrimary)
             continue;
 
         if (truePdgCode == 13)
@@ -289,17 +308,19 @@ void MakeRangeTables(const Parameters &p)
     GetRatios(pionRecoKEsFromFit, pionKEs, pionRecoKEsFromFitRatio);
 
     // Make the relevant plots
-    MakePlot(c, muonRanges, 0.f, p.m_maxMuonRange, p.m_muonRangeBinWidth, muonKEs, 0.f, 0.9f, 0.005f, "muon_trueKE-vs-trueRange");
-    MakePlot(c, muonRanges, 0.f, p.m_maxMuonRange, p.m_muonRangeBinWidth, muonKEsFromFitRatio, -1.f, 1.f, 0.005f, "muon_trueKE-to-trueFitKE-vs-trueRange");
-    MakePlot(c, muonRanges, 0.f, p.m_maxMuonRange, p.m_muonRangeBinWidth, muonRecoRanges, 0.f, p.m_maxMuonRange, p.m_muonRangeBinWidth, "muon_recoRange-vs-trueRange");
-    MakePlot(c, muonRanges, 0.f, p.m_maxMuonRange, p.m_muonRangeBinWidth, muonRangeRatio, -1.f, 1.f, 0.005f, "muon_rangeRatio-vs-trueRange");
-    MakePlot(c, muonRanges, 0.f, p.m_maxMuonRange, p.m_muonRangeBinWidth, muonRecoKEsFromFitRatio, -2.f, 2.f, 0.005f, "muon_trueKE-to-recoFitKE-vs-trueRange");
-    
+    MakePlot(c, pionRecoRanges, 0.f, 60.f, 0.8f, pionRecoKEsFromFitRatio, -1.f, 3.f, 0.03f, "pion_trueKE-to-recoFitKE-vs-recoRange");
     MakePlot(c, pionRanges, 0.f, p.m_maxPionRange, p.m_pionRangeBinWidth, pionKEs, 0.f, 0.5f, 0.005f, "pion_trueKE-vs-trueRange");
     MakePlot(c, pionRanges, 0.f, p.m_maxPionRange, p.m_pionRangeBinWidth, pionKEsFromFitRatio, -1.f, 1.f, 0.005f, "pion_trueKE-to-trueFitKE-vs-trueRange");
     MakePlot(c, pionRanges, 0.f, p.m_maxPionRange, p.m_pionRangeBinWidth, pionRecoRanges, 0.f, p.m_maxPionRange, p.m_pionRangeBinWidth, "pion_recoRange-vs-trueRange");
     MakePlot(c, pionRanges, 0.f, p.m_maxPionRange, p.m_pionRangeBinWidth, pionRangeRatio, -1.f, 1.f, 0.01f, "pion_rangeRatio-vs-trueRange");
     MakePlot(c, pionRanges, 0.f, p.m_maxPionRange, p.m_pionRangeBinWidth, pionRecoKEsFromFitRatio, -2.f, 2.f, 0.01f, "pion_trueKE-to-recoFitKE-vs-trueRange");
+    
+    MakePlot(c, muonRecoRanges, 0.f, p.m_maxMuonRange, p.m_muonRangeBinWidth, muonRecoKEsFromFitRatio, -1.f, 2.f, 0.005f, "muon_trueKE-to-recoFitKE-vs-recoRange");
+    MakePlot(c, muonRanges, 0.f, p.m_maxMuonRange, p.m_muonRangeBinWidth, muonKEs, 0.f, 0.9f, 0.005f, "muon_trueKE-vs-trueRange");
+    MakePlot(c, muonRanges, 0.f, p.m_maxMuonRange, p.m_muonRangeBinWidth, muonKEsFromFitRatio, -1.f, 1.f, 0.005f, "muon_trueKE-to-trueFitKE-vs-trueRange");
+    MakePlot(c, muonRanges, 0.f, p.m_maxMuonRange, p.m_muonRangeBinWidth, muonRecoRanges, 0.f, p.m_maxMuonRange, p.m_muonRangeBinWidth, "muon_recoRange-vs-trueRange");
+    MakePlot(c, muonRanges, 0.f, p.m_maxMuonRange, p.m_muonRangeBinWidth, muonRangeRatio, -1.f, 1.f, 0.005f, "muon_rangeRatio-vs-trueRange");
+    MakePlot(c, muonRanges, 0.f, p.m_maxMuonRange, p.m_muonRangeBinWidth, muonRecoKEsFromFitRatio, -2.f, 2.f, 0.005f, "muon_trueKE-to-recoFitKE-vs-trueRange");
     
     gStyle->SetOptStat(1);
     MakePlot(c, muonKEsFromFitRatio, -0.2f, 0.2f, 0.005f, "muon_trueKE-to-trueFitKE");

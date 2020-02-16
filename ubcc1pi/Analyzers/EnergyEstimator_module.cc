@@ -191,6 +191,7 @@ void EnergyEstimator::analyze(const art::Event &event)
             std::cout << "    Completeness:    " << m_outputParticle.m_trueMatchCompleteness << std::endl;
             std::cout << "  trueRange:         " << m_outputParticle.m_trueRange << std::endl;
             std::cout << "  trueContained:     " << m_outputParticle.m_isContained << std::endl;
+            std::cout << "  isGolden:          " << m_outputParticle.m_isGolden << std::endl;
         }
 
         // Get the PFParticle hierarchy info
@@ -268,6 +269,12 @@ void EnergyEstimator::analyze(const art::Event &event)
                     m_outputParticle.m_trueMatchCompleteness > 0.5f)
             {
                 std::cout << "Broken muon" << std::endl;
+            }
+
+            if (m_outputParticle.m_isPrimary && m_outputParticle.m_truePdgCode == 211 && m_outputParticle.m_isGolden && m_outputParticle.m_isSignal)
+            {
+                std::cout << "Golden pion!" << std::endl;
+                std::cin.get();
             }
             
             // Get the PID info

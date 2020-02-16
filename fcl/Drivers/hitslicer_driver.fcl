@@ -1,0 +1,29 @@
+#include "hitslicer.fcl"
+#include "reco_uboone_mcc9_8_driver_stage2.fcl"
+
+process_name: HitSlicer
+
+source:
+{
+    module_type:                RootInput
+    maxEvents:                 -1
+    saveMemoryObjectThreshold:  0
+}
+
+services.TFileService: {fileName: "hitSlicer.root"}
+
+outputs.out1.fileName: "%ifb_%tc_hitSlicer.root"
+
+physics:
+{
+    producers:
+    {
+        hitSlicer: @local::hitslicer
+    }
+
+    reco: [ hitSlicer ]
+    stream1: [ out1 ]
+
+    trigger_paths: [ reco ]
+    end_paths: [ stream1 ]
+}

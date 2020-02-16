@@ -81,7 +81,7 @@ EventSelection::EventSelection(const art::EDAnalyzer::Table<Config> &config) :
     m_pEventTree->Branch("hasRecoNeutrino", &m_outputEvent.m_hasRecoNeutrino);
     m_pEventTree->Branch("recoNuVtx", &m_outputEvent.m_recoNuVtx);
     m_pEventTree->Branch("isRecoNuFiducial", &m_outputEvent.m_isRecoNuFiducial);
-    m_pEventTree->Branch("topologicalScore", &m_outputEvent.m_topologicalScore);
+//    m_pEventTree->Branch("topologicalScore", &m_outputEvent.m_topologicalScore);
     m_pEventTree->Branch("nFinalStatePFPs", &m_outputEvent.m_nFinalStatePFPs);
 
     m_pEventTree->Branch("hasMatchedMCParticleVect", &m_outputEvent.m_hasMatchedMCParticleVect);
@@ -91,12 +91,17 @@ EventSelection::EventSelection(const art::EDAnalyzer::Table<Config> &config) :
     m_pEventTree->Branch("truthMatchPurityVect", &m_outputEvent.m_truthMatchPurityVect);
     m_pEventTree->Branch("trueEnergyVect", &m_outputEvent.m_trueEnergyVect);
     m_pEventTree->Branch("trueKEVect", &m_outputEvent.m_trueKEVect);
+    m_pEventTree->Branch("trueRangeVect", &m_outputEvent.m_trueRangeVect);
     m_pEventTree->Branch("trueMomentumXVect", &m_outputEvent.m_trueMomentumXVect);
     m_pEventTree->Branch("trueMomentumYVect", &m_outputEvent.m_trueMomentumYVect);
     m_pEventTree->Branch("trueMomentumZVect", &m_outputEvent.m_trueMomentumZVect);
     m_pEventTree->Branch("trueStartXVect", &m_outputEvent.m_trueStartXVect);
     m_pEventTree->Branch("trueStartYVect", &m_outputEvent.m_trueStartYVect);
     m_pEventTree->Branch("trueStartZVect", &m_outputEvent.m_trueStartZVect);
+    m_pEventTree->Branch("trueIsContainedVect", &m_outputEvent.m_trueIsContainedVect);
+    m_pEventTree->Branch("trueIsStoppingVect", &m_outputEvent.m_trueIsStoppingVect);
+    m_pEventTree->Branch("trueNScattersVect", &m_outputEvent.m_trueNScattersVect);
+    m_pEventTree->Branch("trueIsGoldenVect", &m_outputEvent.m_trueIsGoldenVect);
     
     m_pEventTree->Branch("hasTrackInfoVect", &m_outputEvent.m_hasTrackInfoVect);
 
@@ -112,13 +117,21 @@ EventSelection::EventSelection(const art::EDAnalyzer::Table<Config> &config) :
     m_pEventTree->Branch("thetaVect", &m_outputEvent.m_thetaVect);
     m_pEventTree->Branch("phiVect", &m_outputEvent.m_phiVect);
     m_pEventTree->Branch("yzAngleVect", &m_outputEvent.m_yzAngleVect);
+    m_pEventTree->Branch("xyAngleVect", &m_outputEvent.m_xyAngleVect);
+    m_pEventTree->Branch("xzAngleVect", &m_outputEvent.m_xzAngleVect);
     m_pEventTree->Branch("lengthVect", &m_outputEvent.m_lengthVect);
+    m_pEventTree->Branch("rangeVect", &m_outputEvent.m_rangeVect);
     m_pEventTree->Branch("isContainedVect", &m_outputEvent.m_isContainedVect);
     
     m_pEventTree->Branch("nHitsUVect", &m_outputEvent.m_nHitsUVect);
     m_pEventTree->Branch("nHitsVVect", &m_outputEvent.m_nHitsVVect);
     m_pEventTree->Branch("nHitsWVect", &m_outputEvent.m_nHitsWVect);
+    m_pEventTree->Branch("nDescendentHitsUVect", &m_outputEvent.m_nDescendentHitsUVect);
+    m_pEventTree->Branch("nDescendentHitsVVect", &m_outputEvent.m_nDescendentHitsVVect);
+    m_pEventTree->Branch("nDescendentHitsWVect", &m_outputEvent.m_nDescendentHitsWVect);
     m_pEventTree->Branch("trackShowerVect", &m_outputEvent.m_trackShowerVect);
+    m_pEventTree->Branch("nDaughtersVect", &m_outputEvent.m_nDaughtersVect);
+    m_pEventTree->Branch("nDescendentsVect", &m_outputEvent.m_nDescendentsVect);
             
     m_pEventTree->Branch("hasCalorimetryInfoVect", &m_outputEvent.m_hasCalorimetryInfoVect);
     m_pEventTree->Branch("dedxPerHitUVect", &m_outputEvent.m_dedxPerHitUVect);
@@ -138,6 +151,33 @@ EventSelection::EventSelection(const art::EDAnalyzer::Table<Config> &config) :
     m_pEventTree->Branch("chi2pVVect", &m_outputEvent.m_chi2pVVect);
     m_pEventTree->Branch("isUVChi2pAvailableVect", &m_outputEvent.m_isUVChi2pAvailableVect);
     m_pEventTree->Branch("chi2pUVVect", &m_outputEvent.m_chi2pUVVect);
+    
+    m_pEventTree->Branch("isWChi2muAvailableVect", &m_outputEvent.m_isWChi2muAvailableVect);
+    m_pEventTree->Branch("chi2muWVect", &m_outputEvent.m_chi2muWVect);
+    m_pEventTree->Branch("isUChi2muAvailableVect", &m_outputEvent.m_isUChi2muAvailableVect);
+    m_pEventTree->Branch("chi2muUVect", &m_outputEvent.m_chi2muUVect);
+    m_pEventTree->Branch("isVChi2muAvailableVect", &m_outputEvent.m_isVChi2muAvailableVect);
+    m_pEventTree->Branch("chi2muVVect", &m_outputEvent.m_chi2muVVect);
+    m_pEventTree->Branch("isUVChi2muAvailableVect", &m_outputEvent.m_isUVChi2muAvailableVect);
+    m_pEventTree->Branch("chi2muUVVect", &m_outputEvent.m_chi2muUVVect);
+    
+    m_pEventTree->Branch("isWChi2piAvailableVect", &m_outputEvent.m_isWChi2piAvailableVect);
+    m_pEventTree->Branch("chi2piWVect", &m_outputEvent.m_chi2piWVect);
+    m_pEventTree->Branch("isUChi2piAvailableVect", &m_outputEvent.m_isUChi2piAvailableVect);
+    m_pEventTree->Branch("chi2piUVect", &m_outputEvent.m_chi2piUVect);
+    m_pEventTree->Branch("isVChi2piAvailableVect", &m_outputEvent.m_isVChi2piAvailableVect);
+    m_pEventTree->Branch("chi2piVVect", &m_outputEvent.m_chi2piVVect);
+    m_pEventTree->Branch("isUVChi2piAvailableVect", &m_outputEvent.m_isUVChi2piAvailableVect);
+    m_pEventTree->Branch("chi2piUVVect", &m_outputEvent.m_chi2piUVVect);
+    
+    m_pEventTree->Branch("isWChi2MIPAvailableVect", &m_outputEvent.m_isWChi2MIPAvailableVect);
+    m_pEventTree->Branch("chi2MIPWVect", &m_outputEvent.m_chi2MIPWVect);
+    m_pEventTree->Branch("isUChi2MIPAvailableVect", &m_outputEvent.m_isUChi2MIPAvailableVect);
+    m_pEventTree->Branch("chi2MIPUVect", &m_outputEvent.m_chi2MIPUVect);
+    m_pEventTree->Branch("isVChi2MIPAvailableVect", &m_outputEvent.m_isVChi2MIPAvailableVect);
+    m_pEventTree->Branch("chi2MIPVVect", &m_outputEvent.m_chi2MIPVVect);
+    m_pEventTree->Branch("isUVChi2MIPAvailableVect", &m_outputEvent.m_isUVChi2MIPAvailableVect);
+    m_pEventTree->Branch("chi2MIPUVVect", &m_outputEvent.m_chi2MIPUVVect);
 
     m_pEventTree->Branch("isWBraggpAvailableVect", &m_outputEvent.m_isWBraggpAvailableVect);
     m_pEventTree->Branch("braggpWVect", &m_outputEvent.m_braggpWVect);
@@ -179,6 +219,24 @@ EventSelection::EventSelection(const art::EDAnalyzer::Table<Config> &config) :
     m_pEventTree->Branch("braggRatioWVect", &m_outputEvent.m_braggRatioWVect);
     m_pEventTree->Branch("isUVBraggRatioAvailableVect", &m_outputEvent.m_isUVBraggRatioAvailableVect);
     m_pEventTree->Branch("braggRatioUVVect", &m_outputEvent.m_braggRatioUVVect);
+    
+    m_pEventTree->Branch("isWBraggmuAvailableVect", &m_outputEvent.m_isWBraggmuAvailableVect);
+    m_pEventTree->Branch("braggmuWVect", &m_outputEvent.m_braggmuWVect);
+    m_pEventTree->Branch("isUBraggmuAvailableVect", &m_outputEvent.m_isUBraggmuAvailableVect);
+    m_pEventTree->Branch("braggmuUVect", &m_outputEvent.m_braggmuUVect);
+    m_pEventTree->Branch("isVBraggmuAvailableVect", &m_outputEvent.m_isVBraggmuAvailableVect);
+    m_pEventTree->Branch("braggmuVVect", &m_outputEvent.m_braggmuVVect);
+    m_pEventTree->Branch("isUVBraggmuAvailableVect", &m_outputEvent.m_isUVBraggmuAvailableVect);
+    m_pEventTree->Branch("braggmuUVVect", &m_outputEvent.m_braggmuUVVect);
+    
+    m_pEventTree->Branch("isWBraggpiAvailableVect", &m_outputEvent.m_isWBraggpiAvailableVect);
+    m_pEventTree->Branch("braggpiWVect", &m_outputEvent.m_braggpiWVect);
+    m_pEventTree->Branch("isUBraggpiAvailableVect", &m_outputEvent.m_isUBraggpiAvailableVect);
+    m_pEventTree->Branch("braggpiUVect", &m_outputEvent.m_braggpiUVect);
+    m_pEventTree->Branch("isVBraggpiAvailableVect", &m_outputEvent.m_isVBraggpiAvailableVect);
+    m_pEventTree->Branch("braggpiVVect", &m_outputEvent.m_braggpiVVect);
+    m_pEventTree->Branch("isUVBraggpiAvailableVect", &m_outputEvent.m_isUVBraggpiAvailableVect);
+    m_pEventTree->Branch("braggpiUVVect", &m_outputEvent.m_braggpiUVVect);
 }
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
@@ -249,7 +307,7 @@ void EventSelection::ResetEventTree()
     m_outputEvent.m_hasRecoNeutrino = false;
     m_outputEvent.m_recoNuVtx = TVector3(-std::numeric_limits<float>::max(), -std::numeric_limits<float>::max(), -std::numeric_limits<float>::max());
     m_outputEvent.m_isRecoNuFiducial = false;
-    m_outputEvent.m_topologicalScore = -std::numeric_limits<float>::max();
+//    m_outputEvent.m_topologicalScore = -std::numeric_limits<float>::max();
     m_outputEvent.m_nFinalStatePFPs = -std::numeric_limits<int>::max();
     m_outputEvent.m_hasMatchedMCParticleVect.clear();
     m_outputEvent.m_matchedMCParticleIdVect.clear();
@@ -258,16 +316,26 @@ void EventSelection::ResetEventTree()
     m_outputEvent.m_truthMatchPurityVect.clear();
     m_outputEvent.m_trueEnergyVect.clear();
     m_outputEvent.m_trueKEVect.clear();
+    m_outputEvent.m_trueRangeVect.clear();
     m_outputEvent.m_trueMomentumXVect.clear();
     m_outputEvent.m_trueMomentumYVect.clear();
     m_outputEvent.m_trueMomentumZVect.clear();
     m_outputEvent.m_trueStartXVect.clear();
     m_outputEvent.m_trueStartYVect.clear();
     m_outputEvent.m_trueStartZVect.clear();
+    m_outputEvent.m_trueIsContainedVect.clear();
+    m_outputEvent.m_trueIsStoppingVect.clear();
+    m_outputEvent.m_trueNScattersVect.clear();
+    m_outputEvent.m_trueIsGoldenVect.clear();
     m_outputEvent.m_nHitsUVect.clear();
     m_outputEvent.m_nHitsVVect.clear();
     m_outputEvent.m_nHitsWVect.clear();
+    m_outputEvent.m_nDescendentHitsUVect.clear();
+    m_outputEvent.m_nDescendentHitsVVect.clear();
+    m_outputEvent.m_nDescendentHitsWVect.clear();
     m_outputEvent.m_trackShowerVect.clear();
+    m_outputEvent.m_nDaughtersVect.clear();
+    m_outputEvent.m_nDescendentsVect.clear();
     m_outputEvent.m_hasTrackInfoVect.clear();
     m_outputEvent.m_startXVect.clear();
     m_outputEvent.m_startYVect.clear();
@@ -281,7 +349,10 @@ void EventSelection::ResetEventTree()
     m_outputEvent.m_thetaVect.clear();
     m_outputEvent.m_phiVect.clear();
     m_outputEvent.m_yzAngleVect.clear();
+    m_outputEvent.m_xyAngleVect.clear();
+    m_outputEvent.m_xzAngleVect.clear();
     m_outputEvent.m_lengthVect.clear();
+    m_outputEvent.m_rangeVect.clear();
     m_outputEvent.m_isContainedVect.clear();
     m_outputEvent.m_hasCalorimetryInfoVect.clear();
     m_outputEvent.m_dedxPerHitUVect.clear();
@@ -299,6 +370,30 @@ void EventSelection::ResetEventTree()
     m_outputEvent.m_chi2pVVect.clear();
     m_outputEvent.m_isUVChi2pAvailableVect.clear();
     m_outputEvent.m_chi2pUVVect.clear();
+    m_outputEvent.m_isWChi2muAvailableVect.clear();
+    m_outputEvent.m_chi2muWVect.clear();
+    m_outputEvent.m_isUChi2muAvailableVect.clear();
+    m_outputEvent.m_chi2muUVect.clear();
+    m_outputEvent.m_isVChi2muAvailableVect.clear();
+    m_outputEvent.m_chi2muVVect.clear();
+    m_outputEvent.m_isUVChi2muAvailableVect.clear();
+    m_outputEvent.m_chi2muUVVect.clear();
+    m_outputEvent.m_isWChi2piAvailableVect.clear();
+    m_outputEvent.m_chi2piWVect.clear();
+    m_outputEvent.m_isUChi2piAvailableVect.clear();
+    m_outputEvent.m_chi2piUVect.clear();
+    m_outputEvent.m_isVChi2piAvailableVect.clear();
+    m_outputEvent.m_chi2piVVect.clear();
+    m_outputEvent.m_isUVChi2piAvailableVect.clear();
+    m_outputEvent.m_chi2piUVVect.clear();
+    m_outputEvent.m_isWChi2MIPAvailableVect.clear();
+    m_outputEvent.m_chi2MIPWVect.clear();
+    m_outputEvent.m_isUChi2MIPAvailableVect.clear();
+    m_outputEvent.m_chi2MIPUVect.clear();
+    m_outputEvent.m_isVChi2MIPAvailableVect.clear();
+    m_outputEvent.m_chi2MIPVVect.clear();
+    m_outputEvent.m_isUVChi2MIPAvailableVect.clear();
+    m_outputEvent.m_chi2MIPUVVect.clear();
     m_outputEvent.m_isWBraggpAvailableVect.clear();
     m_outputEvent.m_braggpWVect.clear();
     m_outputEvent.m_isUBraggpAvailableVect.clear();
@@ -335,6 +430,22 @@ void EventSelection::ResetEventTree()
     m_outputEvent.m_braggRatioWVect.clear();
     m_outputEvent.m_isUVBraggRatioAvailableVect.clear();
     m_outputEvent.m_braggRatioUVVect.clear();
+    m_outputEvent.m_isWBraggmuAvailableVect.clear();
+    m_outputEvent.m_braggmuWVect.clear();
+    m_outputEvent.m_isUBraggmuAvailableVect.clear();
+    m_outputEvent.m_braggmuUVect.clear();
+    m_outputEvent.m_isVBraggmuAvailableVect.clear();
+    m_outputEvent.m_braggmuVVect.clear();
+    m_outputEvent.m_isUVBraggmuAvailableVect.clear();
+    m_outputEvent.m_braggmuUVVect.clear();
+    m_outputEvent.m_isWBraggpiAvailableVect.clear();
+    m_outputEvent.m_braggpiWVect.clear();
+    m_outputEvent.m_isUBraggpiAvailableVect.clear();
+    m_outputEvent.m_braggpiUVect.clear();
+    m_outputEvent.m_isVBraggpiAvailableVect.clear();
+    m_outputEvent.m_braggpiVVect.clear();
+    m_outputEvent.m_isUVBraggpiAvailableVect.clear();
+    m_outputEvent.m_braggpiUVVect.clear();
 }
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
@@ -493,13 +604,18 @@ void EventSelection::SetRecoInfo(const art::Event &event)
 {
     // Get the PFParticles and their associations
     const auto allPFParticles = CollectionHelper::GetCollection<recob::PFParticle>(event, m_config().PFParticleLabel());
+    const auto pfParticleMap = RecoHelper::GetPFParticleMap(allPFParticles);
     const auto backtrackerData = AnalysisHelper::GetBacktrackerData(event, m_config().MCTruthLabel(), m_config().MCParticleLabel(), m_config().BacktrackerLabel(), m_config().PFParticleLabel());
     const auto finalStates = RecoHelper::GetNeutrinoFinalStates(allPFParticles); 
     const auto pfpToTracks = CollectionHelper::GetAssociation<recob::PFParticle, recob::Track>(event, m_config().PFParticleLabel(), m_config().TrackLabel());
+    const auto pfpToHits = CollectionHelper::GetAssociationViaCollection<recob::PFParticle, recob::Cluster, recob::Hit>(event,  m_config().PFParticleLabel(), m_config().PFParticleLabel(), m_config().PFParticleLabel());
     const auto trackToPIDs = CollectionHelper::GetAssociation<recob::Track, anab::ParticleID>(event, m_config().TrackLabel(), m_config().PIDLabel());
     const auto trackToCalorimetries = CollectionHelper::GetAssociation<recob::Track, anab::Calorimetry>(event, m_config().TrackLabel(), m_config().CalorimetryLabel());
     const auto pfpToMetadata = CollectionHelper::GetAssociation<recob::PFParticle, larpandoraobj::PFParticleMetadata>(event, m_config().PFParticleLabel());
     const auto pSpaceChargeService = RecoHelper::GetSpaceChargeService();
+
+    const TruthHelper::Interaction interaction(event, m_config().MCTruthLabel(), m_config().MCParticleLabel());
+    const auto mcParticleMap = TruthHelper::GetMCParticleMap(interaction.GetAllMCParticles());
 
     // Set the event level reco information
     this->SetEventRecoInfo(event, allPFParticles, finalStates, pfpToMetadata, pSpaceChargeService);
@@ -509,7 +625,7 @@ void EventSelection::SetRecoInfo(const art::Event &event)
 
     {
         const auto &finalState = finalStates.at(i);
-        this->SetPFParticleInfo(i, finalState, backtrackerData, pfpToTracks, trackToPIDs, trackToCalorimetries, pfpToMetadata, pSpaceChargeService);
+        this->SetPFParticleInfo(i, finalState, backtrackerData, mcParticleMap, pfParticleMap, pfpToHits, pfpToTracks, trackToPIDs, trackToCalorimetries, pfpToMetadata, pSpaceChargeService);
     }
 }
 
@@ -536,8 +652,8 @@ void EventSelection::SetEventRecoInfo(const art::Event &event, const PFParticleV
         m_outputEvent.m_isRecoNuFiducial = AnalysisHelper::IsFiducial(m_outputEvent.m_recoNuVtx);
         
         // Get the topological score for the selected neutrino slice
-        const auto neutrinoMetadata = CollectionHelper::GetSingleAssociated(neutrino, pfpToMetadata);
-        m_outputEvent.m_topologicalScore = RecoHelper::GetTopologicalScore(neutrinoMetadata); 
+//        const auto neutrinoMetadata = CollectionHelper::GetSingleAssociated(neutrino, pfpToMetadata);
+//        m_outputEvent.m_topologicalScore = RecoHelper::GetTopologicalScore(neutrinoMetadata); 
 
         // Count the final states
         m_outputEvent.m_nFinalStatePFPs = finalStates.size();
@@ -546,17 +662,17 @@ void EventSelection::SetEventRecoInfo(const art::Event &event, const PFParticleV
     {
         m_outputEvent.m_recoNuVtx = TVector3(-std::numeric_limits<float>::max(), -std::numeric_limits<float>::max(), -std::numeric_limits<float>::max());
         m_outputEvent.m_isRecoNuFiducial = false;
-        m_outputEvent.m_topologicalScore = -std::numeric_limits<float>::max();
+//        m_outputEvent.m_topologicalScore = -std::numeric_limits<float>::max();
         m_outputEvent.m_nFinalStatePFPs = 0;
     }
 }
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
 
-void EventSelection::SetPFParticleInfo(const unsigned int index, const art::Ptr<recob::PFParticle> &finalState, const BacktrackHelper::BacktrackerData &backtrackerData, const Association<recob::PFParticle, recob::Track> &pfpToTracks, const Association<recob::Track, anab::ParticleID> &trackToPIDs, const Association<recob::Track, anab::Calorimetry> &trackToCalorimetries, const Association<recob::PFParticle, larpandoraobj::PFParticleMetadata> &pfpToMetadata, const spacecharge::SpaceChargeService::provider_type *const pSpaceChargeService)
+void EventSelection::SetPFParticleInfo(const unsigned int index, const art::Ptr<recob::PFParticle> &finalState, const BacktrackHelper::BacktrackerData &backtrackerData, const MCParticleMap &mcParticleMap, const PFParticleMap &pfParticleMap, const Association<recob::PFParticle, recob::Hit> &pfpToHits, const Association<recob::PFParticle, recob::Track> &pfpToTracks, const Association<recob::Track, anab::ParticleID> &trackToPIDs, const Association<recob::Track, anab::Calorimetry> &trackToCalorimetries, const Association<recob::PFParticle, larpandoraobj::PFParticleMetadata> &pfpToMetadata, const spacecharge::SpaceChargeService::provider_type *const pSpaceChargeService)
 {
-    this->SetPFParticleMCParticleMatchInfo(finalState, backtrackerData);
-    this->SetPFParticlePandoraInfo(finalState, backtrackerData, pfpToMetadata);
+    this->SetPFParticleMCParticleMatchInfo(finalState, backtrackerData, mcParticleMap);
+    this->SetPFParticlePandoraInfo(finalState, pfpToHits, pfParticleMap, pfpToMetadata);
 
     const auto nHitsU = m_outputEvent.m_nHitsUVect.back();
     const auto nHitsV = m_outputEvent.m_nHitsVVect.back();
@@ -603,7 +719,7 @@ void EventSelection::SetPFParticleInfo(const unsigned int index, const art::Ptr<
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
 
-void EventSelection::SetPFParticleMCParticleMatchInfo(const art::Ptr<recob::PFParticle> &finalState, const BacktrackHelper::BacktrackerData &backtrackerData)
+void EventSelection::SetPFParticleMCParticleMatchInfo(const art::Ptr<recob::PFParticle> &finalState, const BacktrackHelper::BacktrackerData &backtrackerData, const MCParticleMap &mcParticleMap)
 {
     bool hasMatchedMCParticle = false;
     int matchedMCParticleId = -std::numeric_limits<int>::max();
@@ -612,23 +728,44 @@ void EventSelection::SetPFParticleMCParticleMatchInfo(const art::Ptr<recob::PFPa
     float truthMatchPurity = -std::numeric_limits<float>::max();
     float trueEnergy = -std::numeric_limits<float>::max();
     float trueKE = -std::numeric_limits<float>::max();
+    float trueRange = -std::numeric_limits<float>::max();
     TVector3 trueMomentum = TVector3(-std::numeric_limits<float>::max(), -std::numeric_limits<float>::max(), -std::numeric_limits<float>::max());
     TVector3 trueStart = TVector3(-std::numeric_limits<float>::max(), -std::numeric_limits<float>::max(), -std::numeric_limits<float>::max());
+    bool trueIsContained = false;
+    bool trueIsStopping = false;
+    int trueNScatters = -std::numeric_limits<int>::max();
+    bool isGolden = false;
 
     try
     {
         // ATTN this is the line that would throw if the PFParticle doesn't match to any MCParticle
         const auto matchedMCP = backtrackerData.GetBestMatchedMCParticle(finalState);
-
+        
         matchedMCParticleId = matchedMCP->TrackId();
         truePdgCode = matchedMCP->PdgCode();
         truthMatchCompleteness = backtrackerData.GetMatchCompleteness(finalState, matchedMCP);
         truthMatchPurity = backtrackerData.GetMatchPurity(finalState, matchedMCP);
         trueEnergy = matchedMCP->E();
         trueKE = matchedMCP->E() - matchedMCP->Mass();
+        trueRange = this->GetRange(matchedMCP);
         trueMomentum = TVector3(matchedMCP->Px(), matchedMCP->Py(), matchedMCP->Pz());
         trueStart = TVector3(matchedMCP->Vx(), matchedMCP->Vy(), matchedMCP->Vz());
         hasMatchedMCParticle = true;
+        
+        const auto trueEndMomentum = matchedMCP->Momentum(std::max(static_cast<unsigned int>(0), matchedMCP->NumberTrajectoryPoints() - 2)).Vect().Mag();
+        trueIsStopping = (trueEndMomentum <= std::numeric_limits<float>::epsilon());
+   
+        const auto trueEnd = TVector3(matchedMCP->EndPosition().Vect());
+        trueIsContained = AnalysisHelper::IsContained(trueStart, m_config().ContainmentBorder()) && AnalysisHelper::IsContained(trueEnd, m_config().ContainmentBorder());
+
+        trueNScatters = 0;
+        for (const auto &daughter : TruthHelper::GetDaughters(matchedMCP, mcParticleMap))
+        {
+            if (daughter->Process() == "hadElastic")
+                trueNScatters++;
+        }
+            
+        isGolden = trueIsStopping && (trueNScatters == 0) && trueIsContained;
     }
     catch (const cet::exception &)
     {
@@ -641,27 +778,49 @@ void EventSelection::SetPFParticleMCParticleMatchInfo(const art::Ptr<recob::PFPa
     m_outputEvent.m_truthMatchPurityVect.push_back(truthMatchPurity);
     m_outputEvent.m_trueEnergyVect.push_back(trueEnergy);
     m_outputEvent.m_trueKEVect.push_back(trueKE);
+    m_outputEvent.m_trueRangeVect.push_back(trueRange);
     m_outputEvent.m_trueMomentumXVect.push_back(trueMomentum.X());
     m_outputEvent.m_trueMomentumYVect.push_back(trueMomentum.Y());
     m_outputEvent.m_trueMomentumZVect.push_back(trueMomentum.Z());
     m_outputEvent.m_trueStartXVect.push_back(trueStart.X());
     m_outputEvent.m_trueStartYVect.push_back(trueStart.Y());
     m_outputEvent.m_trueStartZVect.push_back(trueStart.Z());
+    m_outputEvent.m_trueIsContainedVect.push_back(trueIsContained);
+    m_outputEvent.m_trueIsStoppingVect.push_back(trueIsStopping);
+    m_outputEvent.m_trueNScattersVect.push_back(trueNScatters);
+    m_outputEvent.m_trueIsGoldenVect.push_back(isGolden);
 }
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
 
-void EventSelection::SetPFParticlePandoraInfo(const art::Ptr<recob::PFParticle> &finalState, const BacktrackHelper::BacktrackerData &backtrackerData, const Association<recob::PFParticle, larpandoraobj::PFParticleMetadata> &pfpToMetadata)
+void EventSelection::SetPFParticlePandoraInfo(const art::Ptr<recob::PFParticle> &finalState, const Association<recob::PFParticle, recob::Hit> &pfpToHits, const PFParticleMap &pfParticleMap, const Association<recob::PFParticle, larpandoraobj::PFParticleMetadata> &pfpToMetadata)
 {
-    // ATTN here we are just using the backtracker data for convenience, for data we need to go manually go through the clusters
-    const auto &hits = backtrackerData.GetHits(finalState);
-
+    // Count the hits in the particle
+    const auto &hits = CollectionHelper::GetManyAssociated(finalState, pfpToHits);
     m_outputEvent.m_nHitsUVect.push_back(RecoHelper::CountHitsInView(hits, geo::kU));
     m_outputEvent.m_nHitsVVect.push_back(RecoHelper::CountHitsInView(hits, geo::kV));
     m_outputEvent.m_nHitsWVect.push_back(RecoHelper::CountHitsInView(hits, geo::kW));
     
+    // Count the descendent hits
+    HitVector descendentHits;
+    const auto &descendentParticles = RecoHelper::GetDownstreamParticles(finalState, pfParticleMap);
+    for (const auto &descendentParticle : descendentParticles)
+    {
+        const auto hitsInParticle =  CollectionHelper::GetManyAssociated(descendentParticle, pfpToHits);
+        descendentHits.insert(descendentHits.end(), hitsInParticle.begin(), hitsInParticle.end());
+    }
+    
+    m_outputEvent.m_nDescendentHitsUVect.push_back(RecoHelper::CountHitsInView(descendentHits, geo::kU));
+    m_outputEvent.m_nDescendentHitsVVect.push_back(RecoHelper::CountHitsInView(descendentHits, geo::kV));
+    m_outputEvent.m_nDescendentHitsWVect.push_back(RecoHelper::CountHitsInView(descendentHits, geo::kW));
+
+    // Get the track-shower score
     const auto metadata = CollectionHelper::GetSingleAssociated(finalState, pfpToMetadata);
     m_outputEvent.m_trackShowerVect.push_back(RecoHelper::GetTrackScore(metadata));
+
+    // Count the daughters and descendents
+    m_outputEvent.m_nDaughtersVect.push_back(finalState->NumDaughters());
+    m_outputEvent.m_nDescendentsVect.push_back(descendentParticles.size() - 1);
 }
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
@@ -681,7 +840,10 @@ void EventSelection::SetDummyTrackInfo()
     m_outputEvent.m_thetaVect.push_back(-std::numeric_limits<float>::max());
     m_outputEvent.m_phiVect.push_back(-std::numeric_limits<float>::max());
     m_outputEvent.m_yzAngleVect.push_back(-std::numeric_limits<float>::max());
+    m_outputEvent.m_xyAngleVect.push_back(-std::numeric_limits<float>::max());
+    m_outputEvent.m_xzAngleVect.push_back(-std::numeric_limits<float>::max());
     m_outputEvent.m_lengthVect.push_back(-std::numeric_limits<float>::max());
+    m_outputEvent.m_rangeVect.push_back(-std::numeric_limits<float>::max());
     m_outputEvent.m_isContainedVect.push_back(false);
 }
 
@@ -706,7 +868,10 @@ void EventSelection::SetTrackInfo(const art::Ptr<recob::Track> &track, const spa
     m_outputEvent.m_thetaVect.push_back(track->Theta());
     m_outputEvent.m_phiVect.push_back(track->Phi());
     m_outputEvent.m_yzAngleVect.push_back(this->GetYZAngle(dir));
+    m_outputEvent.m_xyAngleVect.push_back(this->GetXYAngle(dir));
+    m_outputEvent.m_xzAngleVect.push_back(this->GetXZAngle(dir));
     m_outputEvent.m_lengthVect.push_back(track->Length());
+    m_outputEvent.m_rangeVect.push_back(this->GetRange(track, pSpaceChargeService));
     m_outputEvent.m_isContainedVect.push_back(AnalysisHelper::IsContained(start, m_config().ContainmentBorder()) && AnalysisHelper::IsContained(end, m_config().ContainmentBorder()));
 }
 
@@ -715,6 +880,20 @@ void EventSelection::SetTrackInfo(const art::Ptr<recob::Track> &track, const spa
 float EventSelection::GetYZAngle(const TVector3 &dir)
 {
     return atan2(dir.Z(), dir.Y());
+}
+
+// -----------------------------------------------------------------------------------------------------------------------------------------
+
+float EventSelection::GetXYAngle(const TVector3 &dir)
+{
+    return atan2(dir.Y(), dir.X());
+}
+
+// -----------------------------------------------------------------------------------------------------------------------------------------
+
+float EventSelection::GetXZAngle(const TVector3 &dir)
+{
+    return atan2(dir.Z(), dir.X());
 }
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
@@ -745,6 +924,33 @@ void EventSelection::SetDummyPIDInfo()
     m_outputEvent.m_chi2pVVect.push_back(-std::numeric_limits<float>::max());
     m_outputEvent.m_isUVChi2pAvailableVect.push_back(false);
     m_outputEvent.m_chi2pUVVect.push_back(-std::numeric_limits<float>::max());
+    
+    m_outputEvent.m_isWChi2muAvailableVect.push_back(false);
+    m_outputEvent.m_chi2muWVect.push_back(-std::numeric_limits<float>::max());
+    m_outputEvent.m_isUChi2muAvailableVect.push_back(false);
+    m_outputEvent.m_chi2muUVect.push_back(-std::numeric_limits<float>::max());
+    m_outputEvent.m_isVChi2muAvailableVect.push_back(false);
+    m_outputEvent.m_chi2muVVect.push_back(-std::numeric_limits<float>::max());
+    m_outputEvent.m_isUVChi2muAvailableVect.push_back(false);
+    m_outputEvent.m_chi2muUVVect.push_back(-std::numeric_limits<float>::max());
+
+    m_outputEvent.m_isWChi2piAvailableVect.push_back(false);
+    m_outputEvent.m_chi2piWVect.push_back(-std::numeric_limits<float>::max());
+    m_outputEvent.m_isUChi2piAvailableVect.push_back(false);
+    m_outputEvent.m_chi2piUVect.push_back(-std::numeric_limits<float>::max());
+    m_outputEvent.m_isVChi2piAvailableVect.push_back(false);
+    m_outputEvent.m_chi2piVVect.push_back(-std::numeric_limits<float>::max());
+    m_outputEvent.m_isUVChi2piAvailableVect.push_back(false);
+    m_outputEvent.m_chi2piUVVect.push_back(-std::numeric_limits<float>::max());
+    
+    m_outputEvent.m_isWChi2MIPAvailableVect.push_back(false);
+    m_outputEvent.m_chi2MIPWVect.push_back(-std::numeric_limits<float>::max());
+    m_outputEvent.m_isUChi2MIPAvailableVect.push_back(false);
+    m_outputEvent.m_chi2MIPUVect.push_back(-std::numeric_limits<float>::max());
+    m_outputEvent.m_isVChi2MIPAvailableVect.push_back(false);
+    m_outputEvent.m_chi2MIPVVect.push_back(-std::numeric_limits<float>::max());
+    m_outputEvent.m_isUVChi2MIPAvailableVect.push_back(false);
+    m_outputEvent.m_chi2MIPUVVect.push_back(-std::numeric_limits<float>::max());
 
     m_outputEvent.m_isWBraggpAvailableVect.push_back(false);
     m_outputEvent.m_braggpWVect.push_back(-std::numeric_limits<float>::max());
@@ -786,6 +992,24 @@ void EventSelection::SetDummyPIDInfo()
     m_outputEvent.m_braggRatioWVect.push_back(-std::numeric_limits<float>::max());
     m_outputEvent.m_isUVBraggRatioAvailableVect.push_back(false);
     m_outputEvent.m_braggRatioUVVect.push_back(-std::numeric_limits<float>::max());
+    
+    m_outputEvent.m_isWBraggmuAvailableVect.push_back(false);
+    m_outputEvent.m_braggmuWVect.push_back(-std::numeric_limits<float>::max());
+    m_outputEvent.m_isUBraggmuAvailableVect.push_back(false);
+    m_outputEvent.m_braggmuUVect.push_back(-std::numeric_limits<float>::max());
+    m_outputEvent.m_isVBraggmuAvailableVect.push_back(false);
+    m_outputEvent.m_braggmuVVect.push_back(-std::numeric_limits<float>::max());
+    m_outputEvent.m_isUVBraggmuAvailableVect.push_back(false);
+    m_outputEvent.m_braggmuUVVect.push_back(-std::numeric_limits<float>::max());
+    
+    m_outputEvent.m_isWBraggpiAvailableVect.push_back(false);
+    m_outputEvent.m_braggpiWVect.push_back(-std::numeric_limits<float>::max());
+    m_outputEvent.m_isUBraggpiAvailableVect.push_back(false);
+    m_outputEvent.m_braggpiUVect.push_back(-std::numeric_limits<float>::max());
+    m_outputEvent.m_isVBraggpiAvailableVect.push_back(false);
+    m_outputEvent.m_braggpiVVect.push_back(-std::numeric_limits<float>::max());
+    m_outputEvent.m_isUVBraggpiAvailableVect.push_back(false);
+    m_outputEvent.m_braggpiUVVect.push_back(-std::numeric_limits<float>::max());
 }
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
@@ -851,6 +1075,21 @@ void EventSelection::SetPIDInfo(const art::Ptr<anab::ParticleID> &pid, const flo
     float chi2pU = -std::numeric_limits<float>::max();
     float chi2pV = -std::numeric_limits<float>::max();
     float chi2pUV = -std::numeric_limits<float>::max();
+    
+    float chi2muW = -std::numeric_limits<float>::max();
+    float chi2muU = -std::numeric_limits<float>::max();
+    float chi2muV = -std::numeric_limits<float>::max();
+    float chi2muUV = -std::numeric_limits<float>::max();
+    
+    float chi2piW = -std::numeric_limits<float>::max();
+    float chi2piU = -std::numeric_limits<float>::max();
+    float chi2piV = -std::numeric_limits<float>::max();
+    float chi2piUV = -std::numeric_limits<float>::max();
+    
+    float chi2MIPW = -std::numeric_limits<float>::max();
+    float chi2MIPU = -std::numeric_limits<float>::max();
+    float chi2MIPV = -std::numeric_limits<float>::max();
+    float chi2MIPUV = -std::numeric_limits<float>::max();
 
     float braggpW = -std::numeric_limits<float>::max();
     float braggpU = -std::numeric_limits<float>::max();
@@ -872,10 +1111,35 @@ void EventSelection::SetPIDInfo(const art::Ptr<anab::ParticleID> &pid, const flo
     float braggMIPBackwardV = -std::numeric_limits<float>::max();
     float braggMIPBackwardUV = -std::numeric_limits<float>::max();
     
+    float braggmuW = -std::numeric_limits<float>::max();
+    float braggmuU = -std::numeric_limits<float>::max();
+    float braggmuV = -std::numeric_limits<float>::max();
+    float braggmuUV = -std::numeric_limits<float>::max();
+    
+    float braggpiW = -std::numeric_limits<float>::max();
+    float braggpiU = -std::numeric_limits<float>::max();
+    float braggpiV = -std::numeric_limits<float>::max();
+    float braggpiUV = -std::numeric_limits<float>::max();
+    
     bool isWChi2pAvailable = false;
     bool isUChi2pAvailable = false;
     bool isVChi2pAvailable = false;
     bool isUVChi2pAvailable = false;
+    
+    bool isWChi2muAvailable = false;
+    bool isUChi2muAvailable = false;
+    bool isVChi2muAvailable = false;
+    bool isUVChi2muAvailable = false;
+    
+    bool isWChi2piAvailable = false;
+    bool isUChi2piAvailable = false;
+    bool isVChi2piAvailable = false;
+    bool isUVChi2piAvailable = false;
+    
+    bool isWChi2MIPAvailable = false;
+    bool isUChi2MIPAvailable = false;
+    bool isVChi2MIPAvailable = false;
+    bool isUVChi2MIPAvailable = false;
 
     bool isWBraggpAvailable = false;
     bool isUBraggpAvailable = false;
@@ -896,6 +1160,16 @@ void EventSelection::SetPIDInfo(const art::Ptr<anab::ParticleID> &pid, const flo
     bool isUBraggMIPBackwardAvailable = false;
     bool isVBraggMIPBackwardAvailable = false;
     bool isUVBraggMIPBackwardAvailable = false;
+    
+    bool isWBraggmuAvailable = false;
+    bool isUBraggmuAvailable = false;
+    bool isVBraggmuAvailable = false;
+    bool isUVBraggmuAvailable = false;
+    
+    bool isWBraggpiAvailable = false;
+    bool isUBraggpiAvailable = false;
+    bool isVBraggpiAvailable = false;
+    bool isUVBraggpiAvailable = false;
 
     // Extract the raw PID values
     for (const auto &algo : pid->fParticleIDAlgScores)
@@ -905,6 +1179,18 @@ void EventSelection::SetPIDInfo(const art::Ptr<anab::ParticleID> &pid, const flo
         // Chi2 algorithm under the proton hypothesis
         if (algo.fAlgName == "Chi2" && algo.fAssumedPdg == 2212)
             this->SetPIDVariables(view, algo.fValue, chi2pW, chi2pU, chi2pV, isWChi2pAvailable, isUChi2pAvailable, isVChi2pAvailable);
+        
+        // Chi2 algorithm under the muon hypothesis
+        if (algo.fAlgName == "Chi2" && algo.fAssumedPdg == 13)
+            this->SetPIDVariables(view, algo.fValue, chi2muW, chi2muU, chi2muV, isWChi2muAvailable, isUChi2muAvailable, isVChi2muAvailable);
+        
+        // Chi2 algorithm under the pion hypothesis
+        if (algo.fAlgName == "Chi2" && algo.fAssumedPdg == 211)
+            this->SetPIDVariables(view, algo.fValue, chi2piW, chi2piU, chi2piV, isWChi2piAvailable, isUChi2piAvailable, isVChi2piAvailable);
+        
+        // Chi2 algorithm under the MIP hypothesis
+        if (algo.fAlgName == "Chi2" && algo.fAssumedPdg == 0)
+            this->SetPIDVariables(view, algo.fValue, chi2MIPW, chi2MIPU, chi2MIPV, isWChi2MIPAvailable, isUChi2MIPAvailable, isVChi2MIPAvailable);
 
         // Bragg Likelihood algorithm under the proton hypothesis - forward going track
         if (algo.fAlgName == "BraggPeakLLH" && algo.fTrackDir == anab::kForward && algo.fAssumedPdg == 2212)
@@ -921,14 +1207,26 @@ void EventSelection::SetPIDInfo(const art::Ptr<anab::ParticleID> &pid, const flo
         // Bragg Likelihood algorithm under the MIP hypothesis - backward going track
         if (algo.fAlgName == "BraggPeakLLH" && algo.fTrackDir == anab::kBackward && algo.fAssumedPdg == 0)
             this->SetPIDVariables(view, algo.fValue, braggMIPBackwardW, braggMIPBackwardU, braggMIPBackwardV, isWBraggMIPBackwardAvailable, isUBraggMIPBackwardAvailable, isVBraggMIPBackwardAvailable);
+        
+        if (algo.fAlgName == "BraggPeakLLH" && algo.fTrackDir == anab::kForward && algo.fAssumedPdg == 13)
+            this->SetPIDVariables(view, algo.fValue, braggmuW, braggmuU, braggmuV, isWBraggmuAvailable, isUBraggmuAvailable, isVBraggmuAvailable);
+        
+        if (algo.fAlgName == "BraggPeakLLH" && algo.fTrackDir == anab::kForward && algo.fAssumedPdg == 211)
+            this->SetPIDVariables(view, algo.fValue, braggpiW, braggpiU, braggpiV, isWBraggpiAvailable, isUBraggpiAvailable, isVBraggpiAvailable);
     }
 
     // Set the combined induction plane variables
     this->CombineInductionPlanes(yzAngle, nHitsU, nHitsV, chi2pU, chi2pV, isUChi2pAvailable, isVChi2pAvailable, chi2pUV, isUVChi2pAvailable);
+    this->CombineInductionPlanes(yzAngle, nHitsU, nHitsV, chi2muU, chi2muV, isUChi2muAvailable, isVChi2muAvailable, chi2muUV, isUVChi2muAvailable);
+    this->CombineInductionPlanes(yzAngle, nHitsU, nHitsV, chi2piU, chi2piV, isUChi2piAvailable, isVChi2piAvailable, chi2piUV, isUVChi2piAvailable);
+    this->CombineInductionPlanes(yzAngle, nHitsU, nHitsV, chi2MIPU, chi2MIPV, isUChi2MIPAvailable, isVChi2MIPAvailable, chi2MIPUV, isUVChi2MIPAvailable);
+
     this->CombineInductionPlanes(yzAngle, nHitsU, nHitsV, braggpU, braggpV, isUBraggpAvailable, isVBraggpAvailable, braggpUV, isUVBraggpAvailable);
     this->CombineInductionPlanes(yzAngle, nHitsU, nHitsV, braggpBackwardU, braggpBackwardV, isUBraggpBackwardAvailable, isVBraggpBackwardAvailable, braggpBackwardUV, isUVBraggpBackwardAvailable);
     this->CombineInductionPlanes(yzAngle, nHitsU, nHitsV, braggMIPU, braggMIPV, isUBraggMIPAvailable, isVBraggMIPAvailable, braggMIPUV, isUVBraggMIPAvailable);
     this->CombineInductionPlanes(yzAngle, nHitsU, nHitsV, braggMIPBackwardU, braggMIPBackwardV, isUBraggMIPBackwardAvailable, isVBraggMIPBackwardAvailable, braggMIPBackwardUV, isUVBraggMIPBackwardAvailable);
+    this->CombineInductionPlanes(yzAngle, nHitsU, nHitsV, braggmuU, braggmuV, isUBraggmuAvailable, isVBraggmuAvailable, braggmuUV, isUVBraggmuAvailable);
+    this->CombineInductionPlanes(yzAngle, nHitsU, nHitsV, braggpiU, braggpiV, isUBraggpiAvailable, isVBraggpiAvailable, braggpiUV, isUVBraggpiAvailable);
 
     // Calculate the bragg peak ratio
     const bool isWBraggRatioAvailable = (isWBraggpAvailable && isWBraggMIPAvailable && braggMIPW >= std::numeric_limits<float>::epsilon());
@@ -947,6 +1245,33 @@ void EventSelection::SetPIDInfo(const art::Ptr<anab::ParticleID> &pid, const flo
     m_outputEvent.m_chi2pVVect.push_back(chi2pV);
     m_outputEvent.m_isUVChi2pAvailableVect.push_back(isUVChi2pAvailable);
     m_outputEvent.m_chi2pUVVect.push_back(chi2pUV);
+    
+    m_outputEvent.m_isWChi2muAvailableVect.push_back(isWChi2muAvailable);
+    m_outputEvent.m_chi2muWVect.push_back(chi2muW);
+    m_outputEvent.m_isUChi2muAvailableVect.push_back(isUChi2muAvailable);
+    m_outputEvent.m_chi2muUVect.push_back(chi2muU);
+    m_outputEvent.m_isVChi2muAvailableVect.push_back(isVChi2muAvailable);
+    m_outputEvent.m_chi2muVVect.push_back(chi2muV);
+    m_outputEvent.m_isUVChi2muAvailableVect.push_back(isUVChi2muAvailable);
+    m_outputEvent.m_chi2muUVVect.push_back(chi2muUV);
+    
+    m_outputEvent.m_isWChi2piAvailableVect.push_back(isWChi2piAvailable);
+    m_outputEvent.m_chi2piWVect.push_back(chi2piW);
+    m_outputEvent.m_isUChi2piAvailableVect.push_back(isUChi2piAvailable);
+    m_outputEvent.m_chi2piUVect.push_back(chi2piU);
+    m_outputEvent.m_isVChi2piAvailableVect.push_back(isVChi2piAvailable);
+    m_outputEvent.m_chi2piVVect.push_back(chi2piV);
+    m_outputEvent.m_isUVChi2piAvailableVect.push_back(isUVChi2piAvailable);
+    m_outputEvent.m_chi2piUVVect.push_back(chi2piUV);
+    
+    m_outputEvent.m_isWChi2MIPAvailableVect.push_back(isWChi2MIPAvailable);
+    m_outputEvent.m_chi2MIPWVect.push_back(chi2MIPW);
+    m_outputEvent.m_isUChi2MIPAvailableVect.push_back(isUChi2MIPAvailable);
+    m_outputEvent.m_chi2MIPUVect.push_back(chi2MIPU);
+    m_outputEvent.m_isVChi2MIPAvailableVect.push_back(isVChi2MIPAvailable);
+    m_outputEvent.m_chi2MIPVVect.push_back(chi2MIPV);
+    m_outputEvent.m_isUVChi2MIPAvailableVect.push_back(isUVChi2MIPAvailable);
+    m_outputEvent.m_chi2MIPUVVect.push_back(chi2MIPUV);
 
     m_outputEvent.m_isWBraggpAvailableVect.push_back(isWBraggpAvailable);
     m_outputEvent.m_braggpWVect.push_back(braggpW);
@@ -988,6 +1313,24 @@ void EventSelection::SetPIDInfo(const art::Ptr<anab::ParticleID> &pid, const flo
     m_outputEvent.m_braggRatioWVect.push_back(braggRatioW);
     m_outputEvent.m_isUVBraggRatioAvailableVect.push_back(isUVBraggRatioAvailable);
     m_outputEvent.m_braggRatioUVVect.push_back(braggRatioUV);
+    
+    m_outputEvent.m_isWBraggmuAvailableVect.push_back(isWBraggmuAvailable);
+    m_outputEvent.m_braggmuWVect.push_back(braggmuW);
+    m_outputEvent.m_isUBraggmuAvailableVect.push_back(isUBraggmuAvailable);
+    m_outputEvent.m_braggmuUVect.push_back(braggmuU);
+    m_outputEvent.m_isVBraggmuAvailableVect.push_back(isVBraggmuAvailable);
+    m_outputEvent.m_braggmuVVect.push_back(braggmuV);
+    m_outputEvent.m_isUVBraggmuAvailableVect.push_back(isUVBraggmuAvailable);
+    m_outputEvent.m_braggmuUVVect.push_back(braggmuUV);
+    
+    m_outputEvent.m_isWBraggpiAvailableVect.push_back(isWBraggpiAvailable);
+    m_outputEvent.m_braggpiWVect.push_back(braggpiW);
+    m_outputEvent.m_isUBraggpiAvailableVect.push_back(isUBraggpiAvailable);
+    m_outputEvent.m_braggpiUVect.push_back(braggpiU);
+    m_outputEvent.m_isVBraggpiAvailableVect.push_back(isVBraggpiAvailable);
+    m_outputEvent.m_braggpiVVect.push_back(braggpiV);
+    m_outputEvent.m_isUVBraggpiAvailableVect.push_back(isUVBraggpiAvailable);
+    m_outputEvent.m_braggpiUVVect.push_back(braggpiUV);
 }
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
@@ -1063,6 +1406,65 @@ void EventSelection::CombineInductionPlanes(const float yzAngle, const int nHits
 }
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
+
+float EventSelection::GetRange(const art::Ptr<simb::MCParticle> &mcParticle) const
+{
+    float range = 0.f;
+
+    for (unsigned int i = 1; i < mcParticle->NumberTrajectoryPoints(); ++i)
+    {
+        range += (mcParticle->Position(i).Vect() - mcParticle->Position(i - 1).Vect()).Mag();
+    }
+
+    return range;
+}
+
+// -----------------------------------------------------------------------------------------------------------------------------------------
+
+std::vector<size_t> EventSelection::GetValidPoints(const art::Ptr<recob::Track> &track) const
+{
+    std::vector<size_t> validPoints;
+
+    const auto firstValidPoint = track->FirstValidPoint();
+    validPoints.push_back(firstValidPoint);
+
+    auto nextValidPoint = track->NextValidPoint(firstValidPoint + 1);
+    while (nextValidPoint != recob::TrackTrajectory::InvalidIndex)
+    {
+        validPoints.push_back(nextValidPoint);
+        nextValidPoint = track->NextValidPoint(nextValidPoint + 1);
+    }
+
+    return validPoints;
+}
+
+// -----------------------------------------------------------------------------------------------------------------------------------------
+
+float EventSelection::GetRange(const art::Ptr<recob::Track> &track, const spacecharge::SpaceChargeService::provider_type *const pSpaceChargeService) const
+{
+    const auto validPoints = this->GetValidPoints(track);
+    if (validPoints.size() < 2)
+        return 0.f;
+
+    float range = 0.f;
+    for (unsigned int i = 1; i < validPoints.size(); ++i)
+    {
+        const auto pos = track->LocationAtPoint(validPoints.at(i));
+        const auto posPrev = track->LocationAtPoint(validPoints.at(i - 1));
+
+        const auto posVect = TVector3(pos.X(), pos.Y(), pos.Z());
+        const auto posPrevVect = TVector3(posPrev.X(), posPrev.Y(), posPrev.Z());
+
+        const auto posVectSCE = RecoHelper::CorrectForSpaceCharge(posVect, pSpaceChargeService);
+        const auto posPrevVectSCE = RecoHelper::CorrectForSpaceCharge(posPrevVect, pSpaceChargeService);
+
+        range += (posVectSCE - posPrevVectSCE).Mag();
+    }
+
+    return range;
+}
+
+// -----------------------------------------------------------------------------------------------------------------------------------------
     
 void EventSelection::ValidateOutputVectorSizes(const unsigned int index) const
 {
@@ -1098,6 +1500,9 @@ void EventSelection::ValidateOutputVectorSizes(const unsigned int index) const
 
     if (m_outputEvent.m_trueKEVect.size() != expectedSize)
         throw cet::exception("EventSelection::ValidateOutputVectorSizes") << "m_trueKEVect - is out of sync" << std::endl;
+    
+    if (m_outputEvent.m_trueRangeVect.size() != expectedSize)
+        throw cet::exception("EventSelection::ValidateOutputVectorSizes") << "m_trueRangeVect - is out of sync" << std::endl;
 
     if (m_outputEvent.m_trueMomentumXVect.size() != expectedSize)
         throw cet::exception("EventSelection::ValidateOutputVectorSizes") << "m_trueMomentumXVect - is out of sync" << std::endl;
@@ -1116,6 +1521,18 @@ void EventSelection::ValidateOutputVectorSizes(const unsigned int index) const
 
     if (m_outputEvent.m_trueStartZVect.size() != expectedSize)
         throw cet::exception("EventSelection::ValidateOutputVectorSizes") << "m_trueStartZVect - is out of sync" << std::endl;
+    
+    if (m_outputEvent.m_trueIsContainedVect.size() != expectedSize)
+        throw cet::exception("EventSelection::ValidateOutputVectorSizes") << "m_trueIsContainedVect - is out of sync" << std::endl;
+    
+    if (m_outputEvent.m_trueIsStoppingVect.size() != expectedSize)
+        throw cet::exception("EventSelection::ValidateOutputVectorSizes") << "m_trueIsStoppingVect - is out of sync" << std::endl;
+    
+    if (m_outputEvent.m_trueNScattersVect.size() != expectedSize)
+        throw cet::exception("EventSelection::ValidateOutputVectorSizes") << "m_trueNScattersVect - is out of sync" << std::endl;
+    
+    if (m_outputEvent.m_trueIsGoldenVect.size() != expectedSize)
+        throw cet::exception("EventSelection::ValidateOutputVectorSizes") << "m_trueIsGoldenVect - is out of sync" << std::endl;
 
     if (m_outputEvent.m_nHitsUVect.size() != expectedSize)
         throw cet::exception("EventSelection::ValidateOutputVectorSizes") << "m_nHitsUVect - is out of sync" << std::endl;
@@ -1125,9 +1542,24 @@ void EventSelection::ValidateOutputVectorSizes(const unsigned int index) const
 
     if (m_outputEvent.m_nHitsWVect.size() != expectedSize)
         throw cet::exception("EventSelection::ValidateOutputVectorSizes") << "m_nHitsWVect - is out of sync" << std::endl;
+    
+    if (m_outputEvent.m_nDescendentHitsUVect.size() != expectedSize)
+        throw cet::exception("EventSelection::ValidateOutputVectorSizes") << "m_nDescendentHitsUVect - is out of sync" << std::endl;
+
+    if (m_outputEvent.m_nDescendentHitsVVect.size() != expectedSize)
+        throw cet::exception("EventSelection::ValidateOutputVectorSizes") << "m_nDescendentHitsVVect - is out of sync" << std::endl;
+
+    if (m_outputEvent.m_nDescendentHitsWVect.size() != expectedSize)
+        throw cet::exception("EventSelection::ValidateOutputVectorSizes") << "m_nDescendentHitsWVect - is out of sync" << std::endl;
 
     if (m_outputEvent.m_trackShowerVect.size() != expectedSize)
         throw cet::exception("EventSelection::ValidateOutputVectorSizes") << "m_trackShowerVect - is out of sync" << std::endl;
+    
+    if (m_outputEvent.m_nDaughtersVect.size() != expectedSize)
+        throw cet::exception("EventSelection::ValidateOutputVectorSizes") << "m_nDaughtersVect - is out of sync" << std::endl;
+    
+    if (m_outputEvent.m_nDescendentsVect.size() != expectedSize)
+        throw cet::exception("EventSelection::ValidateOutputVectorSizes") << "m_nDescendentsVect - is out of sync" << std::endl;
 
     if (m_outputEvent.m_startXVect.size() != expectedSize)
         throw cet::exception("EventSelection::ValidateOutputVectorSizes") << "m_startXVect - is out of sync" << std::endl;
@@ -1164,9 +1596,18 @@ void EventSelection::ValidateOutputVectorSizes(const unsigned int index) const
 
     if (m_outputEvent.m_yzAngleVect.size() != expectedSize)
         throw cet::exception("EventSelection::ValidateOutputVectorSizes") << "m_yzAngleVect - is out of sync" << std::endl;
+    
+    if (m_outputEvent.m_xyAngleVect.size() != expectedSize)
+        throw cet::exception("EventSelection::ValidateOutputVectorSizes") << "m_xyAngleVect - is out of sync" << std::endl;
+    
+    if (m_outputEvent.m_xzAngleVect.size() != expectedSize)
+        throw cet::exception("EventSelection::ValidateOutputVectorSizes") << "m_xzAngleVect - is out of sync" << std::endl;
 
     if (m_outputEvent.m_lengthVect.size() != expectedSize)
         throw cet::exception("EventSelection::ValidateOutputVectorSizes") << "m_lengthVect - is out of sync" << std::endl;
+    
+    if (m_outputEvent.m_rangeVect.size() != expectedSize)
+        throw cet::exception("EventSelection::ValidateOutputVectorSizes") << "m_rangeVect - is out of sync" << std::endl;
 
     if (m_outputEvent.m_isContainedVect.size() != expectedSize)
         throw cet::exception("EventSelection::ValidateOutputVectorSizes") << "m_isContainedVect - is out of sync" << std::endl;
@@ -1218,6 +1659,78 @@ void EventSelection::ValidateOutputVectorSizes(const unsigned int index) const
 
     if (m_outputEvent.m_chi2pUVVect.size() != expectedSize)
         throw cet::exception("EventSelection::ValidateOutputVectorSizes") << "m_chi2pUVVect - is out of sync" << std::endl;
+    
+    if (m_outputEvent.m_isWChi2muAvailableVect.size() != expectedSize)
+        throw cet::exception("EventSelection::ValidateOutputVectorSizes") << "m_isWChi2muAvailableVect - is out of sync" << std::endl;
+
+    if (m_outputEvent.m_chi2muWVect.size() != expectedSize)
+        throw cet::exception("EventSelection::ValidateOutputVectorSizes") << "m_chi2muWVect - is out of sync" << std::endl;
+
+    if (m_outputEvent.m_isUChi2muAvailableVect.size() != expectedSize)
+        throw cet::exception("EventSelection::ValidateOutputVectorSizes") << "m_isUChi2muAvailableVect - is out of sync" << std::endl;
+
+    if (m_outputEvent.m_chi2muUVect.size() != expectedSize)
+        throw cet::exception("EventSelection::ValidateOutputVectorSizes") << "m_chi2muUVect - is out of sync" << std::endl;
+
+    if (m_outputEvent.m_isVChi2muAvailableVect.size() != expectedSize)
+        throw cet::exception("EventSelection::ValidateOutputVectorSizes") << "m_isVChi2muAvailableVect - is out of sync" << std::endl;
+
+    if (m_outputEvent.m_chi2muVVect.size() != expectedSize)
+        throw cet::exception("EventSelection::ValidateOutputVectorSizes") << "m_chi2muVVect - is out of sync" << std::endl;
+
+    if (m_outputEvent.m_isUVChi2muAvailableVect.size() != expectedSize)
+        throw cet::exception("EventSelection::ValidateOutputVectorSizes") << "m_isUVChi2muAvailableVect - is out of sync" << std::endl;
+
+    if (m_outputEvent.m_chi2muUVVect.size() != expectedSize)
+        throw cet::exception("EventSelection::ValidateOutputVectorSizes") << "m_chi2muUVVect - is out of sync" << std::endl;
+    
+    if (m_outputEvent.m_isWChi2piAvailableVect.size() != expectedSize)
+        throw cet::exception("EventSelection::ValidateOutputVectorSizes") << "m_isWChi2piAvailableVect - is out of sync" << std::endl;
+
+    if (m_outputEvent.m_chi2piWVect.size() != expectedSize)
+        throw cet::exception("EventSelection::ValidateOutputVectorSizes") << "m_chi2piWVect - is out of sync" << std::endl;
+
+    if (m_outputEvent.m_isUChi2piAvailableVect.size() != expectedSize)
+        throw cet::exception("EventSelection::ValidateOutputVectorSizes") << "m_isUChi2piAvailableVect - is out of sync" << std::endl;
+
+    if (m_outputEvent.m_chi2piUVect.size() != expectedSize)
+        throw cet::exception("EventSelection::ValidateOutputVectorSizes") << "m_chi2piUVect - is out of sync" << std::endl;
+
+    if (m_outputEvent.m_isVChi2piAvailableVect.size() != expectedSize)
+        throw cet::exception("EventSelection::ValidateOutputVectorSizes") << "m_isVChi2piAvailableVect - is out of sync" << std::endl;
+
+    if (m_outputEvent.m_chi2piVVect.size() != expectedSize)
+        throw cet::exception("EventSelection::ValidateOutputVectorSizes") << "m_chi2piVVect - is out of sync" << std::endl;
+
+    if (m_outputEvent.m_isUVChi2piAvailableVect.size() != expectedSize)
+        throw cet::exception("EventSelection::ValidateOutputVectorSizes") << "m_isUVChi2piAvailableVect - is out of sync" << std::endl;
+
+    if (m_outputEvent.m_chi2piUVVect.size() != expectedSize)
+        throw cet::exception("EventSelection::ValidateOutputVectorSizes") << "m_chi2piUVVect - is out of sync" << std::endl;
+    
+    if (m_outputEvent.m_isWChi2MIPAvailableVect.size() != expectedSize)
+        throw cet::exception("EventSelection::ValidateOutputVectorSizes") << "m_isWChi2MIPAvailableVect - is out of sync" << std::endl;
+
+    if (m_outputEvent.m_chi2MIPWVect.size() != expectedSize)
+        throw cet::exception("EventSelection::ValidateOutputVectorSizes") << "m_chi2MIPWVect - is out of sync" << std::endl;
+
+    if (m_outputEvent.m_isUChi2MIPAvailableVect.size() != expectedSize)
+        throw cet::exception("EventSelection::ValidateOutputVectorSizes") << "m_isUChi2MIPAvailableVect - is out of sync" << std::endl;
+
+    if (m_outputEvent.m_chi2MIPUVect.size() != expectedSize)
+        throw cet::exception("EventSelection::ValidateOutputVectorSizes") << "m_chi2MIPUVect - is out of sync" << std::endl;
+
+    if (m_outputEvent.m_isVChi2MIPAvailableVect.size() != expectedSize)
+        throw cet::exception("EventSelection::ValidateOutputVectorSizes") << "m_isVChi2MIPAvailableVect - is out of sync" << std::endl;
+
+    if (m_outputEvent.m_chi2MIPVVect.size() != expectedSize)
+        throw cet::exception("EventSelection::ValidateOutputVectorSizes") << "m_chi2MIPVVect - is out of sync" << std::endl;
+
+    if (m_outputEvent.m_isUVChi2MIPAvailableVect.size() != expectedSize)
+        throw cet::exception("EventSelection::ValidateOutputVectorSizes") << "m_isUVChi2MIPAvailableVect - is out of sync" << std::endl;
+
+    if (m_outputEvent.m_chi2MIPUVVect.size() != expectedSize)
+        throw cet::exception("EventSelection::ValidateOutputVectorSizes") << "m_chi2MIPUVVect - is out of sync" << std::endl;
 
     if (m_outputEvent.m_isWBraggpAvailableVect.size() != expectedSize)
         throw cet::exception("EventSelection::ValidateOutputVectorSizes") << "m_isWBraggpAvailableVect - is out of sync" << std::endl;
@@ -1326,6 +1839,54 @@ void EventSelection::ValidateOutputVectorSizes(const unsigned int index) const
 
     if (m_outputEvent.m_braggRatioUVVect.size() != expectedSize)
         throw cet::exception("EventSelection::ValidateOutputVectorSizes") << "m_braggRatioUVVect - is out of sync" << std::endl;
+    
+    if (m_outputEvent.m_isWBraggmuAvailableVect.size() != expectedSize)
+        throw cet::exception("EventSelection::ValidateOutputVectorSizes") << "m_isWBraggmuAvailableVect - is out of sync" << std::endl;
+
+    if (m_outputEvent.m_braggmuWVect.size() != expectedSize)
+        throw cet::exception("EventSelection::ValidateOutputVectorSizes") << "m_braggmuWVect - is out of sync" << std::endl;
+
+    if (m_outputEvent.m_isUBraggmuAvailableVect.size() != expectedSize)
+        throw cet::exception("EventSelection::ValidateOutputVectorSizes") << "m_isUBraggmuAvailableVect - is out of sync" << std::endl;
+
+    if (m_outputEvent.m_braggmuUVect.size() != expectedSize)
+        throw cet::exception("EventSelection::ValidateOutputVectorSizes") << "m_braggmuUVect - is out of sync" << std::endl;
+
+    if (m_outputEvent.m_isVBraggmuAvailableVect.size() != expectedSize)
+        throw cet::exception("EventSelection::ValidateOutputVectorSizes") << "m_isVBraggmuAvailableVect - is out of sync" << std::endl;
+
+    if (m_outputEvent.m_braggmuVVect.size() != expectedSize)
+        throw cet::exception("EventSelection::ValidateOutputVectorSizes") << "m_braggmuVVect - is out of sync" << std::endl;
+
+    if (m_outputEvent.m_isUVBraggmuAvailableVect.size() != expectedSize)
+        throw cet::exception("EventSelection::ValidateOutputVectorSizes") << "m_isUVBraggmuAvailableVect - is out of sync" << std::endl;
+
+    if (m_outputEvent.m_braggmuUVVect.size() != expectedSize)
+        throw cet::exception("EventSelection::ValidateOutputVectorSizes") << "m_braggmuUVVect - is out of sync" << std::endl;
+    
+    if (m_outputEvent.m_isWBraggpiAvailableVect.size() != expectedSize)
+        throw cet::exception("EventSelection::ValidateOutputVectorSizes") << "m_isWBraggpiAvailableVect - is out of sync" << std::endl;
+
+    if (m_outputEvent.m_braggpiWVect.size() != expectedSize)
+        throw cet::exception("EventSelection::ValidateOutputVectorSizes") << "m_braggpiWVect - is out of sync" << std::endl;
+
+    if (m_outputEvent.m_isUBraggpiAvailableVect.size() != expectedSize)
+        throw cet::exception("EventSelection::ValidateOutputVectorSizes") << "m_isUBraggpiAvailableVect - is out of sync" << std::endl;
+
+    if (m_outputEvent.m_braggpiUVect.size() != expectedSize)
+        throw cet::exception("EventSelection::ValidateOutputVectorSizes") << "m_braggpiUVect - is out of sync" << std::endl;
+
+    if (m_outputEvent.m_isVBraggpiAvailableVect.size() != expectedSize)
+        throw cet::exception("EventSelection::ValidateOutputVectorSizes") << "m_isVBraggpiAvailableVect - is out of sync" << std::endl;
+
+    if (m_outputEvent.m_braggpiVVect.size() != expectedSize)
+        throw cet::exception("EventSelection::ValidateOutputVectorSizes") << "m_braggpiVVect - is out of sync" << std::endl;
+
+    if (m_outputEvent.m_isUVBraggpiAvailableVect.size() != expectedSize)
+        throw cet::exception("EventSelection::ValidateOutputVectorSizes") << "m_isUVBraggpiAvailableVect - is out of sync" << std::endl;
+
+    if (m_outputEvent.m_braggpiUVVect.size() != expectedSize)
+        throw cet::exception("EventSelection::ValidateOutputVectorSizes") << "m_braggpiUVVect - is out of sync" << std::endl;
 }
 
 } // namespace ubcc1pi

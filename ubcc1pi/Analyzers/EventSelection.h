@@ -20,6 +20,7 @@
 #include "ubcc1pi/Helpers/CollectionHelper.h"
 #include "ubcc1pi/Helpers/BacktrackHelper.h"
 #include "ubcc1pi/Helpers/RecoHelper.h"
+#include "ubcc1pi/Helpers/TruthHelper.h"
 
 namespace ubcc1pi
 {
@@ -121,7 +122,7 @@ class EventSelection : public art::EDAnalyzer
             int          m_nPositron;                                      ///< The number of e+
             int          m_nTotal;                                         ///< The total number of particles
                                                                            
-            // True particle kinematics                                    
+            // True particle kinematics (for signal events) 
             float        m_trueMuEnergy;                                   ///< The true muon energy
             float        m_trueMuTheta;                                    ///< The true muon theta (angle to beam)
             float        m_trueMuPhi;                                      ///< The true muon phi (angle about beam)
@@ -161,7 +162,7 @@ class EventSelection : public art::EDAnalyzer
             bool                   m_hasRecoNeutrino;                      ///< If the event has a reconstructed neutrino
             TVector3               m_recoNuVtx;                            ///< The SCE corrected reco neutrino vertex position
             bool                   m_isRecoNuFiducial;                     ///< If the reconstructed vertex is fiducial
-            float                  m_topologicalScore;                     ///< The pandora neutrino ID topological score for this slice
+//            float                  m_topologicalScore;                     ///< The pandora neutrino ID topological score for this slice
                                                                            
             // Particle level information                                  
             int                    m_nFinalStatePFPs;                      ///< The number of reconstructed final state PFParticles
@@ -174,18 +175,28 @@ class EventSelection : public art::EDAnalyzer
             std::vector<float>     m_truthMatchPurityVect;                 ///< The purity of the match
             std::vector<float>     m_trueEnergyVect;                       ///< The true energy of the particle
             std::vector<float>     m_trueKEVect;                           ///< The true kinetic energy of the particle
+            std::vector<float>     m_trueRangeVect;                           ///< The true range of the particle
             std::vector<float>     m_trueMomentumXVect;                    ///< The true momentum of the particle - X
             std::vector<float>     m_trueMomentumYVect;                    ///< The true momentum of the particle - Y
             std::vector<float>     m_trueMomentumZVect;                    ///< The true momentum of the particle - Z
             std::vector<float>     m_trueStartXVect;                       ///< The true start position of the particle - X
             std::vector<float>     m_trueStartYVect;                       ///< The true start position of the particle - Y
             std::vector<float>     m_trueStartZVect;                       ///< The true start position of the particle - Z
+            std::vector<bool>      m_trueIsContainedVect;                  ///< If the true particle is contained
+            std::vector<bool>      m_trueIsStoppingVect;                   ///< If the true particle stops
+            std::vector<int>       m_trueNScattersVect;                    ///< The true number of elastic scatters
+            std::vector<bool>      m_trueIsGoldenVect;                     ///< If the true particle is golden
             
             // Pandora info
             std::vector<int>       m_nHitsUVect;                           ///< The number of hits in the U view
             std::vector<int>       m_nHitsVVect;                           ///< The number of hits in the V view
             std::vector<int>       m_nHitsWVect;                           ///< The number of hits in the W view
+            std::vector<int>       m_nDescendentHitsUVect;                 ///< The number of descendent hits in the U view
+            std::vector<int>       m_nDescendentHitsVVect;                 ///< The number of descendent hits in the V view
+            std::vector<int>       m_nDescendentHitsWVect;                 ///< The number of descendent hits in the W view
             std::vector<float>     m_trackShowerVect;                      ///< The pandora track vs. shower score
+            std::vector<int>       m_nDaughtersVect;                       ///< The number of daughter PFParticles
+            std::vector<int>       m_nDescendentsVect;                     ///< The number of descendents PFParticles follow all downstream links
                                                                            
             // Track info                                                  
             std::vector<bool>      m_hasTrackInfoVect;                     ///< If the PFParticle has an associated track
@@ -201,7 +212,10 @@ class EventSelection : public art::EDAnalyzer
             std::vector<float>     m_thetaVect;                            ///< The reconstructed angle to the beam direction
             std::vector<float>     m_phiVect;                              ///< The reconstructed angle aroun the beam direction
             std::vector<float>     m_yzAngleVect;                          ///< The reconstructed angle in the YZ plane to the vertical
+            std::vector<float>     m_xyAngleVect;                          ///< The reconstructed angle in the XY plane
+            std::vector<float>     m_xzAngleVect;                          ///< The reconstructed angle in the XZ plane
             std::vector<float>     m_lengthVect;                           ///< The reconstructed length
+            std::vector<float>     m_rangeVect;                            ///< The reconstructed range
             std::vector<bool>      m_isContainedVect;                      ///< If the particle is contained within the detector
 
             // Calorimetry info
@@ -228,6 +242,45 @@ class EventSelection : public art::EDAnalyzer
                                                                            
             std::vector<bool>      m_isUVChi2pAvailableVect;               ///< If the weighted average chi2 proton over the U & V planes is available
             std::vector<float>     m_chi2pUVVect;                          ///< The weighted average chi2 proton over the U & V planes
+            
+            // Chi2 muon
+            std::vector<bool>      m_isWChi2muAvailableVect;                ///< If the chi2 muon is available for the W plane
+            std::vector<float>     m_chi2muWVect;                           ///< The chi2 muon for the W plane
+                                                                           
+            std::vector<bool>      m_isUChi2muAvailableVect;                ///< If the chi2 muon is available for the U plane
+            std::vector<float>     m_chi2muUVect;                           ///< The chi2 muon for the U plane
+                                                                           
+            std::vector<bool>      m_isVChi2muAvailableVect;                ///< If the chi2 muon is available for the V plane
+            std::vector<float>     m_chi2muVVect;                           ///< The chi2 muon for the V plane
+                                                                           
+            std::vector<bool>      m_isUVChi2muAvailableVect;               ///< If the weighted average chi2 muon over the U & V planes is available
+            std::vector<float>     m_chi2muUVVect;                          ///< The weighted average chi2 muon over the U & V planes
+            
+            // Chi2 pion
+            std::vector<bool>      m_isWChi2piAvailableVect;                ///< If the chi2 pion is available for the W plane
+            std::vector<float>     m_chi2piWVect;                           ///< The chi2 pion for the W plane
+                                                                           
+            std::vector<bool>      m_isUChi2piAvailableVect;                ///< If the chi2 pion is available for the U plane
+            std::vector<float>     m_chi2piUVect;                           ///< The chi2 pion for the U plane
+                                                                           
+            std::vector<bool>      m_isVChi2piAvailableVect;                ///< If the chi2 pion is available for the V plane
+            std::vector<float>     m_chi2piVVect;                           ///< The chi2 pion for the V plane
+                                                                           
+            std::vector<bool>      m_isUVChi2piAvailableVect;               ///< If the weighted average chi2 pion over the U & V planes is available
+            std::vector<float>     m_chi2piUVVect;                          ///< The weighted average chi2 pion over the U & V planes
+            
+            // Chi2 MIP
+            std::vector<bool>      m_isWChi2MIPAvailableVect;                ///< If the chi2 MIP is available for the W plane
+            std::vector<float>     m_chi2MIPWVect;                           ///< The chi2 MIP for the W plane
+                                                                           
+            std::vector<bool>      m_isUChi2MIPAvailableVect;                ///< If the chi2 MIP is available for the U plane
+            std::vector<float>     m_chi2MIPUVect;                           ///< The chi2 MIP for the U plane
+                                                                           
+            std::vector<bool>      m_isVChi2MIPAvailableVect;                ///< If the chi2 MIP is available for the V plane
+            std::vector<float>     m_chi2MIPVVect;                           ///< The chi2 MIP for the V plane
+                                                                           
+            std::vector<bool>      m_isUVChi2MIPAvailableVect;               ///< If the weighted average chi2 MIP over the U & V planes is available
+            std::vector<float>     m_chi2MIPUVVect;                          ///< The weighted average chi2 MIP over the U & V planes
 
             // Bragg likelihood proton
             std::vector<bool>      m_isWBraggpAvailableVect;               ///< If the Bragg proton is available for the W plane                        
@@ -287,6 +340,32 @@ class EventSelection : public art::EDAnalyzer
                                                                           
             std::vector<bool>      m_isUVBraggRatioAvailableVect;          ///< If the weighted average Bragg ratio over the U & V planes is available
             std::vector<float>     m_braggRatioUVVect;                     ///< The weighted average Bragg MIP over the U & V planes
+            
+            // Bragg likelihood muon
+            std::vector<bool>      m_isWBraggmuAvailableVect;              ///< If the Bragg muon is available for the W plane                        
+            std::vector<float>     m_braggmuWVect;                         ///< The Bragg muon for the W plane
+                                                                                                                                                      
+            std::vector<bool>      m_isUBraggmuAvailableVect;              ///< If the Bragg muon is available for the U plane
+            std::vector<float>     m_braggmuUVect;                         ///< The Bragg muon for the U plane
+                                                                                                                                                      
+            std::vector<bool>      m_isVBraggmuAvailableVect;              ///< If the Bragg muon is available for the V plane
+            std::vector<float>     m_braggmuVVect;                         ///< The Bragg muon for the V plane
+                                                                                                                                                      
+            std::vector<bool>      m_isUVBraggmuAvailableVect;             ///< If the weighted average Bragg muon over the U & V planes is available
+            std::vector<float>     m_braggmuUVVect;                        ///< The weighted average Bragg muon over the U & V planes
+            
+            // Bragg likelihood pion
+            std::vector<bool>      m_isWBraggpiAvailableVect;              ///< If the Bragg pion is available for the W plane                        
+            std::vector<float>     m_braggpiWVect;                         ///< The Bragg pion for the W plane
+                                                                                                                                                      
+            std::vector<bool>      m_isUBraggpiAvailableVect;              ///< If the Bragg pion is available for the U plane
+            std::vector<float>     m_braggpiUVect;                         ///< The Bragg pion for the U plane
+                                                                                                                                                      
+            std::vector<bool>      m_isVBraggpiAvailableVect;              ///< If the Bragg pion is available for the V plane
+            std::vector<float>     m_braggpiVVect;                         ///< The Bragg pion for the V plane
+                                                                                                                                                      
+            std::vector<bool>      m_isUVBraggpiAvailableVect;             ///< If the weighted average Bragg pion over the U & V planes is available
+            std::vector<float>     m_braggpiUVVect;                        ///< The weighted average Bragg pion over the U & V planes
         };
 
         /**
@@ -396,30 +475,35 @@ class EventSelection : public art::EDAnalyzer
          *  @param  index the index of the final state PFParticle 
          *  @param  finalState the final state PFParticle to output
          *  @param  backtrackerData the backtracking data
+         *  @param  mcParticleMap the MCParticle hierarchy map
+         *  @param  pfParticleMap the PFParticle hierarchy map
+         *  @param  pfpToHits the mapping from PFParticle to hits
          *  @param  pfpToTracks the mapping from PFParticles to Tracks
          *  @param  trackToPIDs the mapping from Tracks to PID
          *  @param  trackToCalorimetries the mapping from Tracks to Calorimetry
          *  @param  pfpToMetadata the mapping from PFParticles to metadata
          *  @param  pSpaceChargeService the space charge service
          */
-        void SetPFParticleInfo(const unsigned int index, const art::Ptr<recob::PFParticle> &finalState, const BacktrackHelper::BacktrackerData &backtrackerData, const Association<recob::PFParticle, recob::Track> &pfpToTracks, const Association<recob::Track, anab::ParticleID> &trackToPIDs, const Association<recob::Track, anab::Calorimetry> &trackToCalorimetries, const Association<recob::PFParticle, larpandoraobj::PFParticleMetadata> &pfpToMetadata, const spacecharge::SpaceChargeService::provider_type *const pSpaceChargeService);
+        void SetPFParticleInfo(const unsigned int index, const art::Ptr<recob::PFParticle> &finalState, const BacktrackHelper::BacktrackerData &backtrackerData, const MCParticleMap &mcParticleMap, const PFParticleMap &pfParticleMap, const Association<recob::PFParticle, recob::Hit> &pfpToHits, const Association<recob::PFParticle, recob::Track> &pfpToTracks, const Association<recob::Track, anab::ParticleID> &trackToPIDs, const Association<recob::Track, anab::Calorimetry> &trackToCalorimetries, const Association<recob::PFParticle, larpandoraobj::PFParticleMetadata> &pfpToMetadata, const spacecharge::SpaceChargeService::provider_type *const pSpaceChargeService);
 
         /**
          *  @brief  Set the MCParticle matching info for the current PFParticle to the output branches
          *
          *  @param  finalState the final state PFParticle to output
          *  @param  backtrackerData the backtracking data
+         *  @param  mcParticleMap
          */
-        void SetPFParticleMCParticleMatchInfo(const art::Ptr<recob::PFParticle> &finalState, const BacktrackHelper::BacktrackerData &backtrackerData);
+        void SetPFParticleMCParticleMatchInfo(const art::Ptr<recob::PFParticle> &finalState, const BacktrackHelper::BacktrackerData &backtrackerData, const MCParticleMap &mcParticleMap);
 
         /**
          *  @brief  Set the PFParticle info from Pandora in the output branches
          *
          *  @param  finalState the final state PFParticle to output
-         *  @param  backtrackerData the backtracking data
+         *  @param  pfpToHits the mapping from PFParticles to hits
+         *  @param  pfParticleMap the PFParticle hierarchy map
          *  @param  pfpToMetadata the mapping from PFParticles to metadata
          */
-        void SetPFParticlePandoraInfo(const art::Ptr<recob::PFParticle> &finalState, const BacktrackHelper::BacktrackerData &backtrackerData, const Association<recob::PFParticle, larpandoraobj::PFParticleMetadata> &pfpToMetadata);
+        void SetPFParticlePandoraInfo(const art::Ptr<recob::PFParticle> &finalState, const Association<recob::PFParticle, recob::Hit> &pfpToHits, const PFParticleMap &pfParticleMap, const Association<recob::PFParticle, larpandoraobj::PFParticleMetadata> &pfpToMetadata);
 
         /**
          *  @brief  Set dummy track info for the current PFParticle 
@@ -442,6 +526,24 @@ class EventSelection : public art::EDAnalyzer
          *  @return the YZ angle
          */
         float GetYZAngle(const TVector3 &dir);
+        
+        /**
+         *  @brief  Get the angle of in the XY plane from an input direction
+         *
+         *  @param  dir the input direction
+         *
+         *  @return the XY angle
+         */
+        float GetXYAngle(const TVector3 &dir);
+        
+        /**
+         *  @brief  Get the angle of in the XZ plane from an input direction
+         *
+         *  @param  dir the input direction
+         *
+         *  @return the XZ angle
+         */
+        float GetXZAngle(const TVector3 &dir);
 
         /**
          *  @brief  Set dummy calorimetry info for the current PFParticle
@@ -507,6 +609,34 @@ class EventSelection : public art::EDAnalyzer
          *  @param  uvSet if the output combined UV variable is available
          */
         void CombineInductionPlanes(const float yzAngle, const int nHitsU, const int nHitsV, const float uValue, const float vValue, const bool uSet, const bool vSet, float &uvValue, bool &uvSet) const;
+
+        /**
+         *  @brief  Get the range of the input MCParticle
+         *
+         *  @param  mcParticle the MCParticle
+         *
+         *  @return the range
+         */
+        float GetRange(const art::Ptr<simb::MCParticle> &mcParticle) const;
+
+        /**
+         *  @brief  Get the range of the input track
+         *
+         *  @param  track the track
+         *  @param  pSpaceChargeService the space charge service
+         *
+         *  @return the range
+         */
+        float GetRange(const art::Ptr<recob::Track> &track, const spacecharge::SpaceChargeService::provider_type *const pSpaceChargeService) const;
+
+        /**
+         *  @brief  Get the valid points in the track
+         *
+         *  @param  track the track
+         *
+         *  @return the indices of the valid points in the track
+         */
+        std::vector<size_t> GetValidPoints(const art::Ptr<recob::Track> &track) const;
 
         /**
          *  @brief  Sanity check that all of the output vectors have the expected size at this point

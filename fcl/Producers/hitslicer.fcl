@@ -1,0 +1,14 @@
+BEGIN_PROLOG
+
+hitslicer:
+{
+    module_type: "HitSlicer"
+
+    SliceLabel:               "pandora"
+    SliceToPFParticlesLabel:  "pandora"
+    SliceToHitsLabel:         "pandora"
+    MCParticleLabel:          "largeant"
+    BacktrackerLabel:         "gaushitTruthMatch"
+}
+
+END_PROLOG

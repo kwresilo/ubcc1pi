@@ -1,8 +1,8 @@
-#include "energy_estimator_study.fcl"
+#include "event_selection.fcl"
 #include "hitslicer.fcl"
 #include "reco_uboone_mcc9_8_driver_stage2.fcl"
 
-process_name: EnergyEstimator
+process_name: EventSelection
 
 source:
 {
@@ -11,7 +11,7 @@ source:
     saveMemoryObjectThreshold:  0
 }
 
-services.TFileService: {fileName: "energyEstimator.root"}
+services.TFileService: {fileName: "eventSelection.root"}
 
 physics:
 {
@@ -27,11 +27,11 @@ physics:
 
     analyzers:
     {
-        energyEstimator: @local::energy_estimator_study
+        eventSelection: @local::event_selection
     }
 
     reco: [ hitSlicer, pandoraNuSlice, pandoraAllAsTrack, pandoraAllAsTrackCaloSCE, pandoraAllAsTrackCaliSCE, pandoraAllAsTrackCaliPidSCE ]
-    ana: [ energyEstimator ]
+    ana: [ eventSelection ]
 
     trigger_paths: [ reco ]
     end_paths: [ ana ]
@@ -59,8 +59,8 @@ physics.producers.pandoraAllAsTrackCaliPidSCE.ProducerLabels.TrackLabel:       "
 physics.producers.pandoraAllAsTrackCaliPidSCE.ProducerLabels.HitLabel:         "hitSlicer"
 physics.producers.pandoraAllAsTrackCaliPidSCE.ProducerLabels.HitTruthAssn:     "hitSlicer"
 
-physics.analyzers.energyEstimator.PFParticleLabel:    "pandoraNuSlice"
-physics.analyzers.energyEstimator.BacktrackerLabel:   "hitSlicer"
-physics.analyzers.energyEstimator.TrackLabel:         "pandoraAllAsTrack"
-physics.analyzers.energyEstimator.CalorimetryLabel:   "pandoraAllAsTrackCaliSCE"
-physics.analyzers.energyEstimator.PIDLabel:           "pandoraAllAsTrackCaliPidSCE"
+physics.analyzers.eventSelection.BacktrackerLabel:   "hitSlicer"
+physics.analyzers.eventSelection.PFParticleLabel:    "pandoraNuSlice"
+physics.analyzers.eventSelection.TrackLabel:         "pandoraAllAsTrack"
+physics.analyzers.eventSelection.CalorimetryLabel:   "pandoraAllAsTrackCaliSCE"
+physics.analyzers.eventSelection.PIDLabel:           "pandoraAllAsTrackCaliPidSCE"

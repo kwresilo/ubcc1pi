@@ -57,6 +57,7 @@ add_subdirectory(ubcc1pi)
 
 # configuration
 add_subdirectory(fcl)
+add_subdirectory(scripts)
 
 # unit tests
 add_subdirectory(test)
