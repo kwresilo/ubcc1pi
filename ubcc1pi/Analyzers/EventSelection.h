@@ -89,6 +89,12 @@ class EventSelection : public art::EDAnalyzer
                 fhicl::Name("ContainmentBorder"),
                 fhicl::Comment("The maximum distance a position can be from a detector face and be considered uncontained")
             };
+
+            fhicl::Sequence<float> SphereSizes
+            {
+                fhicl::Name("SphereSizes"),
+                fhicl::Comment("The sizes of spheres to use at the end of tracks in which to identify secondary interactions")
+            };
         };
         
         /**
@@ -217,7 +223,17 @@ class EventSelection : public art::EDAnalyzer
             std::vector<float>     m_lengthVect;                           ///< The reconstructed length
             std::vector<float>     m_rangeVect;                            ///< The reconstructed range
             std::vector<bool>      m_isContainedVect;                      ///< If the particle is contained within the detector
-
+            std::vector<float>     m_rmsSequentialTrackDeviationVect;      ///< The RMS sin angle of each track segment with the previous segment
+            std::vector<float>     m_minSequentialTrackDeviationVect;      ///< The min sin angle of each track segment with the previous segment
+            std::vector<float>     m_maxSequentialTrackDeviationVect;      ///< The max sin angle of each track segment with the previous segment
+            std::vector<float>     m_rmsTrackDeviationVect;                ///< The RMS sin angle of each track segment with the mean direction
+            std::vector<float>     m_minTrackDeviationVect;                ///< The min sin angle of all track segments with the mean direction
+            std::vector<float>     m_maxTrackDeviationVect;                ///< The max sin angle of all track segments with the mean direction
+    
+            std::vector<std::vector<int>*> m_nSpacePointsInSphereAll;      ///< Number of points in a sphere around the track end, each entry of the outer vector is a different radius
+            std::vector<std::vector<int>*> m_nOtherSpacePointsInSphereAll; ///< Number of points in sphere not including those from this particle
+            std::vector<std::vector<float>*> m_offAxisSpacePointsRMSInSphereAll; ///< The RMS of the distances of the space points in the sphere to the track direction axis
+            
             // Calorimetry info
             std::vector<bool>                m_hasCalorimetryInfoVect;     ///< If the PFParticle has an associated Calorimetry object
             std::vector<std::vector<float> > m_dedxPerHitUVect;            ///< The dEdx at each hit point along the tracjectory in the U plane
@@ -374,6 +390,11 @@ class EventSelection : public art::EDAnalyzer
          *  @param  config the set of input fhicl parameters
          */
         EventSelection(const art::EDAnalyzer::Table<Config> &config);
+        
+        /**
+         *  @brief  Destructor
+         */
+        ~EventSelection();
 
         /**
          *  @brief  Analyze an event
@@ -477,14 +498,16 @@ class EventSelection : public art::EDAnalyzer
          *  @param  backtrackerData the backtracking data
          *  @param  mcParticleMap the MCParticle hierarchy map
          *  @param  pfParticleMap the PFParticle hierarchy map
+         *  @param  spacePoints all of the spacepoints in the event
          *  @param  pfpToHits the mapping from PFParticle to hits
+         *  @param  pfpToSpacePoints the mapping from PFParticles to spacepoints
          *  @param  pfpToTracks the mapping from PFParticles to Tracks
          *  @param  trackToPIDs the mapping from Tracks to PID
          *  @param  trackToCalorimetries the mapping from Tracks to Calorimetry
          *  @param  pfpToMetadata the mapping from PFParticles to metadata
          *  @param  pSpaceChargeService the space charge service
          */
-        void SetPFParticleInfo(const unsigned int index, const art::Ptr<recob::PFParticle> &finalState, const BacktrackHelper::BacktrackerData &backtrackerData, const MCParticleMap &mcParticleMap, const PFParticleMap &pfParticleMap, const Association<recob::PFParticle, recob::Hit> &pfpToHits, const Association<recob::PFParticle, recob::Track> &pfpToTracks, const Association<recob::Track, anab::ParticleID> &trackToPIDs, const Association<recob::Track, anab::Calorimetry> &trackToCalorimetries, const Association<recob::PFParticle, larpandoraobj::PFParticleMetadata> &pfpToMetadata, const spacecharge::SpaceChargeService::provider_type *const pSpaceChargeService);
+        void SetPFParticleInfo(const unsigned int index, const art::Ptr<recob::PFParticle> &finalState, const BacktrackHelper::BacktrackerData &backtrackerData, const MCParticleMap &mcParticleMap, const PFParticleMap &pfParticleMap, const Collection<recob::SpacePoint> &spacePoints, const Association<recob::PFParticle, recob::Hit> &pfpToHits, const Association<recob::PFParticle, recob::SpacePoint> &pfpToSpacePoints, const Association<recob::PFParticle, recob::Track> &pfpToTracks, const Association<recob::Track, anab::ParticleID> &trackToPIDs, const Association<recob::Track, anab::Calorimetry> &trackToCalorimetries, const Association<recob::PFParticle, larpandoraobj::PFParticleMetadata> &pfpToMetadata, const spacecharge::SpaceChargeService::provider_type *const pSpaceChargeService);
 
         /**
          *  @brief  Set the MCParticle matching info for the current PFParticle to the output branches
@@ -514,9 +537,23 @@ class EventSelection : public art::EDAnalyzer
          *  @brief  Set the track info for the current PFParticle
          *
          *  @param  track the track to output
+         *  @param  spacePoints all of the spacepoints in the event
+         *  @param  spacePointsInParticle the spacepoints that went toward making the track
          *  @param  pSpaceChargeService the space charge service
          */
-        void SetTrackInfo(const art::Ptr<recob::Track> &track, const spacecharge::SpaceChargeService::provider_type *const pSpaceChargeService);
+        void SetTrackInfo(const art::Ptr<recob::Track> &track, const Collection<recob::SpacePoint> &spacePoints, const Collection<recob::SpacePoint> &spacePointsInParticle, const spacecharge::SpaceChargeService::provider_type *const pSpaceChargeService);
+
+        /**
+         *  @brief  Get the spacepoints in the input list that are within a given distance of a given point
+         *
+         *  @param  spacePoints the input spacepoints
+         *  @param  point the point which the spacepoints must be near
+         *  @param  dist the threshold distance
+         *  @param  pSpaceChargeService the spacecharge service
+         *
+         *  @return the nearby spacepoints
+         */
+        SpacePointVector GetSpacePointsNearPoint(const SpacePointVector &spacePoints, const TVector3 &point, const float dist, const spacecharge::SpaceChargeService::provider_type *const pSpaceChargeService) const;
 
         /**
          *  @brief  Get the angle of in the YZ plane from an input direction
@@ -544,6 +581,79 @@ class EventSelection : public art::EDAnalyzer
          *  @return the XZ angle
          */
         float GetXZAngle(const TVector3 &dir);
+
+        /**
+         *  @brief  Get the RMS of the sin angle between sequential track segments directions
+         *
+         *  @param  track the track
+         *  @param  validPoints the indices of the valid points
+         *
+         *  @return the RMS sequential deviation
+         */
+        float GetRMSSequentialTrackDeviation(const art::Ptr<recob::Track> &track, const std::vector<size_t> &validPoints);
+
+        /**
+         *  @brief  Get the minimum of the absolute sin angle between sequential track direction
+         *
+         *  @param  track the track
+         *  @param  validPoints the indices of the valid points
+         *
+         *  @return the min sequential deviation
+         */
+        float GetMinSequentialTrackDeviation(const art::Ptr<recob::Track> &track, const std::vector<size_t> &validPoints);
+        
+        /**
+         *  @brief  Get the maximum of the absolute sin angle between sequential track direction
+         *
+         *  @param  track the track
+         *  @param  validPoints the indices of the valid points
+         *
+         *  @return the max sequential deviation
+         */
+        float GetMaxSequentialTrackDeviation(const art::Ptr<recob::Track> &track, const std::vector<size_t> &validPoints);
+
+        /**
+         *  @brief  Get the mean direction of the track along all valid points
+         *
+         *  @param  track the track
+         *  @param  validPoints the indices of the valid points
+         *
+         *  @return the mean track direction
+         */
+        TVector3 GetMeanTrackDirection(const art::Ptr<recob::Track> &track, const std::vector<size_t> &validPoints);
+
+        /**
+         *  @brief  Get the RMS of the sin angle between the mean track direction and each valid track segment
+         *
+         *  @param  track the track
+         *  @param  validPoints the indices of the valid points
+         *  @param  meanDir the mean track direction
+         *
+         *  @return the RMS devation
+         */
+        float GetRMSTrackDeviation(const art::Ptr<recob::Track> &track, const std::vector<size_t> &validPoints, const TVector3 &meanDir);
+
+        /**
+         *  @brief  Get the minimum absolute sin squared angle to the mean track direction
+         *
+         *  @param  track the track
+         *  @param  validPoints the indices of the valid points
+         *  @param  meanDir the mean track direction
+         *
+         *  @return the minimum deviation
+         */
+        float GetMinTrackDeviation(const art::Ptr<recob::Track> &track, const std::vector<size_t> &validPoints, const TVector3 &meanDir);
+
+        /**
+         *  @brief  Get the maximum absolute sin squared angle to the mean track direction
+         *
+         *  @param  track the track
+         *  @param  validPoints the indices of the valid points
+         *  @param  meanDir the mean track direction
+         *
+         *  @return the maximum deviation
+         */
+        float GetMaxTrackDeviation(const art::Ptr<recob::Track> &track, const std::vector<size_t> &validPoints, const TVector3 &meanDir);
 
         /**
          *  @brief  Set dummy calorimetry info for the current PFParticle

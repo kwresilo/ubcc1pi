@@ -14,6 +14,7 @@ event_selection:
     PIDLabel:          "pandoracalipidSCE"
     Sin2YZAngleCut:     0.175
     ContainmentBorder:  5
+    SphereSizes:        [5, 10, 15, 20, 25, 30, 35, 40]
 }
 
 END_PROLOG

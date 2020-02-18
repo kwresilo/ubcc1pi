@@ -122,6 +122,29 @@ EventSelection::EventSelection(const art::EDAnalyzer::Table<Config> &config) :
     m_pEventTree->Branch("lengthVect", &m_outputEvent.m_lengthVect);
     m_pEventTree->Branch("rangeVect", &m_outputEvent.m_rangeVect);
     m_pEventTree->Branch("isContainedVect", &m_outputEvent.m_isContainedVect);
+    m_pEventTree->Branch("rmsSequentialTrackDeviationVect", &m_outputEvent.m_rmsSequentialTrackDeviationVect);
+    m_pEventTree->Branch("minSequentialTrackDeviationVect", &m_outputEvent.m_minSequentialTrackDeviationVect);
+    m_pEventTree->Branch("maxSequentialTrackDeviationVect", &m_outputEvent.m_maxSequentialTrackDeviationVect);
+    m_pEventTree->Branch("rmsTrackDeviationVect", &m_outputEvent.m_rmsTrackDeviationVect);
+    m_pEventTree->Branch("minTrackDeviationVect", &m_outputEvent.m_minTrackDeviationVect);
+    m_pEventTree->Branch("maxTrackDeviationVect", &m_outputEvent.m_maxTrackDeviationVect);
+    
+    for (const auto size : m_config().SphereSizes())
+    {
+        const auto name = std::to_string(static_cast<int>(std::round(size)));
+
+        auto nSpacePointsInSphereEntry = new std::vector<int>();
+        m_outputEvent.m_nSpacePointsInSphereAll.push_back(nSpacePointsInSphereEntry);
+        m_pEventTree->Branch(("nSpacePointsInSphere" + name + "Vect").c_str(), nSpacePointsInSphereEntry);
+        
+        auto nOtherSpacePointsInSphereEntry = new std::vector<int>();
+        m_outputEvent.m_nOtherSpacePointsInSphereAll.push_back(nOtherSpacePointsInSphereEntry);
+        m_pEventTree->Branch(("nOtherSpacePointsInSphere" + name + "Vect").c_str(), nOtherSpacePointsInSphereEntry);
+        
+        auto offAxisSpacePointsRMSInSphereEntry = new std::vector<float>();
+        m_outputEvent.m_offAxisSpacePointsRMSInSphereAll.push_back(offAxisSpacePointsRMSInSphereEntry);
+        m_pEventTree->Branch(("offAxisSpacePointsRMSInSphere" + name + "Vect").c_str(), offAxisSpacePointsRMSInSphereEntry);
+    }
     
     m_pEventTree->Branch("nHitsUVect", &m_outputEvent.m_nHitsUVect);
     m_pEventTree->Branch("nHitsVVect", &m_outputEvent.m_nHitsVVect);
@@ -241,6 +264,30 @@ EventSelection::EventSelection(const art::EDAnalyzer::Table<Config> &config) :
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
 
+EventSelection::~EventSelection()
+{
+    for (const auto &nSpacePointsInSphereEntry : m_outputEvent.m_nSpacePointsInSphereAll)
+    {
+        delete nSpacePointsInSphereEntry;
+    }
+    m_outputEvent.m_nSpacePointsInSphereAll.clear();
+    
+    
+    for (const auto &nOtherSpacePointsInSphereEntry : m_outputEvent.m_nOtherSpacePointsInSphereAll)
+    {
+        delete nOtherSpacePointsInSphereEntry;
+    }
+    m_outputEvent.m_nOtherSpacePointsInSphereAll.clear();
+    
+    for (const auto &offAxisSpacePointsRMSInSphereEntry : m_outputEvent.m_offAxisSpacePointsRMSInSphereAll)
+    {
+        delete offAxisSpacePointsRMSInSphereEntry;
+    }
+    m_outputEvent.m_offAxisSpacePointsRMSInSphereAll.clear();
+}
+
+// -----------------------------------------------------------------------------------------------------------------------------------------
+
 void EventSelection::analyze(const art::Event &event)
 {
     this->ResetEventTree();
@@ -354,6 +401,22 @@ void EventSelection::ResetEventTree()
     m_outputEvent.m_lengthVect.clear();
     m_outputEvent.m_rangeVect.clear();
     m_outputEvent.m_isContainedVect.clear();
+    m_outputEvent.m_rmsSequentialTrackDeviationVect.clear();
+    m_outputEvent.m_minSequentialTrackDeviationVect.clear();
+    m_outputEvent.m_maxSequentialTrackDeviationVect.clear();
+    m_outputEvent.m_rmsTrackDeviationVect.clear();
+    m_outputEvent.m_minTrackDeviationVect.clear();
+    m_outputEvent.m_maxTrackDeviationVect.clear();
+
+    for (auto &nSpacePointsInSphereEntry : m_outputEvent.m_nSpacePointsInSphereAll)
+        nSpacePointsInSphereEntry->clear();
+    
+    for (auto &nOtherSpacePointsInSphereEntry : m_outputEvent.m_nOtherSpacePointsInSphereAll)
+        nOtherSpacePointsInSphereEntry->clear();
+    
+    for (auto &offAxisSpacePointsRMSInSphereEntry : m_outputEvent.m_offAxisSpacePointsRMSInSphereAll)
+        offAxisSpacePointsRMSInSphereEntry->clear();
+
     m_outputEvent.m_hasCalorimetryInfoVect.clear();
     m_outputEvent.m_dedxPerHitUVect.clear();
     m_outputEvent.m_dedxPerHitVVect.clear();
@@ -604,10 +667,12 @@ void EventSelection::SetRecoInfo(const art::Event &event)
 {
     // Get the PFParticles and their associations
     const auto allPFParticles = CollectionHelper::GetCollection<recob::PFParticle>(event, m_config().PFParticleLabel());
+    const auto spacePoints = CollectionHelper::GetCollection<recob::SpacePoint>(event, m_config().PFParticleLabel());
     const auto pfParticleMap = RecoHelper::GetPFParticleMap(allPFParticles);
     const auto backtrackerData = AnalysisHelper::GetBacktrackerData(event, m_config().MCTruthLabel(), m_config().MCParticleLabel(), m_config().BacktrackerLabel(), m_config().PFParticleLabel());
     const auto finalStates = RecoHelper::GetNeutrinoFinalStates(allPFParticles); 
     const auto pfpToTracks = CollectionHelper::GetAssociation<recob::PFParticle, recob::Track>(event, m_config().PFParticleLabel(), m_config().TrackLabel());
+    const auto pfpToSpacePoints = CollectionHelper::GetAssociation<recob::PFParticle, recob::SpacePoint>(event, m_config().PFParticleLabel());
     const auto pfpToHits = CollectionHelper::GetAssociationViaCollection<recob::PFParticle, recob::Cluster, recob::Hit>(event,  m_config().PFParticleLabel(), m_config().PFParticleLabel(), m_config().PFParticleLabel());
     const auto trackToPIDs = CollectionHelper::GetAssociation<recob::Track, anab::ParticleID>(event, m_config().TrackLabel(), m_config().PIDLabel());
     const auto trackToCalorimetries = CollectionHelper::GetAssociation<recob::Track, anab::Calorimetry>(event, m_config().TrackLabel(), m_config().CalorimetryLabel());
@@ -625,7 +690,7 @@ void EventSelection::SetRecoInfo(const art::Event &event)
 
     {
         const auto &finalState = finalStates.at(i);
-        this->SetPFParticleInfo(i, finalState, backtrackerData, mcParticleMap, pfParticleMap, pfpToHits, pfpToTracks, trackToPIDs, trackToCalorimetries, pfpToMetadata, pSpaceChargeService);
+        this->SetPFParticleInfo(i, finalState, backtrackerData, mcParticleMap, pfParticleMap, spacePoints, pfpToHits, pfpToSpacePoints, pfpToTracks, trackToPIDs, trackToCalorimetries, pfpToMetadata, pSpaceChargeService);
     }
 }
 
@@ -669,7 +734,7 @@ void EventSelection::SetEventRecoInfo(const art::Event &event, const PFParticleV
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
 
-void EventSelection::SetPFParticleInfo(const unsigned int index, const art::Ptr<recob::PFParticle> &finalState, const BacktrackHelper::BacktrackerData &backtrackerData, const MCParticleMap &mcParticleMap, const PFParticleMap &pfParticleMap, const Association<recob::PFParticle, recob::Hit> &pfpToHits, const Association<recob::PFParticle, recob::Track> &pfpToTracks, const Association<recob::Track, anab::ParticleID> &trackToPIDs, const Association<recob::Track, anab::Calorimetry> &trackToCalorimetries, const Association<recob::PFParticle, larpandoraobj::PFParticleMetadata> &pfpToMetadata, const spacecharge::SpaceChargeService::provider_type *const pSpaceChargeService)
+void EventSelection::SetPFParticleInfo(const unsigned int index, const art::Ptr<recob::PFParticle> &finalState, const BacktrackHelper::BacktrackerData &backtrackerData, const MCParticleMap &mcParticleMap, const PFParticleMap &pfParticleMap, const Collection<recob::SpacePoint> &spacePoints, const Association<recob::PFParticle, recob::Hit> &pfpToHits, const Association<recob::PFParticle, recob::SpacePoint> &pfpToSpacePoints, const Association<recob::PFParticle, recob::Track> &pfpToTracks, const Association<recob::Track, anab::ParticleID> &trackToPIDs, const Association<recob::Track, anab::Calorimetry> &trackToCalorimetries, const Association<recob::PFParticle, larpandoraobj::PFParticleMetadata> &pfpToMetadata, const spacecharge::SpaceChargeService::provider_type *const pSpaceChargeService)
 {
     this->SetPFParticleMCParticleMatchInfo(finalState, backtrackerData, mcParticleMap);
     this->SetPFParticlePandoraInfo(finalState, pfpToHits, pfParticleMap, pfpToMetadata);
@@ -687,8 +752,9 @@ void EventSelection::SetPFParticleInfo(const unsigned int index, const art::Ptr<
     else
     {
         const auto track = CollectionHelper::GetSingleAssociated(finalState, pfpToTracks);
+        const auto spacePointsInParticle = CollectionHelper::GetManyAssociated(finalState, pfpToSpacePoints);
 
-        this->SetTrackInfo(track, pSpaceChargeService);
+        this->SetTrackInfo(track, spacePoints, spacePointsInParticle, pSpaceChargeService);
         const auto yzAngle = m_outputEvent.m_yzAngleVect.back();
 
         // Set the Calorimetry info if it's available
@@ -845,16 +911,85 @@ void EventSelection::SetDummyTrackInfo()
     m_outputEvent.m_lengthVect.push_back(-std::numeric_limits<float>::max());
     m_outputEvent.m_rangeVect.push_back(-std::numeric_limits<float>::max());
     m_outputEvent.m_isContainedVect.push_back(false);
+    m_outputEvent.m_rmsSequentialTrackDeviationVect.push_back(-std::numeric_limits<float>::max());
+    m_outputEvent.m_minSequentialTrackDeviationVect.push_back(-std::numeric_limits<float>::max());
+    m_outputEvent.m_maxSequentialTrackDeviationVect.push_back(-std::numeric_limits<float>::max());
+    m_outputEvent.m_rmsTrackDeviationVect.push_back(-std::numeric_limits<float>::max());
+    m_outputEvent.m_minTrackDeviationVect.push_back(-std::numeric_limits<float>::max());
+    m_outputEvent.m_maxTrackDeviationVect.push_back(-std::numeric_limits<float>::max());
+
+    for (auto &nSpacePointsInSphereEntry : m_outputEvent.m_nSpacePointsInSphereAll)
+        nSpacePointsInSphereEntry->push_back(-std::numeric_limits<int>::max());
+    
+    for (auto &nOtherSpacePointsInSphereEntry : m_outputEvent.m_nOtherSpacePointsInSphereAll)
+        nOtherSpacePointsInSphereEntry->push_back(-std::numeric_limits<int>::max());
+    
+    for (auto &offAxisSpacePointsRMSInSphereEntry : m_outputEvent.m_offAxisSpacePointsRMSInSphereAll)
+        offAxisSpacePointsRMSInSphereEntry->push_back(-std::numeric_limits<float>::max());
 }
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
 
-void EventSelection::SetTrackInfo(const art::Ptr<recob::Track> &track, const spacecharge::SpaceChargeService::provider_type *const pSpaceChargeService)
+void EventSelection::SetTrackInfo(const art::Ptr<recob::Track> &track, const Collection<recob::SpacePoint> &spacePoints, const Collection<recob::SpacePoint> &spacePointsInParticle, const spacecharge::SpaceChargeService::provider_type *const pSpaceChargeService)
 {
     const auto start = RecoHelper::CorrectForSpaceCharge(TVector3(track->Start().X(), track->Start().Y(), track->Start().Z()), pSpaceChargeService);
     const auto end = RecoHelper::CorrectForSpaceCharge(TVector3(track->End().X(), track->End().Y(), track->End().Z()), pSpaceChargeService);
     const auto dir = TVector3(track->StartDirection().X(), track->StartDirection().Y(), track->StartDirection().Z());
+    const auto endDir = TVector3(track->EndDirection().X(), track->EndDirection().Y(), track->EndDirection().Z());
 
+    // Calculate the sphere variables
+    for (unsigned int i = 0; i < m_config().SphereSizes().size(); ++i)
+    {
+        const auto dist = m_config().SphereSizes().at(i);
+        const auto endUncorrected = TVector3(track->End().X(), track->End().Y(), track->End().Z());
+        const auto spacePointsNear = this->GetSpacePointsNearPoint(spacePoints, endUncorrected, dist, pSpaceChargeService);
+        const auto spacePointsInParticleNear = this->GetSpacePointsNearPoint(spacePointsInParticle, endUncorrected, dist, pSpaceChargeService);
+
+        // Get the off-axis RMS
+        float totalDistSquared = 0.f;
+        int nPointsUsed = 0;
+        for (const auto &spacePoint : spacePointsNear)
+        {
+            // Only use spacepoints not in the original particle
+            if (std::find(spacePointsInParticleNear.begin(), spacePointsInParticleNear.end(), spacePoint) != spacePointsInParticleNear.end())
+                continue;
+
+            // Get the component orthogonal to the track end direction
+            const auto spacePointCorrected = RecoHelper::CorrectForSpaceCharge(TVector3(spacePoint->XYZ()[0], spacePoint->XYZ()[1], spacePoint->XYZ()[2]), pSpaceChargeService);
+
+            nPointsUsed++;
+            totalDistSquared += ((spacePointCorrected - end).Cross(endDir)).Mag2();
+        }
+
+        float offAxisRMS = -std::numeric_limits<float>::max();
+        if (nPointsUsed > 0)
+            offAxisRMS = std::pow(totalDistSquared / static_cast<float>(nPointsUsed), 0.5f);
+        
+        m_outputEvent.m_nSpacePointsInSphereAll.at(i)->push_back(spacePointsNear.size());
+        m_outputEvent.m_nOtherSpacePointsInSphereAll.at(i)->push_back(spacePointsNear.size() - spacePointsInParticleNear.size());
+        m_outputEvent.m_offAxisSpacePointsRMSInSphereAll.at(i)->push_back(offAxisRMS);
+    }
+    
+    // Calculate the variables using track segments
+    const auto validPoints = this->GetValidPoints(track);
+    float rmsSequentialTrackDeviation = -std::numeric_limits<float>::max();
+    float minSequentialTrackDeviation = -std::numeric_limits<float>::max();
+    float maxSequentialTrackDeviation = -std::numeric_limits<float>::max();
+    float rmsTrackDeviation = -std::numeric_limits<float>::max();
+    float minTrackDeviation = -std::numeric_limits<float>::max();
+    float maxTrackDeviation = -std::numeric_limits<float>::max();
+    if (!validPoints.empty())
+    {
+        rmsSequentialTrackDeviation = this->GetRMSSequentialTrackDeviation(track, validPoints);
+        minSequentialTrackDeviation = this->GetMinSequentialTrackDeviation(track, validPoints);
+        maxSequentialTrackDeviation = this->GetMaxSequentialTrackDeviation(track, validPoints);
+        
+        const auto meanDir = this->GetMeanTrackDirection(track, validPoints);
+        rmsTrackDeviation = this->GetRMSTrackDeviation(track, validPoints, meanDir);
+        minTrackDeviation = this->GetMinTrackDeviation(track, validPoints, meanDir);
+        maxTrackDeviation = this->GetMaxTrackDeviation(track, validPoints, meanDir);
+    }
+    
     m_outputEvent.m_hasTrackInfoVect.push_back(true);
     m_outputEvent.m_startXVect.push_back(start.X());
     m_outputEvent.m_startYVect.push_back(start.Y());
@@ -873,6 +1008,33 @@ void EventSelection::SetTrackInfo(const art::Ptr<recob::Track> &track, const spa
     m_outputEvent.m_lengthVect.push_back(track->Length());
     m_outputEvent.m_rangeVect.push_back(this->GetRange(track, pSpaceChargeService));
     m_outputEvent.m_isContainedVect.push_back(AnalysisHelper::IsContained(start, m_config().ContainmentBorder()) && AnalysisHelper::IsContained(end, m_config().ContainmentBorder()));
+    m_outputEvent.m_rmsSequentialTrackDeviationVect.push_back(rmsSequentialTrackDeviation);
+    m_outputEvent.m_minSequentialTrackDeviationVect.push_back(minSequentialTrackDeviation);
+    m_outputEvent.m_maxSequentialTrackDeviationVect.push_back(maxSequentialTrackDeviation);
+    m_outputEvent.m_rmsTrackDeviationVect.push_back(rmsTrackDeviation);
+    m_outputEvent.m_minTrackDeviationVect.push_back(minTrackDeviation);
+    m_outputEvent.m_maxTrackDeviationVect.push_back(maxTrackDeviation);
+}
+
+// -----------------------------------------------------------------------------------------------------------------------------------------
+
+SpacePointVector EventSelection::GetSpacePointsNearPoint(const SpacePointVector &spacePoints, const TVector3 &point, const float dist, const spacecharge::SpaceChargeService::provider_type *const pSpaceChargeService) const
+{
+    SpacePointVector selectedPoints;
+    const auto distSquared = dist * dist;
+    const auto pointCorrected = RecoHelper::CorrectForSpaceCharge(point, pSpaceChargeService);
+    
+    for (const auto &spacePoint : spacePoints)
+    {
+        const auto spacePointCorrected = RecoHelper::CorrectForSpaceCharge(TVector3(spacePoint->XYZ()[0], spacePoint->XYZ()[1], spacePoint->XYZ()[2]), pSpaceChargeService);
+
+        if ((pointCorrected - spacePointCorrected).Mag2() > distSquared)
+            continue;
+
+        selectedPoints.push_back(spacePoint);
+    }
+
+    return selectedPoints;
 }
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
@@ -894,6 +1056,168 @@ float EventSelection::GetXYAngle(const TVector3 &dir)
 float EventSelection::GetXZAngle(const TVector3 &dir)
 {
     return atan2(dir.Z(), dir.X());
+}
+
+// -----------------------------------------------------------------------------------------------------------------------------------------
+
+float EventSelection::GetRMSSequentialTrackDeviation(const art::Ptr<recob::Track> &track, const std::vector<size_t> &validPoints)
+{
+    if (validPoints.empty())
+        throw cet::exception("EventSelection::GetRMSSequentialTrackDeviation") << " - no valid input points" << std::endl;
+    
+    if (validPoints.size() < 2)
+        return 0.f;
+
+    float summedSinThetaSquared = 0.f;
+    for (unsigned int i = 1; i < validPoints.size(); ++i)
+    {
+        const auto dir = track->DirectionAtPoint(validPoints.at(i));
+        const auto dirPrev = track->DirectionAtPoint(validPoints.at(i - 1));
+
+        const auto cosTheta = static_cast<float>(dir.Dot(dirPrev));
+        const auto sinThetaSquared = std::max(0.f, 1.f - cosTheta * cosTheta);
+
+        summedSinThetaSquared += sinThetaSquared;
+    }
+
+    const float rms = std::pow(summedSinThetaSquared / static_cast<float>(validPoints.size()), 0.5f);
+    return rms;
+}
+
+// -----------------------------------------------------------------------------------------------------------------------------------------
+
+float EventSelection::GetMinSequentialTrackDeviation(const art::Ptr<recob::Track> &track, const std::vector<size_t> &validPoints)
+{
+    if (validPoints.empty())
+        throw cet::exception("EventSelection::GetMinSequentialTrackDeviation") << " - no valid input points" << std::endl;
+    
+    if (validPoints.size() < 2)
+        return 0.f;
+
+    float minSinThetaSquared = std::numeric_limits<float>::max();
+    for (unsigned int i = 1; i < validPoints.size(); ++i)
+    {
+        const auto dir = track->DirectionAtPoint(validPoints.at(i));
+        const auto dirPrev = track->DirectionAtPoint(validPoints.at(i - 1));
+
+        const auto cosTheta = static_cast<float>(dir.Dot(dirPrev));
+        const auto sinThetaSquared = std::max(0.f, 1.f - cosTheta * cosTheta);
+
+        if (sinThetaSquared < minSinThetaSquared)
+            minSinThetaSquared = sinThetaSquared;
+    }
+
+    return std::pow(minSinThetaSquared, 0.5f);
+}
+
+// -----------------------------------------------------------------------------------------------------------------------------------------
+
+float EventSelection::GetMaxSequentialTrackDeviation(const art::Ptr<recob::Track> &track, const std::vector<size_t> &validPoints)
+{
+    if (validPoints.empty())
+        throw cet::exception("EventSelection::GetMaxSequentialTrackDeviation") << " - no valid input points" << std::endl;
+    
+    if (validPoints.size() < 2)
+        return 0.f;
+
+    float maxSinThetaSquared = -std::numeric_limits<float>::max();
+    for (unsigned int i = 1; i < validPoints.size(); ++i)
+    {
+        const auto dir = track->DirectionAtPoint(validPoints.at(i));
+        const auto dirPrev = track->DirectionAtPoint(validPoints.at(i - 1));
+
+        const auto cosTheta = static_cast<float>(dir.Dot(dirPrev));
+        const auto sinThetaSquared = std::max(0.f, 1.f - cosTheta * cosTheta);
+
+        if (sinThetaSquared > maxSinThetaSquared)
+            maxSinThetaSquared = sinThetaSquared;
+    }
+
+    return std::pow(maxSinThetaSquared, 0.5f);
+}
+
+// -----------------------------------------------------------------------------------------------------------------------------------------
+
+float EventSelection::GetRMSTrackDeviation(const art::Ptr<recob::Track> &track, const std::vector<size_t> &validPoints, const TVector3 &meanDir)
+{
+    if (validPoints.empty())
+        throw cet::exception("EventSelection::GetRMSTrackDeviation") << " - no valid input points" << std::endl;
+
+    float summedSinThetaSquared = 0.f;
+    for (unsigned int i = 0; i < validPoints.size(); ++i)
+    {
+        const auto dir = track->DirectionAtPoint(validPoints.at(i));
+        const auto cosTheta = static_cast<float>(dir.Dot(meanDir));
+        const auto sinThetaSquared = std::max(0.f, 1.f - cosTheta * cosTheta);
+
+        summedSinThetaSquared += sinThetaSquared;
+    }
+
+    const float rms = std::pow(summedSinThetaSquared / static_cast<float>(validPoints.size()), 0.5f);
+    return rms;
+}
+
+// -----------------------------------------------------------------------------------------------------------------------------------------
+
+float EventSelection::GetMinTrackDeviation(const art::Ptr<recob::Track> &track, const std::vector<size_t> &validPoints, const TVector3 &meanDir)
+{
+    if (validPoints.empty())
+        throw cet::exception("EventSelection::GetMinTrackDeviation") << " - no valid input points" << std::endl;
+
+    float minSinThetaSquared = std::numeric_limits<float>::max();
+
+    for (unsigned int i = 0; i < validPoints.size(); ++i)
+    {
+        const auto dir = track->DirectionAtPoint(validPoints.at(i));
+        const auto cosTheta = static_cast<float>(dir.Dot(meanDir));
+        const auto sinThetaSquared = std::max(0.f, 1.f - cosTheta * cosTheta);
+
+        if (sinThetaSquared < minSinThetaSquared)
+            minSinThetaSquared = sinThetaSquared;
+    }
+
+    return std::pow(minSinThetaSquared, 0.5f);
+}
+
+// -----------------------------------------------------------------------------------------------------------------------------------------
+
+float EventSelection::GetMaxTrackDeviation(const art::Ptr<recob::Track> &track, const std::vector<size_t> &validPoints, const TVector3 &meanDir)
+{
+    if (validPoints.empty())
+        throw cet::exception("EventSelection::GetMaxTrackDeviation") << " - no valid input points" << std::endl;
+
+    float maxSinThetaSquared = -std::numeric_limits<float>::max();
+
+    for (unsigned int i = 0; i < validPoints.size(); ++i)
+    {
+        const auto dir = track->DirectionAtPoint(validPoints.at(i));
+        const auto cosTheta = static_cast<float>(dir.Dot(meanDir));
+        const auto sinThetaSquared = std::max(0.f, 1.f - cosTheta * cosTheta);
+
+        if (sinThetaSquared > maxSinThetaSquared)
+            maxSinThetaSquared = sinThetaSquared;
+    }
+
+    return std::pow(maxSinThetaSquared, 0.5f);
+}
+
+// -----------------------------------------------------------------------------------------------------------------------------------------
+
+TVector3 EventSelection::GetMeanTrackDirection(const art::Ptr<recob::Track> &track, const std::vector<size_t> &validPoints)
+{
+    if (validPoints.empty())
+        throw cet::exception("EventSelection::GetMeanTrackDirection") << " - no valid input points" << std::endl;
+
+    TVector3 summedDirection(0.f, 0.f, 0.f);
+    for (unsigned int i = 0; i < validPoints.size(); ++i)
+    {
+        const auto dir = track->DirectionAtPoint(validPoints.at(i));
+        summedDirection += TVector3(dir.X(), dir.Y(), dir.Z());
+    }
+
+    summedDirection *= 1.f / static_cast<float>(validPoints.size());
+
+    return summedDirection;
 }
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
@@ -1611,6 +1935,51 @@ void EventSelection::ValidateOutputVectorSizes(const unsigned int index) const
 
     if (m_outputEvent.m_isContainedVect.size() != expectedSize)
         throw cet::exception("EventSelection::ValidateOutputVectorSizes") << "m_isContainedVect - is out of sync" << std::endl;
+    
+    if (m_outputEvent.m_rmsSequentialTrackDeviationVect.size() != expectedSize)
+        throw cet::exception("EventSelection::ValidateOutputVectorSizes") << "m_rmsSequentialTrackDeviationVect - is out of sync" << std::endl;
+    
+    if (m_outputEvent.m_minSequentialTrackDeviationVect.size() != expectedSize)
+        throw cet::exception("EventSelection::ValidateOutputVectorSizes") << "m_minSequentialTrackDeviationVect - is out of sync" << std::endl;
+    
+    if (m_outputEvent.m_maxSequentialTrackDeviationVect.size() != expectedSize)
+        throw cet::exception("EventSelection::ValidateOutputVectorSizes") << "m_maxSequentialTrackDeviationVect - is out of sync" << std::endl;
+    
+    if (m_outputEvent.m_rmsTrackDeviationVect.size() != expectedSize)
+        throw cet::exception("EventSelection::ValidateOutputVectorSizes") << "m_rmsTrackDeviationVect - is out of sync" << std::endl;
+    
+    if (m_outputEvent.m_minTrackDeviationVect.size() != expectedSize)
+        throw cet::exception("EventSelection::ValidateOutputVectorSizes") << "m_minTrackDeviationVect - is out of sync" << std::endl;
+    
+    if (m_outputEvent.m_maxTrackDeviationVect.size() != expectedSize)
+        throw cet::exception("EventSelection::ValidateOutputVectorSizes") << "m_maxTrackDeviationVect - is out of sync" << std::endl;
+    
+    if (m_outputEvent.m_nSpacePointsInSphereAll.size() != m_config().SphereSizes().size())
+        throw cet::exception("EventSelection::ValidateOutputVectorSizes") << "m_nSpacePointsInSphereAll - is out of sync, wrong number of spheres" << std::endl;
+
+    for (const auto &nSpacePointsInSphereEntry : m_outputEvent.m_nSpacePointsInSphereAll)
+    {
+        if (nSpacePointsInSphereEntry->size() != expectedSize)
+            throw cet::exception("EventSelection::ValidateOutputVectorSizes") << "m_nSpacePointsInSphereAll - is out of sync" << std::endl;
+    }
+    
+    if (m_outputEvent.m_nOtherSpacePointsInSphereAll.size() != m_config().SphereSizes().size())
+        throw cet::exception("EventSelection::ValidateOutputVectorSizes") << "m_nOtherSpacePointsInSphereAll - is out of sync, wrong number of spheres" << std::endl;
+
+    for (const auto &nOtherSpacePointsInSphereEntry : m_outputEvent.m_nOtherSpacePointsInSphereAll)
+    {
+        if (nOtherSpacePointsInSphereEntry->size() != expectedSize)
+            throw cet::exception("EventSelection::ValidateOutputVectorSizes") << "m_nOtherSpacePointsInSphereAll - is out of sync" << std::endl;
+    }
+    
+    if (m_outputEvent.m_offAxisSpacePointsRMSInSphereAll.size() != m_config().SphereSizes().size())
+        throw cet::exception("EventSelection::ValidateOutputVectorSizes") << "m_offAxisSpacePointsRMSInSphereAll - is out of sync, wrong number of spheres" << std::endl;
+
+    for (const auto &offAxisSpacePointsRMSInSphereEntry : m_outputEvent.m_offAxisSpacePointsRMSInSphereAll)
+    {
+        if (offAxisSpacePointsRMSInSphereEntry->size() != expectedSize)
+            throw cet::exception("EventSelection::ValidateOutputVectorSizes") << "m_offAxisSpacePointsRMSInSphereAll - is out of sync" << std::endl;
+    }
 
     if (m_outputEvent.m_hasCalorimetryInfoVect.size() != expectedSize)
         throw cet::exception("EventSelection::ValidateOutputVectorSizes") << "m_hasCalorimetryInfoVect - is out of sync" << std::endl;

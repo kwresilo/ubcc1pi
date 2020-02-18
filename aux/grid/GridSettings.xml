@@ -49,7 +49,7 @@
 <!ENTITY patrecBenchmarkStudyFcl     "patrec_benchmark_study_driver.fcl">
 
 <!ENTITY eventSelectionName  "eventSelection">
-<!ENTITY eventSelectionFcl   "event_selection_driver.fcl">
+<!ENTITY eventSelectionFcl   "event_selection_driver_modifiedPandora.fcl">
 
 <!ENTITY energyEstimatorName  "energyEstimator">
 <!ENTITY energyEstimatorFcl   "energy_estimator_driver.fcl">
@@ -162,6 +162,7 @@
         <numjobs>&numJobs;</numjobs>
         <maxfilesperjob>&maxFilesPerJob;</maxfilesperjob>
         <numevents>&numEvents;</numevents>
+        <initsource>/pnfs/uboone/resilient/users/&username;/scripts/&projectName;/setupSearchPath.sh</initsource>
 
         <!-- Input files -->
         <inputdef>&inputDef;</inputdef>
@@ -174,6 +175,7 @@
         <!-- Options -->
         <datatier>&dataTier;</datatier>
         <schema>&schema;</schema>
+        <memory>4000</memory>
     </stage>
     
     

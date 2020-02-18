@@ -53,6 +53,7 @@ using AssociationData = std::unordered_map< art::Ptr<L>, CollectionData<R, D> >;
 typedef Collection<simb::MCParticle> MCParticleVector;   ///< A collection of MCParticles
 typedef Collection<recob::PFParticle> PFParticleVector;  ///< A collection of PFParticles
 typedef Collection<recob::Hit> HitVector;                ///< A collection of Hits
+typedef Collection<recob::SpacePoint> SpacePointVector;  ///< A collection of SpacePoints
 typedef Collection<recob::Slice> SliceVector;            ///< A collection of Slices
 typedef Collection<recob::Track> TrackVector;            ///< A colleciton of Tracks
 typedef Collection<anab::Calorimetry> CalorimetryVector; ///< A collection of Calorimetry objects
