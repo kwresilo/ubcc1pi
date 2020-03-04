@@ -103,6 +103,8 @@ void parseFile()
     int nDescendentsOut;
     tOut->Branch("f_nDescendents", &nDescendentsOut);
 
+    float dEdxMeanAtStartOut;
+    //tOut->Branch("f_dEdxMeanAtStart", &dEdxMeanAtStartOut);
 
     // -------------------------------------------------------------------------------------------------------------------------------------
     // Set up the input variables
@@ -191,6 +193,24 @@ void parseFile()
     std::vector<int> *nDescendentsVect = nullptr;
     t->SetBranchAddress("nDescendentsVect", &nDescendentsVect);
 
+    std::vector<std::vector<float> > *dedxPerHitWVect = nullptr;
+    t->SetBranchAddress("dedxPerHitWVect", &dedxPerHitWVect);
+    
+    std::vector<std::vector<float> > *residualRangePerHitWVect = nullptr;
+    t->SetBranchAddress("residualRangePerHitWVect", &residualRangePerHitWVect);
+    
+    std::vector<std::vector<float> > *dedxPerHitUVect = nullptr;
+    t->SetBranchAddress("dedxPerHitUVect", &dedxPerHitUVect);
+    
+    std::vector<std::vector<float> > *residualRangePerHitUVect = nullptr;
+    t->SetBranchAddress("residualRangePerHitUVect", &residualRangePerHitUVect);
+    
+    std::vector<std::vector<float> > *dedxPerHitVVect = nullptr;
+    t->SetBranchAddress("dedxPerHitVVect", &dedxPerHitVVect);
+    
+    std::vector<std::vector<float> > *residualRangePerHitVVect = nullptr;
+    t->SetBranchAddress("residualRangePerHitVVect", &residualRangePerHitVVect);
+
     // -------------------------------------------------------------------------------------------------------------------------------------
     // Extract the relevant info
     // -------------------------------------------------------------------------------------------------------------------------------------
@@ -221,7 +241,7 @@ void parseFile()
         // Only look for signal events
         if (!isSignal)
             continue;
-
+        
         // Loop over the final state PFParticles
         for (size_t iPFP = 0; iPFP < nFinalStatePFPs; ++iPFP)
         {
@@ -252,12 +272,53 @@ void parseFile()
             const auto nOtherSpacePointsInSphere5 = nOtherSpacePointsInSphere5Vect->at(iPFP);
             const auto nSpacePointsInSphere5 = nSpacePointsInSphere5Vect->at(iPFP);
             const auto nDescendents = nDescendentsVect->at(iPFP);
+            const auto dedxPerHitW = dedxPerHitWVect->at(iPFP);
+            const auto residualRangePerHitW = residualRangePerHitWVect->at(iPFP);
+            const auto dedxPerHitU = dedxPerHitUVect->at(iPFP);
+            const auto residualRangePerHitU = residualRangePerHitUVect->at(iPFP);
+            const auto dedxPerHitV = dedxPerHitVVect->at(iPFP);
+            const auto residualRangePerHitV = residualRangePerHitVVect->at(iPFP);
             // END_OF_VARIABLES
 
             // Golden pions are our signal particle, everything else is background
             const auto isSignalPFP = (truePdgCode == 211 && trueIsGolden);
 
             const auto isTrackAlongWWire = (std::pow(std::sin(yzAngle), 2) < 0.175);
+
+            /* BEGIN TEST */
+            const auto nHitsUsed = dedxPerHitW.size();
+
+            auto maxResidualRange = -std::numeric_limits<float>::max();
+            for (size_t iHit = 0; iHit < nHitsUsed; ++iHit)
+            {
+                const auto residualRange = residualRangePerHitW.at(iHit);
+    
+                if (residualRange > maxResidualRange)
+                    maxResidualRange = residualRange;   
+            }
+            
+            const auto residualRangeThreshold = 0.5f * maxResidualRange;
+            float dEdxSum = 0.f;
+            int nHitsAboveThreshold = 0;
+            for (size_t iHit = 0; iHit < nHitsUsed; ++iHit)
+            {
+                const auto dEdx = dedxPerHitW.at(iHit);
+                const auto residualRange = residualRangePerHitW.at(iHit);
+    
+                if (residualRange > residualRangeThreshold)
+                {
+                    dEdxSum += dEdx;
+                    nHitsAboveThreshold++;
+                }
+            }
+
+            auto dEdxMeanAtStart = -std::numeric_limits<float>::max();
+            if (nHitsAboveThreshold > 0)
+            {
+                dEdxMeanAtStart = dEdxSum / static_cast<float>(nHitsAboveThreshold);
+            }
+
+            /* END TEST */
 
             // Check availablity of braggp variable
             const auto isBraggpWAvailable = (braggpW > -1 && !isTrackAlongWWire);
@@ -344,6 +405,8 @@ void parseFile()
             nSpacePointsInSphere5Out           = nSpacePointsInSphere5;
             nDownstreamHitsOut                 = nDownstreamHits;
             nDescendentsOut                    = nDescendents;
+
+            dEdxMeanAtStartOut                 = dEdxMeanAtStart; //// TEST
 
             tOut->Fill();
         }
