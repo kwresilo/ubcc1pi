@@ -1,0 +1,27 @@
+#include "test.fcl"
+
+process_name: TestTest
+
+source:
+{
+    module_type:                RootInput
+    maxEvents:                 -1
+    saveMemoryObjectThreshold:  0
+}
+
+services:
+{
+    TFileService: {fileName: "test.root"}
+}
+
+physics:
+{
+    analyzers:
+    {
+        test: @local::test
+    }
+
+    ana: [ test ]
+
+    end_paths: [ ana ]
+}

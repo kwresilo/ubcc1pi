@@ -20,7 +20,7 @@ art_make(
         canvas
         cetlib cetlib_except
         ubcc1pi_Helpers
-        #ubcc1pi_Objects
+        ubcc1pi_Objects
     )
 
 install_headers()
