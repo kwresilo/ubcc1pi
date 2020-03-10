@@ -13,23 +13,22 @@
 namespace ubcc1pi
 {
 
-HitsToPFParticles BacktrackHelper::GetHitToPFParticleMap(const art::Event &event, const art::InputTag &pfParticleLabel, const art::InputTag &alternatePFParticleLabel, const PFParticleVector &finalStates)
+HitsToPFParticles BacktrackHelper::GetHitToPFParticleMap(const art::Event &event, const art::InputTag &pfParticleLabel, const PFParticleVector &finalStates, const bool &useDaughters)
 {
     HitsToPFParticles outputMap;
 
     const auto pfParticles = CollectionHelper::GetCollection<recob::PFParticle>(event, pfParticleLabel);
-    const auto alternatePFParticles = CollectionHelper::GetCollection<recob::PFParticle>(event, alternatePFParticleLabel);
-    const auto newToOldPFParticleMap = RecoHelper::GetNewToOldPFParticlesMap(pfParticles, alternatePFParticles);
-
     const auto pfpToCluster = CollectionHelper::GetAssociation<recob::PFParticle, recob::Cluster>(event, pfParticleLabel);
     const auto clusterToHits = CollectionHelper::GetAssociation<recob::Cluster, recob::Hit>(event, pfParticleLabel);
 
+    const auto pfParticleMap = RecoHelper::GetPFParticleMap(pfParticles);
+
     for (const auto &finalState : finalStates)
     {
-        for (const auto &particle : RecoHelper::GetDownstreamParticles(finalState, RecoHelper::GetPFParticleMap(alternatePFParticles)))
+        const auto downstreamParticles = useDaughters ? RecoHelper::GetDownstreamParticles(finalState, pfParticleMap) : PFParticleVector({finalState});
+        for (const auto &particle : downstreamParticles)
         {
-            const auto oldPFParticle = CollectionHelper::GetSingleAssociated(particle, newToOldPFParticleMap);
-            for (const auto &cluster : CollectionHelper::GetManyAssociated(oldPFParticle, pfpToCluster))
+            for (const auto &cluster : CollectionHelper::GetManyAssociated(particle, pfpToCluster))
             {
                 for (const auto &hit : CollectionHelper::GetManyAssociated(cluster, clusterToHits))
                 {

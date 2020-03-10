@@ -69,12 +69,6 @@ class PatrecBenchmarkStudy : public art::EDAnalyzer
                 fhicl::Name("PFParticleLabel"),
                 fhicl::Comment("The label for the PFParticle producer")
             };
-            
-            fhicl::OptionalAtom<art::InputTag> AlternatePFParticleLabel
-            {
-                fhicl::Name("AlternatePFParticleLabel"),
-                fhicl::Comment("The label for the new PFParticle producer for a re-interpreted hierarchy")
-            };
         };
         
         /**

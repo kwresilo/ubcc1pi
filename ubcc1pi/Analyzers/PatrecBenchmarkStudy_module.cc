@@ -78,13 +78,8 @@ void PatrecBenchmarkStudy::analyze(const art::Event &event)
     }
 
     // Get the reco-true matching information folding in downstream particles for PFParticle & MCParticles
-    art::InputTag alternatePFParticleLabel;
-    if (!m_config().AlternatePFParticleLabel(alternatePFParticleLabel))
-        alternatePFParticleLabel = m_config().PFParticleLabel();
-    
     const auto backtrackerData = AnalysisHelper::GetBacktrackerData(event, m_config().MCTruthLabel(), m_config().MCParticleLabel(),
-                                                                    m_config().BacktrackerLabel(), m_config().PFParticleLabel(),
-                                                                    alternatePFParticleLabel);
+                                                                    m_config().BacktrackerLabel(), m_config().PFParticleLabel());
 
     for (const auto &mcParticle : backtrackerData.GetMCParticles())
     {

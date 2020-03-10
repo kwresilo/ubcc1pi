@@ -33,28 +33,49 @@
  *              - Accessible in the root tree via: reco_particle_variable_vect
  */
 
+
 #ifndef UBCC1PI_OBJECTS_EVENTMEMBERS
 #define UBCC1PI_OBJECTS_EVENTMEMBERS
 
 #include <iostream>
 #include <iomanip>
 #include <vector>
+#include <string>
+#include <TVector3.h>
 
 // The event metadata members
 #define UBCC1PI_MACRO_EVENT_METADATA_MEMBERS(p, q, f)                                                                                      \
     f(p, q, int,         run)                                                                                                              \
     f(p, q, int,         subRun)                                                                                                           \
-    f(p, q, int,         event)
+    f(p, q, int,         event)                                                                                                            \
+    f(p, q, bool,        hasTruthInfo)                                                                                                     \
 
 // The event truth information members
-#define UBCC1PI_MACRO_EVENT_TRUTH_MEMBERS(p, q, f)    \
-    f(p, q, int,         nuPdgCode)                   \
-    f(p, q, bool,        nuIsFiducial)
+#define UBCC1PI_MACRO_EVENT_TRUTH_MEMBERS(p, q, f)                                                                                         \
+    f(p, q, bool,        isCC)                                                                                                             \
+    f(p, q, int,         interactionMode)                                                                                                  \
+    f(p, q, std::string, interactionString)                                                                                                \
+    f(p, q, int,         nuPdgCode)                                                                                                        \
+    f(p, q, float,       nuEnergy)                                                                                                         \
+    f(p, q, TVector3,    nuVertex)                                                                                                         
 
 // The event truth particle information members
-#define UBCC1PI_MACRO_EVENT_TRUTH_PARTICLE_MEMBERS(p, q, f)    \
-    f(p, q, int,         pdgCode)                              \
-    f(p, q, float,       momentum)
+#define UBCC1PI_MACRO_EVENT_TRUTH_PARTICLE_MEMBERS(p, q, f)                                                                                \
+    f(p, q, int,         pdgCode)                                                                                                          \
+    f(p, q, float,       momentumX)                                                                                                        \
+    f(p, q, float,       momentumY)                                                                                                        \
+    f(p, q, float,       momentumZ)                                                                                                        \
+    f(p, q, float,       momentum)                                                                                                         \
+    f(p, q, float,       energy)                                                                                                           \
+    f(p, q, float,       mass)
+
+// The event reco information members
+#define UBCC1PI_MACRO_EVENT_RECO_MEMBERS(p, q, f)                                                                                          \
+    f(p, q, bool,        dummy)                                                                                                            
+
+// The event reco particle information members
+#define UBCC1PI_MACRO_EVENT_RECO_PARTICLE_MEMBERS(p, q, f)                                                                                 \
+    f(p, q, int,         pdgCode)                                                                                                          
 
 // =========================================================================================================================================
 
@@ -90,12 +111,8 @@
 // Define a macro that prints each of the member variables
 #define UBCC1PI_MACRO_PRINT_MEMBER(p, q, t, n)                                                                                             \
     std::cout << std::setw(20) << "(" #t ")" << "  ";                                                                                      \
-    std::cout << (#q "." #n) << "() = ";                                                                                                   \
-                                                                                                                                           \
-    if (q.n.IsSet())                                                                                                                       \
-        std::cout << q.n() << std::endl;                                                                                                   \
-    else                                                                                                                                   \
-        std::cout << "?" << std::endl;
+    std::cout << (#q "." #n) << "() : ";                                                                                                   \
+    std::cout << q.n.ToString() << std::endl;                                                                                              
 
 // Define a macro to bind a member variable to an output branch
 #define UBCC1PI_MACRO_BIND_OUTPUT_BRANCH(p, q, t, n)                                                                                       \

@@ -131,20 +131,6 @@ class AnalysisHelper
          *  @param  mcParticleLabel
          *  @param  backtrackerLabel
          *  @param  pfParticleLabel
-         *  @param  alternatePFParticleLabel
-         *
-         *  @return 
-         */
-        static BacktrackHelper::BacktrackerData GetBacktrackerData(const art::Event &event, const art::InputTag &mcTruthLabel, const art::InputTag &mcParticleLabel, const art::InputTag &backtrackerLabel, const art::InputTag &pfParticleLabel, const art::InputTag &alternatePFParticleLabel);
-
-        /**
-         *  @brief  
-         *
-         *  @param  event
-         *  @param  mcTruthLabel
-         *  @param  mcParticleLabel
-         *  @param  backtrackerLabel
-         *  @param  pfParticleLabel
          *  @param  sliceLabel
          *  @param  hitLabel
          *

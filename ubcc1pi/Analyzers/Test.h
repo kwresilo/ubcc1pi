@@ -14,6 +14,7 @@
 #include <TTree.h>
 
 #include "ubcc1pi/Objects/FileWriter.h"
+#include "ubcc1pi/Objects/EventFactory.h"
 
 namespace ubcc1pi
 {
@@ -26,8 +27,10 @@ class Test : public art::EDAnalyzer
     public:
         /**
          *  @brief  Constructor
+         *
+         *  @param  config the FHiCl configuration table
          */
-        Test(const fhicl::ParameterSet &pset);
+        Test(const art::EDAnalyzer::Table<EventFactory::Config> &config);
 
         /**
          *  @brief  Analyze an event
@@ -38,8 +41,9 @@ class Test : public art::EDAnalyzer
 
     private:
 
-        FileWriter  m_writer;   ///< The file writer
-        Event      *m_pEvent;   ///< The event bound to the output tree
+        EventFactory::Config  m_config;   ///< The configuration
+        FileWriter            m_writer;   ///< The file writer
+        Event                *m_pEvent;   ///< The event bound to the output tree
 };
 
 } // namespace ubcc1pi

@@ -45,18 +45,23 @@ class Event
                 Member();
 
                 /**
-                 *  @brief  Returns if this member has been set
-                 *
-                 *  @return true if set, false otherwise
-                 */
-                bool IsSet() const;
-
-                /**
                  *  @brief  Set the value of the member
                  *
                  *  @param  value the value to set
                  */
                 void Set(const T &value);
+                
+                /**
+                 *  @brief  Reset the member value to default
+                 */
+                void Reset();
+                
+                /**
+                 *  @brief  Returns if this member has been set
+                 *
+                 *  @return true if set, false otherwise
+                 */
+                bool IsSet() const;
 
                 /**
                  *  @brief  Gets the value of the member if set and throws otherwise
@@ -70,33 +75,28 @@ class Event
                  */
                 const T &operator()() const;
 
-                /**
-                 *  @brief  Reset the member value to default
-                 */
-                void Reset();
-
             private:
 
                 // Allow the event class to access private members of this class, all other classes will have to go through the public
                 // accessor functions Get() and Set()
                 friend class Event;
-
+ 
                 /**
                  *  @brief  Set the input value to default
                  *
                  *  @param  value the value to set to default
                  */
-                void SetDefault(T &value);
-
+                void SetDefault();
+                
                 /**
-                 *  @brief  Set the input string value to default
+                 *  @brief  Convert the member variable to a string
                  *
-                 *  @param  value the value to set to default
+                 *  @return the string
                  */
-                void SetDefault(std::string &value);
+                std::string ToString() const;
 
-                T    m_value; ///< The value of the member
-                bool m_isSet; ///< If the value has been set
+                T     m_value; ///< The value of the member
+                bool  m_isSet; ///< If the value has been set
         };
 
         /**
@@ -124,9 +124,28 @@ class Event
 
             std::vector<Particle> particles; ///< The truth particles
         };
+        
+        /**
+         *  @brief  The reco information structure
+         */
+        struct Reco
+        {
+            UBCC1PI_MACRO_EVENT_RECO_MEMBERS("", "", UBCC1PI_MACRO_DECLARE_MEMBER)
+
+            /**
+             *  @brief  The reco particle information structure
+             */
+            struct Particle
+            {
+                UBCC1PI_MACRO_EVENT_RECO_PARTICLE_MEMBERS("", "", UBCC1PI_MACRO_DECLARE_MEMBER)
+            };
+
+            std::vector<Particle> particles; ///< The reco particles
+        };
 
         Metadata metadata;  ///< The metadata
         Truth truth;        ///< The truth information
+        Reco  reco;         ///< The reco information
 
     private:
 
@@ -152,6 +171,7 @@ class Event
 
         // Here we define private member variables for each of the particle parameters as a vector so they can be read from the root file
         UBCC1PI_MACRO_EVENT_TRUTH_PARTICLE_MEMBERS(truth_particle, "", UBCC1PI_MACRO_DECLARE_MEMBER_VECTOR)
+        UBCC1PI_MACRO_EVENT_RECO_PARTICLE_MEMBERS(reco_particle, "", UBCC1PI_MACRO_DECLARE_MEMBER_VECTOR)
 };
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
@@ -204,24 +224,102 @@ inline const T & Event::Member<T>::operator()() const
 template <typename T>
 inline void Event::Member<T>::Reset()
 {
-    this->SetDefault(m_value);
+    this->SetDefault();
     m_isSet = false;
 }
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
-        
-template <typename T>
-inline void Event::Member<T>::SetDefault(T &value)
+
+template <>
+inline void Event::Member<bool>::SetDefault()
 {
-    value = std::numeric_limits<T>::max();
+    m_value = false;
 }
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
 
-template <typename T>
-inline void Event::Member<T>::SetDefault(std::string &value)
+template <>
+inline void Event::Member<int>::SetDefault()
 {
-    value = "";
+    m_value = -std::numeric_limits<int>::max();
+}
+// -----------------------------------------------------------------------------------------------------------------------------------------
+
+template <>
+inline void Event::Member<float>::SetDefault()
+{
+    m_value = -std::numeric_limits<float>::max();
+}
+
+// -----------------------------------------------------------------------------------------------------------------------------------------
+
+template <>
+inline void Event::Member<std::string>::SetDefault()
+{
+    m_value = "";
+}
+
+// -----------------------------------------------------------------------------------------------------------------------------------------
+
+template <>
+inline void Event::Member<TVector3>::SetDefault()
+{
+    m_value.SetXYZ(-std::numeric_limits<float>::max(), -std::numeric_limits<float>::max(), -std::numeric_limits<float>::max());
+}
+
+// -----------------------------------------------------------------------------------------------------------------------------------------
+
+template <>
+inline std::string Event::Member<bool>::ToString() const
+{
+    if (!this->IsSet())
+        return "?";
+
+    return m_value ? "true" : "false";
+}
+
+// -----------------------------------------------------------------------------------------------------------------------------------------
+
+template <>
+inline std::string Event::Member<int>::ToString() const
+{
+    if (!this->IsSet())
+        return "?";
+
+    return std::to_string(m_value);
+}
+
+// -----------------------------------------------------------------------------------------------------------------------------------------
+
+template <>
+inline std::string Event::Member<float>::ToString() const
+{
+    if (!this->IsSet())
+        return "?";
+
+    return std::to_string(m_value);
+}
+
+// -----------------------------------------------------------------------------------------------------------------------------------------
+
+template <>
+inline std::string Event::Member<std::string>::ToString() const
+{
+    if (!this->IsSet())
+        return "?";
+
+    return m_value;
+}
+
+// -----------------------------------------------------------------------------------------------------------------------------------------
+
+template <>
+inline std::string Event::Member<TVector3>::ToString() const
+{
+    if (!this->IsSet())
+        return "?";
+
+    return ("(" + std::to_string(m_value.X()) + ", " + std::to_string(m_value.Y()) + ", " + std::to_string(m_value.Z()) + ")");
 }
 
 } // namespace ubcc1pi

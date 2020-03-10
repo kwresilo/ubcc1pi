@@ -3,6 +3,12 @@ BEGIN_PROLOG
 test:
 {
     module_type: "Test"
+
+    # Truth information
+    HasTruthInfo:      true
+    MCTruthLabel:      "generator"
+    MCParticleLabel:   "largeant"
+    BacktrackerLabel:  "gaushitTruthMatch"
 }
 
 END_PROLOG

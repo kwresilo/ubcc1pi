@@ -307,14 +307,16 @@ class BacktrackHelper
         };
 
     /**
-     *  @brief  Get the mapping from neutrino final state PFParticles to hits, folding in all downstream PFParticles
+     *  @brief  Get the mapping from the input neutrino final state PFParticle to their hits, optionally folding in downstream PFParticles
      *
      *  @param  event the art event
-     *  @param  pfParticleLabel the PFParticle producer label (original PFParticle with associations to clusters etc.)
-     *  @param  alternatePFParticleLabel the PFParticle producer label for the new collection with re-interpreted hierarchy
-     *  @param  finalStates the input vector of final state PFParticles *from the alternate collection*
+     *  @param  pfParticleLabel the PFParticle producer label
+     *  @param  finalStates the input vector of final state PFParticles
+     *  @param  useDaughters whether to fold in downstream particles
+     *
+     *  @return the mapping
      */
-    static HitsToPFParticles GetHitToPFParticleMap(const art::Event &event, const art::InputTag &pfParticleLabel, const art::InputTag &alternatePFParticleLabel, const PFParticleVector &finalStates);
+    static HitsToPFParticles GetHitToPFParticleMap(const art::Event &event, const art::InputTag &pfParticleLabel, const PFParticleVector &finalStates, const bool &useDaughters);
     
     /**
      *  @brief  Get the mapping from neutrino final state MCParticles to hits, folding in all downstream particles

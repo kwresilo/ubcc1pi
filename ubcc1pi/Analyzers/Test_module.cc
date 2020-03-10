@@ -6,13 +6,12 @@
 
 #include "ubcc1pi/Analyzers/Test.h"
 
-#include "ubcc1pi/Objects/EventFactory.h"
-
 namespace ubcc1pi
 {
 
-Test::Test(const fhicl::ParameterSet &pset) : 
-    art::EDAnalyzer(pset),
+Test::Test(const art::EDAnalyzer::Table<EventFactory::Config> &config) :
+    art::EDAnalyzer(config),
+    m_config(config()),
     m_writer("testOutput.root"),
     m_pEvent(m_writer.GetBoundEventAddress())
 {
@@ -22,7 +21,8 @@ Test::Test(const fhicl::ParameterSet &pset) :
 
 void Test::analyze(const art::Event &event)
 {
-    EventFactory::PopulateEvent(event, m_pEvent);
+    EventFactory::PopulateEvent(event, m_config, m_pEvent);
+    m_pEvent->Print();
     m_writer.FillEvent();
 }
 
