@@ -13,11 +13,18 @@ namespace ubcc1pi
         
 void Event::Print() const
 {
-    std::cout << std::string(80, '=');
+    std::cout << std::string(80, '=') << std::endl;
+    
+    std::cout << std::string(80, '-') << std::endl;
     std::cout << "METADATA" << std::endl;
+    std::cout << std::string(80, '-') << std::endl;
+
     UBCC1PI_MACRO_EVENT_METADATA_MEMBERS("", metadata, UBCC1PI_MACRO_PRINT_MEMBER)
     
+    std::cout << std::string(80, '-') << std::endl;
     std::cout << "TRUTH" << std::endl;
+    std::cout << std::string(80, '-') << std::endl;
+
     UBCC1PI_MACRO_EVENT_TRUTH_MEMBERS("", truth, UBCC1PI_MACRO_PRINT_MEMBER)
 
     for (const auto &particle : truth.particles)
@@ -25,8 +32,10 @@ void Event::Print() const
         std::cout << "TRUTH PARTICLE" << std::endl;
         UBCC1PI_MACRO_EVENT_TRUTH_PARTICLE_MEMBERS("", particle, UBCC1PI_MACRO_PRINT_MEMBER)
     }
-    
+
+    std::cout << std::string(80, '-') << std::endl;
     std::cout << "RECO" << std::endl;
+    std::cout << std::string(80, '-') << std::endl;
     UBCC1PI_MACRO_EVENT_RECO_MEMBERS("", reco, UBCC1PI_MACRO_PRINT_MEMBER)
 
     for (const auto &particle : reco.particles)

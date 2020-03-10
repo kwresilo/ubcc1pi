@@ -270,6 +270,22 @@ inline void Event::Member<TVector3>::SetDefault()
 // -----------------------------------------------------------------------------------------------------------------------------------------
 
 template <>
+inline void Event::Member< std::vector<float> >::SetDefault()
+{
+    m_value.clear();
+}
+
+// -----------------------------------------------------------------------------------------------------------------------------------------
+
+template <>
+inline void Event::Member< std::vector<bool> >::SetDefault()
+{
+    m_value.clear();
+}
+
+// -----------------------------------------------------------------------------------------------------------------------------------------
+
+template <>
 inline std::string Event::Member<bool>::ToString() const
 {
     if (!this->IsSet())
@@ -320,6 +336,36 @@ inline std::string Event::Member<TVector3>::ToString() const
         return "?";
 
     return ("(" + std::to_string(m_value.X()) + ", " + std::to_string(m_value.Y()) + ", " + std::to_string(m_value.Z()) + ")");
+}
+
+// -----------------------------------------------------------------------------------------------------------------------------------------
+
+template <>
+inline std::string Event::Member< std::vector<float> >::ToString() const
+{
+    if (!this->IsSet())
+        return "?";
+
+    std::string str = "[" + std::to_string(m_value.size()) + "]  ";
+    for (const auto &entry : m_value)
+        str += std::to_string(entry) + "  ";
+
+    return str;
+}
+
+// -----------------------------------------------------------------------------------------------------------------------------------------
+
+template <>
+inline std::string Event::Member< std::vector<bool> >::ToString() const
+{
+    if (!this->IsSet())
+        return "?";
+
+    std::string str = "[" + std::to_string(m_value.size()) + "]  ";
+    for (const auto &entry : m_value)
+        str += std::string(entry ? "true" : "false") + "  ";
+
+    return str;
 }
 
 } // namespace ubcc1pi

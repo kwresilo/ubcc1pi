@@ -4,13 +4,14 @@
  *  @brief The file defining the members of the event class
  *
  *  In this file we define all of the member variable that will go into the analysis files. The types and names of the variables are defined
- *  using pre-processor directives. Normally this would be bad practise by modern standards, but it is the best option for this use case.
+ *  using pre-processor directives.
  *
  *  By defining the variables at the pre-processer level, all of the bookwork can be handled automatically. Each variable need only be
  *  defined in one place and will automatically:
  *      - Be added as a member variable of the ubcc1pi::Event class
  *      - Be bound to a branch if an analysis file is to be written or read using a consistent branch naming convention
  *      - Be assigned a default value and be checked such that you can't accidentally use a default variable at the analysis level 
+ *      - Show up as a compiler error if used in C++ but not defined here
  *
  *  The Event class has three categories
  *      - Metadata
@@ -52,12 +53,16 @@
 
 // The event truth information members
 #define UBCC1PI_MACRO_EVENT_TRUTH_MEMBERS(p, q, f)                                                                                         \
-    f(p, q, bool,        isCC)                                                                                                             \
-    f(p, q, int,         interactionMode)                                                                                                  \
-    f(p, q, std::string, interactionString)                                                                                                \
-    f(p, q, int,         nuPdgCode)                                                                                                        \
-    f(p, q, float,       nuEnergy)                                                                                                         \
-    f(p, q, TVector3,    nuVertex)                                                                                                         
+    f(p, q, bool,                isCC)                                                                                                     \
+    f(p, q, int,                 interactionMode)                                                                                          \
+    f(p, q, std::string,         interactionString)                                                                                        \
+    f(p, q, int,                 nuPdgCode)                                                                                                \
+    f(p, q, float,               nuEnergy)                                                                                                 \
+    f(p, q, TVector3,            nuVertex)                                                                                                 \
+    f(p, q, int,                 nFinalStates)                                                                                             \
+    f(p, q, std::vector<float>,  slicePurities)                                                                                            \
+    f(p, q, std::vector<float>,  sliceCompletenesses)                                                                                      \
+    f(p, q, std::vector<bool>,   sliceIsSelectedAsNu)                                                                                                        
 
 // The event truth particle information members
 #define UBCC1PI_MACRO_EVENT_TRUTH_PARTICLE_MEMBERS(p, q, f)                                                                                \
@@ -67,15 +72,29 @@
     f(p, q, float,       momentumZ)                                                                                                        \
     f(p, q, float,       momentum)                                                                                                         \
     f(p, q, float,       energy)                                                                                                           \
-    f(p, q, float,       mass)
+    f(p, q, float,       mass)                                                                                                             \
+    f(p, q, float,       hitWeightU)                                                                                                       \
+    f(p, q, float,       hitWeightV)                                                                                                       \
+    f(p, q, float,       hitWeightW)                                                                                                        
 
 // The event reco information members
 #define UBCC1PI_MACRO_EVENT_RECO_MEMBERS(p, q, f)                                                                                          \
-    f(p, q, bool,        dummy)                                                                                                            
+    f(p, q, int,                 nSlices)                                                                                                  \
+    f(p, q, bool,                hasSelectedSlice)                                                                                         \
+    f(p, q, float,               selectedTopologicalScore)                                                                                 \
+    f(p, q, std::vector<float>,  sliceTopologicalScores)                                                                                   \
+    f(p, q, bool,                hasNeutrino)                                                                                              \
+    f(p, q, int,                 nuPdgCode)                                                                                                \
+    f(p, q, TVector3,            nuVertex)                                                                                                 \
+    f(p, q, int,                 nFinalStates)                                                                                                       
 
 // The event reco particle information members
 #define UBCC1PI_MACRO_EVENT_RECO_PARTICLE_MEMBERS(p, q, f)                                                                                 \
-    f(p, q, int,         pdgCode)                                                                                                          
+    f(p, q, int,                 pdgCode)                                                                                                  \
+    f(p, q, std::vector<float>,  truthMatchPurities)                                                                                       \
+    f(p, q, std::vector<float>,  truthMatchCompletenesses)                                                                                 \
+    f(p, q, bool,                hasMatchedMCParticle)                                                                                     \
+    f(p, q, int,                 bestMatchedMCParticleIndex)                                                                                
 
 // =========================================================================================================================================
 
@@ -110,8 +129,8 @@
 
 // Define a macro that prints each of the member variables
 #define UBCC1PI_MACRO_PRINT_MEMBER(p, q, t, n)                                                                                             \
-    std::cout << std::setw(20) << "(" #t ")" << "  ";                                                                                      \
-    std::cout << (#q "." #n) << "() : ";                                                                                                   \
+    std::cout << std::setw(24) << "(" #t ")" << "  ";                                                                                      \
+    std::cout << std::setw(40) << (#q "." #n "()") << "  ";                                                                                \
     std::cout << q.n.ToString() << std::endl;                                                                                              
 
 // Define a macro to bind a member variable to an output branch

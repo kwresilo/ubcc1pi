@@ -9,6 +9,12 @@ test:
     MCTruthLabel:      "generator"
     MCParticleLabel:   "largeant"
     BacktrackerLabel:  "gaushitTruthMatch"
+    
+    # Reco information
+    HitLabel:          "gaushit"
+    SliceLabel:        "pandora"
+    PFParticleLabel:   "pandora"
+    VertexLabel:       "pandora"
 }
 
 END_PROLOG
