@@ -77,16 +77,27 @@ void EventFactory::PopulateEventTruthInfo(const art::Event &event, const Config 
     for (const auto &mcParticle : finalStateMCParticles)
     {
         Event::Truth::Particle particle;
-        EventFactory::PopulateEventTruthParticleInfo(mcParticle, mcParticleToHitWeights, mcParticleMap, particle);
+        EventFactory::PopulateEventTruthParticleInfo(event, config, mcParticle, mcParticleToHitWeights, mcParticleMap, particle);
         truth.particles.push_back(particle);
     }
 }
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
 
-void EventFactory::PopulateEventTruthParticleInfo(const art::Ptr<simb::MCParticle> &mcParticle, const MCParticlesToHitWeights &mcParticleToHitWeights, const MCParticleMap &mcParticleMap, Event::Truth::Particle &particle)
+void EventFactory::PopulateEventTruthParticleInfo(const art::Event &event, const Config &config, const art::Ptr<simb::MCParticle> &mcParticle, const MCParticlesToHitWeights &mcParticleToHitWeights, const MCParticleMap &mcParticleMap, Event::Truth::Particle &particle)
 {
     particle.pdgCode.Set(mcParticle->PdgCode());
+
+    const auto start = mcParticle->Position().Vect();
+    particle.startX.Set(start.X());
+    particle.startY.Set(start.Y());
+    particle.startZ.Set(start.Z());
+    
+    const auto end = mcParticle->EndPosition().Vect();
+    particle.endX.Set(end.X());
+    particle.endY.Set(end.Y());
+    particle.endX.Set(end.Z());
+
     particle.momentumX.Set(mcParticle->Px());
     particle.momentumY.Set(mcParticle->Py());
     particle.momentumZ.Set(mcParticle->Pz());
@@ -131,10 +142,29 @@ void EventFactory::PopulateEventTruthParticleInfo(const art::Ptr<simb::MCParticl
     particle.scatteredMomentum.Set(scatteredParticle->Momentum().Vect().Mag());
 
     // The momentum of the particle before the end-state
-    particle.endMomentum.Set(endState.m_finalParticleMomentum.Mag());
+    const auto endMomentum = endState.m_finalParticleMomentum.Mag();
+    particle.endMomentum.Set(endMomentum);
+    particle.isStopping.Set(endMomentum <= std::numeric_limits<float>::epsilon());
 
     // The end-state
     particle.endState.Set(endState.m_type);
+   
+    // The hit weight of the end-state
+    const auto endStateMCParticleToHitWeights = CollectionHelper::GetReversedAssociation(BacktrackHelper::GetHitToMCParticleWeightMap(event, config.MCParticleLabel(), config.BacktrackerLabel(), endState.m_products));
+
+    float endStateProductsHitWeightU = 0;
+    float endStateProductsHitWeightV = 0;
+    float endStateProductsHitWeightW = 0;
+    for (const auto &particle : endState.m_products)
+    {
+        endStateProductsHitWeightU += BacktrackHelper::GetHitWeightInView(particle, endStateMCParticleToHitWeights, geo::kU);
+        endStateProductsHitWeightV += BacktrackHelper::GetHitWeightInView(particle, endStateMCParticleToHitWeights, geo::kV);
+        endStateProductsHitWeightW += BacktrackHelper::GetHitWeightInView(particle, endStateMCParticleToHitWeights, geo::kW);
+    }
+
+    particle.endStateProductsHitWeightU.Set(endStateProductsHitWeightU);
+    particle.endStateProductsHitWeightV.Set(endStateProductsHitWeightV);
+    particle.endStateProductsHitWeightW.Set(endStateProductsHitWeightW);
 }
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
@@ -179,20 +209,51 @@ void EventFactory::PopulateEventRecoInfo(const art::Event &event, const Config &
     }
 
     // Create the output reco particles
+    const auto pfParticleMap = RecoHelper::GetPFParticleMap(allPFParticles);
+    const auto pfParticleToMetadata = CollectionHelper::GetAssociation<recob::PFParticle, larpandoraobj::PFParticleMetadata>(event, config.PFParticleLabel(), config.PFParticleLabel());
+    const auto pfParticleToTracks = CollectionHelper::GetAssociation<recob::PFParticle, recob::Track>(event, config.PFParticleLabel(), config.TrackLabel());
+    const auto pfParticleToHits = CollectionHelper::GetAssociationViaCollection<recob::PFParticle, recob::Cluster, recob::Hit>(event, config.PFParticleLabel(), config.PFParticleLabel(), config.PFParticleLabel());
+    const auto trackToPIDs = CollectionHelper::GetAssociation<recob::Track, anab::ParticleID>(event, config.TrackLabel(), config.PIDLabel());
+    const auto trackToCalorimetries = CollectionHelper::GetAssociation<recob::Track, anab::Calorimetry>(event, config.TrackLabel(), config.CalorimetryLabel());
+    const auto spacePoints = CollectionHelper::GetCollection<recob::SpacePoint>(event, config.SpacePointLabel());
+
     for (const auto &pfParticle : finalStatePFParticles)
     {
         Event::Reco::Particle particle;
-        EventFactory::PopulateEventRecoParticleInfo(config, pfParticle, finalStateMCParticles, pBacktrackerData, particle);
+        EventFactory::PopulateEventRecoParticleInfo(config, pfParticle, pfParticleMap, pfParticleToMetadata, pfParticleToHits, pfParticleToTracks, trackToPIDs, trackToCalorimetries, spacePoints, finalStateMCParticles, pBacktrackerData, nuVertex, particle);
         reco.particles.push_back(particle);
     }
 }   
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
 
-void EventFactory::PopulateEventRecoParticleInfo(const Config &config, const art::Ptr<recob::PFParticle> &pfParticle, const MCParticleVector &finalStateMCParticles, const std::shared_ptr<BacktrackHelper::BacktrackerData> &pBacktrackerData, Event::Reco::Particle &particle)
+void EventFactory::PopulateEventRecoParticleInfo(const Config &config, const art::Ptr<recob::PFParticle> &pfParticle, const PFParticleMap &pfParticleMap, const PFParticleToMetadata &pfParticleToMetadata, const PFParticleToHits &pfParticleToHits, const PFParticleToTracks &pfParticleToTracks, const TrackToPIDs &trackToPIDs, const TrackToCalorimetries &trackToCalorimetries, const SpacePointVector &spacePoints, const MCParticleVector &finalStateMCParticles, const std::shared_ptr<BacktrackHelper::BacktrackerData> &pBacktrackerData, const TVector3 &nuVertex, Event::Reco::Particle &particle)
 {
-    particle.pdgCode.Set(pfParticle->PdgCode());
+    if (!config.HasTruthInfo() && pBacktrackerData)
+        throw cet::exception("EventFactory::PopulateEventRecoParticleInfo") << " - Supplied with backtracker data even though there should be no truth info." << std::endl;
+   
+    EventFactory::PopulateEventRecoParticlePatRecInfo(pfParticle, pfParticleMap, pfParticleToMetadata, pfParticleToHits, particle);
 
+    try
+    {
+        const auto track = CollectionHelper::GetSingleAssociated(pfParticle, pfParticleToTracks);
+        EventFactory::PopulateEventRecoParticleTrackInfo(config, track, spacePoints, nuVertex, particle);
+
+        try
+        {
+            const auto pid = CollectionHelper::GetSingleAssociated(track, trackToPIDs);
+            EventFactory::PopulateEventRecoParticlePIDInfo(config, pid, particle);
+        }
+        catch (const cet::exception &) {}
+        
+        const auto calos = CollectionHelper::GetManyAssociated(track, trackToCalorimetries);
+        (void) calos;
+        // truncated mean dEdx at start of track
+    }
+    catch (const cet::exception &) {}
+
+
+    // TODO consider refactoring below into separate function
     // Reco-true matching information
     if (!config.HasTruthInfo())
         return;
@@ -227,6 +288,169 @@ void EventFactory::PopulateEventRecoParticleInfo(const Config &config, const art
 
     particle.truthMatchPurities.Set(truthMatchPurities);
     particle.truthMatchCompletenesses.Set(truthMatchCompletenesses);
+}
+
+// -----------------------------------------------------------------------------------------------------------------------------------------
+    
+void EventFactory::PopulateEventRecoParticlePatRecInfo(const art::Ptr<recob::PFParticle> &pfParticle, const PFParticleMap &pfParticleMap, const PFParticleToMetadata &pfParticleToMetadata, const PFParticleToHits &pfParticleToHits, Event::Reco::Particle &particle)
+{
+    particle.pdgCode.Set(pfParticle->PdgCode());
+
+    const auto hits = CollectionHelper::GetManyAssociated(pfParticle, pfParticleToHits);
+    particle.nHitsU.Set(RecoHelper::CountHitsInView(hits, geo::kU));
+    particle.nHitsV.Set(RecoHelper::CountHitsInView(hits, geo::kV));
+    particle.nHitsW.Set(RecoHelper::CountHitsInView(hits, geo::kW));
+
+    particle.nDaughters.Set(pfParticle->NumDaughters());
+
+    // Get the descendent PFParticles (not including the primary)
+    PFParticleVector descendents;
+    for (const auto &downstreamParticle : RecoHelper::GetDownstreamParticles(pfParticle, pfParticleMap))
+        if (downstreamParticle != pfParticle) descendents.push_back(downstreamParticle);
+
+    particle.nDescendents.Set(descendents.size());
+
+    unsigned int nDescendentHitsU = 0;
+    unsigned int nDescendentHitsV = 0;
+    unsigned int nDescendentHitsW = 0;
+    unsigned int nHitsInLargestDescendent = 0;
+    for (const auto &descendent : descendents)
+    {
+        const auto descendentHits = CollectionHelper::GetManyAssociated(descendent, pfParticleToHits);
+
+        const auto nHitsU = RecoHelper::CountHitsInView(descendentHits, geo::kU);
+        const auto nHitsV = RecoHelper::CountHitsInView(descendentHits, geo::kV);
+        const auto nHitsW = RecoHelper::CountHitsInView(descendentHits, geo::kW);
+
+        const auto nHitsTot = nHitsU + nHitsV + nHitsW;
+        nHitsInLargestDescendent = std::max(nHitsInLargestDescendent, nHitsTot);
+
+        nDescendentHitsU += nHitsU;
+        nDescendentHitsV += nHitsV;
+        nDescendentHitsW += nHitsW;
+    }
+
+    particle.nDescendentHitsU.Set(nDescendentHitsU);
+    particle.nDescendentHitsV.Set(nDescendentHitsV);
+    particle.nDescendentHitsW.Set(nDescendentHitsW);
+    particle.nHitsInLargestDescendent.Set(nHitsInLargestDescendent);
+    
+    const auto metadata = CollectionHelper::GetSingleAssociated(pfParticle, pfParticleToMetadata);
+    const auto trackScore = RecoHelper::GetTrackScore(metadata);
+
+    // ATTN track score -1.f means that it wasn't able to be calculated
+    if (trackScore > -0.5f)
+        particle.trackScore.Set(trackScore);
+}
+
+// -----------------------------------------------------------------------------------------------------------------------------------------
+        
+void EventFactory::PopulateEventRecoParticleTrackInfo(const Config &config, const art::Ptr<recob::Track> &track, const SpacePointVector &spacePoints, const TVector3 &nuVertex, Event::Reco::Particle &particle)
+{
+    const auto pSpaceChargeService = RecoHelper::GetSpaceChargeService();
+
+    const auto start = RecoHelper::CorrectForSpaceCharge(TVector3(track->Start().X(), track->Start().Y(), track->Start().Z()), pSpaceChargeService);
+    particle.startX.Set(start.X());
+    particle.startY.Set(start.Y());
+    particle.startZ.Set(start.Z());
+    
+    const auto end = RecoHelper::CorrectForSpaceCharge(TVector3(track->End().X(), track->End().Y(), track->End().Z()), pSpaceChargeService);
+    particle.endX.Set(end.X());
+    particle.endY.Set(end.Y());
+    particle.endZ.Set(end.Z());
+
+    const auto direction = TVector3(track->StartDirection().X(), track->StartDirection().Y(), track->StartDirection().Z());
+    particle.directionX.Set(direction.X());
+    particle.directionY.Set(direction.Y());
+    particle.directionZ.Set(direction.Z());
+
+    particle.yzAngle.Set(std::atan2(direction.Z(), direction.Y()));
+    particle.xyAngle.Set(std::atan2(direction.Y(), direction.X()));
+    particle.xzAngle.Set(std::atan2(direction.Z(), direction.X()));
+
+    particle.length.Set(track->Length());
+    particle.range.Set(RecoHelper::GetRange(track, pSpaceChargeService));
+
+    float transverseVertexDist = -std::numeric_limits<float>::max();
+    float longitudinalVertexDist = -std::numeric_limits<float>::max();
+    RecoHelper::GetDistanceToPoint(track, nuVertex, pSpaceChargeService, transverseVertexDist, longitudinalVertexDist);
+
+    particle.transverseVertexDist.Set(transverseVertexDist);
+    particle.longitudinalVertexDist.Set(longitudinalVertexDist);
+    particle.wiggliness.Set(RecoHelper::GetTrackWiggliness(track));
+    
+    particle.nSpacePointsNearEnd.Set(RecoHelper::CountSpacePointsNearTrackEnd(track, spacePoints, config.TrackEndSpacePointDistance(), pSpaceChargeService));
+}
+
+// -----------------------------------------------------------------------------------------------------------------------------------------
+            
+void EventFactory::PopulateEventRecoParticlePIDInfo(const Config &config, const art::Ptr<anab::ParticleID> &pid, Event::Reco::Particle &particle)
+{
+    EventFactory::SetBraggLikelihood(pid, 13, geo::kU, anab::kForward, particle.likelihoodForwardMuonU);
+    EventFactory::SetBraggLikelihood(pid, 13, geo::kV, anab::kForward, particle.likelihoodForwardMuonV);
+    EventFactory::SetBraggLikelihood(pid, 13, geo::kW, anab::kForward, particle.likelihoodForwardMuonW);
+    EventFactory::SetBraggLikelihood(pid, 13, geo::kU, anab::kBackward, particle.likelihoodBackwardMuonU);
+    EventFactory::SetBraggLikelihood(pid, 13, geo::kV, anab::kBackward, particle.likelihoodBackwardMuonV);
+    EventFactory::SetBraggLikelihood(pid, 13, geo::kW, anab::kBackward, particle.likelihoodBackwardMuonW);
+    
+    EventFactory::SetBraggLikelihood(pid, 211, geo::kU, anab::kForward, particle.likelihoodForwardPionU);
+    EventFactory::SetBraggLikelihood(pid, 211, geo::kV, anab::kForward, particle.likelihoodForwardPionV);
+    EventFactory::SetBraggLikelihood(pid, 211, geo::kW, anab::kForward, particle.likelihoodForwardPionW);
+    EventFactory::SetBraggLikelihood(pid, 211, geo::kU, anab::kBackward, particle.likelihoodBackwardPionU);
+    EventFactory::SetBraggLikelihood(pid, 211, geo::kV, anab::kBackward, particle.likelihoodBackwardPionV);
+    EventFactory::SetBraggLikelihood(pid, 211, geo::kW, anab::kBackward, particle.likelihoodBackwardPionW);
+    
+    EventFactory::SetBraggLikelihood(pid, 2212, geo::kU, anab::kForward, particle.likelihoodForwardProtonU);
+    EventFactory::SetBraggLikelihood(pid, 2212, geo::kV, anab::kForward, particle.likelihoodForwardProtonV);
+    EventFactory::SetBraggLikelihood(pid, 2212, geo::kW, anab::kForward, particle.likelihoodForwardProtonW);
+    EventFactory::SetBraggLikelihood(pid, 2212, geo::kU, anab::kBackward, particle.likelihoodBackwardProtonU);
+    EventFactory::SetBraggLikelihood(pid, 2212, geo::kV, anab::kBackward, particle.likelihoodBackwardProtonV);
+    EventFactory::SetBraggLikelihood(pid, 2212, geo::kW, anab::kBackward, particle.likelihoodBackwardProtonW);
+    
+    EventFactory::SetBraggLikelihood(pid, 0, geo::kU, anab::kForward, particle.likelihoodMIPU);
+    EventFactory::SetBraggLikelihood(pid, 0, geo::kV, anab::kForward, particle.likelihoodMIPV);
+    EventFactory::SetBraggLikelihood(pid, 0, geo::kW, anab::kForward, particle.likelihoodMIPW);
+    
+
+    // We need the yz angle to do the rest
+    if (!particle.yzAngle.IsSet())
+        return;
+    
+    const auto yzAngle = particle.yzAngle();
+    const auto sin2AngleThreshold = config.Sin2AngleThreshold();
+
+    EventFactory::SetBraggLikelihood(pid, 13, anab::kForward, yzAngle, sin2AngleThreshold, particle.likelihoodForwardMuon);
+    EventFactory::SetBraggLikelihood(pid, 13, anab::kBackward, yzAngle, sin2AngleThreshold, particle.likelihoodBackwardMuon);
+    
+    EventFactory::SetBraggLikelihood(pid, 211, anab::kForward, yzAngle, sin2AngleThreshold, particle.likelihoodForwardPion);
+    EventFactory::SetBraggLikelihood(pid, 211, anab::kBackward, yzAngle, sin2AngleThreshold, particle.likelihoodBackwardPion);
+    
+    EventFactory::SetBraggLikelihood(pid, 2212, anab::kForward, yzAngle, sin2AngleThreshold, particle.likelihoodForwardProton);
+    EventFactory::SetBraggLikelihood(pid, 2212, anab::kBackward, yzAngle, sin2AngleThreshold, particle.likelihoodBackwardProton);
+    
+    EventFactory::SetBraggLikelihood(pid, 0, anab::kForward, yzAngle, sin2AngleThreshold, particle.likelihoodMIP);
+}
+
+// -----------------------------------------------------------------------------------------------------------------------------------------
+
+void EventFactory::SetBraggLikelihood(const art::Ptr<anab::ParticleID> &pid, const int &pdg, const geo::View_t &view, const anab::kTrackDir &dir, Event::Member<float> &member)
+{
+    const auto likelihood = RecoHelper::GetBraggLikelihood(pid, pdg, view, dir);
+
+    // When likelihood isn't available the default is -floatmax
+    if (likelihood > -1.f)
+        member.Set(likelihood);
+}
+
+// -----------------------------------------------------------------------------------------------------------------------------------------
+
+void EventFactory::SetBraggLikelihood(const art::Ptr<anab::ParticleID> &pid, const int &pdg, const anab::kTrackDir &dir, const float yzAngle, const float sin2AngleThreshold, Event::Member<float> &member)
+{
+    const auto likelihood = RecoHelper::GetBraggLikelihood(pid, pdg, dir, yzAngle, sin2AngleThreshold);
+
+    // When likelihood isn't available the default is -floatmax
+    if (likelihood > -1.f)
+        member.Set(likelihood);
 }
 
 // -----------------------------------------------------------------------------------------------------------------------------------------

@@ -15,6 +15,14 @@ test:
     SliceLabel:        "pandora"
     PFParticleLabel:   "pandora"
     VertexLabel:       "pandora"
+    SpacePointLabel:   "pandora"
+    TrackLabel:        "pandora"
+    CalorimetryLabel:  "pandoracaliSCE"
+    PIDLabel:          "pandoracalipidSCE"
+
+    # Settings
+    TrackEndSpacePointDistance: 5.0
+    Sin2AngleThreshold:         0.175
 }
 
 END_PROLOG

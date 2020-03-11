@@ -66,6 +66,12 @@
 // The event truth particle information members
 #define UBCC1PI_MACRO_EVENT_TRUTH_PARTICLE_MEMBERS(p, q, f)                                                                                \
     f(p, q, int,                 pdgCode)                                                                                                  \
+    f(p, q, float,               startX)                                                                                                   \
+    f(p, q, float,               startY)                                                                                                   \
+    f(p, q, float,               startZ)                                                                                                   \
+    f(p, q, float,               endX)                                                                                                     \
+    f(p, q, float,               endY)                                                                                                     \
+    f(p, q, float,               endZ)                                                                                                     \
     f(p, q, float,               momentumX)                                                                                                \
     f(p, q, float,               momentumY)                                                                                                \
     f(p, q, float,               momentumZ)                                                                                                \
@@ -82,7 +88,11 @@
     f(p, q, std::vector<bool>,   scatterIsElastic)                                                                                         \
     f(p, q, float,               scatteredMomentum)                                                                                        \
     f(p, q, float,               endMomentum)                                                                                              \
-    f(p, q, int,                 endState)                                                                                                 
+    f(p, q, bool,                isStopping)                                                                                               \
+    f(p, q, int,                 endState)                                                                                                 \
+    f(p, q, float,               endStateProductsHitWeightU)                                                                               \
+    f(p, q, float,               endStateProductsHitWeightV)                                                                               \
+    f(p, q, float,               endStateProductsHitWeightW)                                                                               
 
 // The event reco information members
 #define UBCC1PI_MACRO_EVENT_RECO_MEMBERS(p, q, f)                                                                                          \
@@ -99,10 +109,67 @@
 // The event reco particle information members
 #define UBCC1PI_MACRO_EVENT_RECO_PARTICLE_MEMBERS(p, q, f)                                                                                 \
     f(p, q, int,                 pdgCode)                                                                                                  \
+    f(p, q, int,                 nHitsU)                                                                                                   \
+    f(p, q, int,                 nHitsV)                                                                                                   \
+    f(p, q, int,                 nHitsW)                                                                                                   \
+    f(p, q, int,                 nDaughters)                                                                                               \
+    f(p, q, int,                 nDescendents)                                                                                             \
+    f(p, q, int,                 nDescendentHitsU)                                                                                         \
+    f(p, q, int,                 nDescendentHitsV)                                                                                         \
+    f(p, q, int,                 nDescendentHitsW)                                                                                         \
+    f(p, q, int,                 nHitsInLargestDescendent)                                                                                 \
+    f(p, q, float,               trackScore)                                                                                               \
+    f(p, q, float,               startX)                                                                                                   \
+    f(p, q, float,               startY)                                                                                                   \
+    f(p, q, float,               startZ)                                                                                                   \
+    f(p, q, float,               endX)                                                                                                     \
+    f(p, q, float,               endY)                                                                                                     \
+    f(p, q, float,               endZ)                                                                                                     \
+    f(p, q, float,               directionX)                                                                                               \
+    f(p, q, float,               directionY)                                                                                               \
+    f(p, q, float,               directionZ)                                                                                               \
+    f(p, q, float,               yzAngle)                                                                                                  \
+    f(p, q, float,               xyAngle)                                                                                                  \
+    f(p, q, float,               xzAngle)                                                                                                  \
+    f(p, q, float,               length)                                                                                                   \
+    f(p, q, float,               range)                                                                                                    \
+    f(p, q, float,               transverseVertexDist)                                                                                     \
+    f(p, q, float,               longitudinalVertexDist)                                                                                   \
+    f(p, q, float,               wiggliness)                                                                                               \
+    f(p, q, int,                 nSpacePointsNearEnd)                                                                                      \
+    f(p, q, float,               likelihoodForwardMuonU)                                                                                   \
+    f(p, q, float,               likelihoodForwardMuonV)                                                                                   \
+    f(p, q, float,               likelihoodForwardMuonW)                                                                                   \
+    f(p, q, float,               likelihoodForwardMuon)                                                                                    \
+    f(p, q, float,               likelihoodBackwardMuonU)                                                                                  \
+    f(p, q, float,               likelihoodBackwardMuonV)                                                                                  \
+    f(p, q, float,               likelihoodBackwardMuonW)                                                                                  \
+    f(p, q, float,               likelihoodBackwardMuon)                                                                                   \
+    f(p, q, float,               likelihoodForwardPionU)                                                                                   \
+    f(p, q, float,               likelihoodForwardPionV)                                                                                   \
+    f(p, q, float,               likelihoodForwardPionW)                                                                                   \
+    f(p, q, float,               likelihoodForwardPion)                                                                                    \
+    f(p, q, float,               likelihoodBackwardPionU)                                                                                  \
+    f(p, q, float,               likelihoodBackwardPionV)                                                                                  \
+    f(p, q, float,               likelihoodBackwardPionW)                                                                                  \
+    f(p, q, float,               likelihoodBackwardPion)                                                                                   \
+    f(p, q, float,               likelihoodForwardProtonU)                                                                                 \
+    f(p, q, float,               likelihoodForwardProtonV)                                                                                 \
+    f(p, q, float,               likelihoodForwardProtonW)                                                                                 \
+    f(p, q, float,               likelihoodForwardProton)                                                                                  \
+    f(p, q, float,               likelihoodBackwardProtonU)                                                                                \
+    f(p, q, float,               likelihoodBackwardProtonV)                                                                                \
+    f(p, q, float,               likelihoodBackwardProtonW)                                                                                \
+    f(p, q, float,               likelihoodBackwardProton)                                                                                 \
+    f(p, q, float,               likelihoodMIPU)                                                                                           \
+    f(p, q, float,               likelihoodMIPV)                                                                                           \
+    f(p, q, float,               likelihoodMIPW)                                                                                           \
+    f(p, q, float,               likelihoodMIP)                                                                                            \
     f(p, q, std::vector<float>,  truthMatchPurities)                                                                                       \
     f(p, q, std::vector<float>,  truthMatchCompletenesses)                                                                                 \
     f(p, q, bool,                hasMatchedMCParticle)                                                                                     \
     f(p, q, int,                 bestMatchedMCParticleIndex)                                                                                
+
 
 // =========================================================================================================================================
 
