@@ -61,21 +61,28 @@
     f(p, q, TVector3,            nuVertex)                                                                                                 \
     f(p, q, int,                 nFinalStates)                                                                                             \
     f(p, q, std::vector<float>,  slicePurities)                                                                                            \
-    f(p, q, std::vector<float>,  sliceCompletenesses)                                                                                      \
-    f(p, q, std::vector<bool>,   sliceIsSelectedAsNu)                                                                                                        
+    f(p, q, std::vector<float>,  sliceCompletenesses)                                                                                      
 
 // The event truth particle information members
 #define UBCC1PI_MACRO_EVENT_TRUTH_PARTICLE_MEMBERS(p, q, f)                                                                                \
-    f(p, q, int,         pdgCode)                                                                                                          \
-    f(p, q, float,       momentumX)                                                                                                        \
-    f(p, q, float,       momentumY)                                                                                                        \
-    f(p, q, float,       momentumZ)                                                                                                        \
-    f(p, q, float,       momentum)                                                                                                         \
-    f(p, q, float,       energy)                                                                                                           \
-    f(p, q, float,       mass)                                                                                                             \
-    f(p, q, float,       hitWeightU)                                                                                                       \
-    f(p, q, float,       hitWeightV)                                                                                                       \
-    f(p, q, float,       hitWeightW)                                                                                                        
+    f(p, q, int,                 pdgCode)                                                                                                  \
+    f(p, q, float,               momentumX)                                                                                                \
+    f(p, q, float,               momentumY)                                                                                                \
+    f(p, q, float,               momentumZ)                                                                                                \
+    f(p, q, float,               momentum)                                                                                                 \
+    f(p, q, float,               energy)                                                                                                   \
+    f(p, q, float,               mass)                                                                                                     \
+    f(p, q, float,               hitWeightU)                                                                                               \
+    f(p, q, float,               hitWeightV)                                                                                               \
+    f(p, q, float,               hitWeightW)                                                                                               \
+    f(p, q, int,                 nElasticScatters)                                                                                         \
+    f(p, q, int,                 nInelasticScatters)                                                                                       \
+    f(p, q, std::vector<float>,  scatterCosThetas)                                                                                         \
+    f(p, q, std::vector<float>,  scatterMomentumFracsLost)                                                                                 \
+    f(p, q, std::vector<bool>,   scatterIsElastic)                                                                                         \
+    f(p, q, float,               scatteredMomentum)                                                                                        \
+    f(p, q, float,               endMomentum)                                                                                              \
+    f(p, q, int,                 endState)                                                                                                 
 
 // The event reco information members
 #define UBCC1PI_MACRO_EVENT_RECO_MEMBERS(p, q, f)                                                                                          \
@@ -83,6 +90,7 @@
     f(p, q, bool,                hasSelectedSlice)                                                                                         \
     f(p, q, float,               selectedTopologicalScore)                                                                                 \
     f(p, q, std::vector<float>,  sliceTopologicalScores)                                                                                   \
+    f(p, q, std::vector<bool>,   sliceIsSelectedAsNu)                                                                                      \
     f(p, q, bool,                hasNeutrino)                                                                                              \
     f(p, q, int,                 nuPdgCode)                                                                                                \
     f(p, q, TVector3,            nuVertex)                                                                                                 \

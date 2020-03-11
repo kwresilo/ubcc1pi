@@ -15,6 +15,7 @@
 
 #include "ubcc1pi/Helpers/CollectionHelper.h"
 #include "ubcc1pi/Helpers/BacktrackHelper.h"
+#include "ubcc1pi/Helpers/TruthHelper.h"
 
 namespace ubcc1pi
 {
@@ -125,9 +126,10 @@ class EventFactory
          *
          *  @param  mcParticle the input MCParticle
          *  @param  mcParticleToHitWeights the input mapping from MCParticles to hits along with the weight
+         *  @param  mcParticleMap the hierarchy map for MCParticles
          *  @param  particle the output particle
          */
-        static void PopulateEventTruthParticleInfo(const art::Ptr<simb::MCParticle> &mcParticle, const MCParticlesToHitWeights &mcParticleToHitWeights, Event::Truth::Particle &particle);
+        static void PopulateEventTruthParticleInfo(const art::Ptr<simb::MCParticle> &mcParticle, const MCParticlesToHitWeights &mcParticleToHitWeights, const MCParticleMap &mcParticleMap, Event::Truth::Particle &particle);
 
         /**
          *  @brief  Populate the reco information of the event

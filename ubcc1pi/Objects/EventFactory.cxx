@@ -72,18 +72,19 @@ void EventFactory::PopulateEventTruthInfo(const art::Event &event, const Config 
     // Fill the truth particle info
     const auto hitToMCParticleWeights = BacktrackHelper::GetHitToMCParticleWeightMap(event, config.MCParticleLabel(), config.BacktrackerLabel(), finalStateMCParticles);
     const auto mcParticleToHitWeights = CollectionHelper::GetReversedAssociation(hitToMCParticleWeights);
+    const auto mcParticleMap = TruthHelper::GetMCParticleMap(interaction.GetAllMCParticles());
 
     for (const auto &mcParticle : finalStateMCParticles)
     {
         Event::Truth::Particle particle;
-        EventFactory::PopulateEventTruthParticleInfo(mcParticle, mcParticleToHitWeights, particle);
+        EventFactory::PopulateEventTruthParticleInfo(mcParticle, mcParticleToHitWeights, mcParticleMap, particle);
         truth.particles.push_back(particle);
     }
 }
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
 
-void EventFactory::PopulateEventTruthParticleInfo(const art::Ptr<simb::MCParticle> &mcParticle, const MCParticlesToHitWeights &mcParticleToHitWeights, Event::Truth::Particle &particle)
+void EventFactory::PopulateEventTruthParticleInfo(const art::Ptr<simb::MCParticle> &mcParticle, const MCParticlesToHitWeights &mcParticleToHitWeights, const MCParticleMap &mcParticleMap, Event::Truth::Particle &particle)
 {
     particle.pdgCode.Set(mcParticle->PdgCode());
     particle.momentumX.Set(mcParticle->Px());
@@ -96,6 +97,44 @@ void EventFactory::PopulateEventTruthParticleInfo(const art::Ptr<simb::MCParticl
     particle.hitWeightU.Set(BacktrackHelper::GetHitWeightInView(mcParticle, mcParticleToHitWeights, geo::kU));
     particle.hitWeightV.Set(BacktrackHelper::GetHitWeightInView(mcParticle, mcParticleToHitWeights, geo::kV));
     particle.hitWeightW.Set(BacktrackHelper::GetHitWeightInView(mcParticle, mcParticleToHitWeights, geo::kW));
+    
+    // Follow the hierarchy information
+    TruthHelper::ScatterVector scatters;
+    art::Ptr<simb::MCParticle> scatteredParticle;
+    TruthHelper::FollowScatters(mcParticle, mcParticleMap, scatters, scatteredParticle);
+    const auto endState = TruthHelper::GetEndState(scatteredParticle, mcParticleMap);
+
+    // Output the scattering info
+    unsigned int nElasticScatters = 0;
+    unsigned int nInelasticScatters = 0;
+    
+    std::vector<float> scatterCosThetas, scatterMomentumFracsLost;
+    std::vector<bool> scatterIsElastic;
+    
+    for (const auto &scatter : scatters)
+    {
+        nElasticScatters += scatter.m_isElastic ? 1 : 0;
+        nInelasticScatters += !scatter.m_isElastic ? 1 : 0;
+
+        scatterCosThetas.push_back(scatter.GetScatteringCosTheta());
+        scatterMomentumFracsLost.push_back(scatter.GetMomentumFractionLost());
+        scatterIsElastic.push_back(scatter.m_isElastic);
+    }
+
+    particle.nElasticScatters.Set(nElasticScatters);
+    particle.nInelasticScatters.Set(nInelasticScatters);
+    particle.scatterCosThetas.Set(scatterCosThetas);
+    particle.scatterMomentumFracsLost.Set(scatterMomentumFracsLost);
+    particle.scatterIsElastic.Set(scatterIsElastic);
+
+    // The momentum of the particle after all scatters
+    particle.scatteredMomentum.Set(scatteredParticle->Momentum().Vect().Mag());
+
+    // The momentum of the particle before the end-state
+    particle.endMomentum.Set(endState.m_finalParticleMomentum.Mag());
+
+    // The end-state
+    particle.endState.Set(endState.m_type);
 }
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
@@ -202,12 +241,13 @@ void EventFactory::PopulateEventRecoSliceInfo(const art::Event &event, const Con
     const auto pfParticlesToMetadata = CollectionHelper::GetAssociation<recob::PFParticle, larpandoraobj::PFParticleMetadata>(event, config.PFParticleLabel());
     
     // Work out which slice (if any) was selected as the neutrino
-    SlicesToBool sliceToIsSelectedAsNu;
     art::Ptr<recob::Slice> selectedSlice;
+    std::vector<bool> sliceIsSelectedAsNu;
     for (const auto &slice : slices)
     {
         const auto isSelectedAsNu = RecoHelper::IsSliceSelectedAsNu(slice, slicesToPFParticles);
-
+        sliceIsSelectedAsNu.push_back(isSelectedAsNu);
+        
         if (isSelectedAsNu)
         {
             if (selectedSlice.isNonnull())
@@ -223,6 +263,7 @@ void EventFactory::PopulateEventRecoSliceInfo(const art::Event &event, const Con
     std::vector<float> sliceTopologicalScores;
     for (const auto &slice : slices)
     {
+        // Define the dummy value for slices without a topological score
         float topologicalScore = -1.f;
 
         // The score of the slice is held in the metadata of the primary PFParticles in that slice
@@ -241,7 +282,7 @@ void EventFactory::PopulateEventRecoSliceInfo(const art::Event &event, const Con
             }
         }
 
-        // ATTN here we choose to possibly push a dummy value to keep the vectors in sync
+        // ATTN here we can possibly push a dummy value to keep the vectors in sync
         sliceTopologicalScores.push_back(topologicalScore);
 
         if (slice == selectedSlice)
@@ -251,6 +292,7 @@ void EventFactory::PopulateEventRecoSliceInfo(const art::Event &event, const Con
     reco.nSlices.Set(slices.size());
     reco.hasSelectedSlice.Set(hasSelectedSlice);
     reco.sliceTopologicalScores.Set(sliceTopologicalScores);
+    reco.sliceIsSelectedAsNu.Set(sliceIsSelectedAsNu);
 }
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
@@ -281,19 +323,16 @@ void EventFactory::PopulateEventTruthSliceInfo(const art::Event &event, const Co
 
     // Get the purities and completenesses of the slices
     std::vector<float> slicePurities, sliceCompletenesses;
-    std::vector<bool> sliceIsSelectedAsNu;
     for (const auto &slice : slices)
     {
         const auto nHitsInSlice = sliceMetadata.GetNumberOfHits(slice);
 
         slicePurities.push_back(nHitsInSlice == 0 ? -std::numeric_limits<float>::max() : sliceMetadata.GetPurity(slice));
         sliceCompletenesses.push_back(nNeutrinoHits == 0 ? -std::numeric_limits<float>::max() : sliceMetadata.GetCompleteness(slice));
-        sliceIsSelectedAsNu.push_back(sliceToIsSelectedAsNu.at(slice));
     }
 
     truth.slicePurities.Set(slicePurities);
     truth.sliceCompletenesses.Set(sliceCompletenesses);
-    truth.sliceIsSelectedAsNu.Set(sliceIsSelectedAsNu);
 }
 
 } // namespace ubcc1pi
