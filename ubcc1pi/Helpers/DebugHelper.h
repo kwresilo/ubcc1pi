@@ -49,14 +49,6 @@ class DebugHelper
         static void PrintSummary(const MCParticleVector &particles, const unsigned int depth = 0);
 
         /**
-         *  @brief  Print an interaction
-         *
-         *  @param  interaction the interaction to print
-         *  @param  depth the number of indents to use, for hierarchical information
-         */
-        static void Print(const TruthHelper::Interaction &interaction, const unsigned int depth = 0);
-
-        /**
          *  @brief  Print a PFParticle
          *
          *  @param  particle the PFParticle to print

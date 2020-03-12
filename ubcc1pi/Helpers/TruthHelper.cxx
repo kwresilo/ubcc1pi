@@ -5,7 +5,6 @@
  */
 
 #include "ubcc1pi/Helpers/TruthHelper.h"
-#include "ubcc1pi/Helpers/AnalysisHelper.h"
 
 #include "nusimdata/SimulationBase/MCTruth.h"
 #include "nusimdata/SimulationBase/MCParticle.h"

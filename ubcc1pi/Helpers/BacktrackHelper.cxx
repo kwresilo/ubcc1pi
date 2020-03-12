@@ -8,7 +8,7 @@
 
 #include "ubcc1pi/Helpers/CollectionHelper.h"
 #include "ubcc1pi/Helpers/RecoHelper.h"
-#include "ubcc1pi/Helpers/AnalysisHelper.h"
+#include "ubcc1pi/Helpers/TruthHelper.h"
 
 namespace ubcc1pi
 {

@@ -54,6 +54,7 @@ include(BuildPlugins)
 
 # source
 add_subdirectory(ubcc1pi)
+add_subdirectory(ubcc1pi_standalone)
 
 # configuration
 add_subdirectory(fcl)
