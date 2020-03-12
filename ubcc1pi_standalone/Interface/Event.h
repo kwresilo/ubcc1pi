@@ -21,6 +21,7 @@ namespace ubcc1pi
 {
 
 class FileWriter;
+class FileReader;
 class EventFactory;
 
 class Event
@@ -150,6 +151,7 @@ class Event
     private:
 
         friend FileWriter;
+        friend FileReader;
         friend EventFactory;
 
         /**
@@ -158,6 +160,13 @@ class Event
          *  @param  pTree the tree with which to bind
          */
         void BindToOutputTree(TTree * pTree);
+        
+        /**
+         *  @brief  Bind this event to an input tree
+         *
+         *  @param  pTree the tree with which to bind
+         */
+        void BindToInputTree(TTree * pTree);
 
         /**
          *  @brief  Reset the member variables as if the event were new
@@ -168,6 +177,11 @@ class Event
          *  @brief  Fill the output vectors with the data from the particles ready for a fill
          */
         void PrepareForTreeFill();
+
+        /**
+         *  @brief  Fill the input particles with the info from the vectors in the tree
+         */
+        void PrepareAfterTreeRead();
 
         // Here we define private member variables for each of the particle parameters as a vector so they can be read from the root file
         UBCC1PI_MACRO_EVENT_TRUTH_PARTICLE_MEMBERS(truth_particle, "", UBCC1PI_MACRO_DECLARE_MEMBER_VECTOR)

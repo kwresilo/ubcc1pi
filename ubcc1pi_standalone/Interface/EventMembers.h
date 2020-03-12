@@ -206,6 +206,19 @@
     p##_##n##_vect.push_back(q.n.m_value);                                                                                                 \
     p##_##n##_isSet_vect.push_back(q.n.m_isSet);
 
+// Define a macro that reads the vectors in the tree
+#define UBCC1PI_MACRO_READ_MEMBER_VECTOR(p, q, t, n)                                                                                       \
+    for (unsigned int i = 0; i < p##_##n##_vect.size(); ++i)                                                                               \
+    {                                                                                                                                      \
+        if (p##_##n##_isSet_vect.at(i))                                                                                                    \
+            q.at(i).n.Set(p##_##n##_vect.at(i));                                                                                             \
+    }                                                                                                                                      
+
+// Define a macro to count the size of the member vector
+//    here q will receive the size of the vector
+#define UBCC1PI_MACRO_GET_MEMBER_VECTOR_SIZE(p, q, t, n)                                                                                   \
+    (*(q)) = p##_##n##_vect.size();                                                                                                        
+
 // Define a macro that prints each of the member variables
 #define UBCC1PI_MACRO_PRINT_MEMBER(p, q, t, n)                                                                                             \
     std::cout << std::setw(24) << "(" #t ")" << "  ";                                                                                      \
@@ -221,5 +234,15 @@
 #define UBCC1PI_MACRO_BIND_OUTPUT_VECTOR_BRANCH(p, q, t, n)                                                                                \
     pTree->Branch(#p "_" #n "_vect", &p##_##n##_vect);                                                                                     \
     pTree->Branch(#p "_" #n "_isSet_vect", &p##_##n##_isSet_vect);
+
+// Define a macro to bind a member variable to an input branch
+#define UBCC1PI_MACRO_BIND_INPUT_BRANCH(p, q, t, n)                                                                                        \
+    pTree->SetBranchAddress(#p "_" #n, &q.n.m_value);                                                                                      \
+    pTree->SetBranchAddress(#p "_" #n "_isSet", &q.n.m_isSet);
+
+// Define a macro to bind a member variable to an input vector branch
+#define UBCC1PI_MACRO_BIND_INPUT_VECTOR_BRANCH(p, q, t, n)                                                                                 \
+    pTree->SetBranchAddress(#p "_" #n "_vect", &p##_##n##_vect);                                                                           \
+    pTree->SetBranchAddress(#p "_" #n "_isSet_vect", &p##_##n##_isSet_vect);
 
 #endif
