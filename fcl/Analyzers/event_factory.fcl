@@ -1,16 +1,13 @@
 BEGIN_PROLOG
 
-test:
+event_factory_config:
 {
-    module_type: "Test"
-
-    # Truth information
-    HasTruthInfo:      true
+    # Truth labels
     MCTruthLabel:      "generator"
     MCParticleLabel:   "largeant"
     BacktrackerLabel:  "gaushitTruthMatch"
     
-    # Reco information
+    # Reco labels
     HitLabel:          "gaushit"
     SliceLabel:        "pandora"
     PFParticleLabel:   "pandora"
@@ -20,7 +17,8 @@ test:
     CalorimetryLabel:  "pandoracaliSCE"
     PIDLabel:          "pandoracalipidSCE"
 
-    # Settings
+    # Configuration
+    HasTruthInfo:      true
     TrackEndSpacePointDistance: 5.0
     Sin2AngleThreshold:         0.175
     NHitsToSkip:                3

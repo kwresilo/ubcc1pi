@@ -1,8 +1,8 @@
-#include "test.fcl"
+#include "analysis_file_writer.fcl"
 
 #include "reco_uboone_mcc9_8_driver_stage2.fcl"
 
-process_name: TestTest
+process_name: UBCC1PiAnalysisFileWriter
 
 source:
 {
@@ -11,16 +11,16 @@ source:
     saveMemoryObjectThreshold:  0
 }
 
-services.TFileService: {fileName: "test.root"}
+services.TFileService: { fileName: "dummy.root" }
 
 physics:
 {
     analyzers:
     {
-        test: @local::test
+        analysisFileWriter: @local::analysisFileWriter
     }
 
-    ana: [ test ]
+    ana: [ analysisFileWriter ]
 
     end_paths: [ ana ]
 }

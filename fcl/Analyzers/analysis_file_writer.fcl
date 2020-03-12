@@ -1,0 +1,13 @@
+#include "event_factory.fcl"
+
+BEGIN_PROLOG
+
+analysisFileWriter:
+{
+    module_type: "AnalysisFileWriter"
+
+    OutputFileName:     "ubcc1piAnalysis.root"
+    EventFactoryConfig: @local::event_factory_config
+}
+
+END_PROLOG
