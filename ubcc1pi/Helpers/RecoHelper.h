@@ -354,6 +354,18 @@ class RecoHelper
          *  @return number of spacepoints near track end
          */
         static unsigned int CountSpacePointsNearTrackEnd(const art::Ptr<recob::Track> &track, const SpacePointVector &spacePoints, const float distance, const spacecharge::SpaceChargeService::provider_type *const pSpaceChargeService);
+
+        /**
+         *  @brief  Get the mean dEdx at the start of the track excluding any hits greater than one standard deviation from the median dEdx
+         *
+         *  @param  dedxPerHit the input dEdx per hit
+         *  @param  residualRangePerHit the input residual ranges per hit
+         *  @param  nHitsToSkip the number of hits to skip at the start of the track
+         *  @param  lengthFraction the fraction of the total range to use to isolate the start of the track
+         *
+         *  @return the truncated mean dEdx at the start of the track
+         */
+        static float GetTruncatedMeandEdxAtTrackStart(const std::vector<float> dedxPerHit, const std::vector<float> &residualRangePerHit, const unsigned int nHitsToSkip, const float lengthFraction);
 };
 
 } // namespace ubcc1pi

@@ -23,6 +23,8 @@ test:
     # Settings
     TrackEndSpacePointDistance: 5.0
     Sin2AngleThreshold:         0.175
+    NHitsToSkip:                3
+    LengthFraction:             0.333333333
 }
 
 END_PROLOG

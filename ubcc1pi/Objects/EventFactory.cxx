@@ -247,11 +247,9 @@ void EventFactory::PopulateEventRecoParticleInfo(const Config &config, const art
         catch (const cet::exception &) {}
         
         const auto calos = CollectionHelper::GetManyAssociated(track, trackToCalorimetries);
-        (void) calos;
-        // truncated mean dEdx at start of track
+        EventFactory::PopulateEventRecoParticleCalorimetryInfo(config, calos, particle);
     }
     catch (const cet::exception &) {}
-
 
     // TODO consider refactoring below into separate function
     // Reco-true matching information
@@ -451,6 +449,63 @@ void EventFactory::SetBraggLikelihood(const art::Ptr<anab::ParticleID> &pid, con
     // When likelihood isn't available the default is -floatmax
     if (likelihood > -1.f)
         member.Set(likelihood);
+}
+
+// -----------------------------------------------------------------------------------------------------------------------------------------
+
+void EventFactory::PopulateEventRecoParticleCalorimetryInfo(const Config &config, const CalorimetryVector &calos, Event::Reco::Particle &particle)
+{
+    float uWeight = 0.f;
+    float vWeight = 0.f;
+    for (const auto &calo : calos)
+    {        
+        const auto dedxPerHit = calo->dEdx();
+        const auto residualRangePerHit = calo->ResidualRange();
+        const auto truncatedMeandEdx = RecoHelper::GetTruncatedMeandEdxAtTrackStart(dedxPerHit, residualRangePerHit, config.NHitsToSkip(), config.LengthFraction());
+
+        Event::Member<float> *pMember = nullptr;
+
+        switch (calo->PlaneID().Plane)
+        {
+            case geo::kU:
+                pMember = &particle.truncatedMeandEdxU;
+                uWeight = std::max(0.f, (dedxPerHit.size() * config.LengthFraction()) - config.NHitsToSkip());
+                break;
+            case geo::kV:
+                pMember = &particle.truncatedMeandEdxV;
+                vWeight = std::max(0.f, (dedxPerHit.size() * config.LengthFraction()) - config.NHitsToSkip());
+                break;
+            case geo::kW:
+                pMember = &particle.truncatedMeandEdxW;
+                break;
+            default: break;
+        }
+
+        if (pMember && truncatedMeandEdx > -1.f)
+            pMember->Set(truncatedMeandEdx);
+    }
+
+    const auto yzAngle = particle.yzAngle();
+    const bool isTrackAlongWWire = (std::pow(std::sin(yzAngle), 2) < config.Sin2AngleThreshold());
+    if (!isTrackAlongWWire && particle.truncatedMeandEdxW.IsSet())
+    {
+        particle.truncatedMeandEdx.Set(particle.truncatedMeandEdxW());
+    }
+    else
+    {
+        const auto hasU = particle.truncatedMeandEdxU.IsSet() && uWeight > 0.f;
+        const auto hasV = particle.truncatedMeandEdxV.IsSet() && vWeight > 0.f;
+
+        if (hasU || hasV)
+        {
+            float truncatedMeandEdx = 0.f;
+            if (hasU) truncatedMeandEdx += particle.truncatedMeandEdxU() * uWeight;
+            if (hasV) truncatedMeandEdx += particle.truncatedMeandEdxV() * vWeight;
+
+            truncatedMeandEdx /= (uWeight + vWeight);
+            particle.truncatedMeandEdx.Set(truncatedMeandEdx);
+        }
+    }
 }
 
 // -----------------------------------------------------------------------------------------------------------------------------------------

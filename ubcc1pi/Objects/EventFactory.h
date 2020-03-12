@@ -117,6 +117,18 @@ class EventFactory
                 fhicl::Name("Sin2AngleThreshold"),
                 fhicl::Comment("The squared sin of the angular threshold outside of which a track must point with respect to the collection plane wires to use information that plane")
             };
+            
+            fhicl::Atom<float> NHitsToSkip
+            {
+                fhicl::Name("NHitsToSkip"),
+                fhicl::Comment("The number of hits to skip at the start of a track when calculating the truncated mean dEdx")
+            };
+            
+            fhicl::Atom<float> LengthFraction
+            {
+                fhicl::Name("LengthFraction"),
+                fhicl::Comment("The fration of the track range to consider at the start of the track when calculating the truncated mean dEdx")
+            };
         };
 
         /**
@@ -238,6 +250,15 @@ class EventFactory
          *  @param  particle the output particle
          */
         static void PopulateEventRecoParticlePIDInfo(const Config &config, const art::Ptr<anab::ParticleID> &pid, Event::Reco::Particle &particle);
+
+        /**
+         *  @brief  Populate the reco particle calorimetry information
+         *
+         *  @param  config the configuration options
+         *  @param  calos the input calorimetry objects
+         *  @param  particle the output particle
+         */
+        static void PopulateEventRecoParticleCalorimetryInfo(const Config &config, const CalorimetryVector &calos, Event::Reco::Particle &particle);
 
         /**
          *  @brief  Set the value of the input member variable to the bragg likelihood from the PID with given parameters

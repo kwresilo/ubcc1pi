@@ -518,4 +518,90 @@ unsigned int RecoHelper::CountSpacePointsNearTrackEnd(const art::Ptr<recob::Trac
     return nPoints;
 }
 
+// -----------------------------------------------------------------------------------------------------------------------------------------
+
+float RecoHelper::GetTruncatedMeandEdxAtTrackStart(const std::vector<float> dedxPerHit, const std::vector<float> &residualRangePerHit, const unsigned int nHitsToSkip, const float lengthFraction)
+{
+    if (dedxPerHit.size() != residualRangePerHit.size())
+        throw cet::exception("RecoHelper::GetTruncatedMeandEdxAtTrackStart") << " - dEdx per hit and residual range vectors have different sizes" << std::endl;
+
+    // Check if the variable is calculable
+    if (residualRangePerHit.size() <= nHitsToSkip)
+        return -std::numeric_limits<float>::max();
+
+    // Make make the vector of pairs to keep track of the incides, and find the maximum residual range
+    std::vector<std::pair<float, unsigned int> > residualRangeIndices;
+    float maxResidualRange = -std::numeric_limits<float>::max();
+    for (unsigned int i = 0; i < residualRangePerHit.size(); ++i)
+    {
+        const auto residualRange = residualRangePerHit.at(i);
+        maxResidualRange = std::max(maxResidualRange, residualRange);
+
+        residualRangeIndices.emplace_back(residualRange, i);
+    }
+
+    const auto residualRangeCutoff = maxResidualRange * lengthFraction;
+
+    // Sort the residual ranges such that the largest residual range (closest to the start of the track) is first
+    std::sort(residualRangeIndices.begin(), residualRangeIndices.end(), [](auto &a, auto &b) {
+        return a.first > b.first;
+    });
+
+    // Get the dEdx of the hits at the start of the track
+    std::vector<float> dedxPerHitAtStart;
+    for (unsigned int i = nHitsToSkip; i < residualRangeIndices.size(); ++i)
+    {
+        const auto entry = residualRangeIndices.at(i);
+        const auto residualRange = entry.first;
+        const auto hitIndex = entry.second;
+
+        // ATTN small residual ranges are at the start of the track
+        if (residualRange < residualRangeCutoff)
+            continue;
+
+        dedxPerHitAtStart.push_back(dedxPerHit.at(hitIndex));
+    }
+
+    const auto nHits = dedxPerHitAtStart.size();
+    if (nHits == 0)
+        return -std::numeric_limits<float>::max();
+
+    // Sort the dEdx so we can find the median
+    std::sort(dedxPerHitAtStart.begin(), dedxPerHitAtStart.end());
+    const auto median = dedxPerHitAtStart.at(nHits / 2);
+   
+    // Now find the mean
+    float total = 0.f;
+    for (const auto &dEdx : dedxPerHitAtStart)
+        total += dEdx;
+
+    const auto mean = total / static_cast<float>(nHits);
+    
+    // Now find the variance
+    float squareSum = 0.f;
+    for (const auto &dEdx : dedxPerHitAtStart)
+        squareSum += std::pow(dEdx - mean, 2);
+
+    const auto variance = squareSum / static_cast<float>(nHits);
+    
+    // Get the mean dEdx of the hits within one standard deviation of the median
+    float truncatedTotal = 0.f;
+    unsigned int nTruncatedHits = 0;
+    for (const auto &dEdx : dedxPerHitAtStart)
+    {
+        if (std::pow(dEdx - median, 2) > variance)
+            continue;
+        
+        truncatedTotal += dEdx;
+        nTruncatedHits++;
+    }
+    
+    if (nTruncatedHits == 0)
+        return -std::numeric_limits<float>::max();
+    
+    const auto truncatedMean = truncatedTotal / static_cast<float>(nTruncatedHits);
+
+    return truncatedMean;
+}
+
 } // namespace ubcc1pi

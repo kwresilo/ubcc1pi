@@ -165,6 +165,10 @@
     f(p, q, float,               likelihoodMIPV)                                                                                           \
     f(p, q, float,               likelihoodMIPW)                                                                                           \
     f(p, q, float,               likelihoodMIP)                                                                                            \
+    f(p, q, float,               truncatedMeandEdxU)                                                                                       \
+    f(p, q, float,               truncatedMeandEdxV)                                                                                       \
+    f(p, q, float,               truncatedMeandEdxW)                                                                                       \
+    f(p, q, float,               truncatedMeandEdx)                                                                                        \
     f(p, q, std::vector<float>,  truthMatchPurities)                                                                                       \
     f(p, q, std::vector<float>,  truthMatchCompletenesses)                                                                                 \
     f(p, q, bool,                hasMatchedMCParticle)                                                                                     \
