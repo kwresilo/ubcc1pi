@@ -17,6 +17,7 @@ art_make(
         art_Framework_Principal
         art_Persistency_Common
         ubcc1pi_Helpers
+        ubcc1pi_Interface
     )
 
 install_headers()

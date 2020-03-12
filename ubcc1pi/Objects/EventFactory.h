@@ -7,7 +7,7 @@
 #ifndef UBCC1PI_OBJECTS_EVENT_FACTORY
 #define UBCC1PI_OBJECTS_EVENT_FACTORY
 
-#include "ubcc1pi/Objects/Event.h"
+#include "ubcc1pi_standalone/interface/Event.h"
 #include "art/Framework/Principal/Event.h"
 
 #include "fhiclcpp/types/Atom.h"

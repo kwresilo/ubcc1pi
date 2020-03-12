@@ -7,7 +7,7 @@
 #ifndef UBCC1PI_OBJECTS_FILE_WRITER
 #define UBCC1PI_OBJECTS_FILE_WRITER
 
-#include "ubcc1pi/Objects/Event.h"
+#include "ubcc1pi_standalone/interface/Event.h"
 
 #include <TFile.h>
 #include <TTree.h>
