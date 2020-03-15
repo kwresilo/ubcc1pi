@@ -34,96 +34,144 @@ class EventFactory
          */
         struct Config
         {
+            /**
+             *  @brief  If the input file has truth info
+             */
             fhicl::Atom<bool> HasTruthInfo
             {
                 fhicl::Name("HasTruthInfo"),
                 fhicl::Comment("If the input events have truth info that we should look for")
             };
 
+            /**
+             *  @brief  The MCTruth label
+             */
             fhicl::Atom<art::InputTag> MCTruthLabel
             {
                 fhicl::Name("MCTruthLabel"),
                 fhicl::Comment("The label for the neutrino MCTruth producer")
             };
             
+            /**
+             *  @brief  The MCParticle label
+             */
             fhicl::Atom<art::InputTag> MCParticleLabel
             {
                 fhicl::Name("MCParticleLabel"),
                 fhicl::Comment("The label for the MCParticle producer")
             };
             
+            /**
+             *  @brief  The backtracker label
+             */
             fhicl::Atom<art::InputTag> BacktrackerLabel
             {
                 fhicl::Name("BacktrackerLabel"),
                 fhicl::Comment("The label for the MCParticle to hit backtracker producer")
             };
             
+            /**
+             *  @brief  The hit label
+             */
             fhicl::Atom<art::InputTag> HitLabel
             {
                 fhicl::Name("HitLabel"),
                 fhicl::Comment("The label for the Hit producer")
             };
             
+            /**
+             *  @brief  The slice label
+             */
             fhicl::Atom<art::InputTag> SliceLabel
             {
                 fhicl::Name("SliceLabel"),
                 fhicl::Comment("The label for the Slice producer")
             };
             
+            /**
+             *  @brief  The PFParticle label
+             */
             fhicl::Atom<art::InputTag> PFParticleLabel
             {
                 fhicl::Name("PFParticleLabel"),
                 fhicl::Comment("The label for the PFParticle producer")
             };
             
+            /**
+             *  @brief  The vertex label
+             */
             fhicl::Atom<art::InputTag> VertexLabel
             {
                 fhicl::Name("VertexLabel"),
                 fhicl::Comment("The label for the Vertex producer")
             };
             
+            /**
+             *  @brief  The spacepoint label
+             */
             fhicl::Atom<art::InputTag> SpacePointLabel
             {
                 fhicl::Name("SpacePointLabel"),
                 fhicl::Comment("The label for the SpacePoint producer")
             };
             
+            /**
+             *  @brief  The track label
+             */
             fhicl::Atom<art::InputTag> TrackLabel
             {
                 fhicl::Name("TrackLabel"),
                 fhicl::Comment("The label for the Track producer")
             };
             
+            /**
+             *  @brief  The calorimetry label
+             */
             fhicl::Atom<art::InputTag> CalorimetryLabel
             {
                 fhicl::Name("CalorimetryLabel"),
                 fhicl::Comment("The label for the Calorimetry producer")
             };
             
+            /**
+             *  @brief  The PID label
+             */
             fhicl::Atom<art::InputTag> PIDLabel
             {
                 fhicl::Name("PIDLabel"),
                 fhicl::Comment("The label for the PID producer")
             };
             
+            /**
+             *  @brief  The track end space point distance (see fhicl comment)
+             */
             fhicl::Atom<float> TrackEndSpacePointDistance
             {
                 fhicl::Name("TrackEndSpacePointDistance"),
                 fhicl::Comment("The distance within which a spacepoint must be from the end of a track to be counted in the nSpacePointsNearEnd feature")
             };
             
+            /**
+             *  @brief  The squared sin angle threshold (see fhicl comment)
+             */
             fhicl::Atom<float> Sin2AngleThreshold
             {
                 fhicl::Name("Sin2AngleThreshold"),
                 fhicl::Comment("The squared sin of the angular threshold outside of which a track must point with respect to the collection plane wires to use information that plane")
             };
             
+            /**
+             *  @brief  The number of hits to skip (see fhicl comment)
+             */
             fhicl::Atom<float> NHitsToSkip
             {
                 fhicl::Name("NHitsToSkip"),
                 fhicl::Comment("The number of hits to skip at the start of a track when calculating the truncated mean dEdx")
             };
             
+            /**
+             *  @brief  The length fraction (see fhicl comment)
+             */
             fhicl::Atom<float> LengthFraction
             {
                 fhicl::Name("LengthFraction"),

@@ -32,18 +32,27 @@ class AnalysisFileWriter : public art::EDAnalyzer
          */
         struct Config
         {
+            /**
+             *  @brief  The output file name
+             */
             fhicl::Atom<std::string> OutputFileName
             {
                 fhicl::Name("OutputFileName"),
                 fhicl::Comment("The name of the output file")
             };
 
+            /**
+             *  @brief  The event factory configuration
+             */
             fhicl::Table<EventFactory::Config> EventFactoryConfig
             {
                 fhicl::Name("EventFactoryConfig"),
                 fhicl::Comment("The configuration of the event factory")
             };
             
+            /**
+             *  @brief  The subrun factory configuration
+             */
             fhicl::Table<SubrunFactory::Config> SubrunFactoryConfig
             {
                 fhicl::Name("SubrunFactoryConfig"),

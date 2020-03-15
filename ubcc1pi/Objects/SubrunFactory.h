@@ -29,12 +29,18 @@ class SubrunFactory
          */
         struct Config
         {
+            /**
+             *  @brief  If the file has truth info
+             */
             fhicl::Atom<bool> HasTruthInfo
             {
                 fhicl::Name("HasTruthInfo"),
                 fhicl::Comment("If the input events have truth info that we should look for")
             };
 
+            /**
+             *  @brief  The POT summary label
+             */
             fhicl::Atom<art::InputTag> POTSummaryLabel
             {
                 fhicl::Name("POTSummaryLabel"),

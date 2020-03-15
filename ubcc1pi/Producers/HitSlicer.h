@@ -28,30 +28,45 @@ class HitSlicer : public art::EDProducer
          */
         struct Config
         {
+            /**
+             *  @brief  The slice label
+             */
             fhicl::Atom<art::InputTag> SliceLabel
             {
                 fhicl::Name("SliceLabel"),
                 fhicl::Comment("The label for the slice producer")
             };
             
+            /**
+             *  @brief  The slice to hits label
+             */
             fhicl::Atom<art::InputTag> SliceToHitsLabel
             {
                 fhicl::Name("SliceToHitsLabel"),
                 fhicl::Comment("The label for the slice to hits association producer")
             };
             
+            /**
+             *  @brief  The slice to PFParticles label
+             */
             fhicl::Atom<art::InputTag> SliceToPFParticlesLabel
             {
                 fhicl::Name("SliceToPFParticlesLabel"),
                 fhicl::Comment("The label for the slice to pfparticle association producer")
             };
             
+            /**
+             *  @brief  The MCParticle label
+             */
             fhicl::Atom<art::InputTag> MCParticleLabel
             {
                 fhicl::Name("MCParticleLabel"),
                 fhicl::Comment("The label for the MCParticle producer label")
             };
             
+            /**
+             *  @brief  The backtracker label
+             */
             fhicl::Atom<art::InputTag> BacktrackerLabel
             {
                 fhicl::Name("BacktrackerLabel"),
