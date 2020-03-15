@@ -433,7 +433,7 @@ void EventFactory::PopulateEventRecoParticlePIDInfo(const Config &config, const 
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
 
-void EventFactory::SetBraggLikelihood(const art::Ptr<anab::ParticleID> &pid, const int &pdg, const geo::View_t &view, const anab::kTrackDir &dir, Event::Member<float> &member)
+void EventFactory::SetBraggLikelihood(const art::Ptr<anab::ParticleID> &pid, const int &pdg, const geo::View_t &view, const anab::kTrackDir &dir, Member<float> &member)
 {
     const auto likelihood = RecoHelper::GetBraggLikelihood(pid, pdg, view, dir);
 
@@ -444,7 +444,7 @@ void EventFactory::SetBraggLikelihood(const art::Ptr<anab::ParticleID> &pid, con
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
 
-void EventFactory::SetBraggLikelihood(const art::Ptr<anab::ParticleID> &pid, const int &pdg, const anab::kTrackDir &dir, const float yzAngle, const float sin2AngleThreshold, Event::Member<float> &member)
+void EventFactory::SetBraggLikelihood(const art::Ptr<anab::ParticleID> &pid, const int &pdg, const anab::kTrackDir &dir, const float yzAngle, const float sin2AngleThreshold, Member<float> &member)
 {
     const auto likelihood = RecoHelper::GetBraggLikelihood(pid, pdg, dir, yzAngle, sin2AngleThreshold);
 
@@ -465,7 +465,7 @@ void EventFactory::PopulateEventRecoParticleCalorimetryInfo(const Config &config
         const auto residualRangePerHit = calo->ResidualRange();
         const auto truncatedMeandEdx = RecoHelper::GetTruncatedMeandEdxAtTrackStart(dedxPerHit, residualRangePerHit, config.NHitsToSkip(), config.LengthFraction());
 
-        Event::Member<float> *pMember = nullptr;
+        Member<float> *pMember = nullptr;
 
         switch (calo->PlaneID().Plane)
         {

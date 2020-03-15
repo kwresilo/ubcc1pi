@@ -15,6 +15,7 @@
 
 #include "ubcc1pi/Objects/FileWriter.h"
 #include "ubcc1pi/Objects/EventFactory.h"
+#include "ubcc1pi/Objects/SubrunFactory.h"
 
 namespace ubcc1pi
 {
@@ -42,6 +43,12 @@ class AnalysisFileWriter : public art::EDAnalyzer
                 fhicl::Name("EventFactoryConfig"),
                 fhicl::Comment("The configuration of the event factory")
             };
+            
+            fhicl::Table<SubrunFactory::Config> SubrunFactoryConfig
+            {
+                fhicl::Name("SubrunFactoryConfig"),
+                fhicl::Comment("The configuration of the subrun factory")
+            };
         };
 
         /**
@@ -58,11 +65,20 @@ class AnalysisFileWriter : public art::EDAnalyzer
          */
         void analyze(const art::Event &event);
 
+        /**
+         *  @brief  Process the subruns
+         *
+         *  @param  subrun the subrun to process
+         */
+        void endSubRun(const art::SubRun &subrun);
+
     private:
 
-        EventFactory::Config  m_config;   ///< The configuration
-        FileWriter            m_writer;   ///< The file writer
-        Event                *m_pEvent;   ///< The event bound to the output tree
+        EventFactory::Config   m_eventConfig;    ///< The event factory configuration
+        SubrunFactory::Config  m_subrunConfig;   ///< The subrun factory configuration
+        FileWriter             m_writer;         ///< The file writer
+        Event                 *m_pEvent;         ///< The event bound to the output tree
+        Subrun                *m_pSubrun;        ///< The subrun bound to the output tree
 };
 
 } // namespace ubcc1pi

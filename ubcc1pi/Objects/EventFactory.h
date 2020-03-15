@@ -269,7 +269,7 @@ class EventFactory
          *  @param  dir if the fit is forward or backward
          *  @param  member the member to set
          */
-        static void SetBraggLikelihood(const art::Ptr<anab::ParticleID> &pid, const int &pdg, const geo::View_t &view, const anab::kTrackDir &dir, Event::Member<float> &member);
+        static void SetBraggLikelihood(const art::Ptr<anab::ParticleID> &pid, const int &pdg, const geo::View_t &view, const anab::kTrackDir &dir, Member<float> &member);
         
         /**
          *  @brief  Set the value of the input member variable to the bragg likelihood from the PID with given parameters using all planes
@@ -281,7 +281,7 @@ class EventFactory
          *  @param  sin2AngleThreshold threshold angle to collection wires to use colletion information
          *  @param  member the member to set
          */
-        static void SetBraggLikelihood(const art::Ptr<anab::ParticleID> &pid, const int &pdg, const anab::kTrackDir &dir, const float yzAngle, const float sin2AngleThreshold, Event::Member<float> &member);
+        static void SetBraggLikelihood(const art::Ptr<anab::ParticleID> &pid, const int &pdg, const anab::kTrackDir &dir, const float yzAngle, const float sin2AngleThreshold, Member<float> &member);
 };
 
 } // namespace ubcc1pi

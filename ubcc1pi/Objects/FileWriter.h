@@ -8,6 +8,7 @@
 #define UBCC1PI_OBJECTS_FILE_WRITER
 
 #include "ubcc1pi_standalone/Interface/Event.h"
+#include "ubcc1pi_standalone/Interface/Subrun.h"
 
 #include <TFile.h>
 #include <TTree.h>
@@ -42,11 +43,23 @@ class FileWriter
          *  @return the address of the bound event
          */
         Event * GetBoundEventAddress();
+        
+        /**
+         *  @brief  Get the subrun bound to the output tree
+         *
+         *  @return the address of the bound subrun
+         */
+        Subrun * GetBoundSubrunAddress();
 
         /**
          *  @brief  Fill the output tree with the event
          */
         void FillEvent();
+        
+        /**
+         *  @brief  Fill the output tree with the subrun
+         */
+        void FillSubrun();
 
     private:
 
@@ -54,13 +67,20 @@ class FileWriter
          *  @brief  Bind the event member to the output tree
          */
         void BindEventToTree();
+        
+        /**
+         *  @brief  Bind the subrun member to the output tree
+         */
+        void BindSubrunToTree();
 
         std::string m_outputFile;  ///< The output file name
 
         TFile      *m_pFile;       ///< The output file
         TTree      *m_pEventTree;  ///< The output event tree
+        TTree      *m_pSubrunTree; ///< The output subrun tree
 
-        Event      *m_pEvent;       ///< The output event
+        Event      *m_pEvent;      ///< The output event
+        Subrun     *m_pSubrun;     ///< The output subrun
 };
 
 } // namespace ubcc1pi

@@ -13,9 +13,12 @@ FileWriter::FileWriter(const std::string &outputFile) :
     m_outputFile(outputFile),
     m_pFile(new TFile(m_outputFile.c_str(), "RECREATE")),
     m_pEventTree(new TTree("events", "events")),
-    m_pEvent(new Event())
+    m_pSubrunTree(new TTree("subruns", "subruns")),
+    m_pEvent(new Event()),
+    m_pSubrun(new Subrun())
 {
     this->BindEventToTree();
+    this->BindSubrunToTree();
 }
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
@@ -28,6 +31,7 @@ FileWriter::~FileWriter()
     m_pFile->Close();
 
     delete m_pEvent;
+    delete m_pSubrun;
 }
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
@@ -35,6 +39,13 @@ FileWriter::~FileWriter()
 void FileWriter::BindEventToTree()
 {
     m_pEvent->BindToOutputTree(m_pEventTree);
+}
+
+// -----------------------------------------------------------------------------------------------------------------------------------------
+
+void FileWriter::BindSubrunToTree()
+{
+    m_pSubrun->BindToOutputTree(m_pSubrunTree);
 }
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
@@ -46,10 +57,24 @@ Event * FileWriter::GetBoundEventAddress()
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
         
+Subrun * FileWriter::GetBoundSubrunAddress()
+{
+    return m_pSubrun;
+}
+
+// -----------------------------------------------------------------------------------------------------------------------------------------
+        
 void FileWriter::FillEvent()
 {
     m_pEvent->PrepareForTreeFill();
     m_pEventTree->Fill();
+}
+
+// -----------------------------------------------------------------------------------------------------------------------------------------
+        
+void FileWriter::FillSubrun()
+{
+    m_pSubrunTree->Fill();
 }
 
 } // namespace ubcc1pi

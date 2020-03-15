@@ -8,6 +8,7 @@
 #define UBCC1PI_HELPERS_COLLECTION_HELPER
 
 #include "art/Framework/Principal/Event.h"
+#include "art/Framework/Principal/SubRun.h"
 #include "canvas/Utilities/InputTag.h"
 #include "canvas/Persistency/Common/FindManyP.h"
 
@@ -30,6 +31,8 @@
 #include "lardataobj/AnalysisBase/ParticleID.h"
 #include "lardataobj/AnalysisBase/BackTrackerMatchingData.h"
 #include "lardataobj/AnalysisBase/Calorimetry.h"
+
+#include "larcoreobj/SummaryData/POTSummary.h"
 
 namespace ubcc1pi
 {
@@ -89,6 +92,15 @@ class CollectionHelper
          */
         template <typename T>
         static Collection<T> GetCollection(const art::Event &event, const art::InputTag &label);
+        
+        /**
+         *  @brief  Get an object in the desired format from the subrun
+         *
+         *  @param  subrun the art subrun
+         *  @param  label the label of the collection producer
+         */
+        template <typename T>
+        static T GetObject(const art::SubRun &subrun, const art::InputTag &label);
         
         /**
          *  @brief  Get an association between objects in the desired format from the event
@@ -260,6 +272,15 @@ inline Collection<T> CollectionHelper::GetCollection(const art::Event &event, co
     }
 
     return outputCollection;
+}
+
+// -----------------------------------------------------------------------------------------------------------------------------------------
+
+template <typename T>
+inline T CollectionHelper::GetObject(const art::SubRun &subrun, const art::InputTag &label)
+{
+    const auto handle = subrun.getValidHandle<T>(label);
+    return *handle;
 }
 
 // -----------------------------------------------------------------------------------------------------------------------------------------

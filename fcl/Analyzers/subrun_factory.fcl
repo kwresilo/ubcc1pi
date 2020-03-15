@@ -1,0 +1,12 @@
+BEGIN_PROLOG
+
+subrun_factory_config:
+{
+    # Truth labels
+    POTSummaryLabel:   "generator"
+    
+    # Configuration
+    HasTruthInfo:      true
+}
+
+END_PROLOG
