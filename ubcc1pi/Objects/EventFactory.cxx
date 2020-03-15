@@ -76,9 +76,10 @@ void EventFactory::PopulateEventTruthInfo(const art::Event &event, const Config 
 
     for (const auto &mcParticle : finalStateMCParticles)
     {
-        Event::Truth::Particle particle;
+        truth.particles.emplace_back();
+        auto &particle = truth.particles.back();
+
         EventFactory::PopulateEventTruthParticleInfo(event, config, mcParticle, mcParticleToHitWeights, mcParticleMap, particle);
-        truth.particles.push_back(particle);
     }
 }
 
@@ -96,7 +97,7 @@ void EventFactory::PopulateEventTruthParticleInfo(const art::Event &event, const
     const auto end = mcParticle->EndPosition().Vect();
     particle.endX.Set(end.X());
     particle.endY.Set(end.Y());
-    particle.endX.Set(end.Z());
+    particle.endZ.Set(end.Z());
 
     particle.momentumX.Set(mcParticle->Px());
     particle.momentumY.Set(mcParticle->Py());
@@ -120,7 +121,7 @@ void EventFactory::PopulateEventTruthParticleInfo(const art::Event &event, const
     unsigned int nInelasticScatters = 0;
     
     std::vector<float> scatterCosThetas, scatterMomentumFracsLost;
-    std::vector<bool> scatterIsElastic;
+    std::vector<int> scatterIsElastic;
     
     for (const auto &scatter : scatters)
     {
@@ -129,7 +130,7 @@ void EventFactory::PopulateEventTruthParticleInfo(const art::Event &event, const
 
         scatterCosThetas.push_back(scatter.GetScatteringCosTheta());
         scatterMomentumFracsLost.push_back(scatter.GetMomentumFractionLost());
-        scatterIsElastic.push_back(scatter.m_isElastic);
+        scatterIsElastic.push_back(scatter.m_isElastic ? 1 : 0);
     }
 
     particle.nElasticScatters.Set(nElasticScatters);
@@ -219,9 +220,10 @@ void EventFactory::PopulateEventRecoInfo(const art::Event &event, const Config &
 
     for (const auto &pfParticle : finalStatePFParticles)
     {
-        Event::Reco::Particle particle;
+        reco.particles.emplace_back();
+        auto &particle = reco.particles.back();
+
         EventFactory::PopulateEventRecoParticleInfo(config, pfParticle, pfParticleMap, pfParticleToMetadata, pfParticleToHits, pfParticleToTracks, trackToPIDs, trackToCalorimetries, spacePoints, finalStateMCParticles, pBacktrackerData, nuVertex, particle);
-        reco.particles.push_back(particle);
     }
 }   
 
