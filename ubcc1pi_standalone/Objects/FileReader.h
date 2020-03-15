@@ -9,6 +9,7 @@
 
 #include "ubcc1pi_standalone/Interface/Event.h"
 
+#include <memory>
 #include <TFile.h>
 #include <TTree.h>
 
@@ -46,7 +47,7 @@ class FileReader
          *
          *  @return the address of the bound event
          */
-        Event * GetBoundEventAddress();
+        std::shared_ptr<Event> GetBoundEventAddress();
 
         /**
          *  @brief  Load the event with the supplied index
@@ -67,7 +68,7 @@ class FileReader
         TFile      *m_pFile;       ///< The input file
         TTree      *m_pEventTree;  ///< The input event tree
 
-        Event      *m_pEvent;       ///< The input event
+        std::shared_ptr<Event>  m_pEvent;       ///< The input event
 };
 
 } // namespace ubcc1pi

@@ -42,207 +42,221 @@
 #include <iomanip>
 #include <vector>
 #include <string>
+#include <memory>
 #include <TVector3.h>
+
+// In the definition of the members below the first two parameters (p, q) are used by later macros, the third parameter is a boolean which
+// should be true if ROOT needs the address of a pointer when setting branch addresses (for non-standard types). The fourth is the type of
+// the varaiable, and the fifth is the variable name itself
 
 // The event metadata members
 #define UBCC1PI_MACRO_EVENT_METADATA_MEMBERS(p, q, f)                                                                                      \
-    f(p, q, int,         run)                                                                                                              \
-    f(p, q, int,         subRun)                                                                                                           \
-    f(p, q, int,         event)                                                                                                            \
-    f(p, q, bool,        hasTruthInfo)                                                                                                     \
+    f(p, q, false, int,         run)                                                                                                       \
+    f(p, q, false, int,         subRun)                                                                                                    \
+    f(p, q, false, int,         event)                                                                                                     \
+    f(p, q, false, bool,        hasTruthInfo)                                                                                              \
 
 // The event truth information members
 #define UBCC1PI_MACRO_EVENT_TRUTH_MEMBERS(p, q, f)                                                                                         \
-    f(p, q, bool,                isCC)                                                                                                     \
-    f(p, q, int,                 interactionMode)                                                                                          \
-    f(p, q, std::string,         interactionString)                                                                                        \
-    f(p, q, int,                 nuPdgCode)                                                                                                \
-    f(p, q, float,               nuEnergy)                                                                                                 \
-    f(p, q, TVector3,            nuVertex)                                                                                                 \
-    f(p, q, int,                 nFinalStates)                                                                                             \
-    f(p, q, std::vector<float>,  slicePurities)                                                                                            \
-    f(p, q, std::vector<float>,  sliceCompletenesses)                                                                                      
+    f(p, q, false, bool,                isCC)                                                                                              \
+    f(p, q, false, int,                 interactionMode)                                                                                   \
+    f(p, q, true,  std::string,         interactionString)                                                                                 \
+    f(p, q, false, int,                 nuPdgCode)                                                                                         \
+    f(p, q, false, float,               nuEnergy)                                                                                          \
+    f(p, q, true,  TVector3,            nuVertex)                                                                                          \
+    f(p, q, false, int,                 nFinalStates)                                                                                      \
+    f(p, q, true,  std::vector<float>,  slicePurities)                                                                                     \
+    f(p, q, true,  std::vector<float>,  sliceCompletenesses)                                                                               
 
 // The event truth particle information members
 #define UBCC1PI_MACRO_EVENT_TRUTH_PARTICLE_MEMBERS(p, q, f)                                                                                \
-    f(p, q, int,                 pdgCode)                                                                                                  \
-    f(p, q, float,               startX)                                                                                                   \
-    f(p, q, float,               startY)                                                                                                   \
-    f(p, q, float,               startZ)                                                                                                   \
-    f(p, q, float,               endX)                                                                                                     \
-    f(p, q, float,               endY)                                                                                                     \
-    f(p, q, float,               endZ)                                                                                                     \
-    f(p, q, float,               momentumX)                                                                                                \
-    f(p, q, float,               momentumY)                                                                                                \
-    f(p, q, float,               momentumZ)                                                                                                \
-    f(p, q, float,               momentum)                                                                                                 \
-    f(p, q, float,               energy)                                                                                                   \
-    f(p, q, float,               mass)                                                                                                     \
-    f(p, q, float,               hitWeightU)                                                                                               \
-    f(p, q, float,               hitWeightV)                                                                                               \
-    f(p, q, float,               hitWeightW)                                                                                               \
-    f(p, q, int,                 nElasticScatters)                                                                                         \
-    f(p, q, int,                 nInelasticScatters)                                                                                       \
-    f(p, q, std::vector<float>,  scatterCosThetas)                                                                                         \
-    f(p, q, std::vector<float>,  scatterMomentumFracsLost)                                                                                 \
-    f(p, q, std::vector<bool>,   scatterIsElastic)                                                                                         \
-    f(p, q, float,               scatteredMomentum)                                                                                        \
-    f(p, q, float,               endMomentum)                                                                                              \
-    f(p, q, bool,                isStopping)                                                                                               \
-    f(p, q, int,                 endState)                                                                                                 \
-    f(p, q, float,               endStateProductsHitWeightU)                                                                               \
-    f(p, q, float,               endStateProductsHitWeightV)                                                                               \
-    f(p, q, float,               endStateProductsHitWeightW)                                                                               
-
+    f(p, q, false, int,                 pdgCode)                                                                                           \
+    f(p, q, false, float,               startX)                                                                                            \
+    f(p, q, false, float,               startY)                                                                                            \
+    f(p, q, false, float,               startZ)                                                                                            \
+    f(p, q, false, float,               endX)                                                                                              \
+    f(p, q, false, float,               endY)                                                                                              \
+    f(p, q, false, float,               endZ)                                                                                              \
+    f(p, q, false, float,               momentumX)                                                                                         \
+    f(p, q, false, float,               momentumY)                                                                                         \
+    f(p, q, false, float,               momentumZ)                                                                                         \
+    f(p, q, false, float,               momentum)                                                                                          \
+    f(p, q, false, float,               energy)                                                                                            \
+    f(p, q, false, float,               mass)                                                                                              \
+    f(p, q, false, float,               hitWeightU)                                                                                        \
+    f(p, q, false, float,               hitWeightV)                                                                                        \
+    f(p, q, false, float,               hitWeightW)                                                                                        \
+    f(p, q, false, int,                 nElasticScatters)                                                                                  \
+    f(p, q, false, int,                 nInelasticScatters)                                                                                \
+    f(p, q, false, std::vector<float>,  scatterCosThetas)                                                                                  \
+    f(p, q, false, std::vector<float>,  scatterMomentumFracsLost)                                                                          \
+    f(p, q, false, std::vector<int>,    scatterIsElastic)                                                                                  \
+    f(p, q, false, float,               scatteredMomentum)                                                                                 \
+    f(p, q, false, float,               endMomentum)                                                                                       \
+    f(p, q, false, bool,                isStopping)                                                                                        \
+    f(p, q, false, int,                 endState)                                                                                          \
+    f(p, q, false, float,               endStateProductsHitWeightU)                                                                        \
+    f(p, q, false, float,               endStateProductsHitWeightV)                                                                        \
+    f(p, q, false, float,               endStateProductsHitWeightW)                                                                        
+    
 // The event reco information members
 #define UBCC1PI_MACRO_EVENT_RECO_MEMBERS(p, q, f)                                                                                          \
-    f(p, q, int,                 nSlices)                                                                                                  \
-    f(p, q, bool,                hasSelectedSlice)                                                                                         \
-    f(p, q, float,               selectedTopologicalScore)                                                                                 \
-    f(p, q, std::vector<float>,  sliceTopologicalScores)                                                                                   \
-    f(p, q, std::vector<bool>,   sliceIsSelectedAsNu)                                                                                      \
-    f(p, q, bool,                hasNeutrino)                                                                                              \
-    f(p, q, int,                 nuPdgCode)                                                                                                \
-    f(p, q, TVector3,            nuVertex)                                                                                                 \
-    f(p, q, int,                 nFinalStates)                                                                                                       
+    f(p, q, false, int,                 nSlices)                                                                                           \
+    f(p, q, false, bool,                hasSelectedSlice)                                                                                  \
+    f(p, q, false, float,               selectedTopologicalScore)                                                                          \
+    f(p, q, true,  std::vector<float>,  sliceTopologicalScores)                                                                            \
+    f(p, q, true,  std::vector<bool>,   sliceIsSelectedAsNu)                                                                               \
+    f(p, q, false, bool,                hasNeutrino)                                                                                       \
+    f(p, q, false, int,                 nuPdgCode)                                                                                         \
+    f(p, q, true,  TVector3,            nuVertex)                                                                                          \
+    f(p, q, false, int,                 nFinalStates)                                                                                                
 
 // The event reco particle information members
 #define UBCC1PI_MACRO_EVENT_RECO_PARTICLE_MEMBERS(p, q, f)                                                                                 \
-    f(p, q, int,                 pdgCode)                                                                                                  \
-    f(p, q, int,                 nHitsU)                                                                                                   \
-    f(p, q, int,                 nHitsV)                                                                                                   \
-    f(p, q, int,                 nHitsW)                                                                                                   \
-    f(p, q, int,                 nDaughters)                                                                                               \
-    f(p, q, int,                 nDescendents)                                                                                             \
-    f(p, q, int,                 nDescendentHitsU)                                                                                         \
-    f(p, q, int,                 nDescendentHitsV)                                                                                         \
-    f(p, q, int,                 nDescendentHitsW)                                                                                         \
-    f(p, q, int,                 nHitsInLargestDescendent)                                                                                 \
-    f(p, q, float,               trackScore)                                                                                               \
-    f(p, q, float,               startX)                                                                                                   \
-    f(p, q, float,               startY)                                                                                                   \
-    f(p, q, float,               startZ)                                                                                                   \
-    f(p, q, float,               endX)                                                                                                     \
-    f(p, q, float,               endY)                                                                                                     \
-    f(p, q, float,               endZ)                                                                                                     \
-    f(p, q, float,               directionX)                                                                                               \
-    f(p, q, float,               directionY)                                                                                               \
-    f(p, q, float,               directionZ)                                                                                               \
-    f(p, q, float,               yzAngle)                                                                                                  \
-    f(p, q, float,               xyAngle)                                                                                                  \
-    f(p, q, float,               xzAngle)                                                                                                  \
-    f(p, q, float,               length)                                                                                                   \
-    f(p, q, float,               range)                                                                                                    \
-    f(p, q, float,               transverseVertexDist)                                                                                     \
-    f(p, q, float,               longitudinalVertexDist)                                                                                   \
-    f(p, q, float,               wiggliness)                                                                                               \
-    f(p, q, int,                 nSpacePointsNearEnd)                                                                                      \
-    f(p, q, float,               likelihoodForwardMuonU)                                                                                   \
-    f(p, q, float,               likelihoodForwardMuonV)                                                                                   \
-    f(p, q, float,               likelihoodForwardMuonW)                                                                                   \
-    f(p, q, float,               likelihoodForwardMuon)                                                                                    \
-    f(p, q, float,               likelihoodBackwardMuonU)                                                                                  \
-    f(p, q, float,               likelihoodBackwardMuonV)                                                                                  \
-    f(p, q, float,               likelihoodBackwardMuonW)                                                                                  \
-    f(p, q, float,               likelihoodBackwardMuon)                                                                                   \
-    f(p, q, float,               likelihoodForwardPionU)                                                                                   \
-    f(p, q, float,               likelihoodForwardPionV)                                                                                   \
-    f(p, q, float,               likelihoodForwardPionW)                                                                                   \
-    f(p, q, float,               likelihoodForwardPion)                                                                                    \
-    f(p, q, float,               likelihoodBackwardPionU)                                                                                  \
-    f(p, q, float,               likelihoodBackwardPionV)                                                                                  \
-    f(p, q, float,               likelihoodBackwardPionW)                                                                                  \
-    f(p, q, float,               likelihoodBackwardPion)                                                                                   \
-    f(p, q, float,               likelihoodForwardProtonU)                                                                                 \
-    f(p, q, float,               likelihoodForwardProtonV)                                                                                 \
-    f(p, q, float,               likelihoodForwardProtonW)                                                                                 \
-    f(p, q, float,               likelihoodForwardProton)                                                                                  \
-    f(p, q, float,               likelihoodBackwardProtonU)                                                                                \
-    f(p, q, float,               likelihoodBackwardProtonV)                                                                                \
-    f(p, q, float,               likelihoodBackwardProtonW)                                                                                \
-    f(p, q, float,               likelihoodBackwardProton)                                                                                 \
-    f(p, q, float,               likelihoodMIPU)                                                                                           \
-    f(p, q, float,               likelihoodMIPV)                                                                                           \
-    f(p, q, float,               likelihoodMIPW)                                                                                           \
-    f(p, q, float,               likelihoodMIP)                                                                                            \
-    f(p, q, float,               truncatedMeandEdxU)                                                                                       \
-    f(p, q, float,               truncatedMeandEdxV)                                                                                       \
-    f(p, q, float,               truncatedMeandEdxW)                                                                                       \
-    f(p, q, float,               truncatedMeandEdx)                                                                                        \
-    f(p, q, std::vector<float>,  truthMatchPurities)                                                                                       \
-    f(p, q, std::vector<float>,  truthMatchCompletenesses)                                                                                 \
-    f(p, q, bool,                hasMatchedMCParticle)                                                                                     \
-    f(p, q, int,                 bestMatchedMCParticleIndex)                                                                                
-
+    f(p, q, false, int,                 pdgCode)                                                                                           \
+    f(p, q, false, int,                 nHitsU)                                                                                            \
+    f(p, q, false, int,                 nHitsV)                                                                                            \
+    f(p, q, false, int,                 nHitsW)                                                                                            \
+    f(p, q, false, int,                 nDaughters)                                                                                        \
+    f(p, q, false, int,                 nDescendents)                                                                                      \
+    f(p, q, false, int,                 nDescendentHitsU)                                                                                  \
+    f(p, q, false, int,                 nDescendentHitsV)                                                                                  \
+    f(p, q, false, int,                 nDescendentHitsW)                                                                                  \
+    f(p, q, false, int,                 nHitsInLargestDescendent)                                                                          \
+    f(p, q, false, float,               trackScore)                                                                                        \
+    f(p, q, false, float,               startX)                                                                                            \
+    f(p, q, false, float,               startY)                                                                                            \
+    f(p, q, false, float,               startZ)                                                                                            \
+    f(p, q, false, float,               endX)                                                                                              \
+    f(p, q, false, float,               endY)                                                                                              \
+    f(p, q, false, float,               endZ)                                                                                              \
+    f(p, q, false, float,               directionX)                                                                                        \
+    f(p, q, false, float,               directionY)                                                                                        \
+    f(p, q, false, float,               directionZ)                                                                                        \
+    f(p, q, false, float,               yzAngle)                                                                                           \
+    f(p, q, false, float,               xyAngle)                                                                                           \
+    f(p, q, false, float,               xzAngle)                                                                                           \
+    f(p, q, false, float,               length)                                                                                            \
+    f(p, q, false, float,               range)                                                                                             \
+    f(p, q, false, float,               transverseVertexDist)                                                                              \
+    f(p, q, false, float,               longitudinalVertexDist)                                                                            \
+    f(p, q, false, float,               wiggliness)                                                                                        \
+    f(p, q, false, int,                 nSpacePointsNearEnd)                                                                               \
+    f(p, q, false, float,               likelihoodForwardMuonU)                                                                            \
+    f(p, q, false, float,               likelihoodForwardMuonV)                                                                            \
+    f(p, q, false, float,               likelihoodForwardMuonW)                                                                            \
+    f(p, q, false, float,               likelihoodForwardMuon)                                                                             \
+    f(p, q, false, float,               likelihoodBackwardMuonU)                                                                           \
+    f(p, q, false, float,               likelihoodBackwardMuonV)                                                                           \
+    f(p, q, false, float,               likelihoodBackwardMuonW)                                                                           \
+    f(p, q, false, float,               likelihoodBackwardMuon)                                                                            \
+    f(p, q, false, float,               likelihoodForwardPionU)                                                                            \
+    f(p, q, false, float,               likelihoodForwardPionV)                                                                            \
+    f(p, q, false, float,               likelihoodForwardPionW)                                                                            \
+    f(p, q, false, float,               likelihoodForwardPion)                                                                             \
+    f(p, q, false, float,               likelihoodBackwardPionU)                                                                           \
+    f(p, q, false, float,               likelihoodBackwardPionV)                                                                           \
+    f(p, q, false, float,               likelihoodBackwardPionW)                                                                           \
+    f(p, q, false, float,               likelihoodBackwardPion)                                                                            \
+    f(p, q, false, float,               likelihoodForwardProtonU)                                                                          \
+    f(p, q, false, float,               likelihoodForwardProtonV)                                                                          \
+    f(p, q, false, float,               likelihoodForwardProtonW)                                                                          \
+    f(p, q, false, float,               likelihoodForwardProton)                                                                           \
+    f(p, q, false, float,               likelihoodBackwardProtonU)                                                                         \
+    f(p, q, false, float,               likelihoodBackwardProtonV)                                                                         \
+    f(p, q, false, float,               likelihoodBackwardProtonW)                                                                         \
+    f(p, q, false, float,               likelihoodBackwardProton)                                                                          \
+    f(p, q, false, float,               likelihoodMIPU)                                                                                    \
+    f(p, q, false, float,               likelihoodMIPV)                                                                                    \
+    f(p, q, false, float,               likelihoodMIPW)                                                                                    \
+    f(p, q, false, float,               likelihoodMIP)                                                                                     \
+    f(p, q, false, float,               truncatedMeandEdxU)                                                                                \
+    f(p, q, false, float,               truncatedMeandEdxV)                                                                                \
+    f(p, q, false, float,               truncatedMeandEdxW)                                                                                \
+    f(p, q, false, float,               truncatedMeandEdx)                                                                                 \
+    f(p, q, false, std::vector<float>,  truthMatchPurities)                                                                                \
+    f(p, q, false, std::vector<float>,  truthMatchCompletenesses)                                                                          \
+    f(p, q, false, bool,                hasMatchedMCParticle)                                                                              \
+    f(p, q, false, int,                 bestMatchedMCParticleIndex)                                                                         
 
 // =========================================================================================================================================
 
 // The macros that come below are all envokes with one of the above member lists
 //     p = a prefix to a the variable name in the list (e.g. "metadata_run" is a branch added to the output trees)
 //     q = an object that owns the member variable (e.g. truth.nuPdgCode)
+//     r = if root needs to use the address of a pointer when setting branch addresses
 //     t = the type of the member variable (e.g. int)
 //     n = the name of the member variable (e.g. run)
 
 // Define a macro that declares a member variable and an associated boolean to check if that variable has been set
-#define UBCC1PI_MACRO_DECLARE_MEMBER(p, q, t, n)                                                                                           \
+#define UBCC1PI_MACRO_DECLARE_MEMBER(p, q, r, t, n)                                                                                        \
     Member<t> n;
 
 // Define a macro that declares a member vector, used to bind particles to vectors in trees
-#define UBCC1PI_MACRO_DECLARE_MEMBER_VECTOR(p, q, t, n)                                                                                    \
-    std::vector<t> p##_##n##_vect;                                                                                                         \
-    std::vector<bool> p##_##n##_isSet_vect;
+#define UBCC1PI_MACRO_DECLARE_MEMBER_VECTOR(p, q, r, t, n)                                                                                 \
+    std::shared_ptr< std::vector<t> > p##_##n##_vect;                                                                                      \
+    std::shared_ptr< std::vector<bool> > p##_##n##_isSet_vect;                                                                             \
+    std::vector<t> * p##_##n##_inputVect;                                                                                                  \
+    std::vector<bool> * p##_##n##_isSet_inputVect;
+
+// Define a macro that initializes the member vectors
+#define UBCC1PI_MACRO_INIT_MEMBER_VECTOR(p, q, r, t, n)                                                                                    \
+    p##_##n##_vect = std::make_shared< std::vector<t> >();                                                                                 \
+    p##_##n##_isSet_vect = std::make_shared< std::vector<bool> >();                                                                        \
+    p##_##n##_inputVect = nullptr;                                                                                                         \
+    p##_##n##_isSet_inputVect = nullptr;
 
 // Define a macro that resets a member variable
-#define UBCC1PI_MACRO_RESET_MEMBER(p, q, t, n)                                                                                             \
+#define UBCC1PI_MACRO_RESET_MEMBER(p, q, r, t, n)                                                                                          \
     q.n.Reset();
 
 // Define a macro that resets a member vector
-#define UBCC1PI_MACRO_RESET_MEMBER_VECTOR(p, q, t, n)                                                                                      \
-    p##_##n##_vect.clear();                                                                                                                \
-    p##_##n##_isSet_vect.clear();
+#define UBCC1PI_MACRO_RESET_MEMBER_VECTOR(p, q, r, t, n)                                                                                   \
+    p##_##n##_vect->clear();                                                                                                               \
+    p##_##n##_isSet_vect->clear();
 
 // Define a macro that fills the output vectors
-#define UBCC1PI_MACRO_FILL_MEMBER_VECTOR(p, q, t, n)                                                                                       \
-    p##_##n##_vect.push_back(q.n.m_value);                                                                                                 \
-    p##_##n##_isSet_vect.push_back(q.n.m_isSet);
+#define UBCC1PI_MACRO_FILL_MEMBER_VECTOR(p, q, r, t, n)                                                                                    \
+    p##_##n##_vect->push_back(*q.n.m_pValue);                                                                                              \
+    p##_##n##_isSet_vect->push_back(q.n.m_isSet);
 
 // Define a macro that reads the vectors in the tree
-#define UBCC1PI_MACRO_READ_MEMBER_VECTOR(p, q, t, n)                                                                                       \
-    for (unsigned int i = 0; i < p##_##n##_vect.size(); ++i)                                                                               \
+#define UBCC1PI_MACRO_READ_MEMBER_VECTOR(p, q, r, t, n)                                                                                    \
+    for (unsigned int i = 0; i < p##_##n##_inputVect->size(); ++i)                                                                         \
     {                                                                                                                                      \
-        if (p##_##n##_isSet_vect.at(i))                                                                                                    \
-            q.at(i).n.Set(p##_##n##_vect.at(i));                                                                                             \
+        if (p##_##n##_isSet_inputVect->at(i))                                                                                              \
+            q.at(i).n.Set(p##_##n##_inputVect->at(i));                                                                                     \
     }                                                                                                                                      
 
 // Define a macro to count the size of the member vector
 //    here q will receive the size of the vector
-#define UBCC1PI_MACRO_GET_MEMBER_VECTOR_SIZE(p, q, t, n)                                                                                   \
-    (*(q)) = p##_##n##_vect.size();                                                                                                        
+#define UBCC1PI_MACRO_GET_MEMBER_VECTOR_SIZE(p, q, r, t, n)                                                                                \
+    *q = p##_##n##_inputVect->size();                                                                                                       
 
 // Define a macro that prints each of the member variables
-#define UBCC1PI_MACRO_PRINT_MEMBER(p, q, t, n)                                                                                             \
+#define UBCC1PI_MACRO_PRINT_MEMBER(p, q, r, t, n)                                                                                          \
     std::cout << std::setw(24) << "(" #t ")" << "  ";                                                                                      \
     std::cout << std::setw(40) << (#q "." #n "()") << "  ";                                                                                \
     std::cout << q.n.ToString() << std::endl;                                                                                              
 
 // Define a macro to bind a member variable to an output branch
-#define UBCC1PI_MACRO_BIND_OUTPUT_BRANCH(p, q, t, n)                                                                                       \
-    pTree->Branch(#p "_" #n, &q.n.m_value);                                                                                                \
+#define UBCC1PI_MACRO_BIND_OUTPUT_BRANCH(p, q, r, t, n)                                                                                    \
+    pTree->Branch(#p "_" #n, q.n.m_pValue.get());                                                                                          \
     pTree->Branch(#p "_" #n "_isSet", &q.n.m_isSet);
 
 // Define a macro to bind a member variable to an output vector branch
-#define UBCC1PI_MACRO_BIND_OUTPUT_VECTOR_BRANCH(p, q, t, n)                                                                                \
-    pTree->Branch(#p "_" #n "_vect", &p##_##n##_vect);                                                                                     \
-    pTree->Branch(#p "_" #n "_isSet_vect", &p##_##n##_isSet_vect);
+#define UBCC1PI_MACRO_BIND_OUTPUT_VECTOR_BRANCH(p, q, r, t, n)                                                                             \
+    pTree->Branch(#p "_" #n "_vect", p##_##n##_vect.get());                                                                                \
+    pTree->Branch(#p "_" #n "_isSet_vect", p##_##n##_isSet_vect.get());
 
 // Define a macro to bind a member variable to an input branch
-#define UBCC1PI_MACRO_BIND_INPUT_BRANCH(p, q, t, n)                                                                                        \
-    pTree->SetBranchAddress(#p "_" #n, &q.n.m_value);                                                                                      \
-    pTree->SetBranchAddress(#p "_" #n "_isSet", &q.n.m_isSet);
-
+#define UBCC1PI_MACRO_BIND_INPUT_BRANCH(p, q, r, t, n)                                                                                     \
+    pTree->SetBranchAddress(#p "_" #n "_isSet", &q.n.m_isSet);                                                                             \
+    if (r) {pTree->SetBranchAddress(#p "_" #n, &(q.n.m_pAddress));} else {pTree->SetBranchAddress(#p "_" #n, q.n.m_pAddress);}
+    
 // Define a macro to bind a member variable to an input vector branch
-#define UBCC1PI_MACRO_BIND_INPUT_VECTOR_BRANCH(p, q, t, n)                                                                                 \
-    pTree->SetBranchAddress(#p "_" #n "_vect", &p##_##n##_vect);                                                                           \
-    pTree->SetBranchAddress(#p "_" #n "_isSet_vect", &p##_##n##_isSet_vect);
+#define UBCC1PI_MACRO_BIND_INPUT_VECTOR_BRANCH(p, q, r, t, n)                                                                              \
+    pTree->SetBranchAddress(#p "_" #n "_vect", &p##_##n##_inputVect);                                                                      \
+    pTree->SetBranchAddress(#p "_" #n "_isSet_vect", &p##_##n##_isSet_inputVect);
 
 #endif

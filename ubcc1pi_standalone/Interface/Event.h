@@ -14,6 +14,7 @@
 #include <limits>
 #include <string>
 #include <vector>
+#include <memory>
 
 #include <TTree.h>
 
@@ -27,6 +28,11 @@ class EventFactory;
 class Event
 {
     public:
+
+        /**
+         *  @brief  Constructor
+         */
+        Event();
 
         /**
          *  @brief  Print the member variables to the terminal
@@ -44,18 +50,6 @@ class Event
                  *  @brief  Default constructor
                  */
                 Member();
-
-                /**
-                 *  @brief  Set the value of the member
-                 *
-                 *  @param  value the value to set
-                 */
-                void Set(const T &value);
-                
-                /**
-                 *  @brief  Reset the member value to default
-                 */
-                void Reset();
                 
                 /**
                  *  @brief  Returns if this member has been set
@@ -69,18 +63,32 @@ class Event
                  *
                  *  @return the value
                  */
-                const T &Get() const;
+                const T Get() const;
 
                 /**
                  *  @brief  Overload the () operator as a shorthand Get()
                  */
-                const T &operator()() const;
+                const T operator()() const;
 
             private:
 
                 // Allow the event class to access private members of this class, all other classes will have to go through the public
                 // accessor functions Get() and Set()
                 friend class Event;
+                friend class EventFactory;
+                
+                /**
+                 *  @brief  Set the value of the member
+                 *
+                 *  @param  value the value to set
+                 */
+                void Set(const T &value);
+                
+                /**
+                 *  @brief  Reset the member value to default
+                 */
+                void Reset();
+                
  
                 /**
                  *  @brief  Set the input value to default
@@ -96,8 +104,9 @@ class Event
                  */
                 std::string ToString() const;
 
-                T     m_value; ///< The value of the member
-                bool  m_isSet; ///< If the value has been set
+                std::shared_ptr<T>   m_pValue;        ///< The value of the member
+                T                   *m_pAddress;      ///< The address owned by the shared_ptr needed by root... sigh
+                bool                 m_isSet;         ///< If the value has been set
         };
 
         /**
@@ -192,7 +201,9 @@ class Event
 // -----------------------------------------------------------------------------------------------------------------------------------------
 
 template <typename T>
-inline Event::Member<T>::Member()
+Event::Member<T>::Member() :
+    m_pValue(std::make_shared<T>()),
+    m_pAddress(m_pValue.get())
 {
     this->Reset();
 }   
@@ -210,17 +221,17 @@ inline bool Event::Member<T>::IsSet() const
 template <typename T>
 inline void Event::Member<T>::Set(const T &value)
 {
-    m_value = value;
+    *m_pValue = value;
     m_isSet = true;
 }
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
 
 template <typename T>
-inline const T & Event::Member<T>::Get() const
+inline const T Event::Member<T>::Get() const
 {
     if (this->IsSet())
-        return m_value;
+        return *m_pValue;
 
     throw std::logic_error("You are trying to access a member value of ubcc1pi::Event that hasn't been set");
 }
@@ -228,7 +239,7 @@ inline const T & Event::Member<T>::Get() const
 // -----------------------------------------------------------------------------------------------------------------------------------------
 
 template <typename T>        
-inline const T & Event::Member<T>::operator()() const
+inline const T Event::Member<T>::operator()() const
 {
     return this->Get();
 }
@@ -247,7 +258,7 @@ inline void Event::Member<T>::Reset()
 template <>
 inline void Event::Member<bool>::SetDefault()
 {
-    m_value = false;
+    *m_pValue =  false;
 }
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
@@ -255,14 +266,14 @@ inline void Event::Member<bool>::SetDefault()
 template <>
 inline void Event::Member<int>::SetDefault()
 {
-    m_value = -std::numeric_limits<int>::max();
+    *m_pValue =  -std::numeric_limits<int>::max();
 }
 // -----------------------------------------------------------------------------------------------------------------------------------------
 
 template <>
 inline void Event::Member<float>::SetDefault()
 {
-    m_value = -std::numeric_limits<float>::max();
+    *m_pValue =  -std::numeric_limits<float>::max();
 }
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
@@ -270,7 +281,7 @@ inline void Event::Member<float>::SetDefault()
 template <>
 inline void Event::Member<std::string>::SetDefault()
 {
-    m_value = "";
+    *m_pValue =  "";
 }
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
@@ -278,7 +289,7 @@ inline void Event::Member<std::string>::SetDefault()
 template <>
 inline void Event::Member<TVector3>::SetDefault()
 {
-    m_value.SetXYZ(-std::numeric_limits<float>::max(), -std::numeric_limits<float>::max(), -std::numeric_limits<float>::max());
+    m_pValue->SetXYZ(-std::numeric_limits<float>::max(), -std::numeric_limits<float>::max(), -std::numeric_limits<float>::max());
 }
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
@@ -286,7 +297,7 @@ inline void Event::Member<TVector3>::SetDefault()
 template <>
 inline void Event::Member< std::vector<float> >::SetDefault()
 {
-    m_value.clear();
+    m_pValue->clear();
 }
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
@@ -294,7 +305,15 @@ inline void Event::Member< std::vector<float> >::SetDefault()
 template <>
 inline void Event::Member< std::vector<bool> >::SetDefault()
 {
-    m_value.clear();
+    m_pValue->clear();
+}
+
+// -----------------------------------------------------------------------------------------------------------------------------------------
+
+template <>
+inline void Event::Member< std::vector<int> >::SetDefault()
+{
+    m_pValue->clear();
 }
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
@@ -305,7 +324,7 @@ inline std::string Event::Member<bool>::ToString() const
     if (!this->IsSet())
         return "?";
 
-    return m_value ? "true" : "false";
+    return this->Get() ? "true" : "false";
 }
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
@@ -316,7 +335,7 @@ inline std::string Event::Member<int>::ToString() const
     if (!this->IsSet())
         return "?";
 
-    return std::to_string(m_value);
+    return std::to_string(this->Get());
 }
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
@@ -327,7 +346,7 @@ inline std::string Event::Member<float>::ToString() const
     if (!this->IsSet())
         return "?";
 
-    return std::to_string(m_value);
+    return std::to_string(this->Get());
 }
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
@@ -338,7 +357,7 @@ inline std::string Event::Member<std::string>::ToString() const
     if (!this->IsSet())
         return "?";
 
-    return m_value;
+    return this->Get();
 }
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
@@ -349,7 +368,8 @@ inline std::string Event::Member<TVector3>::ToString() const
     if (!this->IsSet())
         return "?";
 
-    return ("(" + std::to_string(m_value.X()) + ", " + std::to_string(m_value.Y()) + ", " + std::to_string(m_value.Z()) + ")");
+    const auto value = this->Get();
+    return ("(" + std::to_string(value.X()) + ", " + std::to_string(value.Y()) + ", " + std::to_string(value.Z()) + ")");
 }
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
@@ -360,8 +380,9 @@ inline std::string Event::Member< std::vector<float> >::ToString() const
     if (!this->IsSet())
         return "?";
 
-    std::string str = "[" + std::to_string(m_value.size()) + "]  ";
-    for (const auto &entry : m_value)
+    const auto value = this->Get();
+    std::string str = "[" + std::to_string(value.size()) + "]  ";
+    for (const auto &entry : value)
         str += std::to_string(entry) + "  ";
 
     return str;
@@ -375,9 +396,26 @@ inline std::string Event::Member< std::vector<bool> >::ToString() const
     if (!this->IsSet())
         return "?";
 
-    std::string str = "[" + std::to_string(m_value.size()) + "]  ";
-    for (const auto &entry : m_value)
+    const auto value = this->Get();
+    std::string str = "[" + std::to_string(value.size()) + "]  ";
+    for (const auto &entry : value)
         str += std::string(entry ? "true" : "false") + "  ";
+
+    return str;
+}
+
+// -----------------------------------------------------------------------------------------------------------------------------------------
+
+template <>
+inline std::string Event::Member< std::vector<int> >::ToString() const
+{
+    if (!this->IsSet())
+        return "?";
+
+    const auto value = this->Get();
+    std::string str = "[" + std::to_string(value.size()) + "]  ";
+    for (const auto &entry : value)
+        str += std::to_string(entry) + "  ";
 
     return str;
 }

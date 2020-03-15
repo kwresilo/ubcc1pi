@@ -8,7 +8,15 @@
 
 namespace ubcc1pi
 {
-        
+
+Event::Event()
+{
+    UBCC1PI_MACRO_EVENT_TRUTH_PARTICLE_MEMBERS(truth_particle, "", UBCC1PI_MACRO_INIT_MEMBER_VECTOR)
+    UBCC1PI_MACRO_EVENT_RECO_PARTICLE_MEMBERS(reco_particle, "", UBCC1PI_MACRO_INIT_MEMBER_VECTOR)
+}
+
+// -----------------------------------------------------------------------------------------------------------------------------------------
+
 void Event::Print() const
 {
     std::cout << std::string(80, '=') << std::endl;
@@ -101,13 +109,13 @@ void Event::PrepareAfterTreeRead()
 {
     unsigned int nTruthParticles;
     UBCC1PI_MACRO_EVENT_TRUTH_PARTICLE_MEMBERS(truth_particle, &nTruthParticles, UBCC1PI_MACRO_GET_MEMBER_VECTOR_SIZE)
-
+    
     truth.particles.resize(nTruthParticles);
     UBCC1PI_MACRO_EVENT_TRUTH_PARTICLE_MEMBERS(truth_particle, truth.particles, UBCC1PI_MACRO_READ_MEMBER_VECTOR)
     
     unsigned int nRecoParticles;
     UBCC1PI_MACRO_EVENT_RECO_PARTICLE_MEMBERS(reco_particle, &nRecoParticles, UBCC1PI_MACRO_GET_MEMBER_VECTOR_SIZE)
-
+    
     reco.particles.resize(nRecoParticles);
     UBCC1PI_MACRO_EVENT_RECO_PARTICLE_MEMBERS(reco_particle, reco.particles, UBCC1PI_MACRO_READ_MEMBER_VECTOR)
 }
