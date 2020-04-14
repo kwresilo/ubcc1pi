@@ -23,9 +23,13 @@ AnalysisFileWriter::AnalysisFileWriter(const art::EDAnalyzer::Table<Config> &con
 
 void AnalysisFileWriter::analyze(const art::Event &event)
 {
+    std::cout << "DEBUG - Populating event" << std::endl;
     EventFactory::PopulateEvent(event, m_eventConfig, m_pEvent);
 
+    std::cout << "DEBUG - Printing event" << std::endl;
     m_pEvent->Print();
+    
+    std::cout << "DEBUG - Filling event" << std::endl;
     m_writer.FillEvent();
 }
 
@@ -34,9 +38,13 @@ void AnalysisFileWriter::analyze(const art::Event &event)
         
 void AnalysisFileWriter::endSubRun(const art::SubRun &subrun)
 {
+    std::cout << "DEBUG - Populating subrun" << std::endl;
     SubrunFactory::PopulateSubrun(subrun, m_subrunConfig, m_pSubrun);
 
+    std::cout << "DEBUG - Printing subrun" << std::endl;
     m_pSubrun->Print();
+    
+    std::cout << "DEBUG - Filling subrun" << std::endl;
     m_writer.FillSubrun();
 }
 

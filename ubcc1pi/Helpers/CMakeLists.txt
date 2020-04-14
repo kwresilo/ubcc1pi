@@ -15,6 +15,7 @@ art_make(
         nusimdata_SimulationBase
         lardataobj_RecoBase
         lardataobj_AnalysisBase
+        larsim_EventWeight_Base
         art_Framework_Principal
         art_Persistency_Common
         larevt_SpaceChargeServices_SpaceChargeServiceStandard_service

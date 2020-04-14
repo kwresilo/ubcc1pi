@@ -52,6 +52,47 @@ void EventFactory::PopulateEventTruthInfo(const art::Event &event, const Config 
     // Fill the slice information
     EventFactory::PopulateEventTruthSliceInfo(event, config, truth);
 
+    // Get the event weight information
+    if (config.GetEventWeights())
+    {
+        const auto mcEventWeights = CollectionHelper::GetCollection<evwgh::MCEventWeight>(event, config.MCEventWeightLabel());
+
+        if (!mcEventWeights.empty())
+        {
+            const auto &mcEventWeight = mcEventWeights.front();
+
+            for (const auto &entry : mcEventWeight->fWeight)
+            {
+                const auto &label = entry.first;
+                const auto &weights = entry.second;
+
+                if (label == "splines_general_Spline")
+                {
+                    if (truth.splineEventWeight.IsSet())
+                        throw cet::exception("EventFactory::PopulateEventTruthInfo") << " - Found multiple spline event weight entries." << std::endl;
+
+                    if (weights.size() > 1)
+                        throw cet::exception("EventFactory::PopulateEventTruthInfo") << " - Found multiple spline event weights." << std::endl;
+
+                    if (!weights.empty())
+                        truth.splineEventWeight.Set(weights.front());
+                }
+                
+                if (label == "TunedCentralValue_Genie")
+                {
+                    if (truth.genieTuneEventWeight.IsSet())
+                        throw cet::exception("EventFactory::PopulateEventTruthInfo") << " - Found multiple genie tune event weight entries." << std::endl;
+
+                    if (weights.size() > 1)
+                        throw cet::exception("EventFactory::PopulateEventTruthInfo") << " - Found multiple genie tune event weights." << std::endl;
+
+                    if (!weights.empty())
+                        truth.genieTuneEventWeight.Set(weights.front());
+                }
+            }
+        }
+    }
+
     // Get the generator level interaction
     const TruthHelper::Interaction interaction(event, config.MCTruthLabel(), config.MCParticleLabel());
     
@@ -175,6 +216,9 @@ void EventFactory::PopulateEventRecoInfo(const art::Event &event, const Config &
     // Fill the slice information
     EventFactory::PopulateEventRecoSliceInfo(event, config, reco);
 
+    // Start by assuming the event doesn't pass the selection
+    reco.passesCCInclusive.Set(false);
+
     // Find the neutrino PFParticle
     const auto allPFParticles = CollectionHelper::GetCollection<recob::PFParticle>(event, config.PFParticleLabel());
     const auto neutrinos = RecoHelper::GetNeutrinos(allPFParticles);
@@ -211,6 +255,7 @@ void EventFactory::PopulateEventRecoInfo(const art::Event &event, const Config &
 
     // Create the output reco particles
     const auto pfParticleMap = RecoHelper::GetPFParticleMap(allPFParticles);
+    const auto pfParticleToT0s = CollectionHelper::GetAssociation<recob::PFParticle, anab::T0>(event, config.PFParticleLabel(), config.CCInclusiveLabel());
     const auto pfParticleToMetadata = CollectionHelper::GetAssociation<recob::PFParticle, larpandoraobj::PFParticleMetadata>(event, config.PFParticleLabel(), config.PFParticleLabel());
     const auto pfParticleToTracks = CollectionHelper::GetAssociation<recob::PFParticle, recob::Track>(event, config.PFParticleLabel(), config.TrackLabel());
     const auto pfParticleToHits = CollectionHelper::GetAssociationViaCollection<recob::PFParticle, recob::Cluster, recob::Hit>(event, config.PFParticleLabel(), config.PFParticleLabel(), config.PFParticleLabel());
@@ -223,17 +268,23 @@ void EventFactory::PopulateEventRecoInfo(const art::Event &event, const Config &
         reco.particles.emplace_back();
         auto &particle = reco.particles.back();
 
-        EventFactory::PopulateEventRecoParticleInfo(config, pfParticle, pfParticleMap, pfParticleToMetadata, pfParticleToHits, pfParticleToTracks, trackToPIDs, trackToCalorimetries, spacePoints, finalStateMCParticles, pBacktrackerData, nuVertex, particle);
+        EventFactory::PopulateEventRecoParticleInfo(config, pfParticle, pfParticleMap, pfParticleToT0s, pfParticleToMetadata, pfParticleToHits, pfParticleToTracks, trackToPIDs, trackToCalorimetries, spacePoints, finalStateMCParticles, pBacktrackerData, nuVertex, particle);
+
+        // If we have a muon candidate from the CC inclusive selection, then this event passed
+        if (particle.isCCInclusiveMuonCandidate())
+            reco.passesCCInclusive.Set(true);
     }
 }   
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
 
-void EventFactory::PopulateEventRecoParticleInfo(const Config &config, const art::Ptr<recob::PFParticle> &pfParticle, const PFParticleMap &pfParticleMap, const PFParticleToMetadata &pfParticleToMetadata, const PFParticleToHits &pfParticleToHits, const PFParticleToTracks &pfParticleToTracks, const TrackToPIDs &trackToPIDs, const TrackToCalorimetries &trackToCalorimetries, const SpacePointVector &spacePoints, const MCParticleVector &finalStateMCParticles, const std::shared_ptr<BacktrackHelper::BacktrackerData> &pBacktrackerData, const TVector3 &nuVertex, Event::Reco::Particle &particle)
+void EventFactory::PopulateEventRecoParticleInfo(const Config &config, const art::Ptr<recob::PFParticle> &pfParticle, const PFParticleMap &pfParticleMap, const PFParticleToT0s &pfParticleToT0s, const PFParticleToMetadata &pfParticleToMetadata, const PFParticleToHits &pfParticleToHits, const PFParticleToTracks &pfParticleToTracks, const TrackToPIDs &trackToPIDs, const TrackToCalorimetries &trackToCalorimetries, const SpacePointVector &spacePoints, const MCParticleVector &finalStateMCParticles, const std::shared_ptr<BacktrackHelper::BacktrackerData> &pBacktrackerData, const TVector3 &nuVertex, Event::Reco::Particle &particle)
 {
     if (!config.HasTruthInfo() && pBacktrackerData)
         throw cet::exception("EventFactory::PopulateEventRecoParticleInfo") << " - Supplied with backtracker data even though there should be no truth info." << std::endl;
-   
+  
+    particle.isCCInclusiveMuonCandidate.Set(EventFactory::IsCCInclusiveMuonCandidate(pfParticle, pfParticleToT0s));
+
     EventFactory::PopulateEventRecoParticlePatRecInfo(pfParticle, pfParticleMap, pfParticleToMetadata, pfParticleToHits, particle);
 
     try
@@ -288,6 +339,14 @@ void EventFactory::PopulateEventRecoParticleInfo(const Config &config, const art
 
     particle.truthMatchPurities.Set(truthMatchPurities);
     particle.truthMatchCompletenesses.Set(truthMatchCompletenesses);
+}
+
+// -----------------------------------------------------------------------------------------------------------------------------------------
+
+bool EventFactory::IsCCInclusiveMuonCandidate(const art::Ptr<recob::PFParticle> &pfParticle, const PFParticleToT0s &pfParticleToT0s)
+{
+    // ATTN the CC inclusve producer will associate a T0 to the muon candidate PFParticle if the event has passed the selection
+    return CollectionHelper::HasAssociated(pfParticle, pfParticleToT0s);
 }
 
 // -----------------------------------------------------------------------------------------------------------------------------------------

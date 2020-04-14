@@ -41,6 +41,7 @@
 #include <iostream>
 #include <iomanip>
 #include <vector>
+#include <map>
 #include <string>
 #include <memory>
 #include <TVector3.h>
@@ -58,15 +59,17 @@
 
 // The event truth information members
 #define UBCC1PI_MACRO_EVENT_TRUTH_MEMBERS(p, q, f)                                                                                         \
-    f(p, q, false, bool,                isCC)                                                                                              \
-    f(p, q, false, int,                 interactionMode)                                                                                   \
-    f(p, q, true,  std::string,         interactionString)                                                                                 \
-    f(p, q, false, int,                 nuPdgCode)                                                                                         \
-    f(p, q, false, float,               nuEnergy)                                                                                          \
-    f(p, q, true,  TVector3,            nuVertex)                                                                                          \
-    f(p, q, false, int,                 nFinalStates)                                                                                      \
-    f(p, q, true,  std::vector<float>,  slicePurities)                                                                                     \
-    f(p, q, true,  std::vector<float>,  sliceCompletenesses)                                                                               
+    f(p, q, false, float,                      splineEventWeight)                                                                          \
+    f(p, q, false, float,                      genieTuneEventWeight)                                                                       \
+    f(p, q, false, bool,                       isCC)                                                                                       \
+    f(p, q, false, int,                        interactionMode)                                                                            \
+    f(p, q, true,  std::string,                interactionString)                                                                          \
+    f(p, q, false, int,                        nuPdgCode)                                                                                  \
+    f(p, q, false, float,                      nuEnergy)                                                                                   \
+    f(p, q, true,  TVector3,                   nuVertex)                                                                                   \
+    f(p, q, false, int,                        nFinalStates)                                                                               \
+    f(p, q, true,  std::vector<float>,         slicePurities)                                                                              \
+    f(p, q, true,  std::vector<float>,         sliceCompletenesses)                                                                               
 
 // The event truth particle information members
 #define UBCC1PI_MACRO_EVENT_TRUTH_PARTICLE_MEMBERS(p, q, f)                                                                                \
@@ -101,6 +104,7 @@
     
 // The event reco information members
 #define UBCC1PI_MACRO_EVENT_RECO_MEMBERS(p, q, f)                                                                                          \
+    f(p, q, false, bool,                passesCCInclusive)                                                                                 \
     f(p, q, false, int,                 nSlices)                                                                                           \
     f(p, q, false, bool,                hasSelectedSlice)                                                                                  \
     f(p, q, false, float,               selectedTopologicalScore)                                                                          \
@@ -113,6 +117,7 @@
 
 // The event reco particle information members
 #define UBCC1PI_MACRO_EVENT_RECO_PARTICLE_MEMBERS(p, q, f)                                                                                 \
+    f(p, q, false, bool,                isCCInclusiveMuonCandidate)                                                                        \
     f(p, q, false, int,                 pdgCode)                                                                                           \
     f(p, q, false, int,                 nHitsU)                                                                                            \
     f(p, q, false, int,                 nHitsV)                                                                                            \

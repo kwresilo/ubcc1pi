@@ -19,6 +19,9 @@ void SubrunFactory::PopulateSubrun(const art::SubRun &subrun, const Config &conf
     pOutputSubrun->subRun.Set(subrun.subRun());
     pOutputSubrun->hasTruthInfo.Set(config.HasTruthInfo());
 
+    if (!config.HasTruthInfo())
+        return;
+
     const auto potSummary = CollectionHelper::GetObject<sumdata::POTSummary>(subrun, config.POTSummaryLabel());
     pOutputSubrun->totalPOT.Set(potSummary.totpot);
     pOutputSubrun->totalGoodPOT.Set(potSummary.totgoodpot);

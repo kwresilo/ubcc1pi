@@ -1,4 +1,4 @@
-#include "analysis_file_writer.fcl"
+#  #include "analysis_file_writer.fcl"
 
 #include "reco_uboone_mcc9_8_driver_stage2.fcl"
 
@@ -15,12 +15,43 @@ services.TFileService: { fileName: "dummy.root" }
 
 physics:
 {
-    analyzers:
+    producers:
     {
-        analysisFileWriter: @local::analysisFileWriter
+        pandoraAllAsTrack:           @local::microboone_pandoraTrackCreation
+        pandoraAllAsTrackCaloSCE:    @local::microboone_reco_mcc8_producers.pandoracaloSCE
+        pandoraAllAsTrackCaliSCE:    @local::microboone_reco_mcc8_producers.pandoracaliSCE
+        pandoraAllAsTrackCaliPidSCE: @local::microboone_reco_mcc8_producers.pandoracalipidSCE
     }
 
-    ana: [ analysisFileWriter ]
+#    analyzers:
+#    {
+#        analysisFileWriter: @local::analysisFileWriter
+#    }
 
-    end_paths: [ ana ]
+    reco: [ pandoraAllAsTrack, pandoraAllAsTrackCaloSCE, pandoraAllAsTrackCaliSCE, pandoraAllAsTrackCaliPidSCE ]
+#    ana: [ analysisFileWriter ]
+
+    trigger_paths: [ reco ]
+#    end_paths: [ ana ]
 }
+
+physics.producers.pandoraAllAsTrack.PFParticleLabel:                  "pandora"
+physics.producers.pandoraAllAsTrack.UseAllParticles:                  true
+
+physics.producers.pandoraAllAsTrackCaloSCE.TrackModuleLabel:          "pandoraAllAsTrack"
+physics.producers.pandoraAllAsTrackCaloSCE.SpacePointModuleLabel:     "pandora"
+
+physics.producers.pandoraAllAsTrackCaliSCE.TrackModuleLabel:          "pandoraAllAsTrack"
+physics.producers.pandoraAllAsTrackCaliSCE.CalorimetryModuleLabel:    "pandoraAllAsTrackCaloSCE"
+
+physics.producers.pandoraAllAsTrackCaliPidSCE.TrackModuleLabel:       "pandoraAllAsTrack"
+physics.producers.pandoraAllAsTrackCaliPidSCE.CalorimetryModuleLabel: "pandoraAllAsTrackCaliSCE"
+         
+physics.producers.pandoraAllAsTrackCaliPidSCE.ProducerLabels.CaloTrackAssn:    "pandoraAllAsTrackCaliSCE"
+physics.producers.pandoraAllAsTrackCaliPidSCE.ProducerLabels.CalorimetryLabel: "pandoraAllAsTrackCaliSCE"
+physics.producers.pandoraAllAsTrackCaliPidSCE.ProducerLabels.HitTrackAssn:     "pandoraAllAsTrack"
+physics.producers.pandoraAllAsTrackCaliPidSCE.ProducerLabels.TrackLabel:       "pandoraAllAsTrack"
+
+#physics.analyzers.analysisFileWriter.EventFactoryConfig.TrackLabel:       "pandoraAllAsTrack"
+#physics.analyzers.analysisFileWriter.EventFactoryConfig.CalorimetryLabel: "pandoraAllAsTrackCaliSCE"
+#physics.analyzers.analysisFileWriter.EventFactoryConfig.PIDLabel:         "pandoraAllAsTrackCaliPidSCE"

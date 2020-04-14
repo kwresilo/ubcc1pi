@@ -333,10 +333,9 @@ float RecoHelper::GetPidDegreesOfFreedom(const art::Ptr<anab::ParticleID> &pid, 
 
 geo::View_t RecoHelper::GetView(const std::bitset<8> &planeMask)
 {
-    // Here is a hack to get around a bug in the PID code. Some algorithms call W = 0, U = 1, V = 2. But others call W = 7, U = 6, V = 5
-    const bool usesW = planeMask.test(0) || planeMask.test(7);
-    const bool usesU = planeMask.test(1) || planeMask.test(6);
-    const bool usesV = planeMask.test(2) || planeMask.test(5);
+    const bool usesW = planeMask.test(2);
+    const bool usesU = planeMask.test(0);
+    const bool usesV = planeMask.test(1);
     
     if (usesW && !usesU && !usesV)
         return geo::kW;

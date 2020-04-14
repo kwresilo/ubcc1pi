@@ -31,8 +31,11 @@
 #include "lardataobj/AnalysisBase/ParticleID.h"
 #include "lardataobj/AnalysisBase/BackTrackerMatchingData.h"
 #include "lardataobj/AnalysisBase/Calorimetry.h"
+#include "lardataobj/AnalysisBase/T0.h"
 
 #include "larcoreobj/SummaryData/POTSummary.h"
+
+#include "larsim/EventWeight/Base/MCEventWeight.h"
 
 namespace ubcc1pi
 {
@@ -70,6 +73,7 @@ typedef Association<recob::PFParticle, recob::Hit> PFParticleToHits;            
 typedef Association<recob::PFParticle, recob::Track> PFParticleToTracks;               ///< Association from PFParticle to Tracks
 typedef Association<recob::PFParticle, recob::PFParticle> PFParticleToPFParticles;     ///< Association from PFParticle to PFParticles
 typedef Association<recob::PFParticle, larpandoraobj::PFParticleMetadata> PFParticleToMetadata;     ///< Association from PFParticle to metadata
+typedef Association<recob::PFParticle, anab::T0> PFParticleToT0s;                      ///< Association from PFParticle to T0s
 
 typedef Association<recob::Track, anab::ParticleID> TrackToPIDs;                       ///< Association from Tracks to PIDs
 typedef Association<recob::Track, anab::Calorimetry> TrackToCalorimetries;             ///< Association from Tracks to Calorimetries

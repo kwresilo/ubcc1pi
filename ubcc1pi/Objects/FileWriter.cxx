@@ -25,6 +25,11 @@ FileWriter::FileWriter(const std::string &outputFile) :
 
 FileWriter::~FileWriter()
 {
+    std::cout << "BEGIN DEBUG ----------------------------" << std::endl;
+    std::cout << "nEvents : " << m_pEventTree->GetEntries() << std::endl;
+    std::cout << "nSubruns : " << m_pSubrunTree->GetEntries() << std::endl;
+    std::cout << "END DEBUG ------------------------------" << std::endl;
+
     m_pFile->Write();
 
     // ATTN this function does the memory management for the pointers belonging to this class

@@ -4,7 +4,8 @@ using namespace ubcc1pi;
 
 int Test()
 {
-    FileReader reader("/uboone/app/users/asmith/cc1pi/dev/test/sandbox/ubcc1piAnalysis.root");
+    //FileReader reader("/uboone/data/users/asmith/ubcc1pi/samples/smallTest/ubcc1piAnalysis_overlay.root");
+    FileReader reader("/uboone/data/users/asmith/ubcc1pi/samples/smallTest/ubcc1piAnalysis_dataBNB.root");
     auto pEvent = reader.GetBoundEventAddress();
     auto pSubrun = reader.GetBoundSubrunAddress();
 

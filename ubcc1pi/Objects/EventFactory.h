@@ -42,6 +42,24 @@ class EventFactory
                 fhicl::Name("HasTruthInfo"),
                 fhicl::Comment("If the input events have truth info that we should look for")
             };
+            
+            /**
+             *  @brief  If we should try to collect event weights
+             */
+            fhicl::Atom<bool> GetEventWeights
+            {
+                fhicl::Name("GetEventWeights"),
+                fhicl::Comment("If we should try to collect event weights")
+            };
+            
+            /**
+             *  @brief  The MCEventWeight label
+             */
+            fhicl::Atom<art::InputTag> MCEventWeightLabel
+            {
+                fhicl::Name("MCEventWeightLabel"),
+                fhicl::Comment("The label for the MC event weight producer")
+            };
 
             /**
              *  @brief  The MCTruth label
@@ -140,6 +158,15 @@ class EventFactory
             {
                 fhicl::Name("PIDLabel"),
                 fhicl::Comment("The label for the PID producer")
+            };
+            
+            /**
+             *  @brief  The CC inclusive label
+             */
+            fhicl::Atom<art::InputTag> CCInclusiveLabel
+            {
+                fhicl::Name("CCInclusiveLabel"),
+                fhicl::Comment("The label for the CC inclusive T0 tag producer")
             };
             
             /**
@@ -255,6 +282,7 @@ class EventFactory
          *  @param  config the congiuration options
          *  @param  pfParticle the input PFParticle
          *  @param  pfParticleMap the PFParticle map
+         *  @param  pfParticleToT0s the input mapping from PFParticles to T0s
          *  @param  pfParticleToMetadata the input mapping from PFParticle to metadata
          *  @param  pfParticleToHits the input mapping from PFParticles to hits
          *  @param  pfParticleToTracks the input mapping from PFParticles to tracks
@@ -266,7 +294,17 @@ class EventFactory
          *  @param  nuVertex the (not space-charge corrected) reconstructed neutrino vertex
          *  @param  particle the output particle
          */
-        static void PopulateEventRecoParticleInfo(const Config &config, const art::Ptr<recob::PFParticle> &pfParticle, const PFParticleMap &pfParticleMap, const PFParticleToMetadata &pfParticleToMetadata, const PFParticleToHits &pfParticleToHits, const PFParticleToTracks &pfParticleToTracks, const TrackToPIDs &trackToPIDs, const TrackToCalorimetries &trackToCalorimetries, const SpacePointVector &spacePoints, const MCParticleVector &finalStateMCParticles, const std::shared_ptr<BacktrackHelper::BacktrackerData> &pBacktrackerData, const TVector3 &nuVertex, Event::Reco::Particle &particle);
+        static void PopulateEventRecoParticleInfo(const Config &config, const art::Ptr<recob::PFParticle> &pfParticle, const PFParticleMap &pfParticleMap, const PFParticleToT0s &pfParticleToT0s, const PFParticleToMetadata &pfParticleToMetadata, const PFParticleToHits &pfParticleToHits, const PFParticleToTracks &pfParticleToTracks, const TrackToPIDs &trackToPIDs, const TrackToCalorimetries &trackToCalorimetries, const SpacePointVector &spacePoints, const MCParticleVector &finalStateMCParticles, const std::shared_ptr<BacktrackHelper::BacktrackerData> &pBacktrackerData, const TVector3 &nuVertex, Event::Reco::Particle &particle);
+
+        /**
+         *  @brief  Check if the input particle is the CC inclusive muon candidate
+         *
+         *  @param  pfParticle the input PFParticle
+         *  @param  pfParticleToT0s the input assocation from PFParticles to T0s
+         *
+         *  @return boolean, true if the particle is the muon candidate
+         */
+        static bool IsCCInclusiveMuonCandidate(const art::Ptr<recob::PFParticle> &pfParticle, const PFParticleToT0s &pfParticleToT0s);
 
         /**
          *  @brief  Populate the reco particle pattern recognition information

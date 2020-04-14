@@ -50,6 +50,8 @@ class FileReader
          */
         unsigned int GetNumberOfSubruns() const;
 
+        // TODO make these bound output addresses point to const objects
+
         /**
          *  @brief  Get the event bound to the output tree
          *

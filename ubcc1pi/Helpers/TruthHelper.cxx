@@ -211,7 +211,16 @@ void TruthHelper::FollowScatters(const art::Ptr<simb::MCParticle> &particle, con
     for (const auto &daughter : TruthHelper::GetDaughters(particle, mcParticleMap))
     {
         if (daughter->Process() == "hadElastic")
-            scatters.push_back(TruthHelper::GetElasticScatter(particle, daughter));
+        {
+            try
+            {
+                scatters.push_back(TruthHelper::GetElasticScatter(particle, daughter));
+            }
+            catch (const cet::exception &ex)
+            {
+                std::cout << "TruthHelper::FollowScatters. WARNING - " << ex.explain_self() << std::endl;
+            }
+        }
     }
 
     // Now follow inelastic scatters

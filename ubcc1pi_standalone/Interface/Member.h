@@ -13,6 +13,7 @@
 #include <limits>
 #include <string>
 #include <vector>
+#include <map>
 #include <memory>
 #include <TVector3.h>
 
@@ -90,12 +91,18 @@ class Member
          */
         std::string ToString() const;
 
-        std::shared_ptr<T>   m_pValue;        ///< The value of the member
-        T                   *m_pAddress;      ///< The address owned by the shared_ptr needed by root... sigh
-        bool                 m_isSet;         ///< If the value has been set
+        std::shared_ptr<T>   m_pValue;         ///< The value of the member
+        T                   *m_pAddress;       ///< The address owned by the shared_ptr needed by root... sigh
+        bool                 m_isSet;          ///< If the value has been set
+        static unsigned int  m_maxVectorPrint; ///< The maximum number of entries of a vector to print
 };
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
+// -----------------------------------------------------------------------------------------------------------------------------------------
+
+template <typename T>
+inline unsigned int Member<T>::m_maxVectorPrint = 3;
+
 // -----------------------------------------------------------------------------------------------------------------------------------------
 
 template <typename T>
@@ -217,6 +224,14 @@ inline void Member< std::vector<int> >::SetDefault()
 // -----------------------------------------------------------------------------------------------------------------------------------------
 
 template <>
+inline void Member< std::vector<std::string> >::SetDefault()
+{
+    m_pValue->clear();
+}
+
+// -----------------------------------------------------------------------------------------------------------------------------------------
+
+template <>
 inline std::string Member<bool>::ToString() const
 {
     if (!this->IsSet())
@@ -280,8 +295,18 @@ inline std::string Member< std::vector<float> >::ToString() const
 
     const auto value = this->Get();
     std::string str = "[" + std::to_string(value.size()) + "]  ";
+    
+    unsigned int i = 0;
     for (const auto &entry : value)
+    {
         str += std::to_string(entry) + "  ";
+        
+        if (++i >= m_maxVectorPrint)
+            break;
+    }
+
+    if (i < value.size())
+        str += "...";
 
     return str;
 }
@@ -296,8 +321,18 @@ inline std::string Member< std::vector<bool> >::ToString() const
 
     const auto value = this->Get();
     std::string str = "[" + std::to_string(value.size()) + "]  ";
+    
+    unsigned int i = 0;
     for (const auto &entry : value)
+    {
         str += std::string(entry ? "true" : "false") + "  ";
+        
+        if (++i >= m_maxVectorPrint)
+            break;
+    }
+    
+    if (i < value.size())
+        str += "...";
 
     return str;
 }
@@ -312,8 +347,44 @@ inline std::string Member< std::vector<int> >::ToString() const
 
     const auto value = this->Get();
     std::string str = "[" + std::to_string(value.size()) + "]  ";
+    
+    unsigned int i = 0;
     for (const auto &entry : value)
+    {
         str += std::to_string(entry) + "  ";
+        
+        if (++i >= m_maxVectorPrint)
+            break;
+    }
+    
+    if (i < value.size())
+        str += "...";
+
+    return str;
+}
+
+// -----------------------------------------------------------------------------------------------------------------------------------------
+
+template <>
+inline std::string Member< std::vector<std::string> >::ToString() const
+{
+    if (!this->IsSet())
+        return "?";
+
+    const auto value = this->Get();
+    std::string str = "[" + std::to_string(value.size()) + "]  ";
+
+    unsigned int i = 0;
+    for (const auto &entry : value)
+    {
+        str += entry + "  ";
+
+        if (++i >= m_maxVectorPrint)
+            break;
+    }
+    
+    if (i < value.size())
+        str += "...";
 
     return str;
 }
@@ -375,7 +446,7 @@ inline std::string Member< std::vector<int> >::ToString() const
 
 // Define a macro that prints each of the member variables
 #define UBCC1PI_MACRO_PRINT_MEMBER(p, q, r, t, n)                                                                                          \
-    std::cout << std::setw(24) << "(" #t ")" << "  ";                                                                                      \
+    std::cout << std::setw(28) << "(" #t ")" << "  ";                                                                                      \
     std::cout << std::setw(40) << (#q "." #n "()") << "  ";                                                                                \
     std::cout << q.n.ToString() << std::endl;                                                                                              
 

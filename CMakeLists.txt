@@ -46,6 +46,7 @@ find_ups_product( cetbuildtools v3_10_00 )
 find_ups_product( nusimdata )
 find_ups_product( lardataobj )
 find_ups_product( larevt )
+find_ups_product( larsim )
 
 # macros for dictionary and simple_plugin
 include(ArtDictionary)
