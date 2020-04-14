@@ -1,0 +1,31 @@
+BEGIN_PROLOG
+
+event_factory_config:
+{
+    # Truth labels
+    MCEventWeightLabel: "eventweight"
+    MCTruthLabel:       "generator"
+    MCParticleLabel:    "largeant"
+    BacktrackerLabel:   "gaushitTruthMatch"
+    
+    # Reco labels
+    HitLabel:           "gaushit"
+    SliceLabel:         "pandora"
+    PFParticleLabel:    "pandora"
+    VertexLabel:        "pandora"
+    SpacePointLabel:    "pandora"
+    TrackLabel:         "pandora"
+    CalorimetryLabel:   "pandoracaliSCE"
+    PIDLabel:           "pandoracalipidSCE"
+    CCInclusiveLabel:   "NuCCproducer"
+
+    # Configuration
+    HasTruthInfo:               true
+    GetEventWeights:            true
+    TrackEndSpacePointDistance: 5.0
+    Sin2AngleThreshold:         0.175
+    NHitsToSkip:                3
+    LengthFraction:             0.333333333
+}
+
+END_PROLOG

@@ -5,7 +5,6 @@
  */
 
 #include "ubcc1pi/Helpers/TruthHelper.h"
-#include "ubcc1pi/Helpers/AnalysisHelper.h"
 
 #include "nusimdata/SimulationBase/MCTruth.h"
 #include "nusimdata/SimulationBase/MCParticle.h"
@@ -200,6 +199,219 @@ void TruthHelper::GetDownstreamParticles(const art::Ptr<simb::MCParticle> &parti
 
     for (const auto &daughter : TruthHelper::GetDaughters(particle, mcParticleMap))
         TruthHelper::GetDownstreamParticles(daughter, mcParticleMap, downstreamParticles);
+}
+
+// -----------------------------------------------------------------------------------------------------------------------------------------
+
+void TruthHelper::FollowScatters(const art::Ptr<simb::MCParticle> &particle, const MCParticleMap &mcParticleMap, ScatterVector &scatters, art::Ptr<simb::MCParticle> &scatteredParticle)
+{
+    scatteredParticle = particle;
+    
+    // First look for elastic scatters
+    for (const auto &daughter : TruthHelper::GetDaughters(particle, mcParticleMap))
+    {
+        if (daughter->Process() == "hadElastic")
+        {
+            try
+            {
+                scatters.push_back(TruthHelper::GetElasticScatter(particle, daughter));
+            }
+            catch (const cet::exception &ex)
+            {
+                std::cout << "TruthHelper::FollowScatters. WARNING - " << ex.explain_self() << std::endl;
+            }
+        }
+    }
+
+    // Now follow inelastic scatters
+    if (particle->EndProcess().find("Inelastic") == std::string::npos)
+        return;
+
+    MCParticleVector inelasticProducts;
+    art::Ptr<simb::MCParticle> finalStateParticle;
+    bool foundInelasticScatter = false;
+
+    for (const auto &daughter : TruthHelper::GetDaughters(particle, mcParticleMap))
+    {
+        if (daughter->Process().find("Inelastic") != std::string::npos)
+        {
+            // If the daughter has the same PDG as the incident particle, then assume it's the same particle before & after the scatter
+            if (daughter->PdgCode() != particle->PdgCode())
+            {
+                inelasticProducts.push_back(daughter);
+                continue;
+            }
+
+            // If there are multiple particles from the inelastic collision, then don't treat it as a scatter
+            if (foundInelasticScatter)
+            {
+                foundInelasticScatter = false;
+                break;
+            }
+        
+            finalStateParticle = daughter;
+            foundInelasticScatter = true;
+        }
+    }
+
+    if (!foundInelasticScatter)
+        return;
+
+    // Get the last momentum point before the scatter
+    TVector3 initialMomentum(-std::numeric_limits<float>::max(), -std::numeric_limits<float>::max(), -std::numeric_limits<float>::max());
+    for (unsigned int i = 0; i < particle->NumberTrajectoryPoints(); ++i)
+    {
+        if (particle->T(i) >= finalStateParticle->T())
+            break;
+
+        initialMomentum = particle->Momentum(i).Vect();
+    }
+
+    scatters.emplace_back(false, initialMomentum, finalStateParticle->Momentum().Vect(), finalStateParticle, inelasticProducts);
+    TruthHelper::FollowScatters(finalStateParticle, mcParticleMap, scatters, scatteredParticle);
+}
+
+// -----------------------------------------------------------------------------------------------------------------------------------------
+
+TruthHelper::Scatter TruthHelper::GetElasticScatter(const art::Ptr<simb::MCParticle> &incident, const art::Ptr<simb::MCParticle> &target)
+{
+    if (target->Process() != "hadElastic")
+        throw cet::exception("TruthHelper::GetElasticScatter") << " - Input target particle doesn't look to be from an elastic scatter" << std::endl;
+
+    if (target->Mother() != incident->TrackId())
+        throw cet::exception("TruthHelper::GetElasticScatter") << " - Input target particle isn't a daughter of the input incident particle" << std::endl;
+
+    const unsigned int nTrajectoryPoints = incident->NumberTrajectoryPoints();
+    if (nTrajectoryPoints < 2)
+        throw cet::exception("TruthHelper::GetElasticScatter") << " - Incident particle has less than 2 trajectory points!" << std::endl;
+    
+    // Find the trajectory points just before and just after the scatter
+    const float scatterTime(target->T());
+    unsigned int postScatterIndex = std::numeric_limits<unsigned int>::max();
+    bool foundScatterPoint = false;
+
+    for (unsigned int i = 1; i < incident->NumberTrajectoryPoints(); ++i)
+    {
+        if (incident->T(i - 1) <= scatterTime && incident->T(i) >= scatterTime && incident->T(i - 1) < incident->T(i))
+        {
+            foundScatterPoint = true;
+            postScatterIndex = i;
+        }
+    }
+    unsigned int preScatterIndex = postScatterIndex - 1;
+
+    if (!foundScatterPoint)
+        throw cet::exception("TruthHelper::GetElasticScatter") << " - Couldn't find trajectory points before and after the scatter" << std::endl;
+
+    const auto initialMomentum(incident->Momentum(preScatterIndex).Vect());
+    const auto finalMomentum(incident->Momentum(postScatterIndex).Vect());
+
+    return TruthHelper::Scatter(true, initialMomentum, finalMomentum, incident, { target });
+}
+
+// -----------------------------------------------------------------------------------------------------------------------------------------
+
+TruthHelper::EndState TruthHelper::GetEndState(const art::Ptr<simb::MCParticle> &particle, const MCParticleMap &mcParticleMap)
+{
+    EndState::Type type = EndState::Type::Other;
+    const auto finalParticleMomentum = particle->Momentum(std::max(static_cast<unsigned int>(0), particle->NumberTrajectoryPoints() - 2)).Vect();
+    MCParticleVector products;
+
+    // ATTN for now, just return OTHER for all non-pions
+    if (particle->PdgCode() != 211)
+        return TruthHelper::EndState(type, finalParticleMomentum, products);
+
+    // Follow the scatters to make sure we are really looking at the correct MCParticle
+    ScatterVector scatters;
+    art::Ptr<simb::MCParticle> scatteredParticle;
+    TruthHelper::FollowScatters(particle, mcParticleMap, scatters, scatteredParticle);
+    if (particle != scatteredParticle)
+        throw cet::exception("TruthHelper::GetEndState") << " - Input MCParticle undergos a scatter before reaching it's end-state" << std::endl;
+
+    bool hasPi0 = false;
+    bool hasDecayMuon = false;
+    bool hasDecayMuonNeutrino = false;
+
+    for (const auto &daughter : TruthHelper::GetDaughters(particle, mcParticleMap))
+    {
+        // Ignore ionisation electrons 
+        if (daughter->PdgCode() == 11 && daughter->Process() == "hIoni")
+            continue;
+
+        // Ignore nuclei from elastic scatters
+        if (daughter->Process() == "hadElastic")
+            continue;
+
+        // Treat everything else as an end-state interaction product
+        products.push_back(daughter);
+
+        if (daughter->PdgCode() == 111 && daughter->Process() == "pi+Inelastic")
+            hasPi0 = true;
+
+        if (daughter->PdgCode() == -13 && daughter->Process() == "Decay")
+            hasDecayMuon = true;
+        
+        if (daughter->PdgCode() == 14 && daughter->Process() == "Decay")
+            hasDecayMuonNeutrino = true;
+    }
+
+    // Work out the end-state type
+    if (products.empty())
+    {
+        type = EndState::Type::None;
+    }
+    else if (hasDecayMuon && hasDecayMuonNeutrino && products.size() == 2)
+    {
+        type = EndState::Type::DecayToMuon;
+    }
+    else if (particle->EndProcess() == "pi+Inelastic")
+    {
+        type = hasPi0 ? EndState::Type::Pi0ChargeExchange : EndState::Type::InelasticAbsorption;
+    }
+    
+    return TruthHelper::EndState(type, finalParticleMomentum, products);
+}
+
+// -----------------------------------------------------------------------------------------------------------------------------------------
+// -----------------------------------------------------------------------------------------------------------------------------------------
+                
+TruthHelper::Scatter::Scatter(const bool isElastic, const TVector3 initialMomentum, const TVector3 finalMomentum, const art::Ptr<simb::MCParticle> finalParticle, const MCParticleVector products) : 
+    m_isElastic(isElastic),
+    m_initialMomentum(initialMomentum),
+    m_finalMomentum(finalMomentum),
+    m_finalParticle(finalParticle),
+    m_products(products)
+{
+}
+
+// -----------------------------------------------------------------------------------------------------------------------------------------
+                
+float TruthHelper::Scatter::GetScatteringCosTheta() const
+{
+    if (m_initialMomentum.Mag() * m_finalMomentum.Mag() < std::numeric_limits<float>::epsilon())
+        return -std::numeric_limits<float>::max();
+
+    return m_initialMomentum.Dot(m_finalMomentum) / (m_initialMomentum.Mag() * m_finalMomentum.Mag());
+}
+
+// -----------------------------------------------------------------------------------------------------------------------------------------
+                
+float TruthHelper::Scatter::GetMomentumFractionLost() const
+{
+    if (m_initialMomentum.Mag() * m_finalMomentum.Mag() < std::numeric_limits<float>::epsilon())
+        return -std::numeric_limits<float>::max();
+
+    return (m_initialMomentum.Mag() - m_finalMomentum.Mag()) / m_initialMomentum.Mag();
+}
+
+// -----------------------------------------------------------------------------------------------------------------------------------------
+// -----------------------------------------------------------------------------------------------------------------------------------------
+                
+TruthHelper::EndState::EndState(const Type type, const TVector3 &finalParticleMomentum, const MCParticleVector &products) :
+    m_type(type),
+    m_finalParticleMomentum(finalParticleMomentum),
+    m_products(products)
+{
 }
 
 

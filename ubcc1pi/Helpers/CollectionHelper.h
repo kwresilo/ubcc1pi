@@ -8,6 +8,7 @@
 #define UBCC1PI_HELPERS_COLLECTION_HELPER
 
 #include "art/Framework/Principal/Event.h"
+#include "art/Framework/Principal/SubRun.h"
 #include "canvas/Utilities/InputTag.h"
 #include "canvas/Persistency/Common/FindManyP.h"
 
@@ -30,25 +31,30 @@
 #include "lardataobj/AnalysisBase/ParticleID.h"
 #include "lardataobj/AnalysisBase/BackTrackerMatchingData.h"
 #include "lardataobj/AnalysisBase/Calorimetry.h"
+#include "lardataobj/AnalysisBase/T0.h"
+
+#include "larcoreobj/SummaryData/POTSummary.h"
+
+#include "larsim/EventWeight/Base/MCEventWeight.h"
 
 namespace ubcc1pi
 {
 
 // Typedefs scoped to the namespace
 template <typename T, typename D>
-using ObjectData = std::pair<art::Ptr<T>, D>;
+using ObjectData = std::pair<art::Ptr<T>, D>;  ///< An object of type T with metadata D
 
 template <typename T>
-using Collection = std::vector< art::Ptr<T> >;
+using Collection = std::vector< art::Ptr<T> >;  ///< A collection of objects of type T
 
 template <typename T, typename D>
-using CollectionData = std::vector<ObjectData<T, D> >;
+using CollectionData = std::vector<ObjectData<T, D> >;  ///< A collection of objects of type T with metadata D
 
 template <typename L, typename R>
-using Association = std::unordered_map< art::Ptr<L>, Collection<R> >;
+using Association = std::unordered_map< art::Ptr<L>, Collection<R> >;  ///< An association from L->R
 
 template <typename L, typename R, typename D>
-using AssociationData = std::unordered_map< art::Ptr<L>, CollectionData<R, D> >;
+using AssociationData = std::unordered_map< art::Ptr<L>, CollectionData<R, D> >;  ///< And assocation from L->R with metadata D
 
 typedef Collection<simb::MCParticle> MCParticleVector;   ///< A collection of MCParticles
 typedef Collection<recob::PFParticle> PFParticleVector;  ///< A collection of PFParticles
@@ -66,8 +72,11 @@ typedef Association<recob::Slice, recob::PFParticle> SlicesToPFParticles;       
 typedef Association<recob::PFParticle, recob::Hit> PFParticleToHits;                   ///< Association from PFParticle to Hit
 typedef Association<recob::PFParticle, recob::Track> PFParticleToTracks;               ///< Association from PFParticle to Tracks
 typedef Association<recob::PFParticle, recob::PFParticle> PFParticleToPFParticles;     ///< Association from PFParticle to PFParticles
+typedef Association<recob::PFParticle, larpandoraobj::PFParticleMetadata> PFParticleToMetadata;     ///< Association from PFParticle to metadata
+typedef Association<recob::PFParticle, anab::T0> PFParticleToT0s;                      ///< Association from PFParticle to T0s
 
 typedef Association<recob::Track, anab::ParticleID> TrackToPIDs;                       ///< Association from Tracks to PIDs
+typedef Association<recob::Track, anab::Calorimetry> TrackToCalorimetries;             ///< Association from Tracks to Calorimetries
                 
 typedef std::unordered_map<art::Ptr<recob::Hit>, bool> HitsToBool;                     ///< Mapping from Hit to boolean
 typedef std::unordered_map<art::Ptr<recob::Slice>, bool> SlicesToBool;                 ///< Mapping from Slice to boolean
@@ -84,9 +93,22 @@ class CollectionHelper
          *
          *  @param  event the art event
          *  @param  label the label of the collection producer
+         *
+         *  @return the collection
          */
         template <typename T>
         static Collection<T> GetCollection(const art::Event &event, const art::InputTag &label);
+        
+        /**
+         *  @brief  Get an object in the desired format from the subrun
+         *
+         *  @param  subrun the art subrun
+         *  @param  label the label of the collection producer
+         *
+         *  @return the object
+         */
+        template <typename T>
+        static T GetObject(const art::SubRun &subrun, const art::InputTag &label);
         
         /**
          *  @brief  Get an association between objects in the desired format from the event
@@ -94,6 +116,8 @@ class CollectionHelper
          *  @param  event the art event
          *  @param  collectionLabel the label of the producer which made the collection of type L
          *  @param  associationLabel the label of the association producer
+         *
+         *  @return the association
          */
         template <typename L, typename R>
         static Association<L, R> GetAssociation(const art::Event &event, const art::InputTag &collectionLabel, const art::InputTag &associationLabel);
@@ -103,6 +127,8 @@ class CollectionHelper
          *
          *  @param  event the art event
          *  @param  label the label of the association and collection producer
+         *
+         *  @return the association
          */
         template <typename L, typename R>
         static Association<L, R> GetAssociation(const art::Event &event, const art::InputTag &label);
@@ -156,6 +182,8 @@ class CollectionHelper
          *  @param  event the art event
          *  @param  collectionLabel the label of the producer which made the collection of type L
          *  @param  associationLabel the label of the association producer
+         *
+         *  @return the association
          */
         template <typename L, typename R, typename D>
         static AssociationData<L, R, D> GetAssociationWithData(const art::Event &event, const art::InputTag &collectionLabel, const art::InputTag &associationLabel);
@@ -165,6 +193,8 @@ class CollectionHelper
          *
          *  @param  event the art event
          *  @param  label the label of the association and collection producer
+         *
+         *  @return the association
          */
         template <typename L, typename R, typename D>
         static AssociationData<L, R, D> GetAssociationWithData(const art::Event &event, const art::InputTag &label);
@@ -228,6 +258,8 @@ class CollectionHelper
          *
          *  @param  a the first collection A
          *  @param  b the second collection B
+         *
+         *  @return the intersection of the collections
          */
         template <typename T>
         static Collection<T> GetIntersection(const Collection<T> &a, const Collection<T> &b);
@@ -239,6 +271,8 @@ class CollectionHelper
          *  @param  labelA the label of the A producer
          *  @param  labelB the label of the B producer
          *  @param  labelC the label of the B to C assoication producer
+         *
+         *  @return the association
          */
         template <typename A, typename B, typename C>
         static Association<A, C> GetAssociationViaCollection(const art::Event &event, const art::InputTag &labelA, const art::InputTag &labelB, const art::InputTag &labelC);
@@ -258,6 +292,15 @@ inline Collection<T> CollectionHelper::GetCollection(const art::Event &event, co
     }
 
     return outputCollection;
+}
+
+// -----------------------------------------------------------------------------------------------------------------------------------------
+
+template <typename T>
+inline T CollectionHelper::GetObject(const art::SubRun &subrun, const art::InputTag &label)
+{
+    const auto handle = subrun.getValidHandle<T>(label);
+    return *handle;
 }
 
 // -----------------------------------------------------------------------------------------------------------------------------------------

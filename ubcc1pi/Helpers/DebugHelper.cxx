@@ -6,8 +6,6 @@
 
 #include "ubcc1pi/Helpers/DebugHelper.h"
 
-#include "ubcc1pi/Helpers/AnalysisHelper.h"
-
 #include <vector>
 #include <unordered_map>
 
@@ -60,23 +58,6 @@ void DebugHelper::PrintSummary(const MCParticleVector &particles, const unsigned
     {
         DebugHelper::PrintProperty("# (" + std::to_string(pdg) + ")", pdgToMCParticleMap.at(pdg).size(), depth);
     }
-}
-
-// -----------------------------------------------------------------------------------------------------------------------------------------
-
-void DebugHelper::Print(const TruthHelper::Interaction &interaction, const unsigned int depth)
-{
-    DebugHelper::PrintHeader("Neutrino Interaction", depth);
-    DebugHelper::PrintProperty("Truth interaction", DebugHelper::GetInteractionString(interaction), depth);
-
-    DebugHelper::PrintProperty("Primary Particles", depth);
-    DebugHelper::PrintSummary(AnalysisHelper::GetPrimaryParticles(interaction), depth + 1);
-
-    DebugHelper::PrintProperty("Visible Final States", depth);
-    DebugHelper::PrintSummary(AnalysisHelper::GetVisibleFinalStates(interaction), depth + 1);
-    
-    DebugHelper::PrintProperty("... above momentum threholds", depth);
-    DebugHelper::PrintSummary(AnalysisHelper::GetReconstructableFinalStates(interaction), depth + 1);
 }
 
 // -----------------------------------------------------------------------------------------------------------------------------------------

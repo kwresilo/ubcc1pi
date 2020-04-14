@@ -3,3 +3,4 @@ docs/warnings.txt
 docs/html/*
 *.png
 *.pdf
+*_cxx*

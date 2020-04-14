@@ -45,11 +45,15 @@ class BacktrackHelper
 
                 /**
                  *  @brief  Get the MCParticles
+                 *
+                 *  @return the MCParticles
                  */
                 MCParticleVector GetMCParticles() const;
                 
                 /**
                  *  @brief  Get the PFParticles
+                 *
+                 *  @return the PFParticles
                  */
                 PFParticleVector GetPFParticles() const;
 
@@ -57,6 +61,8 @@ class BacktrackHelper
                  *  @brief  Get the number of hits associated with a given PFParticle
                  *
                  *  @param  pfParticle the pfParticle
+                 *
+                 *  @return the number of hits
                  */
                 unsigned int GetNHits(const art::Ptr<recob::PFParticle> &pfParticle) const;
                 
@@ -64,6 +70,8 @@ class BacktrackHelper
                  *  @brief  Get the weight associated with a given PFParticle (= the number of hits)
                  *
                  *  @param  pfParticle the pfParticle
+                 *
+                 *  @return the weight
                  */
                 float GetWeight(const art::Ptr<recob::PFParticle> &pfParticle) const;
                 
@@ -71,6 +79,8 @@ class BacktrackHelper
                  *  @brief  Get the weight associated with a given MCParticle (= the weighted number of hits)
                  *
                  *  @param  mcParticle the mcParticle
+                 *
+                 *  @return the weight
                  */
                 float GetWeight(const art::Ptr<simb::MCParticle> &mcParticle) const;
 
@@ -78,6 +88,8 @@ class BacktrackHelper
                  *  @brief  Get all hits that are associated the MCParticle with any weight
                  *
                  *  @param  mcParticle the mcParticle
+                 *
+                 *  @return the hits
                  */
                 HitVector GetHits(const art::Ptr<simb::MCParticle> &mcParticle) const;
                 
@@ -85,6 +97,8 @@ class BacktrackHelper
                  *  @brief  Get all hits that are associated the PFParticle
                  *
                  *  @param  pfParticle the pfParticle
+                 *
+                 *  @return the hits
                  */
                 HitVector GetHits(const art::Ptr<recob::PFParticle> &pfParticle) const;
                 
@@ -93,6 +107,8 @@ class BacktrackHelper
                  *
                  *  @param  pfParticle the pfParticle
                  *  @param  mcParticle the mcParticle
+                 *
+                 *  @return the match weight
                  */
                 float GetMatchWeight(const art::Ptr<recob::PFParticle> &pfParticle, const art::Ptr<simb::MCParticle> &mcParticle) const;
 
@@ -102,6 +118,8 @@ class BacktrackHelper
                  *
                  *  @param  pfParticle the pfParticle
                  *  @param  mcParticle the mcParticle
+                 *
+                 *  @return the match purity
                  */
                 float GetMatchPurity(const art::Ptr<recob::PFParticle> &pfParticle, const art::Ptr<simb::MCParticle> &mcParticle) const;
                 
@@ -111,6 +129,8 @@ class BacktrackHelper
                  *
                  *  @param  pfParticle the pfParticle
                  *  @param  mcParticle the mcParticle
+                 *
+                 *  @return the match completeness
                  */
                 float GetMatchCompleteness(const art::Ptr<recob::PFParticle> &pfParticle, const art::Ptr<simb::MCParticle> &mcParticle) const;
 
@@ -118,6 +138,8 @@ class BacktrackHelper
                  *  @brief  Get the MCParticle with the highest weighted match to the given PFParticle
                  *
                  *  @param  pfParticle the pfParticle
+                 *
+                 *  @return the MCParticle
                  */
                 art::Ptr<simb::MCParticle> GetBestMatchedMCParticle(const art::Ptr<recob::PFParticle> &pfParticle) const;
                 
@@ -125,6 +147,8 @@ class BacktrackHelper
                  *  @brief  Get the PFParticles which have the given MCParticle as their strongest match
                  *
                  *  @param  mcParticle the mcParticle
+                 *
+                 *  @return the PFParticles
                  */
                 PFParticleVector GetBestMatchedPFParticles(const art::Ptr<simb::MCParticle> &mcParticle) const;
 
@@ -134,6 +158,8 @@ class BacktrackHelper
                  *
                  *  @param  hit the input hit
                  *  @param  mcParticle the input MCParticle
+                 *
+                 *  @return the weight
                  */
                 float GetWeight(const art::Ptr<recob::Hit> &hit, const art::Ptr<simb::MCParticle> &mcParticle) const;
 
@@ -142,6 +168,8 @@ class BacktrackHelper
                  *
                  *  @param  hits the input hits
                  *  @param  mcParticle the input MCParticle
+                 *
+                 *  @return the weight
                  */
                 float GetWeight(const HitVector &hits, const art::Ptr<simb::MCParticle> &mcParticle) const;
 
@@ -226,6 +254,8 @@ class BacktrackHelper
 
                 /** 
                  *  @brief  Get the slices
+                 *
+                 *  @return the slices
                  */
                 SliceVector GetSlices() const;
 
@@ -234,6 +264,8 @@ class BacktrackHelper
                  *          purity = fraction of the hits in the slice that are neutrino induced
                  *
                  *  @param  slice the input slice
+                 *
+                 *  @return the purity
                  */
                 float GetPurity(const art::Ptr<recob::Slice> &slice) const;
                 
@@ -242,6 +274,8 @@ class BacktrackHelper
                  *          completeness = fraction of the neutrino induced hits in the event that are in the slice
                  *
                  *  @param  slice the input slice
+                 *
+                 *  @return the completeness 
                  */
                 float GetCompleteness(const art::Ptr<recob::Slice> &slice) const;
 
@@ -249,6 +283,8 @@ class BacktrackHelper
                  *  @brief  Get the number of hits in the slice
                  *
                  *  @param  slice the input slice
+                 *
+                 *  @return the number of hits
                  */
                 unsigned int GetNumberOfHits(const art::Ptr<recob::Slice> &slice) const;
                 
@@ -256,6 +292,8 @@ class BacktrackHelper
                  *  @brief  Get the hits in the given slice
                  *
                  *  @param  slice the input slice
+                 *
+                 *  @return the hits
                  */
                 HitVector GetHits(const art::Ptr<recob::Slice> &slice) const;
                 
@@ -263,26 +301,36 @@ class BacktrackHelper
                  *  @brief  Get the number of neutrino induced hits in the slice
                  *
                  *  @param  slice the input slice
+                 *
+                 *  @return the number of neutrino induced hits
                  */
                 unsigned int GetNumberOfNuInducedHits(const art::Ptr<recob::Slice> &slice) const;
                 
                 /** 
                  *  @brief  Get the total number of neutrino induced hits
+                 *
+                 *  @return the total number of neutrino induced hits
                  */
                 unsigned int GetTotalNumberOfNuInducedHits() const;
 
                 /** 
                  *  @brief  Get the slice with the largest completeness
+                 *
+                 *  @return the slice
                  */
                 art::Ptr<recob::Slice> GetMostCompleteSlice() const;
                 
                 /** 
                  *  @brief  Get the slices that have been selected a neutrinos
+                 *
+                 *  @return the slices
                  */
                 SliceVector GetSelectedNeutrinoSlices() const;
                 
                 /** 
                  *  @brief  Determine if the most complete slice has been selected as a neutrino
+                 *
+                 *  @return bool, true if most complete slicec is selected
                  */
                 bool IsMostCompleteSliceSelected() const;
 
@@ -290,6 +338,8 @@ class BacktrackHelper
 
                 /** 
                  *  @brief  Get all hits in the event through the slices
+                 *
+                 *  @return the hits
                  */
                 HitVector GetAllHits() const;
 
@@ -297,6 +347,8 @@ class BacktrackHelper
                  *  @brief  Count the number of hits in the input vector that are neutrino induced
                  *
                  *  @param  hits the input hits
+                 *
+                 *  @return the number of neutrino induced hits
                  */
                 unsigned int CountNuInducedHits(const HitVector &hits) const;
 
@@ -307,14 +359,16 @@ class BacktrackHelper
         };
 
     /**
-     *  @brief  Get the mapping from neutrino final state PFParticles to hits, folding in all downstream PFParticles
+     *  @brief  Get the mapping from the input neutrino final state PFParticle to their hits, optionally folding in downstream PFParticles
      *
      *  @param  event the art event
-     *  @param  pfParticleLabel the PFParticle producer label (original PFParticle with associations to clusters etc.)
-     *  @param  alternatePFParticleLabel the PFParticle producer label for the new collection with re-interpreted hierarchy
-     *  @param  finalStates the input vector of final state PFParticles *from the alternate collection*
+     *  @param  pfParticleLabel the PFParticle producer label
+     *  @param  finalStates the input vector of final state PFParticles
+     *  @param  useDaughters whether to fold in downstream particles
+     *
+     *  @return the mapping
      */
-    static HitsToPFParticles GetHitToPFParticleMap(const art::Event &event, const art::InputTag &pfParticleLabel, const art::InputTag &alternatePFParticleLabel, const PFParticleVector &finalStates);
+    static HitsToPFParticles GetHitToPFParticleMap(const art::Event &event, const art::InputTag &pfParticleLabel, const PFParticleVector &finalStates, const bool &useDaughters);
     
     /**
      *  @brief  Get the mapping from neutrino final state MCParticles to hits, folding in all downstream particles
@@ -323,6 +377,8 @@ class BacktrackHelper
      *  @param  mcParticleLabel the MCParticle producer label
      *  @param  backtrackerLabel the MCParticle to hit producer label
      *  @param  finalStates the input vector of final state MCParticles
+     *
+     *  @return the hit to MCParticle weight map
      */
     static HitsToMCParticleWeights GetHitToMCParticleWeightMap(const art::Event &event, const art::InputTag &mcParticleLabel, const art::InputTag &backtrackerLabel, const MCParticleVector &finalStates);
 
@@ -343,6 +399,8 @@ class BacktrackHelper
      *  @param  mcParticleLabel the MCParticle producer label
      *  @param  backtrackerLabel the MCParticle to hit producer label
      *  @param  nuMCParticles the input vector of neutrino induced MCParticles
+     *
+     *  @return the hits to is neutrino induced map 
      */
     static HitsToBool GetHitsToIsNuInducedMap(const art::Event &event, const art::InputTag &hitLabel, const art::InputTag &mcParticleLabel, const art::InputTag &backtrackerLabel, const MCParticleVector &nuMCParticles);
 

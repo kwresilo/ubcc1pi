@@ -46,6 +46,7 @@ find_ups_product( cetbuildtools v3_10_00 )
 find_ups_product( nusimdata )
 find_ups_product( lardataobj )
 find_ups_product( larevt )
+find_ups_product( larsim )
 
 # macros for dictionary and simple_plugin
 include(ArtDictionary)
@@ -54,6 +55,7 @@ include(BuildPlugins)
 
 # source
 add_subdirectory(ubcc1pi)
+add_subdirectory(ubcc1pi_standalone)
 
 # configuration
 add_subdirectory(fcl)

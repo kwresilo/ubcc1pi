@@ -249,6 +249,16 @@ class RecoHelper
         static float GetPidScore(const art::Ptr<anab::ParticleID> &pid, const std::function<bool(const anab::sParticleIDAlgScores &)> &fCriteria);
 
         /**
+         *  @brief  Get the degrees of freedom associated with a given PID criteria
+         *
+         *  @param  pid the input pid object
+         *  @param  fCriteria a function that returns true if a given algorithm score passes some criteria
+         *
+         *  @return the degrees of freedom
+         */
+        static float GetPidDegreesOfFreedom(const art::Ptr<anab::ParticleID> &pid, const std::function<bool(const anab::sParticleIDAlgScores &)> &fCriteria);
+
+        /**
          *  @brief  Convert a plane mask from a PID algorithm into a human readable view
          *
          *  @param  planeMask the input plane mask
@@ -263,10 +273,99 @@ class RecoHelper
          *  @param  pid the input pid
          *  @param  pdg the assumed pdg
          *  @param  view the view
+         *  @param  dir if the fit is forward or backward
          *
          *  @return the bragg likelihood
          */
-        static float GetBraggLikelihood(const art::Ptr<anab::ParticleID> &pid, const int &pdg, const geo::View_t &view);
+        static float GetBraggLikelihood(const art::Ptr<anab::ParticleID> &pid, const int &pdg, const geo::View_t &view, const anab::kTrackDir &dir = anab::kForward);
+
+        /**
+         *  @brief  Get the bragg likelihood from a PID object using collection plane and falling back on induction planes if not available
+         *
+         *  @param  pid the input pid
+         *  @param  pdg the assumed pdg
+         *  @param  dir if the fit is forward or backward
+         *  @param  yzAngle the angle of the input track in the YZ plane
+         *  @param  sin2AngleThreshold the threshold within which the track musn't points along the W wire direction to use the info on that plane
+         *
+         *  @return the bragg likelihood over all planes
+         */
+        static float GetBraggLikelihood(const art::Ptr<anab::ParticleID> &pid, const int &pdg, const anab::kTrackDir &dir, const float yzAngle, const float sin2AngleThreshold);
+
+        /**
+         *  @brief  Get the number of degrees of freedom associated with a given bragg likelihood
+         *
+         *  @param  pid the input pid
+         *  @param  pdg the assumed pdg
+         *  @param  view the view
+         *  @param  dir if the fit is forward or backward
+         *
+         *  @return the number of degrees of freedom
+         */
+        static float GetBraggLikelihoodDegreesOfFreedom(const art::Ptr<anab::ParticleID> &pid, const int &pdg, const geo::View_t &view, const anab::kTrackDir &dir);
+
+        /**
+         *  @brief  Get the indices of the trajectory points that are valid in an input track
+         *
+         *  @param  track the input track
+         *
+         *  @return the valid trajectory point indices
+         */
+        static std::vector<size_t> GetValidPoints(const art::Ptr<recob::Track> &track);
+
+        /**
+         *  @brief  Get the range of a track by integrating the distances between trajectory points
+         *
+         *  @param  track the input track
+         *  @param  pSpaceChargeService the input space charge service
+         *
+         *  @return the range of the track
+         */
+        static float GetRange(const art::Ptr<recob::Track> &track, const spacecharge::SpaceChargeService::provider_type *const pSpaceChargeService);
+
+        /**
+         *  @brief  Get the distance from the start of a track to a given point in longitudinal and transverse coordinates based on the track direction
+         *
+         *  @param  track the track
+         *  @param  point the point
+         *  @param  pSpaceChargeService the space charge service
+         *  @param  transverseDist the output transverse distance
+         *  @param  longitudinalDist the output longitudinal distance
+         */
+        static void GetDistanceToPoint(const art::Ptr<recob::Track> &track, const TVector3 &point, const spacecharge::SpaceChargeService::provider_type *const pSpaceChargeService, float &transverseDist, float &longitudinalDist);
+
+        /**
+         *  @brief  Get the standard deviation of the angular differences between sequential track segments
+         *
+         *  @param  track the input track
+         *
+         *  @return the wiggliness
+         */
+        static float GetTrackWiggliness(const art::Ptr<recob::Track> &track);
+
+        /**
+         *  @brief  Count the input spacepoints which are within a given distance of the input track end
+         *
+         *  @param  track the input track
+         *  @param  spacePoints the input spacepoints
+         *  @param  distance the threshold distance
+         *  @param  pSpaceChargeService the input space charge service
+         *
+         *  @return number of spacepoints near track end
+         */
+        static unsigned int CountSpacePointsNearTrackEnd(const art::Ptr<recob::Track> &track, const SpacePointVector &spacePoints, const float distance, const spacecharge::SpaceChargeService::provider_type *const pSpaceChargeService);
+
+        /**
+         *  @brief  Get the mean dEdx at the start of the track excluding any hits greater than one standard deviation from the median dEdx
+         *
+         *  @param  dedxPerHit the input dEdx per hit
+         *  @param  residualRangePerHit the input residual ranges per hit
+         *  @param  nHitsToSkip the number of hits to skip at the start of the track
+         *  @param  lengthFraction the fraction of the total range to use to isolate the start of the track
+         *
+         *  @return the truncated mean dEdx at the start of the track
+         */
+        static float GetTruncatedMeandEdxAtTrackStart(const std::vector<float> dedxPerHit, const std::vector<float> &residualRangePerHit, const unsigned int nHitsToSkip, const float lengthFraction);
 };
 
 } // namespace ubcc1pi
