@@ -24,6 +24,7 @@
 
         // Helpers
         "Helpers/AnalysisHelper.cxx",
+        "Helpers/BDTHelper.cxx",
         "Helpers/PlottingHelper.cxx",
 
         // Macros
@@ -31,7 +32,9 @@
         "Macros/CountPOT.cxx",
         "Macros/GetRunSubrunList.cxx",
         "Macros/PlotInputVariables.cxx",
-        "Macros/CCInclusiveTruthStudy.cxx"
+        "Macros/CCInclusiveTruthStudy.cxx",
+        "Macros/TrainBDTs.cxx",
+        "Macros/MakeEventSelectionTable.cxx"
 
     }))
     {

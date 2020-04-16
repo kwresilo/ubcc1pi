@@ -121,6 +121,10 @@ void PlottingHelper::ParticlePlot::SaveAs(const std::string &fileName)
     {
         for (const auto &particle : PlottingHelper::AllParticleStyles)
         {
+            // The points already have error bars
+            if (PlottingHelper::ShouldUsePoints(particle))
+                continue;
+
             // Don't draw BNB data
             if (particle == BNBData)
                 continue;
@@ -136,6 +140,7 @@ void PlottingHelper::ParticlePlot::SaveAs(const std::string &fileName)
             pHistClone->SetFillStyle(1001);
             pHistClone->SetLineColorAlpha(col, 0.f);
             pHistClone->SetFillColorAlpha(col, 0.3f);
+
             pHistClone->Draw(isFirst ? "e2" : "e2 same");
             isFirst = false;
         }
@@ -153,7 +158,9 @@ void PlottingHelper::ParticlePlot::SaveAs(const std::string &fileName)
         if (pHist->GetEntries() == 0)
             continue;
         
-        pHist->Draw(isFirst ? "hist" : "hist same");
+        const bool usePoints = PlottingHelper::ShouldUsePoints(particle);
+        const TString style = usePoints ? "e1" : "hist";
+        pHist->Draw(isFirst ? style : style + "same");
         isFirst = false;
     }
 
@@ -260,16 +267,18 @@ void PlottingHelper::ParticlePlot::SaveAsStacked(const std::string &fileName)
 // -----------------------------------------------------------------------------------------------------------------------------------------
 // -----------------------------------------------------------------------------------------------------------------------------------------
         
-PlottingHelper::ParticleStyle PlottingHelper::GetParticleStyle(const Event::Reco::Particle &particle, const std::vector<Event::Truth::Particle> &truthParticles)
+PlottingHelper::ParticleStyle PlottingHelper::GetParticleStyle(const Event::Reco::Particle &particle, const std::vector<Event::Truth::Particle> &truthParticles, const bool usePoints)
 {
+    const auto externalType = usePoints ? ExternalPoints : External;
+
     if (!particle.hasMatchedMCParticle.IsSet())
-        return External;
+        return externalType;
 
     if (!particle.hasMatchedMCParticle())
-        return External;
+        return externalType;
 
     if (truthParticles.empty())
-        return External;
+        return externalType;
 
     // Get the true pdg code applying the visibility conditions
     auto truePdgCode = -std::numeric_limits<int>::max();
@@ -282,25 +291,25 @@ PlottingHelper::ParticleStyle PlottingHelper::GetParticleStyle(const Event::Reco
     }
     catch (const std::logic_error &)
     {
-        return External;
+        return externalType;
     }
 
     switch (truePdgCode)
     {
         case 13:
-            return Muon;
+            return usePoints ? MuonPoints : Muon;
         case 2212:
-            return Proton;
+            return usePoints ? ProtonPoints : Proton;
         case 211:
-            return (isGolden ? GoldenPion : NonGoldenPion);
+            return (isGolden ? (usePoints ? GoldenPionPoints : GoldenPion) : (usePoints ? NonGoldenPionPoints : NonGoldenPion));
         case -211:
-            return PiMinus;
+            return usePoints ? PiMinusPoints : PiMinus;
         case 11:
-            return Electron;
+            return usePoints ? ElectronPoints : Electron;
         case 22:
-            return Photon;
+            return usePoints ? PhotonPoints : Photon;
         default:
-            return Other;
+            return usePoints ? OtherPoints : Other;
     }
 }
 

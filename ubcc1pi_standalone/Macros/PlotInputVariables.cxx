@@ -137,6 +137,7 @@ int PlotInputVariables(const std::string &overlayFileName, const float overlayWe
                 if (particle.truncatedMeandEdx.IsSet())
                     plot_truncatedMeandEdx.Fill(particle.truncatedMeandEdx(), particleStyle, weight);
 
+                // TODO refactor with new analysis helper functions
                 if (particle.likelihoodForwardProton.IsSet() && particle.likelihoodMIP.IsSet())
                 {
                     const float denom = particle.likelihoodMIP();

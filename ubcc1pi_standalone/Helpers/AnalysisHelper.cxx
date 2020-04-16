@@ -3,9 +3,82 @@
 #include "ubcc1pi_standalone/Helpers/GeometryHelper.h"
 
 #include <stdexcept>
+#include <algorithm>
 
 namespace ubcc1pi
 {
+        
+std::string AnalysisHelper::GetSampleTypeName(const SampleType &sampleType)
+{
+    switch (sampleType)
+    {
+        case DataBNB:
+            return "Data BNB";
+        case Overlay:
+            return "Overlay";
+        case DataEXT:
+            return "Data EXT";
+        case Dirt:
+            return "Dirt";
+        default: break;
+    }
+            
+    throw std::invalid_argument("AnalysisHelper::GetSampleTypeName - unknown sample type");
+}
+    
+// -----------------------------------------------------------------------------------------------------------------------------------------
+
+void AnalysisHelper::EventCounter::CountEvent(const std::string &tag, const SampleType &sampleType, const std::shared_ptr<Event> &pEvent, const float weight)
+{
+    // Keep track of this tag if we haven't seen it before
+    if (std::find(m_tags.begin(), m_tags.end(), tag) == m_tags.end())
+        m_tags.push_back(tag);
+
+    // Get the mapping from the classification string to the count/weight, making it if it doesn't exist for this tag & sampleType
+    auto &stringToCountMap = m_eventCountMap[tag][sampleType];
+    auto &stringToWeightMap = m_eventWeightMap[tag][sampleType];
+        
+    const auto classification = AnalysisHelper::GetClassificationString(pEvent);
+
+    // Add to the count map
+    auto countIter = stringToCountMap.find(classification);
+    if (countIter == stringToCountMap.end())
+    {
+        stringToCountMap.emplace(classification, 1u);
+    }
+    else
+    {
+        countIter->second++;
+    }
+
+    // Add to the weight map
+    auto weightIter = stringToWeightMap.find(classification);
+    if (weightIter == stringToWeightMap.end())
+    {
+        stringToWeightMap.emplace(classification, weight);
+    }
+    else
+    {
+        weightIter->second += weight;
+    }
+}
+
+// -----------------------------------------------------------------------------------------------------------------------------------------
+
+void AnalysisHelper::EventCounter::PrintBreakdown(const unsigned int nBackgrounds) const
+{
+    this->PrintBreakdown(m_eventCountMap, nBackgrounds);
+}
+
+// -----------------------------------------------------------------------------------------------------------------------------------------
+
+void AnalysisHelper::EventCounter::PrintBreakdownWithWeights(const unsigned int nBackgrounds) const
+{
+    this->PrintBreakdown(m_eventWeightMap, nBackgrounds);
+}
+
+// -----------------------------------------------------------------------------------------------------------------------------------------
+// -----------------------------------------------------------------------------------------------------------------------------------------
 
 bool AnalysisHelper::IsTrueCC1Pi(const std::shared_ptr<Event> &pEvent)
 {
@@ -18,33 +91,12 @@ bool AnalysisHelper::IsTrueCC1Pi(const std::shared_ptr<Event> &pEvent)
     if (!AnalysisHelper::IsFiducial(truth.nuVertex()))
         return false;
     
-    // Check the topology
-    unsigned int nMu = 0;
-    unsigned int nProton = 0;
-    unsigned int nPion = 0;
-    unsigned int nOther = 0;
-
-    for (const auto &particle : pEvent->truth.particles)
-    {
-        if (!AnalysisHelper::PassesVisibilityThreshold(particle))
-            continue;
-
-        switch (particle.pdgCode())
-        {
-            case 13:
-                nMu++;
-                break;
-            case 2212:
-                nProton++;
-                break;
-            case 211:
-                nPion++;
-                break;
-            default:
-                nOther++;
-                break;
-        }
-    }
+    // Count the visible particles
+    const auto visibleParticles = AnalysisHelper::SelectVisibleParticles(pEvent->truth.particles);
+    const auto nMu = AnalysisHelper::CountParticlesWithPdgCode(visibleParticles, 13);
+    const auto nProton = AnalysisHelper::CountParticlesWithPdgCode(visibleParticles, 2212);
+    const auto nPion = AnalysisHelper::CountParticlesWithPdgCode(visibleParticles, 211);
+    const auto nOther = visibleParticles.size() - (nMu + nProton + nPion);
 
     // Insist the CC1Pi topology
     return (nMu == 1 && nPion == 1 && nOther == 0);
@@ -62,10 +114,7 @@ bool AnalysisHelper::PassesVisibilityThreshold(const Event::Truth::Particle &par
                             absPDG == 2112 || // Neutron
                             absPDG == 22   || // Photon
                             absPDG == 211  || // Charged pion
-                            absPDG == 321  || // Charged kaon
-                            absPDG == 3112 || // Sigma minus
-                            absPDG == 3222 || // Sigma plus
-                            absPDG == 3312 ); // Hyperon minus
+                            absPDG == 321);   // Charged kaon
 
     if (!isVisible)
         return false;
@@ -81,6 +130,196 @@ bool AnalysisHelper::PassesVisibilityThreshold(const Event::Truth::Particle &par
     }
 
     return (particle.momentum() >= thresholdMomentum);
+}
+
+// -----------------------------------------------------------------------------------------------------------------------------------------
+        
+std::vector<Event::Truth::Particle> AnalysisHelper::SelectVisibleParticles(const std::vector<Event::Truth::Particle> &particles)
+{
+    std::vector<Event::Truth::Particle> visibleParticles;
+
+    for (const auto &particle : particles)
+    {
+        if (AnalysisHelper::PassesVisibilityThreshold(particle))
+            visibleParticles.push_back(particle);
+    }
+
+    return visibleParticles;
+}
+
+// -----------------------------------------------------------------------------------------------------------------------------------------
+        
+unsigned int AnalysisHelper::CountParticlesWithPdgCode(const std::vector<Event::Truth::Particle> &particles, const int pdgCode)
+{
+    unsigned int count = 0;
+
+    for (const auto &particle : particles)
+    {
+        if (particle.pdgCode() == pdgCode)
+            count++;
+    }
+
+    return count;
+}
+
+// -----------------------------------------------------------------------------------------------------------------------------------------
+
+unsigned int AnalysisHelper::CountGoldenParticlesWithPdgCode(const std::vector<Event::Truth::Particle> &particles, const int pdgCode)
+{
+    std::vector<Event::Truth::Particle> goldenParticles;
+    for (const auto &particle : particles)
+    {
+        if (AnalysisHelper::IsGolden(particle))
+            goldenParticles.push_back(particle);
+    }
+
+    return AnalysisHelper::CountParticlesWithPdgCode(goldenParticles, pdgCode);
+}
+
+// -----------------------------------------------------------------------------------------------------------------------------------------
+        
+void AnalysisHelper::GetPdgCodeCountMap(const std::vector<Event::Truth::Particle> &particles, std::vector<int> &foundPdgs, std::unordered_map<int, unsigned int> &pdgCodeCountMap)
+{
+    if (!foundPdgs.empty())
+        throw std::invalid_argument("AnalysisHelper::GetPdgCodeCountMap - input foundPdgs vector isn't empty");
+
+    if (!pdgCodeCountMap.empty())
+        throw std::invalid_argument("AnalysisHelper::GetPdgCodeCountMap - input pdgCodeCountMap isn't empty");
+
+    // Get the mapping
+    for (const auto &particle : particles)
+    {
+        const auto pdg = particle.pdgCode();
+        auto iter = pdgCodeCountMap.find(pdg);
+
+        if (iter == pdgCodeCountMap.end())
+        {
+            // Add a new entry
+            pdgCodeCountMap.emplace(pdg, 1);
+            foundPdgs.push_back(pdg);
+        }
+        else
+        {
+            // Increment the counter
+            iter->second++;
+        }
+    }
+
+    // Sort the vector for reproducibility. Here we sort numerically in increasing order, but place particles and antiparticles next to each other
+    std::sort(foundPdgs.begin(), foundPdgs.end(), [](const int &a, const int &b) {
+
+        const auto aAbs = std::abs(a);
+        const auto bAbs = std::abs(b);
+
+        return (aAbs == bAbs) ? a > b : aAbs < bAbs;
+    });
+}
+
+// -----------------------------------------------------------------------------------------------------------------------------------------
+
+std::string AnalysisHelper::GetTopologyString(const std::vector<Event::Truth::Particle> &particles, const bool countProtonsInclusively)
+{
+    // Count the particles by PDG code
+    std::vector<int> foundPdgs;
+    std::unordered_map<int, unsigned int> pdgCodeCountMap;
+    AnalysisHelper::GetPdgCodeCountMap(particles, foundPdgs, pdgCodeCountMap);
+
+    unsigned int nOther = 0;
+    std::string topology = "";
+
+    for (const auto &pdg : foundPdgs)
+    {
+        const auto count = pdgCodeCountMap.at(pdg);
+        const auto countStr = std::to_string(count);
+    
+        switch (pdg)
+        {
+            case 11:
+                topology += countStr + " e-  ";
+                break;
+            case -11:
+                topology += countStr + " e+  ";
+                break;
+            case 13:
+                topology += countStr + " Mu-  ";
+                break;
+            case -13:
+                topology += countStr + " Mu+  ";
+                break;
+            case 22:
+                topology += countStr + " Gamma  ";
+                break;
+            case 211:
+                topology += countStr + " Pi+  ";
+                break;
+            case -211:
+                topology += countStr + " Pi-  ";
+                break;
+            case 321:
+                topology += countStr + " K+  ";
+                break;
+            case -321:
+                topology += countStr + " K-  ";
+                break;
+            case 2112:
+                topology += countStr + " n  ";
+                break;
+            case 2212:
+                if (!countProtonsInclusively)
+                    topology += countStr + " p  ";
+                break;
+            default:
+                nOther++;
+                break;
+        }
+    }
+
+    if (countProtonsInclusively)
+        topology += "X p  ";
+
+    if (nOther != 0)
+        topology += std::to_string(nOther) + " other  ";
+
+
+    return topology;
+}
+
+// -----------------------------------------------------------------------------------------------------------------------------------------
+
+std::string AnalysisHelper::GetClassificationString(const std::shared_ptr<Event> &pEvent, const bool countProtonsInclusively)
+{
+    // Check if data
+    if (!pEvent->metadata.hasTruthInfo())
+        return "D,  ";
+
+    const auto truth = pEvent->truth;
+    
+    // Insist the true neutrino is fiducial
+    if (!AnalysisHelper::IsFiducial(truth.nuVertex()))
+        return "NF, ";
+
+    std::string classification = "";
+    const auto visibleParticles = AnalysisHelper::SelectVisibleParticles(truth.particles);
+    
+    // Signal or background
+    const auto isTrueCC1Pi = AnalysisHelper::IsTrueCC1Pi(pEvent);
+    classification += isTrueCC1Pi ? "S" : "B,  ";
+    
+    if (isTrueCC1Pi)
+    {
+        // Check if we have a golden pion
+        const auto hasGoldenPion = (AnalysisHelper::CountGoldenParticlesWithPdgCode(visibleParticles, 211) != 0);
+
+        if (hasGoldenPion)
+            classification += " G,";
+        else
+            classification += ",  ";
+    }
+
+    // Add the topology classification
+    classification += "  " + AnalysisHelper::GetTopologyString(visibleParticles, countProtonsInclusively);
+
+    return classification;
 }
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
@@ -121,9 +360,16 @@ bool AnalysisHelper::IsContained(const Event::Truth::Particle &particle)
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
 
+bool AnalysisHelper::HasTrackFit(const Event::Reco::Particle &particle)
+{
+    return (particle.startX.IsSet() && particle.startY.IsSet() && particle.startZ.IsSet() && particle.endX.IsSet() && particle.endY.IsSet() && particle.endZ.IsSet());
+}
+
+// -----------------------------------------------------------------------------------------------------------------------------------------
+
 bool AnalysisHelper::IsContained(const Event::Reco::Particle &particle)
 {
-    if (!particle.startX.IsSet() || !particle.startY.IsSet() || !particle.startZ.IsSet() || !particle.endX.IsSet() || !particle.endY.IsSet() || !particle.endZ.IsSet())
+    if (!AnalysisHelper::HasTrackFit(particle))
         throw std::invalid_argument("AnalysisHelper::IsContained - input reco particle doesn't have a fitted track start-end points");
 
     const auto start = TVector3(particle.startX(), particle.startY(), particle.startZ());
@@ -188,6 +434,39 @@ bool AnalysisHelper::IsGolden(const Event::Truth::Particle &particle)
             particle.nInelasticScatters() == 0 &&
             particle.isStopping() &&
             AnalysisHelper::IsContained(particle));
+}
+
+// -----------------------------------------------------------------------------------------------------------------------------------------
+        
+bool AnalysisHelper::GetLikelihoodRatio(const Member<float> &numerator, const Member<float> &denominator, float &ratio)
+{
+    ratio = -std::numeric_limits<float>::max();
+
+    if (!numerator.IsSet() || !denominator.IsSet())
+        return false;
+
+    if (std::abs(denominator()) <= std::numeric_limits<float>::epsilon())
+        return false;
+
+    ratio = numerator() / denominator();
+    return true;
+}
+
+// -----------------------------------------------------------------------------------------------------------------------------------------
+        
+bool AnalysisHelper::GetSoftmax(const Member<float> &signal, const Member<float> &background, float &softmax)
+{
+    softmax = -std::numeric_limits<float>::max();
+
+    if (!signal.IsSet() || !background.IsSet())
+        return false;
+
+    const auto denominator = std::exp(signal()) + std::exp(background());
+    if (std::abs(denominator) <= std::numeric_limits<float>::epsilon())
+        return false;
+
+    softmax = std::exp(signal()) / denominator;
+    return true;
 }
 
 // -----------------------------------------------------------------------------------------------------------------------------------------

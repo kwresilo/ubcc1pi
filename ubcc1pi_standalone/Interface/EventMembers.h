@@ -58,9 +58,10 @@
     f(p, q, false, bool,        hasTruthInfo)                                                                                              \
 
 // The event truth information members
+//    f(p, q, false, float,                      splineEventWeight)                                                                          \
+//    f(p, q, false, float,                      genieTuneEventWeight)                                                                       \
+
 #define UBCC1PI_MACRO_EVENT_TRUTH_MEMBERS(p, q, f)                                                                                         \
-    f(p, q, false, float,                      splineEventWeight)                                                                          \
-    f(p, q, false, float,                      genieTuneEventWeight)                                                                       \
     f(p, q, false, bool,                       isCC)                                                                                       \
     f(p, q, false, int,                        interactionMode)                                                                            \
     f(p, q, true,  std::string,                interactionString)                                                                          \

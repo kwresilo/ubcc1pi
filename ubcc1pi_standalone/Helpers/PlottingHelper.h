@@ -30,15 +30,24 @@ class PlottingHelper
          */
         enum ParticleStyle
         {
-            Muon,
-            Proton,
-            GoldenPion,
-            NonGoldenPion,
-            PiMinus,
-            Electron,
-            Photon,
             External,
+            ExternalPoints,
+            Muon,
+            MuonPoints,
+            Proton,
+            ProtonPoints,
+            GoldenPion,
+            GoldenPionPoints,
+            NonGoldenPion,
+            NonGoldenPionPoints,
+            PiMinus,
+            PiMinusPoints,
+            Electron,
+            ElectronPoints,
+            Photon,
+            PhotonPoints,
             Other,
+            OtherPoints,
             BNBData
         };
 
@@ -46,6 +55,15 @@ class PlottingHelper
          *  @brief  The vector of all particle styles
          */
         static const std::vector<ParticleStyle> AllParticleStyles;
+
+        /**
+         *  @brief  If we should draw the input style with points (or a line)
+         *
+         *  @param  style the input style
+         *
+         *  @return boolean, true if points should be used
+         */
+        static bool ShouldUsePoints(const ParticleStyle &style);
 
         /**
          *  @brief  The plot class that manages histograms of particle characteristics
@@ -127,10 +145,11 @@ class PlottingHelper
          *
          *  @param  particle the input reco particle
          *  @param  truthParticles the input list of all truth particles
+         *  @param  usePoints if we should use datapoints instead of a line
          *
          *  @return the particle style
          */
-        static ParticleStyle GetParticleStyle(const Event::Reco::Particle &particle, const std::vector<Event::Truth::Particle> &truthParticles);
+        static ParticleStyle GetParticleStyle(const Event::Reco::Particle &particle, const std::vector<Event::Truth::Particle> &truthParticles, const bool usePoints = false);
 
         /**
          *  @brief  Set the line style for a given particle type
@@ -180,14 +199,23 @@ class PlottingHelper
 
 const std::vector<PlottingHelper::ParticleStyle> PlottingHelper::AllParticleStyles = {
     External,
+    ExternalPoints,
     Muon,
+    MuonPoints,
     Proton,
+    ProtonPoints,
     GoldenPion,
+    GoldenPionPoints,
     NonGoldenPion,
+    NonGoldenPionPoints,
     PiMinus,
+    PiMinusPoints,
     Electron,
+    ElectronPoints,
     Photon,
+    PhotonPoints,
     Other,
+    OtherPoints,
     BNBData
 };
 
@@ -217,38 +245,47 @@ inline void PlottingHelper::SetLineStyle(T *pObject, const ParticleStyle particl
     switch (particleStyle)
     {
         case Muon:
+        case MuonPoints:
             col = kAzure - 2;
             break;
 
         case Proton:
+        case ProtonPoints:
             col = kOrange - 3;
             break;
 
         case GoldenPion:
+        case GoldenPionPoints:
             col = kGreen + 1;
             break;
 
         case NonGoldenPion:
+        case NonGoldenPionPoints:
             col = kMagenta + 1;
             break;
         
         case PiMinus:
+        case PiMinusPoints:
             col = kRed - 4;
             break;
         
         case Electron:
+        case ElectronPoints:
             col = kCyan + 1;
             break;
         
         case Photon:
+        case PhotonPoints:
             col = kYellow + 1;
             break;
         
         case External:
+        case ExternalPoints:
             col = kGray + 3;
             break;
 
         case Other:
+        case OtherPoints:
             col = kGray;
             break;
         
@@ -261,6 +298,29 @@ inline void PlottingHelper::SetLineStyle(T *pObject, const ParticleStyle particl
     
     pObject->SetLineWidth(2);
     pObject->SetLineColor(col);
+
+    if (PlottingHelper::ShouldUsePoints(particleStyle))
+    {
+        pObject->SetMarkerColor(col);
+    }
+}
+
+// -----------------------------------------------------------------------------------------------------------------------------------------
+        
+bool PlottingHelper::ShouldUsePoints(const ParticleStyle &style)
+{
+    if (style == ExternalPoints ||
+        style == MuonPoints ||
+        style == ProtonPoints ||
+        style == GoldenPionPoints ||
+        style == NonGoldenPionPoints ||
+        style == PiMinusPoints ||
+        style == ElectronPoints ||
+        style == PhotonPoints ||
+        style == OtherPoints)
+        return true;
+
+    return false;
 }
 
 } // namespace ubcc1pi
