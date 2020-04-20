@@ -216,18 +216,26 @@ float BDTHelper::BDT::GetResponse(const std::vector<float> &features)
 // -----------------------------------------------------------------------------------------------------------------------------------------
 // -----------------------------------------------------------------------------------------------------------------------------------------
         
-bool BDTHelper::GetBDTFeatures(const Event::Reco::Particle &recoParticle, const std::vector<std::string> &featureNames, std::vector<float> &features)
+bool BDTHelper::GetBDTFeatures(const Event::Reco::Particle &recoParticle, const std::vector<std::string> &featureNames, std::vector<float> &features, const bool shouldDebug)
 {
     if (!features.empty())
         throw std::logic_error("BDTHelper::GetBDTFeatures - Input feature vector isn't empty");
 
     for (const auto &name : featureNames)
     {
+        if (shouldDebug)
+            std::cout << "DEBUG - Calculating: " << name << std::endl;
+
         if (name == "logBragg_pToMIP")
         {
             float feature = -std::numeric_limits<float>::max();
-            if (!AnalysisHelper::GetLikelihoodRatio(recoParticle.likelihoodForwardProton, recoParticle.likelihoodMIP, feature))
+            if (!AnalysisHelper::GetLikelihoodRatio(recoParticle.likelihoodForwardProtonW, recoParticle.likelihoodMIPW, feature))
+            {
+                if (shouldDebug)
+                    std::cout << "DEBUG - Can't calculate: " << name << std::endl;
+                
                 return false;
+            }
 
             features.push_back(feature);
             continue;
@@ -236,8 +244,13 @@ bool BDTHelper::GetBDTFeatures(const Event::Reco::Particle &recoParticle, const 
         if (name == "logBragg_piToMIP")
         {
             float feature = -std::numeric_limits<float>::max();
-            if (!AnalysisHelper::GetLikelihoodRatio(recoParticle.likelihoodForwardPion, recoParticle.likelihoodMIP, feature))
+            if (!AnalysisHelper::GetLikelihoodRatio(recoParticle.likelihoodForwardPionW, recoParticle.likelihoodMIPW, feature))
+            {
+                if (shouldDebug)
+                    std::cout << "DEBUG - Can't calculate: " << name << std::endl;
+                
                 return false;
+            }
 
             features.push_back(feature);
             continue;
@@ -245,18 +258,28 @@ bool BDTHelper::GetBDTFeatures(const Event::Reco::Particle &recoParticle, const 
 
         if (name == "truncMeandEdx")
         {
-            if (!recoParticle.truncatedMeandEdx.IsSet())
+            if (!recoParticle.truncatedMeandEdxW.IsSet())
+            {
+                if (shouldDebug)
+                    std::cout << "DEBUG - Can't calculate: " << name << std::endl;
+                
                 return false;
+            }
 
-            features.push_back(recoParticle.truncatedMeandEdx());
+            features.push_back(recoParticle.truncatedMeandEdxW());
             continue;
         }
 
         if (name == "protonForward")
         {
             float feature = -std::numeric_limits<float>::max();
-            if (!AnalysisHelper::GetSoftmax(recoParticle.likelihoodForwardPion, recoParticle.likelihoodBackwardProton, feature))
+            if (!AnalysisHelper::GetSoftmax(recoParticle.likelihoodForwardPionW, recoParticle.likelihoodBackwardProtonW, feature))
+            {
+                if (shouldDebug)
+                    std::cout << "DEBUG - Can't calculate: " << name << std::endl;
+                
                 return false;
+            }
 
             features.push_back(feature);
             continue;
@@ -265,8 +288,13 @@ bool BDTHelper::GetBDTFeatures(const Event::Reco::Particle &recoParticle, const 
         if (name == "muonForward")
         {
             float feature = -std::numeric_limits<float>::max();
-            if (!AnalysisHelper::GetSoftmax(recoParticle.likelihoodForwardMuon, recoParticle.likelihoodBackwardMuon, feature))
+            if (!AnalysisHelper::GetSoftmax(recoParticle.likelihoodForwardMuonW, recoParticle.likelihoodBackwardMuonW, feature))
+            {
+                if (shouldDebug)
+                    std::cout << "DEBUG - Can't calculate: " << name << std::endl;
+                
                 return false;
+            }
 
             features.push_back(feature);
             continue;
@@ -275,7 +303,12 @@ bool BDTHelper::GetBDTFeatures(const Event::Reco::Particle &recoParticle, const 
         if (name == "nDescendents")
         {
             if (!recoParticle.nDescendents.IsSet())
+            {
+                if (shouldDebug)
+                    std::cout << "DEBUG - Can't calculate: " << name << std::endl;
+                
                 return false;
+            }
 
             features.push_back(recoParticle.nDescendents());
             continue;
@@ -284,7 +317,12 @@ bool BDTHelper::GetBDTFeatures(const Event::Reco::Particle &recoParticle, const 
         if (name == "nSpacePointsNearEnd")
         {
             if (!recoParticle.nSpacePointsNearEnd.IsSet())
+            {
+                if (shouldDebug)
+                    std::cout << "DEBUG - Can't calculate: " << name << std::endl;
+                
                 return false;
+            }
 
             features.push_back(recoParticle.nSpacePointsNearEnd());
             continue;
@@ -293,7 +331,12 @@ bool BDTHelper::GetBDTFeatures(const Event::Reco::Particle &recoParticle, const 
         if (name == "wiggliness")
         {
             if (!recoParticle.wiggliness.IsSet())
+            {
+                if (shouldDebug)
+                    std::cout << "DEBUG - Can't calculate: " << name << std::endl;
+                
                 return false;
+            }
 
             features.push_back(recoParticle.wiggliness());
             continue;
@@ -302,7 +345,12 @@ bool BDTHelper::GetBDTFeatures(const Event::Reco::Particle &recoParticle, const 
         if (name == "trackScore")
         {
             if (!recoParticle.trackScore.IsSet())
+            {
+                if (shouldDebug)
+                    std::cout << "DEBUG - Can't calculate: " << name << std::endl;
+                
                 return false;
+            }
 
             features.push_back(recoParticle.trackScore());
             continue;

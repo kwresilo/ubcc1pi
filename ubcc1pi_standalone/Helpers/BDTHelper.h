@@ -213,7 +213,7 @@ class BDTHelper
          *
          *  @return boolean, true if all features are available
          */
-        static bool GetBDTFeatures(const Event::Reco::Particle &recoParticle, const std::vector<std::string> &featureNames, std::vector<float> &features);
+        static bool GetBDTFeatures(const Event::Reco::Particle &recoParticle, const std::vector<std::string> &featureNames, std::vector<float> &features, const bool shouldDebug = false);
 };
 
 // -----------------------------------------------------------------------------------------------------------------------------------------

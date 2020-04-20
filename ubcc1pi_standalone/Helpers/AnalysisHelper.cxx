@@ -1,6 +1,7 @@
 #include "ubcc1pi_standalone/Helpers/AnalysisHelper.h"
 
 #include "ubcc1pi_standalone/Helpers/GeometryHelper.h"
+#include "ubcc1pi_standalone/Helpers/FormattingHelper.h"
 
 #include <stdexcept>
 #include <algorithm>
@@ -27,6 +28,191 @@ std::string AnalysisHelper::GetSampleTypeName(const SampleType &sampleType)
 }
     
 // -----------------------------------------------------------------------------------------------------------------------------------------
+// -----------------------------------------------------------------------------------------------------------------------------------------
+                
+AnalysisHelper::EventCounter::EventCounter()
+{
+    // The "all" is treated differently when printing out
+    m_tags.push_back("all");
+}
+
+// -----------------------------------------------------------------------------------------------------------------------------------------
+
+float AnalysisHelper::EventCounter::GetWeight(const std::string &tag, const SampleType &sampleType, const std::string &classification) const
+{
+    float weight = 0.f;
+    if (this->GetWeight(tag, sampleType, classification, weight))
+        return weight;
+
+    return 0.f;
+}
+
+// -----------------------------------------------------------------------------------------------------------------------------------------
+
+bool AnalysisHelper::EventCounter::GetWeight(const std::string &tag, const SampleType &sampleType, const std::string &classification, float &weight) const
+{
+    const auto tagIter = m_eventWeightMap.find(tag);
+    if (tagIter == m_eventWeightMap.end())
+        return false;
+
+    const auto tagMap = tagIter->second;
+
+    const auto sampleIter = tagMap.find(sampleType);
+    if (sampleIter == tagMap.end())
+        return false;
+
+    const auto sampleMap = sampleIter->second;
+
+    const auto classificationIter = sampleMap.find(classification);
+    if (classificationIter == sampleMap.end())
+        return false;
+
+    weight = classificationIter->second;
+    return true;
+}
+
+// -----------------------------------------------------------------------------------------------------------------------------------------
+
+float AnalysisHelper::EventCounter::GetTotalMCWeight(const std::string &tag) const
+{
+    // Get the total weight for this tag
+    float totalWeight = 0.f;
+    for (const auto &type : AnalysisHelper::AllSampleTypes)
+    {
+        if (type == DataBNB)
+            continue;
+
+        for (const auto &classification : m_classifications)
+            totalWeight += this->GetWeight(tag, type, classification);
+    }
+
+    return totalWeight;
+}
+
+// -----------------------------------------------------------------------------------------------------------------------------------------
+
+float AnalysisHelper::EventCounter::GetBNBDataWeight(const std::string &tag) const
+{
+    float weight = 0.f;
+
+    for (const auto &classification : m_classifications)
+        weight += this->GetWeight(tag, DataBNB, classification);
+
+    return weight;
+}
+
+// -----------------------------------------------------------------------------------------------------------------------------------------
+
+float AnalysisHelper::EventCounter::GetSignalWeight(const std::string &tag) const
+{
+    float weight = 0.f;
+
+    for (const auto &classification : m_classifications)
+    {
+        if (classification.empty())
+            continue;
+
+        if (classification.at(0) != 'S')
+            continue;
+
+        weight += this->GetWeight(tag, Overlay, classification);
+    }
+
+    return weight;
+}
+
+// -----------------------------------------------------------------------------------------------------------------------------------------
+
+float AnalysisHelper::EventCounter::GetBackgroundWeight(const std::string &tag) const
+{
+    float weight = 0.f;
+
+    for (const auto &classification : m_classifications)
+    {
+        if (!classification.empty() && classification.at(0) == 'S')
+            continue;
+    
+        for (const auto &type : AnalysisHelper::AllSampleTypes)
+        {
+            if (type == DataBNB)
+                continue;
+
+            weight += this->GetWeight(tag, type, classification);
+        }
+    }
+
+    return weight;
+}
+
+// -----------------------------------------------------------------------------------------------------------------------------------------
+
+float AnalysisHelper::EventCounter::GetSignalEfficiency(const std::string &tag) const
+{
+    const auto allWeight = this->GetSignalWeight("all");
+    
+    if (allWeight <= std::numeric_limits<float>::epsilon())
+        return -std::numeric_limits<float>::max();
+    
+    const auto weight = this->GetSignalWeight(tag);
+
+    return weight / allWeight;
+}
+
+// -----------------------------------------------------------------------------------------------------------------------------------------
+
+float AnalysisHelper::EventCounter::GetSignalPurity(const std::string &tag) const
+{
+    if (tag == "all")
+        throw std::invalid_argument("AnalysisHelper::EventCounter::GetSignalPurity - Can't get purity for tag \"all\", as it won't be available for off-beam data");
+
+    const auto totalWeight = this->GetTotalMCWeight(tag);
+    
+    if (totalWeight <= std::numeric_limits<float>::epsilon())
+        return -std::numeric_limits<float>::max();
+    
+    const auto weight = this->GetSignalWeight(tag);
+
+    return weight / totalWeight;
+}
+
+// -----------------------------------------------------------------------------------------------------------------------------------------
+
+float AnalysisHelper::EventCounter::GetEfficiency(const std::string &tag, const SampleType &sampleType, const std::string &classification) const
+{
+    if (sampleType != Overlay)
+        throw std::invalid_argument("AnalysisHelper::EventCounter::GetEfficiency - Can't get efficiency of data!");
+
+    const auto allWeight = this->GetWeight("all", sampleType, classification);
+    
+    if (allWeight <= std::numeric_limits<float>::epsilon())
+        return -std::numeric_limits<float>::max();
+
+    const auto weight = this->GetWeight(tag, sampleType, classification);
+
+    return weight / allWeight;
+}
+
+// -----------------------------------------------------------------------------------------------------------------------------------------
+
+float AnalysisHelper::EventCounter::GetPurity(const std::string &tag, const SampleType &sampleType, const std::string &classification) const
+{
+    if (sampleType == DataBNB)
+        throw std::invalid_argument("AnalysisHelper::EventCounter::GetPurity - Can't get purity of BNB data!");
+
+    if (tag == "all")
+        throw std::invalid_argument("AnalysisHelper::EventCounter::GetPurity - Can't get purity for tag \"all\", as it won't be available for off-beam data");
+
+    const auto totalWeight = this->GetTotalMCWeight(tag);
+
+    if (totalWeight <= std::numeric_limits<float>::epsilon())
+        return -std::numeric_limits<float>::epsilon();
+    
+    const auto weight = this->GetWeight(tag, sampleType, classification);
+
+    return weight / totalWeight;
+}
+
+// -----------------------------------------------------------------------------------------------------------------------------------------
 
 void AnalysisHelper::EventCounter::CountEvent(const std::string &tag, const SampleType &sampleType, const std::shared_ptr<Event> &pEvent, const float weight)
 {
@@ -34,24 +220,17 @@ void AnalysisHelper::EventCounter::CountEvent(const std::string &tag, const Samp
     if (std::find(m_tags.begin(), m_tags.end(), tag) == m_tags.end())
         m_tags.push_back(tag);
 
-    // Get the mapping from the classification string to the count/weight, making it if it doesn't exist for this tag & sampleType
-    auto &stringToCountMap = m_eventCountMap[tag][sampleType];
-    auto &stringToWeightMap = m_eventWeightMap[tag][sampleType];
-        
+    // Classify the event
     const auto classification = AnalysisHelper::GetClassificationString(pEvent);
+    
+    // Keep track of this classification if we haven't seen it before
+    if (std::find(m_classifications.begin(), m_classifications.end(), classification) == m_classifications.end())
+        m_classifications.push_back(classification);
 
-    // Add to the count map
-    auto countIter = stringToCountMap.find(classification);
-    if (countIter == stringToCountMap.end())
-    {
-        stringToCountMap.emplace(classification, 1u);
-    }
-    else
-    {
-        countIter->second++;
-    }
+    std::sort(m_classifications.begin(), m_classifications.end());
 
-    // Add to the weight map
+    // Get the mapping from the classification string to the weight, making it if it doesn't exist for this tag and sampleType
+    auto &stringToWeightMap = m_eventWeightMap[tag][sampleType];
     auto weightIter = stringToWeightMap.find(classification);
     if (weightIter == stringToWeightMap.end())
     {
@@ -65,16 +244,130 @@ void AnalysisHelper::EventCounter::CountEvent(const std::string &tag, const Samp
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
 
-void AnalysisHelper::EventCounter::PrintBreakdown(const unsigned int nBackgrounds) const
+void AnalysisHelper::EventCounter::PrintBreakdownSummary() const
 {
-    this->PrintBreakdown(m_eventCountMap, nBackgrounds);
+    FormattingHelper::Table table({"Tag", "", "Signal", "Background", "Efficiency", "Purity", "E*P", "", "BNB Data", "Data/MC ratio"});
+    for (const auto &tag : m_tags)
+    {
+        table.AddEmptyRow();
+        table.SetEntry("Tag", tag);
+
+        table.SetEntry("Signal", this->GetSignalWeight(tag));
+        table.SetEntry("Background", this->GetBackgroundWeight(tag));
+
+        const auto efficiency = this->GetSignalEfficiency(tag);
+        table.SetEntry("Efficiency", efficiency);
+
+        const auto isAll = (tag == "all");
+        if (tag == "all")
+        {
+            table.SetEntry("Purity", "?");
+            table.SetEntry("E*P", "?");
+        }
+        else
+        {
+            const auto purity = this->GetSignalPurity(tag);
+
+            table.SetEntry("Purity", purity);
+            table.SetEntry("E*P", efficiency * purity);
+        }
+
+        const auto bnbDataWeight = this->GetBNBDataWeight(tag);
+        const auto totalMCWeight = this->GetTotalMCWeight(tag);
+
+        table.SetEntry("BNB Data", bnbDataWeight);
+        
+        if (totalMCWeight <= std::numeric_limits<float>::epsilon())
+        {
+            table.SetEntry("Data/MC ratio", "?");
+        }
+        else
+        {
+            table.SetEntry("Data/MC ratio", bnbDataWeight / totalMCWeight);
+        }
+    }
+
+    table.Print();
 }
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
-
-void AnalysisHelper::EventCounter::PrintBreakdownWithWeights(const unsigned int nBackgrounds) const
+                
+void AnalysisHelper::EventCounter::PrintBreakdownDetails(const unsigned int nEntries) const
 {
-    this->PrintBreakdown(m_eventWeightMap, nBackgrounds);
+    FormattingHelper::Table table({"Tag", "", "Sample", "Classification", "", "Weight", "Efficiency", "Purity"});
+
+    for (const auto &tag : m_tags)
+    {
+        // Print a separator row 
+        if (tag != m_tags.front())
+            table.AddEmptyRow();
+
+        for (const auto &sample : AnalysisHelper::AllSampleTypes)
+        {
+            const auto sampleName = AnalysisHelper::GetSampleTypeName(sample);
+            std::vector<std::pair<std::string, float> > classificationWeightVector;
+
+            for (const auto &classification : m_classifications)
+            {
+                float weight = 0.f;
+                if (!this->GetWeight(tag, sample, classification, weight))
+                    continue;
+
+                classificationWeightVector.emplace_back(classification, weight);
+            }
+
+            std::sort(classificationWeightVector.begin(), classificationWeightVector.end(), [](const auto &a, const auto &b){
+                const bool isASignal = (!a.first.empty() && a.first.at(0) == 'S');
+                const bool isBSignal = (!b.first.empty() && b.first.at(0) == 'S');
+
+                // Put signal before background
+                if (isASignal != isBSignal)
+                    return isASignal;
+
+                // Order in numerically, largest numbers first
+                return a.second > b.second;
+            });
+
+            // Print the entries 
+            unsigned int entriesPrinted = 0;
+            for (const auto &entry : classificationWeightVector)
+            {
+                const auto &classification = entry.first;
+                const auto weight = entry.second;
+
+                table.AddEmptyRow();
+                table.SetEntry("Tag", tag);
+                table.SetEntry("Sample", sampleName);
+                table.SetEntry("Classification", classification);
+                table.SetEntry("Weight", weight);
+
+                if (sample == Overlay)
+                {
+                    table.SetEntry("Efficiency", this->GetEfficiency(tag, sample, classification));
+                }
+                else
+                {
+                    table.SetEntry("Efficiency",  "?");
+                }
+
+                if (sample != DataBNB && tag != "all")
+                {
+                    table.SetEntry("Purity", this->GetPurity(tag, sample, classification));
+                }
+                else
+                {
+                    table.SetEntry("Purity", "?");
+                }
+                
+                entriesPrinted++;
+
+                if (entriesPrinted == nEntries)
+                    break;
+            }
+        }
+    }
+    
+    table.Print();
 }
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
@@ -99,7 +392,8 @@ bool AnalysisHelper::IsTrueCC1Pi(const std::shared_ptr<Event> &pEvent)
     const auto nOther = visibleParticles.size() - (nMu + nProton + nPion);
 
     // Insist the CC1Pi topology
-    return (nMu == 1 && nPion == 1 && nOther == 0);
+    // ATTN HERE WE HAVE AT LEAST ONE PROTON AS THE TOPOLOGY! AAAHAHAAA THIS MIGHT NOT BE WHAT YOU WANT!
+    return (nMu == 1 && nPion == 1 && nProton >= 1 && nOther == 0);
 }
 
 // -----------------------------------------------------------------------------------------------------------------------------------------

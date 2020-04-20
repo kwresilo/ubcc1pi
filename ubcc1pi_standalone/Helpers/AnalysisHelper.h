@@ -54,6 +54,10 @@ class AnalysisHelper
         class EventCounter
         {
             public:
+                /**
+                 *  @brief  Constructor
+                 */
+                EventCounter();
 
                 /**
                  *  @brief  Count the input event and assign it a tag for reference
@@ -64,20 +68,117 @@ class AnalysisHelper
                  *  @param  weight a weight to apply to the event
                  */
                 void CountEvent(const std::string &tag, const SampleType &sampleType, const std::shared_ptr<Event> &pEvent, const float weight = 1.f);
-
-                /**
-                 *  @brief  Print a breakdown of the counted events
-                 *  
-                 *  @param  nBackgrounds the number of backgrounds to print
-                 */
-                void PrintBreakdown(const unsigned int nBackgrounds = 10u) const;
                 
                 /**
-                 *  @brief  Print a breakdown of the counted events with weights applied
+                 *  @brief  Get the total weight for a given tag, sample and classification - if the entry doesn't exist a weight of zero is returned
                  *
-                 *  @param  nBackgrounds the number of backgrounds to print
+                 *  @param  tag the tag
+                 *  @param  sampleType the sample type
+                 *  @param  classification the classification
+                 *
+                 *  @return the total weight
                  */
-                void PrintBreakdownWithWeights(const unsigned int nBackgrounds = 10u) const;
+                float GetWeight(const std::string &tag, const SampleType &sampleType, const std::string &classification) const;
+
+                /**
+                 *  @brief  Get the total weight for a given tag, sample and classification
+                 *
+                 *  @param  tag the tag
+                 *  @param  sampleType the sample type
+                 *  @param  classification the classification
+                 *  @param  weight the output weight
+                 *
+                 *  @return boolean, true if an entry exists
+                 */
+                bool GetWeight(const std::string &tag, const SampleType &sampleType, const std::string &classification, float &weight) const;
+                
+                /**
+                 *  @brief  Get the total weight for a given tag over all non beam data sample types at a given tag
+                 *
+                 *  @param  tag the tag
+                 *
+                 *  @return the total weight
+                 */
+                float GetTotalMCWeight(const std::string &tag) const;
+
+                /**
+                 *  @brief  Get the total weight for BNB data with the given tag
+                 *
+                 *  @param  tag the tag
+                 *
+                 *  @return the weight
+                 */
+                float GetBNBDataWeight(const std::string &tag) const;
+                
+                /**
+                 *  @brief  Get the total weight for signal events with the given tag
+                 *
+                 *  @param  tag the tag
+                 *
+                 *  @return the weight
+                 */
+                float GetSignalWeight(const std::string &tag) const;
+                
+                /**
+                 *  @brief  Get the total weight for background events with the given tag
+                 *
+                 *  @param  tag the tag
+                 *
+                 *  @return the weight
+                 */
+                float GetBackgroundWeight(const std::string &tag) const;
+                
+                /**
+                 *  @brief  Get the purity for signal events at a given tag
+                 *
+                 *  @param  tag the input tag
+                 *
+                 *  @return the purity
+                 */
+                float GetSignalPurity(const std::string &tag) const;
+                
+                /**
+                 *  @brief  Get the efficiency for signal events at the given tag
+                 * 
+                 *  @param  tag the input tag
+                 *
+                 *  @return the efficiency
+                 */
+                float GetSignalEfficiency(const std::string &tag) const;
+
+                /**
+                 *  @brief  Get the purity for the specified subsample at the given tag
+                 *
+                 *  @param  tag the input tag
+                 *  @param  sampleType the sample type
+                 *  @param  classification the classification
+                 *
+                 *  @return the purity
+                 */
+                float GetPurity(const std::string &tag, const SampleType &sampleType, const std::string &classification) const;
+                
+                /**
+                 *  @brief  Get the efficiency for the specified subsample at the given tag
+                 *
+                 *  @param  tag the input tag
+                 *  @param  sampleType the sample type
+                 *  @param  classification the classification
+                 *
+                 *  @return the efficiency
+                 */
+                float GetEfficiency(const std::string &tag, const SampleType &sampleType, const std::string &classification) const;
+
+                /**
+                 *  @brief  Print a breakdown of the counted events tag-by-tag broken down into signal and background
+                 */
+                void PrintBreakdownSummary() const;
+                
+                /**
+                 *  @brief  Print a breakdown of the counted events tag-by-tag broken down into individual classifications
+                 *
+                 *  @param  nEntries the number of backgrounds to print for each tag
+                 */
+                void PrintBreakdownDetails(const unsigned int nEntries = 10) const;
 
             private:
 
@@ -92,19 +193,9 @@ class AnalysisHelper
                 template <typename T>
                 using CounterMap = std::unordered_map<std::string, std::unordered_map<SampleType, std::unordered_map<std::string, T> > >; 
 
-                /**
-                 *  @brief  Print the breakdown of the input counter map
-                 *
-                 *  @tparam T the mapped type
-                 *  @param  counterMap the counter map to print
-                 *  @param  nBackgrounds the number of backgrounds to print
-                 */
-                template <typename T>
-                void PrintBreakdown(const CounterMap<T> &counterMap, const unsigned int nBackgrounds) const;
-
-                std::vector<std::string> m_tags;           ///< The tags
-                CounterMap<unsigned int> m_eventCountMap;  ///< The cumulative event count
-                CounterMap<float>        m_eventWeightMap; ///< The cumulative event weight
+                std::vector<std::string> m_tags;            ///< The tags
+                std::vector<std::string> m_classifications; ///< The classifications
+                CounterMap<float>        m_eventWeightMap;  ///< The cumulative event weight
         };
 
         /**
@@ -310,224 +401,10 @@ class AnalysisHelper
         
 const std::vector<AnalysisHelper::SampleType> AnalysisHelper::AllSampleTypes = {
     DataBNB,
-    DataEXT,
     Overlay,
+    DataEXT,
     Dirt
 };
-
-// -----------------------------------------------------------------------------------------------------------------------------------------
-
-// TODO make this less repulsive
-template <typename T>
-void AnalysisHelper::EventCounter::PrintBreakdown(const CounterMap<T> &counterMap, const unsigned int nBackgrounds) const
-{
-    const auto lineSize = 87u;
-    const auto alignWidthName = 40u;
-    const auto alignWidthValue = 10u;
-
-    // Check for the special "all" tag to use as a baseline
-    const auto allIter = counterMap.find("all");
-    const auto hasAllTag = (allIter != counterMap.end());
-
-    // Reverse the tags to get chronological order
-    std::vector<std::string> reverseTags = m_tags;
-    std::reverse(reverseTags.begin(), reverseTags.end());
-    for (unsigned int iTag = 0; iTag < reverseTags.size(); iTag++)
-    {
-        const auto &tag = reverseTags.at(iTag);
-
-        // Print the header for this tag
-        std::cout << std::string(lineSize, '=') << std::endl;
-        std::cout << "Tag : " << tag << std::endl;
-        std::cout << std::string(lineSize, '=') << std::endl;
-
-        // Check if we have entries to print
-        const auto iter = counterMap.find(tag);
-        if (iter == counterMap.end())
-        {
-            std::cout << "No entries" << std::endl;
-            continue;
-        }
-
-        const auto sampleTypeMap = iter->second;
-        
-        // Collect the total count over all sample types
-        T totalCountMC = static_cast<T>(0);
-        T totalCountDataBNB = static_cast<T>(0);
-        std::string mcSamplesUsed = "";
-        for (const auto &sampleType : AnalysisHelper::AllSampleTypes)
-        {
-            const auto iter2 = sampleTypeMap.find(sampleType);
-            if (iter2 == sampleTypeMap.end())
-                continue;
-            
-            const auto classificationToCountMap = iter2->second;
-
-            if (classificationToCountMap.empty())
-                continue;
-
-            for (const auto &entry : classificationToCountMap)
-            {
-                if (sampleType == DataBNB)
-                {
-                    totalCountDataBNB += entry.second;
-                }
-                else
-                {
-                    totalCountMC += entry.second;
-                }
-            }
-          
-            if (sampleType != DataBNB)
-                mcSamplesUsed += AnalysisHelper::GetSampleTypeName(sampleType) + "  ";
-        }
-        std::cout << "Total Data BNB: " << totalCountDataBNB << std::endl;
-        std::cout << "Total \"MC\": " << totalCountMC << std::endl;
-        std::cout << "  - This is the denominator of the purity for: " << mcSamplesUsed << std::endl;
-
-        // Breakdown by sample type
-        for (const auto &sampleType : AnalysisHelper::AllSampleTypes)
-        {
-            const auto iter2 = sampleTypeMap.find(sampleType);
-            if (iter2 == sampleTypeMap.end())
-                continue;
-            
-            const auto classificationToCountMap = iter2->second; 
-
-            const auto sampleString = AnalysisHelper::GetSampleTypeName(sampleType);
-
-            std::cout << std::string(lineSize, '-') << std::endl;
-            std::cout << "Sample : " << sampleString << std::endl;
-            std::cout << std::string(lineSize, '-') << std::endl;
-            
-            if (classificationToCountMap.empty())
-            {
-                std::cout << "No entries" << std::endl;
-                continue;
-            }
-
-            // Separate the map entries into signal an backgrounds
-            std::vector<std::pair<std::string, T> > signals, backgrounds;
-            for (const auto &entry : classificationToCountMap)
-            {
-                const auto &classification = entry.first;
-                const auto count = entry.second;
-
-                // Check for signal and print it, we want to see all signal
-                if (!classification.empty() && classification.at(0) == 'S')
-                {
-                    signals.emplace_back(classification, count);
-                }
-                else
-                {
-                    backgrounds.emplace_back(classification, count);
-                }
-            }
-
-            // Sort by the count
-            std::sort(signals.begin(), signals.end(), [](const auto &a, const auto &b){return a.second > b.second;});
-            std::sort(backgrounds.begin(), backgrounds.end(), [](const auto &a, const auto &b){return a.second > b.second;});
-
-            // Combine into a vector we want to print
-            const auto nBackgroundsToPrint = std::min(static_cast<unsigned int>(backgrounds.size()), nBackgrounds);
-            auto combined = signals;
-            combined.insert(combined.end(), backgrounds.begin(), std::next(backgrounds.begin(), nBackgroundsToPrint));
-
-            // Determine which columns we can print
-            const auto purityDenominator = static_cast<float>((sampleType == DataBNB) ? totalCountDataBNB : totalCountMC);
-            const auto shouldPrintPurity = purityDenominator > std::numeric_limits<float>::epsilon();
-            const auto shouldPrintRate = hasAllTag;
-            const auto shouldPrintRemoved = (iTag > 0);
-
-            // Print the header
-            std::cout << std::setw(alignWidthName) << std::left << "Topology" << " : " << std::setw(alignWidthValue) << "Count";
-            if (shouldPrintPurity)
-                std::cout << " : " << std::setw(alignWidthValue) << "Purity";
-
-            if (shouldPrintRate)
-                std::cout << " : " << std::setw(alignWidthValue) << "Rate";
-            
-            if (shouldPrintRemoved)
-                std::cout << " : " << std::setw(alignWidthValue) << "Removed";
-
-            std::cout << std::endl;
-
-            // Print the values
-            for (const auto &entry : combined)
-            {
-                std::cout << std::setw(alignWidthName) << std::left << entry.first << " : " << std::setw(alignWidthValue) << entry.second;
-                if (shouldPrintPurity)
-                {
-                    const auto purity = static_cast<float>(entry.second) / purityDenominator;
-                    std::cout << " : " << std::setw(alignWidthValue) << purity;
-                }
-            
-                if (shouldPrintRate)
-                {
-                    bool printed = false;
-                    const auto allIter2 = allIter->second.find(sampleType);
-
-                    if (allIter2 != allIter->second.end())
-                    {
-                        const auto allIter3 = allIter2->second.find(entry.first);
-                        
-                        if (allIter3 != allIter2->second.end())
-                        {
-                            const auto allCount = allIter3->second;
-                            const auto denom = static_cast<float>(allCount);
-                            if (denom > std::numeric_limits<float>::epsilon())
-                            {
-                                const auto efficiency = static_cast<float>(entry.second) / denom;
-                                std::cout << " : " << std::setw(alignWidthValue) << efficiency;
-                                printed = true;
-                            }
-                        }
-                    }
-
-                    if (!printed)
-                    {
-                        std::cout << " : " << std::setw(alignWidthValue) << "?";
-                    }
-                }
-
-                if (shouldPrintRemoved)
-                {
-                    bool printed = false;
-                    const auto iterLast = counterMap.find(reverseTags.at(iTag - 1));
-
-                    if (iterLast != counterMap.end())
-                    {
-                        const auto iterLast2 = iterLast->second.find(sampleType);
-                        if (iterLast2 != iterLast->second.end())
-                        {
-                            const auto iterLast3 = iterLast2->second.find(entry.first);
-
-                            if (iterLast3 != iterLast2->second.end())
-                            {
-                                const auto lastCount = iterLast3->second;
-                                const auto denom = static_cast<float>(lastCount);
-
-                                if (denom > std::numeric_limits<float>::epsilon())
-                                {
-                                    const auto fracRemoved = static_cast<float>(entry.second) / denom;
-                                    std::cout << " : " << std::setw(alignWidthValue) << fracRemoved;
-                                    printed = true;
-                                }
-                            }
-                        }
-                    }
-                    
-                    if (!printed)
-                    {
-                        std::cout << " : " << std::setw(alignWidthValue) << "?";
-                    }
-                }
-
-                std::cout << std::endl;
-            }
-        }
-    }
-}
 
 } // namespace ubcc1pi
 
