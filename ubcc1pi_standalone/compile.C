@@ -26,6 +26,7 @@
         "Helpers/AnalysisHelper.cxx",
         "Helpers/BDTHelper.cxx",
         "Helpers/PlottingHelper.cxx",
+        "Helpers/SelectionHelper.cxx",
 
         // Macros
         "Macros/Test.cxx",
@@ -34,7 +35,8 @@
         "Macros/PlotInputVariables.cxx",
         "Macros/CCInclusiveTruthStudy.cxx",
         "Macros/TrainBDTs.cxx",
-        "Macros/MakeEventSelectionTable.cxx"
+        "Macros/MakeEventSelectionTable.cxx",
+        "Macros/MakeEventSelectionPlots.cxx"
 
     }))
     {

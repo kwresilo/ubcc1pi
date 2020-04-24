@@ -5,26 +5,27 @@
 
 using namespace ubcc1pi;
 
-int PlotInputVariables(const std::string &overlayFileName, const float overlayWeight, const std::string &dataEXTFileName, const float extWeight, const std::string &dataBNBFileName, const bool cleanSignalOnly)
+int PlotInputVariables(const std::string &overlayFileName, const float overlayWeight, const std::string &dataEXTFileName, const float extWeight, const std::string &dataBNBFileName, const bool cleanSignalOnly, const bool useAbsPdg = true)
 {
     // Number of hits
-    PlottingHelper::ParticlePlot plot_nHitsU("Number of collection (U) plane hits", 100, 0, 1000);
-    PlottingHelper::ParticlePlot plot_nHitsV("Number of collection (V) plane hits", 100, 0, 1000);
-    PlottingHelper::ParticlePlot plot_nHitsW("Number of collection (W) plane hits", 100, 0, 1000);
-    PlottingHelper::ParticlePlot plot_nDescendents("Number of descendents", 6, 0, 6);
-    PlottingHelper::ParticlePlot plot_nDescendentHits("Number of descendent hits", 100, 0, 200);
-    PlottingHelper::ParticlePlot plot_nDescendentHitsNonZero("Number of descendent hits", 100, 1, 200);
-    PlottingHelper::ParticlePlot plot_nHitsInLargestDescendent("nHitsInLargestDescendent", 100, 1, 200);
-    PlottingHelper::ParticlePlot plot_nSpacePointsNearEnd("Number of spacepoints near track end", 60, 0, 120);
-    PlottingHelper::ParticlePlot plot_wiggliness("Wiggliness", 60, 0, 0.005);
-    PlottingHelper::ParticlePlot plot_trackScore("Track score", 100, 0, 1);
-    PlottingHelper::ParticlePlot plot_longitudinalVertexDist("Longitudinal vertex dist", 100, 0, 10);
-    PlottingHelper::ParticlePlot plot_transverseVertexDist("Transverse vertex dist", 100, 0, 10);
-    PlottingHelper::ParticlePlot plot_truncatedMeandEdx("Truncated Mean dEdx", 100, 0, 10);
-    PlottingHelper::ParticlePlot plot_logLikelihoodpMIP("log(L_p / L_MIP)", 100, -8, 8);
-    PlottingHelper::ParticlePlot plot_logLikelihoodpiMIP("log(L_pi / L_MIP)", 100, -4, 8);
-    PlottingHelper::ParticlePlot plot_forwardProton("Proton forward likelihood", 100, 0.3, 0.7);
-    PlottingHelper::ParticlePlot plot_forwardMuon("Muon forward likelihood", 100, 0.3, 0.7);
+    const std::string yLabel = "Fraction of reco particles";
+    PlottingHelper::MultiPlot plot_nHitsU("Number of collection (U) plane hits", yLabel, 100, 0, 1000);
+    PlottingHelper::MultiPlot plot_nHitsV("Number of collection (V) plane hits", yLabel, 100, 0, 1000);
+    PlottingHelper::MultiPlot plot_nHitsW("Number of collection (W) plane hits", yLabel, 100, 0, 1000);
+    PlottingHelper::MultiPlot plot_nDescendents("Number of descendents", yLabel, 6, 0, 6);
+    PlottingHelper::MultiPlot plot_nDescendentHits("Number of descendent hits", yLabel, 100, 0, 200);
+    PlottingHelper::MultiPlot plot_nDescendentHitsNonZero("Number of descendent hits", yLabel, 100, 1, 200);
+    PlottingHelper::MultiPlot plot_nHitsInLargestDescendent("nHitsInLargestDescendent", yLabel, 100, 1, 200);
+    PlottingHelper::MultiPlot plot_nSpacePointsNearEnd("Number of spacepoints near track end", yLabel, 60, 0, 120);
+    PlottingHelper::MultiPlot plot_wiggliness("Wiggliness", yLabel, 60, 0, 0.005);
+    PlottingHelper::MultiPlot plot_trackScore("Track score", yLabel, 100, 0, 1);
+    PlottingHelper::MultiPlot plot_longitudinalVertexDist("Longitudinal vertex dist", yLabel, 100, 0, 10);
+    PlottingHelper::MultiPlot plot_transverseVertexDist("Transverse vertex dist", yLabel, 100, 0, 10);
+    PlottingHelper::MultiPlot plot_truncatedMeandEdx("Truncated Mean dEdx", yLabel, 100, 0, 10);
+    PlottingHelper::MultiPlot plot_logLikelihoodpMIP("log(L_p / L_MIP)", yLabel, 100, -8, 8);
+    PlottingHelper::MultiPlot plot_logLikelihoodpiMIP("log(L_pi / L_MIP)", yLabel, 100, -4, 8);
+    PlottingHelper::MultiPlot plot_forwardProton("Proton forward likelihood", yLabel, 100, 0.3, 0.7);
+    PlottingHelper::MultiPlot plot_forwardMuon("Muon forward likelihood", yLabel, 100, 0.3, 0.7);
 
     for (const auto fileName : {dataEXTFileName, dataBNBFileName, overlayFileName})
     {
@@ -60,7 +61,7 @@ int PlotInputVariables(const std::string &overlayFileName, const float overlayWe
                     continue;
 
                 // Only use signal events
-                if (!AnalysisHelper::IsTrueCC1Pi(pEvent))
+                if (!AnalysisHelper::IsTrueCC1Pi(pEvent, useAbsPdg))
                     continue;
             }
 
@@ -96,7 +97,7 @@ int PlotInputVariables(const std::string &overlayFileName, const float overlayWe
                     }
                 }
 
-                const auto particleStyle = isBNBData ? PlottingHelper::BNBData : PlottingHelper::GetParticleStyle(particle, truthParticles);
+                const auto particleStyle = isBNBData ? PlottingHelper::BNBData : PlottingHelper::GetPlotStyle(particle, truthParticles);
 
                 if (particle.nHitsU.IsSet())
                     plot_nHitsU.Fill(particle.nHitsU(), particleStyle, weight);

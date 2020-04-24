@@ -84,7 +84,7 @@ class BDTHelper
         /**
          *  @brief  BDT factory class used to train BDTs
          */
-        class BDTFactory : BDTBase
+        class BDTFactory : public BDTBase
         {
             public:
                 /**
@@ -173,7 +173,7 @@ class BDTHelper
         /**
          *  @brief  The class for using a trained BDT
          */
-        class BDT : BDTBase
+        class BDT : public BDTBase
         {
             public:
                 /**

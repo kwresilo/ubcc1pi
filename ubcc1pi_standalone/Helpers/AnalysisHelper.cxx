@@ -102,17 +102,49 @@ float AnalysisHelper::EventCounter::GetBNBDataWeight(const std::string &tag) con
 }
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
+                
+bool AnalysisHelper::EventCounter::IsSignalClassification(const std::string &classification, const std::string &searchQuery) const
+{
+    if (classification.empty())
+        return false;
 
-float AnalysisHelper::EventCounter::GetSignalWeight(const std::string &tag) const
+    // Signal classifications always begin with 'S'
+    if (classification.at(0) != 'S')
+        return false;
+ 
+    if (searchQuery.empty())
+        return true;
+
+    // Insist that there is also the additional query
+    return (classification.find(searchQuery) != std::string::npos);
+}
+
+// -----------------------------------------------------------------------------------------------------------------------------------------
+
+std::vector<std::string> AnalysisHelper::EventCounter::GetSignalClassifications(const std::string &searchQuery) const
+{
+    std::vector<std::string> signalClassifications;
+
+    for (const auto &classification : m_classifications)
+    {
+        if (!this->IsSignalClassification(classification, searchQuery))
+            continue;
+
+        signalClassifications.push_back(classification);
+    }
+
+    return signalClassifications;
+}
+
+// -----------------------------------------------------------------------------------------------------------------------------------------
+
+float AnalysisHelper::EventCounter::GetSignalWeight(const std::string &tag, const std::string &searchQuery) const
 {
     float weight = 0.f;
 
     for (const auto &classification : m_classifications)
     {
-        if (classification.empty())
-            continue;
-
-        if (classification.at(0) != 'S')
+        if (!this->IsSignalClassification(classification, searchQuery))
             continue;
 
         weight += this->GetWeight(tag, Overlay, classification);
@@ -123,13 +155,13 @@ float AnalysisHelper::EventCounter::GetSignalWeight(const std::string &tag) cons
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
 
-float AnalysisHelper::EventCounter::GetBackgroundWeight(const std::string &tag) const
+float AnalysisHelper::EventCounter::GetBackgroundWeight(const std::string &tag, const std::string &searchQuery) const
 {
     float weight = 0.f;
 
     for (const auto &classification : m_classifications)
     {
-        if (!classification.empty() && classification.at(0) == 'S')
+        if (this->IsSignalClassification(classification, searchQuery))
             continue;
     
         for (const auto &type : AnalysisHelper::AllSampleTypes)
@@ -146,21 +178,21 @@ float AnalysisHelper::EventCounter::GetBackgroundWeight(const std::string &tag) 
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
 
-float AnalysisHelper::EventCounter::GetSignalEfficiency(const std::string &tag) const
+float AnalysisHelper::EventCounter::GetSignalEfficiency(const std::string &tag, const std::string &searchQuery) const
 {
-    const auto allWeight = this->GetSignalWeight("all");
+    const auto allWeight = this->GetSignalWeight("all", searchQuery);
     
     if (allWeight <= std::numeric_limits<float>::epsilon())
         return -std::numeric_limits<float>::max();
     
-    const auto weight = this->GetSignalWeight(tag);
+    const auto weight = this->GetSignalWeight(tag, searchQuery);
 
     return weight / allWeight;
 }
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
 
-float AnalysisHelper::EventCounter::GetSignalPurity(const std::string &tag) const
+float AnalysisHelper::EventCounter::GetSignalPurity(const std::string &tag, const std::string &searchQuery) const
 {
     if (tag == "all")
         throw std::invalid_argument("AnalysisHelper::EventCounter::GetSignalPurity - Can't get purity for tag \"all\", as it won't be available for off-beam data");
@@ -170,7 +202,7 @@ float AnalysisHelper::EventCounter::GetSignalPurity(const std::string &tag) cons
     if (totalWeight <= std::numeric_limits<float>::epsilon())
         return -std::numeric_limits<float>::max();
     
-    const auto weight = this->GetSignalWeight(tag);
+    const auto weight = this->GetSignalWeight(tag, searchQuery);
 
     return weight / totalWeight;
 }
@@ -221,7 +253,9 @@ void AnalysisHelper::EventCounter::CountEvent(const std::string &tag, const Samp
         m_tags.push_back(tag);
 
     // Classify the event
-    const auto classification = AnalysisHelper::GetClassificationString(pEvent);
+    const auto useAbsPdg = true;
+    const auto countProtonsInclusively = true;
+    const auto classification = AnalysisHelper::GetClassificationString(pEvent, useAbsPdg, countProtonsInclusively);
     
     // Keep track of this classification if we haven't seen it before
     if (std::find(m_classifications.begin(), m_classifications.end(), classification) == m_classifications.end())
@@ -240,6 +274,13 @@ void AnalysisHelper::EventCounter::CountEvent(const std::string &tag, const Samp
     {
         weightIter->second += weight;
     }
+}
+
+// -----------------------------------------------------------------------------------------------------------------------------------------
+                
+std::vector<std::string> AnalysisHelper::EventCounter::GetTags() const
+{
+    return m_tags;
 }
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
@@ -316,9 +357,9 @@ void AnalysisHelper::EventCounter::PrintBreakdownDetails(const unsigned int nEnt
                 classificationWeightVector.emplace_back(classification, weight);
             }
 
-            std::sort(classificationWeightVector.begin(), classificationWeightVector.end(), [](const auto &a, const auto &b){
-                const bool isASignal = (!a.first.empty() && a.first.at(0) == 'S');
-                const bool isBSignal = (!b.first.empty() && b.first.at(0) == 'S');
+            std::sort(classificationWeightVector.begin(), classificationWeightVector.end(), [&](const auto &a, const auto &b){
+                const bool isASignal = this->IsSignalClassification(a.first);
+                const bool isBSignal = this->IsSignalClassification(b.first);
 
                 // Put signal before background
                 if (isASignal != isBSignal)
@@ -373,7 +414,7 @@ void AnalysisHelper::EventCounter::PrintBreakdownDetails(const unsigned int nEnt
 // -----------------------------------------------------------------------------------------------------------------------------------------
 // -----------------------------------------------------------------------------------------------------------------------------------------
 
-bool AnalysisHelper::IsTrueCC1Pi(const std::shared_ptr<Event> &pEvent)
+bool AnalysisHelper::IsTrueCC1Pi(const std::shared_ptr<Event> &pEvent, const bool useAbsPdg)
 {
     if (!pEvent->metadata.hasTruthInfo())
         throw std::invalid_argument("AnalysisHelper::IsTrueCC1Pi - Input event doesn't have truth information!");
@@ -386,14 +427,13 @@ bool AnalysisHelper::IsTrueCC1Pi(const std::shared_ptr<Event> &pEvent)
     
     // Count the visible particles
     const auto visibleParticles = AnalysisHelper::SelectVisibleParticles(pEvent->truth.particles);
-    const auto nMu = AnalysisHelper::CountParticlesWithPdgCode(visibleParticles, 13);
-    const auto nProton = AnalysisHelper::CountParticlesWithPdgCode(visibleParticles, 2212);
-    const auto nPion = AnalysisHelper::CountParticlesWithPdgCode(visibleParticles, 211);
+    const auto nMu = AnalysisHelper::CountParticlesWithPdgCode(visibleParticles, 13, useAbsPdg);
+    const auto nProton = AnalysisHelper::CountParticlesWithPdgCode(visibleParticles, 2212, useAbsPdg);
+    const auto nPion = AnalysisHelper::CountParticlesWithPdgCode(visibleParticles, 211, useAbsPdg);
     const auto nOther = visibleParticles.size() - (nMu + nProton + nPion);
 
     // Insist the CC1Pi topology
-    // ATTN HERE WE HAVE AT LEAST ONE PROTON AS THE TOPOLOGY! AAAHAHAAA THIS MIGHT NOT BE WHAT YOU WANT!
-    return (nMu == 1 && nPion == 1 && nProton >= 1 && nOther == 0);
+    return (nMu == 1 && nPion == 1 && nOther == 0);
 }
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
@@ -407,6 +447,7 @@ bool AnalysisHelper::PassesVisibilityThreshold(const Event::Truth::Particle &par
                             absPDG == 2212 || // Proton
                             absPDG == 2112 || // Neutron
                             absPDG == 22   || // Photon
+                            absPDG == 111  || // Pi0 (visible via decay products)
                             absPDG == 211  || // Charged pion
                             absPDG == 321);   // Charged kaon
 
@@ -420,6 +461,11 @@ bool AnalysisHelper::PassesVisibilityThreshold(const Event::Truth::Particle &par
         case 2112: // Neutron
             thresholdMomentum = std::numeric_limits<float>::max(); // ATTN infinite threshold = never let a neutron pass
             break;
+        /*
+        case 2212: // Proton
+            thresholdMomentum = 0.2f;
+            break;
+        */
         default: break;
     }
 
@@ -443,13 +489,14 @@ std::vector<Event::Truth::Particle> AnalysisHelper::SelectVisibleParticles(const
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
         
-unsigned int AnalysisHelper::CountParticlesWithPdgCode(const std::vector<Event::Truth::Particle> &particles, const int pdgCode)
+unsigned int AnalysisHelper::CountParticlesWithPdgCode(const std::vector<Event::Truth::Particle> &particles, const int pdgCode, const bool useAbsPdg)
 {
     unsigned int count = 0;
 
     for (const auto &particle : particles)
     {
-        if (particle.pdgCode() == pdgCode)
+        const auto pdg = useAbsPdg ? std::abs(particle.pdgCode()) : particle.pdgCode();
+        if (pdg == pdgCode)
             count++;
     }
 
@@ -458,7 +505,7 @@ unsigned int AnalysisHelper::CountParticlesWithPdgCode(const std::vector<Event::
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
 
-unsigned int AnalysisHelper::CountGoldenParticlesWithPdgCode(const std::vector<Event::Truth::Particle> &particles, const int pdgCode)
+unsigned int AnalysisHelper::CountGoldenParticlesWithPdgCode(const std::vector<Event::Truth::Particle> &particles, const int pdgCode, const bool useAbsPdg)
 {
     std::vector<Event::Truth::Particle> goldenParticles;
     for (const auto &particle : particles)
@@ -467,12 +514,12 @@ unsigned int AnalysisHelper::CountGoldenParticlesWithPdgCode(const std::vector<E
             goldenParticles.push_back(particle);
     }
 
-    return AnalysisHelper::CountParticlesWithPdgCode(goldenParticles, pdgCode);
+    return AnalysisHelper::CountParticlesWithPdgCode(goldenParticles, pdgCode, useAbsPdg);
 }
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
         
-void AnalysisHelper::GetPdgCodeCountMap(const std::vector<Event::Truth::Particle> &particles, std::vector<int> &foundPdgs, std::unordered_map<int, unsigned int> &pdgCodeCountMap)
+void AnalysisHelper::GetPdgCodeCountMap(const std::vector<Event::Truth::Particle> &particles, const bool useAbsPdg, std::vector<int> &foundPdgs, std::unordered_map<int, unsigned int> &pdgCodeCountMap)
 {
     if (!foundPdgs.empty())
         throw std::invalid_argument("AnalysisHelper::GetPdgCodeCountMap - input foundPdgs vector isn't empty");
@@ -483,7 +530,7 @@ void AnalysisHelper::GetPdgCodeCountMap(const std::vector<Event::Truth::Particle
     // Get the mapping
     for (const auto &particle : particles)
     {
-        const auto pdg = particle.pdgCode();
+        const auto pdg = useAbsPdg ? std::abs(particle.pdgCode()) : particle.pdgCode();
         auto iter = pdgCodeCountMap.find(pdg);
 
         if (iter == pdgCodeCountMap.end())
@@ -511,14 +558,15 @@ void AnalysisHelper::GetPdgCodeCountMap(const std::vector<Event::Truth::Particle
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
 
-std::string AnalysisHelper::GetTopologyString(const std::vector<Event::Truth::Particle> &particles, const bool countProtonsInclusively)
+std::string AnalysisHelper::GetTopologyString(const std::vector<Event::Truth::Particle> &particles, const bool useAbsPdg, const bool countProtonsInclusively)
 {
     // Count the particles by PDG code
     std::vector<int> foundPdgs;
     std::unordered_map<int, unsigned int> pdgCodeCountMap;
-    AnalysisHelper::GetPdgCodeCountMap(particles, foundPdgs, pdgCodeCountMap);
+    AnalysisHelper::GetPdgCodeCountMap(particles, useAbsPdg, foundPdgs, pdgCodeCountMap);
 
     unsigned int nOther = 0;
+    unsigned int nProtons = 0;
     std::string topology = "";
 
     for (const auto &pdg : foundPdgs)
@@ -529,36 +577,40 @@ std::string AnalysisHelper::GetTopologyString(const std::vector<Event::Truth::Pa
         switch (pdg)
         {
             case 11:
-                topology += countStr + " e-  ";
+                topology += countStr + " e" + (useAbsPdg ? "" : "-") + "  ";
                 break;
             case -11:
-                topology += countStr + " e+  ";
+                topology += countStr + " e" + (useAbsPdg ? "" : "+") + "  ";
                 break;
             case 13:
-                topology += countStr + " Mu-  ";
+                topology += countStr + " Mu" + (useAbsPdg ? "" : "-") + "  ";
                 break;
             case -13:
-                topology += countStr + " Mu+  ";
+                topology += countStr + " Mu" + (useAbsPdg ? "" : "+") + "  ";
                 break;
             case 22:
                 topology += countStr + " Gamma  ";
                 break;
             case 211:
-                topology += countStr + " Pi+  ";
+                topology += countStr + " Pi" + (useAbsPdg ? "" : "+") + "  ";
                 break;
             case -211:
-                topology += countStr + " Pi-  ";
+                topology += countStr + " Pi" + (useAbsPdg ? "" : "-") + "  ";
+                break;
+            case 111:
+                topology += countStr + " Pi0  ";
                 break;
             case 321:
-                topology += countStr + " K+  ";
+                topology += countStr + " K" + (useAbsPdg ? "" : "+") + "  ";
                 break;
             case -321:
-                topology += countStr + " K-  ";
+                topology += countStr + " K" + (useAbsPdg ? "" : "-") + "  ";
                 break;
             case 2112:
                 topology += countStr + " n  ";
                 break;
             case 2212:
+                nProtons = count;
                 if (!countProtonsInclusively)
                     topology += countStr + " p  ";
                 break;
@@ -568,8 +620,8 @@ std::string AnalysisHelper::GetTopologyString(const std::vector<Event::Truth::Pa
         }
     }
 
-    if (countProtonsInclusively)
-        topology += "X p  ";
+    if (countProtonsInclusively && nProtons != 0)
+        topology += "N p  ";
 
     if (nOther != 0)
         topology += std::to_string(nOther) + " other  ";
@@ -580,7 +632,7 @@ std::string AnalysisHelper::GetTopologyString(const std::vector<Event::Truth::Pa
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
 
-std::string AnalysisHelper::GetClassificationString(const std::shared_ptr<Event> &pEvent, const bool countProtonsInclusively)
+std::string AnalysisHelper::GetClassificationString(const std::shared_ptr<Event> &pEvent, const bool useAbsPdg, const bool countProtonsInclusively)
 {
     // Check if data
     if (!pEvent->metadata.hasTruthInfo())
@@ -596,13 +648,13 @@ std::string AnalysisHelper::GetClassificationString(const std::shared_ptr<Event>
     const auto visibleParticles = AnalysisHelper::SelectVisibleParticles(truth.particles);
     
     // Signal or background
-    const auto isTrueCC1Pi = AnalysisHelper::IsTrueCC1Pi(pEvent);
+    const auto isTrueCC1Pi = AnalysisHelper::IsTrueCC1Pi(pEvent, useAbsPdg);
     classification += isTrueCC1Pi ? "S" : "B,  ";
     
     if (isTrueCC1Pi)
     {
         // Check if we have a golden pion
-        const auto hasGoldenPion = (AnalysisHelper::CountGoldenParticlesWithPdgCode(visibleParticles, 211) != 0);
+        const auto hasGoldenPion = (AnalysisHelper::CountGoldenParticlesWithPdgCode(visibleParticles, 211, useAbsPdg) != 0);
 
         if (hasGoldenPion)
             classification += " G,";
@@ -611,7 +663,7 @@ std::string AnalysisHelper::GetClassificationString(const std::shared_ptr<Event>
     }
 
     // Add the topology classification
-    classification += "  " + AnalysisHelper::GetTopologyString(visibleParticles, countProtonsInclusively);
+    classification += "  " + AnalysisHelper::GetTopologyString(visibleParticles, useAbsPdg, countProtonsInclusively);
 
     return classification;
 }

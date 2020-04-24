@@ -5,7 +5,7 @@
 
 using namespace ubcc1pi;
 
-int CCInclusiveTruthStudy(const std::string &overlayFileName)
+int CCInclusiveTruthStudy(const std::string &overlayFileName, const bool useAbsPdg = true)
 {
     FileReader reader(overlayFileName);
     auto pEvent = reader.GetBoundEventAddress();
@@ -41,7 +41,7 @@ int CCInclusiveTruthStudy(const std::string &overlayFileName)
         reader.LoadEvent(i);
             
         // Only use signal events
-        if (!AnalysisHelper::IsTrueCC1Pi(pEvent))
+        if (!AnalysisHelper::IsTrueCC1Pi(pEvent, useAbsPdg))
             continue;
 
         nSignal++;

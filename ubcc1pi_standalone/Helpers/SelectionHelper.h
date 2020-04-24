@@ -8,6 +8,10 @@
 #define UBCC1PI_STANDALONE_HELPERS_SELECTION_HELPER
 
 #include "ubcc1pi_standalone/Interface/Event.h"
+
+#include "ubcc1pi_standalone/Helpers/AnalysisHelper.h"
+#include "ubcc1pi_standalone/Helpers/BDTHelper.h"
+
 #include <memory>
 #include <string>
 #include <functional>
@@ -27,100 +31,261 @@ class SelectionHelper
         class EventSelection
         {
             public:
+                class CutManager
+                {
+                    public:
+                        /**
+                         *  @brief  Constructor
+                         */
+                        CutManager();
 
-                // Notes to self
-                //
-                // This class should own an event counter (maybe, move that class to the SelectionHelper).
-                // The user declares some cuts at the top of their code and sets which can be optimised and how (cut ranges, can be disabled, etc.)
-                // The user then writes an infinite loop and inside it applies their event selection using the cuts managed by this object
-                // At the end of the selection, the user calls the method to update the cut parameters
-                // They keep interating until the the cuts can no longer be updated and break out of the infinite loop
-                // The user then extracts the optimal cut parameters
-                //
-                //
-                // How to optimize?
-                //
-                // Optimize for efficiency x purity
-                // 
-                // Start by optimizing each parameter in turn (in the declared order), disable it, enable it and do a gradient descent from
-                // the nominal value to get the optimal result, save the result and move on to the next cut.
-                // Once all cuts are dealt with, iterate from the first cut applying gradient descent from the optimal position.
-                // Repeat until no cut can be further optimized.
+                        /**
+                         *  @brief  Get the result of a cut using the supplied method and possibly store the result if opimizing
+                         *
+                         *  @param  name the name of the cut
+                         *  @param  method the cut method supplied as a lambda function returun true if the cut passes
+                         *
+                         *  @return boolean, the result of the cut - true if passes
+                         */
+                        bool GetCutResult(const std::string &name, const std::function<bool()> &method);
+                        
+                        /**
+                         *  @brief  Get the result of a cut using the supplied method and possibly store the result if opimizing
+                         *
+                         *  @param  name the name of the cut
+                         *  @param  method the cut method supplied as a lambda function returun true if the cut passes
+                         *
+                         *  @return boolean, the result of the cut - true if passes
+                         */
+                        bool GetCutResult(const std::string &name, const std::function<bool(const float &)> &method);
+                        
+                        /**
+                         *  @brief  The cut structure
+                         */
+                        struct Cut
+                        {
+                            public:
+                                std::string m_name;            ///< The name of the cut
+                                bool        m_canDisable;      ///< If the cut can be switched off
 
+                                bool        m_hasValue;        ///< If the cut has a floating point value
+                                float       m_nominal;         ///< The nominal value of the cut
+                                float       m_min;             ///< The minimum cut value
+                                float       m_max;             ///< The maximum cut value
+
+                                bool        m_shouldOptimize;  ///< If we should optimize the parameters of the cut
+                                std::string m_searchQuery;     ///< Insist that the signal classification also contains this query when optimizing
+                                bool        m_isEnabled;       ///< If the cut is enabled
+                                float       m_value;           ///< The value if the cut
+                        };
+                    
+                    private:
+
+                        friend EventSelection;
+
+                        /**
+                         *  @brief  Determine if the input cut name exists
+                         *
+                         *  @param  name the cut name
+                         *
+                         *  @return boolean, true if cut exists
+                         */
+                        bool HasCut(const std::string &name) const;
+
+                        /**
+                         *  @brief  Get the cut with the specified name
+                         *
+                         *  @param  name the name of the cut
+                         *
+                         *  @return reference to the cut
+                         */
+                        Cut& GetCut(const std::string &name);
+                        
+                        /**
+                         *  @brief  Get the result of the cut using the supplied method
+                         *
+                         *  @param  cut the cut name
+                         *  @param  method the method
+                         *
+                         *  @return booean, true if cut passes
+                         */
+                        bool GetCutResult(const Cut &cut, const std::function<bool()> &method) const;
+    
+                        /**
+                         *  @brief  Get the result of the cut using the supplied method
+                         *
+                         *  @param  cut the cut name
+                         *  @param  method the method
+                         *
+                         *  @return booean, true if cut passes
+                         */
+                        bool GetCutResult(const Cut &cut, const std::function<bool(const float&)> &method) const;
+    
+                        std::vector<Cut>                          m_cuts;                  ///< The cuts declared by the user
+                        unsigned int                              m_nScanPoints;           ///< The number of points to scan while optimizing
+                
+                        std::shared_ptr<Event>                    m_pEvent;                ///< The current event
+                        AnalysisHelper::SampleType                m_sampleType;            ///< The sample type of the current event
+                        float                                     m_weight;                ///< The weight of the current event
+
+
+                        AnalysisHelper::EventCounter              m_defaultEventCounter;   ///< The event counter when not optimizing
+
+                        std::string                               m_cutOptimizing;         ///< The name of the cut we are currently optimizing
+                        AnalysisHelper::EventCounter              m_disabledEventCounter;  ///< The event counter with the current cut disabled
+                        std::vector<AnalysisHelper::EventCounter> m_enabledEventCounters;  ///< The event counters with the current cut enabled for various cut values
+                        std::vector<float>                        m_values;                ///< The cut values samples
+                };
+
+                /**
+                 *  @brief  The BDT manager class
+                 */
+                class BDTManager
+                {
+                    public:
+                        /**
+                         *  @brief  Add a BDT with the given name and features
+                         *
+                         *  @param  name the BDT name
+                         *  @param  featureNames the features
+                         */
+                        void Add(const std::string &name, const std::vector<std::string> &featureNames);
+    
+                        /**
+                         *  @brief  Get the BDT with supplied name
+                         *
+                         *  @param  name the name
+                         *
+                         *  @return the BDT
+                         */
+                        BDTHelper::BDT & Get(const std::string &name);
+
+                    private:
+
+                        std::vector< std::shared_ptr<BDTHelper::BDT> > m_bdts; ///< The BDTs
+                };
+
+                /**
+                 *  @brief  An event selection method
+                 */
+                typedef std::function<bool(const std::shared_ptr<Event> &, BDTManager &, CutManager &cuts)> SelectionMethod;
 
                 /**
                  *  @brief  Declare a cut which can be optionally be disabled during optimisation
                  *
                  *  @param  name the name of the cut
-                 *  @param  canDisable if the cut can be disabled
-                 *  @param  shouldOptimize if this cut should be optimized
                  */
-                void DeclareCut(const std::string &name, const bool canDisable, const bool shouldOptimize);
+                void DeclareCut(const std::string &name);
                 
                 /**
                  *  @brief  Declare a cut which can be optionally be disabled, and have the cut value varied during optimisation
                  *
                  *  @param  name the name of the cut
-                 *  @param  canDisable if the cut can be disabled
                  *  @param  nominal the nominal cut value used when we aren't optimizing the parameter
+                 */
+                void DeclareCut(const std::string &name, const float &nominal);
+               
+                /**
+                 *  @brief  Enable the optimization of a cut
+                 *
+                 *  @param  name
+                 *  @param  searchQuery additional requirement on classification to use as signal while optimizing
+                 */
+                void EnableOptimization(const std::string &name, const std::string &searchQuery = "");
+
+                /**
+                 *  @brief  Enable the optimization of a cut
+                 *
+                 *  @param  name
+                 *  @param  canDisable if the cut can be disabled
                  *  @param  min the minimum cut value to test
                  *  @param  max the maximum cut value to test
-                 *  @param  shouldOptimize if this cut should be optimized
+                 *  @param  searchQuery additional requirement on classification to use as signal while optimizing
                  */
-                void DeclareCut(const std::string &name, const bool canDisable, const float &nominal, const float &min, const float &max, const bool shouldOptimize);
+                void EnableOptimization(const std::string &name, const bool canDisable, const float &min, const float &max, const std::string &searchQuery = "");
 
                 /**
-                 *  @brief  Perform an an optimisation step for the cut parameters
+                 *  @brief  Assign a BDT to this selection
                  *
-                 *  @param  shouldPrint whether to print what is currently being optimised
-                 *
-                 *  @return boolean, true if the parameters changed, false if they are optimal
+                 *  @param  bdtName the name of the BDT
+                 *  @param  featureNames the features
                  */
-                bool UpdateCutParameters(const bool shouldPrint = true);
+                void AssignBDT(const std::string &bdtName, const std::vector<std::string> &featureNames);
 
                 /**
-                 *  @brief  Apply the cut with the given name using the current optimisation parameters
+                 *  @brief  Get the cut names
                  *
-                 *  @param  name the cut to apply
-                 *  @param  method the actual cut method, supplied as a lambda function which returns true if the cut passes
-                 *
-                 *  @return the result of the cut
+                 *  @return the cuts
                  */
-                bool ApplyCut(const std::string &name, const std::function<bool()> &method) const;
-                
-                /**
-                 *  @brief  Apply the cut with the given name using the current optimisation parameters
-                 *
-                 *  @param  name the cut to apply
-                 *  @param  method the actual cut method, supplied as a lambda function which returns true if the cut passes. The parameter of the method is the cut value
-                 *
-                 *  @return the result of the cut
-                 */
-                bool ApplyCut(const std::string &name, const std::function<bool(const float &)> &method) const;
+                std::vector<std::string> GetCuts() const;
 
                 /**
-                 *  @brief  Determine if the cut is should be enabled for optimal performance 
+                 *  @brief  Define the event selection method
                  *
-                 *  @param  name the name of the cut
-                 *
-                 *  @return boolean, true if enabled
+                 *  @param  method the actual event selection code, supplied as a lambda function returning true if the selection passes
                  */
-                bool ShouldBeEnabled(const std::string &name) const;
-                
+                void DefineSelectionMethod(const SelectionMethod &method);
+
                 /**
-                 *  @brief  Get the optimal value of the cut
+                 *  @brief  Run the event selection method and optimize the free parameters storing the result
                  *
-                 *  @param  name the name of the cut
-                 *
-                 *  @return the value
+                 *  @param  dataBNBFileName the BNB data file name
+                 *  @param  overlayFileName the overlay file name
+                 *  @param  overlayWeight the overlay weight
+                 *  @param  dataEXTFileName the EXT data file name
+                 *  @param  dataEXTWeight the EXT data weight
+                 *  @param  dirtFileName the dirt file name
+                 *  @param  dirtWeight the dirt weight
+                 *  @param  nScanPoints the number of points to scan when optimizing cut values
+                 *  @param  processFraction the fraction of events to use for optimization
                  */
-                float GetOptimalCutValue(const std::string &name) const;
+                void Optimize(const std::string &dataBNBFileName, const std::string &overlayFileName,
+                        const float overlayWeight, const std::string &dataEXTFileName, const float dataEXTWeight,
+                        const std::string &dirtFileName, const float dirtWeight, const unsigned int nScanPoints = 20u, const float processFraction = 0.2f);
+
+                /**
+                 *  @brief  Run the event selection method with the stored parameters on a single event
+                 *
+                 *  @param  pEvent the event to run on
+                 *  @param  cutsPassed the output vector of cuts that were passes
+                 *
+                 *  @return boolean, true if all cuts were passed
+                 */
+                bool Execute(const std::shared_ptr<Event> &pEvent, std::vector<std::string> &cutsPassed);
+
+                /**
+                 *  @brief  Run the event selection method with the stored parameters (nominal is used if not optimized) and print the performance
+                 *
+                 *  @param  dataBNBFileName the BNB data file name
+                 *  @param  overlayFileName the overlay file name
+                 *  @param  overlayWeight the overlay weight
+                 *  @param  dataEXTFileName the EXT data file name
+                 *  @param  dataEXTWeight the EXT data weight
+                 *  @param  dirtFileName the dirt file name
+                 *  @param  dirtWeight the dirt weight
+                 *  @param  shouldPrint if we should print the result
+                 *  @param  processFraction the fraction of events to use for optimization
+                 *  @param  nEntriesToPrint the number of entries to print in the output table
+                 */
+                void Execute(const std::string &dataBNBFileName, const std::string &overlayFileName, const float overlayWeight,
+                        const std::string &dataEXTFileName, const float dataEXTWeight, const std::string &dirtFileName,
+                        const float dirtWeight, const bool shouldPrint = true, const float processFraction = 1.f,
+                        const unsigned int nEntriesToPrint = 20u);
+
+            private:
+
+                CutManager       m_cutManager;      ///< The cut manager
+                SelectionMethod  m_selectionMethod; ///< The event selection method
+                BDTManager       m_bdtManager;      ///< The BDTs manager
         };
+
+        /**
+         *  @brief  Get the default event selection
+         *
+         *  @return the event selection
+         */
+        static EventSelection GetDefaultSelection();
 };
-
-// -----------------------------------------------------------------------------------------------------------------------------------------
-// -----------------------------------------------------------------------------------------------------------------------------------------
-
 
 } // namespace ubcc1pi
 

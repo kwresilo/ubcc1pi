@@ -15,6 +15,7 @@
 #include <TCanvas.h>
 
 #include "ubcc1pi_standalone/Interface/Event.h"
+#include "ubcc1pi_standalone/Helpers/AnalysisHelper.h"
 
 namespace ubcc1pi
 {
@@ -26,12 +27,11 @@ class PlottingHelper
 {
     public:
         /**
-         *  @brief  The particle style enumeration
+         *  @brief  The plot style enumeration
          */
-        enum ParticleStyle
+        enum PlotStyle
         {
-            External,
-            ExternalPoints,
+            // Particle types
             Muon,
             MuonPoints,
             Proton,
@@ -46,16 +46,30 @@ class PlottingHelper
             ElectronPoints,
             Photon,
             PhotonPoints,
+
+            // Event types
+            NonFiducial,
+            NumuCC0Pi,
+            NumuCC1PiChargedGolden,
+            NumuCC1PiChargedNonGolden,
+            NumuCC1PiZero,
+            NumuCCOther,
+            NumuNC,
+            Nue,
+            
+            // Common types
+            External,
+            ExternalPoints,
+            BNBData,
             Other,
-            OtherPoints,
-            BNBData
+            OtherPoints
         };
-
+        
         /**
-         *  @brief  The vector of all particle styles
+         *  @brief  The vector of all plot styles
          */
-        static const std::vector<ParticleStyle> AllParticleStyles;
-
+        static const std::vector<PlotStyle> AllPlotStyles;
+        
         /**
          *  @brief  If we should draw the input style with points (or a line)
          *
@@ -63,33 +77,34 @@ class PlottingHelper
          *
          *  @return boolean, true if points should be used
          */
-        static bool ShouldUsePoints(const ParticleStyle &style);
+        static bool ShouldUsePoints(const PlotStyle &style);
 
         /**
-         *  @brief  The plot class that manages histograms of particle characteristics
+         *  @brief  The plot class that manages multiple related histograms 
          */
-        class ParticlePlot
+        class MultiPlot
         {
             public:
                 /**
                  *  @brief  Constructor
                  *
                  *  @param  xLabel the x-label of the histogram
+                 *  @param  yLabel the y-label of the histogram
                  *  @param  nBins the number of bins
                  *  @param  min the minimum value 
                  *  @param  max the maximum value
                  *  @param  drawErrors whether to draw the error bands
                  */
-                ParticlePlot(const std::string &xLabel, unsigned int nBins, float min, float max, bool drawErrors = true);
+                MultiPlot(const std::string &xLabel, const std::string &yLabel, unsigned int nBins, float min, float max, bool drawErrors = true);
 
                 /**
-                 *  @brief  Fill the histogram with the given value and particle style
+                 *  @brief  Fill the histogram with the given value and plot style
                  *
                  *  @param  value the value to fill
-                 *  @param  particleStyle the style of the hisogram to fill
+                 *  @param  plotStyle the style of the hisogram to fill
                  *  @param  weight the weight
                  */
-                void Fill(const float value, const ParticleStyle &particleStyle, const float weight = 1.f);
+                void Fill(const float value, const PlotStyle &plotStyle, const float weight = 1.f);
 
                 /**
                  *  @brief  Draw and save the plot
@@ -109,35 +124,89 @@ class PlottingHelper
                 /**
                  *  @brief  Get clones of the histograms so they can be safely manipulated 
                  *
-                 *  @param  particleToHistCloneMap the output map of cloned histograms
+                 *  @param  plotToHistCloneMap the output map of cloned histograms
                  */
-                void GetHistogramClones(std::unordered_map<ParticleStyle, TH1F* > &particleToHistCloneMap);
+                void GetHistogramClones(std::unordered_map<PlotStyle, TH1F* > &plotToHistCloneMap);
 
                 /**
                  *  @brief  Normalise the histograms by their number of entries
                  *
-                 *  @param  particleToHistCloneMap the histograms to normalise
+                 *  @param  plotToHistCloneMap the histograms to normalise
                  */
-                void ScaleHistograms(std::unordered_map<ParticleStyle, TH1F*> &particleToHistCloneMap) const;
+                void ScaleHistograms(std::unordered_map<PlotStyle, TH1F*> &plotToHistCloneMap) const;
 
                 /**
                  *  @brief  Set the Y-range of the histograms so all fit on the canvas
                  *
-                 *  @param  particleToHistCloneMap the histograms to modify
+                 *  @param  plotToHistCloneMap the histograms to modify
                  */
-                void SetHistogramYRanges(std::unordered_map<ParticleStyle, TH1F*> &particleToHistCloneMap) const;
+                void SetHistogramYRanges(std::unordered_map<PlotStyle, TH1F*> &plotToHistCloneMap) const;
 
                 std::string  m_xLabel;     ///< The x-label of the histogram
                 unsigned int m_nBins;      ///< The number of bins
                 float        m_min;        ///< The minimum value
                 float        m_max;        ///< The maximum value
-                unsigned int m_id;         ///< The ID of this particle plot
+                unsigned int m_id;         ///< The ID of this plot plot
                 unsigned int m_cloneCount; ///< A count of the number of clones to avoid name collisions
                 bool         m_drawErrors; ///< Whether to draw the error bands
 
-                std::unordered_map<ParticleStyle, std::shared_ptr<TH1F> > m_particleToHistMap; ///< The mapping from particle style to hist
+                std::unordered_map<PlotStyle, std::shared_ptr<TH1F> > m_plotToHistMap; ///< The mapping from plot style to hist
 
-                static unsigned int m_lastId; ///< The last ParticlePlot ID that was set
+                static unsigned int m_lastId; ///< The last plotPlot ID that was set
+        };
+
+        /**
+         *  @brief  Efficiency plot class
+         */
+        class EfficiencyPlot
+        {
+            public:
+                /**
+                 *  @brief  Constructor
+                 *
+                 *  @param  xLabel the x-label of the histogram
+                 *  @param  nBins the number of bins
+                 *  @param  min the minimum value 
+                 *  @param  max the maximum value
+                 *  @param  cuts the names of all possible cuts in order
+                 *  @param  drawErrors whether to draw the error bands
+                 */
+                EfficiencyPlot(const std::string &xLabel, unsigned int nBins, float min, float max, const std::vector<string> &cuts, bool drawErrors = true);
+       
+                /**
+                 *  @brief  Add an event to the plot for the given cut
+                 *
+                 *  @param  value the value at which to add the event
+                 *  @param  cut the cut 
+                 *  @param  passedCut if the cut was passed
+                 */
+                void AddEvent(const float value, const std::string &cut, const bool passedCut);
+
+                /**
+                 *  @brief  Draw and save the plot
+                 *
+                 *  @param  fileName the file name without an extension
+                 */
+                void SaveAs(const std::string &fileName);
+
+            private:
+
+
+                /**
+                 *  @brief  Mapping from a cut name to a pair of histograms, first being the numerator, second being the denominator
+                 */
+                typedef std::unordered_map<std::string, std::pair< std::shared_ptr<TH1F>, std::shared_ptr<TH1F> > > CutToPlotsMap;
+
+                std::string              m_xLabel;        ///< The x label
+                unsigned int             m_nBins;         ///< The number of bins
+                float                    m_min;           ///< The minimum histogram value
+                float                    m_max;           ///< The maximum histogram value
+                std::vector<std::string> m_cuts;          ///< The cuts
+                bool                     m_drawErrors;    ///< If we should draw error bands
+
+                CutToPlotsMap            m_cutToPlotsMap; ///< The mapping from cut name to the numerator and denominator histograms
+                unsigned int             m_id;            ///< The ID of the plot
+                static unsigned int      m_lastId;        ///< The last plot ID that was set - avoids ROOT name collisions
         };
 
         /**
@@ -149,27 +218,66 @@ class PlottingHelper
          *
          *  @return the particle style
          */
-        static ParticleStyle GetParticleStyle(const Event::Reco::Particle &particle, const std::vector<Event::Truth::Particle> &truthParticles, const bool usePoints = false);
+        static PlotStyle GetPlotStyle(const Event::Reco::Particle &particle, const std::vector<Event::Truth::Particle> &truthParticles, const bool usePoints = false);
 
         /**
-         *  @brief  Set the line style for a given particle type
+         *  @brief  Get a color for a given style
          *
-         *  @tparam T the ROOT object class
-         *  @param  pObject the ROOT object
-         *  @param  particleStyle the style
+         *  @param  plotStyle the input style
+         *
+         *  @return the color
          */
-        template<typename T>
-        static void SetLineStyle(T *pObject, const ParticleStyle particleStyle);
+        static int GetColor(const PlotStyle plotStyle);
+
+        /**
+         *  @brief  Get the complete list of unique colors used
+         *
+         *  @return the colors
+         */
+        static std::vector<int> GetColorVector();
+        
+        // TODO
+        //static PlotStyle GetPlotStyle(const AnalysisHelper::SampleType &sampleType, const std::shared_ptr<Event> &pEvent);
         
         /**
-         *  @brief  Set the line style for a given particle type
+         *  @brief  Set the line style for a given plot type
          *
          *  @tparam T the ROOT object class
          *  @param  pObject the ROOT object
-         *  @param  particleStyle the style
+         *  @param  plotStyle the plot style
          */
         template<typename T>
-        static void SetLineStyle(std::shared_ptr<T> &pObject, const ParticleStyle particleStyle);
+        static void SetLineStyle(T *pObject, const PlotStyle plotStyle);
+
+        /**
+         *  @brief  Set the line style for a given color
+         *
+         *  @tparam T the ROOT object class
+         *  @param  pObject the ROOT object
+         *  @param  col the color
+         */
+        template<typename T>
+        static void SetLineStyle(T *pObject, const int col);
+        
+        /**
+         *  @brief  Set the line style for a given plot type
+         *
+         *  @tparam T the ROOT object class
+         *  @param  pObject the ROOT object
+         *  @param  plotStyle the style
+         */
+        template<typename T>
+        static void SetLineStyle(std::shared_ptr<T> &pObject, const PlotStyle plotStyle);
+        
+        /**
+         *  @brief  Set the line style for a given plot type
+         *
+         *  @tparam T the ROOT object class
+         *  @param  pObject the ROOT object
+         *  @param  col the color
+         */
+        template<typename T>
+        static void SetLineStyle(std::shared_ptr<T> &pObject, const int col);
 
         /**
          *  @brief  Get a canvas to draw on
@@ -197,7 +305,7 @@ class PlottingHelper
 // -----------------------------------------------------------------------------------------------------------------------------------------
 // -----------------------------------------------------------------------------------------------------------------------------------------
 
-const std::vector<PlottingHelper::ParticleStyle> PlottingHelper::AllParticleStyles = {
+const std::vector<PlottingHelper::PlotStyle> PlottingHelper::AllPlotStyles = {
     External,
     ExternalPoints,
     Muon,
@@ -214,6 +322,14 @@ const std::vector<PlottingHelper::ParticleStyle> PlottingHelper::AllParticleStyl
     ElectronPoints,
     Photon,
     PhotonPoints,
+    NonFiducial,
+    NumuCC0Pi,
+    NumuCC1PiChargedGolden,
+    NumuCC1PiChargedNonGolden,
+    NumuCC1PiZero,
+    NumuCCOther,
+    NumuNC,
+    Nue,
     Other,
     OtherPoints,
     BNBData
@@ -221,7 +337,11 @@ const std::vector<PlottingHelper::ParticleStyle> PlottingHelper::AllParticleStyl
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
 
-unsigned int PlottingHelper::ParticlePlot::m_lastId = 0;
+unsigned int PlottingHelper::MultiPlot::m_lastId = 0;
+
+// -----------------------------------------------------------------------------------------------------------------------------------------
+
+unsigned int PlottingHelper::EfficiencyPlot::m_lastId = 0;
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
         
@@ -230,53 +350,71 @@ unsigned int PlottingHelper::m_lastCanvasId = 0;
 // -----------------------------------------------------------------------------------------------------------------------------------------
         
 template<typename T>
-inline void PlottingHelper::SetLineStyle(std::shared_ptr<T> &pObject, const ParticleStyle particleStyle)
+inline void PlottingHelper::SetLineStyle(std::shared_ptr<T> &pObject, const PlotStyle plotStyle)
 {
-    PlottingHelper::SetLineStyle(pObject.get(), particleStyle);
+    PlottingHelper::SetLineStyle(pObject.get(), plotStyle);
+}
+
+// -----------------------------------------------------------------------------------------------------------------------------------------
+        
+template<typename T>
+inline void PlottingHelper::SetLineStyle(std::shared_ptr<T> &pObject, const int col)
+{
+    PlottingHelper::SetLineStyle(pObject.get(), col);
 }
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
 
-template<typename T>
-inline void PlottingHelper::SetLineStyle(T *pObject, const ParticleStyle particleStyle)
+int PlottingHelper::GetColor(const PlotStyle plotStyle)
 {
     auto col = static_cast<int>(kBlack);
-
-    switch (particleStyle)
+    
+    switch (plotStyle)
     {
         case Muon:
         case MuonPoints:
+        case NumuCC0Pi:
             col = kAzure - 2;
             break;
 
         case Proton:
         case ProtonPoints:
+        case NumuCC1PiZero:
             col = kOrange - 3;
             break;
 
         case GoldenPion:
         case GoldenPionPoints:
+        case NumuCC1PiChargedGolden:
             col = kGreen + 1;
             break;
 
         case NonGoldenPion:
         case NonGoldenPionPoints:
+        case NumuCC1PiChargedNonGolden:
             col = kMagenta + 1;
             break;
         
         case PiMinus:
         case PiMinusPoints:
+        case NonFiducial:
             col = kRed - 4;
             break;
         
         case Electron:
         case ElectronPoints:
+        case NumuCCOther:
             col = kCyan + 1;
             break;
         
         case Photon:
         case PhotonPoints:
+        case NumuNC:
             col = kYellow + 1;
+            break;
+        
+        case Nue:
+            col = kGreen - 6;
             break;
         
         case External:
@@ -295,11 +433,47 @@ inline void PlottingHelper::SetLineStyle(T *pObject, const ParticleStyle particl
 
         default: break;
     }
-    
+
+    return col;
+}
+        
+// -----------------------------------------------------------------------------------------------------------------------------------------
+
+std::vector<int> PlottingHelper::GetColorVector()
+{
+    std::vector<int> colors;
+
+    for (const auto &style : PlottingHelper::AllPlotStyles)
+    {
+        const auto col = PlottingHelper::GetColor(style);
+
+        if (std::find(colors.begin(), colors.end(), col) == colors.end())
+            colors.push_back(col);
+    }
+
+    return colors;
+}
+
+// -----------------------------------------------------------------------------------------------------------------------------------------
+
+template<typename T>
+inline void PlottingHelper::SetLineStyle(T *pObject, const int col)
+{
+    pObject->SetLineWidth(2);
+    pObject->SetLineColor(col);
+}
+
+// -----------------------------------------------------------------------------------------------------------------------------------------
+
+template<typename T>
+inline void PlottingHelper::SetLineStyle(T *pObject, const PlotStyle plotStyle)
+{
+    const auto col = PlottingHelper::GetColor(plotStyle);
+
     pObject->SetLineWidth(2);
     pObject->SetLineColor(col);
 
-    if (PlottingHelper::ShouldUsePoints(particleStyle))
+    if (PlottingHelper::ShouldUsePoints(plotStyle))
     {
         pObject->SetMarkerColor(col);
     }
@@ -307,7 +481,7 @@ inline void PlottingHelper::SetLineStyle(T *pObject, const ParticleStyle particl
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
         
-bool PlottingHelper::ShouldUsePoints(const ParticleStyle &style)
+bool PlottingHelper::ShouldUsePoints(const PlotStyle &style)
 {
     if (style == ExternalPoints ||
         style == MuonPoints ||
@@ -322,6 +496,8 @@ bool PlottingHelper::ShouldUsePoints(const ParticleStyle &style)
 
     return false;
 }
+
+// -----------------------------------------------------------------------------------------------------------------------------------------
 
 } // namespace ubcc1pi
 

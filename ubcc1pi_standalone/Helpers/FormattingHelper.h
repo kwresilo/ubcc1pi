@@ -86,6 +86,11 @@ class FormattingHelper
                 std::vector<std::string>                                     m_headers;      ///< The column headers
                 std::vector<std::unordered_map< std::string, std::string > > m_entries;      ///< The table entries [row][column]
         };
+
+        /**
+         *  @brief  Print a line of '-' characters
+         */
+        static void PrintLine();
 };
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
@@ -238,6 +243,13 @@ void FormattingHelper::Table::AddEmptyRow()
     }
 
     m_entries.push_back(row);
+}
+
+// -----------------------------------------------------------------------------------------------------------------------------------------
+        
+void FormattingHelper::PrintLine()
+{
+    std::cout << std::string(87, '-') << std::endl;
 }
 
 } // namespace ubcc1pi

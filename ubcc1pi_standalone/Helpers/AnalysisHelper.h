@@ -114,37 +114,60 @@ class AnalysisHelper
                  *  @brief  Get the total weight for signal events with the given tag
                  *
                  *  @param  tag the tag
+                 *  @param  searchQuery additional string that must be found in the classification name to count as signal
                  *
                  *  @return the weight
                  */
-                float GetSignalWeight(const std::string &tag) const;
+                float GetSignalWeight(const std::string &tag, const std::string &searchQuery = "") const;
                 
                 /**
                  *  @brief  Get the total weight for background events with the given tag
                  *
                  *  @param  tag the tag
+                 *  @param  searchQuery additional string that must be found in the classification name to count as signal
                  *
                  *  @return the weight
                  */
-                float GetBackgroundWeight(const std::string &tag) const;
+                float GetBackgroundWeight(const std::string &tag, const std::string &searchQuery = "") const;
                 
                 /**
                  *  @brief  Get the purity for signal events at a given tag
                  *
                  *  @param  tag the input tag
+                 *  @param  searchQuery additional string that must be found in the classification name to count as signal
                  *
                  *  @return the purity
                  */
-                float GetSignalPurity(const std::string &tag) const;
+                float GetSignalPurity(const std::string &tag, const std::string &searchQuery = "") const;
                 
                 /**
                  *  @brief  Get the efficiency for signal events at the given tag
                  * 
                  *  @param  tag the input tag
+                 *  @param  searchQuery additional string that must be found in the classification name to count as signal
                  *
                  *  @return the efficiency
                  */
-                float GetSignalEfficiency(const std::string &tag) const;
+                float GetSignalEfficiency(const std::string &tag, const std::string &searchQuery = "") const;
+
+                /**
+                 *  @brief  Get the list of signal classifications
+                 *
+                 *  @param  searchQuery additional string that must be found in the classification name to count as signal
+                 *
+                 *  @return classifications meeting criteria 
+                 */
+                std::vector<std::string> GetSignalClassifications(const std::string &searchQuery = "") const;
+
+                /**
+                 *  @brief  Determine if a given classification representes a signal event
+                 *
+                 *  @param  classification the input classification
+                 *  @param  searchQuery additional string that must be found in the classification name to count as signal
+                 *
+                 *  @return boolea, true if signal
+                 */
+                bool IsSignalClassification(const std::string &classification, const std::string &searchQuery = "") const;
 
                 /**
                  *  @brief  Get the purity for the specified subsample at the given tag
@@ -169,6 +192,13 @@ class AnalysisHelper
                 float GetEfficiency(const std::string &tag, const SampleType &sampleType, const std::string &classification) const;
 
                 /**
+                 *  @brief  Get the tags
+                 *
+                 *  @return the tags
+                 */
+                std::vector<std::string> GetTags() const;
+
+                /**
                  *  @brief  Print a breakdown of the counted events tag-by-tag broken down into signal and background
                  */
                 void PrintBreakdownSummary() const;
@@ -178,7 +208,7 @@ class AnalysisHelper
                  *
                  *  @param  nEntries the number of backgrounds to print for each tag
                  */
-                void PrintBreakdownDetails(const unsigned int nEntries = 10) const;
+                void PrintBreakdownDetails(const unsigned int nEntries = 10u) const;
 
             private:
 
@@ -202,10 +232,11 @@ class AnalysisHelper
          *  @brief  Determine if the input event is truly a fiducial CC1Pi event
          *
          *  @param  pEvent the input event
+         *  @param  useAbsPdg if we should use the absolute values of PDG codes
          *
          *  @return boolean, true if CC1Pi
          */
-        static bool IsTrueCC1Pi(const std::shared_ptr<Event> &pEvent);
+        static bool IsTrueCC1Pi(const std::shared_ptr<Event> &pEvent, const bool useAbsPdg);
 
         /**
          *  @brief  Determine if the input truth particle is deemed visible and possibly is above a momentum threshold
@@ -230,49 +261,54 @@ class AnalysisHelper
          *
          *  @param  particles the input particles
          *  @param  pdgCode the pdg code
+         *  @param  useAbsPdg if we should group particles with the same absolute PDG code
          *
          *  @return the number of particles with the pdg code
          */
-        static unsigned int CountParticlesWithPdgCode(const std::vector<Event::Truth::Particle> &particles, const int pdgCode);
+        static unsigned int CountParticlesWithPdgCode(const std::vector<Event::Truth::Particle> &particles, const int pdgCode, const bool useAbsPdg);
         
         /**
          *  @brief  Count the number of particles in the input vector with the supplied PDG code that are golden
          *
          *  @param  particles the input particles
          *  @param  pdgCode the pdg code
+         *  @param  useAbsPdg if we should group particles with the same absolute PDG code
          *
          *  @return the number of particles with the pdg code that are golden
          */
-        static unsigned int CountGoldenParticlesWithPdgCode(const std::vector<Event::Truth::Particle> &particles, const int pdgCode);
+        static unsigned int CountGoldenParticlesWithPdgCode(const std::vector<Event::Truth::Particle> &particles, const int pdgCode, const bool useAbsPdg);
 
         /**
          *  @brief  Get the mapping from PDG code to the number of particles with that PDG code in the input vector
          *
          *  @param  particles the input particles
+         *  @param  useAbsPdg if we should group particles with the same absolute PDG code
          *  @param  foundPdgs the output vector of PDGs found (ordered)
          *  @param  pdgCodeCountMap the output map from PDG codes to counts
          */
-        static void GetPdgCodeCountMap(const std::vector<Event::Truth::Particle> &particles, std::vector<int> &foundPdgs, std::unordered_map<int, unsigned int> &pdgCodeCountMap);
+        static void GetPdgCodeCountMap(const std::vector<Event::Truth::Particle> &particles, const bool useAbsPdg, std::vector<int> &foundPdgs, std::unordered_map<int, unsigned int> &pdgCodeCountMap);
 
         /**
          *  @brief  Get the topology string for the input particles, e.g. "1 Mu-  1 Pi+  X p"
          *
          *  @param  particles the input particles
+         *  @param  useAbsPdg if we should group particles with the same absolute PDG code
          *  @param  countProtonsInclusively whether to count protons inclusively (with an X) or exclusively
          *
          *  @return the topology string
          */
-        static std::string GetTopologyString(const std::vector<Event::Truth::Particle> &particles, const bool countProtonsInclusively = true);
+        static std::string GetTopologyString(const std::vector<Event::Truth::Particle> &particles, const bool useAbsPdg, const bool countProtonsInclusively);
 
         /**
          *  @brief  Get a string which classifies the input event using truth information
          *
          *  @param  pEvent the input event
+         *  @param  useAbsPdg if we should group particles with the same absolute PDG code
          *  @param  countProtonsInclusively whether to count protons inclusively (with an X) or exclusively
          *
          *  @return the classification string
          */
-        static std::string GetClassificationString(const std::shared_ptr<Event> &pEvent, const bool countProtonsInclusively = true);
+        static std::string GetClassificationString(const std::shared_ptr<Event> &pEvent, const bool useAbsPdg, const bool countProtonsInclusively);
 
         /**
          *  @brief  Determine if a given point is in the volume defined by the input margins
