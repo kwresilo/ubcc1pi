@@ -59,6 +59,8 @@ std::string BDTHelper::BDTBase::GetName() const
                 
 BDTHelper::BDTFactory::BDTFactory(const std::string &bdtName, const std::vector<std::string> &featureNames) :
     BDTBase(bdtName, featureNames),
+    m_pOutputFile(nullptr),
+    m_pFactory(nullptr),
     m_isBooked(false),
     m_nSignalTraining(0u),
     m_nSignalTest(0u),
@@ -66,8 +68,6 @@ BDTHelper::BDTFactory::BDTFactory(const std::string &bdtName, const std::vector<
     m_nBackgroundTest(0)
 {
     // Setup the output file and make the TMVA factory
-    m_pOutputFile = TFile::Open((bdtName + "_BDT.root").c_str(), "RECREATE" );
-    m_pFactory = new TMVA::Factory(TString(bdtName), m_pOutputFile, "!V:!Silent:Color:DrawProgressBar:AnalysisType=Classification");
     m_pDataLoader = new TMVA::DataLoader((bdtName + "_dataset").c_str());
 
     // Add the features to the data loader
@@ -79,7 +79,8 @@ BDTHelper::BDTFactory::BDTFactory(const std::string &bdtName, const std::vector<
 
 BDTHelper::BDTFactory::~BDTFactory()
 {
-    m_pOutputFile->Close();
+    if (m_pOutputFile)
+        m_pOutputFile->Close();
 }
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
@@ -149,13 +150,13 @@ void BDTHelper::BDTFactory::BookMethod()
 {
     if (!m_isBooked)
     {
-        std::cout << "DEBUG: Preparing" << std::endl;
+        m_pOutputFile = TFile::Open((m_bdtName + "_BDT.root").c_str(), "RECREATE" );
+        m_pFactory = new TMVA::Factory(TString(m_bdtName), m_pOutputFile, "!V:!Silent:Color:DrawProgressBar:AnalysisType=Classification");
+
         m_pDataLoader->PrepareTrainingAndTestTree("0==0", m_nSignalTraining, m_nBackgroundTraining, m_nSignalTest, m_nBackgroundTest);
-        std::cout << "DEBUG: Booking method" << std::endl;
         m_pFactory->BookMethod(m_pDataLoader, TMVA::Types::kBDT, "BDT", "!H:!V:NTrees=505:MinNodeSize=1.26436%:MaxDepth=4:BoostType=AdaBoost:AdaBoostBeta=0.2:UseBaggedBoost:BaggedSampleFraction=0.5:SeparationType=GiniIndex:nCuts=20");
     
         m_isBooked = true;
-        std::cout << "DEBUG: Method booked" << std::endl;
     }
 }
 
@@ -164,6 +165,10 @@ void BDTHelper::BDTFactory::BookMethod()
 void BDTHelper::BDTFactory::OptimizeParameters()
 {
     this->BookMethod();
+
+    if (!m_pOutputFile || !m_pFactory)
+        throw std::logic_error("BDTFactory::OptimizeParameters - Invalid output file or TMVA factory");
+
     m_pFactory->OptimizeAllMethodsForClassification();
 }
 
@@ -173,11 +178,11 @@ void BDTHelper::BDTFactory::TrainAndTest()
 {
     this->BookMethod();
     
-    std::cout << "DEBUG: Training" << std::endl;
+    if (!m_pOutputFile || !m_pFactory)
+        throw std::logic_error("BDTFactory::OptimizeParameters - Invalid output file or TMVA factory");
+    
     m_pFactory->TrainAllMethods();
-    std::cout << "DEBUG: Testing" << std::endl;
     m_pFactory->TestAllMethods();
-    std::cout << "DEBUG: Evaluating" << std::endl;
     m_pFactory->EvaluateAllMethods();
 }
 
@@ -229,7 +234,7 @@ bool BDTHelper::GetBDTFeatures(const Event::Reco::Particle &recoParticle, const 
         if (name == "logBragg_pToMIP")
         {
             float feature = -std::numeric_limits<float>::max();
-            if (!AnalysisHelper::GetLikelihoodRatio(recoParticle.likelihoodForwardProtonW, recoParticle.likelihoodMIPW, feature))
+            if (!AnalysisHelper::GetLogLikelihoodRatio(recoParticle.likelihoodForwardProtonW, recoParticle.likelihoodMIPW, feature))
             {
                 if (shouldDebug)
                     std::cout << "DEBUG - Can't calculate: " << name << std::endl;
@@ -244,7 +249,7 @@ bool BDTHelper::GetBDTFeatures(const Event::Reco::Particle &recoParticle, const 
         if (name == "logBragg_piToMIP")
         {
             float feature = -std::numeric_limits<float>::max();
-            if (!AnalysisHelper::GetLikelihoodRatio(recoParticle.likelihoodForwardPionW, recoParticle.likelihoodMIPW, feature))
+            if (!AnalysisHelper::GetLogLikelihoodRatio(recoParticle.likelihoodForwardPionW, recoParticle.likelihoodMIPW, feature))
             {
                 if (shouldDebug)
                     std::cout << "DEBUG - Can't calculate: " << name << std::endl;

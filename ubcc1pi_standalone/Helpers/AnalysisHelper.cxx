@@ -620,8 +620,8 @@ std::string AnalysisHelper::GetTopologyString(const std::vector<Event::Truth::Pa
         }
     }
 
-    if (countProtonsInclusively && nProtons != 0)
-        topology += "N p  ";
+    if (countProtonsInclusively)
+        topology += "X p  ";
 
     if (nOther != 0)
         topology += std::to_string(nOther) + " other  ";
@@ -784,17 +784,20 @@ bool AnalysisHelper::IsGolden(const Event::Truth::Particle &particle)
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
         
-bool AnalysisHelper::GetLikelihoodRatio(const Member<float> &numerator, const Member<float> &denominator, float &ratio)
+bool AnalysisHelper::GetLogLikelihoodRatio(const Member<float> &numerator, const Member<float> &denominator, float &ratio)
 {
     ratio = -std::numeric_limits<float>::max();
 
     if (!numerator.IsSet() || !denominator.IsSet())
         return false;
-
-    if (std::abs(denominator()) <= std::numeric_limits<float>::epsilon())
+    
+    if (numerator() < 0.f)
         return false;
 
-    ratio = numerator() / denominator();
+    if (denominator() <= std::numeric_limits<float>::epsilon())
+        return false;
+
+    ratio = std::log(numerator() / denominator());
     return true;
 }
 

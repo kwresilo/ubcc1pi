@@ -410,7 +410,7 @@ class AnalysisHelper
          *
          *  @return boolean, true if the denominator was non zero and both numerator and denominator are available
          */
-        static bool GetLikelihoodRatio(const Member<float> &numerator, const Member<float> &denominator, float &ratio);
+        static bool GetLogLikelihoodRatio(const Member<float> &numerator, const Member<float> &denominator, float &ratio);
 
         /**
          *  @brief  Get the softmax of two variables: exp(s) / (exp(s) + exp(b))

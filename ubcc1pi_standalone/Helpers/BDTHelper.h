@@ -159,9 +159,9 @@ class BDTHelper
                  */
                 void BookMethod();
 
+                TFile             *m_pOutputFile; ///< The TMVA output file
                 TMVA::Factory     *m_pFactory;    ///< The TMVA factory
                 TMVA::DataLoader  *m_pDataLoader; ///< The data loader
-                TFile             *m_pOutputFile; ///< The TMVA output file
                 bool               m_isBooked;    ///< If the BDT has been booked
 
                 unsigned int       m_nSignalTraining;     ///< The number of signal training events

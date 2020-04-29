@@ -197,8 +197,6 @@ void PlottingHelper::MultiPlot::SaveAsStacked(const std::string &fileName)
 
         auto pHist = plotToHistCloneMap.at(style);
         
-        std::cout << "Histogram: " << pHist->GetName() << " - nEntries = " << pHist->GetEntries() << std::endl;
-
         if (pHist->GetEntries() == 0)
             continue;
 
@@ -388,7 +386,7 @@ void PlottingHelper::EfficiencyPlot::SaveAs(const std::string &fileName)
     // Get the y-range
     float yMin = std::numeric_limits<float>::max();
     float yMax = -std::numeric_limits<float>::max();
-    
+
     for (const auto &pHist : efficiencyHists)
     {
         yMin = std::min(yMin, static_cast<float>(pHist->GetMinimum()));
@@ -398,7 +396,26 @@ void PlottingHelper::EfficiencyPlot::SaveAs(const std::string &fileName)
     // Add some padding to the top of the histogram
     yMax += (yMax - yMin) * 0.05;
 
-    // Draw the error histograms
+    // Draw the individual efficiency plots for each cut
+    for (unsigned int i = 0; i < m_cuts.size(); ++i)
+    {
+        const auto &cut = m_cuts.at(i);
+
+        if (m_drawErrors)
+        {
+            auto pHistErr = efficiencyErrorHists.at(i);
+            pHistErr->GetYaxis()->SetRangeUser(yMin, yMax); 
+            pHistErr->Draw("e2");
+        }
+
+        auto pHist = efficiencyHists.at(i);
+        pHist->GetYaxis()->SetRangeUser(yMin, yMax);
+        pHist->Draw(!m_drawErrors ? "hist" : "hist same");
+    
+        PlottingHelper::SaveCanvas(pCanvas, fileName + "_" + std::to_string(i) + "_" + cut);
+    }
+
+    // Draw the error histograms all together
     bool isFirst = true;
     for (const auto &pHist : efficiencyErrorHists)
     {
@@ -407,7 +424,7 @@ void PlottingHelper::EfficiencyPlot::SaveAs(const std::string &fileName)
         isFirst = false;
     }
     
-    // Draw the histogram lines
+    // Draw the histogram lines all together
     for (const auto &pHist : efficiencyHists)
     {
         pHist->GetYaxis()->SetRangeUser(yMin, yMax);
@@ -460,6 +477,7 @@ PlottingHelper::PlotStyle PlottingHelper::GetPlotStyle(const Event::Reco::Partic
             return usePoints ? PiMinusPoints : PiMinus;
         case 11:
             return usePoints ? ElectronPoints : Electron;
+        case 111: // TODO Deal with pi0s properly when re-producing files
         case 22:
             return usePoints ? PhotonPoints : Photon;
         default:

@@ -129,6 +129,24 @@ bool SelectionHelper::EventSelection::CutManager::GetCutResult(const std::string
 }
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
+                        
+void SelectionHelper::EventSelection::CutManager::SetParticlePdg(const unsigned int recoParticleIndex, const int pdgCode)
+{
+    if (!m_pEvent)
+        throw std::logic_error("CutManager::SetParticlePdg - No event currently assigned");
+
+    const auto nRecoParticles = m_pEvent->reco.particles.size();
+    if (m_assignedPdgCodes.size() != nRecoParticles)
+        throw std::invalid_argument("CutManager::SetParticlePdg - The stored reco particle PDGs are out of sync with the loaded event");
+
+    if (recoParticleIndex > nRecoParticles)
+        throw std::invalid_argument("CutManager::SetParticlePdg - reco particle index is out of bounds");
+
+
+    m_assignedPdgCodes.at(recoParticleIndex) = pdgCode;
+}
+
+// -----------------------------------------------------------------------------------------------------------------------------------------
 // -----------------------------------------------------------------------------------------------------------------------------------------
                         
 void SelectionHelper::EventSelection::BDTManager::Add(const std::string &name, const std::vector<std::string> &featureNames)
@@ -392,18 +410,26 @@ void SelectionHelper::EventSelection::Optimize(const std::string &dataBNBFileNam
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
 
-bool SelectionHelper::EventSelection::Execute(const std::shared_ptr<Event> &pEvent, std::vector<std::string> &cutsPassed)
+bool SelectionHelper::EventSelection::Execute(const std::shared_ptr<Event> &pEvent, std::vector<std::string> &cutsPassed, std::vector<int> &assignedPdgCodes)
 {
     if (!m_selectionMethod)
         throw std::logic_error("EventSelection::Execute - Selection method hasn't been set");
    
     if (!cutsPassed.empty())
         throw std::invalid_argument("EventSelection::Execute - Input vector of cut names isn't empty");
+    
+    if (!assignedPdgCodes.empty())
+        throw std::invalid_argument("EventSelection::Execute - Input vector of assigned PDG codes isn't empty");
 
-    m_cutManager.m_defaultEventCounter = AnalysisHelper::EventCounter(); // This is probably super slow... consider a better way
     m_cutManager.m_pEvent = pEvent;
-    m_cutManager.m_sampleType = AnalysisHelper::Overlay; // This doesn't actually matter
+
+    // Here we use the event counter machinary to see if the event passed, it's not very pretty but it works. The sample type and weight
+    // don't actually matter as we check to see if *any* weight passes each cut... Could be done better!
+    m_cutManager.m_defaultEventCounter = AnalysisHelper::EventCounter(); // This is probably super slow... consider a better way
+    m_cutManager.m_sampleType = AnalysisHelper::Overlay;
     m_cutManager.m_weight = 1.f;
+
+    m_cutManager.m_assignedPdgCodes = std::vector<int>(m_cutManager.m_pEvent->reco.particles.size(), -std::numeric_limits<int>::max());
 
     const auto passed = m_selectionMethod(m_cutManager.m_pEvent, m_bdtManager, m_cutManager);
     
@@ -423,6 +449,8 @@ bool SelectionHelper::EventSelection::Execute(const std::shared_ptr<Event> &pEve
         if (hasMCWeight || hasBNBDataWeight)
             cutsPassed.push_back(tag);
     }
+
+    assignedPdgCodes = m_cutManager.m_assignedPdgCodes;
 
     return passed;
 }
@@ -501,6 +529,7 @@ void SelectionHelper::EventSelection::Execute(const std::string &dataBNBFileName
                     counter.CountEvent("all", m_cutManager.m_sampleType, m_cutManager.m_pEvent, m_cutManager.m_weight);
             }
 
+            m_cutManager.m_assignedPdgCodes = std::vector<int>(m_cutManager.m_pEvent->reco.particles.size(), -std::numeric_limits<int>::max());
             m_selectionMethod(m_cutManager.m_pEvent, m_bdtManager, m_cutManager);
         }
     }
@@ -551,13 +580,12 @@ SelectionHelper::EventSelection SelectionHelper::GetDefaultSelection()
     selection.DeclareCut("min2Tracks");
     selection.DeclareCut("max1Uncontained");
     selection.DeclareCut("startNearVertex", 5.f);
-    selection.DeclareCut("2NonProtons", -0.02f);
+    selection.DeclareCut("2NonProtons", -0.06f);
     selection.DeclareCut("nonProtonLength", 5.f);
-    selection.DeclareCut("likelyPionVsProton", 0.51f);
     selection.DeclareCut("openingAngle", 2.65f);
     selection.DeclareCut("topologicalScore", 0.67f);
     selection.DeclareCut("noShowers", 0.04f);
-    selection.DeclareCut("likelyGoldenPion", 0.01f);
+    selection.DeclareCut("likelyGoldenPion", -0.03f);
     
     // Get the BDT feature names
     const auto featureNames = BDTHelper::ParticleBDTFeatureNames;
@@ -580,7 +608,244 @@ SelectionHelper::EventSelection SelectionHelper::GetDefaultSelection()
 
         })) return false;
         
+        
+        // Find the particles with a track
+        const auto &recoParticles = pEvent->reco.particles;
+        std::vector<unsigned int> trackParticleIndices;
+        for (unsigned int index = 0; index < recoParticles.size(); ++index)
+        {
+            const auto &particle = recoParticles.at(index);
 
+            if (AnalysisHelper::HasTrackFit(particle))
+                trackParticleIndices.push_back(index);
+        }
+        
+        // Insist at least 2 track-like particles
+        if (!cuts.GetCutResult("min2Tracks", [&](){
+            return (trackParticleIndices.size() >= 2);
+
+        })) return false;
+        
+        
+        // Get the contained and uncontained particles
+        std::vector<unsigned int> containedParticleIndices, uncontainedParticleIndices;
+        for (const auto &index : trackParticleIndices)
+        {
+            const auto &particle = recoParticles.at(index);
+
+            auto &indexVector = (AnalysisHelper::IsContained(particle) ? containedParticleIndices : uncontainedParticleIndices);
+            indexVector.push_back(index);
+        }
+
+        // Insist at most one particle is uncontained
+        if (!cuts.GetCutResult("max1Uncontained", [&](){
+            return (uncontainedParticleIndices.size() <= 1);
+
+        })) return false;
+
+
+        // If there is an uncontained then identify it as the muon
+        if (!uncontainedParticleIndices.empty())
+            cuts.SetParticlePdg(uncontainedParticleIndices.front(), 13);
+
+        // If there's only one contained particles, identify it as the pion
+        if (containedParticleIndices.size() == 1)
+            cuts.SetParticlePdg(containedParticleIndices.front(), 211);
+        
+        
+        // Insist all particles start near the vertex
+        const auto recoVertex = pEvent->reco.nuVertex();
+        if (!cuts.GetCutResult("startNearVertex", [&](const float &cut){
+
+            const auto cut2 = cut * cut;
+            for (const auto &index : trackParticleIndices)
+            {
+                const auto &particle = recoParticles.at(index);
+
+                const TVector3 start(particle.startX(), particle.startY(), particle.startZ());
+                const auto vertexDist2 = (start - recoVertex).Mag2();
+
+                if (vertexDist2 > cut2)
+                    return false;
+            }
+
+            return true;
+
+        })) return false;
+        
+        
+        // Get the BDT responses of the contained particles
+        std::vector<bool> hasFeaturesVect;
+        std::vector<float> protonBDTResponseVect;
+            
+        for (unsigned int index = 0; index < recoParticles.size(); ++index)
+        {
+            const auto &particle = recoParticles.at(index);
+
+            std::vector<float> features;
+            bool hasFeatures = false;
+            float protonBDTResponse = -std::numeric_limits<float>::max();
+           
+            // Only use contained particles
+            if (std::find(containedParticleIndices.begin(), containedParticleIndices.end(), index) != containedParticleIndices.end())
+            {
+                hasFeatures = BDTHelper::GetBDTFeatures(particle, featureNames, features);
+
+                if (hasFeatures)
+                    protonBDTResponse = protonBDT.GetResponse(features);
+            }
+
+            hasFeaturesVect.push_back(hasFeatures);
+            protonBDTResponseVect.push_back(protonBDTResponse);
+        }
+
+        // Insist that there are at least two particles that are non-protons
+        std::vector<unsigned int> containedNonProtonIndices;
+        if (!cuts.GetCutResult("2NonProtons", [&](const float &cut){
+    
+            containedNonProtonIndices.clear(); // Important! This lambda gets evaluated multiple times, and variable is captured by reference - need to reset
+
+            for (const auto &index : containedParticleIndices)
+            {
+                if (!hasFeaturesVect.at(index))
+                    continue;
+
+                const auto protonBDTResponse = protonBDTResponseVect.at(index);
+                const auto &particle = recoParticles.at(index);
+
+                if (protonBDTResponse < cut)
+                    containedNonProtonIndices.push_back(index);
+            }
+
+            return (containedNonProtonIndices.size() + uncontainedParticleIndices.size() == 2);
+
+        })) return false;
+
+        // Assign the PDG codes of the protons
+        for (const auto &index : containedParticleIndices)
+        {
+            if (std::find(containedNonProtonIndices.begin(), containedNonProtonIndices.end(), index) == containedNonProtonIndices.end())
+                cuts.SetParticlePdg(index, 2212);
+        }
+
+        // If possible assign the PDG code of the pion
+        if (containedNonProtonIndices.size() == 1)
+            cuts.SetParticlePdg(containedNonProtonIndices.front(), 211);
+        
+        
+        // Combine the non-protons
+        auto nonProtonIndices = containedNonProtonIndices;
+        nonProtonIndices.insert(nonProtonIndices.end(), uncontainedParticleIndices.begin(), uncontainedParticleIndices.end());
+
+        // Just a sanity check in case someone tries to disable an above cut 
+        if (nonProtonIndices.size() != 2)
+            throw std::logic_error("MakeSelectionTable - more than 2 non-protons");
+        
+        // Another sanity check
+        if (containedNonProtonIndices.empty())
+            throw std::logic_error("MakeSelectionTable - no contained non-protons");
+        
+        if (containedNonProtonIndices.size() > 2)
+            throw std::logic_error("MakeSelectionTable - more than 2 contained non-protons");
+    
+       
+        // Insist the non protons are sufficiency long
+        if (!cuts.GetCutResult("nonProtonLength", [&](const float &cut){
+            for (const auto &index : nonProtonIndices)
+            {
+                const auto &particle = recoParticles.at(index);
+
+                if (particle.length() < cut)
+                    return false;
+            }
+            return true;
+
+        })) return false;
+        
+        // For reproducibility order by length
+        const auto frontParticle = recoParticles.at(nonProtonIndices.front());
+        const auto backParticle = recoParticles.at(nonProtonIndices.back());
+
+        const auto frontLength = frontParticle.length();
+        const auto backLength = backParticle.length();
+        const bool isLongerFront = frontLength > backLength;
+
+        const auto longParticle = isLongerFront ? frontParticle : backParticle;
+        const auto shortParticle = isLongerFront ? backParticle : frontParticle;
+
+        const auto longDir = TVector3(longParticle.directionX(), longParticle.directionY(), longParticle.directionZ()).Unit();
+        const auto shortDir = TVector3(shortParticle.directionX(), shortParticle.directionY(), shortParticle.directionZ()).Unit();
+        const auto openingAngle = longDir.Angle(shortDir);
+        
+        if (!cuts.GetCutResult("openingAngle", [&](const float &cut){
+            return (openingAngle < cut);
+
+        })) return false;
+        
+        
+        // Cut on the topological score to reduce cosmic backgrounds
+        const auto topologicalScore = pEvent->reco.selectedTopologicalScore();
+        if (!cuts.GetCutResult("topologicalScore", [&](const float &cut){
+            return (topologicalScore > cut);
+
+        })) return false;
+        
+        
+        // Insist there are no shower like particles
+        if (!cuts.GetCutResult("noShowers", [&](const float &cut){
+            for (unsigned int index = 0; index < recoParticles.size(); ++index)
+            {
+                const auto &particle = recoParticles.at(index);
+
+                if (!particle.trackScore.IsSet())
+                    continue;
+
+                if (particle.trackScore() < cut)
+                    return false;
+            }
+
+            return true;
+
+        })) return false;
+        
+        
+        // Get the most likely golden pion
+        float goldenPionBDTResponse = -std::numeric_limits<float>::max();
+        unsigned int goldenPionIndex = std::numeric_limits<unsigned int>::max();
+
+        for (const auto &index : containedNonProtonIndices)
+        {
+            const auto &particle = recoParticles.at(index);
+
+            std::vector<float> features;
+            if (!BDTHelper::GetBDTFeatures(particle, featureNames, features))
+                throw std::logic_error("MakeSelectionTable - can't get features for a contained non-proton");
+
+            const auto response = goldenPionBDT.GetResponse(features);
+            if (response > goldenPionBDTResponse)
+            {
+                goldenPionBDTResponse = response;
+                goldenPionIndex = index;
+            }
+        }
+
+        // Set the PDG codes
+        cuts.SetParticlePdg(goldenPionIndex, 211);
+        for (const auto &index : containedNonProtonIndices)
+        {
+            if (index == goldenPionIndex)
+                continue;
+            
+            cuts.SetParticlePdg(index, 13);
+        }
+
+        // Insist this is a likely golden pion
+        if (!cuts.GetCutResult("likelyGoldenPion", [&](const float &cut){
+            return (goldenPionBDTResponse > cut);
+
+        })) return false;
+
+        /*
         // Find the particles with a track
         std::vector<Event::Reco::Particle> trackParticles;
         for (const auto &particle : pEvent->reco.particles)
@@ -626,7 +891,6 @@ SelectionHelper::EventSelection SelectionHelper::GetDefaultSelection()
             return true;
 
         })) return false;
-
 
         // Get the BDT responses of the contained particles
         std::vector<bool> hasFeaturesVect;
@@ -688,45 +952,6 @@ SelectionHelper::EventSelection SelectionHelper::GetDefaultSelection()
         if (containedNonProtons.empty())
             throw std::logic_error("MakeSelectionTable - no contained non-protons");
        
-        // Get the most likely pion
-        float pionBDTResponse = -std::numeric_limits<float>::max();
-        float pionProtonLikelihood = -std::numeric_limits<float>::max();
-        unsigned int pionIndex = std::numeric_limits<unsigned int>::max();
-
-        for (unsigned int i = 0; i < containedNonProtons.size(); ++i)
-        {
-            const auto &particle = containedNonProtons.at(i);
-
-            std::vector<float> features;
-            if (!BDTHelper::GetBDTFeatures(particle, featureNames, features))
-                throw std::logic_error("MakeSelectionTable - can't get features for a contained non-proton");
-
-            const auto pionResponse = pionBDT.GetResponse(features);
-            if (pionResponse > pionBDTResponse)
-            {
-                pionBDTResponse = pionResponse;
-                pionIndex = i;
-
-                const auto protonResponse = protonBDT.GetResponse(features);
-                const auto denom = std::exp(pionResponse) + std::exp(protonResponse);
-
-                if (denom <= std::numeric_limits<float>::epsilon())
-                {
-                    pionProtonLikelihood = 0.5f;
-                }
-                else
-                {
-                    pionProtonLikelihood = std::exp(pionResponse) / denom;
-                }
-            }
-        }
-
-        // Insist this is a likely pion vs proton
-        if (!cuts.GetCutResult("likelyPionVsProton", [&](const float &cut){
-            return (pionProtonLikelihood > cut);
-
-        })) return false;
-
         // For reproducibility order by length
         const bool isLongerFront = (nonProtons.front().length() > nonProtons.back().length());
         const auto longParticle = isLongerFront ? nonProtons.front() : nonProtons.back();
@@ -791,6 +1016,7 @@ SelectionHelper::EventSelection SelectionHelper::GetDefaultSelection()
             return (goldenPionBDTResponse > cut);
 
         })) return false;
+        */
 
         return true;
     });

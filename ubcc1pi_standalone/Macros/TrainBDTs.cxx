@@ -6,7 +6,7 @@
 
 using namespace ubcc1pi;
 
-int TrainBDTs(const std::string &overlayFileName, const bool useAbsPdg = true, const float trainingFraction = 0.5f, const bool onlyContained = true, const bool onlyGoodTruthMatches = false, const bool weightByCompleteness = true, const bool shouldOptimize = false, const bool shouldMakePlots = true)
+int TrainBDTs(const std::string &overlayFileName, const bool useAbsPdg = true, const float trainingFraction = 0.5f, const bool onlyContained = true, const bool onlyGoodTruthMatches = false, const bool weightByCompleteness = true, const bool weightByMomentum = true, const bool shouldOptimize = false, const bool shouldMakePlots = true)
 {
     // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     // Extract the CC1Pi events tha pass the pre-selection
@@ -76,6 +76,7 @@ int TrainBDTs(const std::string &overlayFileName, const bool useAbsPdg = true, c
             bool isExternal = true;
             int truePdgCode = -std::numeric_limits<int>::max();
             bool trueIsGolden = false;
+            float trueMomentum = -std::numeric_limits<float>::max();
             float completeness = -std::numeric_limits<float>::max();
 
             try
@@ -85,6 +86,7 @@ int TrainBDTs(const std::string &overlayFileName, const bool useAbsPdg = true, c
 
                 isExternal = false;
                 truePdgCode = truthParticle.pdgCode();
+                trueMomentum = truthParticle.momentum();
                 trueIsGolden = AnalysisHelper::IsGolden(truthParticle);
                 completeness = recoParticle.truthMatchCompletenesses().at(truthParticleIndex);
             }
@@ -103,7 +105,9 @@ int TrainBDTs(const std::string &overlayFileName, const bool useAbsPdg = true, c
                 continue;
 
             // Define the weight
-            const auto weight = eventWeight * (weightByCompleteness ? (isExternal ? 1.f : completeness) : 1.f);
+            const auto momentumWeight = (weightByMomentum ? (isExternal ? 0.5f : (0.5f * (1 + std::exp(-trueMomentum / 0.3f)))) : 1.f); // This is super arbitrary
+            const auto completenessWeight = (weightByCompleteness ? (isExternal ? 1.f : completeness) : 1.f);
+            const auto weight = eventWeight * momentumWeight * completenessWeight;
 
             // Add the particle to the BDTs
             const bool isGoldenPion = !isExternal && truePdgCode == 211 && trueIsGolden;
@@ -161,10 +165,10 @@ int TrainBDTs(const std::string &overlayFileName, const bool useAbsPdg = true, c
         return 0;
 
     const std::string yLabel = "Fraction of reco particles";
-    PlottingHelper::MultiPlot goldenPionBDTPlot("Golden pion BDT response", yLabel, 50, -0.7f, 0.45f);
+    PlottingHelper::MultiPlot goldenPionBDTPlot("Golden pion BDT response", yLabel, 50, -0.9f, 0.45f);
     PlottingHelper::MultiPlot pionBDTPlot("Pion BDT response", yLabel, 50, -0.8f, 0.7f);
     PlottingHelper::MultiPlot protonBDTPlot("Proton BDT response", yLabel, 50, -0.8f, 0.7f);
-    PlottingHelper::MultiPlot muonBDTPlot("Muon BDT response", yLabel, 50, -0.8f, 0.7f);
+    PlottingHelper::MultiPlot muonBDTPlot("Muon BDT response", yLabel, 50, -0.9f, 0.7f);
 
     // Using the newly trained BDT weight files, setup up a BDT for evaluation
     BDTHelper::BDT goldenPionBDT("goldenPion", featureNames); 
@@ -215,7 +219,7 @@ int TrainBDTs(const std::string &overlayFileName, const bool useAbsPdg = true, c
 
             // Extract the features
             std::vector<float> features;
-            const auto areAllFeaturesAvailable = BDTHelper::GetBDTFeatures(recoParticle, featureNames, features, true);
+            const auto areAllFeaturesAvailable = BDTHelper::GetBDTFeatures(recoParticle, featureNames, features);
 
             // Only use particles with all features available
             if (!areAllFeaturesAvailable)
@@ -229,6 +233,11 @@ int TrainBDTs(const std::string &overlayFileName, const bool useAbsPdg = true, c
            
             // Fill to the plots
             const auto style = PlottingHelper::GetPlotStyle(recoParticle, truthParticles, isTrainingEvent);
+
+            // For these plots skip neutrons
+            if (style == PlottingHelper::Other || style == PlottingHelper::OtherPoints)
+                continue;
+
             goldenPionBDTPlot.Fill(goldenPionBDTResponse, style, eventWeight);
             pionBDTPlot.Fill(pionBDTResponse, style, eventWeight);
             protonBDTPlot.Fill(protonBDTResponse, style, eventWeight);

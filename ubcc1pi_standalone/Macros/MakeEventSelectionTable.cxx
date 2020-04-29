@@ -14,7 +14,7 @@ int MakeEventSelectionTable(const std::string &overlayFileName, const float over
     // Set the parameters to be optimized
     if (shouldOptimize)
     {
-        selection.EnableOptimization("2NonProtons", false, -0.4f, 0.4f);
+        selection.EnableOptimization("2NonProtons", false, -0.4f, 0.4f); // This is optimized for golden signal events
         selection.EnableOptimization("likelyPionVsProton", true, 0.3f, 0.7f);
         selection.EnableOptimization("openingAngle", true, 2.3f, 3.14f);
         selection.EnableOptimization("topologicalScore", true, 0.f, 0.8f);
@@ -32,7 +32,7 @@ int MakeEventSelectionTable(const std::string &overlayFileName, const float over
         selection.Optimize(dataBNBFileName, overlayFileName, overlayBodgeWeight, dataEXTFileName, dataEXTBodgeWeight, "", 0.f, nScanPoints, processFraction);
 
     // Run the selection
-    selection.Execute(dataBNBFileName, overlayFileName, overlayBodgeWeight, dataEXTFileName, dataEXTBodgeWeight, "", 0.f);
+    selection.Execute(dataBNBFileName, overlayFileName, overlayBodgeWeight, dataEXTFileName, dataEXTBodgeWeight, "", 0.f, true, 1.f, 10u);
 
     return 0;
 }

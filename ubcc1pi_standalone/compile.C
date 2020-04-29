@@ -35,8 +35,9 @@
         "Macros/PlotInputVariables.cxx",
         "Macros/CCInclusiveTruthStudy.cxx",
         "Macros/TrainBDTs.cxx",
+        "Macros/NMinusOneBDTStudy.cxx",
         "Macros/MakeEventSelectionTable.cxx",
-        "Macros/MakeEventSelectionPlots.cxx"
+        "Macros/MakeEventSelectionEfficiencyPlots.cxx"
 
     }))
     {

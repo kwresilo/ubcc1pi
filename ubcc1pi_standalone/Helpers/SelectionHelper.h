@@ -27,6 +27,7 @@ class SelectionHelper
     public:
         /**
          *  @brief  The event selection class
+         *          This class isn't very well designed and is rather "stateful" which isn't nice, work is needed to make it more friendly
          */
         class EventSelection
         {
@@ -58,7 +59,15 @@ class SelectionHelper
                          *  @return boolean, the result of the cut - true if passes
                          */
                         bool GetCutResult(const std::string &name, const std::function<bool(const float &)> &method);
-                        
+
+                        /**
+                         *  @brief  Set the determined PDG code of a given reco particle
+                         *
+                         *  @param  recoParticleIndex the index of the reco particle
+                         *  @param  pdgCode the PDG code to set
+                         */
+                        void SetParticlePdg(const unsigned int recoParticleIndex, const int pdgCode);
+
                         /**
                          *  @brief  The cut structure
                          */
@@ -135,6 +144,7 @@ class SelectionHelper
                         AnalysisHelper::EventCounter              m_disabledEventCounter;  ///< The event counter with the current cut disabled
                         std::vector<AnalysisHelper::EventCounter> m_enabledEventCounters;  ///< The event counters with the current cut enabled for various cut values
                         std::vector<float>                        m_values;                ///< The cut values samples
+                        std::vector<int>                          m_assignedPdgCodes;      ///< The assigned PDG codes of the reco particles
                 };
 
                 /**
@@ -248,10 +258,11 @@ class SelectionHelper
                  *
                  *  @param  pEvent the event to run on
                  *  @param  cutsPassed the output vector of cuts that were passes
+                 *  @param  assignedPdgCodes the output vector of PDG codes assigned to each reco particle in the event
                  *
                  *  @return boolean, true if all cuts were passed
                  */
-                bool Execute(const std::shared_ptr<Event> &pEvent, std::vector<std::string> &cutsPassed);
+                bool Execute(const std::shared_ptr<Event> &pEvent, std::vector<std::string> &cutsPassed, std::vector<int> &assignedPdgCodes);
 
                 /**
                  *  @brief  Run the event selection method with the stored parameters (nominal is used if not optimized) and print the performance
