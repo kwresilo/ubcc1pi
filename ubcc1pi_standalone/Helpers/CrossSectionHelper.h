@@ -105,16 +105,6 @@ class CrossSectionHelper
                 void GetSmearingMatrix(std::vector< std::vector<float> > &matrix, std::vector< std::vector<float> > &uncertainties) const;
                 
                 /**
-                 *  @brief  Smear the input bins
-                 *
-                 *  @param  inputBins the input bin values
-                 *  @param  inputUncertainties the uncertainties on the bin values
-                 *  @param  bins the output smeared bins
-                 *  @param  uncertainties the output smeared uncertainties
-                 */
-                void SmearBins(const std::vector<float> &inputBins, const std::vector<float> &inputUncertainties, std::vector<float> &bins, std::vector<float> &uncertainties) const;
-
-                /**
                  *  @brief  Get the selection efficiencies in the true bins
                  *
                  *  @param  efficiencies the output efficiency per bin
@@ -137,33 +127,6 @@ class CrossSectionHelper
                  */
                 std::vector<T> GetBinWidths() const;
 
-                /**
-                 *  @brief  Get the differential cross-section in a bin given some parameters
-                 *
-                 *  @param  nTotal the total number of events selected
-                 *  @param  nBackgrounds the expected number of background events
-                 *  @param  efficiency the efficiency of the selection
-                 *  @param  binWidth the width of the bin
-                 *
-                 *  @return the cross-section value
-                 */
-                float GetCrossSection(const float nTotal, const float nBackgrounds, const float efficiency, const float binWidth) const;
-
-                /**
-                 *  @brief  Get the uncertainty on the differential cross-section in a bin
-                 *
-                 *  @param  nTotal the total number of events selected
-                 *  @param  totalErr the error on the total count
-                 *  @param  nBackgrounds the expected number of background events
-                 *  @param  backgroundsErr the error on the background count
-                 *  @param  efficiency the efficiency of the selection
-                 *  @param  efficiencyErr the error on the efficiency
-                 *  @param  binWidth the bin width
-                 *
-                 *  @return the error on the cross-section value
-                 */
-                float GetCrossSectionUncertainty(const float nTotal, const float totalErr, const float nBackgrounds, const float backgroundsErr, const float efficiency, const float effieincyErr, const float binWidth) const;
-                
                 /**
                  *  @brief  Get the cross-section from MC using true values
                  *
@@ -209,6 +172,34 @@ class CrossSectionHelper
                  *  @param  classification the event classification
                  */
                 void FillEvent(const AnalysisHelper::SampleType sampleType, const float sampleNorm, const float weight, const T &recoValue, const T &trueValue, const bool isSignal, const bool isSelected, const std::string &classification);
+                
+                /**
+                 *  @brief  Get the differential cross-section in a bin given some parameters
+                 *
+                 *  @param  nTotal the total number of events selected
+                 *  @param  nBackgrounds the expected number of background events
+                 *  @param  efficiency the efficiency of the selection
+                 *  @param  binWidth the width of the bin
+                 *
+                 *  @return the cross-section value
+                 */
+                float GetCrossSection(const float nTotal, const float nBackgrounds, const float efficiency, const float binWidth) const;
+
+                /**
+                 *  @brief  Get the uncertainty on the differential cross-section in a bin
+                 *
+                 *  @param  nTotal the total number of events selected
+                 *  @param  totalErr the error on the total count
+                 *  @param  nBackgrounds the expected number of background events
+                 *  @param  backgroundsErr the error on the background count
+                 *  @param  efficiency the efficiency of the selection
+                 *  @param  efficiencyErr the error on the efficiency
+                 *  @param  binWidth the bin width
+                 *
+                 *  @return the error on the cross-section value
+                 */
+                float GetCrossSectionUncertainty(const float nTotal, const float totalErr, const float nBackgrounds, const float backgroundsErr, const float efficiency, const float effieincyErr, const float binWidth) const;
+                
 
                 /**
                  *  @brief  Get the total number of signal events in each true bin
@@ -218,7 +209,14 @@ class CrossSectionHelper
                  *  @return the true signal per bin
                  */
                 std::vector<float> GetTrueSignalPerBin(const bool mustBeSelected) const;
-
+                
+                /**
+                 *  @brief  Get the overlay normalisation 
+                 *
+                 *  @return the normalisation factor for overlays
+                 */
+                float GetOverlayNormalisation() const;
+                
                 /**
                  *  @brief  Get the selected BNB data in each bin
                  *
@@ -253,6 +251,16 @@ class CrossSectionHelper
                  *  @return the bin name
                  */
                 std::string GetBinName(const unsigned int index) const;
+                
+                /**
+                 *  @brief  Smear the input bins
+                 *
+                 *  @param  inputBins the input bin values
+                 *  @param  inputUncertainties the uncertainties on the bin values
+                 *  @param  bins the output smeared bins
+                 *  @param  uncertainties the output smeared uncertainties
+                 */
+                void SmearBins(const std::vector<float> &inputBins, const std::vector<float> &inputUncertainties, std::vector<float> &bins, std::vector<float> &uncertainties) const;
 
                 /**
                  *  @brief  Print a matrix as a table
@@ -567,6 +575,24 @@ std::vector<float> CrossSectionHelper::XSec<T>::GetTrueSignalPerBin(const bool m
 }
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
+                
+template <typename T>
+float CrossSectionHelper::XSec<T>::GetOverlayNormalisation() const
+{
+    // Loop through the tree
+    for (unsigned int i = 0; i < m_pTree->GetEntries(); ++i)
+    {
+        m_pTree->GetEntry(i);
+
+        // ATTN here we are assume all events have same sample norm (which should be true, if it's not something is going wrong)
+        if (m_outputEvent.m_sampleType == AnalysisHelper::Overlay)
+            return m_outputEvent.m_sampleNorm;
+    }
+
+    throw std::logic_error("XSec::GetOverlayNormalisation - no overlays added");
+}
+
+// -----------------------------------------------------------------------------------------------------------------------------------------
 
 template <typename T>
 void CrossSectionHelper::XSec<T>::GetBNBDataPerBin(std::vector<float> &bins, std::vector<float> &uncertainties, const bool useRealData) const
@@ -863,11 +889,12 @@ void CrossSectionHelper::XSec<T>::GetMCTrueCrossSection(std::vector<float> &bins
 
     const auto binWidths = this->GetBinWidths();
     const auto nSignalPerBin = this->GetTrueSignalPerBin(false);
+    const auto norm = this->GetOverlayNormalisation();
 
     for (unsigned int i = 0; i < nBins; ++i)
     {
-        const auto nTotal = nSignalPerBin.at(i);
-        const auto totalErr = AnalysisHelper::GetCountUncertainty(nTotal);
+        const auto nTotal = norm * nSignalPerBin.at(i);
+        const auto totalErr = norm * AnalysisHelper::GetCountUncertainty(nTotal);
         const auto binWidth = binWidths.at(i);
 
         bins.at(i) = this->GetCrossSection(nTotal, 0.f, 1.f, binWidth);
