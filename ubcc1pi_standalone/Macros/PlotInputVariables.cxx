@@ -142,7 +142,6 @@ int PlotInputVariables(const std::string &overlayFileName, const float overlayWe
                     continue;
             }
 
-
             const auto truthParticles = pEvent->truth.particles;
             const auto recoParticles = pEvent->reco.particles;
 
@@ -202,6 +201,10 @@ int PlotInputVariables(const std::string &overlayFileName, const float overlayWe
                 }
 
                 const auto particleStyle = isBNBData ? PlottingHelper::BNBData : PlottingHelper::GetPlotStyle(particle, truthParticles);
+
+                // Don't plot neutrons for clean signal
+                if (cleanSignalOnly && particleStyle == PlottingHelper::Other)
+                    continue;
 
                 // Get the BDT features
                 std::vector<float> features;

@@ -15,7 +15,6 @@ int MakeEventSelectionTable(const std::string &overlayFileName, const float over
     if (shouldOptimize)
     {
         selection.EnableOptimization("2NonProtons", false, -0.4f, 0.4f); // This is optimized for golden signal events
-        selection.EnableOptimization("likelyPionVsProton", true, 0.3f, 0.7f);
         selection.EnableOptimization("openingAngle", true, 2.3f, 3.14f);
         selection.EnableOptimization("topologicalScore", true, 0.f, 0.8f);
         selection.EnableOptimization("noShowers", true, 0.f, 0.2f);

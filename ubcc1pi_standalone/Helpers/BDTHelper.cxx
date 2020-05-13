@@ -278,7 +278,7 @@ bool BDTHelper::GetBDTFeatures(const Event::Reco::Particle &recoParticle, const 
         if (name == "protonForward")
         {
             float feature = -std::numeric_limits<float>::max();
-            if (!AnalysisHelper::GetSoftmax(recoParticle.likelihoodForwardPionW, recoParticle.likelihoodBackwardProtonW, feature))
+            if (!AnalysisHelper::GetSoftmax(recoParticle.likelihoodForwardProtonW, recoParticle.likelihoodBackwardProtonW, feature))
             {
                 if (shouldDebug)
                     std::cout << "DEBUG - Can't calculate: " << name << std::endl;

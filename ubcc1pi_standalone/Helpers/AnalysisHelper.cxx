@@ -461,7 +461,8 @@ bool AnalysisHelper::PassesVisibilityThreshold(const Event::Truth::Particle &par
         case 2112: // Neutron
             thresholdMomentum = std::numeric_limits<float>::max(); // ATTN infinite threshold = never let a neutron pass
             break;
-        /*
+
+            /*
         case 2212: // Proton
             thresholdMomentum = 0.2f;
             break;
@@ -816,6 +817,34 @@ bool AnalysisHelper::GetSoftmax(const Member<float> &signal, const Member<float>
 
     softmax = std::exp(signal()) / denominator;
     return true;
+}
+
+// -----------------------------------------------------------------------------------------------------------------------------------------
+        
+float AnalysisHelper::GetCountUncertainty(const float &count)
+{
+    if (count < 0)
+        throw std::logic_error("AnalysisHelper::GetCountUncertainty - count is < 0");
+
+    return std::pow(count + 1, 0.5f);
+}
+
+// -----------------------------------------------------------------------------------------------------------------------------------------
+        
+float AnalysisHelper::GetEfficiencyUncertainty(const float &numerator, const float &denominator)
+{
+    if (denominator <= std::numeric_limits<float>::epsilon())
+        throw std::logic_error("AnalysisHelper::GetEfficiencyUncertainty - denominator is <= 0");
+    
+    if (numerator > denominator)
+        throw std::logic_error("AnalysisHelper::GetEfficiencyUncertainty - numerator > denomintaor");
+
+    const auto n1 = numerator + 1;
+    const auto n2 = numerator + 2;
+    const auto d2 = numerator + 2;
+    const auto d3 = numerator + 3;
+
+    return (n1*n2)/(d2*d3) - (n1*n1)/(d2*d2);
 }
 
 // -----------------------------------------------------------------------------------------------------------------------------------------

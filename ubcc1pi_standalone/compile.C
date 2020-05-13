@@ -37,7 +37,10 @@
         "Macros/TrainBDTs.cxx",
         "Macros/NMinusOneBDTStudy.cxx",
         "Macros/MakeEventSelectionTable.cxx",
-        "Macros/MakeEventSelectionEfficiencyPlots.cxx"
+        "Macros/MakeEventSelectionEfficiencyPlots.cxx",
+        "Macros/MakeSelectedPIDTable.cxx",
+        "Macros/PlotReconstructedVariables.cxx",
+        "Macros/ExtractXSecs.cxx"
 
     }))
     {

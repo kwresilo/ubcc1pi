@@ -11,6 +11,7 @@
 #include <vector>
 #include <unordered_map>
 #include <sstream>
+#include <cmath>
 
 namespace ubcc1pi
 {
@@ -86,6 +87,16 @@ class FormattingHelper
                 std::vector<std::string>                                     m_headers;      ///< The column headers
                 std::vector<std::unordered_map< std::string, std::string > > m_entries;      ///< The table entries [row][column]
         };
+
+        /**
+         *  @brief  Get the string of the form "3.14 +- 0.03" showing a value with the error
+         *
+         *  @param  value the value
+         *  @param  uncertainty the uncertainty
+         *
+         *  @return the value with error 
+         */
+        static std::string GetValueWithError(const float &value, const float &uncertainty);
 
         /**
          *  @brief  Print a line of '-' characters
@@ -243,6 +254,35 @@ void FormattingHelper::Table::AddEmptyRow()
     }
 
     m_entries.push_back(row);
+}
+
+// -----------------------------------------------------------------------------------------------------------------------------------------
+// -----------------------------------------------------------------------------------------------------------------------------------------
+        
+std::string FormattingHelper::GetValueWithError(const float &value, const float &uncertainty)
+{
+    stringstream ss;
+
+    if (uncertainty < std::numeric_limits<float>::epsilon())
+    {
+        // Just convert the floats to strings
+        ss << value << " +- " << uncertainty;    
+    }
+    else
+    {
+        // Determine the precision we should use
+        const auto nDecimalPlaces = std::floor(std::log10(uncertainty)) - 1;
+        const auto powerOfTen = std::pow(10.f, nDecimalPlaces);
+
+        // Round to that precision
+        //const auto valueRounded = powerOfTen * std::round(value / powerOfTen);
+        const auto uncertaintyRounded = powerOfTen * std::round(uncertainty / powerOfTen);
+
+        // Convert the floats to strings
+        ss << value << " +- " << uncertaintyRounded;
+    }
+
+    return ss.str();
 }
 
 // -----------------------------------------------------------------------------------------------------------------------------------------

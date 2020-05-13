@@ -424,6 +424,27 @@ class AnalysisHelper
         static bool GetSoftmax(const Member<float> &signal, const Member<float> &background, float &softmax);
 
         /**
+         *  @brief  Get the uncertainty on a count
+         *          The uncertainty is calculated using a poisson distribution with uniform prior
+         *
+         *  @param  count the count
+         *
+         *  @return the uncertainty
+         */
+        static float GetCountUncertainty(const float &count);
+
+        /**
+         *  @brief  Get the uncertainty on an efficiency: (numerator, n) / (denominator, d)
+         *          The uncertainty is calculated assuming a binomial distribution with a uniform prior
+         *
+         *  @param  numerator the numerator
+         *  @param  denominator the denominator
+         *
+         *  @return the uncertainty
+         */
+        static float GetEfficiencyUncertainty(const float &numerator, const float &denominator);
+
+        /**
          *  @brief  Print a loading bar showing the numerator/denominator ratio
          *
          *  @param  numerator the numerator
