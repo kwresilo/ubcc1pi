@@ -402,6 +402,24 @@ class AnalysisHelper
         static bool IsGolden(const Event::Truth::Particle &particle);
 
         /**
+         *  @brief  Get the momentum of a pion from range
+         *
+         *  @param  range the input range
+         *
+         *  @return the momentum
+         */
+        static float GetPionMomentumFromRange(const float &range);
+        
+        /**
+         *  @brief  Get the momentum of a muon from range
+         *
+         *  @param  range the input range
+         *
+         *  @return the momentum
+         */
+        static float GetMuonMomentumFromRange(const float &range);
+
+        /**
          *  @brief  Get the ratio of two likelihoods
          *
          *  @param  numerator the numerator likelihood member 

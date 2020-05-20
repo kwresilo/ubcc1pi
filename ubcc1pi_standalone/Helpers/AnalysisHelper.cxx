@@ -253,8 +253,8 @@ void AnalysisHelper::EventCounter::CountEvent(const std::string &tag, const Samp
         m_tags.push_back(tag);
 
     // Classify the event
-    const auto useAbsPdg = true;
-    const auto countProtonsInclusively = true;
+    const auto useAbsPdg = true; // TODO make this configurable
+    const auto countProtonsInclusively = true; // TODO make this configurable
     const auto classification = AnalysisHelper::GetClassificationString(pEvent, useAbsPdg, countProtonsInclusively);
     
     // Keep track of this classification if we haven't seen it before
@@ -781,6 +781,42 @@ bool AnalysisHelper::IsGolden(const Event::Truth::Particle &particle)
             particle.nInelasticScatters() == 0 &&
             particle.isStopping() &&
             AnalysisHelper::IsContained(particle));
+}
+
+// -----------------------------------------------------------------------------------------------------------------------------------------
+        
+float AnalysisHelper::GetPionMomentumFromRange(const float &range)
+{
+    // Fit parameters for true KE-vs-range curve for pions
+    const auto a = 2.18965e-4;
+    const auto b = 1.33772e-2; 
+    const auto alpha = 1.30152;
+    const auto beta = 5.59683e-1;
+
+    // Evaluate the fit
+    const auto kineticEnergy = a*std::pow(range, alpha) + b*std::pow(range, beta);
+ 
+    // Convert to momentum
+    const auto mass = 0.13957018;
+    return (std::pow(std::pow(kineticEnergy + mass, 2) - std::pow(mass, 2), 0.5f));
+}
+
+// -----------------------------------------------------------------------------------------------------------------------------------------
+        
+float AnalysisHelper::GetMuonMomentumFromRange(const float &range)
+{
+    // Fit parameters for true KE-vs-range curve for muons
+    const auto a = 2.99817e-4;
+    const auto b = 1.20364e-2; 
+    const auto alpha = 1.26749;
+    const auto beta = 5.45196e-1;
+
+    // Evaluate the fit
+    const auto kineticEnergy = a*std::pow(range, alpha) + b*std::pow(range, beta);
+
+    // Convert to momentum
+    const auto mass = 0.1056583755;
+    return (std::pow(std::pow(kineticEnergy + mass, 2) - std::pow(mass, 2), 0.5f));
 }
 
 // -----------------------------------------------------------------------------------------------------------------------------------------

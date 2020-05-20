@@ -108,10 +108,7 @@ int PlotReconstructedVariables(const std::string &overlayFileName, const bool us
         const auto pionDir = TVector3(pion.directionX(), pion.directionY(), pion.directionZ()).Unit();
         const auto pionCosTheta = pionDir.Z();
         
-        // Get the KE from the range
-        const auto pionKE = 2.18965e-4 * std::pow(pion.range(), 1.30152) + 1.33772e-2 * std::pow(pion.range(), 5.59683e-1);
-        const auto pionMass = 0.13957018;
-        const auto pionMomentum = std::pow(std::pow(pionKE + pionMass, 2) - std::pow(pionMass, 2), 0.5f);
+        const auto pionMomentum = AnalysisHelper::GetPionMomentumFromRange(pion.range());
 
         const auto muonPionAngle = std::acos(muonDir.Dot(pionDir));
 
