@@ -34,8 +34,10 @@ class Member
     public:
         /**
          *  @brief  Default constructor
+         *
+         *  @param  name the name of the member
          */
-        Member();
+        Member(const std::string &name = "");
 
         /**
          *  @brief  Returns if this member has been set
@@ -95,6 +97,7 @@ class Member
         T                   *m_pAddress;       ///< The address owned by the shared_ptr needed by root... sigh
         bool                 m_isSet;          ///< If the value has been set
         static unsigned int  m_maxVectorPrint; ///< The maximum number of entries of a vector to print
+        std::string          m_name;           ///< The name of the member
 };
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
@@ -106,9 +109,10 @@ inline unsigned int Member<T>::m_maxVectorPrint = 3;
 // -----------------------------------------------------------------------------------------------------------------------------------------
 
 template <typename T>
-Member<T>::Member() :
+Member<T>::Member(const std::string &name) :
     m_pValue(std::make_shared<T>()),
-    m_pAddress(m_pValue.get())
+    m_pAddress(m_pValue.get()),
+    m_name(name)
 {
     this->Reset();
 }   
@@ -138,7 +142,7 @@ inline const T Member<T>::Get() const
     if (this->IsSet())
         return *m_pValue;
 
-    throw std::logic_error("Member::Get() - You are trying to access a member value that hasn't been set");
+    throw std::logic_error("Member::Get() - You are trying to access a member value: \"" + m_name + "\" that hasn't been set");
 }
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
@@ -401,7 +405,7 @@ inline std::string Member< std::vector<std::string> >::ToString() const
 
 // Define a macro that declares a member variable and an associated boolean to check if that variable has been set
 #define UBCC1PI_MACRO_DECLARE_MEMBER(p, q, r, t, n)                                                                                        \
-    Member<t> n;
+    Member<t> n = Member<t>(#n);
 
 // Define a macro that declares a member vector, used to bind particles to vectors in trees
 #define UBCC1PI_MACRO_DECLARE_MEMBER_VECTOR(p, q, r, t, n)                                                                                 \

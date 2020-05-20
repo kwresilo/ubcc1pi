@@ -378,30 +378,36 @@ float RecoHelper::GetBraggLikelihoodDegreesOfFreedom(const art::Ptr<anab::Partic
 
 float RecoHelper::GetBraggLikelihood(const art::Ptr<anab::ParticleID> &pid, const int &pdg, const anab::kTrackDir &dir, const float yzAngle, const float sin2AngleThreshold)
 {
-    const bool isTrackAlongWWire = (std::pow(std::sin(yzAngle), 2) < sin2AngleThreshold);
+    std::cout << "ATTENTION - CHECK THE BRAGG LIKELIHOODS" << std::endl;
+    const auto piBy3 = std::acos(0.5f);
     
     const auto likelihoodW = RecoHelper::GetBraggLikelihood(pid, pdg, geo::kW, dir);
-    const auto hasW = (likelihoodW > -1.f);
+    const bool isTrackAlongWWire = (std::pow(std::sin(yzAngle), 2) < sin2AngleThreshold);
+    const auto hasW = (likelihoodW > -1.f && !isTrackAlongWWire);
 
-    if (!isTrackAlongWWire && hasW)
+    if (hasW)
         return likelihoodW;
 
     // Otherwise the track is along the W wire direction, so just average the other two planes weighted by the number of degrees of freedom
     const auto likelihoodU = RecoHelper::GetBraggLikelihood(pid, pdg, geo::kU, dir);
-    const auto hasU = (likelihoodU > -1.f);
+    const bool isTrackAlongUWire = (std::pow(std::sin(yzAngle - piBy3), 2) < sin2AngleThreshold);
+    const auto hasU = (likelihoodU > -1.f && !isTrackAlongUWire);
 
     const auto likelihoodV = RecoHelper::GetBraggLikelihood(pid, pdg, geo::kV, dir);
-    const auto hasV = (likelihoodV > -1.f);
+    const bool isTrackAlongVWire = (std::pow(std::sin(yzAngle + piBy3), 2) < sin2AngleThreshold);
+    const auto hasV = (likelihoodV > -1.f && !isTrackAlongVWire);
 
-    const auto dofU = hasU ? RecoHelper::GetBraggLikelihoodDegreesOfFreedom(pid, pdg, geo::kU, dir) : 0;
-    const auto dofV = hasV ? RecoHelper::GetBraggLikelihoodDegreesOfFreedom(pid, pdg, geo::kV, dir) : 0;
+    const auto dofU = hasU ? RecoHelper::GetBraggLikelihoodDegreesOfFreedom(pid, pdg, geo::kU, dir) : 0.f;
+    const auto dofV = hasV ? RecoHelper::GetBraggLikelihoodDegreesOfFreedom(pid, pdg, geo::kV, dir) : 0.f;
+    const auto dofUV = dofU + dofV;
+    
+    const auto weightU = hasU ? (likelihoodU * dofU) : 0.f;
+    const auto weightV = hasV ? (likelihoodV * dofV) : 0.f;
 
-    const int dofUV = dofU + dofV;
-
-    if (dofUV <= 0)
+    if ((!hasU && !hasV) || dofUV <= std::numeric_limits<float>::epsilon())
         return -std::numeric_limits<float>::max();
 
-    return (likelihoodU * dofU + likelihoodV * dofV) / static_cast<float>(dofUV);
+    return (weightU + weightV) / dofUV;
 }
 
 // -----------------------------------------------------------------------------------------------------------------------------------------

@@ -71,6 +71,7 @@
     f(p, q, true,  std::vector<float>,         slicePurities)                                                                              \
     f(p, q, true,  std::vector<float>,         sliceCompletenesses)                                                                               
 
+
 // The event truth particle information members
 #define UBCC1PI_MACRO_EVENT_TRUTH_PARTICLE_MEMBERS(p, q, f)                                                                                \
     f(p, q, false, int,                 pdgCode)                                                                                           \
