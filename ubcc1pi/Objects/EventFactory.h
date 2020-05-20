@@ -365,9 +365,11 @@ class EventFactory
          *  @param  dir if the fit is forward or backward
          *  @param  yzAngle the angle in the YZ plane of the input track
          *  @param  sin2AngleThreshold threshold angle to collection wires to use colletion information
+         *  @param  nHitsU the number of hits on the U plane
+         *  @param  nHitsV the number of hits on the V plane
          *  @param  member the member to set
          */
-        static void SetBraggLikelihood(const art::Ptr<anab::ParticleID> &pid, const int &pdg, const anab::kTrackDir &dir, const float yzAngle, const float sin2AngleThreshold, Member<float> &member);
+        static void SetBraggLikelihood(const art::Ptr<anab::ParticleID> &pid, const int &pdg, const anab::kTrackDir &dir, const float yzAngle, const float sin2AngleThreshold, const unsigned int nHitsU, const unsigned int nHitsV, Member<float> &member);
 };
 
 } // namespace ubcc1pi

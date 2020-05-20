@@ -470,24 +470,25 @@ void EventFactory::PopulateEventRecoParticlePIDInfo(const Config &config, const 
     EventFactory::SetBraggLikelihood(pid, 0, geo::kV, anab::kForward, particle.likelihoodMIPV);
     EventFactory::SetBraggLikelihood(pid, 0, geo::kW, anab::kForward, particle.likelihoodMIPW);
     
-
     // We need the yz angle to do the rest
     if (!particle.yzAngle.IsSet())
         return;
-    
+
     const auto yzAngle = particle.yzAngle();
     const auto sin2AngleThreshold = config.Sin2AngleThreshold();
+    const auto nHitsU = particle.nHitsU();
+    const auto nHitsV = particle.nHitsV();
 
-    EventFactory::SetBraggLikelihood(pid, 13, anab::kForward, yzAngle, sin2AngleThreshold, particle.likelihoodForwardMuon);
-    EventFactory::SetBraggLikelihood(pid, 13, anab::kBackward, yzAngle, sin2AngleThreshold, particle.likelihoodBackwardMuon);
+    EventFactory::SetBraggLikelihood(pid, 13, anab::kForward, yzAngle, sin2AngleThreshold, nHitsU, nHitsV, particle.likelihoodForwardMuon);
+    EventFactory::SetBraggLikelihood(pid, 13, anab::kBackward, yzAngle, sin2AngleThreshold, nHitsU, nHitsV, particle.likelihoodBackwardMuon);
     
-    EventFactory::SetBraggLikelihood(pid, 211, anab::kForward, yzAngle, sin2AngleThreshold, particle.likelihoodForwardPion);
-    EventFactory::SetBraggLikelihood(pid, 211, anab::kBackward, yzAngle, sin2AngleThreshold, particle.likelihoodBackwardPion);
+    EventFactory::SetBraggLikelihood(pid, 211, anab::kForward, yzAngle, sin2AngleThreshold, nHitsU, nHitsV, particle.likelihoodForwardPion);
+    EventFactory::SetBraggLikelihood(pid, 211, anab::kBackward, yzAngle, sin2AngleThreshold, nHitsU, nHitsV, particle.likelihoodBackwardPion);
     
-    EventFactory::SetBraggLikelihood(pid, 2212, anab::kForward, yzAngle, sin2AngleThreshold, particle.likelihoodForwardProton);
-    EventFactory::SetBraggLikelihood(pid, 2212, anab::kBackward, yzAngle, sin2AngleThreshold, particle.likelihoodBackwardProton);
+    EventFactory::SetBraggLikelihood(pid, 2212, anab::kForward, yzAngle, sin2AngleThreshold, nHitsU, nHitsV, particle.likelihoodForwardProton);
+    EventFactory::SetBraggLikelihood(pid, 2212, anab::kBackward, yzAngle, sin2AngleThreshold, nHitsU, nHitsV, particle.likelihoodBackwardProton);
     
-    EventFactory::SetBraggLikelihood(pid, 0, anab::kForward, yzAngle, sin2AngleThreshold, particle.likelihoodMIP);
+    EventFactory::SetBraggLikelihood(pid, 0, anab::kForward, yzAngle, sin2AngleThreshold, nHitsU, nHitsV, particle.likelihoodMIP);
 }
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
@@ -503,9 +504,9 @@ void EventFactory::SetBraggLikelihood(const art::Ptr<anab::ParticleID> &pid, con
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
 
-void EventFactory::SetBraggLikelihood(const art::Ptr<anab::ParticleID> &pid, const int &pdg, const anab::kTrackDir &dir, const float yzAngle, const float sin2AngleThreshold, Member<float> &member)
+void EventFactory::SetBraggLikelihood(const art::Ptr<anab::ParticleID> &pid, const int &pdg, const anab::kTrackDir &dir, const float yzAngle, const float sin2AngleThreshold, const unsigned int nHitsU, const unsigned int nHitsV, Member<float> &member)
 {
-    const auto likelihood = RecoHelper::GetBraggLikelihood(pid, pdg, dir, yzAngle, sin2AngleThreshold);
+    const auto likelihood = RecoHelper::GetBraggLikelihood(pid, pdg, dir, yzAngle, sin2AngleThreshold, nHitsU, nHitsV);
 
     // When likelihood isn't available the default is -floatmax
     if (likelihood > -1.f)
