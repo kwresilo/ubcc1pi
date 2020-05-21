@@ -157,7 +157,7 @@ class CollectionHelper
         static Association<R, L> GetReversedAssociation(const Association<L, R> &forwardAssociation);
         
         /**
-         *  @brief  Get the objects associated to a given input object
+         *  @brief  Get the objects associated to a given input object, if the association doesn't exist an empty collection is returned
          *
          *  @param  objectL the input object
          *  @param  association the association between objects of type L -> R
@@ -245,7 +245,7 @@ class CollectionHelper
         static art::Ptr<R> GetSingleAssociated(const art::Ptr<L> &objectL, const AssociationData<L, R, D> &association);
 
         /**
-         *  @brief  Get the objects associated to a given input object with data
+         *  @brief  Get the objects associated to a given input object with data, if the association doesn't exist an empty collection is returned
          *
          *  @param  objectL the input object
          *  @param  association the association between objects of type L -> R
@@ -403,12 +403,8 @@ inline Collection<R> CollectionHelper::GetManyAssociated(const art::Ptr<L> &obje
 {
     const auto iter = association.find(objectL);
 
-    // ATTN previously threw here. Changed, but need to test if this impacts any existing modules
     if (iter == association.end())
-    {
         return Collection<R>();
-        //throw cet::exception("CollectionHelper::GetManyAssociated") << " - No association entry found for the input object." << std::endl;
-    }
 
     return iter->second;
 }
@@ -523,12 +519,8 @@ inline CollectionData<R, D> CollectionHelper::GetManyAssociatedWithData(const ar
 {
     const auto iter = association.find(objectL);
 
-    // ATTN previously threw here. Changed, but need to test if this impacts any existing modules
     if (iter == association.end())
-    {
         return CollectionData<R, D>();
-        //throw cet::exception("CollectionHelper::GetManyAssociated") << " - No association entry found for the input object." << std::endl;
-    }
 
     return iter->second;
 }

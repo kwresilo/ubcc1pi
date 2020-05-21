@@ -661,7 +661,7 @@ void EventFactory::PopulateEventRecoSliceInfo(const art::Event &event, const Con
             }
         }
 
-        // ATTN here we can possibly push a dummy value to keep the vectors in sync
+        // ATTN the output topological scores can contain dummy values - this keeps the vectors in sync. 
         sliceTopologicalScores.push_back(topologicalScore);
 
         if (slice == selectedSlice)
@@ -678,7 +678,6 @@ void EventFactory::PopulateEventRecoSliceInfo(const art::Event &event, const Con
 
 void EventFactory::PopulateEventTruthSliceInfo(const art::Event &event, const Config &config, Event::Truth &truth)
 {
-    // ATTN I could probably do this much more efficiently, for now I'm reusing an old implementation
     const auto slices = CollectionHelper::GetCollection<recob::Slice>(event, config.SliceLabel());
     const auto slicesToHits = CollectionHelper::GetAssociation<recob::Slice, recob::Hit>(event, config.SliceLabel());
     const auto pfParticlesToSlices = CollectionHelper::GetAssociation<recob::PFParticle, recob::Slice>(event, config.PFParticleLabel(), config.SliceLabel());
