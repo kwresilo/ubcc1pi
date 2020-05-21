@@ -15,7 +15,6 @@
 #include <vector>
 #include <unordered_map>
 
-// ATTN could just forward declare these
 #include "nusimdata/SimulationBase/MCTruth.h"
 #include "nusimdata/SimulationBase/MCParticle.h"
 #include "lardataobj/RecoBase/Hit.h"
@@ -373,11 +372,25 @@ inline Association<R, L> CollectionHelper::GetReversedAssociation(const Associat
 {
     Association<R, L> reverseAssociation;
 
-    // ATTN does this mess up reproducibility?
+    // ATTN here we extract the keys of the (unordered) input map so we can order them for reproducibility
+    Collection<L> collectionL;
     for (const auto &entry : forwardAssociation)
+        collectionL.push_back(entry.first);
+
+    std::sort(collectionL.begin(), collectionL.end(), [](const art::Ptr<L> &a, const art::Ptr<L> &b) { return a.key() < b.key(); });
+
+
+    // Now iterate over the ordered collection
+    for (const auto &objectL : collectionL)
     {
-        for (const auto &object : entry.second)
-            reverseAssociation[object].push_back(entry.first);
+        const auto iter = forwardAssociation.find(objectL);
+
+        // This should never happen, but let's check for sanity
+        if (iter == forwardAssociation.end())
+            throw cet::exception("CollectionHelper::GetReversedAssociation") << " - sanity check failed!" << std::endl;
+        
+        for (const auto &objectR : iter->second)
+            reverseAssociation[objectR].push_back(objectL);
     }
 
     return reverseAssociation;
