@@ -451,7 +451,7 @@ inline std::string Member< std::vector<std::string> >::ToString() const
 // Define a macro that prints each of the member variables
 #define UBCC1PI_MACRO_PRINT_MEMBER(p, q, r, t, n)                                                                                          \
     std::cout << std::setw(28) << "(" #t ")" << "  ";                                                                                      \
-    std::cout << std::setw(40) << (#q "." #n "()") << "  ";                                                                                \
+    std::cout << std::setw(44) << (#q "." #n "()") << "  ";                                                                                \
     std::cout << q.n.ToString() << std::endl;                                                                                              
 
 // Define a macro to bind a member variable to an output branch

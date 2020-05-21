@@ -27,6 +27,7 @@
 #include "lardataobj/RecoBase/PFParticleMetadata.h"
 #include "lardataobj/RecoBase/Vertex.h"
 #include "lardataobj/RecoBase/SpacePoint.h"
+#include "lardataobj/RecoBase/MCSFitResult.h"
 
 #include "lardataobj/AnalysisBase/ParticleID.h"
 #include "lardataobj/AnalysisBase/BackTrackerMatchingData.h"
@@ -75,6 +76,7 @@ typedef Association<recob::PFParticle, recob::PFParticle> PFParticleToPFParticle
 typedef Association<recob::PFParticle, larpandoraobj::PFParticleMetadata> PFParticleToMetadata;     ///< Association from PFParticle to metadata
 typedef Association<recob::PFParticle, anab::T0> PFParticleToT0s;                      ///< Association from PFParticle to T0s
 
+typedef Association<recob::Track, recob::MCSFitResult> TrackToMCSFitResults;           ///< Association from Tracks to MCS fit results
 typedef Association<recob::Track, anab::ParticleID> TrackToPIDs;                       ///< Association from Tracks to PIDs
 typedef Association<recob::Track, anab::Calorimetry> TrackToCalorimetries;             ///< Association from Tracks to Calorimetries
                 
@@ -132,6 +134,18 @@ class CollectionHelper
          */
         template <typename L, typename R>
         static Association<L, R> GetAssociation(const art::Event &event, const art::InputTag &label);
+
+        /**
+         *  @brief  Get an association from two collections which have a 1:1 ordered mapping for their entries 
+         *
+         *  @param  event the art event
+         *  @param  collectionLabelL the label of the first (L) collection
+         *  @param  collectionLabelR the label of the secon (R) collection
+         *
+         *  @return the assocation from L -> R
+         */
+        template <typename L, typename R>
+        static Association<L, R> GetAssociationFromAlignedCollections(const art::Event &event, const art::InputTag &collectionLabelL, const art::InputTag &collectionLabelR);
         
         /**
          *  @brief  Get the reversed association (R -> L) from in input association (L -> R)
@@ -327,6 +341,26 @@ inline Association<L, R> CollectionHelper::GetAssociation(const art::Event &even
 
         for (const auto &objectR : assoc.at(objectL.key()))
             outputAssociation[objectL].push_back(objectR);
+    }
+
+    return outputAssociation;
+}
+
+// -----------------------------------------------------------------------------------------------------------------------------------------
+        
+template <typename L, typename R>
+inline Association<L, R> CollectionHelper::GetAssociationFromAlignedCollections(const art::Event &event, const art::InputTag &collectionLabelL, const art::InputTag &collectionLabelR)
+{
+    const auto collectionL = CollectionHelper::GetCollection<L>(event, collectionLabelL);
+    const auto collectionR = CollectionHelper::GetCollection<R>(event, collectionLabelR);
+
+    if (collectionL.size() != collectionR.size())
+        throw cet::exception("CollectionHelper::GetAssociationFromAlignedCollections") << " - the collections have different sizes." << std::endl;
+
+    Association<L, R> outputAssociation;
+    for (unsigned int i = 0; i < collectionL.size(); ++i)
+    {
+        outputAssociation[collectionL.at(i)].push_back(collectionR.at(i));
     }
 
     return outputAssociation;

@@ -15,6 +15,7 @@ event_factory_config:
     VertexLabel:        "pandora"
     SpacePointLabel:    "pandora"
     TrackLabel:         "pandora"
+    MCSFitResultLabel:  "pandoraMCSMu"
     CalorimetryLabel:   "pandoracaliSCE"
     PIDLabel:           "pandoracalipidSCE"
     CCInclusiveLabel:   "NuCCproducer"
