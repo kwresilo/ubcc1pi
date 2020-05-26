@@ -30,9 +30,9 @@
         "Helpers/NormalisationHelper.cxx",
 
         // Macros
-        "Macros/Test.cxx",
         "Macros/CountPOT.cxx",
         "Macros/GetRunSubrunList.cxx",
+        "Macros/PrintConfig.cxx",
         "Macros/PlotInputVariables.cxx",
         "Macros/CCInclusiveTruthStudy.cxx",
         "Macros/TrainBDTs.cxx",
@@ -41,7 +41,9 @@
         "Macros/MakeEventSelectionEfficiencyPlots.cxx",
         "Macros/MakeSelectedPIDTable.cxx",
         "Macros/PlotReconstructedVariables.cxx",
-        "Macros/ExtractXSecs.cxx"
+        "Macros/ExtractXSecs.cxx",
+
+        "Macros/RunFullAnalysis.cxx"
 
     }))
     {

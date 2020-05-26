@@ -11,38 +11,38 @@
 
 namespace ubcc1pi
 {
-
     /**
      *  @brief  The normalisation helper class
      */
     class NormalisationHelper
     {
-        /**
-         *  @brief  Get the normalisation factor for the overlays
-         *
-         *  @param  config the input configuration
-         *
-         *  @return the normalisation factor
-         */
-        static float GetOverlaysNormalisation(const Config &config);
+        public:
+            /**
+             *  @brief  Get the normalisation factor for the overlays
+             *
+             *  @param  config the input configuration
+             *
+             *  @return the normalisation factor
+             */
+            static float GetOverlaysNormalisation(const Config &config);
 
-        /**
-         *  @brief  Get the normalisation factor for the dirt
-         *
-         *  @param  config the input configuration
-         *
-         *  @return the normalisation factor
-         */
-        static float GetDirtNormalisation(const Config &config);
+            /**
+             *  @brief  Get the normalisation factor for the dirt
+             *
+             *  @param  config the input configuration
+             *
+             *  @return the normalisation factor
+             */
+            static float GetDirtNormalisation(const Config &config);
 
-        /**
-         *  @brief  Get the normalisation factor for the EXT data
-         *
-         *  @param  config the input configuration
-         *
-         *  @return the normalisation factor
-         */
-        static float GetDataEXTNormalisation(const Config &config);
+            /**
+             *  @brief  Get the normalisation factor for the EXT data
+             *
+             *  @param  config the input configuration
+             *
+             *  @return the normalisation factor
+             */
+            static float GetDataEXTNormalisation(const Config &config);
     };
 
 } // namespace ubcc1pi
