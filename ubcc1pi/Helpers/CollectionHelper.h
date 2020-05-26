@@ -15,7 +15,6 @@
 #include <vector>
 #include <unordered_map>
 
-// ATTN could just forward declare these
 #include "nusimdata/SimulationBase/MCTruth.h"
 #include "nusimdata/SimulationBase/MCParticle.h"
 #include "lardataobj/RecoBase/Hit.h"
@@ -27,6 +26,7 @@
 #include "lardataobj/RecoBase/PFParticleMetadata.h"
 #include "lardataobj/RecoBase/Vertex.h"
 #include "lardataobj/RecoBase/SpacePoint.h"
+#include "lardataobj/RecoBase/MCSFitResult.h"
 
 #include "lardataobj/AnalysisBase/ParticleID.h"
 #include "lardataobj/AnalysisBase/BackTrackerMatchingData.h"
@@ -75,6 +75,7 @@ typedef Association<recob::PFParticle, recob::PFParticle> PFParticleToPFParticle
 typedef Association<recob::PFParticle, larpandoraobj::PFParticleMetadata> PFParticleToMetadata;     ///< Association from PFParticle to metadata
 typedef Association<recob::PFParticle, anab::T0> PFParticleToT0s;                      ///< Association from PFParticle to T0s
 
+typedef Association<recob::Track, recob::MCSFitResult> TrackToMCSFitResults;           ///< Association from Tracks to MCS fit results
 typedef Association<recob::Track, anab::ParticleID> TrackToPIDs;                       ///< Association from Tracks to PIDs
 typedef Association<recob::Track, anab::Calorimetry> TrackToCalorimetries;             ///< Association from Tracks to Calorimetries
                 
@@ -132,6 +133,18 @@ class CollectionHelper
          */
         template <typename L, typename R>
         static Association<L, R> GetAssociation(const art::Event &event, const art::InputTag &label);
+
+        /**
+         *  @brief  Get an association from two collections which have a 1:1 ordered mapping for their entries 
+         *
+         *  @param  event the art event
+         *  @param  collectionLabelL the label of the first (L) collection
+         *  @param  collectionLabelR the label of the secon (R) collection
+         *
+         *  @return the assocation from L -> R
+         */
+        template <typename L, typename R>
+        static Association<L, R> GetAssociationFromAlignedCollections(const art::Event &event, const art::InputTag &collectionLabelL, const art::InputTag &collectionLabelR);
         
         /**
          *  @brief  Get the reversed association (R -> L) from in input association (L -> R)
@@ -144,7 +157,7 @@ class CollectionHelper
         static Association<R, L> GetReversedAssociation(const Association<L, R> &forwardAssociation);
         
         /**
-         *  @brief  Get the objects associated to a given input object
+         *  @brief  Get the objects associated to a given input object, if the association doesn't exist an empty collection is returned
          *
          *  @param  objectL the input object
          *  @param  association the association between objects of type L -> R
@@ -232,7 +245,7 @@ class CollectionHelper
         static art::Ptr<R> GetSingleAssociated(const art::Ptr<L> &objectL, const AssociationData<L, R, D> &association);
 
         /**
-         *  @brief  Get the objects associated to a given input object with data
+         *  @brief  Get the objects associated to a given input object with data, if the association doesn't exist an empty collection is returned
          *
          *  @param  objectL the input object
          *  @param  association the association between objects of type L -> R
@@ -335,15 +348,49 @@ inline Association<L, R> CollectionHelper::GetAssociation(const art::Event &even
 // -----------------------------------------------------------------------------------------------------------------------------------------
         
 template <typename L, typename R>
+inline Association<L, R> CollectionHelper::GetAssociationFromAlignedCollections(const art::Event &event, const art::InputTag &collectionLabelL, const art::InputTag &collectionLabelR)
+{
+    const auto collectionL = CollectionHelper::GetCollection<L>(event, collectionLabelL);
+    const auto collectionR = CollectionHelper::GetCollection<R>(event, collectionLabelR);
+
+    if (collectionL.size() != collectionR.size())
+        throw cet::exception("CollectionHelper::GetAssociationFromAlignedCollections") << " - the collections have different sizes." << std::endl;
+
+    Association<L, R> outputAssociation;
+    for (unsigned int i = 0; i < collectionL.size(); ++i)
+    {
+        outputAssociation[collectionL.at(i)].push_back(collectionR.at(i));
+    }
+
+    return outputAssociation;
+}
+
+// -----------------------------------------------------------------------------------------------------------------------------------------
+        
+template <typename L, typename R>
 inline Association<R, L> CollectionHelper::GetReversedAssociation(const Association<L, R> &forwardAssociation)
 {
     Association<R, L> reverseAssociation;
 
-    // ATTN does this mess up reproducibility?
+    // ATTN here we extract the keys of the (unordered) input map so we can order them for reproducibility
+    Collection<L> collectionL;
     for (const auto &entry : forwardAssociation)
+        collectionL.push_back(entry.first);
+
+    std::sort(collectionL.begin(), collectionL.end(), [](const art::Ptr<L> &a, const art::Ptr<L> &b) { return a.key() < b.key(); });
+
+
+    // Now iterate over the ordered collection
+    for (const auto &objectL : collectionL)
     {
-        for (const auto &object : entry.second)
-            reverseAssociation[object].push_back(entry.first);
+        const auto iter = forwardAssociation.find(objectL);
+
+        // This should never happen, but let's check for sanity
+        if (iter == forwardAssociation.end())
+            throw cet::exception("CollectionHelper::GetReversedAssociation") << " - sanity check failed!" << std::endl;
+        
+        for (const auto &objectR : iter->second)
+            reverseAssociation[objectR].push_back(objectL);
     }
 
     return reverseAssociation;
@@ -356,12 +403,8 @@ inline Collection<R> CollectionHelper::GetManyAssociated(const art::Ptr<L> &obje
 {
     const auto iter = association.find(objectL);
 
-    // ATTN previously threw here. Changed, but need to test if this impacts any existing modules
     if (iter == association.end())
-    {
         return Collection<R>();
-        //throw cet::exception("CollectionHelper::GetManyAssociated") << " - No association entry found for the input object." << std::endl;
-    }
 
     return iter->second;
 }
@@ -476,12 +519,8 @@ inline CollectionData<R, D> CollectionHelper::GetManyAssociatedWithData(const ar
 {
     const auto iter = association.find(objectL);
 
-    // ATTN previously threw here. Changed, but need to test if this impacts any existing modules
     if (iter == association.end())
-    {
         return CollectionData<R, D>();
-        //throw cet::exception("CollectionHelper::GetManyAssociated") << " - No association entry found for the input object." << std::endl;
-    }
 
     return iter->second;
 }

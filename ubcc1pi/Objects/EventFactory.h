@@ -143,6 +143,15 @@ class EventFactory
             };
             
             /**
+             *  @brief  The MCS fit result label
+             */
+            fhicl::Atom<art::InputTag> MCSFitResultLabel
+            {
+                fhicl::Name("MCSFitResultLabel"),
+                fhicl::Comment("The label for the MCSFitResult producer")
+            };
+            
+            /**
              *  @brief  The calorimetry label
              */
             fhicl::Atom<art::InputTag> CalorimetryLabel
@@ -286,6 +295,7 @@ class EventFactory
          *  @param  pfParticleToMetadata the input mapping from PFParticle to metadata
          *  @param  pfParticleToHits the input mapping from PFParticles to hits
          *  @param  pfParticleToTracks the input mapping from PFParticles to tracks
+         *  @param  trackToMCSFitResults the input mapping from tracks to MCS fit results
          *  @param  trackToPIDs the input mapping from tracks to PIDs
          *  @param  trackToCalorimetries the input mapping from tracks to Calorimetry objects
          *  @param  spacePoints the input spacepoints
@@ -294,7 +304,7 @@ class EventFactory
          *  @param  nuVertex the (not space-charge corrected) reconstructed neutrino vertex
          *  @param  particle the output particle
          */
-        static void PopulateEventRecoParticleInfo(const Config &config, const art::Ptr<recob::PFParticle> &pfParticle, const PFParticleMap &pfParticleMap, const PFParticleToT0s &pfParticleToT0s, const PFParticleToMetadata &pfParticleToMetadata, const PFParticleToHits &pfParticleToHits, const PFParticleToTracks &pfParticleToTracks, const TrackToPIDs &trackToPIDs, const TrackToCalorimetries &trackToCalorimetries, const SpacePointVector &spacePoints, const MCParticleVector &finalStateMCParticles, const std::shared_ptr<BacktrackHelper::BacktrackerData> &pBacktrackerData, const TVector3 &nuVertex, Event::Reco::Particle &particle);
+        static void PopulateEventRecoParticleInfo(const Config &config, const art::Ptr<recob::PFParticle> &pfParticle, const PFParticleMap &pfParticleMap, const PFParticleToT0s &pfParticleToT0s, const PFParticleToMetadata &pfParticleToMetadata, const PFParticleToHits &pfParticleToHits, const PFParticleToTracks &pfParticleToTracks, const TrackToMCSFitResults &trackToMCSFitResults, const TrackToPIDs &trackToPIDs, const TrackToCalorimetries &trackToCalorimetries, const SpacePointVector &spacePoints, const MCParticleVector &finalStateMCParticles, const std::shared_ptr<BacktrackHelper::BacktrackerData> &pBacktrackerData, const TVector3 &nuVertex, Event::Reco::Particle &particle);
 
         /**
          *  @brief  Check if the input particle is the CC inclusive muon candidate
@@ -327,6 +337,14 @@ class EventFactory
          *  @param  particle the output particle
          */
         static void PopulateEventRecoParticleTrackInfo(const Config &config, const art::Ptr<recob::Track> &track, const SpacePointVector &spacePoints, const TVector3 &nuVertex, Event::Reco::Particle &particle);
+
+        /**
+         *  @brief  Populare the MCS fit result information
+         *
+         *  @param  mcsFitResult the input MCS fit result object
+         *  @param  particle the output particle
+         */
+        static void PopulateEventRecoParticleMCSFitInfo(const art::Ptr<recob::MCSFitResult> &mcsFitResult, Event::Reco::Particle &particle);
 
         /**
          *  @brief  Populate the reco particle PID information
@@ -365,9 +383,11 @@ class EventFactory
          *  @param  dir if the fit is forward or backward
          *  @param  yzAngle the angle in the YZ plane of the input track
          *  @param  sin2AngleThreshold threshold angle to collection wires to use colletion information
+         *  @param  nHitsU the number of hits on the U plane
+         *  @param  nHitsV the number of hits on the V plane
          *  @param  member the member to set
          */
-        static void SetBraggLikelihood(const art::Ptr<anab::ParticleID> &pid, const int &pdg, const anab::kTrackDir &dir, const float yzAngle, const float sin2AngleThreshold, Member<float> &member);
+        static void SetBraggLikelihood(const art::Ptr<anab::ParticleID> &pid, const int &pdg, const anab::kTrackDir &dir, const float yzAngle, const float sin2AngleThreshold, const unsigned int nHitsU, const unsigned int nHitsV, Member<float> &member);
 };
 
 } // namespace ubcc1pi

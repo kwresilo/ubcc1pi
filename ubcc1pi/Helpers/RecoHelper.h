@@ -249,16 +249,6 @@ class RecoHelper
         static float GetPidScore(const art::Ptr<anab::ParticleID> &pid, const std::function<bool(const anab::sParticleIDAlgScores &)> &fCriteria);
 
         /**
-         *  @brief  Get the degrees of freedom associated with a given PID criteria
-         *
-         *  @param  pid the input pid object
-         *  @param  fCriteria a function that returns true if a given algorithm score passes some criteria
-         *
-         *  @return the degrees of freedom
-         */
-        static float GetPidDegreesOfFreedom(const art::Ptr<anab::ParticleID> &pid, const std::function<bool(const anab::sParticleIDAlgScores &)> &fCriteria);
-
-        /**
          *  @brief  Convert a plane mask from a PID algorithm into a human readable view
          *
          *  @param  planeMask the input plane mask
@@ -287,22 +277,12 @@ class RecoHelper
          *  @param  dir if the fit is forward or backward
          *  @param  yzAngle the angle of the input track in the YZ plane
          *  @param  sin2AngleThreshold the threshold within which the track musn't points along the W wire direction to use the info on that plane
+         *  @param  nHitsU the number of hits in the U plane
+         *  @param  nHitsV the number of hits in the V plane
          *
          *  @return the bragg likelihood over all planes
          */
-        static float GetBraggLikelihood(const art::Ptr<anab::ParticleID> &pid, const int &pdg, const anab::kTrackDir &dir, const float yzAngle, const float sin2AngleThreshold);
-
-        /**
-         *  @brief  Get the number of degrees of freedom associated with a given bragg likelihood
-         *
-         *  @param  pid the input pid
-         *  @param  pdg the assumed pdg
-         *  @param  view the view
-         *  @param  dir if the fit is forward or backward
-         *
-         *  @return the number of degrees of freedom
-         */
-        static float GetBraggLikelihoodDegreesOfFreedom(const art::Ptr<anab::ParticleID> &pid, const int &pdg, const geo::View_t &view, const anab::kTrackDir &dir);
+        static float GetBraggLikelihood(const art::Ptr<anab::ParticleID> &pid, const int &pdg, const anab::kTrackDir &dir, const float yzAngle, const float sin2AngleThreshold, const unsigned int nHitsU, const unsigned int nHitsV);
 
         /**
          *  @brief  Get the indices of the trajectory points that are valid in an input track

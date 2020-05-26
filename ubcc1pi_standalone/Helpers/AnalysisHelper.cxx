@@ -413,6 +413,24 @@ void AnalysisHelper::EventCounter::PrintBreakdownDetails(const unsigned int nEnt
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
 // -----------------------------------------------------------------------------------------------------------------------------------------
+        
+float AnalysisHelper::GetNominalEventWeight(const std::shared_ptr<Event> &pEvent)
+{
+    float weight = 1.f;
+    const auto &truth = pEvent->truth;
+
+    // ATTN unfortunately when the event weights are applied a small fraction of events are given an infinite weight, I assume due to a
+    // failure in the event weighting code - for now we just skip infinite weights
+    if (truth.splineEventWeight.IsSet() && std::abs(truth.splineEventWeight()) < std::numeric_limits<float>::max())
+        weight *= truth.splineEventWeight();
+    
+    if (truth.genieTuneEventWeight.IsSet() && std::abs(truth.genieTuneEventWeight()) < std::numeric_limits<float>::max())
+        weight *= truth.genieTuneEventWeight();
+
+    return weight;
+}
+
+// -----------------------------------------------------------------------------------------------------------------------------------------
 
 bool AnalysisHelper::IsTrueCC1Pi(const std::shared_ptr<Event> &pEvent, const bool useAbsPdg)
 {

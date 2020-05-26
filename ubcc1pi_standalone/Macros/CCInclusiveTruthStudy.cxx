@@ -30,8 +30,8 @@ int CCInclusiveTruthStudy(const std::string &overlayFileName, const bool useAbsP
     hGoldenPionMomentumSel->Sumw2();
     hNonGoldenPionMomentumSel->Sumw2();
 
-    unsigned int nSignal = 0;
-    unsigned int nSignalSelected = 0;
+    float nSignal = 0;
+    float nSignalSelected = 0;
 
     const auto nEvents = reader.GetNumberOfEvents();
     for (unsigned int i = 0; i < nEvents; ++i)
@@ -39,18 +39,20 @@ int CCInclusiveTruthStudy(const std::string &overlayFileName, const bool useAbsP
         AnalysisHelper::PrintLoadingBar(i, nEvents);
 
         reader.LoadEvent(i);
+
+        const auto weight = AnalysisHelper::GetNominalEventWeight(pEvent);
             
         // Only use signal events
         if (!AnalysisHelper::IsTrueCC1Pi(pEvent, useAbsPdg))
             continue;
 
-        nSignal++;
+        nSignal += weight;
 
         // Check if event passes the CC inclusive selection
         const bool passesCCInclusive = pEvent->reco.passesCCInclusive();
 
         if (passesCCInclusive)
-            nSignalSelected++;
+            nSignalSelected += weight;
 
         const auto truthParticles = pEvent->truth.particles;
         for (const auto &particle : truthParticles)
@@ -61,31 +63,31 @@ int CCInclusiveTruthStudy(const std::string &overlayFileName, const bool useAbsP
             switch (particle.pdgCode())
             {
                 case 13:
-                    hMuonMomentum->Fill(particle.momentum());
+                    hMuonMomentum->Fill(particle.momentum(), weight);
 
                     if (passesCCInclusive)
-                        hMuonMomentumSel->Fill(particle.momentum());
+                        hMuonMomentumSel->Fill(particle.momentum(), weight);
                     break;
                 case 2212:
-                    hProtonMomentum->Fill(particle.momentum());
+                    hProtonMomentum->Fill(particle.momentum(), weight);
                     
                     if (passesCCInclusive)
-                        hProtonMomentumSel->Fill(particle.momentum());
+                        hProtonMomentumSel->Fill(particle.momentum(), weight);
                     break;
                 case 211:
                     if (AnalysisHelper::IsGolden(particle))
                     {
-                        hGoldenPionMomentum->Fill(particle.momentum());
+                        hGoldenPionMomentum->Fill(particle.momentum(), weight);
                         
                         if (passesCCInclusive)
-                            hGoldenPionMomentumSel->Fill(particle.momentum());
+                            hGoldenPionMomentumSel->Fill(particle.momentum(), weight);
                     }
                     else
                     {
-                        hNonGoldenPionMomentum->Fill(particle.momentum());
+                        hNonGoldenPionMomentum->Fill(particle.momentum(), weight);
                         
                         if (passesCCInclusive)
-                            hNonGoldenPionMomentumSel->Fill(particle.momentum());
+                            hNonGoldenPionMomentumSel->Fill(particle.momentum(), weight);
                     }
                     break;
                 default:
@@ -115,19 +117,19 @@ int CCInclusiveTruthStudy(const std::string &overlayFileName, const bool useAbsP
 
     hMuonMomentum->Draw("hist");
     hMuonMomentumSel->Draw("hist same");
-    PlottingHelper::SaveCanvas(pCanvas, "ccinc_muonMomentum");
+    PlottingHelper::SaveCanvas(pCanvas, "truthStudy_muonMomentum");
     
     hProtonMomentum->Draw("hist");
     hProtonMomentumSel->Draw("hist same");
-    PlottingHelper::SaveCanvas(pCanvas, "ccinc_protonMomentum");
+    PlottingHelper::SaveCanvas(pCanvas, "truthStudy_protonMomentum");
     
     hGoldenPionMomentum->Draw("hist");
     hGoldenPionMomentumSel->Draw("hist same");
-    PlottingHelper::SaveCanvas(pCanvas, "ccinc_goldenPionMomentum");
+    PlottingHelper::SaveCanvas(pCanvas, "truthStudy_goldenPionMomentum");
     
     hNonGoldenPionMomentum->Draw("hist");
     hNonGoldenPionMomentumSel->Draw("hist same");
-    PlottingHelper::SaveCanvas(pCanvas, "ccinc_nonGoldenPionMomentum");
+    PlottingHelper::SaveCanvas(pCanvas, "truthStudy_nonGoldenPionMomentum");
 
     // Ratio plots
     auto pCanvasRatio = PlottingHelper::GetCanvas(960, 270);
@@ -143,16 +145,16 @@ int CCInclusiveTruthStudy(const std::string &overlayFileName, const bool useAbsP
     hNonGoldenPionMomentumSel->Divide(hNonGoldenPionMomentum.get());
 
     hMuonMomentumSel->Draw("e1");
-    PlottingHelper::SaveCanvas(pCanvasRatio, "ccinc_muonMomentum_ratio");
+    PlottingHelper::SaveCanvas(pCanvasRatio, "truthStudy_muonMomentum_ratio");
     
     hProtonMomentumSel->Draw("e1");
-    PlottingHelper::SaveCanvas(pCanvasRatio, "ccinc_protonMomentum_ratio");
+    PlottingHelper::SaveCanvas(pCanvasRatio, "truthStudy_protonMomentum_ratio");
     
     hGoldenPionMomentumSel->Draw("e1");
-    PlottingHelper::SaveCanvas(pCanvasRatio, "ccinc_goldenPionMomentum_ratio");
+    PlottingHelper::SaveCanvas(pCanvasRatio, "truthStudy_goldenPionMomentum_ratio");
     
     hNonGoldenPionMomentumSel->Draw("e1");
-    PlottingHelper::SaveCanvas(pCanvasRatio, "ccinc_nonGoldenPionMomentum_ratio");
+    PlottingHelper::SaveCanvas(pCanvasRatio, "truthStudy_nonGoldenPionMomentum_ratio");
 
     std::cout << "N signal events: " << nSignal << std::endl;
     std::cout << "N signal events selected: " << nSignalSelected << std::endl;

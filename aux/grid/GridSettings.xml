@@ -68,7 +68,7 @@
         <!-- Settings -->
         <fcl>analysis_file_writer_driver.fcl</fcl>
         <!--numjobs>385</numjobs-->
-        <numjobs>10</numjobs>
+        <numjobs>385</numjobs>
         <maxfilesperjob>1</maxfilesperjob>
         <numevents>&numEvents;</numevents>
 
@@ -86,6 +86,27 @@
         <jobsub>&jobsub;</jobsub>
     </stage>
     
+    <stage name="dirt">
+        <!-- Settings -->
+        <fcl>analysis_file_writer_driver.fcl</fcl>
+        <numjobs>42</numjobs>
+        <maxfilesperjob>1</maxfilesperjob>
+        <numevents>&numEvents;</numevents>
+
+        <!-- Input files -->
+        <inputdef>prodgenie_bnb_dirt_overlay_ccinc_withWeights_joelam</inputdef>
+
+        <!-- Output directories -->
+        <outdir>/pnfs/uboone/scratch/users/&username;/&projectName;/dirt/</outdir> 
+        <logdir>/pnfs/uboone/scratch/users/&username;/&projectName;/dirt/</logdir> 
+        <workdir>/pnfs/uboone/resilient/users/&username;/work/&projectName;/dirt/</workdir> 
+
+        <!-- Options -->
+        <datatier>&dataTier;</datatier>
+        <schema>&schema;</schema>
+        <jobsub>&jobsub;</jobsub>
+    </stage>
+
     <stage name="dataBNB">
         <!-- Settings -->
         <fcl>analysis_file_writer_driver_data.fcl</fcl>

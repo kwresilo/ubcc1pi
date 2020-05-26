@@ -146,6 +146,12 @@
     f(p, q, false, float,               range)                                                                                             \
     f(p, q, false, float,               transverseVertexDist)                                                                              \
     f(p, q, false, float,               longitudinalVertexDist)                                                                            \
+    f(p, q, false, float,               mcsMomentumForwardMuon)                                                                            \
+    f(p, q, false, float,               mcsMomentumUncertaintyForwardMuon)                                                                 \
+    f(p, q, false, float,               mcsLogLikelihoodForwardMuon)                                                                       \
+    f(p, q, false, float,               mcsMomentumBackwardMuon)                                                                           \
+    f(p, q, false, float,               mcsMomentumUncertaintyBackwardMuon)                                                                \
+    f(p, q, false, float,               mcsLogLikelihoodBackwardMuon)                                                                      \
     f(p, q, false, float,               wiggliness)                                                                                        \
     f(p, q, false, int,                 nSpacePointsNearEnd)                                                                               \
     f(p, q, false, float,               likelihoodForwardMuonU)                                                                            \

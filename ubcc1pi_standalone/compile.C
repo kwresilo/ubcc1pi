@@ -51,5 +51,13 @@
     // Setting the global plotting environment
     gStyle->SetOptStat(0);
     gStyle->SetOptTitle(0);
-    gStyle->SetTitleFont(132, "XYZ");
+
+    gStyle->SetTitleFont(133, "XYZ");
+    gStyle->SetTitleSize(18, "XYZ");
+    gStyle->SetTitleFontSize(18);
+
+    gStyle->SetLabelFont(133, "XYZ");
+    gStyle->SetLabelSize(16, "XYZ");
+
+    gROOT->ForceStyle();
 }

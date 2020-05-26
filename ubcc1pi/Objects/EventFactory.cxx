@@ -262,13 +262,14 @@ void EventFactory::PopulateEventRecoInfo(const art::Event &event, const Config &
     const auto trackToPIDs = CollectionHelper::GetAssociation<recob::Track, anab::ParticleID>(event, config.TrackLabel(), config.PIDLabel());
     const auto trackToCalorimetries = CollectionHelper::GetAssociation<recob::Track, anab::Calorimetry>(event, config.TrackLabel(), config.CalorimetryLabel());
     const auto spacePoints = CollectionHelper::GetCollection<recob::SpacePoint>(event, config.SpacePointLabel());
-
+    const auto trackToMCSFitResults = CollectionHelper::GetAssociationFromAlignedCollections<recob::Track, recob::MCSFitResult>(event, config.TrackLabel(), config.MCSFitResultLabel());
+    
     for (const auto &pfParticle : finalStatePFParticles)
     {
         reco.particles.emplace_back();
         auto &particle = reco.particles.back();
 
-        EventFactory::PopulateEventRecoParticleInfo(config, pfParticle, pfParticleMap, pfParticleToT0s, pfParticleToMetadata, pfParticleToHits, pfParticleToTracks, trackToPIDs, trackToCalorimetries, spacePoints, finalStateMCParticles, pBacktrackerData, nuVertex, particle);
+        EventFactory::PopulateEventRecoParticleInfo(config, pfParticle, pfParticleMap, pfParticleToT0s, pfParticleToMetadata, pfParticleToHits, pfParticleToTracks, trackToMCSFitResults, trackToPIDs, trackToCalorimetries, spacePoints, finalStateMCParticles, pBacktrackerData, nuVertex, particle);
 
         // If we have a muon candidate from the CC inclusive selection, then this event passed
         if (particle.isCCInclusiveMuonCandidate())
@@ -278,7 +279,7 @@ void EventFactory::PopulateEventRecoInfo(const art::Event &event, const Config &
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
 
-void EventFactory::PopulateEventRecoParticleInfo(const Config &config, const art::Ptr<recob::PFParticle> &pfParticle, const PFParticleMap &pfParticleMap, const PFParticleToT0s &pfParticleToT0s, const PFParticleToMetadata &pfParticleToMetadata, const PFParticleToHits &pfParticleToHits, const PFParticleToTracks &pfParticleToTracks, const TrackToPIDs &trackToPIDs, const TrackToCalorimetries &trackToCalorimetries, const SpacePointVector &spacePoints, const MCParticleVector &finalStateMCParticles, const std::shared_ptr<BacktrackHelper::BacktrackerData> &pBacktrackerData, const TVector3 &nuVertex, Event::Reco::Particle &particle)
+void EventFactory::PopulateEventRecoParticleInfo(const Config &config, const art::Ptr<recob::PFParticle> &pfParticle, const PFParticleMap &pfParticleMap, const PFParticleToT0s &pfParticleToT0s, const PFParticleToMetadata &pfParticleToMetadata, const PFParticleToHits &pfParticleToHits, const PFParticleToTracks &pfParticleToTracks, const TrackToMCSFitResults &trackToMCSFitResults, const TrackToPIDs &trackToPIDs, const TrackToCalorimetries &trackToCalorimetries, const SpacePointVector &spacePoints, const MCParticleVector &finalStateMCParticles, const std::shared_ptr<BacktrackHelper::BacktrackerData> &pBacktrackerData, const TVector3 &nuVertex, Event::Reco::Particle &particle)
 {
     if (!config.HasTruthInfo() && pBacktrackerData)
         throw cet::exception("EventFactory::PopulateEventRecoParticleInfo") << " - Supplied with backtracker data even though there should be no truth info." << std::endl;
@@ -291,7 +292,7 @@ void EventFactory::PopulateEventRecoParticleInfo(const Config &config, const art
     {
         const auto track = CollectionHelper::GetSingleAssociated(pfParticle, pfParticleToTracks);
         EventFactory::PopulateEventRecoParticleTrackInfo(config, track, spacePoints, nuVertex, particle);
-
+        
         try
         {
             const auto pid = CollectionHelper::GetSingleAssociated(track, trackToPIDs);
@@ -301,6 +302,9 @@ void EventFactory::PopulateEventRecoParticleInfo(const Config &config, const art
         
         const auto calos = CollectionHelper::GetManyAssociated(track, trackToCalorimetries);
         EventFactory::PopulateEventRecoParticleCalorimetryInfo(config, calos, particle);
+        
+        const auto mcsFitResult = CollectionHelper::GetSingleAssociated(track, trackToMCSFitResults);
+        EventFactory::PopulateEventRecoParticleMCSFitInfo(mcsFitResult, particle);
     }
     catch (const cet::exception &) {}
 
@@ -443,6 +447,40 @@ void EventFactory::PopulateEventRecoParticleTrackInfo(const Config &config, cons
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
             
+void EventFactory::PopulateEventRecoParticleMCSFitInfo(const art::Ptr<recob::MCSFitResult> &mcsFitResult, Event::Reco::Particle &particle)
+{
+    // ATTN the MCS fitter will default to the maximum sampled momentum if the likelihood scan doesn't converge
+    // Unfortunately, the fitter doesn't provide a flag to identify the cases that didn't converge
+    // With the current configuration, this maximum sample is around 15 GeV, so as a workaround here we apply a threshold below this value
+    // to avoid saving poor fit results (i.e. we are classing this as a fit failure). If the MCS fitter wasn't able to run at all (maybe
+    // there were insufficient hits) then it will return a negative momentum - so we check for this too!
+    // // We do however still save the likelihood in-case that is useful
+    const auto maxMomentum = 14.f;
+
+   
+    // Forward fit
+    const auto forwardMomentum = mcsFitResult->fwdMomentum();
+    if (forwardMomentum >= 0.f && forwardMomentum < maxMomentum)
+    {
+        particle.mcsMomentumForwardMuon.Set(mcsFitResult->fwdMomentum());
+        particle.mcsMomentumUncertaintyForwardMuon.Set(mcsFitResult->fwdMomUncertainty());
+    }
+
+    // Backward fit
+    const auto backwardMomentum = mcsFitResult->bwdMomentum();
+    if (backwardMomentum >= 0.f && backwardMomentum < maxMomentum)
+    {
+        particle.mcsMomentumBackwardMuon.Set(mcsFitResult->bwdMomentum());
+        particle.mcsMomentumUncertaintyBackwardMuon.Set(mcsFitResult->bwdMomUncertainty());
+    }
+
+    // log likelihoods for each fit
+    particle.mcsLogLikelihoodForwardMuon.Set(mcsFitResult->fwdLogLikelihood());
+    particle.mcsLogLikelihoodBackwardMuon.Set(mcsFitResult->bwdLogLikelihood());
+}
+
+// -----------------------------------------------------------------------------------------------------------------------------------------
+            
 void EventFactory::PopulateEventRecoParticlePIDInfo(const Config &config, const art::Ptr<anab::ParticleID> &pid, Event::Reco::Particle &particle)
 {
     EventFactory::SetBraggLikelihood(pid, 13, geo::kU, anab::kForward, particle.likelihoodForwardMuonU);
@@ -470,24 +508,25 @@ void EventFactory::PopulateEventRecoParticlePIDInfo(const Config &config, const 
     EventFactory::SetBraggLikelihood(pid, 0, geo::kV, anab::kForward, particle.likelihoodMIPV);
     EventFactory::SetBraggLikelihood(pid, 0, geo::kW, anab::kForward, particle.likelihoodMIPW);
     
-
     // We need the yz angle to do the rest
     if (!particle.yzAngle.IsSet())
         return;
-    
+
     const auto yzAngle = particle.yzAngle();
     const auto sin2AngleThreshold = config.Sin2AngleThreshold();
+    const auto nHitsU = particle.nHitsU();
+    const auto nHitsV = particle.nHitsV();
 
-    EventFactory::SetBraggLikelihood(pid, 13, anab::kForward, yzAngle, sin2AngleThreshold, particle.likelihoodForwardMuon);
-    EventFactory::SetBraggLikelihood(pid, 13, anab::kBackward, yzAngle, sin2AngleThreshold, particle.likelihoodBackwardMuon);
+    EventFactory::SetBraggLikelihood(pid, 13, anab::kForward, yzAngle, sin2AngleThreshold, nHitsU, nHitsV, particle.likelihoodForwardMuon);
+    EventFactory::SetBraggLikelihood(pid, 13, anab::kBackward, yzAngle, sin2AngleThreshold, nHitsU, nHitsV, particle.likelihoodBackwardMuon);
     
-    EventFactory::SetBraggLikelihood(pid, 211, anab::kForward, yzAngle, sin2AngleThreshold, particle.likelihoodForwardPion);
-    EventFactory::SetBraggLikelihood(pid, 211, anab::kBackward, yzAngle, sin2AngleThreshold, particle.likelihoodBackwardPion);
+    EventFactory::SetBraggLikelihood(pid, 211, anab::kForward, yzAngle, sin2AngleThreshold, nHitsU, nHitsV, particle.likelihoodForwardPion);
+    EventFactory::SetBraggLikelihood(pid, 211, anab::kBackward, yzAngle, sin2AngleThreshold, nHitsU, nHitsV, particle.likelihoodBackwardPion);
     
-    EventFactory::SetBraggLikelihood(pid, 2212, anab::kForward, yzAngle, sin2AngleThreshold, particle.likelihoodForwardProton);
-    EventFactory::SetBraggLikelihood(pid, 2212, anab::kBackward, yzAngle, sin2AngleThreshold, particle.likelihoodBackwardProton);
+    EventFactory::SetBraggLikelihood(pid, 2212, anab::kForward, yzAngle, sin2AngleThreshold, nHitsU, nHitsV, particle.likelihoodForwardProton);
+    EventFactory::SetBraggLikelihood(pid, 2212, anab::kBackward, yzAngle, sin2AngleThreshold, nHitsU, nHitsV, particle.likelihoodBackwardProton);
     
-    EventFactory::SetBraggLikelihood(pid, 0, anab::kForward, yzAngle, sin2AngleThreshold, particle.likelihoodMIP);
+    EventFactory::SetBraggLikelihood(pid, 0, anab::kForward, yzAngle, sin2AngleThreshold, nHitsU, nHitsV, particle.likelihoodMIP);
 }
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
@@ -503,9 +542,9 @@ void EventFactory::SetBraggLikelihood(const art::Ptr<anab::ParticleID> &pid, con
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
 
-void EventFactory::SetBraggLikelihood(const art::Ptr<anab::ParticleID> &pid, const int &pdg, const anab::kTrackDir &dir, const float yzAngle, const float sin2AngleThreshold, Member<float> &member)
+void EventFactory::SetBraggLikelihood(const art::Ptr<anab::ParticleID> &pid, const int &pdg, const anab::kTrackDir &dir, const float yzAngle, const float sin2AngleThreshold, const unsigned int nHitsU, const unsigned int nHitsV, Member<float> &member)
 {
-    const auto likelihood = RecoHelper::GetBraggLikelihood(pid, pdg, dir, yzAngle, sin2AngleThreshold);
+    const auto likelihood = RecoHelper::GetBraggLikelihood(pid, pdg, dir, yzAngle, sin2AngleThreshold, nHitsU, nHitsV);
 
     // When likelihood isn't available the default is -floatmax
     if (likelihood > -1.f)
@@ -622,7 +661,7 @@ void EventFactory::PopulateEventRecoSliceInfo(const art::Event &event, const Con
             }
         }
 
-        // ATTN here we can possibly push a dummy value to keep the vectors in sync
+        // ATTN the output topological scores can contain dummy values - this keeps the vectors in sync. 
         sliceTopologicalScores.push_back(topologicalScore);
 
         if (slice == selectedSlice)
@@ -639,7 +678,6 @@ void EventFactory::PopulateEventRecoSliceInfo(const art::Event &event, const Con
 
 void EventFactory::PopulateEventTruthSliceInfo(const art::Event &event, const Config &config, Event::Truth &truth)
 {
-    // ATTN I could probably do this much more efficiently, for now I'm reusing an old implementation
     const auto slices = CollectionHelper::GetCollection<recob::Slice>(event, config.SliceLabel());
     const auto slicesToHits = CollectionHelper::GetAssociation<recob::Slice, recob::Hit>(event, config.SliceLabel());
     const auto pfParticlesToSlices = CollectionHelper::GetAssociation<recob::PFParticle, recob::Slice>(event, config.PFParticleLabel(), config.SliceLabel());

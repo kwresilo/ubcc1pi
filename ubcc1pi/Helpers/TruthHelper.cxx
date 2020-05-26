@@ -124,8 +124,7 @@ MCParticleVector TruthHelper::GetDaughters(const art::Ptr<simb::MCParticle> &par
         const auto daughterIter = mcParticleMap.find(particle->Daughter(i));
         if (daughterIter == mcParticleMap.end())
         {
-            // ATTN this can happen - MCParticles outside of the cryostat are dropped 
-            // std::cout << "WARNING - Can't find daughter MCParticle in hierarchy, likely out of cryostat - skipping" << std::endl;
+            // ATTN this can happen - MCParticles outside of the cryostat are dropped and the hierarchy gets truncated
             continue;
         }
 
@@ -317,7 +316,7 @@ TruthHelper::EndState TruthHelper::GetEndState(const art::Ptr<simb::MCParticle> 
     const auto finalParticleMomentum = particle->Momentum(std::max(static_cast<unsigned int>(0), particle->NumberTrajectoryPoints() - 2)).Vect();
     MCParticleVector products;
 
-    // ATTN for now, just return OTHER for all non-pions
+    // ATTN for now, just return OTHER for all non-pions, we only use the end-state of the pions
     if (particle->PdgCode() != 211)
         return TruthHelper::EndState(type, finalParticleMomentum, products);
 
