@@ -71,7 +71,35 @@ void PrintConfig(const Config &config)
     table.SetEntry("Variable", "global.countProtonsInclusively");
     table.SetEntry("Value", config.global.countProtonsInclusively);
 
+    //
+    // CountPOT
+    //
+    table.AddEmptyRow();
+
+    table.AddEmptyRow();
+    table.SetEntry("Variable", "countPOT.useOverlays");
+    table.SetEntry("Value", config.countPOT.useOverlays);
+    
+    table.AddEmptyRow();
+    table.SetEntry("Variable", "countPOT.useDirt");
+    table.SetEntry("Value", config.countPOT.useDirt);
+    
+    //
+    // GetRunSubrunList
+    //
+    table.AddEmptyRow();
+
+    table.AddEmptyRow();
+    table.SetEntry("Variable", "getRunSubrunList.useDataEXT");
+    table.SetEntry("Value", config.getRunSubrunList.useDataEXT);
+    
+    table.AddEmptyRow();
+    table.SetEntry("Variable", "getRunSubrunList.useDataBNB");
+    table.SetEntry("Value", config.getRunSubrunList.useDataBNB);
+
+
+    // Print out the table
     table.Print();
 }
 
-}
+} // namespace ubcc1pi_macros

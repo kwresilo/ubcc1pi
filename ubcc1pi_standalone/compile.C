@@ -30,9 +30,9 @@
         "Helpers/NormalisationHelper.cxx",
 
         // Macros
+        "Macros/PrintConfig.cxx",
         "Macros/CountPOT.cxx",
         "Macros/GetRunSubrunList.cxx",
-        "Macros/PrintConfig.cxx",
         "Macros/PlotInputVariables.cxx",
         "Macros/CCInclusiveTruthStudy.cxx",
         "Macros/TrainBDTs.cxx",

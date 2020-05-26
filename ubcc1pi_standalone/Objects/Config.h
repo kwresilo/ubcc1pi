@@ -26,10 +26,10 @@ struct Config
      */
     struct Files
     {
-        std::string     overlaysFileName = "/uboone/data/users/asmith/ubcc1pi/samples/may2020/ubcc1piAnalysis_overlays.root";
-        std::string     dirtFileName     = "/uboone/data/users/asmith/ubcc1pi/samples/may2020/ubcc1piAnalysis_dirt.root";
-        std::string     dataEXTFileName  = "/uboone/data/users/asmith/ubcc1pi/samples/may2020/ubcc1piAnalysis_dataEXT.root";
-        std::string     dataBNBFileName  = "/uboone/data/users/asmith/ubcc1pi/samples/may2020/ubcc1piAnalysis_dataBNB.root";
+        std::string  overlaysFileName = "/uboone/data/users/asmith/ubcc1pi/samples/may2020/ubcc1piAnalysis_overlays.root";
+        std::string  dirtFileName     = "/uboone/data/users/asmith/ubcc1pi/samples/may2020/ubcc1piAnalysis_dirt.root";
+        std::string  dataEXTFileName  = "/uboone/data/users/asmith/ubcc1pi/samples/may2020/ubcc1piAnalysis_dataEXT.root";
+        std::string  dataBNBFileName  = "/uboone/data/users/asmith/ubcc1pi/samples/may2020/ubcc1piAnalysis_dataBNB.root";
     };
     Files files; ///< The input files
 
@@ -45,11 +45,11 @@ struct Config
      */
     struct Norms
     {
-        float           overlaysPOT        = 1.22447e+21;   ///< The total POT for the overlays MC
-        float           dirtPOT            = 2.85049e+20;   ///< The total POT for the dirt MC
-        float           dataEXTTriggers    = 62540367.0;    ///< The EXT triggers for the EXT data
-        float           dataBNBTor875WCut  = 1.455e+20;     ///< The POT measured by the 875m toroid (with quality cuts)
-        float           dataBNBE1DCNTWCut  = 32339256.0;    ///< The BNB spills sent by the accelerator division (with quality cuts)
+        float  overlaysPOT        = 1.22447e+21;   ///< The total POT for the overlays MC
+        float  dirtPOT            = 2.85049e+20;   ///< The total POT for the dirt MC
+        float  dataEXTTriggers    = 62540367.0;    ///< The EXT triggers for the EXT data
+        float  dataBNBTor875WCut  = 1.455e+20;     ///< The POT measured by the 875m toroid (with quality cuts)
+        float  dataBNBE1DCNTWCut  = 32339256.0;    ///< The BNB spills sent by the accelerator division (with quality cuts)
     };
     Norms norms; ///< The sample normalisations
 
@@ -60,14 +60,36 @@ struct Config
      */
     struct Global
     {
-        bool            useAbsPdg               = true;     ///< If we should use absolute PDG codes (this makes pi+ == pi- in the signal definition)
-        bool            countProtonsInclusively = true;     ///< If we should count protons inclusively (as Xp), or exclusively as (0p, 1p, 2p, ...)
+        bool  useAbsPdg               = true;     ///< If we should use absolute PDG codes (this makes pi+ == pi- in the signal definition)
+        bool  countProtonsInclusively = true;     ///< If we should count protons inclusively (as Xp), or exclusively as (0p, 1p, 2p, ...)
 
         // TODO momentum thresholds
     };
     Global global; ///< The global configuration options
     
     // -------------------------------------------------------------------------------------------------------------------------------------
+
+    /**
+     *  @brief  Configuration fo the CountPOT macro
+     */
+    struct CountPOT
+    {
+        bool  useOverlays = true; ///< If we should count the POT for the overlays
+        bool  useDirt     = true; ///< If we should count the POT for the dirt
+    };
+    CountPOT countPOT; ///< The configuration options for the CountPOT macro
+    
+    // -------------------------------------------------------------------------------------------------------------------------------------
+
+    /**
+     *  @brief  Configuration fo the GetRunSubrunList macro
+     */
+    struct GetRunSubrunList
+    {
+        bool  useDataEXT = true; ///< If we should run on the EXT data
+        bool  useDataBNB = true; ///< If we should run on the BNB data
+    };
+    GetRunSubrunList getRunSubrunList; ///< The configuration options for the GetRunSubrunList macro
 
 };
 

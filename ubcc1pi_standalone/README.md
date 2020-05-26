@@ -52,9 +52,10 @@ You can modify a parameter as follows - for a full list of parameters, see
 config.files.overlaysFileName = "/path/to/my/file.root";
 ```
 
-To run a macro with your custom configuration just pass it as the first argument
+To run a macro with your custom configuration just pass it as the first argument. Please note that macros can create files and plots in the
+current directory so you should navigate to a suitable directory before running a macro.
 ```
-ubcc1pi_macros::RunFullAnalysis(config);
+ubcc1pi_macros::PrintConfig(config);
 ```
 
 If you want to change the default configuration, then just modify [ubcc1pi_standalone/Objects/Config.h](ubcc1pi_standalone/Objects/Config.h).
@@ -73,10 +74,11 @@ First declare the macro in [ubcc1pi_standalone/Macros/Macros.h](ubcc1pi_standalo
 
 By convention, the macro should only take one argument which is the `ubcc1pi::Config` object. Use `const Config &config = Config()` so the
 default configuration can be easily used. You can add any configuration options required into
-[ubcc1pi_standalone/Objects/Config.h](ubcc1pi_standalone/Objects/Config.h).
+[ubcc1pi_standalone/Objects/Config.h](ubcc1pi_standalone/Objects/Config.h). If you modified the configuration, then make sure that that the
+[ubcc1pi_standalone/Macros/PrintConfig.cxx](ubcc1pi_standalone/Macros/PrintConfig.cxx) prints includes your new variables too.
 
 Now add the actual macro in the [ubcc1pi_standalone/Macros/](ubcc1pi_standalone/Macros/) directory, take a look at the existing macros as an
 example - you should use the `ubcc1pi_macros` namespace.
 
 Finally, add the macro to the compilation script [ubcc1pi_standalone/compile.C](ubcc1pi_standalone/compile.C) - you just need to add the
-path to your macro with the rest.
+path to your macro with the rest. Now your macro will be compiled along with the rest when you run `ubcc1pi`.
