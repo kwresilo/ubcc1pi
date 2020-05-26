@@ -4,3 +4,4 @@ docs/html/*
 *.png
 *.pdf
 *_cxx*
+.nfs*

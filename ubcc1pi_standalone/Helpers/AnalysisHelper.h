@@ -229,6 +229,15 @@ class AnalysisHelper
         };
 
         /**
+         *  @brief  Get the nominal event weight
+         *
+         *  @param  pEvent the input event
+         *
+         *  @return the nominal event weight
+         */
+        static float GetNominalEventWeight(const std::shared_ptr<Event> &pEvent);
+
+        /**
          *  @brief  Determine if the input event is truly a fiducial CC1Pi event
          *
          *  @param  pEvent the input event
