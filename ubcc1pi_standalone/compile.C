@@ -27,6 +27,7 @@
         "Helpers/BDTHelper.cxx",
         "Helpers/PlottingHelper.cxx",
         "Helpers/SelectionHelper.cxx",
+        "Helpers/NormalisationHelper.cxx",
 
         // Macros
         "Macros/Test.cxx",
