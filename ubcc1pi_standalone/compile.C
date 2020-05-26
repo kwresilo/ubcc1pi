@@ -34,7 +34,6 @@
         "Macros/CountPOT.cxx",
         "Macros/GetRunSubrunList.cxx",
         "Macros/PlotInputVariables.cxx",
-        "Macros/CCInclusiveTruthStudy.cxx",
         "Macros/TrainBDTs.cxx",
         "Macros/NMinusOneBDTStudy.cxx",
         "Macros/MakeEventSelectionTable.cxx",

@@ -206,7 +206,7 @@ void PlottingHelper::MultiPlot::SaveAsStacked(const std::string &fileName)
     // Get the maximum and minimum Y coordinates
     yMin = std::min(yMin, static_cast<float>(pHistTotal->GetMinimum()));
     yMax = std::min(yMax, static_cast<float>(pHistTotal->GetMaximum()));
-    yMax += (yMax - yMin) * 0.05;
+    yMax += (yMax - yMin) * 0.1;
 
     // Draw the stacked histogram
     const auto nameStackStr = "ubcc1pi_plotPlot_" + std::to_string(m_id) + "_stack";
@@ -438,9 +438,19 @@ void PlottingHelper::EfficiencyPlot::SaveAs(const std::string &fileName)
 // -----------------------------------------------------------------------------------------------------------------------------------------
 // -----------------------------------------------------------------------------------------------------------------------------------------
         
-PlottingHelper::PlotStyle PlottingHelper::GetPlotStyle(const Event::Reco::Particle &particle, const std::vector<Event::Truth::Particle> &truthParticles, const bool usePoints)
+PlottingHelper::PlotStyle PlottingHelper::GetPlotStyle(const Event::Reco::Particle &particle, const AnalysisHelper::SampleType &sampleType, const std::vector<Event::Truth::Particle> &truthParticles, const bool usePoints, const bool useAbsPdg)
 {
     const auto externalType = usePoints ? ExternalPoints : External;
+    const auto dirtType = usePoints ? DirtPoints : Dirt;
+
+    if (sampleType == AnalysisHelper::DataBNB)
+        return BNBData;
+
+    if (sampleType == AnalysisHelper::Dirt)
+        return dirtType;
+
+    if (sampleType == AnalysisHelper::DataEXT)
+        return externalType;
 
     if (!particle.hasMatchedMCParticle.IsSet())
         return externalType;
@@ -457,7 +467,7 @@ PlottingHelper::PlotStyle PlottingHelper::GetPlotStyle(const Event::Reco::Partic
     try
     {
         const auto truthParticle = AnalysisHelper::GetBestMatchedTruthParticle(particle, truthParticles);
-        truePdgCode = truthParticle.pdgCode();
+        truePdgCode = useAbsPdg ? std::abs(truthParticle.pdgCode()) : truthParticle.pdgCode();
         isGolden = AnalysisHelper::IsGolden(truthParticle);
     }
     catch (const std::logic_error &)

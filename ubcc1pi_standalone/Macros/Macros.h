@@ -34,7 +34,14 @@ namespace ubcc1pi_macros
      *  @param  config the input configuration
      */
     void GetRunSubrunList(const Config &config = Config());
-    
+
+    /**
+     *  @brief  Plot the variables that form the input to the particle ID BDTs after the CC inclusive selection
+     *
+     *  @param  config the input configuration
+     */
+    void PlotInputVariables(const Config &config = Config());
+
     /**
      *  @brief  Top-level macro that runs the full analysis chain
      *

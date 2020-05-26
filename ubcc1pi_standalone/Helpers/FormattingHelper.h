@@ -10,6 +10,8 @@
 #include <string>
 #include <vector>
 #include <unordered_map>
+#include <fstream>
+#include <iostream>
 #include <sstream>
 #include <cmath>
 
@@ -46,6 +48,14 @@ class FormattingHelper
                  *  @brief  Print the table in markdown syntax
                  */
                 void Print() const;
+                
+                /**
+                 *  @brief  Write the table in markdown syntax to an output file
+                 *
+                 *  @param  fileName the output file name
+                 *  @param  alsoPrint if we should also print the table to the terminal
+                 */
+                void WriteToFile(const std::string &fileName, const bool alsoPrint = true) const;
 
                 /**
                  *  @brief  Set the entry for the given header and row number
@@ -201,6 +211,30 @@ void FormattingHelper::Table::Print() const
         }
         std::cout << "|" << std::endl;
     }
+}
+
+// -----------------------------------------------------------------------------------------------------------------------------------------
+                
+void FormattingHelper::Table::WriteToFile(const std::string &fileName, const bool alsoPrint) const
+{
+    fstream file;
+    file.open(fileName, ios::out);
+
+    // Get the stream buffers for cout and the file
+    std::streambuf* stream_buffer_cout = std::cout.rdbuf();
+    std::streambuf* stream_buffer_file = file.rdbuf(); 
+
+    // Redirect cout to the file
+    cout.rdbuf(stream_buffer_file);
+    this->Print();
+
+    // Redirect cout back to the terminal
+    cout.rdbuf(stream_buffer_cout);
+    file.close();
+
+    // Also print to the terminal if requested
+    if (alsoPrint)
+        this->Print();
 }
 
 // -----------------------------------------------------------------------------------------------------------------------------------------

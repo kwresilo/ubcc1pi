@@ -232,7 +232,7 @@ int TrainBDTs(const std::string &overlayFileName, const bool useAbsPdg = true, c
             const auto muonBDTResponse = muonBDT.GetResponse(features);
            
             // Fill to the plots
-            const auto style = PlottingHelper::GetPlotStyle(recoParticle, truthParticles, isTrainingEvent);
+            const auto style = PlottingHelper::GetPlotStyle(recoParticle, AnalysisHelper::Overlay, truthParticles, isTrainingEvent);
 
             // For these plots skip neutrons
             if (style == PlottingHelper::Other || style == PlottingHelper::OtherPoints)

@@ -60,6 +60,8 @@ class PlottingHelper
             // Common types
             External,
             ExternalPoints,
+            Dirt,
+            DirtPoints,
             BNBData,
             Other,
             OtherPoints
@@ -213,12 +215,14 @@ class PlottingHelper
          *  @brief  Get the particle style type for the input reco particle using it's truth match information
          *
          *  @param  particle the input reco particle
+         *  @param  sampleType the input sample type
          *  @param  truthParticles the input list of all truth particles
          *  @param  usePoints if we should use datapoints instead of a line
+         *  @param  useAbsPdg if we should use the absolute PDG codes
          *
          *  @return the particle style
          */
-        static PlotStyle GetPlotStyle(const Event::Reco::Particle &particle, const std::vector<Event::Truth::Particle> &truthParticles, const bool usePoints = false);
+        static PlotStyle GetPlotStyle(const Event::Reco::Particle &particle, const AnalysisHelper::SampleType &sampleType, const std::vector<Event::Truth::Particle> &truthParticles, const bool usePoints = false, const bool useAbsPdg = false);
 
         /**
          *  @brief  Get a color for a given style
@@ -308,6 +312,8 @@ class PlottingHelper
 const std::vector<PlottingHelper::PlotStyle> PlottingHelper::AllPlotStyles = {
     External,
     ExternalPoints,
+    Dirt,
+    DirtPoints,
     Muon,
     MuonPoints,
     Proton,
@@ -421,6 +427,11 @@ int PlottingHelper::GetColor(const PlotStyle plotStyle)
         case ExternalPoints:
             col = kGray + 3;
             break;
+        
+        case Dirt:
+        case DirtPoints:
+            col = kMagenta - 5;
+            break;
 
         case Other:
         case OtherPoints:
@@ -484,6 +495,7 @@ inline void PlottingHelper::SetLineStyle(T *pObject, const PlotStyle plotStyle)
 bool PlottingHelper::ShouldUsePoints(const PlotStyle &style)
 {
     if (style == ExternalPoints ||
+        style == DirtPoints ||
         style == MuonPoints ||
         style == ProtonPoints ||
         style == GoldenPionPoints ||
