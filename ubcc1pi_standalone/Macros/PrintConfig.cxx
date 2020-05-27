@@ -96,6 +96,31 @@ void PrintConfig(const Config &config)
     table.AddEmptyRow();
     table.SetEntry("Variable", "getRunSubrunList.useDataBNB");
     table.SetEntry("Value", config.getRunSubrunList.useDataBNB);
+    
+    //
+    // TrainBDTs
+    //
+    table.AddEmptyRow();
+
+    table.AddEmptyRow();
+    table.SetEntry("Variable", "trainBDTs.trainingFraction");
+    table.SetEntry("Value", config.trainBDTs.trainingFraction);
+    
+    table.AddEmptyRow();
+    table.SetEntry("Variable", "trainBDTs.onlyGoodTruthMatches");
+    table.SetEntry("Value", config.trainBDTs.onlyGoodTruthMatches);
+    
+    table.AddEmptyRow();
+    table.SetEntry("Variable", "trainBDTs.weightByCompleteness");
+    table.SetEntry("Value", config.trainBDTs.weightByCompleteness);
+    
+    table.AddEmptyRow();
+    table.SetEntry("Variable", "trainBDTs.shouldOptimize");
+    table.SetEntry("Value", config.trainBDTs.shouldOptimize);
+    
+    table.AddEmptyRow();
+    table.SetEntry("Variable", "trainBDTs.shouldMakePlots");
+    table.SetEntry("Value", config.trainBDTs.shouldMakePlots);
 
 
     // Print out the table

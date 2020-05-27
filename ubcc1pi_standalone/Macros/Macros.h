@@ -43,6 +43,13 @@ namespace ubcc1pi_macros
     void PlotInputVariables(const Config &config = Config());
 
     /**
+     *  @brief  Train the BDTs
+     *
+     *  @param  config the input configuration
+     */
+    void TrainBDTs(const Config &config = Config());
+
+    /**
      *  @brief  Top-level macro that runs the full analysis chain
      *
      *  @param  config the input config

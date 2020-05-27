@@ -26,10 +26,10 @@ struct Config
      */
     struct Files
     {
-        std::string  overlaysFileName = "/uboone/data/users/asmith/ubcc1pi/samples/may2020/ubcc1piAnalysis_overlays.root";
-        std::string  dirtFileName     = "/uboone/data/users/asmith/ubcc1pi/samples/may2020/ubcc1piAnalysis_dirt.root";
-        std::string  dataEXTFileName  = "/uboone/data/users/asmith/ubcc1pi/samples/may2020/ubcc1piAnalysis_dataEXT.root";
-        std::string  dataBNBFileName  = "/uboone/data/users/asmith/ubcc1pi/samples/may2020/ubcc1piAnalysis_dataBNB.root";
+        std::string  overlaysFileName = "/uboone/data/users/asmith/ubcc1pi/samples/may2020/samples/ubcc1piAnalysis_overlays.root";
+        std::string  dirtFileName     = "/uboone/data/users/asmith/ubcc1pi/samples/may2020/samples/ubcc1piAnalysis_dirt.root";
+        std::string  dataEXTFileName  = "/uboone/data/users/asmith/ubcc1pi/samples/may2020/samples/ubcc1piAnalysis_dataEXT.root";
+        std::string  dataBNBFileName  = "/uboone/data/users/asmith/ubcc1pi/samples/may2020/samples/ubcc1piAnalysis_dataBNB.root";
     };
     Files files; ///< The input files
 
@@ -90,6 +90,21 @@ struct Config
         bool  useDataBNB = true; ///< If we should run on the BNB data
     };
     GetRunSubrunList getRunSubrunList; ///< The configuration options for the GetRunSubrunList macro
+    
+    // -------------------------------------------------------------------------------------------------------------------------------------
+
+    /**
+     *  @brief  Configuration for TrainBDTs macro
+     */
+    struct TrainBDTs
+    {
+        float trainingFraction     = 0.5f;  ///< Fraction of the sample on which we should train the BDTs
+        bool  onlyGoodTruthMatches = false; ///< If we should only train on reco particles with a completeness >50%
+        bool  weightByCompleteness = true;  ///< If we should weight the training examples by the reco-truth match completeness
+        bool  shouldOptimize       = false; ///< If we should optimize the BDT parameters (this can take a while)
+        bool  shouldMakePlots      = true;  ///< If we should make plots of the BDT responses
+    };
+    TrainBDTs trainBDTs; ///< The configuration options for the TrainBDTs macro
 
 };
 
