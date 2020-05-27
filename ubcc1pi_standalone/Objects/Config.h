@@ -60,8 +60,9 @@ struct Config
      */
     struct Global
     {
-        bool  useAbsPdg               = true;     ///< If we should use absolute PDG codes (this makes pi+ == pi- in the signal definition)
-        bool  countProtonsInclusively = true;     ///< If we should count protons inclusively (as Xp), or exclusively as (0p, 1p, 2p, ...)
+        bool        useAbsPdg               = true;        ///< If we should use absolute PDG codes (this makes pi+ == pi- in the signal definition)
+        bool        countProtonsInclusively = true;        ///< If we should count protons inclusively (as Xp), or exclusively as (0p, 1p, 2p, ...)
+        std::string lastCutGeneric          = "noShowers"; ///< The last cut of the generic selection (remaining cuts are part of the golden selection)
 
         // TODO momentum thresholds
     };
@@ -105,6 +106,31 @@ struct Config
         bool  shouldMakePlots      = true;  ///< If we should make plots of the BDT responses
     };
     TrainBDTs trainBDTs; ///< The configuration options for the TrainBDTs macro
+
+    // -------------------------------------------------------------------------------------------------------------------------------------
+
+    /**
+     *  @brief  Configuration for the MakeEventSelectionTable macro
+     */
+    struct MakeEventSelectionTable
+    {
+        bool         shouldOptimize  = false; ///< If we should optimize the cuts
+        unsigned int nScanPoints     = 20u;   ///< The number of scan points to use while optimizing
+        float        processFraction = 0.2f;  ///< The fraction of events to process while optimizing
+    };
+    MakeEventSelectionTable makeEventSelectionTable; ///< The configuration options for the MakeEventSelectionTable macro
+    
+    // -------------------------------------------------------------------------------------------------------------------------------------
+
+    /**
+     *  @brief  Configuration for the MakeSelectedPIDTable macro
+     */
+    struct MakeSelectedPIDTable
+    {
+        bool useGenericSelection = false;  ///< If we should use the generic selection (if false, we use full golden selection)
+        bool goldenPionIsSignal = false;   ///< If we should only treat events containing golden pions as signal
+    };
+    MakeSelectedPIDTable makeSelectedPIDTable;
 
 };
 

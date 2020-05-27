@@ -200,15 +200,18 @@ class AnalysisHelper
 
                 /**
                  *  @brief  Print a breakdown of the counted events tag-by-tag broken down into signal and background
+                 *
+                 *  @param  outputFileName the name of the output file in which we should save the table
                  */
-                void PrintBreakdownSummary() const;
+                void PrintBreakdownSummary(const std::string &outputFileName) const;
                 
                 /**
                  *  @brief  Print a breakdown of the counted events tag-by-tag broken down into individual classifications
                  *
+                 *  @param  outputFileName the name of the output file in which we should save the table
                  *  @param  nEntries the number of backgrounds to print for each tag
                  */
-                void PrintBreakdownDetails(const unsigned int nEntries = 10u) const;
+                void PrintBreakdownDetails(const std::string &outputFileName, const unsigned int nEntries = 10u) const;
 
             private:
 

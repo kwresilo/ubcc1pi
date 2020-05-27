@@ -50,6 +50,27 @@ namespace ubcc1pi_macros
     void TrainBDTs(const Config &config = Config());
 
     /**
+     *  @brief  Run the N-1 BDT study
+     *
+     *  @param  config the input configuration
+     */
+    void NMinusOneBDTStudy(const Config &config = Config());
+    
+    /**
+     *  @brief  Make the event selection table
+     *
+     *  @param  config the input configuration
+     */
+    void MakeEventSelectionTable(const Config &config = Config());
+    
+    /**
+     *  @brief  Make the PID table
+     *
+     *  @param  config the input configuration
+     */
+    void MakeSelectedPIDTable(const Config &config = Config());
+
+    /**
      *  @brief  Top-level macro that runs the full analysis chain
      *
      *  @param  config the input config

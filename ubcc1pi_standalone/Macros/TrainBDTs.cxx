@@ -167,7 +167,7 @@ void TrainBDTs(const Config &config)
 
         const auto truthParticles = pEvent->truth.particles;
         const auto recoParticles = pEvent->reco.particles;
-        const float eventWeight = 1.f;
+        const float eventWeight = AnalysisHelper::GetNominalEventWeight(pEvent);
 
         for (const auto &recoParticle : recoParticles)
         {

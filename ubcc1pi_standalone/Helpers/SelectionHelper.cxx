@@ -553,17 +553,17 @@ void SelectionHelper::EventSelection::Execute(const std::string &dataBNBFileName
             table.SetEntry("Nominal value", cut.m_nominal);
         }
     }
-    table.Print();
+    table.WriteToFile("eventSelection_cuts.md");
 
     FormattingHelper::PrintLine();
     std::cout << "Summary" << std::endl;
     FormattingHelper::PrintLine();
-    m_cutManager.m_defaultEventCounter.PrintBreakdownSummary();
+    m_cutManager.m_defaultEventCounter.PrintBreakdownSummary("eventSelection_summary.md");
     
     FormattingHelper::PrintLine();
     std::cout << "Details" << std::endl;
     FormattingHelper::PrintLine();
-    m_cutManager.m_defaultEventCounter.PrintBreakdownDetails(nEntriesToPrint);
+    m_cutManager.m_defaultEventCounter.PrintBreakdownDetails("eventSelection_details.md", nEntriesToPrint);
 }
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
@@ -589,7 +589,6 @@ SelectionHelper::EventSelection SelectionHelper::GetDefaultSelection()
     // Get the BDT feature names
     const auto featureNames = BDTHelper::ParticleBDTFeatureNames;
     selection.AssignBDT("proton", featureNames);
-    selection.AssignBDT("pion", featureNames);
     selection.AssignBDT("goldenPion", featureNames);
     
     // Define the selection
@@ -598,7 +597,6 @@ SelectionHelper::EventSelection SelectionHelper::GetDefaultSelection()
         // Get the BDTs owned by the event selection object
         const auto featureNames = BDTHelper::ParticleBDTFeatureNames;
         auto &protonBDT = bdtManager.Get("proton");
-        auto &pionBDT = bdtManager.Get("pion");
         auto &goldenPionBDT = bdtManager.Get("goldenPion");
 
         // Insist the event passes the CC inclusive selection

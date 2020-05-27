@@ -285,7 +285,7 @@ std::vector<std::string> AnalysisHelper::EventCounter::GetTags() const
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
 
-void AnalysisHelper::EventCounter::PrintBreakdownSummary() const
+void AnalysisHelper::EventCounter::PrintBreakdownSummary(const std::string &outputFileName) const
 {
     FormattingHelper::Table table({"Tag", "", "Signal", "Background", "Efficiency", "Purity", "E*P", "", "BNB Data", "Data/MC ratio"});
     for (const auto &tag : m_tags)
@@ -328,12 +328,12 @@ void AnalysisHelper::EventCounter::PrintBreakdownSummary() const
         }
     }
 
-    table.Print();
+    table.WriteToFile(outputFileName);
 }
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
                 
-void AnalysisHelper::EventCounter::PrintBreakdownDetails(const unsigned int nEntries) const
+void AnalysisHelper::EventCounter::PrintBreakdownDetails(const std::string &outputFileName, const unsigned int nEntries) const
 {
     FormattingHelper::Table table({"Tag", "", "Sample", "Classification", "", "Weight", "Efficiency", "Purity"});
 
@@ -408,7 +408,7 @@ void AnalysisHelper::EventCounter::PrintBreakdownDetails(const unsigned int nEnt
         }
     }
     
-    table.Print();
+    table.WriteToFile(outputFileName);
 }
 
 // -----------------------------------------------------------------------------------------------------------------------------------------

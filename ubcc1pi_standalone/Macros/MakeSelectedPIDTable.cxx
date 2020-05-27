@@ -1,37 +1,51 @@
+#include "ubcc1pi_standalone/Macros/Macros.h"
+
 #include "ubcc1pi_standalone/Objects/FileReader.h"
 
 #include "ubcc1pi_standalone/Helpers/AnalysisHelper.h"
 #include "ubcc1pi_standalone/Helpers/SelectionHelper.h"
 #include "ubcc1pi_standalone/Helpers/FormattingHelper.h"
+#include "ubcc1pi_standalone/Helpers/NormalisationHelper.h"
 
 using namespace ubcc1pi;
 
-int MakeSelectedPIDTable(const std::string &overlayFileName, const float overlayWeight, const std::string &dataEXTFileName, const float extWeight, const std::string &chosenCut = "noShowers", const bool goldenPionIsSignal = false, const bool useAbsPdg = true)
+namespace ubcc1pi_macros
+{
+
+void MakeSelectedPIDTable(const Config &config)
 {       
-    const float bodgeFactor = 1.273f; // ATTN this factor is a normalisation added so we can compare the shape of the distributions, can't exist in the final result!
+    //
+    // Setup the input files
+    // 
+    std::vector< std::tuple<AnalysisHelper::SampleType, std::string, float> > inputData;
     
+    inputData.emplace_back(AnalysisHelper::Overlay, config.files.overlaysFileName, NormalisationHelper::GetOverlaysNormalisation(config)); 
+    inputData.emplace_back(AnalysisHelper::Dirt,    config.files.dirtFileName,     NormalisationHelper::GetDirtNormalisation(config)); 
+    inputData.emplace_back(AnalysisHelper::DataEXT, config.files.dataEXTFileName,  NormalisationHelper::GetDataEXTNormalisation(config)); 
+    inputData.emplace_back(AnalysisHelper::DataBNB, config.files.dataBNBFileName,  1.f);
+
+    //
     // Get the selection
+    //
     auto selection = SelectionHelper::GetDefaultSelection();
     const auto allCuts = selection.GetCuts();
+    const auto lastCut = config.makeSelectedPIDTable.useGenericSelection ? config.global.lastCutGeneric : allCuts.back();
 
-    if (std::find(allCuts.begin(), allCuts.end(), chosenCut) == allCuts.end())
-        throw std::invalid_argument("MakeSelectedPIDTable - chosen cut \"" + chosenCut + "\" isn't known to the selection");
+    if (std::find(allCuts.begin(), allCuts.end(), lastCut) == allCuts.end())
+        throw std::invalid_argument("MakeSelectedPIDTable - chosen cut \"" + lastCut + "\" isn't known to the selection");
 
-    std::unordered_map< int, std::unordered_map< int, std::unordered_map<bool, float > > > recoToTruePdgMap; // Counter with index [recoPdgCode][truePdgCode][isSignalOnly]
+    //  Counter with index [recoPdgCode][truePdgCode][isSignalOnly]
+    std::unordered_map< int, std::unordered_map< int, std::unordered_map<bool, float > > > recoToTruePdgMap;
 
-    for (const auto fileName : {dataEXTFileName, overlayFileName})
+    for (const auto [sampleType, fileName, normalisation] : inputData)
     {
         std::cout << "Reading input file: " << fileName << std::endl;
 
-        const bool isOverlay = (fileName == overlayFileName);
-        const bool isEXTData = (fileName == dataEXTFileName);
-
-        float weight = 1.f;
-        if (isOverlay) weight = overlayWeight * bodgeFactor;
-        if (isEXTData) weight = extWeight * bodgeFactor;
-
         FileReader reader(fileName);
         auto pEvent = reader.GetBoundEventAddress();
+
+        const bool isOverlay = (sampleType == AnalysisHelper::Overlay);
+        const bool isDirt = (sampleType == AnalysisHelper::Dirt);
 
         const auto nEvents = reader.GetNumberOfEvents();
         for (unsigned int i = 0; i < nEvents; ++i)
@@ -40,22 +54,25 @@ int MakeSelectedPIDTable(const std::string &overlayFileName, const float overlay
 
             reader.LoadEvent(i);
 
+            const auto weight = AnalysisHelper::GetNominalEventWeight(pEvent) * normalisation;
+
             // For speed skip events that didn't even pass the pre-selection
             if (!pEvent->reco.passesCCInclusive())
                 continue;
             
-            const auto truthParticles = pEvent->truth.particles;
+            const auto truthParticles = pEvent->truth.particles; // ATTN this is empty for data events
             const auto recoParticles = pEvent->reco.particles;
                 
             // Determine if this is a signal event
-            const auto nGoldenPions = AnalysisHelper::CountGoldenParticlesWithPdgCode(AnalysisHelper::SelectVisibleParticles(truthParticles), 211, useAbsPdg);
-            const auto isTrueSignal = isOverlay && AnalysisHelper::IsTrueCC1Pi(pEvent, useAbsPdg) && (goldenPionIsSignal ? (nGoldenPions != 0) : true);
+            const auto nGoldenPions = AnalysisHelper::CountGoldenParticlesWithPdgCode(AnalysisHelper::SelectVisibleParticles(truthParticles), 211, config.global.useAbsPdg);
+            const auto isTrueSignal = isOverlay && AnalysisHelper::IsTrueCC1Pi(pEvent, config.global.useAbsPdg) &&
+                                      (config.makeSelectedPIDTable.goldenPionIsSignal ? (nGoldenPions != 0) : true);
 
             // Run the event selection and store which cuts are passed
             std::vector<std::string> cutsPassed;
             std::vector<int> assignedPdgCodes;
-            const auto isSelected = selection.Execute(pEvent, cutsPassed, assignedPdgCodes);
-            const auto isSelectedAtChosenCut = (std::find(cutsPassed.begin(), cutsPassed.end(), chosenCut) != cutsPassed.end());
+            selection.Execute(pEvent, cutsPassed, assignedPdgCodes);
+            const auto isSelectedAtChosenCut = (std::find(cutsPassed.begin(), cutsPassed.end(), lastCut) != cutsPassed.end());
 
             // Don't bother with events that weren't selected
             if (!isSelectedAtChosenCut)
@@ -70,12 +87,12 @@ int MakeSelectedPIDTable(const std::string &overlayFileName, const float overlay
 
                 // Get the true PDG code (using 0 for EXTs)
                 int truePdgCode = 0;
-                if (isOverlay)
+                if (isOverlay || isDirt)
                 {
                     try
                     {
                         const auto truthParticle = AnalysisHelper::GetBestMatchedTruthParticle(particle, truthParticles, true);
-                        truePdgCode = truthParticle.pdgCode();
+                        truePdgCode = config.global.useAbsPdg ? std::abs(truthParticle.pdgCode()) : truthParticle.pdgCode();
                     }
                     catch (std::exception &)
                     {
@@ -198,16 +215,18 @@ int MakeSelectedPIDTable(const std::string &overlayFileName, const float overlay
     }
 
     // Print the tables
+    const auto prefix = std::string("pidTable") + (config.makeSelectedPIDTable.goldenPionIsSignal ? "_goldenPionIsSignal" : "") + std::string("_atCut-") + lastCut;
+
     FormattingHelper::PrintLine();
     std::cout << "All events" << std::endl;
     FormattingHelper::PrintLine();
-    table.Print();
+    table.WriteToFile(prefix + "_allEvents.md");
 
     std::cout << std::endl;
     FormattingHelper::PrintLine();
     std::cout << "Signal events" << std::endl;
     FormattingHelper::PrintLine();
-    signalTable.Print();
-
-    return 0;
+    signalTable.WriteToFile(prefix + "_signalEvents.md");
 }
+
+} // namespace ubcc1pi_macros
