@@ -471,28 +471,26 @@ void SelectionHelper::EventSelection::Execute(const std::string &dataBNBFileName
         // Store the current sample type
         m_cutManager.m_sampleType = sampleType;
 
-        // Store the current weight
-        m_cutManager.m_weight = 0.f;
-
-        // Get the appropriate file name and weight
+        // Get the appropriate file name and normalisation
         std::string fileName = "";
+        float normalisation = 0.f;
         switch (sampleType)
         {
             case AnalysisHelper::DataBNB:
                 fileName = dataBNBFileName;
-                m_cutManager.m_weight = 1.f;
+                normalisation = 1.f;
                 break;
             case AnalysisHelper::Overlay:
                 fileName = overlayFileName;
-                m_cutManager.m_weight = overlayWeight;
+                normalisation = overlayWeight;
                 break;
             case AnalysisHelper::DataEXT:
                 fileName = dataEXTFileName;
-                m_cutManager.m_weight = dataEXTWeight;
+                normalisation = dataEXTWeight;
                 break;
             case AnalysisHelper::Dirt:
                 fileName = dirtFileName;
-                m_cutManager.m_weight = dirtWeight;
+                normalisation = dirtWeight;
                 break;
             default:
                 throw std::logic_error("EventSelection::Execute - Unknown sample type");
@@ -517,6 +515,9 @@ void SelectionHelper::EventSelection::Execute(const std::string &dataBNBFileName
             AnalysisHelper::PrintLoadingBar(i, nEventsToProcess);
 
             reader.LoadEvent(i);
+
+            // Set the event weight
+            m_cutManager.m_weight = normalisation * AnalysisHelper::GetNominalEventWeight(m_cutManager.m_pEvent);
 
             // Mark the special "all" cut for overlays
             if (sampleType == AnalysisHelper::Overlay)

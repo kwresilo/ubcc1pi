@@ -35,6 +35,22 @@ class AnalysisHelper
         };
 
         /**
+         *  @brief  The analysis data structure
+         */
+        struct AnalysisData
+        {
+            float         muonMomentum;
+            float         muonCosTheta;
+            float         muonPhi;
+            float         pionMomentum;
+            float         pionCosTheta;
+            float         pionPhi;
+            float         muonPionAngle;
+            unsigned int  nProtons;
+            bool          hasGoldenPion;
+        };
+
+        /**
          *  @brief  The vector of all sample types
          */
         static const std::vector<SampleType> AllSampleTypes;
@@ -430,6 +446,37 @@ class AnalysisHelper
          *  @return the momentum
          */
         static float GetMuonMomentumFromRange(const float &range);
+        
+        /**
+         *  @brief  Get the momentum of a muon using range where possible and MCS otherwise
+         *
+         *  @param  muon the input muon reco particle
+         *
+         *  @return the momentum
+         */
+        static float GetMuonMomentum(const Event::Reco::Particle &muon);
+
+        /**
+         *  @brief  Get the truth analysis data
+         *
+         *  @param  truth the input truth information of the event
+         *  @param  useAbsPdg if we should use absolute pdg code values
+         *  @param  protonMomentumThreshold the visibility threshold for protons
+         *
+         *  @return the truth analysis data
+         */
+        static AnalysisData GetTruthAnalysisData(const Event::Truth &truth, const bool useAbsPdg, const float protonMomentumThreshold);
+
+        /**
+         *  @brief  Get the reco analysis data
+         *
+         *  @param  reco the input reco information of the event
+         *  @param  assignedPdgCodes the PDG codes assigned to each reco particle
+         *  @param  passesGoldenPionSelection if the event passes the golden pion selection
+         *
+         *  @return the reco analysis data
+         */
+        static AnalysisData GetRecoAnalysisData(const Event::Reco &reco, const std::vector<int> &assignedPdgCodes, const bool passesGoldenPionSelection);
 
         /**
          *  @brief  Get the ratio of two likelihoods

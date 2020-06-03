@@ -54,8 +54,8 @@ class PlottingHelper
             NumuCC1PiChargedNonGolden,
             NumuCC1PiZero,
             NumuCCOther,
-            NumuNC,
             Nue,
+            NC,
             
             // Common types
             External,
@@ -98,6 +98,16 @@ class PlottingHelper
                  *  @param  drawErrors whether to draw the error bands
                  */
                 MultiPlot(const std::string &xLabel, const std::string &yLabel, unsigned int nBins, float min, float max, bool drawErrors = true);
+                
+                /**
+                 *  @brief  Constructor
+                 *
+                 *  @param  xLabel the x-label of the histogram
+                 *  @param  yLabel the y-label of the histogram
+                 *  @param  binEdges the bin edges (for variable binning)
+                 *  @param  drawErrors whether to draw the error bands
+                 */
+                MultiPlot(const std::string &xLabel, const std::string &yLabel, const std::vector<float> &binEdges, bool drawErrors = true);
 
                 /**
                  *  @brief  Fill the histogram with the given value and plot style
@@ -144,13 +154,14 @@ class PlottingHelper
                  */
                 void SetHistogramYRanges(std::unordered_map<PlotStyle, TH1F*> &plotToHistCloneMap) const;
 
-                std::string  m_xLabel;     ///< The x-label of the histogram
-                unsigned int m_nBins;      ///< The number of bins
-                float        m_min;        ///< The minimum value
-                float        m_max;        ///< The maximum value
-                unsigned int m_id;         ///< The ID of this plot plot
-                unsigned int m_cloneCount; ///< A count of the number of clones to avoid name collisions
-                bool         m_drawErrors; ///< Whether to draw the error bands
+                std::string        m_xLabel;     ///< The x-label of the histogram
+                unsigned int       m_nBins;      ///< The number of bins
+                float              m_min;        ///< The minimum value
+                float              m_max;        ///< The maximum value
+                std::vector<float> m_binEdges;   ///< The edges of the bins (for variable binning)
+                unsigned int       m_id;         ///< The ID of this plot plot
+                unsigned int       m_cloneCount; ///< A count of the number of clones to avoid name collisions
+                bool               m_drawErrors; ///< Whether to draw the error bands
 
                 std::unordered_map<PlotStyle, std::shared_ptr<TH1F> > m_plotToHistMap; ///< The mapping from plot style to hist
 
@@ -240,8 +251,16 @@ class PlottingHelper
          */
         static std::vector<int> GetColorVector();
         
-        // TODO
-        //static PlotStyle GetPlotStyle(const AnalysisHelper::SampleType &sampleType, const std::shared_ptr<Event> &pEvent);
+        /**
+         *  @brief  Get the plot style of an event
+         *
+         *  @param  sampleType the input sample type
+         *  @param  pEvent the input event
+         *  @param  useAbsPdg if we should use the absolute PDG codes
+         *
+         *  @return the plot style
+         */
+        static PlotStyle GetPlotStyle(const AnalysisHelper::SampleType &sampleType, const std::shared_ptr<Event> &pEvent, const bool useAbsPdg);
         
         /**
          *  @brief  Set the line style for a given plot type
@@ -314,30 +333,30 @@ const std::vector<PlottingHelper::PlotStyle> PlottingHelper::AllPlotStyles = {
     ExternalPoints,
     Dirt,
     DirtPoints,
-    Muon,
-    MuonPoints,
-    Proton,
-    ProtonPoints,
-    GoldenPion,
-    GoldenPionPoints,
-    NonGoldenPion,
-    NonGoldenPionPoints,
+    NonFiducial,
+    Other,
+    OtherPoints,
     PiMinus,
     PiMinusPoints,
     Electron,
     ElectronPoints,
     Photon,
     PhotonPoints,
-    NonFiducial,
+    Proton,
+    ProtonPoints,
+    Muon,
+    MuonPoints,
+    NonGoldenPion,
+    NonGoldenPionPoints,
+    GoldenPion,
+    GoldenPionPoints,
+    Nue,
+    NC,
+    NumuCCOther,
     NumuCC0Pi,
+    NumuCC1PiZero,
     NumuCC1PiChargedGolden,
     NumuCC1PiChargedNonGolden,
-    NumuCC1PiZero,
-    NumuCCOther,
-    NumuNC,
-    Nue,
-    Other,
-    OtherPoints,
     BNBData
 };
 
@@ -415,12 +434,12 @@ int PlottingHelper::GetColor(const PlotStyle plotStyle)
         
         case Photon:
         case PhotonPoints:
-        case NumuNC:
+        case Nue:
             col = kYellow + 1;
             break;
-        
-        case Nue:
-            col = kGreen - 6;
+
+        case NC:
+            col = kGreen + 3;
             break;
         
         case External:

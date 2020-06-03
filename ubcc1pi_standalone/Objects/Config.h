@@ -8,6 +8,7 @@
 #define UBCC1PI_STANDALONE_OBJECTS_CONFIG
 
 #include <string>
+#include <unordered_map>
 
 namespace ubcc1pi
 {
@@ -63,11 +64,99 @@ struct Config
         bool        useAbsPdg               = true;        ///< If we should use absolute PDG codes (this makes pi+ == pi- in the signal definition)
         bool        countProtonsInclusively = true;        ///< If we should count protons inclusively (as Xp), or exclusively as (0p, 1p, 2p, ...)
         std::string lastCutGeneric          = "noShowers"; ///< The last cut of the generic selection (remaining cuts are part of the golden selection)
+        float       protonMomentumThreshold = 0.3f;        ///< The minimum proton momentum to be counted [GeV]
 
-        // TODO momentum thresholds
+        /**
+         *  @brief  The muonCosTheta plot limits structure
+         */
+        struct MuonCosTheta
+        {
+            float               min = -1.f;
+            float               max =  1.f;
+            std::vector<float>  binEdges = {-1.f, 0.5f, 0.64f, 0.75f, 0.83f, 0.88f, 0.93f, 0.96f, 0.98f, 1.f};
+        };
+        MuonCosTheta muonCosTheta; ///< The muonCosTheta plot limits
+
+        /**
+         *  @brief  The muonPhi plot limits structure
+         */
+        struct MuonPhi
+        {
+            float               min = -3.142f;
+            float               max =  3.142f;
+            std::vector<float>  binEdges = {-3.142f, -2.8f, -2.2f, -1.5f, -1.f, -0.4f, 0.1f, 0.7f, 2.f, 2.7f, 3.142f};
+        };
+        MuonPhi muonPhi; ///< The muonPhi plot limits
+
+        /**
+         *  @brief  The muonMomentum plot limits structure
+         */
+        struct MuonMomentum
+        {
+            float               min = 0.f;
+            float               max =  100.f;
+            std::vector<float>  binEdges = {0.f, 0.29f, 0.37f, 0.56f, 0.8f, 1.5f};
+        };
+        MuonMomentum muonMomentum; ///< The muonMomentum plot limits
+       
+        /**
+         *  @brief  The pionCosTheta plot limits structure
+         */
+        struct PionCosTheta
+        {
+            float               min = -1.f;
+            float               max =  1.f;
+            std::vector<float>  binEdges = {-1.f, -0.2f, 0.23f, 0.37f, 0.6f, 0.84f, 0.92f, 1.f};
+        };
+        PionCosTheta pionCosTheta; ///< The pionCosTheta plot limits
+
+        /**
+         *  @brief  The pionPhi plot limits structure
+         */
+        struct PionPhi
+        {
+            float               min = -3.142f;
+            float               max =  3.142f;
+            std::vector<float>  binEdges = {-3.142f, -2.4f, -1.5f, -0.7f, -0.3f, 0.2f, 0.8f, 1.4f, 2.2f, 2.6f, 3.142f};
+        };
+        PionPhi pionPhi; ///< The pionPhi plot limits
+
+        /**
+         *  @brief  The pionMomentum plot limits structure
+         */
+        struct PionMomentum
+        {
+            float               min = 0.1f;
+            float               max =  10.f;
+            std::vector<float>  binEdges = {0.1f, 0.16f, 0.19f, 0.21f, 0.5f};
+        };
+        PionMomentum pionMomentum; ///< The pionMomentum plot limits
+   
+        /**
+         *  @brief  The muonPionAngle plot limits structure
+         */
+        struct MuonPionAngle
+        {
+            float               min = 0.f;
+            float               max =  2.65f;
+            std::vector<float>  binEdges = {0.f, 0.7f, 0.9f, 1.1f, 1.4f, 1.5f, 1.7f, 2.f, 2.65f};
+        };
+        MuonPionAngle muonPionAngle; ///< The muonPionAngle plot limits
+
+        /**
+         *  @brief  The nProtons plot limits structure
+         */
+        struct NProtons
+        {
+            float               min = 0;
+            float               max =  12;
+            std::vector<float>  binEdges = {0, 1, 12};
+        };
+        NProtons nProtons; ///< The nProtons plot limits
+
     };
     Global global; ///< The global configuration options
-    
+        
     // -------------------------------------------------------------------------------------------------------------------------------------
 
     /**
@@ -131,7 +220,17 @@ struct Config
         bool goldenPionIsSignal = false;   ///< If we should only treat events containing golden pions as signal
     };
     MakeSelectedPIDTable makeSelectedPIDTable;
-
+    
+    // -------------------------------------------------------------------------------------------------------------------------------------
+    
+    /**
+     *  @brief  Configuration for the EfficiencyPlots macro
+     */
+    struct EfficiencyPlots
+    {
+        bool drawErrors = false; ///< If we should draw errors
+    };
+    EfficiencyPlots efficiencyPlots; ///< The configuration options for the EfficiencyPlots macro
 };
 
 } // namespace ubcc1pi

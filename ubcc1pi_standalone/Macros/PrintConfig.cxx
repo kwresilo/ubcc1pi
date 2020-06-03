@@ -74,6 +74,10 @@ void PrintConfig(const Config &config)
     table.AddEmptyRow();
     table.SetEntry("Variable", "global.lastCutGeneric");
     table.SetEntry("Value", config.global.lastCutGeneric);
+    
+    table.AddEmptyRow();
+    table.SetEntry("Variable", "global.protonMomentumThreshold");
+    table.SetEntry("Value", config.global.protonMomentumThreshold);
 
     //
     // CountPOT
@@ -155,6 +159,15 @@ void PrintConfig(const Config &config)
     table.AddEmptyRow();
     table.SetEntry("Variable", "makeSelectedPIDTable.goldenPionIsSignal");
     table.SetEntry("Value", config.makeSelectedPIDTable.goldenPionIsSignal);
+    
+    //
+    // EfficiencyPlots
+    //
+    table.AddEmptyRow();
+
+    table.AddEmptyRow();
+    table.SetEntry("Variable", "efficiencyPlots.drawErrors");
+    table.SetEntry("Value", config.efficiencyPlots.drawErrors);
 
     // Print out the table
     table.Print();

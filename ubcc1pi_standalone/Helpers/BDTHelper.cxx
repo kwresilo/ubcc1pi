@@ -234,7 +234,7 @@ bool BDTHelper::GetBDTFeatures(const Event::Reco::Particle &recoParticle, const 
         if (name == "logBragg_pToMIP")
         {
             float feature = -std::numeric_limits<float>::max();
-            if (!AnalysisHelper::GetLogLikelihoodRatio(recoParticle.likelihoodForwardProtonW, recoParticle.likelihoodMIPW, feature))
+            if (!AnalysisHelper::GetLogLikelihoodRatio(recoParticle.likelihoodForwardProton, recoParticle.likelihoodMIP, feature))
             {
                 if (shouldDebug)
                     std::cout << "DEBUG - Can't calculate: " << name << std::endl;
@@ -249,7 +249,7 @@ bool BDTHelper::GetBDTFeatures(const Event::Reco::Particle &recoParticle, const 
         if (name == "logBragg_piToMIP")
         {
             float feature = -std::numeric_limits<float>::max();
-            if (!AnalysisHelper::GetLogLikelihoodRatio(recoParticle.likelihoodForwardPionW, recoParticle.likelihoodMIPW, feature))
+            if (!AnalysisHelper::GetLogLikelihoodRatio(recoParticle.likelihoodForwardPion, recoParticle.likelihoodMIP, feature))
             {
                 if (shouldDebug)
                     std::cout << "DEBUG - Can't calculate: " << name << std::endl;
@@ -263,7 +263,7 @@ bool BDTHelper::GetBDTFeatures(const Event::Reco::Particle &recoParticle, const 
 
         if (name == "truncMeandEdx")
         {
-            if (!recoParticle.truncatedMeandEdxW.IsSet())
+            if (!recoParticle.truncatedMeandEdx.IsSet())
             {
                 if (shouldDebug)
                     std::cout << "DEBUG - Can't calculate: " << name << std::endl;
@@ -271,14 +271,14 @@ bool BDTHelper::GetBDTFeatures(const Event::Reco::Particle &recoParticle, const 
                 return false;
             }
 
-            features.push_back(recoParticle.truncatedMeandEdxW());
+            features.push_back(recoParticle.truncatedMeandEdx());
             continue;
         }
 
         if (name == "protonForward")
         {
             float feature = -std::numeric_limits<float>::max();
-            if (!AnalysisHelper::GetSoftmax(recoParticle.likelihoodForwardProtonW, recoParticle.likelihoodBackwardProtonW, feature))
+            if (!AnalysisHelper::GetSoftmax(recoParticle.likelihoodForwardProton, recoParticle.likelihoodBackwardProton, feature))
             {
                 if (shouldDebug)
                     std::cout << "DEBUG - Can't calculate: " << name << std::endl;
@@ -293,7 +293,7 @@ bool BDTHelper::GetBDTFeatures(const Event::Reco::Particle &recoParticle, const 
         if (name == "muonForward")
         {
             float feature = -std::numeric_limits<float>::max();
-            if (!AnalysisHelper::GetSoftmax(recoParticle.likelihoodForwardMuonW, recoParticle.likelihoodBackwardMuonW, feature))
+            if (!AnalysisHelper::GetSoftmax(recoParticle.likelihoodForwardMuon, recoParticle.likelihoodBackwardMuon, feature))
             {
                 if (shouldDebug)
                     std::cout << "DEBUG - Can't calculate: " << name << std::endl;

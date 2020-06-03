@@ -36,15 +36,15 @@ void PlotInputVariables(const Config &config)
     {
         if (featureName == "logBragg_pToMIP")
         {
-            plotVector.emplace_back("log(L_p / L_MIP)", yLabel, 100, -8, 8);
-            plotVectorSignal.emplace_back("log(L_p / L_MIP)", yLabel, 100, -8, 8);
+            plotVector.emplace_back("log(L_p / L_MIP)", yLabel, 100, -9, 7);
+            plotVectorSignal.emplace_back("log(L_p / L_MIP)", yLabel, 100, -9, 7);
             continue;
         }
 
         if (featureName == "logBragg_piToMIP")
         {
-            plotVector.emplace_back("log(L_pi / L_MIP)", yLabel, 100, -4, 8);
-            plotVectorSignal.emplace_back("log(L_pi / L_MIP)", yLabel, 100, -4, 8);
+            plotVector.emplace_back("log(L_pi / L_MIP)", yLabel, 100, -4, 6);
+            plotVectorSignal.emplace_back("log(L_pi / L_MIP)", yLabel, 100, -4, 6);
             continue;
         }
 
@@ -57,36 +57,36 @@ void PlotInputVariables(const Config &config)
 
         if (featureName == "protonForward")
         {
-            plotVector.emplace_back("Proton forward likelihood", yLabel, 100, 0.3, 0.7);
-            plotVectorSignal.emplace_back("Proton forward likelihood", yLabel, 100, 0.3, 0.7);
+            plotVector.emplace_back("Proton forward likelihood", yLabel, 100, 0.42, 0.62);
+            plotVectorSignal.emplace_back("Proton forward likelihood", yLabel, 100, 0.42, 0.62);
             continue;
         }
 
         if (featureName == "muonForward")
         {
-            plotVector.emplace_back("Muon forward likelihood", yLabel, 100, 0.3, 0.7);
-            plotVectorSignal.emplace_back("Muon forward likelihood", yLabel, 100, 0.3, 0.7);
+            plotVector.emplace_back("Muon forward likelihood", yLabel, 100, 0.35, 0.65);
+            plotVectorSignal.emplace_back("Muon forward likelihood", yLabel, 100, 0.35, 0.65);
             continue;
         }
 
         if (featureName == "nDescendents")
         {
-            plotVector.emplace_back("Number of descendent particles", yLabel, 5, 0, 5);
-            plotVectorSignal.emplace_back("Number of descendent particles", yLabel, 5, 0, 5);
+            plotVector.emplace_back("Number of descendent particles", yLabel, 4, 0, 4);
+            plotVectorSignal.emplace_back("Number of descendent particles", yLabel, 4, 0, 4);
             continue;
         }
 
         if (featureName == "nSpacePointsNearEnd")
         {
-            plotVector.emplace_back("Number of spacepoints near track end", yLabel, 60, 0, 120);
-            plotVectorSignal.emplace_back("Number of spacepoints near track end", yLabel, 60, 0, 120);
+            plotVector.emplace_back("Number of spacepoints near track end", yLabel, 90, 0, 90);
+            plotVectorSignal.emplace_back("Number of spacepoints near track end", yLabel, 90, 0, 90);
             continue;
         }
 
         if (featureName == "wiggliness")
         {
-            plotVector.emplace_back("Wiggliness", yLabel, 60, 0, 0.005);
-            plotVectorSignal.emplace_back("Wiggliness", yLabel, 60, 0, 0.005);
+            plotVector.emplace_back("Wiggliness", yLabel, 60, 0, 0.004);
+            plotVectorSignal.emplace_back("Wiggliness", yLabel, 60, 0, 0.004);
             continue;
         }
 

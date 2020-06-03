@@ -18,6 +18,7 @@
 #include <TFile.h>
 #include <TTree.h>
 #include <TH2F.h>
+#include <TLine.h>
 
 namespace ubcc1pi
 {
@@ -165,8 +166,10 @@ class CrossSectionHelper
 
                 /**
                  *  @brief  Print the contents of the bins
+                 *
+                 *  @param  outputFileNamePrefix the prefix of the name of the output file we should save the tables to
                  */
-                void PrintBinContents() const;
+                void PrintBinContents(const std::string &outputFileNamePrefix) const;
                 
                 /**
                  *  @brief  Make the plots
@@ -311,8 +314,9 @@ class CrossSectionHelper
                  *
                  *  @param  matrix the matrix to print
                  *  @param  uncertainties the uncertainties on the values in the matrix
+                 *  @param  outputFileName the output file name for the table
                  */
-                void PrintMatrix(const std::vector< std::vector<float> > &matrix, const std::vector< std::vector<float> > &uncertainties) const;
+                void PrintMatrix(const std::vector< std::vector<float> > &matrix, const std::vector< std::vector<float> > &uncertainties, const std::string &outputFileName) const;
 
                 /**
                  *  @brief  The output event structure
@@ -916,7 +920,8 @@ unsigned int CrossSectionHelper::XSec::GetBinIndex(const float &value) const
         if (value >= binLower && value <= binUpper)
             return i;
     }
-        
+   
+    std::cout << "DEBUG - Value = " << value << std::endl;
     throw std::logic_error("XSec::GetBinIndex - input value is out of bounds");
 }
 
@@ -1543,7 +1548,7 @@ bool CrossSectionHelper::XSec::IsUnderOverFlowBin(const unsigned int index) cons
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
 
-void CrossSectionHelper::XSec::PrintMatrix(const std::vector< std::vector<float> > &matrix, const std::vector< std::vector<float> > &uncertainties) const
+void CrossSectionHelper::XSec::PrintMatrix(const std::vector< std::vector<float> > &matrix, const std::vector< std::vector<float> > &uncertainties, const std::string &outputFileName) const
 {
     // Fill the headers with the truth bins
     std::vector<std::string> headers = {"Bin"};
@@ -1564,12 +1569,12 @@ void CrossSectionHelper::XSec::PrintMatrix(const std::vector< std::vector<float>
         }
     }
 
-    table.Print();
+    table.WriteToFile(outputFileName);
 }
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
 
-void CrossSectionHelper::XSec::PrintBinContents() const
+void CrossSectionHelper::XSec::PrintBinContents(const std::string &outputFileNamePrefix) const
 {
     if (m_binEdges.size() < 2)
         throw std::logic_error("XSec::PrintBinContents - binning hasn't been set");
@@ -1587,7 +1592,7 @@ void CrossSectionHelper::XSec::PrintBinContents() const
     FormattingHelper::PrintLine();
     std::cout << "Bins" << std::endl;
     FormattingHelper::PrintLine();
-    FormattingHelper::Table binTable({"Bin", "", "Min", "Max", "", "True MC signal", "", "BNB data", "Fake data (MC)", "Backgrounds MC"});
+    FormattingHelper::Table binTable({"Bin", "", "Min", "Max", "", "True MC signal", "", "BNB data", "Fake data (MC)", "data - MC", "", "Backgrounds MC"});
     for (unsigned int i = 0; i < nBins; ++i)
     {
         binTable.AddEmptyRow();
@@ -1597,9 +1602,14 @@ void CrossSectionHelper::XSec::PrintBinContents() const
         binTable.SetEntry("True MC signal", trueSignal.at(i));
         binTable.SetEntry("BNB data", FormattingHelper::GetValueWithError(bnbData.at(i), bnbDataErr.at(i)));
         binTable.SetEntry("Fake data (MC)", FormattingHelper::GetValueWithError(fakeBNBData.at(i), fakeBNBDataErr.at(i)));
+
+        const auto dataMinusMC = bnbData.at(i) - fakeBNBData.at(i);
+        const auto dataMinusMCErr = std::pow(std::pow(bnbDataErr.at(i), 2) + std::pow(fakeBNBDataErr.at(i), 2), 0.5f);
+        binTable.SetEntry("data - MC", FormattingHelper::GetValueWithError(dataMinusMC, dataMinusMCErr));
+
         binTable.SetEntry("Backgrounds MC", FormattingHelper::GetValueWithError(backgrounds.at(i), backgroundsErr.at(i)));
     }
-    binTable.Print();
+    binTable.WriteToFile(outputFileNamePrefix + "_bins.md");
     
     // Print the confusion matrix
     FormattingHelper::PrintLine();
@@ -1608,7 +1618,7 @@ void CrossSectionHelper::XSec::PrintBinContents() const
 
     std::vector< std::vector<float> > confusionMatrix, confusionMatrixUncertainties;
     this->GetConfusionMatrix(confusionMatrix, confusionMatrixUncertainties);
-    this->PrintMatrix(confusionMatrix, confusionMatrixUncertainties);
+    this->PrintMatrix(confusionMatrix, confusionMatrixUncertainties, outputFileNamePrefix + "_confusionMatrix.md");
     
     // Print the smearing matrix
     FormattingHelper::PrintLine();
@@ -1617,7 +1627,7 @@ void CrossSectionHelper::XSec::PrintBinContents() const
 
     std::vector< std::vector<float> > smearingMatrix, smearingMatrixUncertainties;
     this->GetSmearingMatrix(smearingMatrix, smearingMatrixUncertainties);
-    this->PrintMatrix(smearingMatrix, smearingMatrixUncertainties);
+    this->PrintMatrix(smearingMatrix, smearingMatrixUncertainties, outputFileNamePrefix + "_smearingMatrix.md");
    
     // Print the efficiencies
     FormattingHelper::PrintLine();
@@ -1641,7 +1651,7 @@ void CrossSectionHelper::XSec::PrintBinContents() const
         efficiencyTable.SetEntry("True efficiency", trueEfficiency);
         efficiencyTable.SetEntry("Smeared efficiency", recoEfficiency);
     }
-    efficiencyTable.Print();
+    efficiencyTable.WriteToFile(outputFileNamePrefix + "_efficiencies.md");
 
     // Print the extracted cross-sections
     FormattingHelper::PrintLine();
@@ -1665,16 +1675,17 @@ void CrossSectionHelper::XSec::PrintBinContents() const
         xSecTable.SetEntry("xSec Data", FormattingHelper::GetValueWithError(xSecData.at(i), xSecDataErr.at(i)));
     }
 
-    xSecTable.Print();
+    xSecTable.WriteToFile(outputFileNamePrefix + "_xSecs.md");
 
 }
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
-                
+
+// TODO this function is vomit on toast.
 void CrossSectionHelper::XSec::MakePlots(const std::string &fileNamePrefix) const
 {
     if (m_binEdges.size() < 2)
-        throw std::logic_error("XSec::PrintBinContents - binning hasn't been set");
+        throw std::logic_error("XSec::MakePlotsPrint - binning hasn't been set");
 
     const auto nBins = m_binEdges.size() - 1;
 
@@ -1720,6 +1731,11 @@ void CrossSectionHelper::XSec::MakePlots(const std::string &fileNamePrefix) cons
     this->GetSmearedMCTrueCrossSection(xSecMCSmeared, xSecMCSmearedErr);
     this->GetRecoCrossSection(false, xSecMCReco, xSecMCRecoErr);
     this->GetRecoCrossSection(true, xSecData, xSecDataErr);
+    
+    std::vector<float> trueEfficiencies, trueEfficienciesErr, smearedEfficiencies, smearedEfficienciesErr;
+    this->GetTrueEfficiencies(trueEfficiencies, trueEfficienciesErr);
+    this->GetSmearedEfficiencies(smearedEfficiencies, smearedEfficienciesErr);
+
 
     const auto nNormalBins = nBins - (m_hasUnderflow ? 1u : 0u) - (m_hasOverflow ? 1u : 0u);
     std::vector<float> normalBinEdges;
@@ -1741,8 +1757,19 @@ void CrossSectionHelper::XSec::MakePlots(const std::string &fileNamePrefix) cons
     TH1F *hXSecMCSmeared = new TH1F(("hXSecMCSmeared_" + fileNamePrefix).c_str(), "", nNormalBins, normalBinEdges.data());
     TH1F *hXSecMCReco = new TH1F(("hXSecMCReco_" + fileNamePrefix).c_str(), "", nNormalBins, normalBinEdges.data());
     TH1F *hXSecData = new TH1F(("hXSecData_" + fileNamePrefix).c_str(), "", nNormalBins, normalBinEdges.data());
+    TH1F *hEff = new TH1F(("hEff_" + fileNamePrefix).c_str(), "", nNormalBins, normalBinEdges.data());
+    TH1F *hEffSmeared = new TH1F(("hEffSmeared_" + fileNamePrefix).c_str(), "", nNormalBins, normalBinEdges.data());
+    hXSecMCTrue->SetLineWidth(2);
+    hXSecMCSmeared->SetLineWidth(2);
+    hXSecMCReco->SetLineWidth(2);
+    hXSecData->SetLineWidth(2);
+    hEff->SetLineWidth(2);
+    hEffSmeared->SetLineWidth(2);
+    hEff->SetLineColor(kAzure - 2);
+    hEffSmeared->SetLineColor(kOrange - 3);
 
     float maxValue = -std::numeric_limits<float>::max();
+    float maxEfficiency = 0.1f;
 
     const int binOffset = (m_hasUnderflow ? 1 : 0) - 1; // Here we -1 as root bins are enumerated from 1 and ours are from 0
     for (unsigned int i = 1; i <= nNormalBins; ++i)
@@ -1752,19 +1779,27 @@ void CrossSectionHelper::XSec::MakePlots(const std::string &fileNamePrefix) cons
 
         hXSecMCTrue->SetBinContent(i, xSecMCTrue.at(i + binOffset));
         hXSecMCTrue->SetBinError(i, xSecMCTrueErr.at(i + binOffset));
-        maxValue = std::max(maxValue, xSecMCTrue.at(i + binOffset));
+        maxValue = std::max(maxValue, xSecMCTrue.at(i + binOffset) + xSecMCTrueErr.at(i + binOffset));
         
         hXSecMCSmeared->SetBinContent(i, xSecMCSmeared.at(i + binOffset));
         hXSecMCSmeared->SetBinError(i, xSecMCSmearedErr.at(i + binOffset));
-        maxValue = std::max(maxValue, xSecMCSmeared.at(i + binOffset));
+        maxValue = std::max(maxValue, xSecMCSmeared.at(i + binOffset) + xSecMCSmearedErr.at(i + binOffset));
         
         hXSecMCReco->SetBinContent(i, xSecMCReco.at(i + binOffset));
         hXSecMCReco->SetBinError(i, xSecMCRecoErr.at(i + binOffset));
-        maxValue = std::max(maxValue, xSecMCReco.at(i + binOffset));
+        maxValue = std::max(maxValue, xSecMCReco.at(i + binOffset) + xSecMCRecoErr.at(i + binOffset));
         
         hXSecData->SetBinContent(i, xSecData.at(i + binOffset));
         hXSecData->SetBinError(i, xSecDataErr.at(i + binOffset));
-        maxValue = std::max(maxValue, xSecData.at(i + binOffset));
+        maxValue = std::max(maxValue, xSecData.at(i + binOffset) + xSecDataErr.at(i + binOffset));
+
+        hEff->SetBinContent(i, trueEfficiencies.at(i + binOffset));
+        hEff->SetBinError(i, trueEfficienciesErr.at(i + binOffset));
+        maxEfficiency = std::max(maxEfficiency, trueEfficiencies.at(i + binOffset) + trueEfficienciesErr.at(i + binOffset));
+
+        hEffSmeared->SetBinContent(i, smearedEfficiencies.at(i + binOffset));
+        hEffSmeared->SetBinError(i, smearedEfficienciesErr.at(i + binOffset));
+        maxEfficiency = std::max(maxEfficiency, smearedEfficiencies.at(i + binOffset) + smearedEfficienciesErr.at(i + binOffset));
     }
 
     const std::vector< std::pair<TH1F *, std::string> > histos = {
@@ -1779,7 +1814,7 @@ void CrossSectionHelper::XSec::MakePlots(const std::string &fileNamePrefix) cons
         const auto &pHist = entry.first;
         const auto &name = entry.second;
 
-        pHist->GetYaxis()->SetRangeUser(0.f, maxValue * 1.1f);
+        pHist->GetYaxis()->SetRangeUser(0.f, maxValue * 1.05f);
 
         auto pHistClone = static_cast<TH1F *>(pHist->Clone());
         const auto col = pHistClone->GetLineColor();
@@ -1792,6 +1827,108 @@ void CrossSectionHelper::XSec::MakePlots(const std::string &fileNamePrefix) cons
     
         PlottingHelper::SaveCanvas(pCanvas, fileNamePrefix + "_" + name);
     }
+
+    // Now make the plot with all x-sec histograms
+    // True
+    auto hXSecMCTrueClone = static_cast<TH1F *>(hXSecMCTrue->Clone());
+    hXSecMCTrue->SetLineColor(kAzure - 2);
+    hXSecMCTrueClone->SetFillStyle(1001);
+    hXSecMCTrueClone->SetLineColorAlpha(kAzure - 2, 0.f);
+    hXSecMCTrueClone->SetFillColorAlpha(kAzure - 2, 0.3f);
+    hXSecMCTrueClone->GetYaxis()->SetRangeUser(0.f, maxValue * 1.05f);
+    
+    hXSecMCTrueClone->Draw("e2");
+    hXSecMCTrue->Draw("hist same");
+    
+    // Smeared
+    auto hXSecMCSmearedClone = static_cast<TH1F *>(hXSecMCSmeared->Clone());
+    hXSecMCSmeared->SetLineColor(kOrange - 3);
+    hXSecMCSmearedClone->SetFillStyle(1001);
+    hXSecMCSmearedClone->SetLineColorAlpha(kOrange - 3, 0.f);
+    hXSecMCSmearedClone->SetFillColorAlpha(kOrange - 3, 0.3f);
+    
+    hXSecMCSmearedClone->Draw("e2 same");
+    hXSecMCSmeared->Draw("hist same");
+
+    // Data
+    hXSecData->SetLineColor(kBlack);
+    hXSecData->Draw("e1 same");
+
+    PlottingHelper::SaveCanvas(pCanvas, fileNamePrefix + "_combined");
+
+    // Make the efficiency plots
+    hEff->GetYaxis()->SetRangeUser(0.f, maxEfficiency * 1.05);
+    hEffSmeared->GetYaxis()->SetRangeUser(0.f, maxEfficiency * 1.05);
+
+    auto hEffClone = static_cast<TH1F *>(hEff->Clone());
+    hEffClone->SetFillStyle(1001);
+    hEffClone->SetLineColorAlpha(hEffClone->GetLineColor(), 0.f);
+    hEffClone->SetFillColorAlpha(hEffClone->GetLineColor(), 0.3f);
+    
+    auto hEffSmearedClone = static_cast<TH1F *>(hEffSmeared->Clone());
+    hEffSmearedClone->SetFillStyle(1001);
+    hEffSmearedClone->SetLineColorAlpha(hEffSmearedClone->GetLineColor(), 0.f);
+    hEffSmearedClone->SetFillColorAlpha(hEffSmearedClone->GetLineColor(), 0.3f);
+
+    hEffClone->Draw("e2");
+    hEff->Draw("hist same");
+    hEffSmearedClone->Draw("e2 same");
+    hEffSmeared->Draw("hist same");
+
+    PlottingHelper::SaveCanvas(pCanvas, fileNamePrefix + "_efficiencies");
+
+
+    // Ratio plot
+    auto pCanvasRatio = PlottingHelper::GetCanvas(960, 270);
+
+    auto hXSecDataRatio = static_cast<TH1F *>(hXSecData->Clone());
+    hXSecDataRatio->Sumw2();
+    hXSecMCSmeared->Sumw2();
+    hXSecDataRatio->Divide(hXSecMCSmeared);
+    
+    // Set the y-axis range
+    float minRatio = 0.75f;
+    float maxRatio = 1.25f;
+    
+    std::cout << "TEST : " << fileNamePrefix << std::endl;
+    float chi2Sum = 0.f;
+    float nDof = 0.f;
+    for (unsigned int i = 1; i <= static_cast<unsigned int>(hXSecDataRatio->GetNbinsX()); ++i)
+    {
+        minRatio = std::min(minRatio, static_cast<float>(hXSecDataRatio->GetBinContent(i) - hXSecDataRatio->GetBinError(i)));
+        maxRatio = std::max(maxRatio, static_cast<float>(hXSecDataRatio->GetBinContent(i) + hXSecDataRatio->GetBinError(i)));
+
+        const auto diff = (hXSecDataRatio->GetBinContent(i) - 1.f) / hXSecDataRatio->GetBinError(i);
+        std::cout << "  - " << i << " : " << hXSecDataRatio->GetBinContent(i) << ", " << hXSecDataRatio->GetBinError(i) << ", " << diff << std::endl;
+        chi2Sum += std::pow(diff, 2);
+        nDof += 1.f;
+    }
+    std::cout << "  - Chi2 = " << chi2Sum << " (" << nDof << ")" << std::endl;
+    std::cout << "  - Chi2/dof = " << (chi2Sum / nDof) << std::endl;
+
+    const auto padding = (maxRatio - minRatio) * 0.05f;
+    hXSecDataRatio->GetYaxis()->SetRangeUser(std::max(0.f, minRatio - padding), maxRatio + padding);
+
+    hXSecDataRatio->Draw("e1");
+    pCanvasRatio->Update();
+
+    // Add the lines at 0.8, 1.0 and 1.2
+    TLine *l=new TLine(pCanvasRatio->GetUxmin(),1.0,pCanvasRatio->GetUxmax(),1.0);
+    TLine *lPlus=new TLine(pCanvasRatio->GetUxmin(), 1.2f, pCanvasRatio->GetUxmax(), 1.2f);
+    TLine *lMinus=new TLine(pCanvasRatio->GetUxmin(), 0.8f, pCanvasRatio->GetUxmax(), 0.8f);
+
+    l->SetLineColor(kOrange - 3);
+    lPlus->SetLineColor(kOrange - 3);
+    lMinus->SetLineColor(kOrange - 3);
+
+    lPlus->SetLineStyle(2);
+    lMinus->SetLineStyle(2);
+
+    l->Draw();
+    lPlus->Draw();
+    lMinus->Draw();
+
+    PlottingHelper::SaveCanvas(pCanvasRatio, fileNamePrefix + "_ratio");
 }
 
 } // namespace ubcc1pi

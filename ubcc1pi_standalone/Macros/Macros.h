@@ -71,6 +71,27 @@ namespace ubcc1pi_macros
     void MakeSelectedPIDTable(const Config &config = Config());
 
     /**
+     *  @brief  Make the selection efficiency plots
+     *
+     *  @param  config the input configuration
+     */
+    void MakeEventSelectionEfficiencyPlots(const Config &config = Config());
+
+    /**
+     *  @brief  Plot the recontructed variables
+     *
+     *  @param  config the input configuration
+     */
+    void PlotReconstructedVariables(const Config &config = Config());
+
+    /**
+     *  @brief  Extract the cross-sections
+     *
+     *  @param  config the input configuration
+     */
+    void ExtractXSecs(const Config &config = Config());
+
+    /**
      *  @brief  Top-level macro that runs the full analysis chain
      *
      *  @param  config the input config
