@@ -22,7 +22,6 @@ void MakeSelectedPIDTable(const Config &config)
     inputData.emplace_back(AnalysisHelper::Overlay, config.files.overlaysFileName, NormalisationHelper::GetOverlaysNormalisation(config)); 
     inputData.emplace_back(AnalysisHelper::Dirt,    config.files.dirtFileName,     NormalisationHelper::GetDirtNormalisation(config)); 
     inputData.emplace_back(AnalysisHelper::DataEXT, config.files.dataEXTFileName,  NormalisationHelper::GetDataEXTNormalisation(config)); 
-    inputData.emplace_back(AnalysisHelper::DataBNB, config.files.dataBNBFileName,  1.f);
 
     //
     // Get the selection
@@ -31,11 +30,20 @@ void MakeSelectedPIDTable(const Config &config)
     const auto allCuts = selection.GetCuts();
     const auto lastCut = config.makeSelectedPIDTable.useGenericSelection ? config.global.lastCutGeneric : allCuts.back();
 
+    std::cout << "Getting PID table after cut: " << lastCut << std::endl;
+
     if (std::find(allCuts.begin(), allCuts.end(), lastCut) == allCuts.end())
         throw std::invalid_argument("MakeSelectedPIDTable - chosen cut \"" + lastCut + "\" isn't known to the selection");
 
     //  Counter with index [recoPdgCode][truePdgCode][isSignalOnly]
     std::unordered_map< int, std::unordered_map< int, std::unordered_map<bool, float > > > recoToTruePdgMap;
+                        
+    float cc1piMuonCount = 0.f;
+    float ccInclusiveMuonCount = 0.f;
+    float ccInclusiveAnd1piMuonCount = 0.f;
+    float cc1piMuonCorrectCount = 0.f;
+    float ccInclusiveMuonCorrectCount = 0.f;
+    float ccInclusiveAnd1piMuonCorrectCount = 0.f;
 
     for (const auto [sampleType, fileName, normalisation] : inputData)
     {
@@ -102,6 +110,30 @@ void MakeSelectedPIDTable(const Config &config)
                 const auto recoPdgCode = assignedPdgCodes.at(index);
                 if (recoPdgCode != 13 && recoPdgCode != 211 && recoPdgCode != 2212)
                     throw std::logic_error("MakeSelectedPIDTable - Unknown assigned PDG code of " + std::to_string(recoPdgCode));
+
+                //// BEGIN DEBUG
+                const auto isTrueMuon = (truePdgCode == 13);
+                const auto isCC1PiMuonCandidate = (recoPdgCode == 13);
+                const auto isCCInclusiveMuonCandidate = particle.isCCInclusiveMuonCandidate();
+
+                if (isCC1PiMuonCandidate)
+                {
+                    cc1piMuonCount += weight;
+                    cc1piMuonCorrectCount += isTrueMuon ? weight : 0.f;
+                }
+
+                if (isCCInclusiveMuonCandidate)
+                {
+                    ccInclusiveMuonCount += weight;
+                    ccInclusiveMuonCorrectCount += isTrueMuon ? weight : 0.f;
+                }
+
+                if (isCC1PiMuonCandidate && isCCInclusiveMuonCandidate)
+                {
+                    ccInclusiveAnd1piMuonCount += weight;
+                    ccInclusiveAnd1piMuonCorrectCount += isTrueMuon ? weight : 0.f;
+                }
+                //// END DEBUG
 
                 // Get the mapping from true PDG to count for this reco pdg code, making it if it doesn't exist
                 auto &truePdgToCountMap = recoToTruePdgMap[recoPdgCode];
@@ -227,6 +259,17 @@ void MakeSelectedPIDTable(const Config &config)
     std::cout << "Signal events" << std::endl;
     FormattingHelper::PrintLine();
     signalTable.WriteToFile(prefix + "_signalEvents.md");
+
+
+    std::cout << std::endl;
+    FormattingHelper::PrintLine();
+    std::cout << "Muons" << std::endl;
+    std::cout << "  - CC1Pi muons = " << cc1piMuonCount << std::endl;
+    std::cout << "  - CC1Pi correct muons = " << cc1piMuonCorrectCount << std::endl;
+    std::cout << "  - CCInc muons = " << ccInclusiveMuonCount << std::endl;
+    std::cout << "  - CCInc correct muons = " << ccInclusiveMuonCorrectCount << std::endl;
+    std::cout << "  - CC 1Pi & Inc muons = " << ccInclusiveAnd1piMuonCount << std::endl;
+    std::cout << "  - CC 1Pi & Inc correct muons = " << ccInclusiveAnd1piMuonCorrectCount << std::endl;
 }
 
 } // namespace ubcc1pi_macros

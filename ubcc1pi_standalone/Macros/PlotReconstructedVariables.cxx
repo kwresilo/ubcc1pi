@@ -73,16 +73,6 @@ void PlotReconstructedVariables(const Config &config)
             // Get the truth and reco analysis data
             const auto weight = AnalysisHelper::GetNominalEventWeight(pEvent) * normalisation;
             const auto recoData = AnalysisHelper::GetRecoAnalysisData(pEvent->reco, assignedPdgCodes, isSelectedGolden);
-
-
-            /*
-            // Only use true signal events
-            if (!AnalysisHelper::IsTrueCC1Pi(pEvent, config.global.useAbsPdg))
-                continue;
-            
-            const auto truthData = AnalysisHelper::GetTruthAnalysisData(pEvent->truth, config.global.useAbsPdg, config.global.protonMomentumThreshold);
-            */
-
     
             const auto plotStyle = PlottingHelper::GetPlotStyle(sampleType, pEvent, config.global.useAbsPdg);
 

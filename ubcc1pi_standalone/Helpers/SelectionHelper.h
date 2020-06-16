@@ -291,6 +291,13 @@ class SelectionHelper
         };
 
         /**
+         *  @brief  Get the CC inclusive selection
+         *
+         *  @return the event selection
+         */
+        static EventSelection GetCCInclusiveSelection();
+
+        /**
          *  @brief  Get the default event selection
          *
          *  @return the event selection

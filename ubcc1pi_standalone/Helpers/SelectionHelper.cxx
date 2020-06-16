@@ -570,6 +570,42 @@ void SelectionHelper::EventSelection::Execute(const std::string &dataBNBFileName
 // -----------------------------------------------------------------------------------------------------------------------------------------
 // -----------------------------------------------------------------------------------------------------------------------------------------
 
+SelectionHelper::EventSelection SelectionHelper::GetCCInclusiveSelection()
+{
+    EventSelection selection;
+    
+    // Set up the cuts
+    selection.DeclareCut("passesCCInclusive");
+    
+    // Define the selection
+    selection.DefineSelectionMethod([](const std::shared_ptr<Event> &pEvent, EventSelection::BDTManager &bdtManager, EventSelection::CutManager &cuts) {
+        
+        // Insist the event passes the CC inclusive selection
+        if (!cuts.GetCutResult("passesCCInclusive", [&](){
+            return pEvent->reco.passesCCInclusive();
+
+        })) return false;
+
+        // Identify the muon
+        const auto &recoParticles = pEvent->reco.particles;
+        for (unsigned int index = 0; index < recoParticles.size(); ++index)
+        {
+            const auto &particle = recoParticles.at(index);
+
+            if (particle.isCCInclusiveMuonCandidate())
+            {
+                cuts.SetParticlePdg(index, 13);
+            }
+        }
+        
+        return true;
+    });
+
+    return selection;
+}
+
+// -----------------------------------------------------------------------------------------------------------------------------------------
+
 SelectionHelper::EventSelection SelectionHelper::GetDefaultSelection()
 {
     // Set up the selection
@@ -605,7 +641,7 @@ SelectionHelper::EventSelection SelectionHelper::GetDefaultSelection()
             return pEvent->reco.passesCCInclusive();
 
         })) return false;
-        
+
         
         // Find the particles with a track
         const auto &recoParticles = pEvent->reco.particles;
@@ -851,7 +887,7 @@ SelectionHelper::EventSelection SelectionHelper::GetDefaultSelection()
             return (goldenPionBDTResponse > cut);
 
         })) return false;
-
+        
         return true;
     });
 

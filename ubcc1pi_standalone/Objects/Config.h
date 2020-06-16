@@ -150,7 +150,7 @@ struct Config
         {
             float               min = 0;
             float               max =  12;
-            std::vector<float>  binEdges = {0, 1, 12};
+            std::vector<float>  binEdges = {0, 1, 2};
         };
         NProtons nProtons; ///< The nProtons plot limits
 
@@ -216,7 +216,7 @@ struct Config
      */
     struct MakeSelectedPIDTable
     {
-        bool useGenericSelection = false;  ///< If we should use the generic selection (if false, we use full golden selection)
+        bool useGenericSelection = false;   ///< If we should use the generic selection (if false, we use full golden selection)
         bool goldenPionIsSignal = false;   ///< If we should only treat events containing golden pions as signal
     };
     MakeSelectedPIDTable makeSelectedPIDTable;

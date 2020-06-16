@@ -39,6 +39,7 @@
         "Macros/MakeEventSelectionTable.cxx",
         "Macros/MakeEventSelectionEfficiencyPlots.cxx",
         "Macros/MakeSelectedPIDTable.cxx",
+        "Macros/PlotCCInclusiveMuonRecoVariables.cxx",
         "Macros/PlotReconstructedVariables.cxx",
         "Macros/ExtractXSecs.cxx",
 

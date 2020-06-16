@@ -78,6 +78,13 @@ namespace ubcc1pi_macros
     void MakeEventSelectionEfficiencyPlots(const Config &config = Config());
 
     /**
+     *  @brief  Plot the reconstructed variables for the muon of the CC inclusive selection
+     *
+     *  @param  config the input configuration
+     */
+    void PlotCCInclusiveMuonRecoVariables(const Config &config = Config());
+
+    /**
      *  @brief  Plot the recontructed variables
      *
      *  @param  config the input configuration

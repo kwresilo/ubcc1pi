@@ -1828,8 +1828,22 @@ void CrossSectionHelper::XSec::MakePlots(const std::string &fileNamePrefix) cons
         PlottingHelper::SaveCanvas(pCanvas, fileNamePrefix + "_" + name);
     }
 
+    // Sanity check plot
+    auto hXSecMCRecoClone = static_cast<TH1F *>(hXSecMCReco->Clone());
+    auto hXSecMCSmearedClone = static_cast<TH1F *>(hXSecMCSmeared->Clone());
+    hXSecMCRecoClone->SetLineColor(kBlack);
+    hXSecMCRecoClone->SetLineStyle(2);
+    hXSecMCSmearedClone->SetLineColor(kOrange - 3);
+
+    hXSecMCSmearedClone->Draw("hist");
+    hXSecMCRecoClone->Draw("hist same");
+    PlottingHelper::SaveCanvas(pCanvas, fileNamePrefix + "_sanityCheck");
+
+
+
     // Now make the plot with all x-sec histograms
     // True
+    /*
     auto hXSecMCTrueClone = static_cast<TH1F *>(hXSecMCTrue->Clone());
     hXSecMCTrue->SetLineColor(kAzure - 2);
     hXSecMCTrueClone->SetFillStyle(1001);
@@ -1839,15 +1853,16 @@ void CrossSectionHelper::XSec::MakePlots(const std::string &fileNamePrefix) cons
     
     hXSecMCTrueClone->Draw("e2");
     hXSecMCTrue->Draw("hist same");
-    
+    */
+
     // Smeared
-    auto hXSecMCSmearedClone = static_cast<TH1F *>(hXSecMCSmeared->Clone());
+//    auto hXSecMCSmearedClone = static_cast<TH1F *>(hXSecMCSmeared->Clone());
     hXSecMCSmeared->SetLineColor(kOrange - 3);
     hXSecMCSmearedClone->SetFillStyle(1001);
     hXSecMCSmearedClone->SetLineColorAlpha(kOrange - 3, 0.f);
     hXSecMCSmearedClone->SetFillColorAlpha(kOrange - 3, 0.3f);
     
-    hXSecMCSmearedClone->Draw("e2 same");
+    hXSecMCSmearedClone->Draw("e2");
     hXSecMCSmeared->Draw("hist same");
 
     // Data

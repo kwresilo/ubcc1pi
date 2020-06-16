@@ -21,7 +21,7 @@ void MakeEventSelectionTable(const Config &config)
     // Set the parameters to be optimized
     if (config.makeEventSelectionTable.shouldOptimize)
     {
-        selection.EnableOptimization("2NonProtons", false, -0.4f, 0.4f); // This is optimized for golden signal events
+        selection.EnableOptimization("2NonProtons", false, -0.4f, 0.4f);
         selection.EnableOptimization("openingAngle", true, 2.3f, 3.14f);
         selection.EnableOptimization("topologicalScore", true, 0.f, 0.8f);
         selection.EnableOptimization("noShowers", true, 0.f, 0.2f);

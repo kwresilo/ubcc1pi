@@ -19,7 +19,7 @@ float NormalisationHelper::GetDirtNormalisation(const Config &config)
 {
     if (config.norms.dirtPOT <= std::numeric_limits<float>::epsilon())
         throw std::invalid_argument("NormalisationHelper::GetDirtNormalisation - Dirt POT is invalid");
-
+    
     return config.norms.dataBNBTor875WCut / config.norms.dirtPOT;
 }
 
