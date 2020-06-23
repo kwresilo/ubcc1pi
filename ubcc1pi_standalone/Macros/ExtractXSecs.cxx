@@ -1,5 +1,10 @@
-#include "ubcc1pi_standalone/Macros/Macros.h"
+/**
+ *  @file  ubcc1pi_standalone/Macros/ExtractXSecs.cxx
+ *
+ *  @brief The implementation file of the ExtractXSecs macro
+ */
 
+#include "ubcc1pi_standalone/Macros/Macros.h"
 #include "ubcc1pi_standalone/Objects/FileReader.h"
 
 #include "ubcc1pi_standalone/Helpers/AnalysisHelper.h"

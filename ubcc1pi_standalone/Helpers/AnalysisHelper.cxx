@@ -1,3 +1,9 @@
+/**
+ *  @file  ubcc1pi_standalone/Helpers/AnalysisHelper.cxx
+ *
+ *  @brief The implementation of the analysis helper class
+ */
+
 #include "ubcc1pi_standalone/Helpers/AnalysisHelper.h"
 
 #include "ubcc1pi_standalone/Helpers/GeometryHelper.h"

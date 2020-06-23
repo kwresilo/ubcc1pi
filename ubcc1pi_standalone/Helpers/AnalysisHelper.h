@@ -39,15 +39,15 @@ class AnalysisHelper
          */
         struct AnalysisData
         {
-            float         muonMomentum;
-            float         muonCosTheta;
-            float         muonPhi;
-            float         pionMomentum;
-            float         pionCosTheta;
-            float         pionPhi;
-            float         muonPionAngle;
-            unsigned int  nProtons;
-            bool          hasGoldenPion;
+            float         muonMomentum;    ///< The muon momentum
+            float         muonCosTheta;    ///< The muon cos(theta) - angle to beam direciton
+            float         muonPhi;         ///< The muon phi - angle in x-y plane
+            float         pionMomentum;    ///< The pion momentum
+            float         pionCosTheta;    ///< The pion cos(theta) - angle to beam direciton
+            float         pionPhi;         ///< The pion phi - angle in x-y plane
+            float         muonPionAngle;   ///< The muon-pion opening angle
+            unsigned int  nProtons;        ///< The number of protons
+            bool          hasGoldenPion;   ///< If the event has a golden pion
         };
 
         /**

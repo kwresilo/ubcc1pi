@@ -50,14 +50,14 @@
 // should be true if ROOT needs the address of a pointer when setting branch addresses (for non-standard types). The fourth is the type of
 // the varaiable, and the fifth is the variable name itself
 
-// The event metadata members
+/** The event metadata members */
 #define UBCC1PI_MACRO_EVENT_METADATA_MEMBERS(p, q, f)                                                                                      \
     f(p, q, false, int,         run)                                                                                                       \
     f(p, q, false, int,         subRun)                                                                                                    \
     f(p, q, false, int,         event)                                                                                                     \
     f(p, q, false, bool,        hasTruthInfo)                                                                                              \
 
-// The event truth information members
+/** The event truth information members */
 #define UBCC1PI_MACRO_EVENT_TRUTH_MEMBERS(p, q, f)                                                                                         \
     f(p, q, false, float,                      splineEventWeight)                                                                          \
     f(p, q, false, float,                      genieTuneEventWeight)                                                                       \
@@ -72,7 +72,7 @@
     f(p, q, true,  std::vector<float>,         sliceCompletenesses)                                                                               
 
 
-// The event truth particle information members
+/** The event truth particle information members */
 #define UBCC1PI_MACRO_EVENT_TRUTH_PARTICLE_MEMBERS(p, q, f)                                                                                \
     f(p, q, false, int,                 pdgCode)                                                                                           \
     f(p, q, false, float,               startX)                                                                                            \
@@ -103,7 +103,7 @@
     f(p, q, false, float,               endStateProductsHitWeightV)                                                                        \
     f(p, q, false, float,               endStateProductsHitWeightW)                                                                        
     
-// The event reco information members
+/** The event reco information members */
 #define UBCC1PI_MACRO_EVENT_RECO_MEMBERS(p, q, f)                                                                                          \
     f(p, q, false, bool,                passesCCInclusive)                                                                                 \
     f(p, q, false, int,                 nSlices)                                                                                           \
@@ -116,7 +116,7 @@
     f(p, q, true,  TVector3,            nuVertex)                                                                                          \
     f(p, q, false, int,                 nFinalStates)                                                                                                
 
-// The event reco particle information members
+/** The event reco particle information members */
 #define UBCC1PI_MACRO_EVENT_RECO_PARTICLE_MEMBERS(p, q, f)                                                                                 \
     f(p, q, false, bool,                isCCInclusiveMuonCandidate)                                                                        \
     f(p, q, false, int,                 pdgCode)                                                                                           \

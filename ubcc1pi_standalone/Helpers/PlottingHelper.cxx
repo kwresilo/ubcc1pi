@@ -1,3 +1,9 @@
+/**
+ *  @file  ubcc1pi_standalone/Helpers/PlottingHelper.cxx
+ *
+ *  @brief The implementation file of the plotting helper class 
+ */
+
 #include "ubcc1pi_standalone/Helpers/PlottingHelper.h"
 
 #include "ubcc1pi_standalone/Helpers/AnalysisHelper.h"
@@ -18,13 +24,14 @@ PlottingHelper::MultiPlot::MultiPlot(const std::string &xLabel, const std::strin
             binEdges.push_back(min + ((max - min) * static_cast<float>(i)) / static_cast<float>(nBins));
 
         return binEdges;
-    }(), drawErrors)
+    }(), drawErrors /** @brief doxygen needs this **/)
 {
 }
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
 
 PlottingHelper::MultiPlot::MultiPlot(const std::string &xLabel, const std::string &yLabel, const std::vector<float> &binEdges, bool drawErrors) :
+    /// @cond Doxygen can't handle this initilizer list
     m_xLabel(xLabel),
     m_nBins(binEdges.size() - 1),
     m_min(binEdges.front()),
@@ -33,7 +40,9 @@ PlottingHelper::MultiPlot::MultiPlot(const std::string &xLabel, const std::strin
     m_id(++m_lastId),
     m_cloneCount(0),
     m_drawErrors(drawErrors)
+    /// @endcond
 {
+
     for (const auto &style : PlottingHelper::AllPlotStyles)
     {
         // Make a unique name for this plot to avoid collisionsi
@@ -316,6 +325,7 @@ void PlottingHelper::MultiPlot::SaveAsStacked(const std::string &fileName)
 // -----------------------------------------------------------------------------------------------------------------------------------------
 
 PlottingHelper::EfficiencyPlot::EfficiencyPlot(const std::string &xLabel, unsigned int nBins, float min, float max, const std::vector<string> &cuts, bool drawErrors) :
+    /// @cond Doxygen can't handle this initilizer list
     m_xLabel(xLabel),
     m_nBins(nBins),
     m_min(min),
@@ -323,6 +333,7 @@ PlottingHelper::EfficiencyPlot::EfficiencyPlot(const std::string &xLabel, unsign
     m_cuts(cuts),
     m_drawErrors(drawErrors),
     m_id(++m_lastId)
+    /// @endcond
 {
     // Get all colours
     const auto palette = PlottingHelper::GetColorVector();

@@ -1,3 +1,9 @@
+/**
+ *  @file  ubcc1pi_standalone/Helpers/SelectionHelper.cxx
+ *
+ *  @brief The implementation file for the selection helper class
+ */
+
 #include "ubcc1pi_standalone/Helpers/SelectionHelper.h"
 #include "ubcc1pi_standalone/Helpers/FormattingHelper.h"
 #include "ubcc1pi_standalone/Objects/FileReader.h"

@@ -1,5 +1,5 @@
 /**
- *  @file  ubcc1pi_standalone/Helpers/NormalisationHelper
+ *  @file  ubcc1pi_standalone/Helpers/NormalisationHelper.h
  *
  *  @brief The header file for the normalisation helper class
  */

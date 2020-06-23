@@ -88,7 +88,7 @@ class FormattingHelper
                 /**
                  *  @brief  Get the widths of a column for printing
                  *
-                 *  @param  the header of the column
+                 *  @param  header the header of the column
                  *
                  *  @return the column width
                  */

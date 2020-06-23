@@ -205,10 +205,33 @@ class CrossSectionHelper
                  */
                 std::vector<float> GetInitialBins(const float lower, const float upper, const unsigned int minEventsPerBin) const;
 
-                // TODO doxygen
-                void EqualizeBinErrors(std::vector<float> &binEdges);
+                /**
+                 *  @brief  Remove the bin with the largest statistical uncertainty
+                 *
+                 *  @param  targetFracError the target fractional statistical error, we wont remove a bin if the uncertainty is below this target value
+                 *  @param  binEdges the bin edges to modify
+                 *
+                 *  @return boolean, true if a bin was removed - false otherwise
+                 */
                 bool RemoveLowestStatsBin(const float targetFracError, std::vector<float> &binEdges);
+
+                /**
+                 *  @brief  Get the factional uncertainties on the reconstructed cross-section 
+                 *
+                 *  @param  binEdges the input bin edges to use
+                 *
+                 *  @return the fractional uncertainty on the reconstructed cross-section in each bin
+                 */
                 std::vector<float> GetFractionalRecoCrossSectionErrors(const std::vector<float> &binEdges);
+
+                /**
+                 *  @brief  Remove the bin with the smallest diagonal entry of the smearing matrix
+                 *
+                 *  @param  targetSmearingDiagonal the target value of the diagonals of the smearing matrix, we wont remove a bin if the the diagonal is above this value
+                 *  @param  binEdges the bin edges to modify
+                 *
+                 *  @return boolean, true if a bin was removed - false otherwise
+                 */
                 bool RemoveMostSmearedBin(const float targetSmearingDiagonal, std::vector<float> &binEdges);
                 
                 /**
@@ -236,7 +259,7 @@ class CrossSectionHelper
                  *
                  *  @return the error on the cross-section value
                  */
-                float GetCrossSectionUncertainty(const float nTotal, const float totalErr, const float nBackgrounds, const float backgroundsErr, const float efficiency, const float effieincyErr, const float binWidth) const;
+                float GetCrossSectionUncertainty(const float nTotal, const float totalErr, const float nBackgrounds, const float backgroundsErr, const float efficiency, const float efficiencyErr, const float binWidth) const;
                 
 
                 /**
@@ -260,7 +283,7 @@ class CrossSectionHelper
                  *
                  *  @param  bins the values per bin
                  *  @param  uncertainties the uncertainties
-                 *  @param  useRealData, if true we will use real BNB data, if false we use Overlays + EXT + Dirt as fake data
+                 *  @param  useRealData if true we will use real BNB data, if false we use Overlays + EXT + Dirt as fake data
                  */
                 void GetBNBDataPerBin(std::vector<float> &bins, std::vector<float> &uncertainties, const bool useRealData = true) const;
 
@@ -646,186 +669,6 @@ bool CrossSectionHelper::XSec::RemoveLowestStatsBin(const float targetFracError,
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
 
-void CrossSectionHelper::XSec::EqualizeBinErrors(std::vector<float> &binEdges)
-{
-    // The cut-off value to break out of the loop
-    const auto fracErrDiffCutoff = 0.01f;
-
-    // The cut-off number of modifications before we cut our losses
-    unsigned int nModifications = 0u;
-    const auto maxModifications = binEdges.size() * 10u;
-
-    // The step size multipler sets the rate at which we move bin edges
-    const auto stepSize = 0.5f;
-
-    //// BEGIN DEBUG
-    if (binEdges.size() > 15u)
-        return;
-    //// END DEBUG
-
-    std::cout << "MINIMIZING" << std::endl;
-    while (true)
-    {
-        if (nModifications > maxModifications)
-            break;
-
-        // Get the fractional errors
-        const auto fracErrs = this->GetFractionalRecoCrossSectionErrors(binEdges);
-        const auto nBins = fracErrs.size();
-
-        // Get the mean fractional error
-        float summedFracErr = 0.f;
-        for (const auto &fracErr : fracErrs)
-            summedFracErr += fracErr;
-
-        const auto meanFracErr = summedFracErr / static_cast<float>(nBins);
-        float sumSquareFracErrDiff = 0.f;
-        float nBinsUsed = 0.f;
-
-        // Find the bin that's furthest from the mean fractional error
-        unsigned int worstBinIndex = 0u;
-        float maxFracErrorDiff = -std::numeric_limits<float>::max();
-        for (unsigned int i = 0; i < nBins; ++i)
-        {
-            // Don't care about underflow or overflow bins
-            if (this->IsUnderOverFlowBin(i))
-                continue;
-
-            const auto fracErrDiff = std::abs(fracErrs.at(i) - meanFracErr);
-            if (fracErrDiff > maxFracErrorDiff)
-            {
-                maxFracErrorDiff = fracErrDiff;
-                worstBinIndex = i;
-            }
-
-            sumSquareFracErrDiff += fracErrDiff * fracErrDiff;
-            nBinsUsed += 1.f;
-        
-            //std::cout << i << " - " << fracErrs.at(i) << " (" << fracErrDiff << ")" << std::endl;
-        }
-
-        const auto rmsFracErrDiff = std::pow(sumSquareFracErrDiff / nBinsUsed, 0.5f);
-        std::cout << "Mean frac error = " << meanFracErr << std::endl;
-        std::cout << "RMS frac error diff = " << rmsFracErrDiff << std::endl;
-
-        // If all fractional errors are within fracErrDiffCutoff of the mean, then that's good enough
-        if (maxFracErrorDiff < fracErrDiffCutoff)
-            break;
-            
-        //std::cout << "The worst bin is: " << worstBinIndex << std::endl;
-
-        // Work out which edge of this bin we should move
-        bool useLeftEdge = true;
-
-        if (worstBinIndex - (m_hasUnderflow ? 1u : 0u) == 0u) // First bin
-        {
-            useLeftEdge = false;
-        }
-        else if (worstBinIndex == nBins - 1u - (m_hasOverflow ? 1u : 0u)) // Last bin
-        {
-            useLeftEdge = true;
-        }
-        else // A middle bin
-        {
-            // Use the adjacent bin which together are closest to the mean
-            const auto meanFracErrLeft = 0.5f * (fracErrs.at(worstBinIndex) + fracErrs.at(worstBinIndex - 1));
-            const auto meanFracErrRight = 0.5f * (fracErrs.at(worstBinIndex) + fracErrs.at(worstBinIndex + 1));
-
-            const auto leftDiff = std::abs(meanFracErrLeft -meanFracErr);
-            const auto rightDiff = std::abs(meanFracErrRight -meanFracErr);
-    
-            useLeftEdge = (leftDiff < rightDiff);
-        }
-        
-        //std::cout << "Going to move the " << (useLeftEdge ? "left" : "right") << " edge." << std::endl;
-
-        // Try to move the boundaries of the bin to improve the equalisation of the fractional errors.
-        // Here's the idea...
-        //
-        // Assume that the fractional error on the cross-section, roughly boils down to the Poisson error on a count in each bin. i.e.
-        // 
-        // fracErr = 1 / sqrt(count)
-        //
-        // We can write the count in terms of some average density of events, k, and the bin width: count = k * binWidth.
-        // If we have two ajacent bins, i and j, then we can estimate the density of events as:
-        //
-        // k_i = 1 / binWidth_i * (fracErr_i)^2
-        // k_j = 1 / binWidth_j * (fracErr_j)^2
-        //
-        // We can then estimate the true underlying density at the interface of the bins:
-        //
-        // k_mid = (k_i + k_j) / 2
-        //
-        // This means if we shift the bin interface by some small distance, d, such that:
-        //
-        // binWidth_i' = binWidth_i + d
-        // binWidth_j' = binWidth_j - d
-        //
-        // ... then the bins will have rough event counts of:
-        //
-        // count_i' = (k_i * binWidth_i) + (k_mid * d)
-        // count_j' = (k_j * binWidth_j) - (k_mid * d)
-        //
-        // ... and new fractional errors of:
-        //
-        // fracErr_i' = 1 / sqrt(count_i')
-        // fracErr_j' = 1 / sqrt(count_j')
-        //
-        // We want these to be equal: fracErr_i' = fracErr_j' => we want: count_i' = count_j', so:
-        //
-        // d = ( (k_j * binWidth_j) - (k_i * binWidth_i) ) / (2 * k_mid)
-        //
-        // At least.. that's the idea.... 
-
-        // Extract the fractional errors
-        const auto fracErr_i = fracErrs.at(worstBinIndex - (useLeftEdge ? 1u : 0u));
-        const auto fracErr_j = fracErrs.at(worstBinIndex + (useLeftEdge ? 0u : 1u));
-
-        // Extract the bin widths
-        const auto midEdgeIndex = worstBinIndex - (m_hasUnderflow ? 1u : 0u) + (useLeftEdge ? 0u : 1u);
-        const auto binWidth_i = binEdges.at(midEdgeIndex) - binEdges.at(midEdgeIndex - 1);
-        const auto binWidth_j = binEdges.at(midEdgeIndex + 1) - binEdges.at(midEdgeIndex);
-
-        // Work out which direction we should shift the bin edge
-        const auto shouldShiftLeft = fracErr_i < fracErr_j;
-
-        // Get the estimated event densities in each bin
-        const auto k_i = 1.f / (binWidth_i * std::pow(fracErr_i, 2));
-        const auto k_j = 1.f / (binWidth_j * std::pow(fracErr_j, 2));
-
-        // Get the estimated event density at the interface
-        const auto k_mid = 0.5f * (k_i + k_j);
-
-        // Get the distance we should move to make our estimates of the fractional errors in the bins equal
-        const auto maxDistAllowed = shouldShiftLeft ? binWidth_i : binWidth_j;
-        const auto d = std::min(maxDistAllowed, static_cast<float>(((k_j * binWidth_j) - (k_i * binWidth_i)) / (2 * k_mid)));
-
-        /*
-        std::cout << "Left bin:" << std::endl;
-        std::cout << "  width = " << binWidth_i << std::endl;
-        std::cout << "  fracErr = " << fracErr_i << std::endl;
-        std::cout << "  k = " << k_i << std::endl;
-        
-        std::cout << "Right bin:" << std::endl;
-        std::cout << "  width = " << binWidth_j << std::endl;
-        std::cout << "  fracErr = " << fracErr_j << std::endl;
-        std::cout << "  k = " << k_j << std::endl;
-
-        std::cout << "We are shifting: " << (shouldShiftLeft ? "left" : "right") << std::endl;
-        std::cout << "  d = " << d << std::endl;
-        std::cin.get();
-        */
-
-        // Now given that's just an estimate... let's just take a baby step in that direction and hope we get closer than we were before!
-        binEdges.at(midEdgeIndex) += d * stepSize;
-
-        // Count this modification
-        nModifications++;
-    }
-}
-
-// -----------------------------------------------------------------------------------------------------------------------------------------
-
 void CrossSectionHelper::XSec::SetBinsAuto(const float lower, const float upper, const float targetFracError, const float targetSmearingDiagonal)
 {
     // Get the initial bin edges
@@ -841,12 +684,10 @@ void CrossSectionHelper::XSec::SetBinsAuto(const float lower, const float upper,
 
         if (this->RemoveMostSmearedBin(targetSmearingDiagonal, binEdges))
         {
-//            this->EqualizeBinErrors(binEdges);
             changeMade = true;
         } 
         else if (this->RemoveLowestStatsBin(targetFracError, binEdges))
         {
-//            this->EqualizeBinErrors(binEdges);
             changeMade = true;
         }
 

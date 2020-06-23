@@ -1,3 +1,9 @@
+/**
+ *  @file  ubcc1pi_standalone/Macros/PlotCCInclusiveMuonRecoVariables.cxx
+ *
+ *  @brief The implementation file of the PlotCCInclusiveMuonRecoVariables macro
+ */
+
 #include "ubcc1pi_standalone/Macros/Macros.h"
 
 #include "ubcc1pi_standalone/Objects/FileReader.h"

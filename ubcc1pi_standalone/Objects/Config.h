@@ -33,10 +33,10 @@ struct Config
         std::string  dataEXTFileName  = "/uboone/data/users/asmith/ubcc1pi/samples/jun2020/samples/combined/ubcc1piAnalysis_extbnb.root";
         std::string  dataBNBFileName  = "/uboone/data/users/asmith/ubcc1pi/samples/jun2020/samples/combined/ubcc1piAnalysis_bnb.root";
         */
-        std::string  overlaysFileName = "/uboone/data/users/asmith/ubcc1pi/samples/may2020/samples/ubcc1piAnalysis_overlays.root";
-        std::string  dirtFileName     = "/uboone/data/users/asmith/ubcc1pi/samples/may2020/samples/ubcc1piAnalysis_dirt.root";
-        std::string  dataEXTFileName  = "/uboone/data/users/asmith/ubcc1pi/samples/may2020/samples/ubcc1piAnalysis_dataEXT.root";
-        std::string  dataBNBFileName  = "/uboone/data/users/asmith/ubcc1pi/samples/may2020/samples/ubcc1piAnalysis_dataBNB.root";
+        std::string  overlaysFileName = "/uboone/data/users/asmith/ubcc1pi/samples/may2020/samples/ubcc1piAnalysis_overlays.root"; ///< Overlays file name input
+        std::string  dirtFileName     = "/uboone/data/users/asmith/ubcc1pi/samples/may2020/samples/ubcc1piAnalysis_dirt.root";     ///< Dirt file name input
+        std::string  dataEXTFileName  = "/uboone/data/users/asmith/ubcc1pi/samples/may2020/samples/ubcc1piAnalysis_dataEXT.root";  ///< EXT data file name input
+        std::string  dataBNBFileName  = "/uboone/data/users/asmith/ubcc1pi/samples/may2020/samples/ubcc1piAnalysis_dataBNB.root";  ///< BNB data file name input
     };
     Files files; ///< The input files
 
@@ -82,9 +82,9 @@ struct Config
          */
         struct MuonCosTheta
         {
-            float               min = -1.f;
-            float               max =  1.f;
-            std::vector<float>  binEdges = {-1.f, 0.5f, 0.64f, 0.75f, 0.83f, 0.88f, 0.93f, 0.96f, 0.98f, 1.f};
+            float               min = -1.f;                                                                     ///< Minimum possible value
+            float               max =  1.f;                                                                     ///< Maximum possible value
+            std::vector<float>  binEdges = {-1.f, 0.5f, 0.64f, 0.75f, 0.83f, 0.88f, 0.93f, 0.96f, 0.98f, 1.f};  ///< The bin edges
         };
         MuonCosTheta muonCosTheta; ///< The muonCosTheta plot limits
 
@@ -93,9 +93,9 @@ struct Config
          */
         struct MuonPhi
         {
-            float               min = -3.142f;
-            float               max =  3.142f;
-            std::vector<float>  binEdges = {-3.142f, -2.8f, -2.2f, -1.5f, -1.f, -0.4f, 0.1f, 0.7f, 2.f, 2.7f, 3.142f};
+            float               min = -3.142f;                                                                          ///< Minimum possible value
+            float               max =  3.142f;                                                                          ///< Maximum possible value
+            std::vector<float>  binEdges = {-3.142f, -2.8f, -2.2f, -1.5f, -1.f, -0.4f, 0.1f, 0.7f, 2.f, 2.7f, 3.142f};  ///< The bin edges
         };
         MuonPhi muonPhi; ///< The muonPhi plot limits
 
@@ -104,9 +104,9 @@ struct Config
          */
         struct MuonMomentum
         {
-            float               min = 0.f;
-            float               max =  100.f;
-            std::vector<float>  binEdges = {0.f, 0.29f, 0.37f, 0.56f, 0.8f, 1.5f};
+            float               min = 0.f;                                          ///< Minimum possible value
+            float               max =  100.f;                                       ///< Maximum possible value
+            std::vector<float>  binEdges = {0.f, 0.29f, 0.37f, 0.56f, 0.8f, 1.5f};  ///< The bin edges
         };
         MuonMomentum muonMomentum; ///< The muonMomentum plot limits
        
@@ -115,9 +115,9 @@ struct Config
          */
         struct PionCosTheta
         {
-            float               min = -1.f;
-            float               max =  1.f;
-            std::vector<float>  binEdges = {-1.f, -0.2f, 0.23f, 0.37f, 0.6f, 0.84f, 0.92f, 1.f};
+            float               min = -1.f;                                                       ///< Minimum possible value
+            float               max =  1.f;                                                       ///< Maximum possible value
+            std::vector<float>  binEdges = {-1.f, -0.2f, 0.23f, 0.37f, 0.6f, 0.84f, 0.92f, 1.f};  ///< The bin edges
         };
         PionCosTheta pionCosTheta; ///< The pionCosTheta plot limits
 
@@ -126,9 +126,9 @@ struct Config
          */
         struct PionPhi
         {
-            float               min = -3.142f;
-            float               max =  3.142f;
-            std::vector<float>  binEdges = {-3.142f, -2.4f, -1.5f, -0.7f, -0.3f, 0.2f, 0.8f, 1.4f, 2.2f, 2.6f, 3.142f};
+            float               min = -3.142f;                                                                           ///< Minimum possible value
+            float               max =  3.142f;                                                                           ///< Maximum possible value
+            std::vector<float>  binEdges = {-3.142f, -2.4f, -1.5f, -0.7f, -0.3f, 0.2f, 0.8f, 1.4f, 2.2f, 2.6f, 3.142f};  ///< The bin edges
         };
         PionPhi pionPhi; ///< The pionPhi plot limits
 
@@ -137,9 +137,9 @@ struct Config
          */
         struct PionMomentum
         {
-            float               min = 0.1f;
-            float               max =  10.f;
-            std::vector<float>  binEdges = {0.1f, 0.16f, 0.19f, 0.21f, 0.5f};
+            float               min = 0.1f;                                    ///< Minimum possible value
+            float               max =  10.f;                                   ///< Maximum possible value
+            std::vector<float>  binEdges = {0.1f, 0.16f, 0.19f, 0.21f, 0.5f};  ///< The bin edges
         };
         PionMomentum pionMomentum; ///< The pionMomentum plot limits
    
@@ -148,9 +148,9 @@ struct Config
          */
         struct MuonPionAngle
         {
-            float               min = 0.f;
-            float               max =  2.65f;
-            std::vector<float>  binEdges = {0.f, 0.7f, 0.9f, 1.1f, 1.4f, 1.5f, 1.7f, 2.f, 2.65f};
+            float               min = 0.f;                                                         ///< Minimum possible value
+            float               max =  2.65f;                                                      ///< Maximum possible value
+            std::vector<float>  binEdges = {0.f, 0.7f, 0.9f, 1.1f, 1.4f, 1.5f, 1.7f, 2.f, 2.65f};  ///< The bin edges
         };
         MuonPionAngle muonPionAngle; ///< The muonPionAngle plot limits
 
@@ -159,9 +159,9 @@ struct Config
          */
         struct NProtons
         {
-            float               min = 0;
-            float               max =  12;
-            std::vector<float>  binEdges = {0, 1, 2};
+            float               min = 0;               ///< Minimum possible value
+            float               max =  12;             ///< Maximum possible value
+            std::vector<float>  binEdges = {0, 1, 2};  ///< The bin edges
         };
         NProtons nProtons; ///< The nProtons plot limits
 
@@ -230,7 +230,7 @@ struct Config
         bool useGenericSelection = false;   ///< If we should use the generic selection (if false, we use full golden selection)
         bool goldenPionIsSignal = false;   ///< If we should only treat events containing golden pions as signal
     };
-    MakeSelectedPIDTable makeSelectedPIDTable;
+    MakeSelectedPIDTable makeSelectedPIDTable; ///< The configuration options for the MakeSelectedPIDTable macro
     
     // -------------------------------------------------------------------------------------------------------------------------------------
     

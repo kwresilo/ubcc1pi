@@ -19,6 +19,9 @@ class FileWriter;
 class FileReader;
 class SubrunFactory;
 
+/**
+ *  @brief  The subrun class
+ */
 class Subrun
 {
     public:
@@ -32,9 +35,9 @@ class Subrun
     
     private:
 
-        friend FileWriter;
-        friend FileReader;
-        friend SubrunFactory;
+        friend FileWriter;      ///< The file writer class is a friend
+        friend FileReader;      ///< The file reader class is a friend
+        friend SubrunFactory;   ///< The subrun factory class is a friend
 
         /**
          *  @brief  Bind this event to an output tree

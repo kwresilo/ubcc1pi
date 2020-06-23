@@ -210,6 +210,7 @@ class BDTHelper
          *  @param  recoParticle the input reco particle 
          *  @param  featureNames the feature names to calculate
          *  @param  features the output features
+         *  @param  shouldDebug if we should print debug statements
          *
          *  @return boolean, true if all features are available
          */

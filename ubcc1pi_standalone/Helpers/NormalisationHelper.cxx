@@ -1,3 +1,9 @@
+/**
+ *  @file  ubcc1pi_standalone/Helpers/NormalisationHelper.cxx
+ *
+ *  @brief The implementation file of the normalisation helper class
+ */
+
 #include "ubcc1pi_standalone/Helpers/NormalisationHelper.h"
 
 #include <stdexcept>

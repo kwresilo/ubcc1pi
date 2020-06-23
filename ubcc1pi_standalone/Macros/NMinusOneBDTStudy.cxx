@@ -1,3 +1,9 @@
+/**
+ *  @file  ubcc1pi_standalone/Macros/NMinusOneBDTStudy.cxx
+ *
+ *  @brief The implementation file of the NMinusOneBDTStudy macro
+ */
+
 #include "ubcc1pi_standalone/Macros/Macros.h"
 
 #include "ubcc1pi_standalone/Objects/FileReader.h"

@@ -1,3 +1,9 @@
+/**
+ *  @file  ubcc1pi_standalone/Macros/CountPOT.cxx
+ *
+ *  @brief The implementation file of the CountPOT macro
+ */
+
 #include "ubcc1pi_standalone/Macros/Macros.h"
 
 #include "ubcc1pi_standalone/Objects/FileReader.h"
