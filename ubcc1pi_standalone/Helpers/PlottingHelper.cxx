@@ -1,3 +1,9 @@
+/**
+ *  @file  ubcc1pi_standalone/Helpers/PlottingHelper.cxx
+ *
+ *  @brief The implementation file of the plotting helper class 
+ */
+
 #include "ubcc1pi_standalone/Helpers/PlottingHelper.h"
 
 #include "ubcc1pi_standalone/Helpers/AnalysisHelper.h"
@@ -5,31 +11,50 @@
 #include <stdexcept>
 
 #include <THStack.h>
+#include <TLine.h>
 
 namespace ubcc1pi
 {
 
 PlottingHelper::MultiPlot::MultiPlot(const std::string &xLabel, const std::string &yLabel, unsigned int nBins, float min, float max, bool drawErrors) :
+    MultiPlot(xLabel, yLabel, [&] {
+        std::vector<float> binEdges;
+
+        for (unsigned int i = 0; i <= nBins; ++i)
+            binEdges.push_back(min + ((max - min) * static_cast<float>(i)) / static_cast<float>(nBins));
+
+        return binEdges;
+    }(), drawErrors /** @brief doxygen needs this **/)
+{
+}
+
+// -----------------------------------------------------------------------------------------------------------------------------------------
+
+PlottingHelper::MultiPlot::MultiPlot(const std::string &xLabel, const std::string &yLabel, const std::vector<float> &binEdges, bool drawErrors) :
+    /// @cond Doxygen can't handle this initilizer list
     m_xLabel(xLabel),
-    m_nBins(nBins),
-    m_min(min),
-    m_max(max),
+    m_nBins(binEdges.size() - 1),
+    m_min(binEdges.front()),
+    m_max(binEdges.back()),
+    m_binEdges(binEdges),
     m_id(++m_lastId),
     m_cloneCount(0),
     m_drawErrors(drawErrors)
+    /// @endcond
 {
+
     for (const auto &style : PlottingHelper::AllPlotStyles)
     {
         // Make a unique name for this plot to avoid collisionsi
         const auto nameStr = "ubcc1pi_multiPlot_" + std::to_string(m_id) + "_" + std::to_string(static_cast<int>(style));
         const auto name = nameStr.c_str();
 
-        auto pHist = std::make_shared<TH1F>(name, "", nBins, min, max);
+        auto pHist = std::make_shared<TH1F>(name, "", m_nBins, m_binEdges.data());
         
         pHist->Sumw2();
         PlottingHelper::SetLineStyle(pHist.get(), style);
-        pHist->GetXaxis()->SetTitle(xLabel.c_str());
-        pHist->GetYaxis()->SetTitle(yLabel.c_str());
+        //pHist->GetXaxis()->SetTitle(xLabel.c_str());
+        //pHist->GetYaxis()->SetTitle(yLabel.c_str());
         
         m_plotToHistMap.emplace(style, pHist);
     }
@@ -75,7 +100,7 @@ void PlottingHelper::MultiPlot::ScaleHistograms(std::unordered_map<PlotStyle, TH
     for (const auto &style : PlottingHelper::AllPlotStyles)
     {
         auto pHist = plotToHistCloneMap.at(style);
-        pHist->Scale(1.f / pHist->Integral());
+        pHist->Scale(1.f / pHist->Integral(), "width"); // TODO check if this does what we want
     }
 }
 
@@ -177,16 +202,21 @@ void PlottingHelper::MultiPlot::SaveAsStacked(const std::string &fileName)
     std::unordered_map<PlotStyle, TH1F* > plotToHistCloneMap;
     this->GetHistogramClones(plotToHistCloneMap);
 
+    // Scale by bin width
+    for (auto &entry : plotToHistCloneMap)
+        entry.second->Scale(1.f, "width");
+
     // Work out if we have BNB data to plot, and if we do then get the minimum and maximum Y coordinates
     auto bnbDataHistIter = plotToHistCloneMap.find(BNBData);
     const bool hasBNBData = bnbDataHistIter != plotToHistCloneMap.end();
+
     auto yMin = hasBNBData ? static_cast<float>(bnbDataHistIter->second->GetMinimum()) : std::numeric_limits<float>::max();
     auto yMax = hasBNBData ? static_cast<float>(bnbDataHistIter->second->GetMaximum()) : -std::numeric_limits<float>::max();
 
     // Sum the non BNB data histograms to get the "MC" total
     const auto nameTotalStr = "ubcc1pi_multiPlot_" + std::to_string(m_id) + "_total";
     const auto nameTotal = nameTotalStr.c_str();
-    auto pHistTotal = std::make_shared<TH1F>(nameTotal, "", m_nBins, m_min, m_max);
+    auto pHistTotal = std::make_shared<TH1F>(nameTotal, "", m_nBins, m_binEdges.data());
     pHistTotal->Sumw2();
 
     for (const auto &style : PlottingHelper::AllPlotStyles)
@@ -202,10 +232,10 @@ void PlottingHelper::MultiPlot::SaveAsStacked(const std::string &fileName)
 
         pHistTotal->Add(pHist);
     }
-
+    
     // Get the maximum and minimum Y coordinates
     yMin = std::min(yMin, static_cast<float>(pHistTotal->GetMinimum()));
-    yMax = std::min(yMax, static_cast<float>(pHistTotal->GetMaximum()));
+    yMax = std::max(yMax, static_cast<float>(pHistTotal->GetMaximum()));
     yMax += (yMax - yMin) * 0.05;
 
     // Draw the stacked histogram
@@ -232,8 +262,9 @@ void PlottingHelper::MultiPlot::SaveAsStacked(const std::string &fileName)
         pHistStack->Add(pHist);
     }
 
-    pHistStack->Draw("hist");
-    pHistStack->GetYaxis()->SetRangeUser(yMin, yMax);
+    //pHistStack->SetMinimum(yMin);
+    pHistStack->SetMinimum(0.f);
+    pHistStack->SetMaximum(yMax);
     pHistStack->Draw("hist");
            
     // Draw the error bands on the stack if required
@@ -255,10 +286,38 @@ void PlottingHelper::MultiPlot::SaveAsStacked(const std::string &fileName)
 
     // Now make the ratio plot
     auto pCanvasRatio = PlottingHelper::GetCanvas(960, 270);
-    auto pHistBNBData = bnbDataHistIter->second;
-    pHistBNBData->GetYaxis()->SetTitle("Beam on / (Overlay + Beam off)");
+    auto pHistBNBData = static_cast<TH1F *>(bnbDataHistIter->second->Clone());
+    //pHistBNBData->GetYaxis()->SetTitle("Beam on / (Overlay + Beam off)");
     pHistBNBData->Divide(pHistTotal.get());
+
+    // Set the y-axis range
+    float minRatio = 0.75f;
+    float maxRatio = 1.25f;
+    for (unsigned int i = 1; i <= static_cast<unsigned int>(pHistBNBData->GetNbinsX()); ++i)
+    {
+        minRatio = std::min(minRatio, static_cast<float>(pHistBNBData->GetBinContent(i) - pHistBNBData->GetBinError(i)));
+        maxRatio = std::max(maxRatio, static_cast<float>(pHistBNBData->GetBinContent(i) + pHistBNBData->GetBinError(i)));
+    }
+    const auto padding = (maxRatio - minRatio) * 0.05f;
+    pHistBNBData->GetYaxis()->SetRangeUser(std::max(0.f, minRatio - padding), maxRatio + padding);
+
+    // Draw
     pHistBNBData->Draw("e1");
+    pCanvasRatio->Update();
+
+    // Add the lines at 0.8, 1.0 and 1.2
+    TLine *l=new TLine(pCanvasRatio->GetUxmin(),1.0,pCanvasRatio->GetUxmax(),1.0);
+    TLine *lPlus=new TLine(pCanvasRatio->GetUxmin(),1.2,pCanvasRatio->GetUxmax(),1.2);
+    TLine *lMinus=new TLine(pCanvasRatio->GetUxmin(),0.8,pCanvasRatio->GetUxmax(),0.8);
+    l->SetLineColor(kBlue);
+    lPlus->SetLineColor(kBlue);
+    lMinus->SetLineColor(kBlue);
+    lPlus->SetLineStyle(2);
+    lMinus->SetLineStyle(2);
+    l->Draw();
+    lPlus->Draw();
+    lMinus->Draw();
+
     PlottingHelper::SaveCanvas(pCanvasRatio, fileName + "_ratio");
 }
 
@@ -266,6 +325,7 @@ void PlottingHelper::MultiPlot::SaveAsStacked(const std::string &fileName)
 // -----------------------------------------------------------------------------------------------------------------------------------------
 
 PlottingHelper::EfficiencyPlot::EfficiencyPlot(const std::string &xLabel, unsigned int nBins, float min, float max, const std::vector<string> &cuts, bool drawErrors) :
+    /// @cond Doxygen can't handle this initilizer list
     m_xLabel(xLabel),
     m_nBins(nBins),
     m_min(min),
@@ -273,6 +333,7 @@ PlottingHelper::EfficiencyPlot::EfficiencyPlot(const std::string &xLabel, unsign
     m_cuts(cuts),
     m_drawErrors(drawErrors),
     m_id(++m_lastId)
+    /// @endcond
 {
     // Get all colours
     const auto palette = PlottingHelper::GetColorVector();
@@ -306,8 +367,8 @@ PlottingHelper::EfficiencyPlot::EfficiencyPlot(const std::string &xLabel, unsign
         {
             pHist->Sumw2();
             PlottingHelper::SetLineStyle(pHist.get(), col);
-            pHist->GetXaxis()->SetTitle(xLabel.c_str());
-            pHist->GetYaxis()->SetTitle("Efficiency");
+            //pHist->GetXaxis()->SetTitle(xLabel.c_str());
+            //pHist->GetYaxis()->SetTitle("Efficiency");
         }
         
         m_cutToPlotsMap.emplace(cut, plotPair);
@@ -340,7 +401,7 @@ void PlottingHelper::EfficiencyPlot::SaveAs(const std::string &fileName)
 
     // Save the raw histogram - just use the denominator of the first cut
     auto pHistRaw = static_cast<TH1F *>(m_cutToPlotsMap.at(m_cuts.front()).second->Clone());
-    pHistRaw->GetYaxis()->SetTitle("Number of events");
+    //pHistRaw->GetYaxis()->SetTitle("Number of events");
     pHistRaw->SetLineColor(kBlack);
 
     if (m_drawErrors)
@@ -438,9 +499,19 @@ void PlottingHelper::EfficiencyPlot::SaveAs(const std::string &fileName)
 // -----------------------------------------------------------------------------------------------------------------------------------------
 // -----------------------------------------------------------------------------------------------------------------------------------------
         
-PlottingHelper::PlotStyle PlottingHelper::GetPlotStyle(const Event::Reco::Particle &particle, const std::vector<Event::Truth::Particle> &truthParticles, const bool usePoints)
+PlottingHelper::PlotStyle PlottingHelper::GetPlotStyle(const Event::Reco::Particle &particle, const AnalysisHelper::SampleType &sampleType, const std::vector<Event::Truth::Particle> &truthParticles, const bool usePoints, const bool useAbsPdg)
 {
     const auto externalType = usePoints ? ExternalPoints : External;
+    const auto dirtType = usePoints ? DirtPoints : Dirt;
+
+    if (sampleType == AnalysisHelper::DataBNB)
+        return BNBData;
+
+    if (sampleType == AnalysisHelper::Dirt)
+        return dirtType;
+
+    if (sampleType == AnalysisHelper::DataEXT)
+        return externalType;
 
     if (!particle.hasMatchedMCParticle.IsSet())
         return externalType;
@@ -457,7 +528,7 @@ PlottingHelper::PlotStyle PlottingHelper::GetPlotStyle(const Event::Reco::Partic
     try
     {
         const auto truthParticle = AnalysisHelper::GetBestMatchedTruthParticle(particle, truthParticles);
-        truePdgCode = truthParticle.pdgCode();
+        truePdgCode = useAbsPdg ? std::abs(truthParticle.pdgCode()) : truthParticle.pdgCode();
         isGolden = AnalysisHelper::IsGolden(truthParticle);
     }
     catch (const std::logic_error &)
@@ -483,6 +554,70 @@ PlottingHelper::PlotStyle PlottingHelper::GetPlotStyle(const Event::Reco::Partic
         default:
             return usePoints ? OtherPoints : Other;
     }
+}
+
+// -----------------------------------------------------------------------------------------------------------------------------------------
+        
+PlottingHelper::PlotStyle PlottingHelper::GetPlotStyle(const AnalysisHelper::SampleType &sampleType, const std::shared_ptr<Event> &pEvent, const bool useAbsPdg)
+{
+    if (sampleType == AnalysisHelper::Dirt)
+        return Dirt;
+    
+    if (sampleType == AnalysisHelper::DataEXT)
+        return External;
+    
+    if (sampleType == AnalysisHelper::DataBNB)
+        return BNBData;
+
+    if (!AnalysisHelper::IsFiducial(pEvent->truth.nuVertex()))
+        return NonFiducial;
+    
+    // Count the particles by PDG code
+    std::vector<int> foundPdgs;
+    std::unordered_map<int, unsigned int> pdgCodeCountMap;
+    AnalysisHelper::GetPdgCodeCountMap(pEvent->truth.particles, useAbsPdg, foundPdgs, pdgCodeCountMap);
+
+    // Quick utility lambda
+    const auto CountByPdg = [&](const int pdg) {
+        if (std::find(foundPdgs.begin(), foundPdgs.end(), pdg) == foundPdgs.end())
+            return 0u;
+
+        return pdgCodeCountMap.at(pdg);
+    };
+
+    const auto hasMuon = CountByPdg(13) > 0;
+    const auto hasElectron = CountByPdg(11) > 0;
+
+    if (!hasMuon && hasElectron)
+        return Nue;
+    
+    if (!hasMuon && !hasElectron)
+        return NC;
+
+    const auto nPiPlus = CountByPdg(211);
+    const auto nPiMinus = CountByPdg(-211);
+    const auto nPiZero = CountByPdg(111);
+
+    const auto nPion = nPiPlus + nPiMinus + nPiZero;
+    const auto nCharedPion = nPiPlus + nPiMinus;
+
+    if (nPion == 0)
+        return NumuCC0Pi;
+
+    if (nPiZero == 1 && nCharedPion == 0)
+        return NumuCC1PiZero;
+
+    const auto hasGoldenPion = (AnalysisHelper::CountGoldenParticlesWithPdgCode(pEvent->truth.particles, 211, useAbsPdg) != 0);
+
+    if (nCharedPion == 1 && nPiZero == 0)
+    {
+        if (hasGoldenPion)
+            return NumuCC1PiChargedGolden;
+
+        return NumuCC1PiChargedNonGolden;
+    }
+    
+    return NumuCCOther;
 }
 
 // -----------------------------------------------------------------------------------------------------------------------------------------

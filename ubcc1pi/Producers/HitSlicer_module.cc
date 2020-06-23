@@ -18,13 +18,19 @@ HitSlicer::HitSlicer(const art::EDProducer::Table<Config> &config) :
     m_config(config)
 {
     produces< std::vector<recob::Hit> >();
-    produces< art::Assns<simb::MCParticle, recob::Hit, anab::BackTrackerHitMatchingData> >();
+
+    if (m_config().HasMC())
+        produces< art::Assns<simb::MCParticle, recob::Hit, anab::BackTrackerHitMatchingData> >();
 }
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
 
 void HitSlicer::produce(art::Event &event) 
 {
+    std::cout << "--------------------------------------------------------" << std::endl;
+    std::cout << " Event : " << event.event() << std::endl;
+    std::cout << "--------------------------------------------------------" << std::endl;
+
     std::unique_ptr< std::vector<recob::Hit> > outputHits( new std::vector<recob::Hit> );
     std::unique_ptr< art::Assns<simb::MCParticle, recob::Hit, anab::BackTrackerHitMatchingData> > outputMCPsToHits( new art::Assns<simb::MCParticle, recob::Hit, anab::BackTrackerHitMatchingData> );
 
@@ -32,7 +38,11 @@ void HitSlicer::produce(art::Event &event)
     const auto slicesToPFPs = CollectionHelper::GetAssociation<recob::Slice, recob::PFParticle>(event, m_config().SliceToPFParticlesLabel());
     const auto slicesToHits = CollectionHelper::GetAssociation<recob::Slice, recob::Hit>(event, m_config().SliceToHitsLabel());
 
-    const auto mcpToHitsData = CollectionHelper::GetAssociationWithData<simb::MCParticle, recob::Hit, anab::BackTrackerHitMatchingData>(event, m_config().MCParticleLabel(), m_config().BacktrackerLabel());
+    AssociationData<simb::MCParticle, recob::Hit, anab::BackTrackerHitMatchingData> mcpToHitsData;
+    
+    if (m_config().HasMC())
+        mcpToHitsData = CollectionHelper::GetAssociationWithData<simb::MCParticle, recob::Hit, anab::BackTrackerHitMatchingData>(event, m_config().MCParticleLabel(), m_config().BacktrackerLabel());
+    
     const auto hitsToMCPData = CollectionHelper::GetReversedAssociation(mcpToHitsData);
             
     const art::PtrMaker<recob::Hit> makePtrHit(event);
@@ -58,17 +68,23 @@ void HitSlicer::produce(art::Event &event)
         const auto hits = CollectionHelper::GetManyAssociated(slice, slicesToHits);
         for (const auto &hit : hits)
         {
-            const auto mcpDataVector = CollectionHelper::GetManyAssociatedWithData(hit, hitsToMCPData);
+            if (m_config().HasMC())
+            {
+                const auto mcpDataVector = CollectionHelper::GetManyAssociatedWithData(hit, hitsToMCPData);
+    
+                for (const auto &mcpData : mcpDataVector)
+                    outputMCPsToHits->addSingle(mcpData.first, makePtrHit(outputHits->size()), mcpData.second);
 
-            for (const auto &mcpData : mcpDataVector)
-                outputMCPsToHits->addSingle(mcpData.first, makePtrHit(outputHits->size()), mcpData.second);
+            }
 
             outputHits->push_back(*hit);
         }
     }
     
     event.put(std::move(outputHits));
-    event.put(std::move(outputMCPsToHits));
+
+    if (m_config().HasMC())
+        event.put(std::move(outputMCPsToHits));
 }
 
 } // namespace ubcc1pi

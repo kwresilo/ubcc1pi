@@ -1,3 +1,9 @@
+/**
+ *  @file  ubcc1pi_standalone/Helpers/SelectionHelper.cxx
+ *
+ *  @brief The implementation file for the selection helper class
+ */
+
 #include "ubcc1pi_standalone/Helpers/SelectionHelper.h"
 #include "ubcc1pi_standalone/Helpers/FormattingHelper.h"
 #include "ubcc1pi_standalone/Objects/FileReader.h"
@@ -471,28 +477,26 @@ void SelectionHelper::EventSelection::Execute(const std::string &dataBNBFileName
         // Store the current sample type
         m_cutManager.m_sampleType = sampleType;
 
-        // Store the current weight
-        m_cutManager.m_weight = 0.f;
-
-        // Get the appropriate file name and weight
+        // Get the appropriate file name and normalisation
         std::string fileName = "";
+        float normalisation = 0.f;
         switch (sampleType)
         {
             case AnalysisHelper::DataBNB:
                 fileName = dataBNBFileName;
-                m_cutManager.m_weight = 1.f;
+                normalisation = 1.f;
                 break;
             case AnalysisHelper::Overlay:
                 fileName = overlayFileName;
-                m_cutManager.m_weight = overlayWeight;
+                normalisation = overlayWeight;
                 break;
             case AnalysisHelper::DataEXT:
                 fileName = dataEXTFileName;
-                m_cutManager.m_weight = dataEXTWeight;
+                normalisation = dataEXTWeight;
                 break;
             case AnalysisHelper::Dirt:
                 fileName = dirtFileName;
-                m_cutManager.m_weight = dirtWeight;
+                normalisation = dirtWeight;
                 break;
             default:
                 throw std::logic_error("EventSelection::Execute - Unknown sample type");
@@ -517,6 +521,9 @@ void SelectionHelper::EventSelection::Execute(const std::string &dataBNBFileName
             AnalysisHelper::PrintLoadingBar(i, nEventsToProcess);
 
             reader.LoadEvent(i);
+
+            // Set the event weight
+            m_cutManager.m_weight = normalisation * AnalysisHelper::GetNominalEventWeight(m_cutManager.m_pEvent);
 
             // Mark the special "all" cut for overlays
             if (sampleType == AnalysisHelper::Overlay)
@@ -553,20 +560,56 @@ void SelectionHelper::EventSelection::Execute(const std::string &dataBNBFileName
             table.SetEntry("Nominal value", cut.m_nominal);
         }
     }
-    table.Print();
+    table.WriteToFile("eventSelection_cuts.md");
 
     FormattingHelper::PrintLine();
     std::cout << "Summary" << std::endl;
     FormattingHelper::PrintLine();
-    m_cutManager.m_defaultEventCounter.PrintBreakdownSummary();
+    m_cutManager.m_defaultEventCounter.PrintBreakdownSummary("eventSelection_summary.md");
     
     FormattingHelper::PrintLine();
     std::cout << "Details" << std::endl;
     FormattingHelper::PrintLine();
-    m_cutManager.m_defaultEventCounter.PrintBreakdownDetails(nEntriesToPrint);
+    m_cutManager.m_defaultEventCounter.PrintBreakdownDetails("eventSelection_details.md", nEntriesToPrint);
 }
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
+// -----------------------------------------------------------------------------------------------------------------------------------------
+
+SelectionHelper::EventSelection SelectionHelper::GetCCInclusiveSelection()
+{
+    EventSelection selection;
+    
+    // Set up the cuts
+    selection.DeclareCut("passesCCInclusive");
+    
+    // Define the selection
+    selection.DefineSelectionMethod([](const std::shared_ptr<Event> &pEvent, EventSelection::BDTManager &bdtManager, EventSelection::CutManager &cuts) {
+        
+        // Insist the event passes the CC inclusive selection
+        if (!cuts.GetCutResult("passesCCInclusive", [&](){
+            return pEvent->reco.passesCCInclusive();
+
+        })) return false;
+
+        // Identify the muon
+        const auto &recoParticles = pEvent->reco.particles;
+        for (unsigned int index = 0; index < recoParticles.size(); ++index)
+        {
+            const auto &particle = recoParticles.at(index);
+
+            if (particle.isCCInclusiveMuonCandidate())
+            {
+                cuts.SetParticlePdg(index, 13);
+            }
+        }
+        
+        return true;
+    });
+
+    return selection;
+}
+
 // -----------------------------------------------------------------------------------------------------------------------------------------
 
 SelectionHelper::EventSelection SelectionHelper::GetDefaultSelection()
@@ -589,7 +632,6 @@ SelectionHelper::EventSelection SelectionHelper::GetDefaultSelection()
     // Get the BDT feature names
     const auto featureNames = BDTHelper::ParticleBDTFeatureNames;
     selection.AssignBDT("proton", featureNames);
-    selection.AssignBDT("pion", featureNames);
     selection.AssignBDT("goldenPion", featureNames);
     
     // Define the selection
@@ -598,7 +640,6 @@ SelectionHelper::EventSelection SelectionHelper::GetDefaultSelection()
         // Get the BDTs owned by the event selection object
         const auto featureNames = BDTHelper::ParticleBDTFeatureNames;
         auto &protonBDT = bdtManager.Get("proton");
-        auto &pionBDT = bdtManager.Get("pion");
         auto &goldenPionBDT = bdtManager.Get("goldenPion");
 
         // Insist the event passes the CC inclusive selection
@@ -606,7 +647,7 @@ SelectionHelper::EventSelection SelectionHelper::GetDefaultSelection()
             return pEvent->reco.passesCCInclusive();
 
         })) return false;
-        
+
         
         // Find the particles with a track
         const auto &recoParticles = pEvent->reco.particles;
@@ -852,7 +893,7 @@ SelectionHelper::EventSelection SelectionHelper::GetDefaultSelection()
             return (goldenPionBDTResponse > cut);
 
         })) return false;
-
+        
         return true;
     });
 

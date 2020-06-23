@@ -81,8 +81,6 @@ class Member
 
         /**
          *  @brief  Set the input value to default
-         *
-         *  @param  value the value to set to default
          */
         void SetDefault();
 
@@ -164,6 +162,10 @@ inline void Member<T>::Reset()
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
 
+/** @brief doxygen wants this :( */
+/**
+ *  @brief  Set the member variable to default
+ */
 template <>
 inline void Member<bool>::SetDefault()
 {
@@ -172,13 +174,22 @@ inline void Member<bool>::SetDefault()
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
 
+/** @brief doxygen wants this :( */
+/**
+ *  @brief  Set the member variable to default
+ */
 template <>
 inline void Member<int>::SetDefault()
 {
     *m_pValue =  -std::numeric_limits<int>::max();
 }
+
 // -----------------------------------------------------------------------------------------------------------------------------------------
 
+/** @brief doxygen wants this :( */
+/**
+ *  @brief  Set the member variable to default
+ */
 template <>
 inline void Member<float>::SetDefault()
 {
@@ -187,6 +198,10 @@ inline void Member<float>::SetDefault()
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
 
+/** @brief doxygen wants this :( */
+/**
+ *  @brief  Set the member variable to default
+ */
 template <>
 inline void Member<std::string>::SetDefault()
 {
@@ -195,6 +210,10 @@ inline void Member<std::string>::SetDefault()
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
 
+/** @brief doxygen wants this :( */
+/**
+ *  @brief  Set the member variable to default
+ */
 template <>
 inline void Member<TVector3>::SetDefault()
 {
@@ -203,6 +222,10 @@ inline void Member<TVector3>::SetDefault()
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
 
+/** @brief doxygen wants this :( */
+/**
+ *  @brief  Set the member variable to default
+ */
 template <>
 inline void Member< std::vector<float> >::SetDefault()
 {
@@ -211,6 +234,10 @@ inline void Member< std::vector<float> >::SetDefault()
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
 
+/** @brief doxygen wants this :( */
+/**
+ *  @brief  Set the member variable to default 
+ */
 template <>
 inline void Member< std::vector<bool> >::SetDefault()
 {
@@ -219,6 +246,10 @@ inline void Member< std::vector<bool> >::SetDefault()
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
 
+/** @brief doxygen wants this :( */
+/**
+ *  @brief  Set the member variable to default 
+ */
 template <>
 inline void Member< std::vector<int> >::SetDefault()
 {
@@ -227,6 +258,10 @@ inline void Member< std::vector<int> >::SetDefault()
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
 
+/** @brief doxygen wants this :( */
+/**
+ *  @brief  Set the member variable to default
+ */
 template <>
 inline void Member< std::vector<std::string> >::SetDefault()
 {
@@ -235,6 +270,11 @@ inline void Member< std::vector<std::string> >::SetDefault()
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
 
+/**
+ *  @brief  Get the member variable as a string
+ *
+ *  @return the member variable string
+ */
 template <>
 inline std::string Member<bool>::ToString() const
 {
@@ -246,6 +286,11 @@ inline std::string Member<bool>::ToString() const
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
 
+/**
+ *  @brief  Get the member variable as a string
+ *
+ *  @return the member variable string
+ */
 template <>
 inline std::string Member<int>::ToString() const
 {
@@ -257,6 +302,11 @@ inline std::string Member<int>::ToString() const
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
 
+/**
+ *  @brief  Get the member variable as a string
+ *
+ *  @return the member variable string
+ */
 template <>
 inline std::string Member<float>::ToString() const
 {
@@ -268,6 +318,11 @@ inline std::string Member<float>::ToString() const
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
 
+/**
+ *  @brief  Get the member variable as a string
+ *
+ *  @return the member variable string
+ */
 template <>
 inline std::string Member<std::string>::ToString() const
 {
@@ -279,6 +334,11 @@ inline std::string Member<std::string>::ToString() const
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
 
+/**
+ *  @brief  Get the member variable as a string
+ *
+ *  @return the member variable string
+ */
 template <>
 inline std::string Member<TVector3>::ToString() const
 {
@@ -291,6 +351,11 @@ inline std::string Member<TVector3>::ToString() const
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
 
+/**
+ *  @brief  Get the member variable as a string
+ *
+ *  @return the member variable string
+ */
 template <>
 inline std::string Member< std::vector<float> >::ToString() const
 {
@@ -317,6 +382,11 @@ inline std::string Member< std::vector<float> >::ToString() const
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
 
+/**
+ *  @brief  Get the member variable as a string
+ *
+ *  @return the member variable string
+ */
 template <>
 inline std::string Member< std::vector<bool> >::ToString() const
 {
@@ -343,6 +413,11 @@ inline std::string Member< std::vector<bool> >::ToString() const
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
 
+/**
+ *  @brief  Get the member variable as a string
+ *
+ *  @return the member variable string
+ */
 template <>
 inline std::string Member< std::vector<int> >::ToString() const
 {
@@ -369,6 +444,11 @@ inline std::string Member< std::vector<int> >::ToString() const
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
 
+/**
+ *  @brief  Get the member variable as a string
+ *
+ *  @return the member variable string
+ */
 template <>
 inline std::string Member< std::vector<std::string> >::ToString() const
 {
@@ -403,39 +483,39 @@ inline std::string Member< std::vector<std::string> >::ToString() const
 //     t = the type of the member variable (e.g. int)
 //     n = the name of the member variable (e.g. run)
 
-// Define a macro that declares a member variable and an associated boolean to check if that variable has been set
+/** Define a macro that declares a member variable and an associated boolean to check if that variable has been set */
 #define UBCC1PI_MACRO_DECLARE_MEMBER(p, q, r, t, n)                                                                                        \
     Member<t> n = Member<t>(#n);
 
-// Define a macro that declares a member vector, used to bind particles to vectors in trees
+/** Define a macro that declares a member vector, used to bind particles to vectors in trees */
 #define UBCC1PI_MACRO_DECLARE_MEMBER_VECTOR(p, q, r, t, n)                                                                                 \
     std::shared_ptr< std::vector<t> > p##_##n##_vect;                                                                                      \
     std::shared_ptr< std::vector<bool> > p##_##n##_isSet_vect;                                                                             \
     std::vector<t> * p##_##n##_inputVect;                                                                                                  \
     std::vector<bool> * p##_##n##_isSet_inputVect;
 
-// Define a macro that initializes the member vectors
+/** Define a macro that initializes the member vectors */
 #define UBCC1PI_MACRO_INIT_MEMBER_VECTOR(p, q, r, t, n)                                                                                    \
     p##_##n##_vect = std::make_shared< std::vector<t> >();                                                                                 \
     p##_##n##_isSet_vect = std::make_shared< std::vector<bool> >();                                                                        \
     p##_##n##_inputVect = nullptr;                                                                                                         \
     p##_##n##_isSet_inputVect = nullptr;
 
-// Define a macro that resets a member variable
+/** Define a macro that resets a member variable */
 #define UBCC1PI_MACRO_RESET_MEMBER(p, q, r, t, n)                                                                                          \
     q.n.Reset();
 
-// Define a macro that resets a member vector
+/** Define a macro that resets a member vector */
 #define UBCC1PI_MACRO_RESET_MEMBER_VECTOR(p, q, r, t, n)                                                                                   \
     p##_##n##_vect->clear();                                                                                                               \
     p##_##n##_isSet_vect->clear();
 
-// Define a macro that fills the output vectors
+/** Define a macro that fills the output vectors */
 #define UBCC1PI_MACRO_FILL_MEMBER_VECTOR(p, q, r, t, n)                                                                                    \
     p##_##n##_vect->push_back(*q.n.m_pValue);                                                                                              \
     p##_##n##_isSet_vect->push_back(q.n.m_isSet);
 
-// Define a macro that reads the vectors in the tree
+/** Define a macro that reads the vectors in the tree */
 #define UBCC1PI_MACRO_READ_MEMBER_VECTOR(p, q, r, t, n)                                                                                    \
     for (unsigned int i = 0; i < p##_##n##_inputVect->size(); ++i)                                                                         \
     {                                                                                                                                      \
@@ -443,33 +523,32 @@ inline std::string Member< std::vector<std::string> >::ToString() const
             q.at(i).n.Set(p##_##n##_inputVect->at(i));                                                                                     \
     }                                                                                                                                      
 
-// Define a macro to count the size of the member vector
-//    here q will receive the size of the vector
+/** Define a macro to count the size of the member vector - here q will receive the size of the vector */
 #define UBCC1PI_MACRO_GET_MEMBER_VECTOR_SIZE(p, q, r, t, n)                                                                                \
     *q = p##_##n##_inputVect->size();                                                                                                       
 
-// Define a macro that prints each of the member variables
+/** Define a macro that prints each of the member variables */
 #define UBCC1PI_MACRO_PRINT_MEMBER(p, q, r, t, n)                                                                                          \
     std::cout << std::setw(28) << "(" #t ")" << "  ";                                                                                      \
     std::cout << std::setw(44) << (#q "." #n "()") << "  ";                                                                                \
     std::cout << q.n.ToString() << std::endl;                                                                                              
 
-// Define a macro to bind a member variable to an output branch
+/** Define a macro to bind a member variable to an output branch */
 #define UBCC1PI_MACRO_BIND_OUTPUT_BRANCH(p, q, r, t, n)                                                                                    \
     pTree->Branch(#p "_" #n, q.n.m_pValue.get());                                                                                          \
     pTree->Branch(#p "_" #n "_isSet", &q.n.m_isSet);
 
-// Define a macro to bind a member variable to an output vector branch
+/** Define a macro to bind a member variable to an output vector branch */
 #define UBCC1PI_MACRO_BIND_OUTPUT_VECTOR_BRANCH(p, q, r, t, n)                                                                             \
     pTree->Branch(#p "_" #n "_vect", p##_##n##_vect.get());                                                                                \
     pTree->Branch(#p "_" #n "_isSet_vect", p##_##n##_isSet_vect.get());
 
-// Define a macro to bind a member variable to an input branch
+/** Define a macro to bind a member variable to an input branch */
 #define UBCC1PI_MACRO_BIND_INPUT_BRANCH(p, q, r, t, n)                                                                                     \
     pTree->SetBranchAddress(#p "_" #n "_isSet", &q.n.m_isSet);                                                                             \
     if (r) {pTree->SetBranchAddress(#p "_" #n, &(q.n.m_pAddress));} else {pTree->SetBranchAddress(#p "_" #n, q.n.m_pAddress);}
     
-// Define a macro to bind a member variable to an input vector branch
+/** Define a macro to bind a member variable to an input vector branch */
 #define UBCC1PI_MACRO_BIND_INPUT_VECTOR_BRANCH(p, q, r, t, n)                                                                              \
     pTree->SetBranchAddress(#p "_" #n "_vect", &p##_##n##_inputVect);                                                                      \
     pTree->SetBranchAddress(#p "_" #n "_isSet_vect", &p##_##n##_isSet_inputVect);

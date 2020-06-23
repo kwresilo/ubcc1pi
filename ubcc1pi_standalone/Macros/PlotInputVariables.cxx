@@ -1,121 +1,117 @@
+/**
+ *  @file  ubcc1pi_standalone/Macros/PlotInputVariables.cxx
+ *
+ *  @brief The implementation file of the PlotInputVariables macro
+ */
+
+#include "ubcc1pi_standalone/Macros/Macros.h"
+
 #include "ubcc1pi_standalone/Objects/FileReader.h"
 
 #include "ubcc1pi_standalone/Helpers/PlottingHelper.h"
-#include "ubcc1pi_standalone/Helpers/AnalysisHelper.h"
-#include "ubcc1pi_standalone/Helpers/SelectionHelper.h"
 #include "ubcc1pi_standalone/Helpers/BDTHelper.h"
+#include "ubcc1pi_standalone/Helpers/AnalysisHelper.h"
+#include "ubcc1pi_standalone/Helpers/NormalisationHelper.h"
 
 using namespace ubcc1pi;
 
-int PlotInputVariables(const std::string &overlayFileName, const float overlayWeight, const std::string &dataEXTFileName, const float extWeight, const std::string &dataBNBFileName, const bool cleanSignalOnly = false, const bool useAbsPdg = true)
+namespace ubcc1pi_macros
 {
-        
-    const float bodgeFactor = 1.273f; // ATTN this factor is a normalisation added so we can compare the shape of the distributions, can't exist in the final result!
-    
-    // Get the selection
-    auto selection = SelectionHelper::GetDefaultSelection();
-    const auto allCuts = selection.GetCuts();
 
-    // Set up the plots for each feature for every cut
+void PlotInputVariables(const Config &config)
+{
+    //
+    // Setup the input files
+    // 
+    std::vector< std::tuple<AnalysisHelper::SampleType, std::string, float> > inputData;
+    
+    inputData.emplace_back(AnalysisHelper::Overlay, config.files.overlaysFileName, NormalisationHelper::GetOverlaysNormalisation(config)); 
+    inputData.emplace_back(AnalysisHelper::Dirt,    config.files.dirtFileName,     NormalisationHelper::GetDirtNormalisation(config)); 
+    inputData.emplace_back(AnalysisHelper::DataEXT, config.files.dataEXTFileName,  NormalisationHelper::GetDataEXTNormalisation(config)); 
+    inputData.emplace_back(AnalysisHelper::DataBNB, config.files.dataBNBFileName,  1.f);
+
+
+    //
+    // Set up the plots for each BDT feature
+    //
     const auto featureNames = BDTHelper::ParticleBDTFeatureNames;
     const std::string yLabel = "Fraction of reco particles";
-    std::vector< std::vector< PlottingHelper::MultiPlot > > plots; // Holds the input features plots, first index is cut second index is feature
-    std::vector< PlottingHelper::MultiPlot > goldenPionBDTPlots;
-    std::vector< PlottingHelper::MultiPlot > pionBDTPlots;
-    std::vector< PlottingHelper::MultiPlot > protonBDTPlots;
-    std::vector< PlottingHelper::MultiPlot > muonBDTPlots;
-    std::vector< PlottingHelper::MultiPlot > goldenPionBDTOfPionPlots;
+    std::vector< PlottingHelper::MultiPlot > plotVector, plotVectorSignal;
 
-    for (unsigned int iCut = 0; iCut < allCuts.size(); ++iCut)
+    for (const auto &featureName : featureNames)
     {
-        std::vector< PlottingHelper::MultiPlot > plotVector;
-
-        for (const auto &featureName : featureNames)
+        if (featureName == "logBragg_pToMIP")
         {
-            if (featureName == "logBragg_pToMIP")
-            {
-                plotVector.emplace_back("log(L_p / L_MIP)", yLabel, 100, -8, 8);
-                continue;
-            }
-
-            if (featureName == "logBragg_piToMIP")
-            {
-                plotVector.emplace_back("log(L_pi / L_MIP)", yLabel, 100, -4, 8);
-                continue;
-            }
-
-            if (featureName == "truncMeandEdx")
-            {
-                plotVector.emplace_back("Truncated Mean dEdx", yLabel, 100, 0, 10);
-                continue;
-            }
-
-            if (featureName == "protonForward")
-            {
-                plotVector.emplace_back("Proton forward likelihood", yLabel, 100, 0.3, 0.7);
-                continue;
-            }
-
-            if (featureName == "muonForward")
-            {
-                plotVector.emplace_back("Muon forward likelihood", yLabel, 100, 0.3, 0.7);
-                continue;
-            }
-
-            if (featureName == "nDescendents")
-            {
-                plotVector.emplace_back("Number of descendent particles", yLabel, 5, 0, 5);
-                continue;
-            }
-
-            if (featureName == "nSpacePointsNearEnd")
-            {
-                plotVector.emplace_back("Number of spacepoints near track end", yLabel, 60, 0, 120);
-                continue;
-            }
-
-            if (featureName == "wiggliness")
-            {
-                plotVector.emplace_back("Wiggliness", yLabel, 60, 0, 0.005);
-                continue;
-            }
-
-            if (featureName == "trackScore")
-            {
-                plotVector.emplace_back("Track score", yLabel, 100, 0, 1);
-                continue;
-            }
-
-            throw std::logic_error("PlotInputVariables - unknown feature: \"" + featureName + "\"");
+            plotVector.emplace_back("log(L_p / L_MIP)", yLabel, 100, -9, 7);
+            plotVectorSignal.emplace_back("log(L_p / L_MIP)", yLabel, 100, -9, 7);
+            continue;
         }
 
-        plots.push_back(plotVector);
-    
-        goldenPionBDTPlots.emplace_back("Golden pion BDT response", yLabel, 50, -0.9f, 0.45f);
-        pionBDTPlots.emplace_back("Pion BDT response", yLabel, 50, -0.8f, 0.7f);
-        protonBDTPlots.emplace_back("Proton BDT response", yLabel, 50, -0.8f, 0.7f);
-        muonBDTPlots.emplace_back("Muon BDT response", yLabel, 50, -0.9f, 0.7f);
-    
-        goldenPionBDTOfPionPlots.emplace_back("Golden pion BDT response of pion candidate", yLabel, 50, -0.9f, 0.45f);
-    }
-    
-    // Set up the BDTs
-    BDTHelper::BDT goldenPionBDT("goldenPion", featureNames); 
-    BDTHelper::BDT pionBDT("pion", featureNames); 
-    BDTHelper::BDT protonBDT("proton", featureNames); 
-    BDTHelper::BDT muonBDT("muon", featureNames); 
+        if (featureName == "logBragg_piToMIP")
+        {
+            plotVector.emplace_back("log(L_pi / L_MIP)", yLabel, 100, -4, 6);
+            plotVectorSignal.emplace_back("log(L_pi / L_MIP)", yLabel, 100, -4, 6);
+            continue;
+        }
 
-    for (const auto fileName : {dataEXTFileName, dataBNBFileName, overlayFileName})
+        if (featureName == "truncMeandEdx")
+        {
+            plotVector.emplace_back("Truncated Mean dEdx", yLabel, 100, 0, 10);
+            plotVectorSignal.emplace_back("Truncated Mean dEdx", yLabel, 100, 0, 10);
+            continue;
+        }
+
+        if (featureName == "protonForward")
+        {
+            plotVector.emplace_back("Proton forward likelihood", yLabel, 100, 0.42, 0.62);
+            plotVectorSignal.emplace_back("Proton forward likelihood", yLabel, 100, 0.42, 0.62);
+            continue;
+        }
+
+        if (featureName == "muonForward")
+        {
+            plotVector.emplace_back("Muon forward likelihood", yLabel, 100, 0.35, 0.65);
+            plotVectorSignal.emplace_back("Muon forward likelihood", yLabel, 100, 0.35, 0.65);
+            continue;
+        }
+
+        if (featureName == "nDescendents")
+        {
+            plotVector.emplace_back("Number of descendent particles", yLabel, 4, 0, 4);
+            plotVectorSignal.emplace_back("Number of descendent particles", yLabel, 4, 0, 4);
+            continue;
+        }
+
+        if (featureName == "nSpacePointsNearEnd")
+        {
+            plotVector.emplace_back("Number of spacepoints near track end", yLabel, 90, 0, 90);
+            plotVectorSignal.emplace_back("Number of spacepoints near track end", yLabel, 90, 0, 90);
+            continue;
+        }
+
+        if (featureName == "wiggliness")
+        {
+            plotVector.emplace_back("Wiggliness", yLabel, 60, 0, 0.004);
+            plotVectorSignal.emplace_back("Wiggliness", yLabel, 60, 0, 0.004);
+            continue;
+        }
+
+        if (featureName == "trackScore")
+        {
+            plotVector.emplace_back("Track score", yLabel, 100, 0, 1);
+            plotVectorSignal.emplace_back("Track score", yLabel, 100, 0, 1);
+            continue;
+        }
+
+        throw std::logic_error("PlotInputVariables - unknown feature: \"" + featureName + "\"");
+    }
+
+    //
+    // Fill the plots
+    //
+    for (const auto [sampleType, fileName, normalisation] : inputData)
     {
         std::cout << "Reading input file: " << fileName << std::endl;
-
-        const bool isBNBData = (fileName == dataBNBFileName);
-        const bool isOverlay = (fileName == overlayFileName);
-        const bool isEXTData = (fileName == dataEXTFileName);
-
-        float weight = 1.f;
-        if (isOverlay) weight = overlayWeight * bodgeFactor;
-        if (isEXTData) weight = extWeight * bodgeFactor;
 
         FileReader reader(fileName);
         auto pEvent = reader.GetBoundEventAddress();
@@ -130,45 +126,12 @@ int PlotInputVariables(const std::string &overlayFileName, const float overlayWe
             // Only use events passing the CC inclusive selection
             if (!pEvent->reco.passesCCInclusive())
                 continue;
-    
-            if (cleanSignalOnly)
-            {
-                // Only use MC events 
-                if (!pEvent->metadata.hasTruthInfo())
-                    continue;
-
-                // Only use signal events
-                if (!AnalysisHelper::IsTrueCC1Pi(pEvent, useAbsPdg))
-                    continue;
-            }
-
-            const auto truthParticles = pEvent->truth.particles;
+       
+            const auto weight = normalisation * AnalysisHelper::GetNominalEventWeight(pEvent);
             const auto recoParticles = pEvent->reco.particles;
 
-            // Run the event selection and store which cuts are passed
-            std::vector<std::string> cutsPassed;
-            std::vector<int> assignedPdgCodes;
-            const auto isSelected = selection.Execute(pEvent, cutsPassed, assignedPdgCodes);
-
-            // Get the particles identified as the pion if it exists
-            if (assignedPdgCodes.size() != recoParticles.size())
-                throw std::logic_error("PlotInputVariables - The output particle PDG codes is the wrong size");
-
-            unsigned int pionIndex = std::numeric_limits<unsigned int>::max();
-            bool foundPion = false;
-            for (unsigned int index = 0; index < assignedPdgCodes.size(); ++index)
-            {
-                const auto pdg = assignedPdgCodes.at(index);
-
-                if (pdg == 211)
-                {
-                    if (foundPion)
-                        throw std::logic_error("PlotInputVariables - Multiple pions found");
-
-                    pionIndex = index;
-                    foundPion = true;
-                }
-            }
+            const auto truthParticles = pEvent->truth.particles; // This will be empty for non MC events
+            const auto isSignal = (sampleType == AnalysisHelper::Overlay && AnalysisHelper::IsTrueCC1Pi(pEvent, config.global.useAbsPdg));
 
             for (unsigned int index = 0; index < recoParticles.size(); ++index)
             {
@@ -184,97 +147,48 @@ int PlotInputVariables(const std::string &overlayFileName, const float overlayWe
                 if (!isContained)
                     continue;
 
-                if (cleanSignalOnly)
-                {
-                    try
-                    {
-                        const auto truthParticleIndex = AnalysisHelper::GetBestMatchedTruthParticleIndex(particle, truthParticles);
-                        const auto completeness = particle.truthMatchCompletenesses().at(truthParticleIndex);
-
-                        if (completeness < 0.5f)
-                            continue;
-                    }
-                    catch (const std::logic_error &)
-                    {
-                        continue;
-                    }
-                }
-
-                const auto particleStyle = isBNBData ? PlottingHelper::BNBData : PlottingHelper::GetPlotStyle(particle, truthParticles);
-
-                // Don't plot neutrons for clean signal
-                if (cleanSignalOnly && particleStyle == PlottingHelper::Other)
-                    continue;
+                // Get the plot style 
+                const auto particleStyle = PlottingHelper::GetPlotStyle(particle, sampleType, truthParticles, false, config.global.useAbsPdg);
 
                 // Get the BDT features
                 std::vector<float> features;
                 if (!BDTHelper::GetBDTFeatures(particle, featureNames, features))
                     continue;
-                   
-                
-                // Fill the plots
-                for (unsigned int iCut = 0; iCut < allCuts.size(); ++iCut)
+                    
+                // Fill the feature plots
+                for (unsigned int iFeature = 0; iFeature < featureNames.size(); ++iFeature)
                 {
-                    // Only fill if we pass the cut
-                    const auto &cut = allCuts.at(iCut);
-                    if (std::find(cutsPassed.begin(), cutsPassed.end(), cut) == cutsPassed.end())
-                        continue;
+                    plotVector.at(iFeature).Fill(features.at(iFeature), particleStyle, weight);
 
-                    // Fill the feature plots
-                    for (unsigned int iFeature = 0; iFeature < featureNames.size(); ++iFeature)
-                        plots.at(iCut).at(iFeature).Fill(features.at(iFeature), particleStyle, weight);
+                    // ATTN there can be particles that are in a signal event (i.e. neutrons) but we don't want to plot, so here we check
+                    // for the "Other" category to avoid including them
+                    if (isSignal && particleStyle != PlottingHelper::Other)
+                    {
+                        if (particleStyle != PlottingHelper::Muon &&
+                            particleStyle != PlottingHelper::Proton &&
+                            particleStyle != PlottingHelper::NonGoldenPion &&
+                            particleStyle != PlottingHelper::GoldenPion &&
+                            particleStyle != PlottingHelper::External)
+                        {
+                            throw std::logic_error("Found signal event with reco particle matching to unexpected truth particle");
+                        }
 
-                    // Fill the BDT response plots
-                    const auto goldenPionBDTResponse = goldenPionBDT.GetResponse(features);
-                    const auto pionBDTResponse = pionBDT.GetResponse(features);
-                    const auto protonBDTResponse = protonBDT.GetResponse(features);
-                    const auto muonBDTResponse = muonBDT.GetResponse(features);
 
-                    goldenPionBDTPlots.at(iCut).Fill(goldenPionBDTResponse, particleStyle, weight);
-                    pionBDTPlots.at(iCut).Fill(pionBDTResponse, particleStyle, weight);
-                    protonBDTPlots.at(iCut).Fill(protonBDTResponse, particleStyle, weight);
-                    muonBDTPlots.at(iCut).Fill(muonBDTResponse, particleStyle, weight);
-
-                    if (foundPion && index == pionIndex)
-                        goldenPionBDTOfPionPlots.at(iCut).Fill(goldenPionBDTResponse, particleStyle, weight);
+                        plotVectorSignal.at(iFeature).Fill(features.at(iFeature), particleStyle, weight);
+                    }
                 }
             }
         }
     }
 
     // Save the plots
-    for (unsigned int iCut = 0; iCut < allCuts.size(); ++iCut)
+    for (unsigned int iFeature = 0; iFeature < featureNames.size(); ++iFeature)
     {
-        const auto &cutName = allCuts.at(iCut);
-        const auto suffix = "_" + std::to_string(iCut) + "_" + cutName + (cleanSignalOnly ? "_cleanSignal" : "");
+        const auto &featureName = featureNames.at(iFeature);
 
-        for (unsigned int iFeature = 0; iFeature < featureNames.size(); ++iFeature)
-        {
-            const auto &featureName = featureNames.at(iFeature);
-            const auto name = featureName + suffix;
-            plots.at(iCut).at(iFeature).SaveAs(name);
-
-            if (!cleanSignalOnly)
-                plots.at(iCut).at(iFeature).SaveAsStacked(name + "_stacked");
-        }
-
-        goldenPionBDTPlots.at(iCut).SaveAs("goldenPionBDTResponse" + suffix);
-        pionBDTPlots.at(iCut).SaveAs("pionBDTResponse" + suffix);
-        protonBDTPlots.at(iCut).SaveAs("protonBDTResponse" + suffix);
-        muonBDTPlots.at(iCut).SaveAs("muonBDTResponse" + suffix);
-    
-        goldenPionBDTOfPionPlots.at(iCut).SaveAs("goldenPionBDTOfPionResponse" + suffix);
-        
-        if (!cleanSignalOnly)
-        {
-            goldenPionBDTPlots.at(iCut).SaveAsStacked("goldenPionBDTResponse" + suffix + "_stacked");
-            pionBDTPlots.at(iCut).SaveAsStacked("pionBDTResponse" + suffix + "_stacked");
-            protonBDTPlots.at(iCut).SaveAsStacked("protonBDTResponse" + suffix + "_stacked");
-            muonBDTPlots.at(iCut).SaveAsStacked("muonBDTResponse" + suffix + "_stacked");
-    
-            goldenPionBDTOfPionPlots.at(iCut).SaveAsStacked("goldenPionBDTOfPionResponse" + suffix + "_stacked");
-        }
+        plotVector.at(iFeature).SaveAsStacked("inputVariables_" + featureName);
+        plotVectorSignal.at(iFeature).SaveAs("inputVariables_signal_" + featureName);
     }
-
-    return 0;
 }
+
+} // ubcc1pi macros

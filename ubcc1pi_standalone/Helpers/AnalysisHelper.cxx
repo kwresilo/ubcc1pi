@@ -1,3 +1,9 @@
+/**
+ *  @file  ubcc1pi_standalone/Helpers/AnalysisHelper.cxx
+ *
+ *  @brief The implementation of the analysis helper class
+ */
+
 #include "ubcc1pi_standalone/Helpers/AnalysisHelper.h"
 
 #include "ubcc1pi_standalone/Helpers/GeometryHelper.h"
@@ -285,7 +291,7 @@ std::vector<std::string> AnalysisHelper::EventCounter::GetTags() const
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
 
-void AnalysisHelper::EventCounter::PrintBreakdownSummary() const
+void AnalysisHelper::EventCounter::PrintBreakdownSummary(const std::string &outputFileName) const
 {
     FormattingHelper::Table table({"Tag", "", "Signal", "Background", "Efficiency", "Purity", "E*P", "", "BNB Data", "Data/MC ratio"});
     for (const auto &tag : m_tags)
@@ -328,12 +334,12 @@ void AnalysisHelper::EventCounter::PrintBreakdownSummary() const
         }
     }
 
-    table.Print();
+    table.WriteToFile(outputFileName);
 }
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
                 
-void AnalysisHelper::EventCounter::PrintBreakdownDetails(const unsigned int nEntries) const
+void AnalysisHelper::EventCounter::PrintBreakdownDetails(const std::string &outputFileName, const unsigned int nEntries) const
 {
     FormattingHelper::Table table({"Tag", "", "Sample", "Classification", "", "Weight", "Efficiency", "Purity"});
 
@@ -342,6 +348,10 @@ void AnalysisHelper::EventCounter::PrintBreakdownDetails(const unsigned int nEnt
         // Print a separator row 
         if (tag != m_tags.front())
             table.AddEmptyRow();
+          
+        // The total MC weight we have and haven't printed
+        float totalMCWeight = 0.f;
+        float totalMCWeightPrinted = 0.f;
 
         for (const auto &sample : AnalysisHelper::AllSampleTypes)
         {
@@ -376,6 +386,15 @@ void AnalysisHelper::EventCounter::PrintBreakdownDetails(const unsigned int nEnt
                 const auto &classification = entry.first;
                 const auto weight = entry.second;
 
+                if (sample != AnalysisHelper::DataBNB)
+                    totalMCWeight += weight;
+
+                if (entriesPrinted == nEntries)
+                    continue;
+                
+                if (sample != AnalysisHelper::DataBNB)
+                    totalMCWeightPrinted += weight;
+
                 table.AddEmptyRow();
                 table.SetEntry("Tag", tag);
                 table.SetEntry("Sample", sampleName);
@@ -386,29 +405,32 @@ void AnalysisHelper::EventCounter::PrintBreakdownDetails(const unsigned int nEnt
                 {
                     table.SetEntry("Efficiency", this->GetEfficiency(tag, sample, classification));
                 }
-                else
-                {
-                    table.SetEntry("Efficiency",  "?");
-                }
 
                 if (sample != DataBNB && tag != "all")
                 {
                     table.SetEntry("Purity", this->GetPurity(tag, sample, classification));
                 }
-                else
-                {
-                    table.SetEntry("Purity", "?");
-                }
                 
                 entriesPrinted++;
-
-                if (entriesPrinted == nEntries)
-                    break;
             }
         }
+   
+        // Print the other catagory
+        const auto mcWeightNotPrinted = totalMCWeight - totalMCWeightPrinted;
+        table.AddEmptyRow();
+        table.SetEntry("Tag", tag);
+        table.SetEntry("Classification", "Other");
+        table.SetEntry("Weight", mcWeightNotPrinted);
+        
+        if (totalMCWeight > std::numeric_limits<float>::epsilon())
+        {
+            const auto otherPurity = mcWeightNotPrinted / totalMCWeight;
+            table.SetEntry("Purity", otherPurity);
+        }
+
     }
-    
-    table.Print();
+
+    table.WriteToFile(outputFileName);
 }
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
@@ -460,35 +482,14 @@ bool AnalysisHelper::PassesVisibilityThreshold(const Event::Truth::Particle &par
 {
     // First only consider specific particle types that can lead to hits
     const auto absPDG = std::abs(particle.pdgCode());
-    const auto isVisible = (absPDG == 11   || // Electron
-                            absPDG == 13   || // Muon
-                            absPDG == 2212 || // Proton
-                            absPDG == 2112 || // Neutron
-                            absPDG == 22   || // Photon
-                            absPDG == 111  || // Pi0 (visible via decay products)
-                            absPDG == 211  || // Charged pion
-                            absPDG == 321);   // Charged kaon
 
-    if (!isVisible)
-        return false;
-
-    // Apply the momentum threhsolds
-    float thresholdMomentum = -std::numeric_limits<float>::max();
-    switch (absPDG)
-    {
-        case 2112: // Neutron
-            thresholdMomentum = std::numeric_limits<float>::max(); // ATTN infinite threshold = never let a neutron pass
-            break;
-
-            /*
-        case 2212: // Proton
-            thresholdMomentum = 0.2f;
-            break;
-        */
-        default: break;
-    }
-
-    return (particle.momentum() >= thresholdMomentum);
+    return (absPDG == 11   || // Electron
+            absPDG == 13   || // Muon
+            absPDG == 2212 || // Proton
+            absPDG == 22   || // Photon
+            absPDG == 111  || // Pi0 (visible via decay products)
+            absPDG == 211  || // Charged pion
+            absPDG == 321);   // Charged kaon
 }
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
@@ -835,6 +836,167 @@ float AnalysisHelper::GetMuonMomentumFromRange(const float &range)
     // Convert to momentum
     const auto mass = 0.1056583755;
     return (std::pow(std::pow(kineticEnergy + mass, 2) - std::pow(mass, 2), 0.5f));
+}
+
+// -----------------------------------------------------------------------------------------------------------------------------------------
+        
+float AnalysisHelper::GetMuonMomentum(const Event::Reco::Particle &muon)
+{
+    if (AnalysisHelper::IsContained(muon))
+        return AnalysisHelper::AnalysisHelper::GetMuonMomentumFromRange(muon.range());
+
+    if (muon.mcsMomentumForwardMuon.IsSet())
+        return muon.mcsMomentumForwardMuon();
+    
+    if (muon.mcsMomentumBackwardMuon.IsSet())
+        return muon.mcsMomentumBackwardMuon();
+
+    return 99.f; // TODO should really throw here, but first need to check mcs momentum is available in event selection
+}
+
+// -----------------------------------------------------------------------------------------------------------------------------------------
+        
+AnalysisHelper::AnalysisData AnalysisHelper::GetRecoAnalysisData(const Event::Reco &reco, const std::vector<int> &assignedPdgCodes, const bool passesGoldenPionSelection)
+{
+    AnalysisData data;
+        
+    // Sanity check
+    const auto recoParticles = reco.particles;
+    if (assignedPdgCodes.size() != recoParticles.size())
+        throw std::logic_error("AnalysisHelper::GetRecoAnalysisData - The assigned PDG codes is the wrong size");
+
+    auto muonIndex = std::numeric_limits<unsigned int>::max();
+    auto pionIndex = std::numeric_limits<unsigned int>::max();
+    unsigned int nMuons = 0u;
+    unsigned int nPions = 0u;
+    unsigned int nProtons = 0u;
+    unsigned int nOther = 0u;
+
+    for (unsigned int index = 0; index < assignedPdgCodes.size(); ++index)
+    {
+        const auto recoPdg = assignedPdgCodes.at(index);
+
+        switch (recoPdg)
+        {
+            case 13:
+                muonIndex = index;
+                nMuons++;
+                break;
+            case 211:
+                pionIndex = index;
+                nPions++;
+                break;
+            case 2212:
+                nProtons++;
+                break;
+            default:
+                nOther++;
+                break;
+        }
+    }
+
+    // Make sure the reco PDGs make sense
+    if (nMuons != 1)
+        throw std::logic_error("AnalysisHelper::GetRecoAnalysisData - Reconstructed " + std::to_string(nMuons) + " muons");
+
+    if (nPions != 1)
+        throw std::logic_error("AnalysisHelper::GetRecoAnalysisData - Reconstructed " + std::to_string(nMuons) + " pions");
+
+    // Get the muon and pion reconstructed particles
+    const auto muon = recoParticles.at(muonIndex);
+    const auto pion = recoParticles.at(pionIndex);
+
+    // Find the reconstructed variables
+    const auto muonDir = TVector3(muon.directionX(), muon.directionY(), muon.directionZ()).Unit();
+    data.muonCosTheta = muonDir.Z();
+    data.muonPhi = std::atan2(muonDir.Y(), muonDir.X());
+    data.muonMomentum = AnalysisHelper::GetMuonMomentum(muon);
+
+    const auto pionDir = TVector3(pion.directionX(), pion.directionY(), pion.directionZ()).Unit();
+    data.pionCosTheta = pionDir.Z();
+    data.pionPhi = std::atan2(pionDir.Y(), pionDir.X());
+    data.pionMomentum = AnalysisHelper::GetPionMomentumFromRange(pion.range());
+
+    data.muonPionAngle = std::acos(muonDir.Dot(pionDir));
+    data.nProtons = nProtons;
+    data.hasGoldenPion = passesGoldenPionSelection;
+
+    return data;
+}
+
+// -----------------------------------------------------------------------------------------------------------------------------------------
+
+AnalysisHelper::AnalysisData AnalysisHelper::GetTruthAnalysisData(const Event::Truth &truth, const bool useAbsPdg, const float protonMomentumThreshold)
+{
+    AnalysisData data;
+
+    bool foundPion = false;
+    bool foundMuon = false;
+
+    data.nProtons = 0u;
+    TVector3 pionDir, muonDir;
+
+    for (const auto &particle : AnalysisHelper::SelectVisibleParticles(truth.particles))
+    {
+        const auto pdg = useAbsPdg ? std::abs(particle.pdgCode()) : particle.pdgCode();
+
+        const auto dir = TVector3(particle.momentumX(), particle.momentumY(), particle.momentumZ()).Unit();
+        const auto cosTheta = dir.Z();
+        const auto phi = std::atan2(dir.Y(), dir.X());
+
+        if (pdg == 211)
+        {
+            if (foundPion)
+                throw std::logic_error("AnalysisHelper::GetTruthAnalysisData - Found multiple pions! Are you sure this is a signal event?");
+
+            foundPion = true;
+
+            data.pionMomentum = particle.momentum();
+            data.pionCosTheta = cosTheta;
+            data.pionPhi = phi;
+            data.hasGoldenPion = AnalysisHelper::IsGolden(particle);
+            
+            pionDir = dir;
+
+            continue;
+        }
+        
+        if (pdg == 13)
+        {
+            if (foundMuon)
+                throw std::logic_error("AnalysisHelper::GetTruthAnalysisData - Found multiple muons! Are you sure this is a signal event?");
+
+            foundMuon = true;
+
+            data.muonMomentum = particle.momentum();
+            data.muonCosTheta = cosTheta;
+            data.muonPhi = phi;
+            
+            muonDir = dir;
+
+            continue;
+        }
+
+        if (pdg == 2212)
+        {
+            const auto passesMomentumThreshold = (particle.momentum() > protonMomentumThreshold);
+            if (!passesMomentumThreshold)
+                continue;
+
+            data.nProtons++;
+            continue;
+        }
+
+        throw std::logic_error("AnalysisHelper::GetTruthAnalysisData - Found particle with unexpected PDG code = " + std::to_string(particle.pdgCode()));
+    }
+
+    if (!foundPion || !foundMuon)
+        throw std::logic_error("AnalysisHelper::GetTruthAnalysisData - Input event doesn't contain both a muon and a pion!");
+
+
+    data.muonPionAngle = std::acos(muonDir.Dot(pionDir));
+
+    return data;
 }
 
 // -----------------------------------------------------------------------------------------------------------------------------------------

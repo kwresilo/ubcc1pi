@@ -1,3 +1,11 @@
+/**
+ *  @file  ubcc1pi_standalone/Macros/TrainBDTs.cxx
+ *
+ *  @brief The implementation file of the TrainBDTs macro
+ */
+
+#include "ubcc1pi_standalone/Macros/Macros.h"
+
 #include "ubcc1pi_standalone/Objects/FileReader.h"
 
 #include "ubcc1pi_standalone/Helpers/BDTHelper.h"
@@ -6,12 +14,15 @@
 
 using namespace ubcc1pi;
 
-int TrainBDTs(const std::string &overlayFileName, const bool useAbsPdg = true, const float trainingFraction = 0.5f, const bool onlyContained = true, const bool onlyGoodTruthMatches = false, const bool weightByCompleteness = true, const bool weightByMomentum = true, const bool shouldOptimize = false, const bool shouldMakePlots = true)
+namespace ubcc1pi_macros
+{
+
+void TrainBDTs(const Config &config)
 {
     // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     // Extract the CC1Pi events tha pass the pre-selection
     // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    FileReader reader(overlayFileName);
+    FileReader reader(config.files.overlaysFileName);
     auto pEvent = reader.GetBoundEventAddress();
 
     std::cout << "Finding CC1Pi events" << std::endl;
@@ -23,7 +34,7 @@ int TrainBDTs(const std::string &overlayFileName, const bool useAbsPdg = true, c
         reader.LoadEvent(eventIndex);
         
         // Event must be true CC1Pi
-        if (!AnalysisHelper::IsTrueCC1Pi(pEvent, useAbsPdg))
+        if (!AnalysisHelper::IsTrueCC1Pi(pEvent, config.global.useAbsPdg))
             continue;
 
         // Event must pass the CCInclusive selection
@@ -37,7 +48,7 @@ int TrainBDTs(const std::string &overlayFileName, const bool useAbsPdg = true, c
     // Randomly choose the training events
     // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     const auto nCC1PiEvents = cc1PiEventIndices.size();
-    const auto nTrainingEvents = static_cast<unsigned int>(std::floor(static_cast<float>(nCC1PiEvents) * trainingFraction));
+    const auto nTrainingEvents = static_cast<unsigned int>(std::floor(static_cast<float>(nCC1PiEvents) * config.trainBDTs.trainingFraction));
     BDTHelper::EventShuffler shuffler(nCC1PiEvents, nTrainingEvents); 
     std::cout << "Found " << nCC1PiEvents << " CC1Pi events passing CC inclusive seleciton. Using " << nTrainingEvents << " for training." << std::endl;
 
@@ -46,9 +57,7 @@ int TrainBDTs(const std::string &overlayFileName, const bool useAbsPdg = true, c
     // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     const auto featureNames = BDTHelper::ParticleBDTFeatureNames;
     BDTHelper::BDTFactory goldenPionBDTFactory("goldenPion", featureNames);
-    BDTHelper::BDTFactory pionBDTFactory("pion", featureNames);
     BDTHelper::BDTFactory protonBDTFactory("proton", featureNames);
-    BDTHelper::BDTFactory muonBDTFactory("muon", featureNames);
 
     // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     // Fill the BDT training and testing entries
@@ -64,12 +73,12 @@ int TrainBDTs(const std::string &overlayFileName, const bool useAbsPdg = true, c
 
         const auto truthParticles = pEvent->truth.particles;
         const auto recoParticles = pEvent->reco.particles;
-        const float eventWeight = 1.f;
+        const float eventWeight = AnalysisHelper::GetNominalEventWeight(pEvent);
 
         for (const auto &recoParticle : recoParticles)
         {
             // Only use contained particles for training
-            if (onlyContained && (!AnalysisHelper::HasTrackFit(recoParticle) || !AnalysisHelper::IsContained(recoParticle)))
+            if (!AnalysisHelper::HasTrackFit(recoParticle) || !AnalysisHelper::IsContained(recoParticle))
                 continue;
 
             // Determine the true origin of the reco particle
@@ -93,7 +102,7 @@ int TrainBDTs(const std::string &overlayFileName, const bool useAbsPdg = true, c
             catch (const std::exception &) {}
 
             // Only use good matches for training
-            if (onlyGoodTruthMatches && (isExternal || completeness < 0.5f))
+            if (config.trainBDTs.onlyGoodTruthMatches && (isExternal || completeness < 0.5f))
                 continue;
 
             // Extract the features
@@ -105,41 +114,28 @@ int TrainBDTs(const std::string &overlayFileName, const bool useAbsPdg = true, c
                 continue;
 
             // Define the weight
-            const auto momentumWeight = (weightByMomentum ? (isExternal ? 0.5f : (0.5f * (1 + std::exp(-trueMomentum / 0.3f)))) : 1.f); // This is super arbitrary
-            const auto completenessWeight = (weightByCompleteness ? (isExternal ? 1.f : completeness) : 1.f);
-            const auto weight = eventWeight * momentumWeight * completenessWeight;
+            const auto completenessWeight = (config.trainBDTs.weightByCompleteness ? (isExternal ? 1.f : completeness) : 1.f);
+            const auto weight = eventWeight * completenessWeight;
 
             // Add the particle to the BDTs
             const bool isGoldenPion = !isExternal && truePdgCode == 211 && trueIsGolden;
             goldenPionBDTFactory.AddEntry(features, isGoldenPion, isTrainingEvent, weight);
             
-            const bool isPion = !isExternal && truePdgCode == 211;
-            pionBDTFactory.AddEntry(features, isPion, isTrainingEvent, weight);
-            
             const bool isProton = !isExternal && truePdgCode == 2212;
             protonBDTFactory.AddEntry(features, isProton, isTrainingEvent, weight);
-            
-            const bool isMuon = !isExternal && truePdgCode == 13;
-            muonBDTFactory.AddEntry(features, isMuon, isTrainingEvent, weight);
         }
     }
 
     // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     // Optimize the BDTs
     // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    if (shouldOptimize)
+    if (config.trainBDTs.shouldOptimize)
     {
         std::cout << "Optimizing golden pion BDT" << std::endl;
         goldenPionBDTFactory.OptimizeParameters();
         
-        std::cout << "Optimizing pion BDT" << std::endl;
-        pionBDTFactory.OptimizeParameters();
-    
         std::cout << "Optimizing proton BDT" << std::endl;
         protonBDTFactory.OptimizeParameters();
-        
-        std::cout << "Optimizing muon BDT" << std::endl;
-        muonBDTFactory.OptimizeParameters();
     }
     
     // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -147,34 +143,24 @@ int TrainBDTs(const std::string &overlayFileName, const bool useAbsPdg = true, c
     // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     std::cout << "Training and testing golden pion BDT" << std::endl;
     goldenPionBDTFactory.TrainAndTest();
-    
-    std::cout << "Training and testing pion BDT" << std::endl;
-    pionBDTFactory.TrainAndTest();
 
     std::cout << "Training and testing proton BDT" << std::endl;
     protonBDTFactory.TrainAndTest();
-    
-    std::cout << "Training and testing muon BDT" << std::endl;
-    muonBDTFactory.TrainAndTest();
 
     // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     // Make plots
     // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-    if (!shouldMakePlots)
-        return 0;
+    if (!config.trainBDTs.shouldMakePlots)
+        return;
 
     const std::string yLabel = "Fraction of reco particles";
     PlottingHelper::MultiPlot goldenPionBDTPlot("Golden pion BDT response", yLabel, 50, -0.9f, 0.45f);
-    PlottingHelper::MultiPlot pionBDTPlot("Pion BDT response", yLabel, 50, -0.8f, 0.7f);
     PlottingHelper::MultiPlot protonBDTPlot("Proton BDT response", yLabel, 50, -0.8f, 0.7f);
-    PlottingHelper::MultiPlot muonBDTPlot("Muon BDT response", yLabel, 50, -0.9f, 0.7f);
 
     // Using the newly trained BDT weight files, setup up a BDT for evaluation
     BDTHelper::BDT goldenPionBDT("goldenPion", featureNames); 
-    BDTHelper::BDT pionBDT("pion", featureNames); 
     BDTHelper::BDT protonBDT("proton", featureNames); 
-    BDTHelper::BDT muonBDT("muon", featureNames); 
 
     std::cout << "Making BDT training plots" << std::endl;
     for (unsigned int i = 0; i < nCC1PiEvents; ++i)
@@ -187,12 +173,12 @@ int TrainBDTs(const std::string &overlayFileName, const bool useAbsPdg = true, c
 
         const auto truthParticles = pEvent->truth.particles;
         const auto recoParticles = pEvent->reco.particles;
-        const float eventWeight = 1.f;
+        const float eventWeight = AnalysisHelper::GetNominalEventWeight(pEvent);
 
         for (const auto &recoParticle : recoParticles)
         {
             // Only use contained particles for testing
-            if (onlyContained && (!AnalysisHelper::HasTrackFit(recoParticle) || !AnalysisHelper::IsContained(recoParticle)))
+            if (!AnalysisHelper::HasTrackFit(recoParticle) || !AnalysisHelper::IsContained(recoParticle))
                 continue;
 
             // Determine the true origin of the reco particle
@@ -214,7 +200,7 @@ int TrainBDTs(const std::string &overlayFileName, const bool useAbsPdg = true, c
             catch (const std::exception &) {}
 
             // Only use good matches for testing
-            if (onlyGoodTruthMatches && (isExternal || completeness < 0.5f))
+            if (config.trainBDTs.onlyGoodTruthMatches && (isExternal || completeness < 0.5f))
                 continue;
 
             // Extract the features
@@ -227,30 +213,24 @@ int TrainBDTs(const std::string &overlayFileName, const bool useAbsPdg = true, c
 
             // Add the particle to the BDTs
             const auto goldenPionBDTResponse = goldenPionBDT.GetResponse(features);
-            const auto pionBDTResponse = pionBDT.GetResponse(features);
             const auto protonBDTResponse = protonBDT.GetResponse(features);
-            const auto muonBDTResponse = muonBDT.GetResponse(features);
            
             // Fill to the plots
-            const auto style = PlottingHelper::GetPlotStyle(recoParticle, truthParticles, isTrainingEvent);
+            const auto style = PlottingHelper::GetPlotStyle(recoParticle, AnalysisHelper::Overlay, truthParticles, isTrainingEvent);
 
             // For these plots skip neutrons
             if (style == PlottingHelper::Other || style == PlottingHelper::OtherPoints)
                 continue;
 
             goldenPionBDTPlot.Fill(goldenPionBDTResponse, style, eventWeight);
-            pionBDTPlot.Fill(pionBDTResponse, style, eventWeight);
             protonBDTPlot.Fill(protonBDTResponse, style, eventWeight);
-            muonBDTPlot.Fill(muonBDTResponse, style, eventWeight);
 
         }
     }
     
     // Save the plots
     goldenPionBDTPlot.SaveAs("goldenPionBDTResponse");
-    pionBDTPlot.SaveAs("pionBDTResponse");
     protonBDTPlot.SaveAs("protonBDTResponse");
-    muonBDTPlot.SaveAs("muonBDTResponse");
-
-    return 0;
 }
+
+} // namespace ubcc1pi_plots

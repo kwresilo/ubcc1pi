@@ -12,7 +12,7 @@
 // should be true if ROOT needs the address of a pointer when setting branch addresses (for non-standard types). The fourth is the type of
 // the varaiable, and the fifth is the variable name itself
 
-// The subrun members
+/** The subrun members */
 #define UBCC1PI_MACRO_SUBRUN_MEMBERS(p, q, f)                                                                                              \
     f(p, q, false, int,         run)                                                                                                       \
     f(p, q, false, int,         subRun)                                                                                                    \

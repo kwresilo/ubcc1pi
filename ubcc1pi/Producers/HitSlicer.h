@@ -56,6 +56,15 @@ class HitSlicer : public art::EDProducer
             };
             
             /**
+             *  @brief  If the input sample has MC information
+             */
+            fhicl::Atom<bool> HasMC
+            {
+                fhicl::Name("HasMC"),
+                fhicl::Comment("If the input sample has MC information")
+            };
+            
+            /**
              *  @brief  The MCParticle label
              */
             fhicl::Atom<art::InputTag> MCParticleLabel

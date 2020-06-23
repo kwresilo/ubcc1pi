@@ -26,6 +26,9 @@ class FileWriter;
 class FileReader;
 class EventFactory;
 
+/**
+ *  @brief  The event class
+ */
 class Event
 {
     public:
@@ -90,9 +93,9 @@ class Event
 
     private:
 
-        friend FileWriter;
-        friend FileReader;
-        friend EventFactory;
+        friend FileWriter;    ///< The file writer class is a friend
+        friend FileReader;    ///< The file reader class is a friend
+        friend EventFactory;  ///< The event factory class is a friend
 
         /**
          *  @brief  Bind this event to an output tree

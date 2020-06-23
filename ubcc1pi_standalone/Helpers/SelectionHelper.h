@@ -32,6 +32,9 @@ class SelectionHelper
         class EventSelection
         {
             public:
+                /**
+                 *  @brief  The cut manager class
+                 */
                 class CutManager
                 {
                     public:
@@ -90,7 +93,7 @@ class SelectionHelper
                     
                     private:
 
-                        friend EventSelection;
+                        friend EventSelection;  ///< The event selection class is a friend
 
                         /**
                          *  @brief  Determine if the input cut name exists
@@ -289,6 +292,13 @@ class SelectionHelper
                 SelectionMethod  m_selectionMethod; ///< The event selection method
                 BDTManager       m_bdtManager;      ///< The BDTs manager
         };
+
+        /**
+         *  @brief  Get the CC inclusive selection
+         *
+         *  @return the event selection
+         */
+        static EventSelection GetCCInclusiveSelection();
 
         /**
          *  @brief  Get the default event selection

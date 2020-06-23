@@ -27,20 +27,24 @@
         "Helpers/BDTHelper.cxx",
         "Helpers/PlottingHelper.cxx",
         "Helpers/SelectionHelper.cxx",
+        "Helpers/NormalisationHelper.cxx",
 
         // Macros
-        "Macros/Test.cxx",
+        "Macros/PrintConfig.cxx",
         "Macros/CountPOT.cxx",
         "Macros/GetRunSubrunList.cxx",
         "Macros/PlotInputVariables.cxx",
-        "Macros/CCInclusiveTruthStudy.cxx",
         "Macros/TrainBDTs.cxx",
         "Macros/NMinusOneBDTStudy.cxx",
         "Macros/MakeEventSelectionTable.cxx",
         "Macros/MakeEventSelectionEfficiencyPlots.cxx",
         "Macros/MakeSelectedPIDTable.cxx",
+        "Macros/PlotCCInclusiveMuonRecoVariables.cxx",
+        "Macros/PrintRunSubruns.cxx",
         "Macros/PlotReconstructedVariables.cxx",
-        "Macros/ExtractXSecs.cxx"
+        "Macros/ExtractXSecs.cxx",
+
+        "Macros/RunFullAnalysis.cxx"
 
     }))
     {

@@ -35,6 +35,22 @@ class AnalysisHelper
         };
 
         /**
+         *  @brief  The analysis data structure
+         */
+        struct AnalysisData
+        {
+            float         muonMomentum;    ///< The muon momentum
+            float         muonCosTheta;    ///< The muon cos(theta) - angle to beam direciton
+            float         muonPhi;         ///< The muon phi - angle in x-y plane
+            float         pionMomentum;    ///< The pion momentum
+            float         pionCosTheta;    ///< The pion cos(theta) - angle to beam direciton
+            float         pionPhi;         ///< The pion phi - angle in x-y plane
+            float         muonPionAngle;   ///< The muon-pion opening angle
+            unsigned int  nProtons;        ///< The number of protons
+            bool          hasGoldenPion;   ///< If the event has a golden pion
+        };
+
+        /**
          *  @brief  The vector of all sample types
          */
         static const std::vector<SampleType> AllSampleTypes;
@@ -200,15 +216,18 @@ class AnalysisHelper
 
                 /**
                  *  @brief  Print a breakdown of the counted events tag-by-tag broken down into signal and background
+                 *
+                 *  @param  outputFileName the name of the output file in which we should save the table
                  */
-                void PrintBreakdownSummary() const;
+                void PrintBreakdownSummary(const std::string &outputFileName) const;
                 
                 /**
                  *  @brief  Print a breakdown of the counted events tag-by-tag broken down into individual classifications
                  *
+                 *  @param  outputFileName the name of the output file in which we should save the table
                  *  @param  nEntries the number of backgrounds to print for each tag
                  */
-                void PrintBreakdownDetails(const unsigned int nEntries = 10u) const;
+                void PrintBreakdownDetails(const std::string &outputFileName, const unsigned int nEntries = 10u) const;
 
             private:
 
@@ -427,6 +446,37 @@ class AnalysisHelper
          *  @return the momentum
          */
         static float GetMuonMomentumFromRange(const float &range);
+        
+        /**
+         *  @brief  Get the momentum of a muon using range where possible and MCS otherwise
+         *
+         *  @param  muon the input muon reco particle
+         *
+         *  @return the momentum
+         */
+        static float GetMuonMomentum(const Event::Reco::Particle &muon);
+
+        /**
+         *  @brief  Get the truth analysis data
+         *
+         *  @param  truth the input truth information of the event
+         *  @param  useAbsPdg if we should use absolute pdg code values
+         *  @param  protonMomentumThreshold the visibility threshold for protons
+         *
+         *  @return the truth analysis data
+         */
+        static AnalysisData GetTruthAnalysisData(const Event::Truth &truth, const bool useAbsPdg, const float protonMomentumThreshold);
+
+        /**
+         *  @brief  Get the reco analysis data
+         *
+         *  @param  reco the input reco information of the event
+         *  @param  assignedPdgCodes the PDG codes assigned to each reco particle
+         *  @param  passesGoldenPionSelection if the event passes the golden pion selection
+         *
+         *  @return the reco analysis data
+         */
+        static AnalysisData GetRecoAnalysisData(const Event::Reco &reco, const std::vector<int> &assignedPdgCodes, const bool passesGoldenPionSelection);
 
         /**
          *  @brief  Get the ratio of two likelihoods
