@@ -27,6 +27,12 @@ struct Config
      */
     struct Files
     {
+        /*
+        std::string  overlaysFileName = "/uboone/data/users/asmith/ubcc1pi/samples/jun2020/samples/ubcc1piAnalysis_overlays_run1.root";
+        std::string  dirtFileName     = "/uboone/data/users/asmith/ubcc1pi/samples/jun2020/samples/ubcc1piAnalysis_dirt.root";
+        std::string  dataEXTFileName  = "/uboone/data/users/asmith/ubcc1pi/samples/jun2020/samples/combined/ubcc1piAnalysis_extbnb.root";
+        std::string  dataBNBFileName  = "/uboone/data/users/asmith/ubcc1pi/samples/jun2020/samples/combined/ubcc1piAnalysis_bnb.root";
+        */
         std::string  overlaysFileName = "/uboone/data/users/asmith/ubcc1pi/samples/may2020/samples/ubcc1piAnalysis_overlays.root";
         std::string  dirtFileName     = "/uboone/data/users/asmith/ubcc1pi/samples/may2020/samples/ubcc1piAnalysis_dirt.root";
         std::string  dataEXTFileName  = "/uboone/data/users/asmith/ubcc1pi/samples/may2020/samples/ubcc1piAnalysis_dataEXT.root";
@@ -48,6 +54,11 @@ struct Config
     {
         float  overlaysPOT        = 1.22447e+21;   ///< The total POT for the overlays MC
         float  dirtPOT            = 2.85049e+20;   ///< The total POT for the dirt MC
+        /*
+        float  dataEXTTriggers    = 153712863.0;   ///< The EXT triggers for the EXT data
+        float  dataBNBTor875WCut  = 4.404e+20;     ///< The POT measured by the 875m toroid (with quality cuts)
+        float  dataBNBE1DCNTWCut  = 104915323.0;   ///< The BNB spills sent by the accelerator division (with quality cuts)
+        */
         float  dataEXTTriggers    = 62540367.0;    ///< The EXT triggers for the EXT data
         float  dataBNBTor875WCut  = 1.455e+20;     ///< The POT measured by the 875m toroid (with quality cuts)
         float  dataBNBE1DCNTWCut  = 32339256.0;    ///< The BNB spills sent by the accelerator division (with quality cuts)

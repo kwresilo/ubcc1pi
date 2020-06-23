@@ -97,6 +97,13 @@ namespace ubcc1pi_macros
      *  @param  config the input configuration
      */
     void ExtractXSecs(const Config &config = Config());
+    
+    /**
+     *  @brief  Print run and subruns for specific events - chosen in the config
+     *
+     *  @param  config the input configuration
+     */
+    void PrintRunSubruns(const Config &config = Config());
 
     /**
      *  @brief  Top-level macro that runs the full analysis chain

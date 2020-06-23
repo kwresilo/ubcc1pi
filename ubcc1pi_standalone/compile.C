@@ -40,6 +40,7 @@
         "Macros/MakeEventSelectionEfficiencyPlots.cxx",
         "Macros/MakeSelectedPIDTable.cxx",
         "Macros/PlotCCInclusiveMuonRecoVariables.cxx",
+        "Macros/PrintRunSubruns.cxx",
         "Macros/PlotReconstructedVariables.cxx",
         "Macros/ExtractXSecs.cxx",
 
