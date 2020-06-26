@@ -58,6 +58,7 @@ void TrainBDTs(const Config &config)
     const auto featureNames = BDTHelper::ParticleBDTFeatureNames;
     BDTHelper::BDTFactory goldenPionBDTFactory("goldenPion", featureNames);
     BDTHelper::BDTFactory protonBDTFactory("proton", featureNames);
+    BDTHelper::BDTFactory muonBDTFactory("muon", featureNames);
 
     // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     // Fill the BDT training and testing entries
@@ -123,6 +124,9 @@ void TrainBDTs(const Config &config)
             
             const bool isProton = !isExternal && truePdgCode == 2212;
             protonBDTFactory.AddEntry(features, isProton, isTrainingEvent, weight);
+            
+            const bool isMuon = !isExternal && truePdgCode == 13;
+            muonBDTFactory.AddEntry(features, isMuon, isTrainingEvent, weight);
         }
     }
 
@@ -136,6 +140,9 @@ void TrainBDTs(const Config &config)
         
         std::cout << "Optimizing proton BDT" << std::endl;
         protonBDTFactory.OptimizeParameters();
+        
+        std::cout << "Optimizing muon BDT" << std::endl;
+        muonBDTFactory.OptimizeParameters();
     }
     
     // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -146,6 +153,9 @@ void TrainBDTs(const Config &config)
 
     std::cout << "Training and testing proton BDT" << std::endl;
     protonBDTFactory.TrainAndTest();
+    
+    std::cout << "Training and testing muon BDT" << std::endl;
+    muonBDTFactory.TrainAndTest();
 
     // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     // Make plots
@@ -157,10 +167,12 @@ void TrainBDTs(const Config &config)
     const std::string yLabel = "Fraction of reco particles";
     PlottingHelper::MultiPlot goldenPionBDTPlot("Golden pion BDT response", yLabel, 50, -0.9f, 0.45f);
     PlottingHelper::MultiPlot protonBDTPlot("Proton BDT response", yLabel, 50, -0.8f, 0.7f);
+    PlottingHelper::MultiPlot muonBDTPlot("Muon BDT response", yLabel, 50, -0.9f, 0.6f);
 
     // Using the newly trained BDT weight files, setup up a BDT for evaluation
     BDTHelper::BDT goldenPionBDT("goldenPion", featureNames); 
     BDTHelper::BDT protonBDT("proton", featureNames); 
+    BDTHelper::BDT muonBDT("muon", featureNames); 
 
     std::cout << "Making BDT training plots" << std::endl;
     for (unsigned int i = 0; i < nCC1PiEvents; ++i)
@@ -193,7 +205,7 @@ void TrainBDTs(const Config &config)
                 const auto truthParticle = truthParticles.at(truthParticleIndex);
 
                 isExternal = false;
-                truePdgCode = truthParticle.pdgCode();
+                truePdgCode = config.global.useAbsPdg ? std::abs(truthParticle.pdgCode()) : truthParticle.pdgCode();
                 trueIsGolden = AnalysisHelper::IsGolden(truthParticle);
                 completeness = recoParticle.truthMatchCompletenesses().at(truthParticleIndex);
             }
@@ -214,9 +226,10 @@ void TrainBDTs(const Config &config)
             // Add the particle to the BDTs
             const auto goldenPionBDTResponse = goldenPionBDT.GetResponse(features);
             const auto protonBDTResponse = protonBDT.GetResponse(features);
+            const auto muonBDTResponse = muonBDT.GetResponse(features);
            
             // Fill to the plots
-            const auto style = PlottingHelper::GetPlotStyle(recoParticle, AnalysisHelper::Overlay, truthParticles, isTrainingEvent);
+            const auto style = PlottingHelper::GetPlotStyle(recoParticle, AnalysisHelper::Overlay, truthParticles, isTrainingEvent, config.global.useAbsPdg);
 
             // For these plots skip neutrons
             if (style == PlottingHelper::Other || style == PlottingHelper::OtherPoints)
@@ -224,6 +237,7 @@ void TrainBDTs(const Config &config)
 
             goldenPionBDTPlot.Fill(goldenPionBDTResponse, style, eventWeight);
             protonBDTPlot.Fill(protonBDTResponse, style, eventWeight);
+            muonBDTPlot.Fill(muonBDTResponse, style, eventWeight);
 
         }
     }
@@ -231,6 +245,7 @@ void TrainBDTs(const Config &config)
     // Save the plots
     goldenPionBDTPlot.SaveAs("goldenPionBDTResponse");
     protonBDTPlot.SaveAs("protonBDTResponse");
+    muonBDTPlot.SaveAs("muonBDTResponse");
 }
 
 } // namespace ubcc1pi_plots

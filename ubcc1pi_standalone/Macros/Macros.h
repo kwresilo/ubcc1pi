@@ -34,6 +34,20 @@ namespace ubcc1pi_macros
      *  @param  config the input configuration
      */
     void GetRunSubrunList(const Config &config = Config());
+    
+    /**
+     *  @brief  Look at the truth information related to signal events
+     *
+     *  @param  config the input configuration
+     */
+    void TruthStudy(const Config &config = Config());
+
+    /**
+     *  @brief  Look at the accuracy of the muon PID from the CC inclusive as a functino of the muon kinematics
+     *
+     *  @param  config the input configuration
+     */
+    void CCInclusiveMuonPIDStudy(const Config &config = Config());
 
     /**
      *  @brief  Plot the variables that form the input to the particle ID BDTs after the CC inclusive selection
@@ -55,6 +69,13 @@ namespace ubcc1pi_macros
      *  @param  config the input configuration
      */
     void NMinusOneBDTStudy(const Config &config = Config());
+    
+    /**
+     *  @brief  Study the impact of the muon PID
+     *
+     *  @param  config the input configuration
+     */
+    void MuonPIDStudy(const Config &config = Config());
     
     /**
      *  @brief  Make the event selection table

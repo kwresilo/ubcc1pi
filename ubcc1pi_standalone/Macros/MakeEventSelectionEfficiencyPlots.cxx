@@ -34,6 +34,7 @@ void MakeEventSelectionEfficiencyPlots(const Config &config)
 
     // Set up the plots
     const auto drawErrors = config.efficiencyPlots.drawErrors;
+    auto plot_nuEnergy = PlottingHelper::EfficiencyPlot("Neutrino energy / GeV", 40u, 0, 2.5f, allCuts, drawErrors);
     auto plot_nProtons = PlottingHelper::EfficiencyPlot("Proton multiplicity", 5u, 0, 5, allCuts, drawErrors);
     auto plot_muMomentum = PlottingHelper::EfficiencyPlot("True muon momentum / GeV", 40u, 0.f, 1.5f, allCuts, drawErrors);
     auto plot_muCosTheta = PlottingHelper::EfficiencyPlot("True muon cos(theta)", 40u, -1.f, 1.0f, allCuts, drawErrors);
@@ -71,6 +72,7 @@ void MakeEventSelectionEfficiencyPlots(const Config &config)
             const auto &cut = allCuts.at(i);
             const auto passedCut = (std::find(cutsPassed.begin(), cutsPassed.end(), cut) != cutsPassed.end());
 
+            plot_nuEnergy.AddEvent(pEvent->truth.nuEnergy(), cut, passedCut);
             plot_nProtons.AddEvent(analysisData.nProtons, cut, passedCut);
             plot_muMomentum.AddEvent(analysisData.muonMomentum, cut, passedCut);
             plot_muCosTheta.AddEvent(analysisData.muonCosTheta, cut, passedCut);
@@ -89,6 +91,7 @@ void MakeEventSelectionEfficiencyPlots(const Config &config)
         }
     }
 
+    plot_nuEnergy.SaveAs("efficiency_nuEnergy");
     plot_nProtons.SaveAs("efficiency_nProtons");
     plot_muMomentum.SaveAs("efficiency_muMomentum");
     plot_muCosTheta.SaveAs("efficiency_muCosTheta");

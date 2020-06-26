@@ -64,7 +64,8 @@ class PlottingHelper
             DirtPoints,
             BNBData,
             Other,
-            OtherPoints
+            OtherPoints,
+            Default
         };
         
         /**
@@ -357,7 +358,8 @@ const std::vector<PlottingHelper::PlotStyle> PlottingHelper::AllPlotStyles = {
     NumuCC1PiZero,
     NumuCC1PiChargedGolden,
     NumuCC1PiChargedNonGolden,
-    BNBData
+    BNBData,
+    Default
 };
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
@@ -458,6 +460,7 @@ int PlottingHelper::GetColor(const PlotStyle plotStyle)
             break;
         
         case BNBData:
+        case Default:
             col = kBlack;
             break;
 

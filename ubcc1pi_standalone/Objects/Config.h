@@ -239,7 +239,7 @@ struct Config
      */
     struct EfficiencyPlots
     {
-        bool drawErrors = false; ///< If we should draw errors
+        bool drawErrors = true; ///< If we should draw errors
     };
     EfficiencyPlots efficiencyPlots; ///< The configuration options for the EfficiencyPlots macro
 };
