@@ -112,6 +112,15 @@ void PrintConfig(const Config &config)
     table.SetEntry("Value", config.getRunSubrunList.useDataBNB);
     
     //
+    // MultiPlanePIDDemo
+    //
+    table.AddEmptyRow();
+
+    table.AddEmptyRow();
+    table.SetEntry("Variable", "multiPlanePIDDemo.sin2AngleThreshold");
+    table.SetEntry("Value", config.multiPlanePIDDemo.sin2AngleThreshold);
+    
+    //
     // TrainBDTs
     //
     table.AddEmptyRow();

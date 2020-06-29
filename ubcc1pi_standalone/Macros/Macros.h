@@ -50,6 +50,13 @@ namespace ubcc1pi_macros
     void CCInclusiveMuonPIDStudy(const Config &config = Config());
 
     /**
+     *  @brief  Demonstrate the impact of track direction on the PID, and how it can be improved
+     *
+     *  @param  config the input configuration
+     */
+    void MultiPlanePIDDemo(const Config &config = Config());
+
+    /**
      *  @brief  Plot the variables that form the input to the particle ID BDTs after the CC inclusive selection
      *
      *  @param  config the input configuration

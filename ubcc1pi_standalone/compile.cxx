@@ -35,6 +35,7 @@
         "Macros/GetRunSubrunList.cxx",
         "Macros/TruthStudy.cxx",
         "Macros/CCInclusiveMuonPIDStudy.cxx",
+        "Macros/MultiPlanePIDDemo.cxx",
         "Macros/PlotInputVariables.cxx",
         "Macros/TrainBDTs.cxx",
         "Macros/NMinusOneBDTStudy.cxx",

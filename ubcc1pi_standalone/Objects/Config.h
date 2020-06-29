@@ -171,7 +171,7 @@ struct Config
     // -------------------------------------------------------------------------------------------------------------------------------------
 
     /**
-     *  @brief  Configuration fo the CountPOT macro
+     *  @brief  Configuration for the CountPOT macro
      */
     struct CountPOT
     {
@@ -183,7 +183,7 @@ struct Config
     // -------------------------------------------------------------------------------------------------------------------------------------
 
     /**
-     *  @brief  Configuration fo the GetRunSubrunList macro
+     *  @brief  Configuration for the GetRunSubrunList macro
      */
     struct GetRunSubrunList
     {
@@ -191,6 +191,17 @@ struct Config
         bool  useDataBNB = true; ///< If we should run on the BNB data
     };
     GetRunSubrunList getRunSubrunList; ///< The configuration options for the GetRunSubrunList macro
+    
+    // -------------------------------------------------------------------------------------------------------------------------------------
+    
+    /**
+     *  @brief  Configuration for the MultiPlanePIDDemo macro
+     */
+    struct MultiPlanePIDDemo
+    {
+        float sin2AngleThreshold = 0.175; 
+    };
+    MultiPlanePIDDemo multiPlanePIDDemo; ///< The configuration options for the MultiPlanePIDDemo macro
     
     // -------------------------------------------------------------------------------------------------------------------------------------
 

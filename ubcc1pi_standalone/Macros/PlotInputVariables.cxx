@@ -42,36 +42,36 @@ void PlotInputVariables(const Config &config)
     {
         if (featureName == "logBragg_pToMIP")
         {
-            plotVector.emplace_back("log(L_p / L_MIP)", yLabel, 100, -9, 7);
-            plotVectorSignal.emplace_back("log(L_p / L_MIP)", yLabel, 100, -9, 7);
+            plotVector.emplace_back("log(L_p / L_MIP)", yLabel, 60, -9, 7);
+            plotVectorSignal.emplace_back("log(L_p / L_MIP)", yLabel, 60, -9, 7);
             continue;
         }
 
         if (featureName == "logBragg_piToMIP")
         {
-            plotVector.emplace_back("log(L_pi / L_MIP)", yLabel, 100, -4, 6);
-            plotVectorSignal.emplace_back("log(L_pi / L_MIP)", yLabel, 100, -4, 6);
+            plotVector.emplace_back("log(L_pi / L_MIP)", yLabel, 60, -4, 6);
+            plotVectorSignal.emplace_back("log(L_pi / L_MIP)", yLabel, 60, -4, 6);
             continue;
         }
 
         if (featureName == "truncMeandEdx")
         {
-            plotVector.emplace_back("Truncated Mean dEdx", yLabel, 100, 0, 10);
-            plotVectorSignal.emplace_back("Truncated Mean dEdx", yLabel, 100, 0, 10);
+            plotVector.emplace_back("Truncated Mean dEdx", yLabel, 60, 0, 10);
+            plotVectorSignal.emplace_back("Truncated Mean dEdx", yLabel, 60, 0, 10);
             continue;
         }
 
         if (featureName == "protonForward")
         {
-            plotVector.emplace_back("Proton forward likelihood", yLabel, 100, 0.42, 0.62);
-            plotVectorSignal.emplace_back("Proton forward likelihood", yLabel, 100, 0.42, 0.62);
+            plotVector.emplace_back("Proton forward likelihood", yLabel, 60, 0.42, 0.62);
+            plotVectorSignal.emplace_back("Proton forward likelihood", yLabel, 60, 0.42, 0.62);
             continue;
         }
 
         if (featureName == "muonForward")
         {
-            plotVector.emplace_back("Muon forward likelihood", yLabel, 100, 0.35, 0.65);
-            plotVectorSignal.emplace_back("Muon forward likelihood", yLabel, 100, 0.35, 0.65);
+            plotVector.emplace_back("Muon forward likelihood", yLabel, 60, 0.35, 0.65);
+            plotVectorSignal.emplace_back("Muon forward likelihood", yLabel, 60, 0.35, 0.65);
             continue;
         }
 
@@ -84,8 +84,8 @@ void PlotInputVariables(const Config &config)
 
         if (featureName == "nSpacePointsNearEnd")
         {
-            plotVector.emplace_back("Number of spacepoints near track end", yLabel, 90, 0, 90);
-            plotVectorSignal.emplace_back("Number of spacepoints near track end", yLabel, 90, 0, 90);
+            plotVector.emplace_back("Number of spacepoints near track end", yLabel, 45, 0, 90);
+            plotVectorSignal.emplace_back("Number of spacepoints near track end", yLabel, 45, 0, 90);
             continue;
         }
 
@@ -98,8 +98,8 @@ void PlotInputVariables(const Config &config)
 
         if (featureName == "trackScore")
         {
-            plotVector.emplace_back("Track score", yLabel, 100, 0, 1);
-            plotVectorSignal.emplace_back("Track score", yLabel, 100, 0, 1);
+            plotVector.emplace_back("Track score", yLabel, 60, 0, 1);
+            plotVectorSignal.emplace_back("Track score", yLabel, 60, 0, 1);
             continue;
         }
 
