@@ -262,7 +262,6 @@ void PlottingHelper::MultiPlot::SaveAsStacked(const std::string &fileName)
         pHistStack->Add(pHist);
     }
 
-    //pHistStack->SetMinimum(yMin);
     pHistStack->SetMinimum(0.f);
     pHistStack->SetMaximum(yMax);
     pHistStack->Draw("hist");

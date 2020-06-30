@@ -64,6 +64,13 @@ namespace ubcc1pi_macros
     void PlotInputVariables(const Config &config = Config());
 
     /**
+     *  @brief  Get the correlation plots between the input variables to the BDT
+     *
+     *  @param  config the input configuration
+     */
+    void GetCorrelationPlots(const Config &config = Config());
+
+    /**
      *  @brief  Train the BDTs
      *
      *  @param  config the input configuration

@@ -37,6 +37,7 @@
         "Macros/CCInclusiveMuonPIDStudy.cxx",
         "Macros/MultiPlanePIDDemo.cxx",
         "Macros/PlotInputVariables.cxx",
+        "Macros/GetCorrelationPlots.cxx",
         "Macros/TrainBDTs.cxx",
         "Macros/NMinusOneBDTStudy.cxx",
         "Macros/MuonPIDStudy.cxx",

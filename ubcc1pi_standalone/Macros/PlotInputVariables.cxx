@@ -91,8 +91,9 @@ void PlotInputVariables(const Config &config)
 
         if (featureName == "wiggliness")
         {
-            plotVector.emplace_back("Wiggliness", yLabel, 60, 0, 0.004);
-            plotVectorSignal.emplace_back("Wiggliness", yLabel, 60, 0, 0.004);
+            // ATTN here we exclude zero to better show the distribution, but zero is used by the BDT
+            plotVector.emplace_back("Wiggliness", yLabel, 30, 0, 0.004);
+            plotVectorSignal.emplace_back("Wiggliness", yLabel, 30, 0, 0.004);
             continue;
         }
 
