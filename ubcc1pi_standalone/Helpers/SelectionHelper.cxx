@@ -131,6 +131,7 @@ bool SelectionHelper::EventSelection::CutManager::GetCutResult(const std::string
     }
 
     // Always stop at the cut we are currently optimizing
+    // This is important to ensure that any changes made to variables captured by `method` are always at the correct cut value
     return false;
 }
 
@@ -622,94 +623,99 @@ SelectionHelper::EventSelection SelectionHelper::GetDefaultSelection()
     selection.DeclareCut("min2Tracks");
     selection.DeclareCut("max1Uncontained");
     selection.DeclareCut("startNearVertex", 5.f);
+    selection.DeclareCut("muonLength", 5.f);
     selection.DeclareCut("2NonProtons", -0.06f);
-    selection.DeclareCut("nonProtonLength", 5.f);
+    selection.DeclareCut("pionLength", 5.f);
     selection.DeclareCut("openingAngle", 2.65f);
     selection.DeclareCut("topologicalScore", 0.67f);
-    selection.DeclareCut("noShowers", 0.04f);
     selection.DeclareCut("likelyGoldenPion", -0.03f);
     
     // Get the BDT feature names
-    const auto featureNames = BDTHelper::ParticleBDTFeatureNames;
-    selection.AssignBDT("proton", featureNames);
-    selection.AssignBDT("goldenPion", featureNames);
+    const auto muonFeatureNames = BDTHelper::MuonBDTFeatureNames;
+    const auto protonFeatureNames = BDTHelper::ProtonBDTFeatureNames;
+    const auto goldenPionFeatureNames = BDTHelper::GoldenPionBDTFeatureNames;
+    selection.AssignBDT("muon", muonFeatureNames);
+    selection.AssignBDT("proton", protonFeatureNames);
+    selection.AssignBDT("goldenPion", goldenPionFeatureNames);
     
     // Define the selection
     selection.DefineSelectionMethod([](const std::shared_ptr<Event> &pEvent, EventSelection::BDTManager &bdtManager, EventSelection::CutManager &cuts) {
 
         // Get the BDTs owned by the event selection object
-        const auto featureNames = BDTHelper::ParticleBDTFeatureNames;
+        const auto muonFeatureNames = BDTHelper::MuonBDTFeatureNames;
+        const auto protonFeatureNames = BDTHelper::ProtonBDTFeatureNames;
+        const auto goldenPionFeatureNames = BDTHelper::GoldenPionBDTFeatureNames;
+
+        auto &muonBDT = bdtManager.Get("muon");
         auto &protonBDT = bdtManager.Get("proton");
         auto &goldenPionBDT = bdtManager.Get("goldenPion");
 
+        // Make a map from reconstructed particle index to the assigned PDG code
+        std::unordered_map<unsigned int, int> pdgCodeMap;
+
+        // -------------------------------------------------------------
         // Insist the event passes the CC inclusive selection
+        // -------------------------------------------------------------
         if (!cuts.GetCutResult("passesCCInclusive", [&](){
             return pEvent->reco.passesCCInclusive();
 
         })) return false;
-
         
-        // Find the particles with a track
+        // -------------------------------------------------------------
+        // Find the particles with a track fit and check if they are contained
+        // -------------------------------------------------------------
         const auto &recoParticles = pEvent->reco.particles;
-        std::vector<unsigned int> trackParticleIndices;
+        unsigned int nTrackParticles = 0u;
+        unsigned int nUncontainedParticles = 0u;
         for (unsigned int index = 0; index < recoParticles.size(); ++index)
         {
             const auto &particle = recoParticles.at(index);
 
             if (AnalysisHelper::HasTrackFit(particle))
             {
-                trackParticleIndices.push_back(index);
+                // Here we use a PDG code of 0 to mean "as yet unknown"
+                pdgCodeMap[index] = 0;
+
+                nTrackParticles++;
+
+                if (!AnalysisHelper::IsContained(particle))
+                    nUncontainedParticles++;
             }
             else
             {
                 // Assume particles without tracks are just small protons
-                cuts.SetParticlePdg(index, 2212);
+                pdgCodeMap[index] = 2212;
             }
         }
         
-        // Insist at least 2 track-like particles
+        // -------------------------------------------------------------
+        // Insist at least 2 particles have a track fit
+        // -------------------------------------------------------------
         if (!cuts.GetCutResult("min2Tracks", [&](){
-            return (trackParticleIndices.size() >= 2);
+            return (nTrackParticles >= 2);
 
         })) return false;
         
-        
-        // Get the contained and uncontained particles
-        std::vector<unsigned int> containedParticleIndices, uncontainedParticleIndices;
-        for (const auto &index : trackParticleIndices)
-        {
-            const auto &particle = recoParticles.at(index);
-
-            auto &indexVector = (AnalysisHelper::IsContained(particle) ? containedParticleIndices : uncontainedParticleIndices);
-            indexVector.push_back(index);
-        }
-
+        // -------------------------------------------------------------
         // Insist at most one particle is uncontained
+        // -------------------------------------------------------------
         if (!cuts.GetCutResult("max1Uncontained", [&](){
-            return (uncontainedParticleIndices.size() <= 1);
-
+            return (nUncontainedParticles <= 1);
         })) return false;
-        
-        // Just a sanity check in case someone tries to disable an above cut 
-        if (uncontainedParticleIndices.size() > 1)
-            throw std::logic_error("MakeSelectionTable - more than 1 uncontained particle");
 
-
-        // If there is an uncontained then identify it as the muon
-        if (!uncontainedParticleIndices.empty())
-            cuts.SetParticlePdg(uncontainedParticleIndices.front(), 13);
-
-        // If there's only one contained particles, identify it as the pion
-        if (containedParticleIndices.size() == 1)
-            cuts.SetParticlePdg(containedParticleIndices.front(), 211);
-       
+        // -------------------------------------------------------------
         // Insist all particles start near the vertex
+        // -------------------------------------------------------------
         const auto recoVertex = pEvent->reco.nuVertex();
         if (!cuts.GetCutResult("startNearVertex", [&](const float &cut){
 
             const auto cut2 = cut * cut;
-            for (const auto &index : trackParticleIndices)
+            for (unsigned int index = 0; index < recoParticles.size(); ++index)
             {
+                // Skip particles we have already identified
+                if (pdgCodeMap.at(index) != 0)
+                    continue;
+
                 const auto &particle = recoParticles.at(index);
 
                 const TVector3 start(particle.startX(), particle.startY(), particle.startZ());
@@ -722,182 +728,293 @@ SelectionHelper::EventSelection SelectionHelper::GetDefaultSelection()
             return true;
 
         })) return false;
+        
+        // -------------------------------------------------------------
+        // Find the muon candidate 
+        // -------------------------------------------------------------
+        const auto muonIndex = SelectionHelper::GetMuonCandidateIndex(recoParticles, muonFeatureNames, muonBDT);
+        pdgCodeMap.at(muonIndex) = 13;
+       
+        // -------------------------------------------------------------
+        // Insist the muon is sufficiently long
+        // -------------------------------------------------------------
+        const auto &muon = recoParticles.at(muonIndex);
+        if (!cuts.GetCutResult("muonLength", [&](const float &cut){
+            return muon.length() >= cut;
 
-        // Get the BDT responses of the contained particles
-        std::vector<bool> hasFeaturesVect;
-        std::vector<float> protonBDTResponseVect;
+        })) return false;
+
+        // -------------------------------------------------------------
+        // Cache the proton BDT responses of the remaining particles
+        // -------------------------------------------------------------
+        std::unordered_map<unsigned int, bool> protonBDTHasResponseCache;
+        std::unordered_map<unsigned int, float> protonBDTResponseCache;
+        for (unsigned int index = 0; index < recoParticles.size(); ++index)
+        {
+            // Skip particles we have already identified
+            if (pdgCodeMap.at(index) != 0)
+                continue;
+
+            const auto &particle = recoParticles.at(index);
+            
+            if (!AnalysisHelper::IsContained(particle))
+                throw std::logic_error("MakeSelectionTable - Found an uncontained particle that hasn't been identified already!");
+
+            std::vector<float> features;
+            const auto hasFeatures = BDTHelper::GetBDTFeatures(particle, protonFeatureNames, features);
+            protonBDTHasResponseCache[index] = hasFeatures;
+
+            if (!hasFeatures)
+                continue;
+
+            const auto protonBDTResponse = protonBDT.GetResponse(features);
+            protonBDTResponseCache[index] = protonBDTResponse;
+        }
+        
+        // -------------------------------------------------------------
+        // Identify the protons, and insist there are exactly 2 non-protons
+        // -------------------------------------------------------------
+        std::vector<unsigned int> protonIndices;
+
+        if (!cuts.GetCutResult("2NonProtons", [&](const float &cut) {
+            protonIndices.clear(); // Important! This lambda can be evaluated multiple times during optimization, and variable is captured by reference - need to reset
+
+            unsigned int nonProtons = 0u;
+
+            for (unsigned int index = 0; index < recoParticles.size(); ++index)
+            {
+                // Count the protons we have found already
+                if (pdgCodeMap.at(index) == 2212)
+                    protonIndices.push_back(index);
+
+                // Skip particles we have already identified
+                if (pdgCodeMap.at(index) != 0)
+                    continue;
+                
+                const auto &particle = recoParticles.at(index);
+
+                // Assume the particles without a BDT response are protons
+                if (!protonBDTHasResponseCache.at(index))
+                {
+                    protonIndices.push_back(index);
+                    continue;
+                }
+
+                // Apply the cut on the proton BDT response
+                if (protonBDTResponseCache.at(index) >= cut)
+                    protonIndices.push_back(index);
+            }
+
+            // Insist we have exactly 2 non-protons
+            const auto nNonProtons = static_cast<int>(recoParticles.size()) - static_cast<int>(protonIndices.size());
+            return (nNonProtons == 2);
+
+        })) return false;
+       
+
+        // -------------------------------------------------------------
+        // Set the remaining particle types
+        // -------------------------------------------------------------
+        bool foundPion = false;
+        unsigned int pionIndex = -std::numeric_limits<unsigned int>::max();
             
         for (unsigned int index = 0; index < recoParticles.size(); ++index)
         {
-            const auto &particle = recoParticles.at(index);
+            // Skip particles we have already identified
+            if (pdgCodeMap.at(index) != 0)
+                continue;
 
-            std::vector<float> features;
-            bool hasFeatures = false;
-            float protonBDTResponse = -std::numeric_limits<float>::max();
-           
-            // Only use contained particles
-            if (std::find(containedParticleIndices.begin(), containedParticleIndices.end(), index) != containedParticleIndices.end())
+            const auto isProton = (std::find(protonIndices.begin(), protonIndices.end(), index) != protonIndices.end());
+            if (isProton)
             {
-                hasFeatures = BDTHelper::GetBDTFeatures(particle, featureNames, features);
-
-                if (hasFeatures)
-                    protonBDTResponse = protonBDT.GetResponse(features);
+                pdgCodeMap.at(index) = 2212;
+                continue;
             }
 
-            hasFeaturesVect.push_back(hasFeatures);
-            protonBDTResponseVect.push_back(protonBDTResponse);
+            // Anything left is our pion
+            if (foundPion)
+                throw std::logic_error("MakeSelectionTable - Found multiple pion candidates!");
+
+            pdgCodeMap.at(index) = 211;
+            pionIndex = index;
+            foundPion = true;
         }
 
-        // Insist that there are at least two particles that are non-protons
-        std::vector<unsigned int> containedNonProtonIndices;
-        if (!cuts.GetCutResult("2NonProtons", [&](const float &cut){
-    
-            containedNonProtonIndices.clear(); // Important! This lambda gets evaluated multiple times, and variable is captured by reference - need to reset
+        if (!foundPion)
+            throw std::logic_error("MakeSelectionTable - Couldn't find pion candidate!");
 
-            for (const auto &index : containedParticleIndices)
-            {
-                if (!hasFeaturesVect.at(index))
-                    continue;
+        // Set the particle types so they are available outside of this function
+        for (unsigned int index = 0; index < recoParticles.size(); ++index)
+            cuts.SetParticlePdg(index, pdgCodeMap.at(index));
+        
+        // -------------------------------------------------------------
+        // Sanity check the PID
+        // -------------------------------------------------------------
+        unsigned int nMuonsIdentified = 0u;
+        unsigned int nPionsIdentified = 0u;
+        unsigned int nProtonsIdentified = 0u;
 
-                const auto protonBDTResponse = protonBDTResponseVect.at(index);
-                const auto &particle = recoParticles.at(index);
-
-                if (protonBDTResponse < cut)
-                    containedNonProtonIndices.push_back(index);
-            }
-
-            return (containedNonProtonIndices.size() + uncontainedParticleIndices.size() == 2);
-
-        })) return false;
-
-        // Assign the PDG codes of the protons
-        for (const auto &index : containedParticleIndices)
+        for (unsigned int index = 0; index < recoParticles.size(); ++index)
         {
-            if (std::find(containedNonProtonIndices.begin(), containedNonProtonIndices.end(), index) == containedNonProtonIndices.end())
-                cuts.SetParticlePdg(index, 2212);
+            switch (pdgCodeMap.at(index))
+            {
+                case 13:
+                    nMuonsIdentified++;
+                    break;
+                case 211:
+                    nPionsIdentified++;
+                    break;
+                case 2212:
+                    nProtonsIdentified++;
+                    break;
+                default:
+                    throw std::logic_error("MakeSelectionTable - Sanity check failed, found reco particle assigned a PDG of: " + std::to_string(pdgCodeMap.at(index)));
+            }
         }
 
-        // If possible assign the PDG code of the pion
-        if (containedNonProtonIndices.size() == 1)
-            cuts.SetParticlePdg(containedNonProtonIndices.front(), 211);
-        
-        
-        // Combine the non-protons
-        auto nonProtonIndices = containedNonProtonIndices;
-        nonProtonIndices.insert(nonProtonIndices.end(), uncontainedParticleIndices.begin(), uncontainedParticleIndices.end());
+        if (nMuonsIdentified != 1)
+            throw std::logic_error("MakeSelectionTable - Found " + std::to_string(nMuonsIdentified) + " muon candidates!");
 
-        // Just a sanity check in case someone tries to disable an above cut 
-        if (nonProtonIndices.size() != 2)
-            throw std::logic_error("MakeSelectionTable - more than 2 non-protons");
-        
-        // Another sanity check
-        if (containedNonProtonIndices.empty())
-            throw std::logic_error("MakeSelectionTable - no contained non-protons");
-        
-        if (containedNonProtonIndices.size() > 2)
-            throw std::logic_error("MakeSelectionTable - more than 2 contained non-protons");
-    
-       
-        // Insist the non protons are sufficiency long
-        if (!cuts.GetCutResult("nonProtonLength", [&](const float &cut){
-            for (const auto &index : nonProtonIndices)
-            {
-                const auto &particle = recoParticles.at(index);
+        if (nPionsIdentified != 1)
+            throw std::logic_error("MakeSelectionTable - Found " + std::to_string(nPionsIdentified) + " pion candidates!");
 
-                if (particle.length() < cut)
-                    return false;
-            }
-            return true;
+        if (nMuonsIdentified + nPionsIdentified + nProtonsIdentified != recoParticles.size())
+            throw std::logic_error("MakeSelectionTable - Not all particles have been identified");
+        
+        // -------------------------------------------------------------
+        // Insist the pion is sufficiently long
+        // -------------------------------------------------------------
+        const auto &pion = recoParticles.at(pionIndex);
+        if (!cuts.GetCutResult("pionLength", [&](const float &cut){
+            return pion.length() >= cut;
 
         })) return false;
         
-        // For reproducibility order by length
-        const auto frontParticle = recoParticles.at(nonProtonIndices.front());
-        const auto backParticle = recoParticles.at(nonProtonIndices.back());
-
-        const auto frontLength = frontParticle.length();
-        const auto backLength = backParticle.length();
-        const bool isLongerFront = frontLength > backLength;
-
-        const auto longParticle = isLongerFront ? frontParticle : backParticle;
-        const auto shortParticle = isLongerFront ? backParticle : frontParticle;
-
-        const auto longDir = TVector3(longParticle.directionX(), longParticle.directionY(), longParticle.directionZ()).Unit();
-        const auto shortDir = TVector3(shortParticle.directionX(), shortParticle.directionY(), shortParticle.directionZ()).Unit();
-        const auto openingAngle = longDir.Angle(shortDir);
+        // -------------------------------------------------------------
+        // Insist the muon-pion opening angle isn't too wide
+        // -------------------------------------------------------------
+        const auto muonDir = TVector3(muon.directionX(), muon.directionY(), muon.directionZ()).Unit();
+        const auto pionDir = TVector3(pion.directionX(), pion.directionY(), pion.directionZ()).Unit();
+        const auto openingAngle = muonDir.Angle(pionDir);
         
         if (!cuts.GetCutResult("openingAngle", [&](const float &cut){
             return (openingAngle < cut);
 
         })) return false;
         
-        
+        // -------------------------------------------------------------
         // Cut on the topological score to reduce cosmic backgrounds
+        // -------------------------------------------------------------
         const auto topologicalScore = pEvent->reco.selectedTopologicalScore();
         if (!cuts.GetCutResult("topologicalScore", [&](const float &cut){
             return (topologicalScore > cut);
 
         })) return false;
         
+
+        // -------------------------------------------------------------
+        // Get the golden pion BDT response of the pion candidate
+        // -------------------------------------------------------------
+        std::vector<float> features;
+        if (!BDTHelper::GetBDTFeatures(pion, goldenPionFeatureNames, features))
+            throw std::logic_error("MakeSelectionTable - can't get golden pion BDT features for pion candidate");
+
+        const auto goldenPionBDTResponse = goldenPionBDT.GetResponse(features);
         
-        // Insist there are no shower like particles
-        if (!cuts.GetCutResult("noShowers", [&](const float &cut){
-            for (unsigned int index = 0; index < recoParticles.size(); ++index)
-            {
-                const auto &particle = recoParticles.at(index);
-
-                if (!particle.trackScore.IsSet())
-                    continue;
-
-                if (particle.trackScore() < cut)
-                    return false;
-            }
-
-            return true;
-
-        })) return false;
-        
-        
-        // Get the most likely golden pion
-        float goldenPionBDTResponse = -std::numeric_limits<float>::max();
-        unsigned int goldenPionIndex = std::numeric_limits<unsigned int>::max();
-
-        for (const auto &index : containedNonProtonIndices)
-        {
-            const auto &particle = recoParticles.at(index);
-
-            std::vector<float> features;
-            if (!BDTHelper::GetBDTFeatures(particle, featureNames, features))
-                throw std::logic_error("MakeSelectionTable - can't get features for a contained non-proton");
-
-            const auto response = goldenPionBDT.GetResponse(features);
-            if (response > goldenPionBDTResponse)
-            {
-                goldenPionBDTResponse = response;
-                goldenPionIndex = index;
-            }
-        }
-
-        // Set the PDG codes
-        cuts.SetParticlePdg(goldenPionIndex, 211);
-        for (const auto &index : containedNonProtonIndices)
-        {
-            if (index == goldenPionIndex)
-                continue;
-            
-            cuts.SetParticlePdg(index, 13);
-        }
-
+        // -------------------------------------------------------------
         // Insist this is a likely golden pion
+        // -------------------------------------------------------------
         if (!cuts.GetCutResult("likelyGoldenPion", [&](const float &cut){
             return (goldenPionBDTResponse > cut);
 
         })) return false;
-        
+
         return true;
     });
 
     return selection;
+}
+
+// -----------------------------------------------------------------------------------------------------------------------------------------
+        
+unsigned int SelectionHelper::GetMuonCandidateIndex(const std::vector<Event::Reco::Particle> &particles, const std::vector<std::string> &featureNames, BDTHelper::BDT &muonBDT)
+{
+    bool foundCCInclusiveMuon = false;
+
+    unsigned int ccInclusiveMuonIndex = std::numeric_limits<unsigned int>::max();
+    unsigned int muonIndex = std::numeric_limits<unsigned int>::max();
+
+    unsigned int nUncontainedParticles = 0;
+
+    for (unsigned int index = 0; index < particles.size(); ++index)
+    {
+        const auto &particle = particles.at(index);
+
+        // Check if this particle is the CC inclusive muon candidate
+        if (particle.isCCInclusiveMuonCandidate())
+        {
+            if (foundCCInclusiveMuon)
+                throw std::logic_error("SelectionHelper::GetMuonCandidateIndex - found multiple CC inclusive muon candidates");
+
+            foundCCInclusiveMuon = true;
+            ccInclusiveMuonIndex = index;
+        }
+
+        if (!AnalysisHelper::HasTrackFit(particle))
+            continue;
+
+        // For now make the last escaping particle the muon candidate, if there are multiple we will fall back on the CC inclusive candidate
+        if (!AnalysisHelper::IsContained(particle))
+        {
+            muonIndex = index;
+            nUncontainedParticles++;
+        }
+    }
+
+    if (!foundCCInclusiveMuon)
+        throw std::logic_error("SelectionHelper::GetMuonCandidateIndex - found no CC inclusive muon candidate");
+
+    if (nUncontainedParticles > 1)
+        return ccInclusiveMuonIndex;
+
+    if (nUncontainedParticles == 1)
+        return muonIndex;
+
+    // If we are here all particles are contained, choose the muon using the BDT
+    float maxMuonBDTResponse = -std::numeric_limits<float>::max();
+    bool foundMuon = false;
+
+    for (unsigned int index = 0; index < particles.size(); ++index)
+    {
+        const auto &particle = particles.at(index);
+        
+        if (!AnalysisHelper::HasTrackFit(particle))
+            continue;
+
+        if (!AnalysisHelper::IsContained(particle))
+            throw std::logic_error("SelectionHelper::GetMuonCandidateIndex - found escaping particle when not expecting to!");
+
+        std::vector<float> features;
+        const auto hasFeatures = BDTHelper::GetBDTFeatures(particle, featureNames, features);
+
+        if (!hasFeatures)
+            continue;
+
+        const auto muonBDTResponse = muonBDT.GetResponse(features);
+
+        if (muonBDTResponse < maxMuonBDTResponse)
+            continue;
+
+        maxMuonBDTResponse = muonBDTResponse;
+        muonIndex = index;
+        foundMuon = true;
+    }
+        
+    if (!foundMuon)
+        return ccInclusiveMuonIndex;
+//        throw std::logic_error("SelectionHelper::GetMuonCandidateIndex - all particles are contained, but couldn't find a muon candidate using the BDT");
+
+    return muonIndex;
 }
 
 } // namespace ubcc1pi

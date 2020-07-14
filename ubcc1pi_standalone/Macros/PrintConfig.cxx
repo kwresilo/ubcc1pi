@@ -119,6 +119,39 @@ void PrintConfig(const Config &config)
     table.AddEmptyRow();
     table.SetEntry("Variable", "multiPlanePIDDemo.sin2AngleThreshold");
     table.SetEntry("Value", config.multiPlanePIDDemo.sin2AngleThreshold);
+        
+    //
+    // PlotInputVariables
+    //
+    table.AddEmptyRow();
+
+    table.AddEmptyRow();
+    table.SetEntry("Variable", "plotInputVariables.plotBDTResponses");
+    table.SetEntry("Value", config.plotInputVariables.plotBDTResponses);
+        
+    //
+    // NMinusOneBDTStudy
+    //
+    table.AddEmptyRow();
+
+    table.AddEmptyRow();
+    table.SetEntry("Variable", "nMinusOneBDTStudy.shouldTrainBDTs");
+    table.SetEntry("Value", config.nMinusOneBDTStudy.shouldTrainBDTs);
+    
+    table.AddEmptyRow();
+    table.SetEntry("Variable", "nMinusOneBDTStudy.signalType");
+    table.SetEntry("Value", config.nMinusOneBDTStudy.signalType);
+    
+    for (unsigned int i = 0; i < config.nMinusOneBDTStudy.featureNames.size(); ++i)
+    {
+        table.AddEmptyRow();
+        table.SetEntry("Variable", "nMinusOneBDTStudy.featureNames.at(" + std::to_string(i) + ")");
+        table.SetEntry("Value", config.nMinusOneBDTStudy.featureNames.at(i));
+    }
+    
+    table.AddEmptyRow();
+    table.SetEntry("Variable", "nMinusOneBDTStudy.nSamplePoints");
+    table.SetEntry("Value", config.nMinusOneBDTStudy.nSamplePoints);
     
     //
     // TrainBDTs

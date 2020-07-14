@@ -18,11 +18,15 @@ namespace ubcc1pi_macros
 void RunFullAnalysis(const Config &config)
 {
     PrintConfig(config);
-    PlotInputVariables(config);
-    TrainBDTs(config);
-    NMinusOneBDTStudy(config);
-    MakeEventSelectionTable(config);
 
+    TruthStudy(config);
+    CCInclusiveMuonPIDStudy(config);
+    MultiPlanePIDDemo(config);
+    PlotInputVariables(config);
+    GetCorrelationPlots(config);
+    TrainBDTs(config);
+
+    MakeEventSelectionTable(config);
 
     // Run this macro twice using the generic and the golden selection
     auto customConfig = config;

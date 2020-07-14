@@ -12,6 +12,7 @@
 #include "ubcc1pi_standalone/Helpers/FormattingHelper.h"
 #include "ubcc1pi_standalone/Helpers/PlottingHelper.h"
 #include "ubcc1pi_standalone/Helpers/BDTHelper.h"
+#include "ubcc1pi_standalone/Helpers/SelectionHelper.h"
 
 #include <string>
 #include <vector>
@@ -31,7 +32,7 @@ void MuonPIDStudy(const Config &config)
     const auto nEvents = reader.GetNumberOfEvents();
     
     // Setup the muon BDT
-    const auto featureNames = BDTHelper::ParticleBDTFeatureNames;
+    const auto featureNames = BDTHelper::MuonBDTFeatureNames;
     BDTHelper::BDT muonBDT("muon", featureNames); 
 
     // Setup the counters
@@ -55,6 +56,14 @@ void MuonPIDStudy(const Config &config)
 
     std::map<PlottingHelper::PlotStyle, float> trueParticleTypeToCountMap_ccinc;
     std::map<PlottingHelper::PlotStyle, float> trueParticleTypeToCountMap_ours;
+    
+    std::map<PlottingHelper::PlotStyle, float> trueParticleTypeToCountMap_usedCCInc_ccinc;
+    std::map<PlottingHelper::PlotStyle, float> trueParticleTypeToCountMap_usedEscaping_ccinc;
+    std::map<PlottingHelper::PlotStyle, float> trueParticleTypeToCountMap_usedBDT_ccinc;
+
+    std::map<PlottingHelper::PlotStyle, float> trueParticleTypeToCountMap_usedCCInc_ours;
+    std::map<PlottingHelper::PlotStyle, float> trueParticleTypeToCountMap_usedEscaping_ours;
+    std::map<PlottingHelper::PlotStyle, float> trueParticleTypeToCountMap_usedBDT_ours;
 
     // Loop over the events
     for (unsigned int i = 0; i < nEvents; ++i)
@@ -197,6 +206,10 @@ void MuonPIDStudy(const Config &config)
             throw std::logic_error("MuonPIDStudy - sanity check failed!");
         }
 
+        // Check this is the same result as the code we using the real event selection
+        const auto checkIndex = SelectionHelper::GetMuonCandidateIndex(recoParticles, featureNames, muonBDT);
+        if (checkIndex != muonIndex)
+            throw std::logic_error("MuonPIDStudy - logic reproduced to find muon doesn't match the selection!");
     
         // Now determine if true origin of the muon candidate is correct
         const auto truthParticles = pEvent->truth.particles;
@@ -236,6 +249,26 @@ void MuonPIDStudy(const Config &config)
 
             nEventsUsedCCInclusiveCandidate_ccincCorrect += (ccInclusiveMuonCorrect ? weight : 0.f);
             nEventsUsedCCInclusiveCandidate_correct += (ourMuonCorrect ? weight : 0.f);
+        
+            auto iter_usedCCInc_ours = trueParticleTypeToCountMap_usedCCInc_ours.find(ourMuonStyle);
+            if (iter_usedCCInc_ours == trueParticleTypeToCountMap_usedCCInc_ours.end())
+            {
+                trueParticleTypeToCountMap_usedCCInc_ours.emplace(ourMuonStyle, weight);
+            }
+            else
+            {
+                iter_usedCCInc_ours->second += weight;
+            }
+            
+            auto iter_usedCCInc_ccinc = trueParticleTypeToCountMap_usedCCInc_ccinc.find(ccInclusiveMuonStyle);
+            if (iter_usedCCInc_ccinc == trueParticleTypeToCountMap_usedCCInc_ccinc.end())
+            {
+                trueParticleTypeToCountMap_usedCCInc_ccinc.emplace(ccInclusiveMuonStyle, weight);
+            }
+            else
+            {
+                iter_usedCCInc_ccinc->second += weight;
+            }
         }
 
         if (usedEscapingCandidate)
@@ -244,6 +277,26 @@ void MuonPIDStudy(const Config &config)
             
             nEventsUsedEscapingCandidate_ccincCorrect += (ccInclusiveMuonCorrect ? weight : 0.f);
             nEventsUsedEscapingCandidate_correct += (ourMuonCorrect ? weight : 0.f);
+            
+            auto iter_usedEscaping_ours = trueParticleTypeToCountMap_usedEscaping_ours.find(ourMuonStyle);
+            if (iter_usedEscaping_ours == trueParticleTypeToCountMap_usedEscaping_ours.end())
+            {
+                trueParticleTypeToCountMap_usedEscaping_ours.emplace(ourMuonStyle, weight);
+            }
+            else
+            {
+                iter_usedEscaping_ours->second += weight;
+            }
+            
+            auto iter_usedEscaping_ccinc = trueParticleTypeToCountMap_usedEscaping_ccinc.find(ccInclusiveMuonStyle);
+            if (iter_usedEscaping_ccinc == trueParticleTypeToCountMap_usedEscaping_ccinc.end())
+            {
+                trueParticleTypeToCountMap_usedEscaping_ccinc.emplace(ccInclusiveMuonStyle, weight);
+            }
+            else
+            {
+                iter_usedEscaping_ccinc->second += weight;
+            }
         }
 
         if (usedBDTCandidate)
@@ -252,6 +305,26 @@ void MuonPIDStudy(const Config &config)
             
             nEventsUsedBDTCandidate_ccincCorrect += (ccInclusiveMuonCorrect ? weight : 0.f);
             nEventsUsedBDTCandidate_correct += (ourMuonCorrect ? weight : 0.f);
+            
+            auto iter_usedBDT_ours = trueParticleTypeToCountMap_usedBDT_ours.find(ourMuonStyle);
+            if (iter_usedBDT_ours == trueParticleTypeToCountMap_usedBDT_ours.end())
+            {
+                trueParticleTypeToCountMap_usedBDT_ours.emplace(ourMuonStyle, weight);
+            }
+            else
+            {
+                iter_usedBDT_ours->second += weight;
+            }
+            
+            auto iter_usedBDT_ccinc = trueParticleTypeToCountMap_usedBDT_ccinc.find(ccInclusiveMuonStyle);
+            if (iter_usedBDT_ccinc == trueParticleTypeToCountMap_usedBDT_ccinc.end())
+            {
+                trueParticleTypeToCountMap_usedBDT_ccinc.emplace(ccInclusiveMuonStyle, weight);
+            }
+            else
+            {
+                iter_usedBDT_ccinc->second += weight;
+            }
         }
     }
 
@@ -259,12 +332,24 @@ void MuonPIDStudy(const Config &config)
 
     std::map<std::string, std::map<PlottingHelper::PlotStyle, float> > methodToCountMap;
     methodToCountMap.emplace("CC inclusive", trueParticleTypeToCountMap_ccinc);
+    methodToCountMap.emplace("CC inclusive (subset using CC inclusive candidate)", trueParticleTypeToCountMap_usedCCInc_ccinc);
+    methodToCountMap.emplace("CC inclusive (subset using escaping candidate)", trueParticleTypeToCountMap_usedEscaping_ccinc);
+    methodToCountMap.emplace("CC inclusive (subset using BDT candidate)", trueParticleTypeToCountMap_usedBDT_ccinc);
     methodToCountMap.emplace("Ours", trueParticleTypeToCountMap_ours);
+    methodToCountMap.emplace("Ours (subset using CC inclusive candidate)", trueParticleTypeToCountMap_usedCCInc_ours);
+    methodToCountMap.emplace("Ours (subset using escaping candidate)", trueParticleTypeToCountMap_usedEscaping_ours);
+    methodToCountMap.emplace("Ours (subset using BDT candidate)", trueParticleTypeToCountMap_usedBDT_ours);
 
     for (const auto &methodMap : methodToCountMap)
     {
         const auto &method = methodMap.first;
         const auto &map = methodMap.second;
+
+        float nEventsTotalInMap = 0.f;
+        for (const auto &entry : map)
+        {
+            nEventsTotalInMap += entry.second;
+        }
         
         for (const auto &entry : map)
         {
@@ -298,7 +383,7 @@ void MuonPIDStudy(const Config &config)
             tableSummary.SetEntry("Method", method);
             tableSummary.SetEntry("Particle type", particleType);
             tableSummary.SetEntry("Events", nEvents);
-            tableSummary.SetEntry("Fraction", nEvents / nEventsTotal);
+            tableSummary.SetEntry("Fraction", nEvents / nEventsTotalInMap);
         }
     }
 

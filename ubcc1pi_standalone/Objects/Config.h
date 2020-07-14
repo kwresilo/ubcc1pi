@@ -10,6 +10,8 @@
 #include <string>
 #include <unordered_map>
 
+#include "ubcc1pi_standalone/Helpers/PlottingHelper.h"
+
 namespace ubcc1pi
 {
 
@@ -72,10 +74,10 @@ struct Config
      */
     struct Global
     {
-        bool        useAbsPdg               = true;        ///< If we should use absolute PDG codes (this makes pi+ == pi- in the signal definition)
-        bool        countProtonsInclusively = true;        ///< If we should count protons inclusively (as Xp), or exclusively as (0p, 1p, 2p, ...)
-        std::string lastCutGeneric          = "noShowers"; ///< The last cut of the generic selection (remaining cuts are part of the golden selection)
-        float       protonMomentumThreshold = 0.3f;        ///< The minimum proton momentum to be counted [GeV]
+        bool        useAbsPdg               = true;               ///< If we should use absolute PDG codes (this makes pi+ == pi- in the signal definition)
+        bool        countProtonsInclusively = true;               ///< If we should count protons inclusively (as Xp), or exclusively as (0p, 1p, 2p, ...)
+        std::string lastCutGeneric          = "topologicalScore"; ///< The last cut of the generic selection (remaining cuts are part of the golden selection)
+        float       protonMomentumThreshold = 0.3f;               ///< The minimum proton momentum to be counted [GeV]
 
         /**
          *  @brief  The muonCosTheta plot limits structure
@@ -199,9 +201,44 @@ struct Config
      */
     struct MultiPlanePIDDemo
     {
-        float sin2AngleThreshold = 0.175; 
+        float sin2AngleThreshold = 0.175; ///< The squared sin angular threshold between a particle and a wire in the YZ plane to use dEdx information
     };
     MultiPlanePIDDemo multiPlanePIDDemo; ///< The configuration options for the MultiPlanePIDDemo macro
+    
+    // -------------------------------------------------------------------------------------------------------------------------------------
+
+    /**
+     *  @brief  Configuration for the PlotInputVariables macro
+     */
+    struct PlotInputVariables
+    {
+        bool plotBDTResponses = true; ///< If we should plot the responses of the trained BDTs, set to true if you haven't already trained the BDTs
+    };
+    PlotInputVariables plotInputVariables; ///< The configuration options for the PlotInputVariables macro
+    
+    // -------------------------------------------------------------------------------------------------------------------------------------
+
+    /**
+     *  @brief  Configuration for the NMinusOneBDTStudy macro
+     */
+    struct NMinusOneBDTStudy
+    {
+        bool shouldTrainBDTs = true;                                          ///< If we should run the BDT training (if false then look for trained BDTs)
+        PlottingHelper::PlotStyle signalType = PlottingHelper::GoldenPion;    ///< The type of particle considered signal by the BDT in question
+        std::vector< std::string > featureNames = {
+            "logBragg_pToMIP",
+            "logBragg_piToMIP",
+            "truncMeandEdx",
+            "protonForward",
+            "muonForward",
+            "nDescendents",
+            "nSpacePointsNearEnd",
+            "wiggliness",
+            "trackScore"
+        };                                                                    ///< The features to consider by the BDT
+        unsigned int nSamplePoints = 300u;                                    ///< The number of sampling points to use when finding the ROC curves
+    };
+    NMinusOneBDTStudy nMinusOneBDTStudy; ///< The configuration options for the NMinusOneBDTStudy macro
     
     // -------------------------------------------------------------------------------------------------------------------------------------
 

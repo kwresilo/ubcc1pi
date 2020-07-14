@@ -31,6 +31,12 @@ class PlottingHelper
          */
         enum PlotStyle
         {
+            // Basic types
+            Primary,
+            Secondary,
+            Tertiary,
+            Quaternary,
+
             // Particle types
             Muon,
             MuonPoints,
@@ -65,7 +71,7 @@ class PlottingHelper
             BNBData,
             Other,
             OtherPoints,
-            Default
+            Default,
         };
         
         /**
@@ -330,6 +336,10 @@ class PlottingHelper
 // -----------------------------------------------------------------------------------------------------------------------------------------
 
 const std::vector<PlottingHelper::PlotStyle> PlottingHelper::AllPlotStyles = {
+    Primary,
+    Secondary,
+    Tertiary,
+    Quaternary,
     External,
     ExternalPoints,
     Dirt,
@@ -398,18 +408,27 @@ int PlottingHelper::GetColor(const PlotStyle plotStyle)
     
     switch (plotStyle)
     {
+        case Primary:
+        case BNBData:
+        case Default:
+            col = kBlack;
+            break;
+
+        case Secondary:
         case Muon:
         case MuonPoints:
         case NumuCC0Pi:
             col = kAzure - 2;
             break;
 
+        case Tertiary:
         case Proton:
         case ProtonPoints:
         case NumuCC1PiZero:
             col = kOrange - 3;
             break;
 
+        case Quaternary:
         case GoldenPion:
         case GoldenPionPoints:
         case NumuCC1PiChargedGolden:
@@ -459,11 +478,6 @@ int PlottingHelper::GetColor(const PlotStyle plotStyle)
             col = kGray;
             break;
         
-        case BNBData:
-        case Default:
-            col = kBlack;
-            break;
-
         default: break;
     }
 

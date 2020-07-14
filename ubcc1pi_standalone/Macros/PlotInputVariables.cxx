@@ -107,6 +107,24 @@ void PlotInputVariables(const Config &config)
         throw std::logic_error("PlotInputVariables - unknown feature: \"" + featureName + "\"");
     }
 
+    // Setup the BDT outputs
+    const auto goldenPionFeatureNames = BDTHelper::GoldenPionBDTFeatureNames;
+    const auto protonFeatureNames = BDTHelper::ProtonBDTFeatureNames;
+    const auto muonFeatureNames = BDTHelper::MuonBDTFeatureNames;
+        
+    PlottingHelper::MultiPlot muonBDTPlot("Muon BDT response", yLabel, 40, -0.85f, 0.50f);
+    PlottingHelper::MultiPlot protonBDTPlot("Proton BDT response", yLabel, 40, -0.60f, 0.60f);
+    PlottingHelper::MultiPlot goldenPionBDTPlot("Golden pion BDT response", yLabel, 40, -0.8f, 0.4f);
+   
+    std::shared_ptr<BDTHelper::BDT> pGoldenPionBDT, pProtonBDT, pMuonBDT;
+    if (config.plotInputVariables.plotBDTResponses)
+    {
+        // Setup the BDTs
+        pGoldenPionBDT = std::make_shared<BDTHelper::BDT>("goldenPion", goldenPionFeatureNames); 
+        pProtonBDT = std::make_shared<BDTHelper::BDT>("proton", protonFeatureNames); 
+        pMuonBDT = std::make_shared<BDTHelper::BDT>("muon", muonFeatureNames); 
+    }
+
     //
     // Fill the plots
     //
@@ -178,6 +196,37 @@ void PlotInputVariables(const Config &config)
                         plotVectorSignal.at(iFeature).Fill(features.at(iFeature), particleStyle, weight);
                     }
                 }
+
+                // Fill the BDT plots
+                if (config.plotInputVariables.plotBDTResponses)
+                {
+                    std::vector<float> goldenPionFeatures;
+                    const auto areAllFeaturesAvailableGoldenPion = BDTHelper::GetBDTFeatures(particle, goldenPionFeatureNames, goldenPionFeatures);
+
+                    std::vector<float> protonFeatures;
+                    const auto areAllFeaturesAvailableProton = BDTHelper::GetBDTFeatures(particle, protonFeatureNames, protonFeatures);
+
+                    std::vector<float> muonFeatures;
+                    const auto areAllFeaturesAvailableMuon = BDTHelper::GetBDTFeatures(particle, muonFeatureNames, muonFeatures);
+
+                    if (areAllFeaturesAvailableGoldenPion)
+                    {
+                        const auto goldenPionBDTResponse = pGoldenPionBDT->GetResponse(goldenPionFeatures);
+                        goldenPionBDTPlot.Fill(goldenPionBDTResponse, particleStyle, weight);
+                    }
+
+                    if (areAllFeaturesAvailableProton)
+                    {
+                        const auto protonBDTResponse = pProtonBDT->GetResponse(protonFeatures);
+                        protonBDTPlot.Fill(protonBDTResponse, particleStyle, weight);
+                    }
+
+                    if (areAllFeaturesAvailableMuon)
+                    {
+                        const auto muonBDTResponse = pMuonBDT->GetResponse(muonFeatures);
+                        muonBDTPlot.Fill(muonBDTResponse, particleStyle, weight);
+                    }
+                }
             }
         }
     }
@@ -190,6 +239,10 @@ void PlotInputVariables(const Config &config)
         plotVector.at(iFeature).SaveAsStacked("inputVariables_" + featureName);
         plotVectorSignal.at(iFeature).SaveAs("inputVariables_signal_" + featureName);
     }
+        
+    goldenPionBDTPlot.SaveAsStacked("inputVariables_goldenPionBDTResponse");
+    protonBDTPlot.SaveAsStacked("inputVariables_protonBDTResponse");
+    muonBDTPlot.SaveAsStacked("inputVariables_muonBDTResponse");
 }
 
 } // ubcc1pi macros

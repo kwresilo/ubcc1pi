@@ -41,9 +41,23 @@ namespace ubcc1pi_macros
      *  @param  config the input configuration
      */
     void TruthStudy(const Config &config = Config());
+   
+    /**
+     *  @brief  Look at the truth information relating to secondary interactions
+     *
+     *  @param  config the input configuration
+     */
+    void SecondaryInteractionsStudy(const Config &config = Config());
+    
+    /**
+     *  @brief  Get the range->momentum curve fit parameters 
+     *
+     *  @param  config the input configuration
+     */
+    void FitRangeCurves(const Config &config = Config());
 
     /**
-     *  @brief  Look at the accuracy of the muon PID from the CC inclusive as a functino of the muon kinematics
+     *  @brief  Look at the accuracy of the muon PID from the CC inclusive as a function of the muon kinematics
      *
      *  @param  config the input configuration
      */
@@ -113,11 +127,11 @@ namespace ubcc1pi_macros
     void MakeEventSelectionEfficiencyPlots(const Config &config = Config());
 
     /**
-     *  @brief  Plot the reconstructed variables for the muon of the CC inclusive selection
+     *  @brief  Plot the reconstructed variables for the muon candidate
      *
      *  @param  config the input configuration
      */
-    void PlotCCInclusiveMuonRecoVariables(const Config &config = Config());
+    void PlotMuonRecoVariables(const Config &config = Config());
 
     /**
      *  @brief  Plot the recontructed variables

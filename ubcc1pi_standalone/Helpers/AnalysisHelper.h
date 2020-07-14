@@ -13,6 +13,7 @@
 #include <unordered_map>
 
 #include <TVector3.h>
+#include <TF1.h>
 
 namespace ubcc1pi
 {
@@ -48,6 +49,17 @@ class AnalysisHelper
             float         muonPionAngle;   ///< The muon-pion opening angle
             unsigned int  nProtons;        ///< The number of protons
             bool          hasGoldenPion;   ///< If the event has a golden pion
+        };
+        
+        /**
+         *  @brief  The parameters required for a range-to-momentum fit of the form: momentum = a + b*range - c*pow(range, -d)
+         */
+        struct RangeToMomentumFitParameters
+        {
+            float   a;   ///< The constant offet factor:          momentum = (a) + b*range - c*pow(range, -d)
+            float   b;   ///< The linear scaling factor:          momentum = a + (b)*range - c*pow(range, -d)
+            float   c;   ///< The non-linear scaling factor:      momentum = a + b*range - (c)*pow(range, -d)
+            float   d;   ///< The non-linearity index:            momentum = a + b*range - c*pow(range, -(d))
         };
 
         /**
@@ -421,13 +433,59 @@ class AnalysisHelper
         static Event::Truth::Particle GetBestMatchedTruthParticle(const Event::Reco::Particle &recoParticle, const std::vector<Event::Truth::Particle> &truthParticles, const bool applyVisibilityThreshold = true);
 
         /**
-         *  @brief  Determin if the input particle is golden: no scatters, stopping and contained
+         *  @brief  Determine if the input particle is golden: no scatters, stopping and contained
          *
          *  @param  particle the input truth particle
          *
          *  @return boolean, true if golden
          */
         static bool IsGolden(const Event::Truth::Particle &particle);
+
+        /**
+         *  @brief  Get a function which maps range to momentum
+         *
+         *  @return the function
+         */
+        static std::shared_ptr<TF1> GetRangeToMomentumFunction();
+        
+        /**
+         *  @brief  Get a function which maps range to momentum for contained muons
+         *
+         *  @return the function
+         */
+        static std::shared_ptr<TF1> GetRangeToMomentumFunctionMuon();
+        
+        /**
+         *  @brief  Get a function which maps range to momentum for golden pions
+         *
+         *  @return the function
+         */
+        static std::shared_ptr<TF1> GetRangeToMomentumFunctionPion();
+
+        /**
+         *  @brief  Set the parameters of the input function
+         *
+         *  @param  params the parameters to use
+         *  @param  pFunc the function to modify
+         */
+        static void SetRangeToMomentumFunctionParameters(const RangeToMomentumFitParameters &params, std::shared_ptr<TF1> &pFunc);
+
+        /**
+         *  @brief  Get the parameters of the input function
+         *
+         *  @param  pFunc the function to use
+         *  @param  params the output parameters
+         */
+        static void GetRangeToMomentumFunctionParameters(const std::shared_ptr<TF1> &pFunc, RangeToMomentumFitParameters &params);
+
+        /**
+         *  @brief  Get the best fit parameters between a set of ranges and momenta
+         *
+         *  @param  ranges the input ranges
+         *  @param  momenta the input momenta (one per range in the same order)
+         *  @param  params the output fit parameters
+         */
+        static void GetRangeToMomentumFitParameters(const std::vector<float> &ranges, const std::vector<float> &momenta, RangeToMomentumFitParameters &params);
 
         /**
          *  @brief  Get the momentum of a pion from range
@@ -446,6 +504,15 @@ class AnalysisHelper
          *  @return the momentum
          */
         static float GetMuonMomentumFromRange(const float &range);
+
+        /**
+         *  @brief  Get the momentum of a muon from multiple coulomb scattering
+         *
+         *  @param  muon the input muon reco particle
+         *
+         *  @return the momentum
+         */
+        static float GetMuonMomentumFromMCS(const Event::Reco::Particle &muon);
         
         /**
          *  @brief  Get the momentum of a muon using range where possible and MCS otherwise
@@ -528,6 +595,10 @@ class AnalysisHelper
          *  @param  denominator the denominator
          */
         static void PrintLoadingBar(const unsigned int numerator, const unsigned int denominator);
+
+    private:
+
+        static unsigned int m_fitFunctionIndex; ///< The index of the next fit function to make (allows for unique names of the functions)
 };
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
@@ -539,6 +610,10 @@ const std::vector<AnalysisHelper::SampleType> AnalysisHelper::AllSampleTypes = {
     DataEXT,
     Dirt
 };
+
+// -----------------------------------------------------------------------------------------------------------------------------------------
+
+unsigned int AnalysisHelper::m_fitFunctionIndex = 0u;
 
 } // namespace ubcc1pi
 

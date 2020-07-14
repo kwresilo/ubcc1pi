@@ -16,6 +16,7 @@
 #include <TGraph.h>
 #include <TH2F.h>
 #include <TStyle.h>
+#include <TVector3.h>
 
 using namespace ubcc1pi;
 

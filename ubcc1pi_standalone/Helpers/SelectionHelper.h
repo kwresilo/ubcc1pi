@@ -306,6 +306,17 @@ class SelectionHelper
          *  @return the event selection
          */
         static EventSelection GetDefaultSelection();
+       
+        /**
+         *  @brief  Get the muon candidate index
+         *
+         *  @param  particles the input list of all reco particles
+         *  @param  featureNames the input list of muon BDT feature names
+         *  @param  muonBDT the muon BDT
+         *
+         *  @return the index of the muon candidate in the input list
+         */
+        static unsigned int GetMuonCandidateIndex(const std::vector<Event::Reco::Particle> &particles, const std::vector<std::string> &featureNames, BDTHelper::BDT &muonBDT);
 };
 
 } // namespace ubcc1pi
