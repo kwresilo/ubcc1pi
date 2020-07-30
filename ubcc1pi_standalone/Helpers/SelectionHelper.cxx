@@ -39,6 +39,17 @@ SelectionHelper::EventSelection::CutManager::Cut& SelectionHelper::EventSelectio
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
 
+const SelectionHelper::EventSelection::CutManager::Cut& SelectionHelper::EventSelection::CutManager::GetCut(const std::string &name) const
+{
+    const auto iter = std::find_if(m_cuts.begin(), m_cuts.end(), [&](const Cut &cut) {return cut.m_name == name;});
+    if (iter == m_cuts.end())
+        throw std::invalid_argument("CutManager::GetCut - Unknown cut: \"" + name + "\"");
+
+    return *iter;
+}
+
+// -----------------------------------------------------------------------------------------------------------------------------------------
+
 bool SelectionHelper::EventSelection::CutManager::GetCutResult(const Cut &cut, const std::function<bool()> &method) const
 {
     if (cut.m_hasValue)
@@ -232,6 +243,18 @@ void SelectionHelper::EventSelection::DeclareCut(const std::string &name, const 
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
                 
+void SelectionHelper::EventSelection::SetCutNominalValue(const std::string &name, const float &nominal)
+{
+    if (!m_cutManager.HasCut(name))
+        throw std::invalid_argument("EventSelection::SetCutNominalValue - unknown cut name: \"" + name + "\"");
+    
+    auto &cut = m_cutManager.GetCut(name);
+    cut.m_nominal = nominal;
+    cut.m_value = nominal;
+}
+
+// -----------------------------------------------------------------------------------------------------------------------------------------
+                
 void SelectionHelper::EventSelection::EnableOptimization(const std::string &name, const std::string &searchQuery)
 {
     auto &cut = m_cutManager.GetCut(name);
@@ -276,6 +299,17 @@ std::vector<std::string> SelectionHelper::EventSelection::GetCuts() const
         cutNames.push_back(cut.m_name);
 
     return cutNames;
+}
+
+// -----------------------------------------------------------------------------------------------------------------------------------------
+                
+float SelectionHelper::EventSelection::GetCutNominalValue(const std::string &name) const
+{
+    if (!m_cutManager.HasCut(name))
+        throw std::invalid_argument("EventSelection::GetCutNominalValue - unknown cut name: \"" + name + "\"");
+    
+    const auto cut = m_cutManager.GetCut(name);
+    return cut.m_nominal;
 }
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
@@ -622,12 +656,13 @@ SelectionHelper::EventSelection SelectionHelper::GetDefaultSelection()
     selection.DeclareCut("passesCCInclusive");
     selection.DeclareCut("min2Tracks");
     selection.DeclareCut("max1Uncontained");
-    selection.DeclareCut("startNearVertex", 5.f);
-    selection.DeclareCut("muonLength", 5.f);
     selection.DeclareCut("2NonProtons", -0.06f);
-    selection.DeclareCut("pionLength", 5.f);
+//    selection.DeclareCut("fakePionRejection", -0.5f);
     selection.DeclareCut("openingAngle", 2.65f);
     selection.DeclareCut("topologicalScore", 0.67f);
+    selection.DeclareCut("startNearVertex", 9.5f);
+//    selection.DeclareCut("pionRange", 5.f);
+//    selection.DeclareCut("muonRange", 20.f);
     selection.DeclareCut("likelyGoldenPion", -0.03f);
     
     // Get the BDT feature names
@@ -704,46 +739,11 @@ SelectionHelper::EventSelection SelectionHelper::GetDefaultSelection()
         })) return false;
 
         // -------------------------------------------------------------
-        // Insist all particles start near the vertex
-        // -------------------------------------------------------------
-        const auto recoVertex = pEvent->reco.nuVertex();
-        if (!cuts.GetCutResult("startNearVertex", [&](const float &cut){
-
-            const auto cut2 = cut * cut;
-            for (unsigned int index = 0; index < recoParticles.size(); ++index)
-            {
-                // Skip particles we have already identified
-                if (pdgCodeMap.at(index) != 0)
-                    continue;
-
-                const auto &particle = recoParticles.at(index);
-
-                const TVector3 start(particle.startX(), particle.startY(), particle.startZ());
-                const auto vertexDist2 = (start - recoVertex).Mag2();
-
-                if (vertexDist2 > cut2)
-                    return false;
-            }
-
-            return true;
-
-        })) return false;
-        
-        // -------------------------------------------------------------
         // Find the muon candidate 
         // -------------------------------------------------------------
         const auto muonIndex = SelectionHelper::GetMuonCandidateIndex(recoParticles, muonFeatureNames, muonBDT);
         pdgCodeMap.at(muonIndex) = 13;
-       
-        // -------------------------------------------------------------
-        // Insist the muon is sufficiently long
-        // -------------------------------------------------------------
-        const auto &muon = recoParticles.at(muonIndex);
-        if (!cuts.GetCutResult("muonLength", [&](const float &cut){
-            return muon.length() >= cut;
-
-        })) return false;
-
+      
         // -------------------------------------------------------------
         // Cache the proton BDT responses of the remaining particles
         // -------------------------------------------------------------
@@ -810,8 +810,8 @@ SelectionHelper::EventSelection SelectionHelper::GetDefaultSelection()
             return (nNonProtons == 2);
 
         })) return false;
-       
-
+        
+        
         // -------------------------------------------------------------
         // Set the remaining particle types
         // -------------------------------------------------------------
@@ -881,15 +881,9 @@ SelectionHelper::EventSelection SelectionHelper::GetDefaultSelection()
         if (nMuonsIdentified + nPionsIdentified + nProtonsIdentified != recoParticles.size())
             throw std::logic_error("MakeSelectionTable - Not all particles have been identified");
         
-        // -------------------------------------------------------------
-        // Insist the pion is sufficiently long
-        // -------------------------------------------------------------
+        const auto &muon = recoParticles.at(muonIndex);
         const auto &pion = recoParticles.at(pionIndex);
-        if (!cuts.GetCutResult("pionLength", [&](const float &cut){
-            return pion.length() >= cut;
 
-        })) return false;
-        
         // -------------------------------------------------------------
         // Insist the muon-pion opening angle isn't too wide
         // -------------------------------------------------------------
@@ -910,7 +904,51 @@ SelectionHelper::EventSelection SelectionHelper::GetDefaultSelection()
             return (topologicalScore > cut);
 
         })) return false;
-        
+
+        // -------------------------------------------------------------
+        // Insist all particles start near the vertex
+        // -------------------------------------------------------------
+        const auto recoVertex = pEvent->reco.nuVertex();
+        if (!cuts.GetCutResult("startNearVertex", [&](const float &cut){
+
+            const auto cut2 = cut * cut;
+            for (unsigned int index = 0; index < recoParticles.size(); ++index)
+            {
+                const auto &particle = recoParticles.at(index);
+
+                if (!AnalysisHelper::HasTrackFit(particle))
+                    continue;
+
+                const TVector3 start(particle.startX(), particle.startY(), particle.startZ());
+                const auto vertexDist2 = (start - recoVertex).Mag2();
+
+                if (vertexDist2 > cut2)
+                    return false;
+            }
+
+            return true;
+
+        })) return false;
+       
+        // -------------------------------------------------------------
+        // Insist the pion is sufficiently long
+        // -------------------------------------------------------------
+        /*
+        if (!cuts.GetCutResult("pionRange", [&](const float &cut){
+            return pion.range() >= cut;
+
+        })) return false;
+        */
+
+        // -------------------------------------------------------------
+        // Insist the muon is sufficiently long
+        // -------------------------------------------------------------
+        /*
+        if (!cuts.GetCutResult("muonRange", [&](const float &cut){
+            return muon.range() >= cut;
+
+        })) return false;
+        */
 
         // -------------------------------------------------------------
         // Get the golden pion BDT response of the pion candidate

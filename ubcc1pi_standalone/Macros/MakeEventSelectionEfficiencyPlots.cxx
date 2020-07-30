@@ -23,7 +23,12 @@ void MakeEventSelectionEfficiencyPlots(const Config &config)
     // Get the selection
     auto selection = SelectionHelper::GetDefaultSelection();
     const auto allCuts = selection.GetCuts();
-
+    
+    //// BEGIN TEST
+    selection.SetCutNominalValue("muonRange", -std::numeric_limits<float>::max());
+    selection.SetCutNominalValue("pionRange", -std::numeric_limits<float>::max());
+    //// END TEST
+    
     std::cout << "Making plots for cuts:" << std::endl;
     for (const auto &cut : allCuts)
         std::cout << " - " << cut << std::endl;

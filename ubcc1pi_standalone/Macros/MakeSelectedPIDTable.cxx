@@ -44,13 +44,6 @@ void MakeSelectedPIDTable(const Config &config)
     //  Counter with index [recoPdgCode][truePdgCode][isSignalOnly]
     std::unordered_map< int, std::unordered_map< int, std::unordered_map<bool, float > > > recoToTruePdgMap;
                         
-    float cc1piMuonCount = 0.f;
-    float ccInclusiveMuonCount = 0.f;
-    float ccInclusiveAnd1piMuonCount = 0.f;
-    float cc1piMuonCorrectCount = 0.f;
-    float ccInclusiveMuonCorrectCount = 0.f;
-    float ccInclusiveAnd1piMuonCorrectCount = 0.f;
-
     for (const auto [sampleType, fileName, normalisation] : inputData)
     {
         std::cout << "Reading input file: " << fileName << std::endl;
@@ -116,30 +109,6 @@ void MakeSelectedPIDTable(const Config &config)
                 const auto recoPdgCode = assignedPdgCodes.at(index);
                 if (recoPdgCode != 13 && recoPdgCode != 211 && recoPdgCode != 2212)
                     throw std::logic_error("MakeSelectedPIDTable - Unknown assigned PDG code of " + std::to_string(recoPdgCode));
-
-                //// BEGIN DEBUG
-                const auto isTrueMuon = (truePdgCode == 13);
-                const auto isCC1PiMuonCandidate = (recoPdgCode == 13);
-                const auto isCCInclusiveMuonCandidate = particle.isCCInclusiveMuonCandidate();
-
-                if (isCC1PiMuonCandidate)
-                {
-                    cc1piMuonCount += weight;
-                    cc1piMuonCorrectCount += isTrueMuon ? weight : 0.f;
-                }
-
-                if (isCCInclusiveMuonCandidate)
-                {
-                    ccInclusiveMuonCount += weight;
-                    ccInclusiveMuonCorrectCount += isTrueMuon ? weight : 0.f;
-                }
-
-                if (isCC1PiMuonCandidate && isCCInclusiveMuonCandidate)
-                {
-                    ccInclusiveAnd1piMuonCount += weight;
-                    ccInclusiveAnd1piMuonCorrectCount += isTrueMuon ? weight : 0.f;
-                }
-                //// END DEBUG
 
                 // Get the mapping from true PDG to count for this reco pdg code, making it if it doesn't exist
                 auto &truePdgToCountMap = recoToTruePdgMap[recoPdgCode];
@@ -234,7 +203,6 @@ void MakeSelectedPIDTable(const Config &config)
             const auto countTotal = recoPdgToTotalWeightMap.at(recoPdg);
             const auto signalCountTotal = recoPdgToTotalWeightMapSignal.at(recoPdg);
             
-
             float count = 0.f;
             float signalCount = 0.f;
 
@@ -265,17 +233,6 @@ void MakeSelectedPIDTable(const Config &config)
     std::cout << "Signal events" << std::endl;
     FormattingHelper::PrintLine();
     signalTable.WriteToFile(prefix + "_signalEvents.md");
-
-
-    std::cout << std::endl;
-    FormattingHelper::PrintLine();
-    std::cout << "Muons" << std::endl;
-    std::cout << "  - CC1Pi muons = " << cc1piMuonCount << std::endl;
-    std::cout << "  - CC1Pi correct muons = " << cc1piMuonCorrectCount << std::endl;
-    std::cout << "  - CCInc muons = " << ccInclusiveMuonCount << std::endl;
-    std::cout << "  - CCInc correct muons = " << ccInclusiveMuonCorrectCount << std::endl;
-    std::cout << "  - CC 1Pi & Inc muons = " << ccInclusiveAnd1piMuonCount << std::endl;
-    std::cout << "  - CC 1Pi & Inc correct muons = " << ccInclusiveAnd1piMuonCorrectCount << std::endl;
 }
 
 } // namespace ubcc1pi_macros

@@ -55,6 +55,13 @@ namespace ubcc1pi_macros
      *  @param  config the input configuration
      */
     void FitRangeCurves(const Config &config = Config());
+    
+    /**
+     *  @brief  Determine the momentum thresholds to apply
+     *
+     *  @param  config the input configuration
+     */
+    void MomentumThresholdsStudy(const Config &config = Config());
 
     /**
      *  @brief  Look at the accuracy of the muon PID from the CC inclusive as a function of the muon kinematics
@@ -125,6 +132,13 @@ namespace ubcc1pi_macros
      *  @param  config the input configuration
      */
     void MakeEventSelectionEfficiencyPlots(const Config &config = Config());
+    
+    /**
+     *  @brief  Plot the variables that are used by the selection at the point of usage
+     *
+     *  @param  config the input configuration
+     */
+    void PlotEventSelectionCuts(const Config &config = Config());
 
     /**
      *  @brief  Plot the reconstructed variables for the muon candidate

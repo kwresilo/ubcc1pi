@@ -117,6 +117,25 @@ class PlottingHelper
                 MultiPlot(const std::string &xLabel, const std::string &yLabel, const std::vector<float> &binEdges, bool drawErrors = true);
 
                 /**
+                 *  @brief  If the plot is to be filled with integer values - label each bin with the integer that lands in that bin
+                 */
+                void SetIntegerBinLabels();
+
+                /**
+                 *  @brief  Set the bin labels
+                 *
+                 *  @param  labels the bin labels
+                 */
+                void SetBinLabels(const std::vector<std::string> &labels);
+
+                /**
+                 *  @brief  Add a cut line at a given value
+                 *
+                 *  @param  value the value
+                 */
+                void AddCutLine(const float value);
+
+                /**
                  *  @brief  Fill the histogram with the given value and plot style
                  *
                  *  @param  value the value to fill
@@ -129,15 +148,20 @@ class PlottingHelper
                  *  @brief  Draw and save the plot
                  *
                  *  @param  fileName the output file name (don't include an extension)
+                 *  @param  useLogX if we should use a log scale on the X-axis
+                 *  @param  scaleByBinWidth if we should scale by bin width
+                 *  @param  minEntriesToDraw the minimum number of entries required before we will draw a given histogram
                  */
-                void SaveAs(const std::string &fileName);
+                void SaveAs(const std::string &fileName, const bool useLogX = false, const bool scaleByBinWidth = false, const unsigned int minEntriesToDraw = 0u);
                 
                 /**
                  *  @brief  Draw and save the plot as a stacked histogram
                  *
                  *  @param  fileName the output file name (don't include an extension)
+                 *  @param  useLogX if we should use a log scale on the X-axis
+                 *  @param  scaleByBinWidth if we should scale by bin width
                  */
-                void SaveAsStacked(const std::string &fileName);
+                void SaveAsStacked(const std::string &fileName, const bool useLogX = false, const bool scaleByBinWidth = false);
 
             private:
                 /**
@@ -151,15 +175,17 @@ class PlottingHelper
                  *  @brief  Normalise the histograms by their number of entries
                  *
                  *  @param  plotToHistCloneMap the histograms to normalise
+                 *  @param  scaleByBinWidth if we should scale by the bin width when normalising
                  */
-                void ScaleHistograms(std::unordered_map<PlotStyle, TH1F*> &plotToHistCloneMap) const;
+                void ScaleHistograms(std::unordered_map<PlotStyle, TH1F*> &plotToHistCloneMap, const bool scaleByBinWidth) const;
 
                 /**
                  *  @brief  Set the Y-range of the histograms so all fit on the canvas
                  *
+                 *  @param  minEntriesToDraw the minimum number of entries required to draw a histogram (won't be considered when finding the ranges)
                  *  @param  plotToHistCloneMap the histograms to modify
                  */
-                void SetHistogramYRanges(std::unordered_map<PlotStyle, TH1F*> &plotToHistCloneMap) const;
+                void SetHistogramYRanges(const unsigned int minEntriesToDraw, std::unordered_map<PlotStyle, TH1F*> &plotToHistCloneMap) const;
 
                 std::string        m_xLabel;     ///< The x-label of the histogram
                 unsigned int       m_nBins;      ///< The number of bins
@@ -169,6 +195,7 @@ class PlottingHelper
                 unsigned int       m_id;         ///< The ID of this plot plot
                 unsigned int       m_cloneCount; ///< A count of the number of clones to avoid name collisions
                 bool               m_drawErrors; ///< Whether to draw the error bands
+                std::vector<float> m_cutValues;  ///< The values of cuts to draw
 
                 std::unordered_map<PlotStyle, std::shared_ptr<TH1F> > m_plotToHistMap; ///< The mapping from plot style to hist
 
@@ -326,6 +353,28 @@ class PlottingHelper
          *  @param  fileName the output file name (no extension)
          */
         static void SaveCanvas(std::shared_ptr<TCanvas> &canvas, const std::string &fileName);
+
+        /**
+         *  @brief  Generate uniform bin edges in the specified range
+         *
+         *  @param  nBins the number of bins to generate (nEdges = nBins + 1)
+         *  @param  min the minimum value of the bins
+         *  @param  max the maximum value of hte bins
+         *
+         *  @return the output bin edges
+         */
+        static std::vector<float> GenerateUniformBinEdges(const unsigned int nBins, const float min, const float max);
+        
+        /**
+         *  @brief  Generate log bin edges in the specified range
+         *
+         *  @param  nBins the number of bins to generate (nEdges = nBins + 1)
+         *  @param  min the minimum value of the bins
+         *  @param  max the maximum value of hte bins
+         *
+         *  @return the output bin edges
+         */
+        static std::vector<float> GenerateLogBinEdges(const unsigned int nBins, const float min, const float max);
 
     private:
 

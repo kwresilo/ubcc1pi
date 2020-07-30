@@ -294,6 +294,13 @@ class CrossSectionHelper
                  *  @param  uncertainties the uncertainties
                  */
                 void GetBackgroundsPerBin(std::vector<float> &bins, std::vector<float> &uncertainties) const;
+                
+                /**
+                 *  @brief  Get the purity in each bin
+                 *
+                 *  @param  bins the output purity values per bin
+                 */
+                void GetPurityPerBin(std::vector<float> &bins) const;
 
                 /**
                  *  @brief  Get the index of a bin from the input value
@@ -1034,6 +1041,37 @@ void CrossSectionHelper::XSec::GetBackgroundsPerBin(std::vector<float> &bins, st
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
 
+void CrossSectionHelper::XSec::GetPurityPerBin(std::vector<float> &bins) const
+{
+    if (!bins.empty())
+        throw std::invalid_argument("XSec::GetPurityPerBin - input bins vector isn't empty");
+    
+    const bool useRealData = false;
+    std::vector<float> selected, selectedErr;
+    this->GetBNBDataPerBin(selected, selectedErr, useRealData);
+    
+    std::vector<float> backgrounds, backgroundsErr;
+    this->GetBackgroundsPerBin(backgrounds, backgroundsErr);
+
+    const auto nBins = selected.size();
+    if (backgrounds.size() != nBins)
+        throw std::logic_error("XSec::GetPurityPerBin - Number of selected and backgrounds bins don't match!");
+
+    for (unsigned int i = 0; i < nBins; ++i)
+    {
+        const auto selectedInBin = selected.at(i);
+        if (selectedInBin <= std::numeric_limits<float>::epsilon())
+            throw std::logic_error("XSec::GetPurityPerBin - Found empty bin - no selected event in MC");
+
+        const auto signalInBin = selectedInBin - backgrounds.at(i);
+        const auto purityInBin = signalInBin / selectedInBin;
+
+        bins.push_back(purityInBin);
+    }
+}
+
+// -----------------------------------------------------------------------------------------------------------------------------------------
+
 void CrossSectionHelper::XSec::GetTrueEfficiencies(std::vector<float> &efficiencies, std::vector<float> &uncertainties) const
 {
     if (m_binEdges.size() < 2)
@@ -1429,11 +1467,14 @@ void CrossSectionHelper::XSec::PrintBinContents(const std::string &outputFileNam
     this->GetBackgroundsPerBin(backgrounds, backgroundsErr);
     const auto trueSignal = this->GetTrueSignalPerBin(true);
 
+    std::vector<float> purities;
+    this->GetPurityPerBin(purities);
+
     // Print the bins
     FormattingHelper::PrintLine();
     std::cout << "Bins" << std::endl;
     FormattingHelper::PrintLine();
-    FormattingHelper::Table binTable({"Bin", "", "Min", "Max", "", "True MC signal", "", "BNB data", "Fake data (MC)", "data - MC", "", "Backgrounds MC"});
+    FormattingHelper::Table binTable({"Bin", "", "Min", "Max", "", "True MC signal", "", "BNB data", "Fake data (MC)", "data - MC", "", "Backgrounds MC", "Purity MC"});
     for (unsigned int i = 0; i < nBins; ++i)
     {
         binTable.AddEmptyRow();
@@ -1449,6 +1490,7 @@ void CrossSectionHelper::XSec::PrintBinContents(const std::string &outputFileNam
         binTable.SetEntry("data - MC", FormattingHelper::GetValueWithError(dataMinusMC, dataMinusMCErr));
 
         binTable.SetEntry("Backgrounds MC", FormattingHelper::GetValueWithError(backgrounds.at(i), backgroundsErr.at(i)));
+        binTable.SetEntry("Purity MC", purities.at(i));
     }
     binTable.WriteToFile(outputFileNamePrefix + "_bins.md");
     
@@ -1522,7 +1564,7 @@ void CrossSectionHelper::XSec::PrintBinContents(const std::string &outputFileNam
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
 
-// TODO this function is vomit on toast.
+// TODO this function is vomit on toast - make it less so.
 void CrossSectionHelper::XSec::MakePlots(const std::string &fileNamePrefix) const
 {
     if (m_binEdges.size() < 2)

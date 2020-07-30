@@ -76,7 +76,7 @@ struct Config
     {
         bool        useAbsPdg               = true;               ///< If we should use absolute PDG codes (this makes pi+ == pi- in the signal definition)
         bool        countProtonsInclusively = true;               ///< If we should count protons inclusively (as Xp), or exclusively as (0p, 1p, 2p, ...)
-        std::string lastCutGeneric          = "topologicalScore"; ///< The last cut of the generic selection (remaining cuts are part of the golden selection)
+        std::string lastCutGeneric          = "startNearVertex";  ///< The last cut of the generic selection (remaining cuts are part of the golden selection)
         float       protonMomentumThreshold = 0.3f;               ///< The minimum proton momentum to be counted [GeV]
 
         /**
@@ -95,9 +95,9 @@ struct Config
          */
         struct MuonPhi
         {
-            float               min = -3.142f;                                                                          ///< Minimum possible value
-            float               max =  3.142f;                                                                          ///< Maximum possible value
-            std::vector<float>  binEdges = {-3.142f, -2.8f, -2.2f, -1.5f, -1.f, -0.4f, 0.1f, 0.7f, 2.f, 2.7f, 3.142f};  ///< The bin edges
+            float               min = -3.142f;                                                           ///< Minimum possible value
+            float               max =  3.142f;                                                           ///< Maximum possible value
+            std::vector<float>  binEdges = PlottingHelper::GenerateUniformBinEdges(10, -3.142f, 3.142f); ///< The bin edges
         };
         MuonPhi muonPhi; ///< The muonPhi plot limits
 
@@ -106,9 +106,14 @@ struct Config
          */
         struct MuonMomentum
         {
-            float               min = 0.f;                                          ///< Minimum possible value
-            float               max =  100.f;                                       ///< Maximum possible value
-            std::vector<float>  binEdges = {0.f, 0.29f, 0.37f, 0.56f, 0.8f, 1.5f};  ///< The bin edges
+            /*
+            float               min = 0.090f;                                         ///< Minimum possible value
+            float               max = 100.f;                                          ///< Maximum possible value
+            std::vector<float>  binEdges = {0.090f, 0.29f, 0.37f, 0.56f, 0.8f, 1.5f}; ///< The bin edges
+            */
+            float               min = 0.149f;                                         ///< Minimum possible value
+            float               max = 100.f;                                          ///< Maximum possible value
+            std::vector<float>  binEdges = {0.149f, 0.29f, 0.37f, 0.56f, 0.8f, 1.5f}; ///< The bin edges
         };
         MuonMomentum muonMomentum; ///< The muonMomentum plot limits
        
@@ -128,9 +133,9 @@ struct Config
          */
         struct PionPhi
         {
-            float               min = -3.142f;                                                                           ///< Minimum possible value
-            float               max =  3.142f;                                                                           ///< Maximum possible value
-            std::vector<float>  binEdges = {-3.142f, -2.4f, -1.5f, -0.7f, -0.3f, 0.2f, 0.8f, 1.4f, 2.2f, 2.6f, 3.142f};  ///< The bin edges
+            float               min = -3.142f;                                                           ///< Minimum possible value
+            float               max =  3.142f;                                                           ///< Maximum possible value
+            std::vector<float>  binEdges = PlottingHelper::GenerateUniformBinEdges(10, -3.142f, 3.142f); ///< The bin edges
         };
         PionPhi pionPhi; ///< The pionPhi plot limits
 
@@ -139,9 +144,14 @@ struct Config
          */
         struct PionMomentum
         {
-            float               min = 0.1f;                                    ///< Minimum possible value
-            float               max =  10.f;                                   ///< Maximum possible value
-            std::vector<float>  binEdges = {0.1f, 0.16f, 0.19f, 0.21f, 0.5f};  ///< The bin edges
+            /*
+            float               min = 0.114f;                                    ///< Minimum possible value
+            float               max = 10.f;                                      ///< Maximum possible value
+            std::vector<float>  binEdges = {0.114f, 0.16f, 0.19f, 0.21f, 0.5f};  ///< The bin edges
+            */
+            float               min = 0.f;                                            ///< Minimum possible value
+            float               max = 10.f;                                           ///< Maximum possible value
+            std::vector<float>  binEdges = {0.f, 0.114f, 0.16f, 0.19f, 0.21f, 0.5f};  ///< The bin edges
         };
         PionMomentum pionMomentum; ///< The pionMomentum plot limits
    
@@ -161,9 +171,9 @@ struct Config
          */
         struct NProtons
         {
-            float               min = 0;               ///< Minimum possible value
-            float               max =  12;             ///< Maximum possible value
-            std::vector<float>  binEdges = {0, 1, 2};  ///< The bin edges
+            float               min = 0;                  ///< Minimum possible value
+            float               max = 12;                 ///< Maximum possible value
+            std::vector<float>  binEdges = {0, 1, 2, 3};  ///< The bin edges
         };
         NProtons nProtons; ///< The nProtons plot limits
 
