@@ -12,19 +12,13 @@
 
 #include <THStack.h>
 #include <TLine.h>
+#include <TStyle.h>
 
 namespace ubcc1pi
 {
 
 PlottingHelper::MultiPlot::MultiPlot(const std::string &xLabel, const std::string &yLabel, unsigned int nBins, float min, float max, bool drawErrors) :
-    MultiPlot(xLabel, yLabel, [&] {
-        std::vector<float> binEdges;
-
-        for (unsigned int i = 0; i <= nBins; ++i)
-            binEdges.push_back(min + ((max - min) * static_cast<float>(i)) / static_cast<float>(nBins));
-
-        return binEdges;
-    }(), drawErrors /** @brief doxygen needs this **/)
+    MultiPlot(xLabel, yLabel, PlottingHelper::GenerateUniformBinEdges(nBins, min, max), drawErrors)
 {
 }
 
@@ -58,6 +52,73 @@ PlottingHelper::MultiPlot::MultiPlot(const std::string &xLabel, const std::strin
         
         m_plotToHistMap.emplace(style, pHist);
     }
+}
+
+// -----------------------------------------------------------------------------------------------------------------------------------------
+
+void PlottingHelper::MultiPlot::SetIntegerBinLabels()
+{
+    // Check that the bin edges lie on an integer and get those integers
+    std::vector<int> intBinEdges;
+    for (const auto &edge : m_binEdges)
+    {
+        if (std::abs(edge - std::round(edge)) > std::numeric_limits<float>::epsilon())
+            throw std::logic_error("MultiPlot::SetIntegerBinLabels - found bin edge of: " + std::to_string(edge) + ", which isn't an integer");
+
+        intBinEdges.push_back(static_cast<int>(std::round(edge)));
+    }
+
+    // Get the bin labels
+    std::vector<std::string> labels;
+    for (unsigned int iBin = 0; iBin < m_nBins; ++iBin)
+    {
+        const auto lower = intBinEdges.at(iBin);
+        const auto upper = intBinEdges.at(iBin + 1);
+        const auto width = upper - lower;
+
+        // If this bin contains one integer, then just label it with that value
+        if (width == 1)
+        {
+            labels.push_back(std::to_string(lower));
+            continue;
+        }
+
+        // If the bin contained multiple integers then use the range
+        labels.push_back(std::to_string(lower) + " -> " + std::to_string(upper - 1));
+    }
+
+    // Set the bin labels
+    this->SetBinLabels(labels);
+}
+
+// -----------------------------------------------------------------------------------------------------------------------------------------
+                
+void PlottingHelper::MultiPlot::SetBinLabels(const std::vector<std::string> &labels)
+{
+    if (labels.size() != m_nBins)
+        throw std::invalid_argument("MultiPlot::SetBinLabels - there are " + std::to_string(m_nBins) + " bins, but only " + std::to_string(labels.size()) + " labels were provided");
+
+    for (const auto &style : PlottingHelper::AllPlotStyles)
+    {
+        auto &pHist = m_plotToHistMap.at(style);
+        auto pXAxis = pHist->GetXaxis();
+
+        for (unsigned int iBin = 0; iBin < m_nBins; ++iBin)
+        {
+            // ATTN root indexes it's bins from 1
+            pXAxis->SetBinLabel(iBin + 1, labels.at(iBin).c_str());
+        }
+    }
+}
+
+// -----------------------------------------------------------------------------------------------------------------------------------------
+                
+void PlottingHelper::MultiPlot::AddCutLine(const float value)
+{
+    if (value < m_min || value > m_max)
+        throw std::invalid_argument("MultiPlot::AddCutLine - supplied value: " + std::to_string(value) + " is out of range: " + std::to_string(m_min) + " -> " + std::to_string(m_max));
+
+    m_cutValues.push_back(value);
 }
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
@@ -95,29 +156,38 @@ void PlottingHelper::MultiPlot::GetHistogramClones(std::unordered_map<PlotStyle,
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
 
-void PlottingHelper::MultiPlot::ScaleHistograms(std::unordered_map<PlotStyle, TH1F*> &plotToHistCloneMap) const
+void PlottingHelper::MultiPlot::ScaleHistograms(std::unordered_map<PlotStyle, TH1F*> &plotToHistCloneMap, const bool scaleByBinWidth) const
 {
     for (const auto &style : PlottingHelper::AllPlotStyles)
     {
         auto pHist = plotToHistCloneMap.at(style);
-        pHist->Scale(1.f / pHist->Integral(), "width"); // TODO check if this does what we want
+        pHist->Scale(1.f / pHist->Integral(scaleByBinWidth ? "width" : ""));
     }
 }
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
 
-void PlottingHelper::MultiPlot::SetHistogramYRanges(std::unordered_map<PlotStyle, TH1F*> &plotToHistCloneMap) const
+void PlottingHelper::MultiPlot::SetHistogramYRanges(const unsigned int minEntriesToDraw, std::unordered_map<PlotStyle, TH1F*> &plotToHistCloneMap) const
 {
     float yMin = std::numeric_limits<float>::max();
     float yMax = -std::numeric_limits<float>::max();
-    
+
+    bool shouldScale = false;
     for (const auto &style : PlottingHelper::AllPlotStyles)
     {
         const auto pHist = plotToHistCloneMap.at(style);
+
+        if (pHist->GetEntries() < minEntriesToDraw)
+            continue;
+
         yMin = std::min(yMin, static_cast<float>(pHist->GetMinimum()));
         yMax = std::max(yMax, static_cast<float>(pHist->GetMaximum()));
+        shouldScale = true;
     }
     
+    if (!shouldScale)
+        return;
+
     // Add some padding to the top of the histogram
     yMax += (yMax - yMin) * 0.05;
     
@@ -130,15 +200,20 @@ void PlottingHelper::MultiPlot::SetHistogramYRanges(std::unordered_map<PlotStyle
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
 
-void PlottingHelper::MultiPlot::SaveAs(const std::string &fileName)
+void PlottingHelper::MultiPlot::SaveAs(const std::string &fileName, const bool useLogX, const bool scaleByBinWidth, const unsigned int minEntriesToDraw)
 {
     auto pCanvas = PlottingHelper::GetCanvas();
+
+    if (useLogX)
+    {
+        pCanvas->SetLogx();
+    }
 
     // Clone the histogtams and scale them (we clone to the original hisograms can be subsequently filled)
     std::unordered_map<PlotStyle, TH1F* > plotToHistCloneMap;
     this->GetHistogramClones(plotToHistCloneMap);
-    this->ScaleHistograms(plotToHistCloneMap);
-    this->SetHistogramYRanges(plotToHistCloneMap);
+    this->ScaleHistograms(plotToHistCloneMap, scaleByBinWidth);
+    this->SetHistogramYRanges(minEntriesToDraw, plotToHistCloneMap);
 
     // Draw the error bands if required
     bool isFirst = true;
@@ -156,7 +231,7 @@ void PlottingHelper::MultiPlot::SaveAs(const std::string &fileName)
 
             auto pHist = plotToHistCloneMap.at(style);
     
-            if (pHist->GetEntries() == 0)
+            if (pHist->GetEntries() < minEntriesToDraw)
                 continue;
             
             // Draw a clone of the histogram so we can safely change it's style
@@ -180,7 +255,7 @@ void PlottingHelper::MultiPlot::SaveAs(const std::string &fileName)
 
         auto pHist = plotToHistCloneMap.at(style);
 
-        if (pHist->GetEntries() == 0)
+        if (pHist->GetEntries() < minEntriesToDraw)
             continue;
         
         const bool usePoints = PlottingHelper::ShouldUsePoints(style);
@@ -194,17 +269,25 @@ void PlottingHelper::MultiPlot::SaveAs(const std::string &fileName)
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
 
-void PlottingHelper::MultiPlot::SaveAsStacked(const std::string &fileName)
+void PlottingHelper::MultiPlot::SaveAsStacked(const std::string &fileName, const bool useLogX, const bool scaleByBinWidth)
 {
     auto pCanvas = PlottingHelper::GetCanvas();
+
+    if (useLogX)
+    {
+        pCanvas->SetLogx();
+    }
 
     // Clone the histogtams and scale them (we clone to the original hisograms can be subsequently filled)
     std::unordered_map<PlotStyle, TH1F* > plotToHistCloneMap;
     this->GetHistogramClones(plotToHistCloneMap);
 
     // Scale by bin width
-    for (auto &entry : plotToHistCloneMap)
-        entry.second->Scale(1.f, "width");
+    if (scaleByBinWidth)
+    {
+        for (auto &entry : plotToHistCloneMap)
+            entry.second->Scale(1.f, "width");
+    }
 
     // Work out if we have BNB data to plot, and if we do then get the minimum and maximum Y coordinates
     auto bnbDataHistIter = plotToHistCloneMap.find(BNBData);
@@ -219,6 +302,7 @@ void PlottingHelper::MultiPlot::SaveAsStacked(const std::string &fileName)
     auto pHistTotal = std::make_shared<TH1F>(nameTotal, "", m_nBins, m_binEdges.data());
     pHistTotal->Sumw2();
 
+    bool isFirst = true;
     for (const auto &style : PlottingHelper::AllPlotStyles)
     {
         // Don't add BNB data to the total, this will be drawn seperately
@@ -226,9 +310,22 @@ void PlottingHelper::MultiPlot::SaveAsStacked(const std::string &fileName)
             continue;
 
         auto pHist = plotToHistCloneMap.at(style);
-        
+
         if (pHist->GetEntries() == 0)
             continue;
+
+        if (isFirst)
+        {
+            // If we are using alphanumeric bin labels, then we need to copy those labels to the total histogram or root will complain
+            const auto pAxis = pHist->GetXaxis();
+            if (pAxis->IsAlphanumeric())
+            {
+                for (unsigned int iBin = 1; iBin <= static_cast<unsigned int>(pAxis->GetNbins()); ++iBin)
+                    pHistTotal->GetXaxis()->SetBinLabel(iBin, pAxis->GetBinLabel(iBin));
+            }
+
+            isFirst = false;
+        }
 
         pHistTotal->Add(pHist);
     }
@@ -237,7 +334,7 @@ void PlottingHelper::MultiPlot::SaveAsStacked(const std::string &fileName)
     yMin = std::min(yMin, static_cast<float>(pHistTotal->GetMinimum()));
     yMax = std::max(yMax, static_cast<float>(pHistTotal->GetMaximum()));
     yMax += (yMax - yMin) * 0.05;
-
+        
     // Draw the stacked histogram
     const auto nameStackStr = "ubcc1pi_plotPlot_" + std::to_string(m_id) + "_stack";
     const auto nameStack = nameStackStr.c_str();
@@ -250,7 +347,7 @@ void PlottingHelper::MultiPlot::SaveAsStacked(const std::string &fileName)
             continue;
 
         auto pHist = plotToHistCloneMap.at(style);
-
+        
         if (pHist->GetEntries() == 0)
             continue;
         
@@ -262,9 +359,8 @@ void PlottingHelper::MultiPlot::SaveAsStacked(const std::string &fileName)
         pHistStack->Add(pHist);
     }
 
-    //pHistStack->SetMinimum(yMin);
     pHistStack->SetMinimum(0.f);
-    pHistStack->SetMaximum(yMax);
+    pHistStack->SetMaximum(yMax / (1+gStyle->GetHistTopMargin()));
     pHistStack->Draw("hist");
            
     // Draw the error bands on the stack if required
@@ -282,10 +378,24 @@ void PlottingHelper::MultiPlot::SaveAsStacked(const std::string &fileName)
         bnbDataHistIter->second->Draw("e1 same");
     }
 
-    PlottingHelper::SaveCanvas(pCanvas, fileName);
+    // Draw the cut lines
+    for (const auto &cutValue : m_cutValues)
+    {
+        TLine *pLine = new TLine(cutValue, 0.f, cutValue, yMax);
+        pLine->SetLineWidth(2);
+        pLine->Draw();
+    }
 
+    PlottingHelper::SaveCanvas(pCanvas, fileName);
+    
     // Now make the ratio plot
     auto pCanvasRatio = PlottingHelper::GetCanvas(960, 270);
+    
+    if (useLogX)
+    {
+        pCanvasRatio->SetLogx();
+    }
+
     auto pHistBNBData = static_cast<TH1F *>(bnbDataHistIter->second->Clone());
     //pHistBNBData->GetYaxis()->SetTitle("Beam on / (Overlay + Beam off)");
     pHistBNBData->Divide(pHistTotal.get());
@@ -299,16 +409,20 @@ void PlottingHelper::MultiPlot::SaveAsStacked(const std::string &fileName)
         maxRatio = std::max(maxRatio, static_cast<float>(pHistBNBData->GetBinContent(i) + pHistBNBData->GetBinError(i)));
     }
     const auto padding = (maxRatio - minRatio) * 0.05f;
-    pHistBNBData->GetYaxis()->SetRangeUser(std::max(0.f, minRatio - padding), maxRatio + padding);
+    const auto ratioYMin = std::max(0.f, minRatio - padding);
+    const auto ratioYMax = maxRatio + padding;
+    pHistBNBData->GetYaxis()->SetRangeUser(ratioYMin, ratioYMax);
 
     // Draw
     pHistBNBData->Draw("e1");
     pCanvasRatio->Update();
 
     // Add the lines at 0.8, 1.0 and 1.2
-    TLine *l=new TLine(pCanvasRatio->GetUxmin(),1.0,pCanvasRatio->GetUxmax(),1.0);
-    TLine *lPlus=new TLine(pCanvasRatio->GetUxmin(),1.2,pCanvasRatio->GetUxmax(),1.2);
-    TLine *lMinus=new TLine(pCanvasRatio->GetUxmin(),0.8,pCanvasRatio->GetUxmax(),0.8);
+    const auto ratioXMin = pHistBNBData->GetXaxis()->GetXmin();
+    const auto ratioXMax = pHistBNBData->GetXaxis()->GetXmax();
+    TLine *l=new TLine(ratioXMin,1.0,ratioXMax,1.0);
+    TLine *lPlus=new TLine(ratioXMin,1.2,ratioXMax,1.2);
+    TLine *lMinus=new TLine(ratioXMin,0.8,ratioXMax,0.8);
     l->SetLineColor(kBlue);
     lPlus->SetLineColor(kBlue);
     lMinus->SetLineColor(kBlue);
@@ -317,6 +431,14 @@ void PlottingHelper::MultiPlot::SaveAsStacked(const std::string &fileName)
     l->Draw();
     lPlus->Draw();
     lMinus->Draw();
+    
+    // Draw the cut lines
+    for (const auto &cutValue : m_cutValues)
+    {
+        TLine *pLine = new TLine(cutValue, ratioYMin, cutValue, ratioYMax);
+        pLine->SetLineWidth(2);
+        pLine->Draw();
+    }
 
     PlottingHelper::SaveCanvas(pCanvasRatio, fileName + "_ratio");
 }
@@ -325,19 +447,24 @@ void PlottingHelper::MultiPlot::SaveAsStacked(const std::string &fileName)
 // -----------------------------------------------------------------------------------------------------------------------------------------
 
 PlottingHelper::EfficiencyPlot::EfficiencyPlot(const std::string &xLabel, unsigned int nBins, float min, float max, const std::vector<string> &cuts, bool drawErrors) :
+    EfficiencyPlot(xLabel, PlottingHelper::GenerateUniformBinEdges(nBins, min, max), cuts, drawErrors)
+{
+}
+
+// -----------------------------------------------------------------------------------------------------------------------------------------
+
+PlottingHelper::EfficiencyPlot::EfficiencyPlot(const std::string &xLabel, const std::vector<float> &binEdges, const std::vector<string> &cuts, bool drawErrors) :
     /// @cond Doxygen can't handle this initilizer list
     m_xLabel(xLabel),
-    m_nBins(nBins),
-    m_min(min),
-    m_max(max),
+    m_binEdges(binEdges),
+    m_nBins(binEdges.size() - 1),
+    m_min(binEdges.front()),
+    m_max(binEdges.back()),
     m_cuts(cuts),
     m_drawErrors(drawErrors),
     m_id(++m_lastId)
     /// @endcond
 {
-    // Get all colours
-    const auto palette = PlottingHelper::GetColorVector();
-    
     if (m_cuts.empty())
         throw std::logic_error("EfficiencyPlot::EfficiencyPlot - There are no cuts set!");
 
@@ -356,17 +483,13 @@ PlottingHelper::EfficiencyPlot::EfficiencyPlot(const std::string &xLabel, unsign
 
         // Make the pair of plots, one for the numerator one for denominator
         auto plotPair = std::pair< std::shared_ptr<TH1F>, std::shared_ptr<TH1F> >(
-            std::make_shared<TH1F>(nameNumerator.c_str(), "", nBins, min, max),
-            std::make_shared<TH1F>(nameDenominator.c_str(), "", nBins, min, max));
+            std::make_shared<TH1F>(nameNumerator.c_str(), "", m_nBins, m_binEdges.data()),
+            std::make_shared<TH1F>(nameDenominator.c_str(), "", m_nBins, m_binEdges.data()));
         
-        // Pick the color from the palette
-        const auto col = palette.at(iCut % palette.size());
-
         // Setup the plots
         for (auto &pHist : {plotPair.first, plotPair.second})
         {
             pHist->Sumw2();
-            PlottingHelper::SetLineStyle(pHist.get(), col);
             //pHist->GetXaxis()->SetTitle(xLabel.c_str());
             //pHist->GetYaxis()->SetTitle("Efficiency");
         }
@@ -376,8 +499,18 @@ PlottingHelper::EfficiencyPlot::EfficiencyPlot(const std::string &xLabel, unsign
 }
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
+                
+void PlottingHelper::EfficiencyPlot::AddCutLine(const float value)
+{
+    if (value < m_min || value > m_max)
+        throw std::invalid_argument("EfficiencyPlot::AddCutLine - supplied value: " + std::to_string(value) + " is out of range: " + std::to_string(m_min) + " -> " + std::to_string(m_max));
+
+    m_cutValues.push_back(value);
+}
+
+// -----------------------------------------------------------------------------------------------------------------------------------------
        
-void PlottingHelper::EfficiencyPlot::AddEvent(const float value, const std::string &cut, const bool passedCut)
+void PlottingHelper::EfficiencyPlot::AddEvent(const float value, const float weight, const std::string &cut, const bool passedCut)
 {
     auto plotPairIter = m_cutToPlotsMap.find(cut);
 
@@ -388,28 +521,38 @@ void PlottingHelper::EfficiencyPlot::AddEvent(const float value, const std::stri
     auto &pHistDenominator = plotPairIter->second.second;
 
     if (passedCut)
-        pHistNumerator->Fill(value);
+        pHistNumerator->Fill(value, weight);
 
-    pHistDenominator->Fill(value);
+    pHistDenominator->Fill(value, weight);
 }
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
 
-void PlottingHelper::EfficiencyPlot::SaveAs(const std::string &fileName)
+void PlottingHelper::EfficiencyPlot::SaveAs(const std::vector<std::string> &cuts, const std::vector<int> &colors, const std::string &fileName)
 {
+    if (cuts.size() != colors.size())
+        throw std::invalid_argument("EfficiencyPlot::SaveAs - number of cuts and colors doesn't match");
+        
+    for (const auto &cut : cuts)
+    {
+        if (std::find(m_cuts.begin(), m_cuts.end(), cut) == m_cuts.end())
+            throw std::invalid_argument("EfficiencyPlot::SaveAs - Unknown cut: \"" + cut + "\"");
+    }
+
     auto pCanvas = PlottingHelper::GetCanvas();
 
     // Save the raw histogram - just use the denominator of the first cut
     auto pHistRaw = static_cast<TH1F *>(m_cutToPlotsMap.at(m_cuts.front()).second->Clone());
     //pHistRaw->GetYaxis()->SetTitle("Number of events");
-    pHistRaw->SetLineColor(kBlack);
+    PlottingHelper::SetLineStyle(pHistRaw, Default);
 
     if (m_drawErrors)
     {
         auto pHistClone = static_cast<TH1F *>(pHistRaw->Clone());
+        const auto deafultCol = PlottingHelper::GetColor(Default);
         pHistClone->SetFillStyle(1001);
-        pHistClone->SetLineColorAlpha(kBlack, 0.f);
-        pHistClone->SetFillColorAlpha(kBlack, 0.3f);
+        pHistClone->SetLineColorAlpha(deafultCol, 0.f);
+        pHistClone->SetFillColorAlpha(deafultCol, 0.3f);
 
         pHistClone->Draw("e2");
     }
@@ -420,8 +563,11 @@ void PlottingHelper::EfficiencyPlot::SaveAs(const std::string &fileName)
     // Get the efficiency histograms
     std::vector<TH1F *> efficiencyHists;
     std::vector<TH1F *> efficiencyErrorHists;
-    for (const auto &cut : m_cuts)
-    {
+    for (unsigned int i = 0; i < cuts.size(); ++i)
+    {   
+        const auto &cut = cuts.at(i);
+        const auto col = colors.at(i);
+
         const auto &plotPair = m_cutToPlotsMap.at(cut);
         const auto &pHistNumerator = plotPair.first;
         const auto &pHistDenominator = plotPair.second;
@@ -429,13 +575,12 @@ void PlottingHelper::EfficiencyPlot::SaveAs(const std::string &fileName)
         // Clone the numerator and divide by the denominator to get the efficiency
         auto pHistEfficiency = static_cast<TH1F *>(pHistNumerator->Clone());
         pHistEfficiency->Divide(pHistDenominator.get());
-
+        PlottingHelper::SetLineStyle(pHistEfficiency, col);
         efficiencyHists.push_back(pHistEfficiency);
     
         if (m_drawErrors)
         {
             auto pHistClone = static_cast<TH1F *>(pHistEfficiency->Clone());
-            const auto col = pHistClone->GetLineColor();
             pHistClone->SetFillStyle(1001);
             pHistClone->SetLineColorAlpha(col, 0.f);
             pHistClone->SetFillColorAlpha(col, 0.3f);
@@ -457,10 +602,24 @@ void PlottingHelper::EfficiencyPlot::SaveAs(const std::string &fileName)
     // Add some padding to the top of the histogram
     yMax += (yMax - yMin) * 0.05;
 
-    // Draw the individual efficiency plots for each cut
-    for (unsigned int i = 0; i < m_cuts.size(); ++i)
+    //// TEST
+    yMin = 0.f;
+    yMax = 1.05f;
+    //// END TEST
+    
+    // Make the cut lines
+    std::vector< shared_ptr<TLine> > lines;
+    for (const auto &cutValue : m_cutValues)
     {
-        const auto &cut = m_cuts.at(i);
+        lines.emplace_back(new TLine(cutValue, yMin, cutValue, yMax));
+        auto &pLine = lines.back();
+        pLine->SetLineWidth(2);
+    }
+
+    // Draw the individual efficiency plots for each cut
+    for (unsigned int i = 0; i < cuts.size(); ++i)
+    {
+        const auto &cut = cuts.at(i);
 
         if (m_drawErrors)
         {
@@ -472,6 +631,10 @@ void PlottingHelper::EfficiencyPlot::SaveAs(const std::string &fileName)
         auto pHist = efficiencyHists.at(i);
         pHist->GetYaxis()->SetRangeUser(yMin, yMax);
         pHist->Draw(!m_drawErrors ? "hist" : "hist same");
+
+        // Draw the cut value lines
+        for (const auto &pLine : lines)
+            pLine->Draw();
     
         PlottingHelper::SaveCanvas(pCanvas, fileName + "_" + std::to_string(i) + "_" + cut);
     }
@@ -492,8 +655,37 @@ void PlottingHelper::EfficiencyPlot::SaveAs(const std::string &fileName)
         pHist->Draw(isFirst ? "hist" : "hist same");
         isFirst = false;
     }
+        
+    // Draw the cut value lines
+    for (const auto &pLine : lines)
+        pLine->Draw();
     
     PlottingHelper::SaveCanvas(pCanvas, fileName);
+}
+
+// -----------------------------------------------------------------------------------------------------------------------------------------
+                
+void PlottingHelper::EfficiencyPlot::SaveAs(const std::vector<std::string> &cuts, const std::vector<PlotStyle> &styles, const std::string &fileName)
+{
+    // Convert the styles to colors
+    std::vector<int> colors;
+    for (const auto &style : styles)
+        colors.push_back(PlottingHelper::GetColor(style));
+    
+    this->SaveAs(cuts, colors, fileName);
+}
+
+// -----------------------------------------------------------------------------------------------------------------------------------------
+
+void PlottingHelper::EfficiencyPlot::SaveAs(const std::string &fileName)
+{
+    // Get the colors - one for each plot
+    const auto palette = PlottingHelper::GetColorVector();
+    std::vector<int> colors;
+    for (unsigned int i = 0; i < m_cuts.size(); ++i)
+        colors.push_back(palette.at(i % palette.size()));
+
+    this->SaveAs(m_cuts, colors, fileName);
 }
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
@@ -641,5 +833,43 @@ void PlottingHelper::SaveCanvas(std::shared_ptr<TCanvas> &pCanvas, const std::st
         pCanvas->SaveAs((fileName + "." + ext).c_str());
     }
 }
+
+// -----------------------------------------------------------------------------------------------------------------------------------------
+
+std::vector<float> PlottingHelper::GenerateUniformBinEdges(const unsigned int nBins, const float min, const float max)
+{
+    if (min >= max)
+        throw std::invalid_argument("PlottingHelper::GenerateUniformBinEdges - The range: " + std::to_string(min) + " -> " + std::to_string(max) + ", is invalid");
+
+    std::vector<float> outVect;
+
+    for (unsigned int i = 0; i <= nBins; ++i)
+        outVect.emplace_back(min + (max - min) * static_cast<float>(i) / static_cast<float>(nBins));
+
+    return outVect;
+}
+
+// -----------------------------------------------------------------------------------------------------------------------------------------
+        
+std::vector<float> PlottingHelper::GenerateLogBinEdges(const unsigned int nBins, const float min, const float max)
+{
+    if (std::min(min, max) <= 0.f)
+        throw std::invalid_argument("PlottingHelper::GenerateUniformBinEdges - The range: " + std::to_string(min) + " -> " + std::to_string(max) + ", includes region <= 0");
+
+    // Get uniformly spaced bins in log-space
+    const auto logMin = std::log10(min);
+    const auto logMax = std::log10(max);
+    auto logBinEdges = PlottingHelper::GenerateUniformBinEdges(nBins, logMin, logMax);
+
+    // Transform these edges into non-log space
+    std::vector<float> outVect;
+    for (const auto &logBinEdge : logBinEdges)
+    {
+        outVect.push_back(std::pow(10, logBinEdge));
+    }
+
+    return outVect;
+}
+
 
 } // namespace ubcc1pi

@@ -17,6 +17,7 @@
 #include <TFile.h>
 
 #include "ubcc1pi_standalone/Interface/Event.h"
+#include "ubcc1pi_standalone/Helpers/PlottingHelper.h"
 
 namespace ubcc1pi
 {
@@ -27,6 +28,15 @@ namespace ubcc1pi
 class BDTHelper
 {
     public:
+
+        typedef std::vector< std::pair<float, float> > BDTResponseWeightVector; ///< A vector of BDT responses and their corresponding weights
+
+        /**
+         *  @brief  A mapping with keys [missingFeature][particleType] and value of a vector of BDT responses as pair <bdtResponse, eventWeight>
+         *          Used by the N-1 study
+         */
+        typedef std::map< std::string, std::map< PlottingHelper::PlotStyle, BDTResponseWeightVector > > BDTResponseMap;
+
         /**
          *  @brief  Base wrapper class for at root TMVA BDT
          */
@@ -203,6 +213,21 @@ class BDTHelper
          *  @brief  The particle BDT feature names 
          */
         static const std::vector<std::string> ParticleBDTFeatureNames;
+        
+        /**
+         *  @brief  The particle BDT feature names for the muon BDT
+         */
+        static const std::vector<std::string> MuonBDTFeatureNames;
+        
+        /**
+         *  @brief  The particle BDT feature names for the proton BDT
+         */
+        static const std::vector<std::string> ProtonBDTFeatureNames;
+        
+        /**
+         *  @brief  The particle BDT feature names for the golden pion BDT
+         */
+        static const std::vector<std::string> GoldenPionBDTFeatureNames;
 
         /**
          *  @brief  Get the features corresponding to the given names for the input reco particle
@@ -215,6 +240,53 @@ class BDTHelper
          *  @return boolean, true if all features are available
          */
         static bool GetBDTFeatures(const Event::Reco::Particle &recoParticle, const std::vector<std::string> &featureNames, std::vector<float> &features, const bool shouldDebug = false);
+                
+        /**
+         *  @brief  Get the ROC curve for a set of BDT responses for signal and background
+         *
+         *  @param  signalResponses the BDT responses of signal
+         *  @param  backgroundResponses the BDT responses of background
+         *  @param  nSamplePoints the number of sample points (values of the BDT response)
+         *
+         *  @return the ROC curve
+         */
+        static std::shared_ptr<TGraph> GetROCCurve(const BDTResponseWeightVector &signalResponses, const BDTResponseWeightVector &backgroundResponses, const unsigned int nSamplePoints = 100u);
+        /**
+         *  @brief  Get the ROC curve for a set of BDT responses for signal and background
+         *
+         *  @param  signalResponses the input BDT responses of signal
+         *  @param  backgroundResponses the input BDT responses of background
+         *  @param  nSamplePoints the number of sample points (values of the BDT response)
+         *  @param  signalPassingRates the output signal passing rates
+         *  @param  backgroundRejectionRates the output background rejection rates
+         *  @param  signalPassingRateErrors the output uncertainties on the signal passing rates
+         *  @param  backgroundRejectionRateErrors the output uncertainties onf the background rejection rates
+         */
+        static void GetROCCurve(const BDTResponseWeightVector &signalResponses, const BDTResponseWeightVector &backgroundResponses, const unsigned int nSamplePoints, std::vector<float> &signalPassingRates, std::vector<float> &backgroundRejectionRates, std::vector<float> &signalPassingRateErrors, std::vector<float> &backgroundRejectionRateErrors);
+
+        /**
+         *  @brief  Get the integral under the ROC curve
+         *
+         *  @param  signalPassingRates the input signal passing rates
+         *  @param  backgroundRejectionRates the input background rejection rates
+         *
+         *  @return the ROC integral
+         */
+        static float GetROCIntegral(const std::vector<float> &signalPassingRates, const std::vector<float> &backgroundRejectionRates);
+
+        /**
+         *  @brief  Get the uncertainty on the ROC curve integral
+         *
+         *  @param  signalPassingRates the input signal passing rates
+         *  @param  backgroundRejectionRates the input background rejection rates
+         *  @param  signalPassingRateErrs the uncertainty on the input signal passing rates
+         *  @param  backgroundRejectionRateErrs the uncertainty on the input background rejection rates
+         *  @param  nUniverses the number of universes to use when calculating the uncertainty 
+         *
+         *  @return The uncertainty on the ROC curve integral 
+         */
+        static float GetROCIntegralError(const std::vector<float> &signalPassingRates, const std::vector<float> &backgroundRejectionRates, const std::vector<float> &signalPassingRateErrs, const std::vector<float> &backgroundRejectionRateErrs, const unsigned int nUniverses = 1000u);
+
 };
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
@@ -228,6 +300,38 @@ const std::vector<std::string> BDTHelper::ParticleBDTFeatureNames = {
     "muonForward",
     "nDescendents",
     "nSpacePointsNearEnd",
+    "wiggliness",
+    "trackScore"
+};
+
+// -----------------------------------------------------------------------------------------------------------------------------------------
+
+const std::vector<std::string> BDTHelper::MuonBDTFeatureNames = {
+    "logBragg_pToMIP",
+    "logBragg_piToMIP",
+    "truncMeandEdx",
+    "nDescendents",
+    "wiggliness",
+    "trackScore"
+};
+
+// -----------------------------------------------------------------------------------------------------------------------------------------
+
+const std::vector<std::string> BDTHelper::ProtonBDTFeatureNames = {
+    "logBragg_pToMIP",
+    "logBragg_piToMIP",
+    "truncMeandEdx",
+    "wiggliness",
+    "trackScore"
+};
+
+// -----------------------------------------------------------------------------------------------------------------------------------------
+
+const std::vector<std::string> BDTHelper::GoldenPionBDTFeatureNames = {
+    "logBragg_pToMIP",
+    "logBragg_piToMIP",
+    "truncMeandEdx",
+    "nDescendents",
     "wiggliness",
     "trackScore"
 };

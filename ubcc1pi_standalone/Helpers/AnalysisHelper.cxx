@@ -11,6 +11,11 @@
 
 #include <stdexcept>
 #include <algorithm>
+#include <numeric>
+
+        #include <TCanvas.h>
+#include <TGraph.h>
+#include <TFitResult.h>
 
 namespace ubcc1pi
 {
@@ -293,7 +298,7 @@ std::vector<std::string> AnalysisHelper::EventCounter::GetTags() const
 
 void AnalysisHelper::EventCounter::PrintBreakdownSummary(const std::string &outputFileName) const
 {
-    FormattingHelper::Table table({"Tag", "", "Signal", "Background", "Efficiency", "Purity", "E*P", "", "BNB Data", "Data/MC ratio"});
+    FormattingHelper::Table table({"Tag", "", "Signal", "Background", "Efficiency", "Purity", "E*P", "Golden fraction", "", "BNB Data", "Data/MC ratio"});
     for (const auto &tag : m_tags)
     {
         table.AddEmptyRow();
@@ -318,6 +323,8 @@ void AnalysisHelper::EventCounter::PrintBreakdownSummary(const std::string &outp
             table.SetEntry("Purity", purity);
             table.SetEntry("E*P", efficiency * purity);
         }
+        
+        table.SetEntry("Golden fraction", this->GetSignalWeight(tag, "S G") / this->GetSignalWeight(tag));
 
         const auto bnbDataWeight = this->GetBNBDataWeight(tag);
         const auto totalMCWeight = this->GetTotalMCWeight(tag);
@@ -767,7 +774,7 @@ unsigned int AnalysisHelper::GetBestMatchedTruthParticleIndex(const Event::Reco:
 
     for (unsigned int i = 0; i < truthParticles.size(); ++i)
     {
-        if (!AnalysisHelper::PassesVisibilityThreshold(truthParticles.at(i)))
+        if (applyVisibilityThreshold && !AnalysisHelper::PassesVisibilityThreshold(truthParticles.at(i)))
             continue;
 
         const auto score = recoParticle.truthMatchPurities().at(i);
@@ -803,48 +810,221 @@ bool AnalysisHelper::IsGolden(const Event::Truth::Particle &particle)
 }
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
+
+std::shared_ptr<TF1> AnalysisHelper::GetRangeToMomentumFunction()
+{
+    // Work out the maximum straight-line range a particle can have, so we can set sensible limits on the fit
+    const auto minRange = 0.f;
+    const auto maxRange = std::pow( std::pow(GeometryHelper::highX - GeometryHelper::lowX, 2) + 
+                                    std::pow(GeometryHelper::highY - GeometryHelper::lowY, 2) + 
+                                    std::pow(GeometryHelper::highZ - GeometryHelper::lowZ, 2) , 0.5f);
+
+    std::shared_ptr<TF1> pFunc(new TF1(("fitFunc_" + std::to_string(m_fitFunctionIndex++)).c_str(), "[0] + [1]*x - [2]*pow(x, -[3])", minRange, maxRange));
+    //std::shared_ptr<TF1> pFunc(new TF1(("fitFunc_" + std::to_string(m_fitFunctionIndex++)).c_str(), "[0] + [1]*x", minRange, maxRange));
+    return pFunc;
+}
+
+// -----------------------------------------------------------------------------------------------------------------------------------------
+
+std::shared_ptr<TF1> AnalysisHelper::GetRangeToMomentumFunctionMuon()
+{
+    RangeToMomentumFitParameters params;
+    params.a = 0.19581;
+    params.b = 0.002107;
+    params.c = 0.15896;
+    params.d = 0.19468;
+
+    auto pFunc = AnalysisHelper::GetRangeToMomentumFunction();
+    AnalysisHelper::SetRangeToMomentumFunctionParameters(params, pFunc);
+
+    return pFunc;
+}
+
+// -----------------------------------------------------------------------------------------------------------------------------------------
+
+std::shared_ptr<TF1> AnalysisHelper::GetRangeToMomentumFunctionPion()
+{
+    RangeToMomentumFitParameters params;
+    params.a = 0.25798;
+    params.b = 0.0024088;
+    params.c = 0.18828;
+    params.d = 0.11687;
+
+    auto pFunc = AnalysisHelper::GetRangeToMomentumFunction();
+    AnalysisHelper::SetRangeToMomentumFunctionParameters(params, pFunc);
+
+    return pFunc;
+}
+
+// -----------------------------------------------------------------------------------------------------------------------------------------
+
+void AnalysisHelper::SetRangeToMomentumFunctionParameters(const RangeToMomentumFitParameters &params, std::shared_ptr<TF1> &pFunc)
+{
+    pFunc->SetParameter(0, params.a);
+    pFunc->SetParameter(1, params.b);
+    pFunc->SetParameter(2, params.c);
+    pFunc->SetParameter(3, params.d);
+}
+
+// -----------------------------------------------------------------------------------------------------------------------------------------
+
+void AnalysisHelper::GetRangeToMomentumFunctionParameters(const std::shared_ptr<TF1> &pFunc, RangeToMomentumFitParameters &params)
+{
+    params.a = pFunc->GetParameter(0);
+    params.b = pFunc->GetParameter(1);
+    params.c = pFunc->GetParameter(2);
+    params.d = pFunc->GetParameter(3);
+}
+
+// -----------------------------------------------------------------------------------------------------------------------------------------
+        
+void AnalysisHelper::GetRangeToMomentumFitParameters(const std::vector<float> &ranges, const std::vector<float> &momenta, RangeToMomentumFitParameters &params)
+{
+    if (ranges.size() != momenta.size())
+        throw std::invalid_argument("AnalysisHelper::GetRangeToMomentumFitParameters - input ranges and momenta are of different size");
+
+    // In general for a given range, there can be a significant (and asymmetric) spread of momenta around the most probable value.
+    // The idea here is to first bin the ranges, and get the most probable value at each range, then fit those most probable values
+    
+    // The number of data points to put in each bin
+    const unsigned int nPointsPerBin = 100u;
+
+    // The maximum allowed bin width
+    const float maxBinWidth = 10.f;
+
+    // The momentum resolution scale to use when finding the MPV
+    const float momentumScale = 0.01f;
+
+    // First turn the two input vectors into a vector of pairs so they can be sorted
+    std::vector< std::pair<float, float> > dataPoints;
+    for (unsigned int i = 0; i < ranges.size(); ++i)
+    {
+        dataPoints.emplace_back(ranges.at(i), momenta.at(i));
+    }
+
+    // Now sort the points by range
+    std::sort(dataPoints.begin(), dataPoints.end(), [](const auto &a, const auto &b){ return a.first < b.first; });
+
+    // Now organise the data points into bins, each bin corresponds to a set of nearby ranges
+    std::vector< std::vector< std::pair<float, float> > > binnedPoints;
+    for (unsigned int i = 0; i < dataPoints.size(); ++i)
+    {
+        // If we have enough points in the current bin, then add another
+        if (i % nPointsPerBin == 0)
+            binnedPoints.emplace_back();
+        
+        // Add this data point to the last bin
+        binnedPoints.back().push_back(dataPoints.at(i));
+    }
+
+    // Next find the most probable value in each bin
+    std::vector<float> fitRanges, fitMomenta;
+    for (const auto &bin : binnedPoints)
+    {
+        // Ignore the last bin if it doesn't have enough points
+        if (bin.size() < nPointsPerBin)
+            continue;
+
+        // Extract the ranges and momenta in this bin
+        std::vector<float> rangesInBin, momentaInBin;
+        for (const auto &point : bin)
+        {
+            rangesInBin.push_back(point.first);
+            momentaInBin.push_back(point.second);
+        }
+
+        // Get the spread of ranges in the bin
+        const auto minRange = *std::min_element(rangesInBin.begin(), rangesInBin.end());
+        const auto maxRange = *std::max_element(rangesInBin.begin(), rangesInBin.end());
+        const auto binWidth = maxRange - minRange;
+
+        // Don't use bins that have a large spread of values
+        if (binWidth > maxBinWidth)
+            continue;
+
+        // Get the mean of the ranges in the bin
+        const auto meanRange = std::accumulate(rangesInBin.begin(), rangesInBin.end(), 0.f) / static_cast<float>(rangesInBin.size());
+        
+        // Get the minimum momenta in the bin
+        const auto minMomentum = *std::min_element(momentaInBin.begin(), momentaInBin.end());
+
+        // Organise the momenta into their own bins
+        std::map<unsigned int, std::vector<float> > momentumBins;
+        for (const auto &momentum : momentaInBin)
+        {
+            const unsigned int binIndex = std::floor((momentum - minMomentum) / momentumScale);
+            momentumBins[binIndex].push_back(momentum);
+        }
+
+        // Sort the momentum bins by the number of entries
+        std::vector< std::pair<unsigned int, std::vector<float> > > momentumBinsVector;
+        for (const auto &momentumBin : momentumBins)
+        {
+            momentumBinsVector.emplace_back(momentumBin.first, momentumBin.second);
+        }
+        std::sort(momentumBinsVector.begin(), momentumBinsVector.end(), [](const auto &a, const auto &b){ return a.second.size() > b.second.size(); });
+
+        // Find the mean momenta in the most probable bin
+        const auto mostProbableMomenta = momentumBinsVector.front().second;
+        const auto meanMomentum = std::accumulate(mostProbableMomenta.begin(), mostProbableMomenta.end(), 0.f) / static_cast<float>(mostProbableMomenta.size());
+    
+        // Save this as a data point to fit
+        fitRanges.push_back(meanRange);
+        fitMomenta.push_back(meanMomentum);
+    }
+
+    // Determine the range over which to fit
+    const auto minRange = *std::min_element(fitRanges.begin(), fitRanges.end());
+    const auto maxRange = *std::max_element(fitRanges.begin(), fitRanges.end());
+
+        
+    // Make a TGraph to fit
+    const auto nPoints = fitRanges.size();
+    std::shared_ptr<TGraph> pGraph(new TGraph(nPoints, fitRanges.data(), fitMomenta.data()));
+
+    // Get the function we want to fit
+    auto pFunc = AnalysisHelper::GetRangeToMomentumFunction();
+    
+    // Set some initial values to help the fit converge quickly. For reference, I just eyeballed these numbers from a plot of muons
+    params.a = 2e-1f;
+    params.b = 2e-3f;
+    params.c = 1e-1f;
+    params.d = 2e-1f;
+    AnalysisHelper::SetRangeToMomentumFunctionParameters(params, pFunc);
+    
+    // Run the fit
+    //  - M = do it gooder (about as much information as the ROOT documentation gives you!)
+    //  - N = don't draw the result
+    //  - Q = quiet mode
+    //  - S = return the fit result
+    const auto fitResult = pGraph->Fit(pFunc->GetName(), "MNQS", "", minRange, maxRange);
+    if (!fitResult->IsValid())
+        std::cout << "AnalysisHelper::GetRangeToMomentumFitParameters - WARNING. Fit was deemed problematic, check the result!" << std::endl;
+
+    // Store the fitted parameters
+    AnalysisHelper::GetRangeToMomentumFunctionParameters(pFunc, params);
+}
+
+// -----------------------------------------------------------------------------------------------------------------------------------------
         
 float AnalysisHelper::GetPionMomentumFromRange(const float &range)
 {
-    // Fit parameters for true KE-vs-range curve for pions
-    const auto a = 2.18965e-4;
-    const auto b = 1.33772e-2; 
-    const auto alpha = 1.30152;
-    const auto beta = 5.59683e-1;
-
-    // Evaluate the fit
-    const auto kineticEnergy = a*std::pow(range, alpha) + b*std::pow(range, beta);
- 
-    // Convert to momentum
-    const auto mass = 0.13957018;
-    return (std::pow(std::pow(kineticEnergy + mass, 2) - std::pow(mass, 2), 0.5f));
+    auto pFunc = AnalysisHelper::GetRangeToMomentumFunctionPion();
+    return pFunc->Eval(range);
 }
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
         
 float AnalysisHelper::GetMuonMomentumFromRange(const float &range)
 {
-    // Fit parameters for true KE-vs-range curve for muons
-    const auto a = 2.99817e-4;
-    const auto b = 1.20364e-2; 
-    const auto alpha = 1.26749;
-    const auto beta = 5.45196e-1;
-
-    // Evaluate the fit
-    const auto kineticEnergy = a*std::pow(range, alpha) + b*std::pow(range, beta);
-
-    // Convert to momentum
-    const auto mass = 0.1056583755;
-    return (std::pow(std::pow(kineticEnergy + mass, 2) - std::pow(mass, 2), 0.5f));
+    auto pFunc = AnalysisHelper::GetRangeToMomentumFunctionMuon();
+    return pFunc->Eval(range);
 }
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
-        
-float AnalysisHelper::GetMuonMomentum(const Event::Reco::Particle &muon)
-{
-    if (AnalysisHelper::IsContained(muon))
-        return AnalysisHelper::AnalysisHelper::GetMuonMomentumFromRange(muon.range());
 
+float AnalysisHelper::GetMuonMomentumFromMCS(const Event::Reco::Particle &muon)
+{
     if (muon.mcsMomentumForwardMuon.IsSet())
         return muon.mcsMomentumForwardMuon();
     
@@ -852,6 +1032,16 @@ float AnalysisHelper::GetMuonMomentum(const Event::Reco::Particle &muon)
         return muon.mcsMomentumBackwardMuon();
 
     return 99.f; // TODO should really throw here, but first need to check mcs momentum is available in event selection
+}
+
+// -----------------------------------------------------------------------------------------------------------------------------------------
+        
+float AnalysisHelper::GetMuonMomentum(const Event::Reco::Particle &muon)
+{
+    if (AnalysisHelper::IsContained(muon))
+        return AnalysisHelper::GetMuonMomentumFromRange(muon.range());
+    
+    return AnalysisHelper::GetMuonMomentumFromMCS(muon);
 }
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
@@ -925,6 +1115,26 @@ AnalysisHelper::AnalysisData AnalysisHelper::GetRecoAnalysisData(const Event::Re
 }
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
+        
+unsigned int AnalysisHelper::GetParticleIndexWithPdg(const std::vector<int> &assignedPdgCodes, const int pdgCode)
+{
+    std::vector<unsigned int> indices;
+
+    for (unsigned int i = 0; i < assignedPdgCodes.size(); ++i)
+    {
+        if (assignedPdgCodes.at(i) != pdgCode)
+            continue;
+
+        indices.push_back(i);
+    }
+
+    if (indices.size() != 1)
+        throw std::logic_error("AnalysisHelper::GetParticleIndexWithPdg - Found " + std::to_string(indices.size()) + " particles width assigned PDG code: " + std::to_string(pdgCode) + ", expected 1");
+
+    return indices.front();
+}
+
+// -----------------------------------------------------------------------------------------------------------------------------------------
 
 AnalysisHelper::AnalysisData AnalysisHelper::GetTruthAnalysisData(const Event::Truth &truth, const bool useAbsPdg, const float protonMomentumThreshold)
 {
@@ -995,6 +1205,25 @@ AnalysisHelper::AnalysisData AnalysisHelper::GetTruthAnalysisData(const Event::T
 
 
     data.muonPionAngle = std::acos(muonDir.Dot(pionDir));
+
+    return data;
+}
+
+// -----------------------------------------------------------------------------------------------------------------------------------------
+        
+AnalysisHelper::AnalysisData AnalysisHelper::GetDummyAnalysisData()
+{
+    AnalysisData data;
+
+    data.muonMomentum = -std::numeric_limits<float>::max();
+    data.muonCosTheta = -std::numeric_limits<float>::max();
+    data.muonPhi = -std::numeric_limits<float>::max();
+    data.pionMomentum = -std::numeric_limits<float>::max();
+    data.pionCosTheta = -std::numeric_limits<float>::max();
+    data.pionPhi = -std::numeric_limits<float>::max();
+    data.muonPionAngle = -std::numeric_limits<float>::max();
+    data.nProtons = std::numeric_limits<unsigned int>::max();
+    data.hasGoldenPion = false;
 
     return data;
 }

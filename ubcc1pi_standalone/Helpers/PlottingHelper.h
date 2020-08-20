@@ -31,6 +31,12 @@ class PlottingHelper
          */
         enum PlotStyle
         {
+            // Basic types
+            Primary,
+            Secondary,
+            Tertiary,
+            Quaternary,
+
             // Particle types
             Muon,
             MuonPoints,
@@ -64,7 +70,8 @@ class PlottingHelper
             DirtPoints,
             BNBData,
             Other,
-            OtherPoints
+            OtherPoints,
+            Default,
         };
         
         /**
@@ -110,6 +117,25 @@ class PlottingHelper
                 MultiPlot(const std::string &xLabel, const std::string &yLabel, const std::vector<float> &binEdges, bool drawErrors = true);
 
                 /**
+                 *  @brief  If the plot is to be filled with integer values - label each bin with the integer that lands in that bin
+                 */
+                void SetIntegerBinLabels();
+
+                /**
+                 *  @brief  Set the bin labels
+                 *
+                 *  @param  labels the bin labels
+                 */
+                void SetBinLabels(const std::vector<std::string> &labels);
+
+                /**
+                 *  @brief  Add a cut line at a given value
+                 *
+                 *  @param  value the value
+                 */
+                void AddCutLine(const float value);
+
+                /**
                  *  @brief  Fill the histogram with the given value and plot style
                  *
                  *  @param  value the value to fill
@@ -122,15 +148,20 @@ class PlottingHelper
                  *  @brief  Draw and save the plot
                  *
                  *  @param  fileName the output file name (don't include an extension)
+                 *  @param  useLogX if we should use a log scale on the X-axis
+                 *  @param  scaleByBinWidth if we should scale by bin width
+                 *  @param  minEntriesToDraw the minimum number of entries required before we will draw a given histogram
                  */
-                void SaveAs(const std::string &fileName);
+                void SaveAs(const std::string &fileName, const bool useLogX = false, const bool scaleByBinWidth = false, const unsigned int minEntriesToDraw = 0u);
                 
                 /**
                  *  @brief  Draw and save the plot as a stacked histogram
                  *
                  *  @param  fileName the output file name (don't include an extension)
+                 *  @param  useLogX if we should use a log scale on the X-axis
+                 *  @param  scaleByBinWidth if we should scale by bin width
                  */
-                void SaveAsStacked(const std::string &fileName);
+                void SaveAsStacked(const std::string &fileName, const bool useLogX = false, const bool scaleByBinWidth = false);
 
             private:
                 /**
@@ -144,15 +175,17 @@ class PlottingHelper
                  *  @brief  Normalise the histograms by their number of entries
                  *
                  *  @param  plotToHistCloneMap the histograms to normalise
+                 *  @param  scaleByBinWidth if we should scale by the bin width when normalising
                  */
-                void ScaleHistograms(std::unordered_map<PlotStyle, TH1F*> &plotToHistCloneMap) const;
+                void ScaleHistograms(std::unordered_map<PlotStyle, TH1F*> &plotToHistCloneMap, const bool scaleByBinWidth) const;
 
                 /**
                  *  @brief  Set the Y-range of the histograms so all fit on the canvas
                  *
+                 *  @param  minEntriesToDraw the minimum number of entries required to draw a histogram (won't be considered when finding the ranges)
                  *  @param  plotToHistCloneMap the histograms to modify
                  */
-                void SetHistogramYRanges(std::unordered_map<PlotStyle, TH1F*> &plotToHistCloneMap) const;
+                void SetHistogramYRanges(const unsigned int minEntriesToDraw, std::unordered_map<PlotStyle, TH1F*> &plotToHistCloneMap) const;
 
                 std::string        m_xLabel;     ///< The x-label of the histogram
                 unsigned int       m_nBins;      ///< The number of bins
@@ -162,6 +195,7 @@ class PlottingHelper
                 unsigned int       m_id;         ///< The ID of this plot plot
                 unsigned int       m_cloneCount; ///< A count of the number of clones to avoid name collisions
                 bool               m_drawErrors; ///< Whether to draw the error bands
+                std::vector<float> m_cutValues;  ///< The values of cuts to draw
 
                 std::unordered_map<PlotStyle, std::shared_ptr<TH1F> > m_plotToHistMap; ///< The mapping from plot style to hist
 
@@ -187,16 +221,52 @@ class PlottingHelper
                 EfficiencyPlot(const std::string &xLabel, unsigned int nBins, float min, float max, const std::vector<string> &cuts, bool drawErrors = true);
        
                 /**
+                 *  @brief  Constructor
+                 *
+                 *  @param  xLabel the x-label of the histogram
+                 *  @param  binEdges the bin edges
+                 *  @param  cuts the names of all possible cuts in order
+                 *  @param  drawErrors whether to draw the error bands
+                 */
+                EfficiencyPlot(const std::string &xLabel, const std::vector<float> &binEdges, const std::vector<string> &cuts, bool drawErrors = true);
+
+                /**
                  *  @brief  Add an event to the plot for the given cut
                  *
                  *  @param  value the value at which to add the event
+                 *  @param  weight the event weight
                  *  @param  cut the cut 
                  *  @param  passedCut if the cut was passed
                  */
-                void AddEvent(const float value, const std::string &cut, const bool passedCut);
+                void AddEvent(const float value, const float weight, const std::string &cut, const bool passedCut);
 
                 /**
-                 *  @brief  Draw and save the plot
+                 *  @brief  Add a cut line at a given value
+                 *
+                 *  @param  value the value
+                 */
+                void AddCutLine(const float value);
+                
+                /**
+                 *  @brief  Draw and save the plots for the specified cuts, and styles
+                 *
+                 *  @param  cuts the cuts to plots
+                 *  @param  styles the styles to uses per cut
+                 *  @param  fileName the output file name without an extension
+                 */
+                void SaveAs(const std::vector<std::string> &cuts, const std::vector<PlotStyle> &styles, const std::string &fileName);
+
+                /**
+                 *  @brief  Draw and save the plots for the specified cuts, and styles
+                 *
+                 *  @param  cuts the cuts to plots
+                 *  @param  colors the colors to uses per cut
+                 *  @param  fileName the output file name without an extension
+                 */
+                void SaveAs(const std::vector<std::string> &cuts, const std::vector<int> &colors, const std::string &fileName);
+
+                /**
+                 *  @brief  Draw and save the plots for all cuts
                  *
                  *  @param  fileName the file name without an extension
                  */
@@ -211,11 +281,13 @@ class PlottingHelper
                 typedef std::unordered_map<std::string, std::pair< std::shared_ptr<TH1F>, std::shared_ptr<TH1F> > > CutToPlotsMap;
 
                 std::string              m_xLabel;        ///< The x label
+                std::vector<float>       m_binEdges;      ///< The bin edges
                 unsigned int             m_nBins;         ///< The number of bins
                 float                    m_min;           ///< The minimum histogram value
                 float                    m_max;           ///< The maximum histogram value
                 std::vector<std::string> m_cuts;          ///< The cuts
                 bool                     m_drawErrors;    ///< If we should draw error bands
+                std::vector<float>       m_cutValues;     ///< The values of cuts to draw
 
                 CutToPlotsMap            m_cutToPlotsMap; ///< The mapping from cut name to the numerator and denominator histograms
                 unsigned int             m_id;            ///< The ID of the plot
@@ -320,6 +392,28 @@ class PlottingHelper
          */
         static void SaveCanvas(std::shared_ptr<TCanvas> &canvas, const std::string &fileName);
 
+        /**
+         *  @brief  Generate uniform bin edges in the specified range
+         *
+         *  @param  nBins the number of bins to generate (nEdges = nBins + 1)
+         *  @param  min the minimum value of the bins
+         *  @param  max the maximum value of hte bins
+         *
+         *  @return the output bin edges
+         */
+        static std::vector<float> GenerateUniformBinEdges(const unsigned int nBins, const float min, const float max);
+        
+        /**
+         *  @brief  Generate log bin edges in the specified range
+         *
+         *  @param  nBins the number of bins to generate (nEdges = nBins + 1)
+         *  @param  min the minimum value of the bins
+         *  @param  max the maximum value of hte bins
+         *
+         *  @return the output bin edges
+         */
+        static std::vector<float> GenerateLogBinEdges(const unsigned int nBins, const float min, const float max);
+
     private:
 
         static unsigned int m_lastCanvasId;  ///< The last canvas ID
@@ -329,6 +423,10 @@ class PlottingHelper
 // -----------------------------------------------------------------------------------------------------------------------------------------
 
 const std::vector<PlottingHelper::PlotStyle> PlottingHelper::AllPlotStyles = {
+    Primary,
+    Secondary,
+    Tertiary,
+    Quaternary,
     External,
     ExternalPoints,
     Dirt,
@@ -357,7 +455,8 @@ const std::vector<PlottingHelper::PlotStyle> PlottingHelper::AllPlotStyles = {
     NumuCC1PiZero,
     NumuCC1PiChargedGolden,
     NumuCC1PiChargedNonGolden,
-    BNBData
+    BNBData,
+    Default
 };
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
@@ -396,18 +495,27 @@ int PlottingHelper::GetColor(const PlotStyle plotStyle)
     
     switch (plotStyle)
     {
+        case Primary:
+        case BNBData:
+        case Default:
+            col = kBlack;
+            break;
+
+        case Secondary:
         case Muon:
         case MuonPoints:
         case NumuCC0Pi:
             col = kAzure - 2;
             break;
 
+        case Tertiary:
         case Proton:
         case ProtonPoints:
         case NumuCC1PiZero:
             col = kOrange - 3;
             break;
 
+        case Quaternary:
         case GoldenPion:
         case GoldenPionPoints:
         case NumuCC1PiChargedGolden:
@@ -457,10 +565,6 @@ int PlottingHelper::GetColor(const PlotStyle plotStyle)
             col = kGray;
             break;
         
-        case BNBData:
-            col = kBlack;
-            break;
-
         default: break;
     }
 
@@ -473,6 +577,13 @@ std::vector<int> PlottingHelper::GetColorVector()
 {
     std::vector<int> colors;
 
+    // Use the ordered colors first
+    colors.push_back(PlottingHelper::GetColor(Primary));
+    colors.push_back(PlottingHelper::GetColor(Secondary));
+    colors.push_back(PlottingHelper::GetColor(Tertiary));
+    colors.push_back(PlottingHelper::GetColor(Quaternary));
+
+    // Then add the rest
     for (const auto &style : PlottingHelper::AllPlotStyles)
     {
         const auto col = PlottingHelper::GetColor(style);

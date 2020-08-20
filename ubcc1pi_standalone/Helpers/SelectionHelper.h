@@ -114,6 +114,15 @@ class SelectionHelper
                         Cut& GetCut(const std::string &name);
                         
                         /**
+                         *  @brief  Get the immutable cut with the specified name
+                         *
+                         *  @param  name the name of the cut
+                         *
+                         *  @return reference to the cut
+                         */
+                        const Cut& GetCut(const std::string &name) const;
+                        
+                        /**
                          *  @brief  Get the result of the cut using the supplied method
                          *
                          *  @param  cut the cut name
@@ -197,6 +206,14 @@ class SelectionHelper
                  *  @param  nominal the nominal cut value used when we aren't optimizing the parameter
                  */
                 void DeclareCut(const std::string &name, const float &nominal);
+
+                /**
+                 *  @brief  Set the nominal value of a pre-declared cut
+                 *
+                 *  @param  name the name of the cut
+                 *  @param  nominal the nominal cut value to set
+                 */
+                void SetCutNominalValue(const std::string &name, const float &nominal);
                
                 /**
                  *  @brief  Enable the optimization of a cut
@@ -231,6 +248,15 @@ class SelectionHelper
                  *  @return the cuts
                  */
                 std::vector<std::string> GetCuts() const;
+
+                /**
+                 *  @brief  Get the nominal value of a given cut
+                 *
+                 *  @param  name the name of the cut
+                 *
+                 *  @return the nominal value of the cut
+                 */
+                float GetCutNominalValue(const std::string &name) const;
 
                 /**
                  *  @brief  Define the event selection method
@@ -306,6 +332,17 @@ class SelectionHelper
          *  @return the event selection
          */
         static EventSelection GetDefaultSelection();
+       
+        /**
+         *  @brief  Get the muon candidate index
+         *
+         *  @param  particles the input list of all reco particles
+         *  @param  featureNames the input list of muon BDT feature names
+         *  @param  muonBDT the muon BDT
+         *
+         *  @return the index of the muon candidate in the input list
+         */
+        static unsigned int GetMuonCandidateIndex(const std::vector<Event::Reco::Particle> &particles, const std::vector<std::string> &featureNames, BDTHelper::BDT &muonBDT);
 };
 
 } // namespace ubcc1pi

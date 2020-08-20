@@ -371,5 +371,197 @@ bool BDTHelper::GetBDTFeatures(const Event::Reco::Particle &recoParticle, const 
     return true;
 }
 
+// -----------------------------------------------------------------------------------------------------------------------------------------
+        
+void BDTHelper::GetROCCurve(const BDTResponseWeightVector &signalResponses, const BDTResponseWeightVector &backgroundResponses, const unsigned int nSamplePoints, std::vector<float> &signalPassingRates, std::vector<float> &backgroundRejectionRates, std::vector<float> &signalPassingRateErrors, std::vector<float> &backgroundRejectionRateErrors)
+{
+    if (signalResponses.empty() || backgroundResponses.empty())
+        throw std::invalid_argument("BDTHelper::GetROCCurve - input vector of responses is empty");
+
+    if (nSamplePoints < 2)
+        throw std::invalid_argument("BDTHelper::GetROCCurve - need at least 2 sample points");
+    
+    if (!signalPassingRates.empty() || !backgroundRejectionRates.empty() || !signalPassingRateErrors.empty() || !backgroundRejectionRateErrors.empty())
+        throw std::invalid_argument("BDTHelper::GetROCCurve - output vectors need to be empty");
+
+    // Define a comparison function for an element of a BDTResponseWeightVector - it returns true if the first response is less than the second
+    const auto &comp = [](const auto &a, const auto &b) { return a.first < b.first; };
+
+    // Sort the responses
+    auto sortedSignalResponses = signalResponses;
+    std::sort(sortedSignalResponses.begin(), sortedSignalResponses.end(), comp);
+    
+    auto sortedBackgroundResponses = backgroundResponses;
+    std::sort(sortedBackgroundResponses.begin(), sortedBackgroundResponses.end(), comp);
+
+    // Get the maximum and minimum BDT responses
+    const auto epsilon = std::numeric_limits<float>::epsilon();
+    const auto minX = std::min(sortedSignalResponses.front(), sortedBackgroundResponses.front()).first - epsilon;
+    const auto maxX = std::max(sortedSignalResponses.back(), sortedBackgroundResponses.back()).first + epsilon;
+
+    // Sample between minX and maxX
+    std::vector<float> vectS, vectB;
+    unsigned int iSignal = 0u;
+    unsigned int iBackground = 0u;
+    float signalWeight = 0.f;
+    float backgroundWeight = 0.f;
+
+    for (unsigned int iSample = 0; iSample < nSamplePoints; ++iSample)
+    {
+        const auto X = minX + (maxX - minX) * (iSample / static_cast<float>(nSamplePoints - 1));
+
+        // Sum up the signal and background responses until we find one that is greater than the current cut value
+        while (iSignal < sortedSignalResponses.size())
+        {
+            if (sortedSignalResponses.at(iSignal).first > X)
+                break;
+
+            signalWeight += sortedSignalResponses.at(iSignal).second;
+            iSignal++;
+        }
+        
+        while (iBackground < sortedBackgroundResponses.size())
+        {
+            if (sortedBackgroundResponses.at(iBackground).first > X)
+                break;
+
+            backgroundWeight += sortedBackgroundResponses.at(iBackground).second;
+            iBackground++;
+        }
+
+        // Store the values at this point
+        vectS.push_back(signalWeight);
+        vectB.push_back(backgroundWeight);
+    }
+
+    // Sanity check that we have seen every BDT response
+    if (iSignal != sortedSignalResponses.size())
+        throw std::logic_error("BDTHelper::GetROCCurve - sanity check failed, haven't used all signal responses");
+    
+    if (iBackground != sortedBackgroundResponses.size())
+        throw std::logic_error("BDTHelper::GetROCCurve - sanity check failed, haven't used all background responses");
+
+    const auto signalWeightTotal = signalWeight;
+    const auto backgroundWeightTotal = backgroundWeight;
+
+    // Get the fractions used in the ROC curve
+    for (unsigned int iSample = 0; iSample < nSamplePoints; ++iSample)
+    {
+        // The signal passing rate
+        const auto fracS = 1.f - (vectS.at(iSample) / signalWeightTotal);
+        const auto errS = AnalysisHelper::GetEfficiencyUncertainty(vectS.at(iSample), signalWeightTotal);
+        
+        // The background rejection rate
+        const auto fracB = vectB.at(iSample) / backgroundWeightTotal;
+        const auto errB = AnalysisHelper::GetEfficiencyUncertainty(vectB.at(iSample), backgroundWeightTotal);
+
+        signalPassingRates.push_back(fracS);
+        backgroundRejectionRates.push_back(fracB);
+        
+        signalPassingRateErrors.push_back(errS);
+        backgroundRejectionRateErrors.push_back(errB);
+    }
+}
+
+// -----------------------------------------------------------------------------------------------------------------------------------------
+
+float BDTHelper::GetROCIntegral(const std::vector<float> &signalPassingRates, const std::vector<float> &backgroundRejectionRates)
+{
+    if (signalPassingRates.size() != backgroundRejectionRates.size())
+        throw std::invalid_argument("BDTHelper::GetROCIntegral - sizes of input vectors doesn't match");
+
+    const auto nSamples = signalPassingRates.size(); 
+    if (nSamples < 2)
+        throw std::invalid_argument("BDTHelper::GetROCIntegral - need at least 2 samples");
+
+    // Sort the input data points by signal passing rate
+    std::vector< std::pair<float, float> > data;
+    for (unsigned int i = 0; i < nSamples; ++i)
+    {
+        data.emplace_back(signalPassingRates.at(i), backgroundRejectionRates.at(i));
+    }
+    std::sort(data.begin(), data.end(), [](const auto &a, const auto &b) { return a.first < b.first; });
+ 
+    // Perform trapezium integration
+    float integral = 0.f;
+    for (unsigned int i = 1; i < nSamples; ++i)
+    {
+        const auto f1 = data.at(i).first;
+        const auto f0 = data.at(i-1).first;
+        const auto g1 = data.at(i).second;
+        const auto g0 = data.at(i-1).second;
+
+        const auto df = f1 - f0;
+        const auto dg = g1 - g0;
+
+        // Calculate the area of the rectangle between f0 -> f1 at height g0
+        const auto rectArea = df * g0;
+
+        // Calculate the area of the triangle between f0 -> f1 on top of this rectangle made between g0 -> g1
+        const auto triArea = 0.5 * df * dg;
+
+        // Add to the integral
+        integral += rectArea + triArea;
+    }
+
+    return integral;
+}
+
+// -----------------------------------------------------------------------------------------------------------------------------------------
+
+float BDTHelper::GetROCIntegralError(const std::vector<float> &signalPassingRates, const std::vector<float> &backgroundRejectionRates, const std::vector<float> &signalPassingRateErrs, const std::vector<float> &backgroundRejectionRateErrs, const unsigned nUniverses)
+{
+    const auto nSamples = signalPassingRates.size(); 
+    if (backgroundRejectionRates.size() != nSamples || signalPassingRateErrs.size() != nSamples || backgroundRejectionRateErrs.size() != nSamples)
+        throw std::invalid_argument("BDTHelper::GetROCIntegralError - sizes of input vectors doesn't match");
+
+    if (nUniverses <= 1)
+        throw std::invalid_argument("BDTHelper::GetROCIntegralError - need at least two universes");
+
+    // Create normal distributions for each sample point in the ROC curve
+    std::default_random_engine generator;
+    std::vector< std::normal_distribution<float> > signalDistributions, backgroundDistributions;
+    for (unsigned int i = 0; i < nSamples; ++i)
+    {
+        signalDistributions.emplace_back(signalPassingRates.at(i), signalPassingRateErrs.at(i));
+        backgroundDistributions.emplace_back(backgroundRejectionRates.at(i), backgroundRejectionRateErrs.at(i));
+    }
+    
+    // Here we use a MC technique to estimate the uncertainty
+    std::vector<float> rocIntegrals;
+    float summedROCIntegral = 0.f;
+
+    for (unsigned int iUniv = 0; iUniv < nUniverses; ++iUniv)
+    {
+        // Generate signal passing rate and background rejection rate vectors with random 1 sigma variations
+        std::vector<float> generatedSignalPassingRates, generatedBackgroundRejectionRates;
+    
+        for (unsigned int i = 0; i < nSamples; ++i)
+        {
+            generatedSignalPassingRates.push_back(signalDistributions.at(i)(generator));
+            generatedBackgroundRejectionRates.push_back(backgroundDistributions.at(i)(generator));
+        }
+
+        // Now get the ROC integral for this universe
+        const auto rocIntegral = BDTHelper::GetROCIntegral(generatedSignalPassingRates, generatedBackgroundRejectionRates);
+
+        rocIntegrals.push_back(rocIntegral);
+        summedROCIntegral += rocIntegral;
+    }
+
+    // Find the standard deviation of the generate ROC integrals
+    const auto mean = summedROCIntegral / static_cast<float>(nUniverses);
+
+    float summedSquareDifferences = 0.f;
+    for (unsigned int iUniv = 0; iUniv < nUniverses; ++iUniv)
+    {
+        summedSquareDifferences += std::pow(rocIntegrals.at(iUniv) - mean, 2);
+    }
+
+    const auto variance = summedSquareDifferences / static_cast<float>(nUniverses - 1);
+    const auto uncertainty = std::pow(variance, 0.5f);
+
+    return uncertainty;
+}
 
 } // namespace ubcc1pi

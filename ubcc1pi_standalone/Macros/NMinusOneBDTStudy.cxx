@@ -12,12 +12,15 @@
 #include "ubcc1pi_standalone/Helpers/AnalysisHelper.h"
 #include "ubcc1pi_standalone/Helpers/FormattingHelper.h"
 
+#include <TGraph.h>
+#include <TLine.h>
+#include <TH1F.h>
+
 using namespace ubcc1pi;
 
 namespace ubcc1pi_macros
 {
 
-// TODO validate this whole macro before showing the results
 void NMinusOneBDTStudy(const Config &config)
 {
     // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -56,144 +59,171 @@ void NMinusOneBDTStudy(const Config &config)
     // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     // Setup the BDTs to train
     // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    const auto featureNames = BDTHelper::ParticleBDTFeatureNames;
+    std::string nFeaturesString = std::to_string(config.nMinusOneBDTStudy.featureNames.size());
+    for (const auto &feature : config.nMinusOneBDTStudy.featureNames)
+    {
+        nFeaturesString += "_" + feature;
+    }
+
+    std::string signalString = "";
+    switch (config.nMinusOneBDTStudy.signalType)
+    {
+        case PlottingHelper::Muon:
+            signalString = "muon";
+            break;
+        case PlottingHelper::Proton:
+            signalString = "proton";
+            break;
+        case PlottingHelper::GoldenPion:
+            signalString = "goldenPion";
+            break;
+        default:
+            throw std::invalid_argument("NMinusOneBDTStudy - Input signal type must be: proton, muon or golden pion");
+    }
 
     // Make copies of the list of features but remove one each time
     std::vector< std::vector<std::string> > reducedFeatureNames;
-    std::vector< BDTHelper::BDTFactory > protonBDTFactoryVector;
-    std::vector< BDTHelper::BDTFactory > goldenPionBDTFactoryVector;
+    std::vector< BDTHelper::BDTFactory > bdtFactoryVector;
 
-    for (unsigned int i = 0; i < featureNames.size(); ++i)
+    for (unsigned int i = 0; i < config.nMinusOneBDTStudy.featureNames.size(); ++i)
     {
         std::vector<std::string> nameVector;
-        for (unsigned int j = 0; j < featureNames.size(); ++j)
+        for (unsigned int j = 0; j < config.nMinusOneBDTStudy.featureNames.size(); ++j)
         {
             if (i == j) continue;
 
-            nameVector.push_back(featureNames.at(j));
+            nameVector.push_back(config.nMinusOneBDTStudy.featureNames.at(j));
         }
 
         // Make the BDT and store the features
-        protonBDTFactoryVector.emplace_back("proton_minus_" + featureNames.at(i), nameVector);
-        goldenPionBDTFactoryVector.emplace_back("goldenPion_minus_" + featureNames.at(i), nameVector);
+        if (config.nMinusOneBDTStudy.shouldTrainBDTs)
+        {
+            bdtFactoryVector.emplace_back(signalString + "_N-" + nFeaturesString + "_minus_" + config.nMinusOneBDTStudy.featureNames.at(i), nameVector);
+        }
+            
         reducedFeatureNames.push_back(nameVector);
     }
 
-    // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    // Fill the BDT training and testing entries
-    // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    std::cout << "Filling the BDT entries" << std::endl;
-    for (unsigned int i = 0; i < nCC1PiEvents; ++i)
+    // Now add the BDT using all features
+    if (config.nMinusOneBDTStudy.shouldTrainBDTs)
     {
-        AnalysisHelper::PrintLoadingBar(i, nCC1PiEvents);
+        bdtFactoryVector.emplace_back(signalString + "_N-" + nFeaturesString + "_minus_none", config.nMinusOneBDTStudy.featureNames);
+    }
 
-        const auto eventIndex = cc1PiEventIndices.at(i);
-        const auto isTrainingEvent = shuffler.IsTrainingEvent(i);
-        reader.LoadEvent(eventIndex);
+    reducedFeatureNames.push_back(config.nMinusOneBDTStudy.featureNames);
 
-        const auto truthParticles = pEvent->truth.particles;
-        const auto recoParticles = pEvent->reco.particles;
-        const float eventWeight = AnalysisHelper::GetNominalEventWeight(pEvent);
 
-        for (const auto &recoParticle : recoParticles)
+    // Train the BDTs if required
+    if (config.nMinusOneBDTStudy.shouldTrainBDTs)
+    {
+
+        // Fill the BDT factories with training examples
+        std::cout << "Filling the BDT entries" << std::endl;
+        for (unsigned int i = 0; i < nCC1PiEvents; ++i)
         {
-            // Only use contained particles for training
-            if (!AnalysisHelper::HasTrackFit(recoParticle) || !AnalysisHelper::IsContained(recoParticle))
-                continue;
+            AnalysisHelper::PrintLoadingBar(i, nCC1PiEvents);
 
-            // Determine the true origin of the reco particle
-            bool isExternal = true;
-            int truePdgCode = -std::numeric_limits<int>::max();
-            bool trueIsGolden = false;
-            float completeness = -std::numeric_limits<float>::max();
+            const auto eventIndex = cc1PiEventIndices.at(i);
+            const auto isTrainingEvent = shuffler.IsTrainingEvent(i);
+            reader.LoadEvent(eventIndex);
 
-            try
+            const auto truthParticles = pEvent->truth.particles;
+            const auto recoParticles = pEvent->reco.particles;
+            const float eventWeight = AnalysisHelper::GetNominalEventWeight(pEvent);
+
+            for (const auto &recoParticle : recoParticles)
             {
-                const auto truthParticleIndex = AnalysisHelper::GetBestMatchedTruthParticleIndex(recoParticle, truthParticles);
-                const auto truthParticle = truthParticles.at(truthParticleIndex);
-
-                isExternal = false;
-                truePdgCode = truthParticle.pdgCode();
-                trueIsGolden = AnalysisHelper::IsGolden(truthParticle);
-                completeness = recoParticle.truthMatchCompletenesses().at(truthParticleIndex);
-            }
-            catch (const std::exception &) {}
-
-            // Only use good matches for training
-            if (config.trainBDTs.onlyGoodTruthMatches && (isExternal || completeness < 0.5f))
-                continue;
-
-            // Define the weight
-            const auto weight = eventWeight * (config.trainBDTs.weightByCompleteness ? (isExternal ? 1.f : completeness) : 1.f);
-            const bool isGoldenPion = !isExternal && truePdgCode == 211 && trueIsGolden;
-            const bool isProton = !isExternal && truePdgCode == 2212;
-
-            // Fill the BDTs 
-            for (unsigned int iBDT = 0; iBDT < reducedFeatureNames.size(); ++iBDT)
-            {
-                const auto &usedFeatureNames = reducedFeatureNames.at(iBDT);
-                auto &protonBDTFactory = protonBDTFactoryVector.at(iBDT);
-            
-                // Extract the features
-                std::vector<float> features;
-                const auto areAllFeaturesAvailable = BDTHelper::GetBDTFeatures(recoParticle, usedFeatureNames, features);
-    
-                // Only use particles with all features available
-                if (!areAllFeaturesAvailable)
+                // Only use contained particles for training
+                if (!AnalysisHelper::HasTrackFit(recoParticle) || !AnalysisHelper::IsContained(recoParticle))
                     continue;
-    
-                // Add the particle to the BDTs
-                protonBDTFactoryVector.at(iBDT).AddEntry(features, isProton, isTrainingEvent, weight);
-                goldenPionBDTFactoryVector.at(iBDT).AddEntry(features, isGoldenPion, isTrainingEvent, weight);
+
+                // Determine the true origin of the reco particle
+                bool isExternal = true;
+                int truePdgCode = -std::numeric_limits<int>::max();
+                bool trueIsGolden = false;
+                float completeness = -std::numeric_limits<float>::max();
+
+                try
+                {
+                    const auto truthParticleIndex = AnalysisHelper::GetBestMatchedTruthParticleIndex(recoParticle, truthParticles);
+                    const auto truthParticle = truthParticles.at(truthParticleIndex);
+
+                    isExternal = false;
+                    truePdgCode = config.global.useAbsPdg ? std::abs(truthParticle.pdgCode()) : truthParticle.pdgCode();
+                    trueIsGolden = AnalysisHelper::IsGolden(truthParticle);
+                    completeness = recoParticle.truthMatchCompletenesses().at(truthParticleIndex);
+                }
+                catch (const std::exception &) {}
+
+                // Only use good matches for training
+                if (config.trainBDTs.onlyGoodTruthMatches && (isExternal || completeness < 0.5f))
+                    continue;
+
+                // Define the weight
+                const auto weight = eventWeight * (config.trainBDTs.weightByCompleteness ? (isExternal ? 1.f : completeness) : 1.f);
+
+                bool isSignal = false;
+                switch (config.nMinusOneBDTStudy.signalType)
+                {
+                    case PlottingHelper::Muon:
+                        isSignal = !isExternal && truePdgCode == 13;
+                        break;
+                    case PlottingHelper::Proton:
+                        isSignal = !isExternal && truePdgCode == 2212;
+                        break;
+                    case PlottingHelper::GoldenPion:
+                        isSignal = !isExternal && truePdgCode == 211 && trueIsGolden;
+                        break;
+                    default:
+                        throw std::invalid_argument("NMinusOneBDTStudy - Input signal type must be: proton, muon or golden pion");
+                }
+
+                // Fill the BDTs 
+                for (unsigned int iBDT = 0; iBDT < reducedFeatureNames.size(); ++iBDT)
+                {
+                    const auto &usedFeatureNames = reducedFeatureNames.at(iBDT);
+
+                    // Extract the features
+                    std::vector<float> features;
+                    const auto areAllFeaturesAvailable = BDTHelper::GetBDTFeatures(recoParticle, usedFeatureNames, features);
+
+                    // Only use particles with all features available
+                    if (!areAllFeaturesAvailable)
+                        continue;
+
+                    // Add the particle to the BDT
+                    bdtFactoryVector.at(iBDT).AddEntry(features, isSignal, isTrainingEvent, weight);
+                }
             }
         }
+
+        // Train the BDTs (also runs the standard TMVA testing for overtraining etc)
+        std::cout << "Training and testing the BDTs" << std::endl;
+        for (auto &bdtFactory : bdtFactoryVector)
+            bdtFactory.TrainAndTest();
+
     }
     
     // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    // Train and test the BDTs
-    // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    std::cout << "Training and testing the proton BDTs" << std::endl;
-    for (auto &bdtFactory : protonBDTFactoryVector)
-        bdtFactory.TrainAndTest();
-    
-    std::cout << "Training and testing the golden pion BDTs" << std::endl;
-    for (auto &bdtFactory : goldenPionBDTFactoryVector)
-        bdtFactory.TrainAndTest();
-    
-    
-    // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    // Get the performance table
+    // Get the performance table / plots
     // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
     std::cout << "Comparing performances of BDTs" << std::endl;
 
     // Get the trained BDTs
-    std::vector< BDTHelper::BDT > protonBDTVector, goldenPionBDTVector;
+    std::vector< BDTHelper::BDT > bdtVector;
     for (unsigned int iBDT = 0; iBDT < reducedFeatureNames.size(); ++iBDT)
     {
         // Get the trained BDT
-        const auto missingFeature = featureNames.at(iBDT);
+        const auto missingFeature = (iBDT < config.nMinusOneBDTStudy.featureNames.size()) ? config.nMinusOneBDTStudy.featureNames.at(iBDT) : "none";
 
         const auto &usedFeatureNames = reducedFeatureNames.at(iBDT);
-        protonBDTVector.emplace_back("proton_minus_" + missingFeature, usedFeatureNames);
-        goldenPionBDTVector.emplace_back("goldenPion_minus_" + missingFeature, usedFeatureNames);
+        bdtVector.emplace_back(signalString + "_N-" + nFeaturesString + "_minus_" + missingFeature, usedFeatureNames);
     }
 
-    // Setup the counters (each element of the vector is a different BDT)
-    const auto nBDTs = reducedFeatureNames.size();
-    std::vector<float> trainingSignalTotalProton(nBDTs, 0.f);
-    std::vector<float> trainingSignalTotalGoldenPion(nBDTs, 0.f);
-    std::vector<float> trainingSignalSelectedProton(nBDTs, 0.f);
-    std::vector<float> trainingSignalSelectedGoldenPion(nBDTs, 0.f);
-    std::vector<float> trainingBackgroundSelectedProton(nBDTs, 0.f);
-    std::vector<float> trainingBackgroundSelectedGoldenPion(nBDTs, 0.f);
-    std::vector<float> testingSignalTotalProton(nBDTs, 0.f);
-    std::vector<float> testingSignalTotalGoldenPion(nBDTs, 0.f);
-    std::vector<float> testingSignalSelectedProton(nBDTs, 0.f);
-    std::vector<float> testingSignalSelectedGoldenPion(nBDTs, 0.f);
-    std::vector<float> testingBackgroundSelectedProton(nBDTs, 0.f);
-    std::vector<float> testingBackgroundSelectedGoldenPion(nBDTs, 0.f);
-
+    // Setup the structure to hold the data
+    BDTHelper::BDTResponseMap bdtResponseMap;
+    
     // Now test the BDTs
     for (unsigned int i = 0; i < nCC1PiEvents; ++i)
     {
@@ -201,129 +231,249 @@ void NMinusOneBDTStudy(const Config &config)
 
         const auto eventIndex = cc1PiEventIndices.at(i);
         const auto isTrainingEvent = shuffler.IsTrainingEvent(i);
+        if (isTrainingEvent)
+            continue;
+
         reader.LoadEvent(eventIndex);
 
         const auto truthParticles = pEvent->truth.particles;
         const auto recoParticles = pEvent->reco.particles;
         const float eventWeight = AnalysisHelper::GetNominalEventWeight(pEvent);
-
+        
         for (const auto &recoParticle : recoParticles)
         {
             // Only use contained particles for testing
             if (!AnalysisHelper::HasTrackFit(recoParticle) || !AnalysisHelper::IsContained(recoParticle))
                 continue;
 
-            // Determine the true origin of the reco particle
-            bool isExternal = true;
-            int truePdgCode = -std::numeric_limits<int>::max();
-            bool trueIsGolden = false;
-            float completeness = -std::numeric_limits<float>::max();
+            // Find the MC origin of this reco particle
+            const auto particleType = PlottingHelper::GetPlotStyle(recoParticle, AnalysisHelper::Overlay, truthParticles, false, config.global.useAbsPdg);
 
-            try
-            {
-                const auto truthParticleIndex = AnalysisHelper::GetBestMatchedTruthParticleIndex(recoParticle, truthParticles);
-                const auto truthParticle = truthParticles.at(truthParticleIndex);
-
-                isExternal = false;
-                truePdgCode = truthParticle.pdgCode();
-                trueIsGolden = AnalysisHelper::IsGolden(truthParticle);
-                completeness = recoParticle.truthMatchCompletenesses().at(truthParticleIndex);
-            }
-            catch (const std::exception &) {}
-            
-            const bool isGoldenPion = !isExternal && truePdgCode == 211 && trueIsGolden;
-            const bool isProton = !isExternal && truePdgCode == 2212;
-
-            // Only use good matches for testing
-            if (config.trainBDTs.onlyGoodTruthMatches && (isExternal || completeness < 0.5f))
-                continue;
-            
-            // Use the BDTs
+            // Loop over all BDTs
             for (unsigned int iBDT = 0; iBDT < reducedFeatureNames.size(); ++iBDT)
             {
+                const auto missingFeature = (iBDT < config.nMinusOneBDTStudy.featureNames.size()) ? config.nMinusOneBDTStudy.featureNames.at(iBDT) : "none";
                 const auto &usedFeatureNames = reducedFeatureNames.at(iBDT);
 
-                // Extract the features
+                // Get the features if they are available
                 std::vector<float> features;
-                const auto areAllFeaturesAvailable = BDTHelper::GetBDTFeatures(recoParticle, usedFeatureNames, features);
-
-                // Only use particles with all features available
-                if (!areAllFeaturesAvailable)
+                if (!BDTHelper::GetBDTFeatures(recoParticle, usedFeatureNames, features))
                     continue;
 
-                // Add the particle to the BDTs
-                const auto protonBDTResponse = protonBDTVector.at(iBDT).GetResponse(features);
-                const auto isSelectedProton = protonBDTResponse > 0.f;
-
-                auto &signalTotalProton = (isTrainingEvent ? trainingSignalTotalProton.at(iBDT) : testingSignalTotalProton.at(iBDT));
-                auto &signalSelectedProton = (isTrainingEvent ? trainingSignalSelectedProton.at(iBDT) : testingSignalSelectedProton.at(iBDT));
-                auto &backgroundSelectedProton = (isTrainingEvent ? trainingBackgroundSelectedProton.at(iBDT) : testingBackgroundSelectedProton.at(iBDT));
+                // Get the BDT responses
+                const auto bdtResponse = bdtVector.at(iBDT).GetResponse(features);
             
-                signalTotalProton += (isProton ? eventWeight : 0.f);
-                signalSelectedProton += (( isProton && isSelectedProton ) ? eventWeight : 0.f);
-                backgroundSelectedProton += (( !isProton && isSelectedProton ) ? eventWeight : 0.f);
-                
+                // Store the result
+                bdtResponseMap[missingFeature][particleType].emplace_back(bdtResponse, eventWeight);
 
-                const auto goldenPionBDTResponse = goldenPionBDTVector.at(iBDT).GetResponse(features);
-                const auto isSelectedGoldenPion = goldenPionBDTResponse > 0.f;
-                
-                auto &signalTotalGoldenPion = (isTrainingEvent ? trainingSignalTotalGoldenPion.at(iBDT) : testingSignalTotalGoldenPion.at(iBDT));
-                auto &signalSelectedGoldenPion = (isTrainingEvent ? trainingSignalSelectedGoldenPion.at(iBDT) : testingSignalSelectedGoldenPion.at(iBDT));
-                auto &backgroundSelectedGoldenPion = (isTrainingEvent ? trainingBackgroundSelectedGoldenPion.at(iBDT) : testingBackgroundSelectedGoldenPion.at(iBDT));
-                
-                signalTotalGoldenPion += (isGoldenPion ? eventWeight : 0.f);
-                signalSelectedGoldenPion += (( isGoldenPion && isSelectedGoldenPion ) ? eventWeight : 0.f);
-                backgroundSelectedGoldenPion += (( !isGoldenPion && isSelectedGoldenPion ) ? eventWeight : 0.f);
+                // Add to the special category that sums all backgrounds
+                if (particleType != config.nMinusOneBDTStudy.signalType)
+                    bdtResponseMap[missingFeature][PlottingHelper::Other].emplace_back(bdtResponse, eventWeight);
             }
         }
     }
-    
 
-    // Put the table data is a sensible format
-    std::vector< std::tuple< std::string, std::vector<float>, std::vector<float>, std::vector<float> > > tableData;
-    tableData.emplace_back("nMinusOne_proton_training.md", trainingSignalTotalProton, trainingSignalSelectedProton, trainingBackgroundSelectedProton);
-    tableData.emplace_back("nMinusOne_proton_testing.md", testingSignalTotalProton, testingSignalSelectedProton, testingBackgroundSelectedProton);
-    tableData.emplace_back("nMinusOne_goldenPion_training.md", trainingSignalTotalGoldenPion, trainingSignalSelectedGoldenPion, trainingBackgroundSelectedGoldenPion);
-    tableData.emplace_back("nMinusOne_goldenPion_testing.md", testingSignalTotalGoldenPion, testingSignalSelectedGoldenPion, testingBackgroundSelectedGoldenPion);
+    // Define the particle types we care about
+    const std::vector<PlottingHelper::PlotStyle> particleTypes = {
+        PlottingHelper::Other, // All backgrounds together
+        PlottingHelper::External,
+        PlottingHelper::Proton,
+        PlottingHelper::Muon,
+        PlottingHelper::NonGoldenPion,
+        PlottingHelper::GoldenPion
+    };
 
-    for (const auto [tableFileName, signalTotalVect, signalSelectedVect, backgroundSelectedVect] : tableData)
+
+    // Make the N-1 plots
+    auto pCanvas = PlottingHelper::GetCanvas();
+    std::map<PlottingHelper::PlotStyle, TH1F *> histMap;
+    const auto allFeautreNames = BDTHelper::ParticleBDTFeatureNames;
+    for (const auto &type : particleTypes)
     {
-        std::cout << "Writing table: " << tableFileName << std::endl;
+        if (type == config.nMinusOneBDTStudy.signalType)
+            continue;
 
-        FormattingHelper::Table table({"Missing feature", "", "Signal total", "Signal selected", "Background selected", "", "Efficiency", "Purity", "ExP"});
+        auto pHist = new TH1F(("pHist_" + std::to_string(type)).c_str(), "", reducedFeatureNames.size(), 0, reducedFeatureNames.size());
+        auto pAxis = pHist->GetXaxis();
+
+        PlottingHelper::SetLineStyle(pHist, type);
+
+        // Use a dashed line for the other category
+        if (type == PlottingHelper::Other)
+            pHist->SetLineStyle(2);
 
         for (unsigned int iBDT = 0; iBDT < reducedFeatureNames.size(); ++iBDT)
         {
-            // Get the trained BDT
-            const auto missingFeature = featureNames.at(iBDT);
+            if (iBDT < config.nMinusOneBDTStudy.featureNames.size())
+            {
+                const auto missingFeature = config.nMinusOneBDTStudy.featureNames.at(iBDT);
+                const auto iter = std::find(allFeautreNames.begin(), allFeautreNames.end(), missingFeature);
 
-            const auto signalTotal =  signalTotalVect.at(iBDT);
-            const auto signalSelected =  signalSelectedVect.at(iBDT);
-            const auto backgroundSelected =  backgroundSelectedVect.at(iBDT);
-            const auto allSelected = signalSelected + backgroundSelected;
+                if (iter == allFeautreNames.end())
+                    throw std::logic_error("NMinusOneBDTStudy - Unknown feature: " + missingFeature);
 
-            if (signalTotal <= std::numeric_limits<float>::epsilon())
-                throw std::logic_error("There are no signal events!");
-
-            if (allSelected <= std::numeric_limits<float>::epsilon())
-                throw std::logic_error("There are no selected events when removing: " + missingFeature);
-
-            const auto efficiency = signalSelected / signalTotal;
-            const auto purity = signalSelected / allSelected;
-            const auto efficiencyTimesPurity = efficiency * purity;
-
-            table.AddEmptyRow();
-            table.SetEntry("Missing feature", missingFeature);
-            table.SetEntry("Signal total", signalTotal);
-            table.SetEntry("Signal selected", signalSelected);
-            table.SetEntry("Background selected", backgroundSelected);
-            table.SetEntry("Efficiency", efficiency);
-            table.SetEntry("Purity", purity);
-            table.SetEntry("ExP", efficiencyTimesPurity);
+                const auto featureIndex = std::distance(allFeautreNames.begin(), iter);
+                pAxis->SetBinLabel(iBDT + 1, std::to_string(featureIndex).c_str());
+            }
+            else
+            {
+                pAxis->SetBinLabel(iBDT + 1, "none");
+            }
         }
 
-        table.WriteToFile(tableFileName);
-    }   
+        histMap.emplace(type, pHist);
+    }
+
+    // Fill the plots
+    float minROCIntegral = std::numeric_limits<float>::max();
+    float maxROCIntegral = -std::numeric_limits<float>::max();
+
+    for (unsigned int iBDT = 0; iBDT < reducedFeatureNames.size(); ++iBDT)
+    {
+        const auto missingFeature = (iBDT < config.nMinusOneBDTStudy.featureNames.size()) ? config.nMinusOneBDTStudy.featureNames.at(iBDT) : "none";
+
+        const auto &bdtResponses = bdtResponseMap.at(missingFeature);
+        const auto &signalResponses = bdtResponses.at(config.nMinusOneBDTStudy.signalType);
+
+        bool isFirst = true;
+        std::vector<TGraph *> curves;
+        for (const auto &background : particleTypes)
+        {
+            if (background == config.nMinusOneBDTStudy.signalType)
+                continue;
+
+            const auto &backgroundResponses = bdtResponses.at(background);
+
+            // Get the ROC curve
+            std::vector<float> signalPassingRates, backgroundRejectionRates;
+            std::vector<float> signalPassingRateErrs, backgroundRejectionRateErrs;
+            BDTHelper::GetROCCurve(signalResponses, backgroundResponses, config.nMinusOneBDTStudy.nSamplePoints, signalPassingRates, backgroundRejectionRates, signalPassingRateErrs, backgroundRejectionRateErrs);
+
+            // Get the ROC integral
+            const auto rocIntegral = BDTHelper::GetROCIntegral(signalPassingRates, backgroundRejectionRates);
+            const auto rocIntegralErr = BDTHelper::GetROCIntegralError(signalPassingRates, backgroundRejectionRates, signalPassingRateErrs, backgroundRejectionRateErrs);
+            histMap.at(background)->SetBinContent(iBDT + 1, rocIntegral);
+            histMap.at(background)->SetBinError(iBDT + 1, rocIntegralErr);
+
+            minROCIntegral = std::min(minROCIntegral, rocIntegral);
+            maxROCIntegral = std::max(maxROCIntegral, rocIntegral);
+
+            TGraph *pROCCurve = new TGraph(config.nMinusOneBDTStudy.nSamplePoints, signalPassingRates.data(), backgroundRejectionRates.data());
+            PlottingHelper::SetLineStyle(pROCCurve, PlottingHelper::GetColor(background));
+
+            pROCCurve->Draw(isFirst ? "AL" : "L");
+            isFirst = false;
+        }
+
+        PlottingHelper::SaveCanvas(pCanvas, "rocCurve_N-" + nFeaturesString + "_" + signalString + "_minus_" + missingFeature);
+
+        // Clean up the heap
+        for (auto &pGraph : curves)
+            delete pGraph;
+    }
+        
+    // Make the ROC integral plot
+    float padding = (maxROCIntegral - minROCIntegral) * 0.1;
+    minROCIntegral -= padding;
+    maxROCIntegral += padding;
+
+    bool isFirstHist = true;
+    for (const auto &background : particleTypes)
+    {
+        if (background == config.nMinusOneBDTStudy.signalType)
+            continue;
+
+        auto pHist = histMap.at(background);
+        pHist->GetYaxis()->SetRangeUser(minROCIntegral, maxROCIntegral);
+       
+        // Draw the histogram with it's uncertainties
+        auto pHistClone = static_cast<TH1F *>(pHist->Clone());
+        pHistClone->SetFillStyle(1001);
+        pHistClone->SetLineColorAlpha(pHist->GetLineColor(), 0.f);
+        pHistClone->SetFillColorAlpha(pHist->GetLineColor(), 0.3f);
+        pHistClone->Draw(isFirstHist ? "e2" : "e2 same");
+        pHist->Draw("hist same");
+    
+        // Draw the line at the none value
+        const auto nBins = pHist->GetNbinsX();
+        const auto noneROCIntegral = pHist->GetBinContent(nBins);
+        TLine *pLine = new TLine(0, noneROCIntegral, nBins, noneROCIntegral);
+        pLine->SetLineColor(pHist->GetLineColor());
+        pLine->SetLineStyle(3);
+        pLine->Draw();
+
+        isFirstHist = false;
+    }
+    PlottingHelper::SaveCanvas(pCanvas, "rocCurveIntegrals_N-" + nFeaturesString + "_" + signalString);
+
+    // Make the output table
+    FormattingHelper::Table table({"Feature removed", "ID", "", "ROC integral", "Uncertainty", "", "Difference", "Sigma", "", "Should remove"});
+
+    const auto pHist = histMap.at(PlottingHelper::Other);
+    const auto noneROCIntegral = pHist->GetBinContent(pHist->GetNbinsX());
+    const auto noneROCIntegralErr = pHist->GetBinError(pHist->GetNbinsX());
+    
+    // Store the features that aren't doing much
+    std::vector< std::pair<unsigned int, float> > badFeatures;
+
+    for (unsigned int iBDT = 0; iBDT < reducedFeatureNames.size(); ++iBDT)
+    {
+        const auto missingFeature = (iBDT < config.nMinusOneBDTStudy.featureNames.size()) ? config.nMinusOneBDTStudy.featureNames.at(iBDT) : "none";
+
+        table.AddEmptyRow();
+        table.SetEntry("Feature removed", missingFeature);
+
+        if (missingFeature != "none")
+        {
+            const auto iter = std::find(allFeautreNames.begin(), allFeautreNames.end(), missingFeature);
+            if (iter == allFeautreNames.end())
+                throw std::logic_error("NMinusOneBDTStudy - Unknown feature: " + missingFeature);
+
+            const auto featureIndex = std::distance(allFeautreNames.begin(), iter);
+            table.SetEntry("ID", featureIndex);
+        }
+
+
+        // Get the ROC integral for this feature
+        const auto rocIntegral = pHist->GetBinContent(iBDT + 1);
+        const auto rocIntegralErr = pHist->GetBinError(iBDT + 1);
+        table.SetEntry("ROC integral", rocIntegral);
+        table.SetEntry("Uncertainty", rocIntegralErr);
+
+        // Get the drop wrt. no features removed
+        const auto diff = noneROCIntegral - rocIntegral;
+        table.SetEntry("Difference", diff);
+
+        // Get the sigma for this difference
+        const auto combinedErr = std::pow(rocIntegralErr*rocIntegralErr + noneROCIntegralErr*noneROCIntegralErr, 0.5f);
+        const auto sigma = diff / combinedErr;
+        table.SetEntry("Sigma", sigma);
+
+        if (missingFeature == "none")
+            continue;
+        
+        // Assume the feature shouldn't be removed for now
+        table.SetEntry("Should remove", "No");
+
+        // These features clearly do some good
+        if (sigma > 1.f)
+            continue;
+
+        badFeatures.emplace_back(iBDT, diff);
+    }
+
+    if (!badFeatures.empty())
+    {
+        const auto worstFeatureIndex = std::min_element(badFeatures.begin(), badFeatures.end(), [](const auto &a, const auto &b){return a.second < b.second;})->first;
+        table.SetEntry("Should remove", worstFeatureIndex, "Yes");
+    }
+
+    table.WriteToFile("rocCurveIntegralsTable_N-" + nFeaturesString + "_" + signalString + ".md");
+        
+    // Clean up the heap
+    for (auto &entry : histMap)
+        delete entry.second;
+
 }
 
 } // namespace ubc1pi_macros
