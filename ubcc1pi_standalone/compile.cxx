@@ -2,7 +2,13 @@
 #include <stdexcept>
 #include <string>
 
+#include <vector>
+#include <map>
+
 {
+    // Generate any required dictionaries
+    gInterpreter->GenerateDictionary("std::map<std::string, std::vector<float> >", "map;string;vector");
+
     // Add ubcc1pi_standalone to the include path
     const auto ubcc1piStandaloneDir = std::getenv("UBCC1PI_STANDALONE_DIR");
     if (!ubcc1piStandaloneDir)

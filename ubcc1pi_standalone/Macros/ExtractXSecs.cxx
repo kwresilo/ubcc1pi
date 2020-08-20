@@ -125,11 +125,6 @@ void ExtractXSecs(const Config &config)
             passedGenericSelection = passedThresholds && passedGenericSelection;
             passedGoldenSelection = passedThresholds && passedGoldenSelection;
 
-            //// BEGIN TEST
-            // Make the golden selection be the same as the generic selection
-            passedGoldenSelection = passedGenericSelection;
-            //// END TEST
-
             // Overlay signal events
             if (isOverlay && AnalysisHelper::IsTrueCC1Pi(pEvent, config.global.useAbsPdg))
             {
@@ -196,7 +191,7 @@ void ExtractXSecs(const Config &config)
     xSec_muonMomentum.SetBins(config.global.muonMomentum.binEdges);
     xSec_pionCosTheta.SetBins(config.global.pionCosTheta.binEdges);
     xSec_pionPhi.SetBins(config.global.pionPhi.binEdges);
-//    xSec_pionMomentum.SetBins(config.global.pionMomentum.binEdges);
+    xSec_pionMomentum.SetBins(config.global.pionMomentum.binEdges);
     xSec_muonPionAngle.SetBins(config.global.muonPionAngle.binEdges);
     xSec_nProtons.SetBins(config.global.nProtons.binEdges);
     
@@ -209,9 +204,15 @@ void ExtractXSecs(const Config &config)
     xSec_pionMomentum.SetBinsAuto(config.global.pionMomentum.binEdges.front(), config.global.pionMomentum.binEdges.back(), 100u, 0.68f);
     xSec_muonPionAngle.SetBinsAuto(config.global.muonPionAngle.binEdges.front(), config.global.muonPionAngle.binEdges.back(), 100u, 0.68f);
     */
-    
-    xSec_pionMomentum.SetBinsAuto(config.global.pionMomentum.binEdges.front(), config.global.pionMomentum.binEdges.back(), 100u, 0.5f);
 
+    const auto efficiencies = xSec_muonCosTheta.GetEfficiencyPerTrueBin();
+    std::cout << "DEBUG - efficiencies muon cos(theta)" << std::endl;
+    for (unsigned int i = 0; i < efficiencies.size(); ++i)
+    {
+        std::cout << i << " : " << efficiencies.at(i) << std::endl;
+    }
+
+    /*
     // Print the results
     std::cout << "Muon cos(theta)" << std::endl;
     xSec_muonCosTheta.PrintBinContents("xsec_muonCosTheta");
@@ -244,6 +245,7 @@ void ExtractXSecs(const Config &config)
     std::cout << "nProtons" << std::endl;
     xSec_nProtons.PrintBinContents("xsec_nProtons");
     xSec_nProtons.MakePlots("xsec_nProtons");
+    */
 }
 
 } // namespace ubcc1pi_macros

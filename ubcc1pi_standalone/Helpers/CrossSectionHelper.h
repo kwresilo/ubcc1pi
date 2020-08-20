@@ -15,6 +15,7 @@
 #include <string>
 #include <vector>
 #include <random>
+#include <functional>
 
 #include <TFile.h>
 #include <TTree.h>
@@ -37,6 +38,25 @@ class CrossSectionHelper
          */
         class XSec
         {
+            private:
+                /**
+                 *  @brief  The event structure
+                 *          Holds the basic information needed about an event to calculate the cross-section
+                 */
+                struct OutputEvent
+                {
+                    int          m_sampleType;      ///< The sample type enumeration
+                    float        m_sampleNorm;      ///< The sample normalisation factor   
+                    float        m_weight;          ///< The nominal event weight
+                    float        m_recoValue;       ///< The reconstructed value
+                    float        m_trueValue;       ///< The true value
+                    bool         m_isSignal;        ///< If the event is signal
+                    bool         m_isSelected;      ///< If the event is selected
+                    std::string  m_classification;  ///< The event classification string
+
+                    std::map<std::string, std::vector<float> > m_systWeights; ///< The systematic event weights indexed by [systematicName][universeIndex]
+                };
+
             public:
                 /**
                  *  @brief  Constructor
@@ -103,12 +123,93 @@ class CrossSectionHelper
                 void AddSelectedBNBDataEvent(const std::shared_ptr<Event> &pEvent, const float &recoValue);
 
                 /**
+                 *  @brief  Get the total weight of signal events per bin
+                 *
+                 *  @param  eventsPerBin the events per bin
+                 */
+//                void CountSignalEventsPerBin(std::vector<float> &eventsPerBin) const;
+                
+                /**
+                 *  @brief  Count the selected BNB data events per reco bin
+                 *
+                 *  @return the bin contents
+                 */
+                std::vector<float> CountSelectedBNBDataEventsPerRecoBin() const;
+                
+                /**
+                 *  @brief  Count the selected MC (as fake data) events per reco bin
+                 *
+                 *  @return the bin contents
+                 */
+                std::vector<float> CountSelectedMCEventsPerRecoBin() const;
+                
+                /**
+                 *  @brief  Count the selected background events per reco bin
+                 *
+                 *  @return the bin contents
+                 */
+                std::vector<float> CountSelectedBackgroundEventsPerRecoBin() const;
+                
+                /**
+                 *  @brief  Count the signal events per true bin
+                 *
+                 *  @return the bin contents
+                 */
+                std::vector<float> CountSignalEventsPerTrueBin() const;
+                
+                /**
+                 *  @brief  Count the selected signal events per true bin
+                 *
+                 *  @return the bin contents
+                 */
+                std::vector<float> CountSelectedSignalEventsPerTrueBin() const;
+                
+                /**
+                 *  @brief  Count the selected signal events per 2D reco-true bin
+                 *
+                 *  @return the bin contents
+                 */
+                std::vector< std::vector<float> > CountSelectedSignalEventsPerRecoTrueBin() const;
+
+                /**
+                 *  @brief  Get the efficiency of the selection per true bin
+                 *
+                 *  @return the bin efficiencies
+                 */
+                std::vector<float> GetEfficiencyPerTrueBin() const;
+                
+                /**
+                 *  @brief  Get the smaering matrix [reco][true]
+                 *
+                 *  @return the smearing matrix
+                 */
+                std::vector< std::vector<float> > GetSmearingMatrix() const;
+
+                /**
+                 *  @brief  Get the smeared efficiency in reco-space
+                 *
+                 *  @return the reco bin efficiencies
+                 */
+                std::vector<float> GetSmearedEfficiencyPerRecoBin() const;
+                
+                /**
+                 *  @brief  Get the forward folded cross-section in reco bins
+                 *
+                 *  @param  useRealData if we should use real BNB data (if false, MC is used as fake data)
+                 *
+                 *  @return the cross section per reco bin
+                 */
+                std::vector<float> GetCrossSectionPerRecoBin(const bool useRealData) const;
+                
+                //std::vector<float> GetSelectedBNBDataEventsPerRecoBinUncertainty(const std::vector<std::string> &systematicParams, const unsigned int nUniverses) const;
+
+                /**
                  *  @brief  Get the confusion matrix, M[reco][true]
                  *
                  *  @param  matrix the output confusion matrix
                  *  @param  uncertainties the output uncertainties on the confusion matrix elements
                  */
-                void GetConfusionMatrix(std::vector< std::vector<float> > &matrix, std::vector< std::vector<float> > &uncertainties) const;
+//                void GetConfusionMatrix(std::vector< std::vector<float> > &matrix, std::vector< std::vector<float> > &uncertainties) const;
                 
                 /**
                  *  @brief  Get the smearing matrix, S[reco][true] = P(reco | true)
@@ -116,7 +217,7 @@ class CrossSectionHelper
                  *  @param  matrix the output smearing matrix
                  *  @param  uncertainties the output uncertainties on the smearing matrix elements
                  */
-                void GetSmearingMatrix(std::vector< std::vector<float> > &matrix, std::vector< std::vector<float> > &uncertainties) const;
+//                void GetSmearingMatrix(std::vector< std::vector<float> > &matrix, std::vector< std::vector<float> > &uncertainties) const;
                 
                 /**
                  *  @brief  Get the selection efficiencies in the true bins
@@ -124,7 +225,7 @@ class CrossSectionHelper
                  *  @param  efficiencies the output efficiency per bin
                  *  @param  uncertainties the output uncertainty on the efficiency per bin
                  */
-                void GetTrueEfficiencies(std::vector<float> &efficiencies, std::vector<float> &uncertainties) const;
+//                void GetTrueEfficiencies(std::vector<float> &efficiencies, std::vector<float> &uncertainties) const;
 
                 /**
                  *  @brief  Get the smeared selection efficiencies
@@ -132,14 +233,7 @@ class CrossSectionHelper
                  *  @param  efficiencies the output smeared efficiency per bin
                  *  @param  uncertainties the output uncertainty on the efficiency per bin
                  */
-                void GetSmearedEfficiencies(std::vector<float> &efficiencies, std::vector<float> &uncertainties) const;
-                
-                /**
-                 *  @brief  Get the bin widths
-                 *
-                 *  @return the bin widths
-                 */
-                std::vector<float> GetBinWidths() const;
+//                void GetSmearedEfficiencies(std::vector<float> &efficiencies, std::vector<float> &uncertainties) const;
 
                 /**
                  *  @brief  Get the cross-section from MC using true values
@@ -147,7 +241,7 @@ class CrossSectionHelper
                  *  @param  bins the output cross-section values
                  *  @param  uncertainties the uncertainty on the bins
                  */
-                void GetMCTrueCrossSection(std::vector<float> &bins, std::vector<float> &uncertainties) const;
+//                void GetMCTrueCrossSection(std::vector<float> &bins, std::vector<float> &uncertainties) const;
 
                 /**
                  *  @brief  Get the cross-section from MC using smeared true values
@@ -155,7 +249,7 @@ class CrossSectionHelper
                  *  @param  bins the output cross-section values
                  *  @param  uncertainties the uncertainty on the bins
                  */
-                void GetSmearedMCTrueCrossSection(std::vector<float> &bins, std::vector<float> &uncertainties) const;
+//                void GetSmearedMCTrueCrossSection(std::vector<float> &bins, std::vector<float> &uncertainties) const;
 
                 /**
                  *  @brief  Get the reco cross-section using either real BNB data or Overlays + EXT + Dirt
@@ -164,21 +258,21 @@ class CrossSectionHelper
                  *  @param  bins the output cross-section values
                  *  @param  uncertainties the uncertainty on the bins
                  */
-                void GetRecoCrossSection(const bool useRealData, std::vector<float> &bins, std::vector<float> &uncertainties) const;
+//                void GetRecoCrossSection(const bool useRealData, std::vector<float> &bins, std::vector<float> &uncertainties) const;
 
                 /**
                  *  @brief  Print the contents of the bins
                  *
                  *  @param  outputFileNamePrefix the prefix of the name of the output file we should save the tables to
                  */
-                void PrintBinContents(const std::string &outputFileNamePrefix) const;
+//                void PrintBinContents(const std::string &outputFileNamePrefix) const;
                 
                 /**
                  *  @brief  Make the plots
                  *
                  *  @param  fileNamePrefix the file name prefix
                  */
-                void MakePlots(const std::string &fileNamePrefix) const;
+//                void MakePlots(const std::string &fileNamePrefix) const;
 
             private:
 
@@ -213,7 +307,7 @@ class CrossSectionHelper
                  *
                  *  @return the cross-section value
                  */
-                float GetCrossSection(const float nTotal, const float nBackgrounds, const float efficiency, const float binWidth) const;
+//                float GetCrossSection(const float nTotal, const float nBackgrounds, const float efficiency, const float binWidth) const;
 
                 /**
                  *  @brief  Get the uncertainty on the differential cross-section in a bin
@@ -228,7 +322,7 @@ class CrossSectionHelper
                  *
                  *  @return the error on the cross-section value
                  */
-                float GetCrossSectionUncertainty(const float nTotal, const float totalErr, const float nBackgrounds, const float backgroundsErr, const float efficiency, const float efficiencyErr, const float binWidth) const;
+//                float GetCrossSectionUncertainty(const float nTotal, const float totalErr, const float nBackgrounds, const float backgroundsErr, const float efficiency, const float efficiencyErr, const float binWidth) const;
                 
 
                 /**
@@ -238,14 +332,14 @@ class CrossSectionHelper
                  *
                  *  @return the true signal per bin
                  */
-                std::vector<float> GetTrueSignalPerBin(const bool mustBeSelected) const;
+//                std::vector<float> GetTrueSignalPerBin(const bool mustBeSelected) const;
                 
                 /**
                  *  @brief  Get the overlay normalisation 
                  *
                  *  @return the normalisation factor for overlays
                  */
-                float GetOverlayNormalisation() const;
+//                float GetOverlayNormalisation() const;
                 
                 /**
                  *  @brief  Get the selected BNB data in each bin
@@ -254,7 +348,7 @@ class CrossSectionHelper
                  *  @param  uncertainties the uncertainties
                  *  @param  useRealData if true we will use real BNB data, if false we use Overlays + EXT + Dirt as fake data
                  */
-                void GetBNBDataPerBin(std::vector<float> &bins, std::vector<float> &uncertainties, const bool useRealData = true) const;
+//                void GetBNBDataPerBin(std::vector<float> &bins, std::vector<float> &uncertainties, const bool useRealData = true) const;
 
                 /**
                  *  @brief  Get the expected number of backgrounds in each bin
@@ -262,14 +356,14 @@ class CrossSectionHelper
                  *  @param  bins the values per bin
                  *  @param  uncertainties the uncertainties
                  */
-                void GetBackgroundsPerBin(std::vector<float> &bins, std::vector<float> &uncertainties) const;
+//                void GetBackgroundsPerBin(std::vector<float> &bins, std::vector<float> &uncertainties) const;
                 
                 /**
                  *  @brief  Get the purity in each bin
                  *
                  *  @param  bins the output purity values per bin
                  */
-                void GetPurityPerBin(std::vector<float> &bins) const;
+//                void GetPurityPerBin(std::vector<float> &bins) const;
 
                 /**
                  *  @brief  Get the index of a bin from the input value
@@ -297,7 +391,172 @@ class CrossSectionHelper
                  *  @return boolean, true if underflow or overflow bin
                  */
                 bool IsUnderOverFlowBin(const unsigned int index) const;
+               
+                /**
+                 *  @brief  Get the bin widths
+                 *
+                 *  @return the bin widths
+                 */
+                std::vector<float> GetBinWidths() const;
+
+                /**
+                 *  @brief  Get the weight (accounting for sample normalisation) of an event after applying the supplied systematic parameters in the given universe
+                 *
+                 *  @param  event the event
+                 *  @param  systematicParams the names of the systematic parameters to apply (can be empty, in which case the nominal universe is used)
+                 *  @param  universeIndex the index of the universe to use
+                 *
+                 *  @return the event weight
+                 */
+                float GetEventWeight(const OutputEvent &event, const std::vector<std::string> &systematicParams, const unsigned int universeIndex) const;
+
+                /**
+                 *  @brief  Count the events per bin (using reconstructed values) passing the supplied critiera
+                 *          The result is reweighted using the requested systematic parameters in the requested universe
+                 *
+                 *  @param  criteria the criteria to count an event
+                 *  @param  systematicParams the names of the systematic parameters to apply (can be empty, in which case the nominal universe is used)
+                 *  @param  universeIndex the index of the universe to use
+                 *
+                 *  @return the total weight of events passing the criteira per bin
+                 */
+                std::vector<float> CountEventsPerRecoBinWithCriteria(const std::function<bool(const OutputEvent &)> &criteria, const std::vector<std::string> &systematicParams, const unsigned int universeIndex) const;
                 
+                /**
+                 *  @brief  Count the events per bin (using true values) passing the supplied critiera
+                 *          The result is reweighted using the requested systematic parameters in the requested universe
+                 *
+                 *  @param  criteria the criteria to count an event
+                 *  @param  systematicParams the names of the systematic parameters to apply (can be empty, in which case the nominal universe is used)
+                 *  @param  universeIndex the index of the universe to use
+                 *
+                 *  @return the total weight of events passing the criteira per bin
+                 */
+                std::vector<float> CountEventsPerTrueBinWithCriteria(const std::function<bool(const OutputEvent &)> &criteria, const std::vector<std::string> &systematicParams, const unsigned int universeIndex) const;
+
+                /**
+                 *  @brief  Count the events per [reco][true] bin passing the supplied critiera
+                 *          The result is reweighted using the requested systematic parameters in the requested universe
+                 *
+                 *  @param  criteria the criteria to count an event
+                 *  @param  systematicParams the names of the systematic parameters to apply (can be empty, in which case the nominal universe is used)
+                 *  @param  universeIndex the index of the universe to use
+                 *
+                 *  @return the total weight of events passing the criteira per bin
+                 */
+                std::vector< std::vector<float> > CountEventsPerRecoTrueBinWithCriteria(const std::function<bool(const OutputEvent &)> &criteria, const std::vector<std::string> &systematicParams, const unsigned int universeIndex) const;
+
+                /**
+                 *  @brief  Count the selected BNB data events per reco bin - applying systematic parameters
+                 *
+                 *  @param  systematicParams the systematic parameters to apply
+                 *  @param  universeIndex the universe to use
+                 *
+                 *  @return the bin contents
+                 */
+                std::vector<float> CountSelectedBNBDataEventsPerRecoBin(const std::vector<std::string> &systematicParams, const unsigned int universeIndex) const;
+                
+                /**
+                 *  @brief  Count the selected MC (as fake data) events per reco bin - applying systematic parameters
+                 *
+                 *  @param  systematicParams the systematic parameters to apply
+                 *  @param  universeIndex the universe to use
+                 *
+                 *  @return the bin contents
+                 */
+                std::vector<float> CountSelectedMCEventsPerRecoBin(const std::vector<std::string> &systematicParams, const unsigned int universeIndex) const;
+                
+                /**
+                 *  @brief  Count the selected background events per reco bin - applying systematic parameters
+                 *
+                 *  @param  systematicParams the systematic parameters to apply
+                 *  @param  universeIndex the universe to use
+                 *
+                 *  @return the bin contents
+                 */
+                std::vector<float> CountSelectedBackgroundEventsPerRecoBin(const std::vector<std::string> &systematicParams, const unsigned int universeIndex) const;
+                
+                /**
+                 *  @brief  Count the signal events per true bin - applying systematic parameters
+                 *
+                 *  @param  systematicParams the systematic parameters to apply
+                 *  @param  universeIndex the universe to use
+                 *
+                 *  @return the bin contents
+                 */
+                std::vector<float> CountSignalEventsPerTrueBin(const std::vector<std::string> &systematicParams, const unsigned int universeIndex) const;
+                
+                /**
+                 *  @brief  Count the selected signal events per true bin - applying systematic parameters
+                 *
+                 *  @param  systematicParams the systematic parameters to apply
+                 *  @param  universeIndex the universe to use
+                 *
+                 *  @return the bin contents
+                 */
+                std::vector<float> CountSelectedSignalEventsPerTrueBin(const std::vector<std::string> &systematicParams, const unsigned int universeIndex) const;
+                
+                /**
+                 *  @brief  Count the selected signal events per 2D reco-true bin - applying systematic parameters
+                 *
+                 *  @param  systematicParams the systematic parameters to apply
+                 *  @param  universeIndex the universe to use
+                 *
+                 *  @return the bin contents
+                 */
+                std::vector< std::vector<float> > CountSelectedSignalEventsPerRecoTrueBin(const std::vector<std::string> &systematicParams, const unsigned int universeIndex) const;
+                
+                /**
+                 *  @brief  Get the efficiency of the selection per true bin - applying systematic parameters
+                 *
+                 *  @param  systematicParams the systematic parameters to apply
+                 *  @param  universeIndex the universe to use
+                 *
+                 *  @return the bin efficiencies
+                 */
+                std::vector<float> GetEfficiencyPerTrueBin(const std::vector<std::string> &systematicParams, const unsigned int universeIndex) const;
+
+                /**
+                 *  @brief  Get the smearing matrix [reco][true] - applying systematic parameters
+                 *
+                 *  @param  systematicParams the systematic parameters to apply
+                 *  @param  universeIndex the universe to use
+                 *
+                 *  @return the smearing matrix
+                 */
+                std::vector< std::vector<float> > GetSmearingMatrix(const std::vector<std::string> &systematicParams, const unsigned int universeIndex) const;
+
+                /**
+                 *  @brief  Smear a set of input bins (true-space) into reco-space using the supplied smearing matrix
+                 *
+                 *  @param  bins the input true-space bins
+                 *  @param  smearingMatrix the smearing matrix
+                 *
+                 *  @return the output reco-space smeared bins
+                 */
+                std::vector<float> Smear(const std::vector<float> &bins, const std::vector< std::vector<float> > &smearingMatrix) const;
+                
+                /**
+                 *  @brief  Get the smeared efficiencies in reco-space - applying systematic parameters
+                 *
+                 *  @param  systematicParams the systematic parameters to apply
+                 *  @param  universeIndex the universe to use
+                 *
+                 *  @return the reco efficiency per bin
+                 */
+                std::vector<float> GetSmearedEfficiencyPerRecoBin(const std::vector<std::string> &systematicParams, const unsigned int universeIndex) const;
+
+                /**
+                 *  @brief  Get the forward folded cross-section in reco bins - applying systematic parameters
+                 *
+                 *  @param  systematicParams the systematic parameters to apply
+                 *  @param  universeIndex the universe to use
+                 *  @param  useRealData if we should use real BNB data (if false, MC is used as fake data)
+                 *
+                 *  @return the cross section per reco bin
+                 */
+                std::vector<float> GetCrossSectionPerRecoBin(const std::vector<std::string> &systematicParams, const unsigned int universeIndex, const bool useRealData) const;
+
                 /**
                  *  @brief  Smear the input bins
                  *
@@ -306,7 +565,7 @@ class CrossSectionHelper
                  *  @param  bins the output smeared bins
                  *  @param  uncertainties the output smeared uncertainties
                  */
-                void SmearBins(const std::vector<float> &inputBins, const std::vector<float> &inputUncertainties, std::vector<float> &bins, std::vector<float> &uncertainties) const;
+//                void SmearBins(const std::vector<float> &inputBins, const std::vector<float> &inputUncertainties, std::vector<float> &bins, std::vector<float> &uncertainties) const;
 
                 /**
                  *  @brief  Print a matrix as a table
@@ -315,28 +574,11 @@ class CrossSectionHelper
                  *  @param  uncertainties the uncertainties on the values in the matrix
                  *  @param  outputFileName the output file name for the table
                  */
-                void PrintMatrix(const std::vector< std::vector<float> > &matrix, const std::vector< std::vector<float> > &uncertainties, const std::string &outputFileName) const;
-
-                /**
-                 *  @brief  The output event structure
-                 */
-                struct OutputEvent
-                {
-                    int          m_sampleType;      ///< The sample type enumeration
-                    float        m_sampleNorm;      ///< The sample normalisation factor   
-                    float        m_weight;          ///< The nominal event weight
-                    float        m_recoValue;       ///< The reconstructed value
-                    float        m_trueValue;       ///< The true value
-                    bool         m_isSignal;        ///< If the event is signal
-                    bool         m_isSelected;      ///< If the event is selected
-                    std::string  m_classification;  ///< The event classification string
-                    
-                    std::map<std::string, std::vector<float> > m_systWeights; ///< The systematic event weights indexed by [systematicName][universeIndex]
-                };
+//                void PrintMatrix(const std::vector< std::vector<float> > &matrix, const std::vector< std::vector<float> > &uncertainties, const std::string &outputFileName) const;
 
                 std::string        m_fileName; ///< The output file name
-                TFile             *m_pFile;    ///< The output file
-                TTree             *m_pTree;    ///< The output tree (we store in a tree so we don't use too much memory)
+                TFile             *m_pFile;    ///< The output file (never explicitly written, but required by ROOT to fall back on disk if processing is too memory intensive)
+                TTree             *m_pTree;    ///< The output tree 
                                   
                 float              m_min;      ///< The minimum possible value of the quantity
                 float              m_max;      ///< The maximum possible value of the quantity
@@ -352,7 +594,9 @@ class CrossSectionHelper
                 float              m_integratedFlux;  ///< The integrated flux / 10^11 cm^-2
                                   
                 OutputEvent        m_outputEvent;         ///< The output event struture to bind to the trees
-                unsigned int       m_nBootstrapUniverses; ///< The number of universes to use when finding the statistical uncertainty
+
+                std::default_random_engine m_generator;           ///< Random number generator
+                unsigned int               m_nBootstrapUniverses; ///< The number of universes to use when finding the statistical uncertainty
             
         };
 };
@@ -372,7 +616,7 @@ CrossSectionHelper::XSec::XSec(const std::string &fileName, const float &min, co
     m_countProtonsInclusively(countProtonsInclusively),
     m_nTargets(4.1741), // TODO make configurable
     m_integratedFlux(1.26816), // TODO make configurable
-    m_nBootstrapUniverses(10u)
+    m_nBootstrapUniverses(1u)
 {
     // Setup the output branches
     m_pTree->Branch("sampleType", &m_outputEvent.m_sampleType);
@@ -568,14 +812,13 @@ void CrossSectionHelper::XSec::FillEvent(const AnalysisHelper::SampleType sample
     m_outputEvent.m_systWeights.clear();
 
     // Get the weights for each bootstrap universe (statistical uncertainty)
-    std::default_random_engine generator;
     std::poisson_distribution<int> poisson(1.f);
 
     std::vector<float> bootstrapWeights;
     for (unsigned int i = 0; i < m_nBootstrapUniverses; ++i)
     {
         // Get a unit-mean poisson-distributed random weight for this universe
-        bootstrapWeights.emplace_back(static_cast<float>(poisson(generator)));
+        bootstrapWeights.emplace_back(static_cast<float>(poisson(m_generator)));
     }
     m_outputEvent.m_systWeights.emplace("stat", bootstrapWeights);
 
@@ -626,12 +869,515 @@ unsigned int CrossSectionHelper::XSec::GetBinIndex(const float &value) const
             return i;
     }
    
-    std::cout << "DEBUG - Value = " << value << std::endl;
     throw std::logic_error("XSec::GetBinIndex - input value is out of bounds");
 }
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
 
+std::string CrossSectionHelper::XSec::GetBinName(const unsigned int index) const
+{
+    if (m_binEdges.size() < 2)
+        throw std::logic_error("XSec::GetBinName - binning hasn't been set");
+
+    const auto nBins = m_binEdges.size() - 1;
+
+    if (index >= nBins)
+        throw std::invalid_argument("XSec::GetBinName - input index is out of bounds");
+
+    if (index == 0 && m_hasUnderflow)
+        return "Underflow";
+
+    if (index == nBins - 1 && m_hasOverflow)
+        return "Overflow";
+
+    return std::to_string(index - (m_hasUnderflow ? 1 : 0));
+}
+
+// -----------------------------------------------------------------------------------------------------------------------------------------
+
+bool CrossSectionHelper::XSec::IsUnderOverFlowBin(const unsigned int index) const
+{
+    if (m_binEdges.size() < 2)
+        throw std::logic_error("XSec::IsUnderOverFlowBin - binning hasn't been set");
+
+    const auto nBins = m_binEdges.size() - 1;
+
+    if (index == 0 && m_hasUnderflow)
+        return true;
+
+    if (index == nBins - 1 && m_hasOverflow)
+        return true;
+
+    return false;
+}
+
+// -----------------------------------------------------------------------------------------------------------------------------------------
+
+std::vector<float> CrossSectionHelper::XSec::GetBinWidths() const
+{
+    if (m_binEdges.size() < 2)
+        throw std::logic_error("XSec::GetBinWidths - binning hasn't been set");
+    
+    const auto nBins = m_binEdges.size() - 1;
+    
+    std::vector<float> binWidths;
+    for (unsigned int i = 0; i < nBins; ++i)
+    {
+        binWidths.push_back(m_binEdges.at(i+1) - m_binEdges.at(i));
+    }
+
+    return binWidths;
+}
+
+// -----------------------------------------------------------------------------------------------------------------------------------------
+
+std::vector<float> CrossSectionHelper::XSec::CountEventsPerRecoBinWithCriteria(const std::function<bool(const OutputEvent &)> &criteria, const std::vector<std::string> &systematicParams, const unsigned int universeIndex) const
+{
+    if (m_binEdges.size() < 2)
+        throw std::logic_error("XSec::CountEventsPerRecoBinWithCriteria - binning hasn't been set");
+
+    const auto nBins = m_binEdges.size() - 1;
+    std::vector<float> binTotals(nBins, 0.f);
+
+    // Extract the reco values from the tree
+    for (unsigned int i = 0; i < m_pTree->GetEntries(); ++i)
+    {
+        m_pTree->GetEntry(i);
+
+        // Only count events passing the criteria
+        if (!criteria(m_outputEvent))
+            continue;
+
+        const auto weight = this->GetEventWeight(m_outputEvent, systematicParams, universeIndex);
+        const auto binIndex = this->GetBinIndex(m_outputEvent.m_recoValue);
+        binTotals.at(binIndex) += weight;
+    }
+
+    return binTotals;
+}
+
+// -----------------------------------------------------------------------------------------------------------------------------------------
+
+std::vector<float> CrossSectionHelper::XSec::CountEventsPerTrueBinWithCriteria(const std::function<bool(const OutputEvent &)> &criteria, const std::vector<std::string> &systematicParams, const unsigned int universeIndex) const
+{
+    if (m_binEdges.size() < 2)
+        throw std::logic_error("XSec::CountEventsPerTrueBinWithCriteria - binning hasn't been set");
+
+    const auto nBins = m_binEdges.size() - 1;
+    std::vector<float> binTotals(nBins, 0.f);
+
+    // Extract the reco values from the tree
+    for (unsigned int i = 0; i < m_pTree->GetEntries(); ++i)
+    {
+        m_pTree->GetEntry(i);
+
+        // Only count events passing the criteria
+        if (!criteria(m_outputEvent))
+            continue;
+        
+        if (!m_outputEvent.m_isSignal)
+            throw std::logic_error("XSec::CountEventsPerTrueBinWithCriteria - event passed the criteria but is not signal, no truth information available");
+
+        const auto weight = this->GetEventWeight(m_outputEvent, systematicParams, universeIndex);
+        const auto binIndex = this->GetBinIndex(m_outputEvent.m_trueValue);
+        binTotals.at(binIndex) += weight;
+    }
+
+    return binTotals;
+}
+
+// -----------------------------------------------------------------------------------------------------------------------------------------
+
+std::vector< std::vector<float> > CrossSectionHelper::XSec::CountEventsPerRecoTrueBinWithCriteria(const std::function<bool(const OutputEvent &)> &criteria, const std::vector<std::string> &systematicParams, const unsigned int universeIndex) const
+{
+    if (m_binEdges.size() < 2)
+        throw std::logic_error("XSec::CountEventsPerRecoTrueBinWithCriteria - binning hasn't been set");
+
+    const auto nBins = m_binEdges.size() - 1;
+
+    // Setup the output matrix
+    std::vector< std::vector<float> > binTotals;
+    for (unsigned int i = 0; i < nBins; ++i)
+        binTotals.emplace_back(nBins, 0.f);
+
+    // Extract the reco values from the tree
+    for (unsigned int i = 0; i < m_pTree->GetEntries(); ++i)
+    {
+        m_pTree->GetEntry(i);
+
+        // Only count events passing the criteria
+        if (!criteria(m_outputEvent))
+            continue;
+        
+        if (!m_outputEvent.m_isSignal)
+            throw std::logic_error("XSec::CountEventsPerRecoTrueBinWithCriteria - event passed the criteria but is not signal, no truth information available");
+
+        const auto weight = this->GetEventWeight(m_outputEvent, systematicParams, universeIndex);
+        const auto trueBinIndex = this->GetBinIndex(m_outputEvent.m_trueValue);
+        const auto recoBinIndex = this->GetBinIndex(m_outputEvent.m_recoValue);
+
+        binTotals.at(recoBinIndex).at(trueBinIndex) += weight;
+    }
+
+    return binTotals;
+}
+
+// -----------------------------------------------------------------------------------------------------------------------------------------
+
+float CrossSectionHelper::XSec::GetEventWeight(const OutputEvent &event, const std::vector<std::string> &systematicParams, const unsigned int universeIndex) const
+{
+    // Get the nominal event weight
+    const auto nominalWeight = event.m_weight * event.m_sampleNorm;
+
+    // Re-weight the event using the supplied systematic parameters
+    float reweightedValue = nominalWeight;
+
+    const auto &systWeights = event.m_systWeights;
+    for (const auto &param : systematicParams)
+    {
+        // Get the universe weights for this parameter
+        const auto iter = systWeights.find(param);
+        if (iter == systWeights.end())
+            throw std::invalid_argument("XSec::GetEventWeight - Found event without systematic parameter: \"" + param + "\"");
+
+        const auto &weights = iter->second;
+
+        // Check we are trying to access a valid universe index
+        const auto nUniverses = weights.size();
+        if (universeIndex >= nUniverses)
+            throw std::out_of_range("XSec::GetEventWeight - Systematic parameter: \"" + param + "\" has " + std::to_string(nUniverses) + " universes. Requested universe index, " + std::to_string(universeIndex) + " is out of bounds.");
+
+        // Get the weight for this universe
+        const auto universeWeight = weights.at(universeIndex);
+
+        // Apply the weights
+        reweightedValue *= universeWeight;
+    }
+
+    return reweightedValue;
+}
+
+// -----------------------------------------------------------------------------------------------------------------------------------------
+
+std::vector<float> CrossSectionHelper::XSec::CountSelectedBNBDataEventsPerRecoBin() const
+{
+    return this->CountSelectedBNBDataEventsPerRecoBin({}, 0u);
+}
+
+// -----------------------------------------------------------------------------------------------------------------------------------------
+
+std::vector<float> CrossSectionHelper::XSec::CountSelectedBNBDataEventsPerRecoBin(const std::vector<std::string> &systematicParams, const unsigned int universeIndex) const
+{
+    return this->CountEventsPerRecoBinWithCriteria([](const OutputEvent &event) {
+
+        return (event.m_sampleType == AnalysisHelper::DataBNB && event.m_isSelected);
+
+    }, systematicParams, universeIndex);
+}
+
+// -----------------------------------------------------------------------------------------------------------------------------------------
+
+std::vector<float> CrossSectionHelper::XSec::CountSelectedMCEventsPerRecoBin() const
+{
+    return this->CountSelectedMCEventsPerRecoBin({}, 0u);
+}
+
+// -----------------------------------------------------------------------------------------------------------------------------------------
+
+std::vector<float> CrossSectionHelper::XSec::CountSelectedMCEventsPerRecoBin(const std::vector<std::string> &systematicParams, const unsigned int universeIndex) const
+{
+    return this->CountEventsPerRecoBinWithCriteria([](const OutputEvent &event) {
+
+        return (event.m_sampleType != AnalysisHelper::DataBNB && event.m_isSelected);
+
+    }, systematicParams, universeIndex);
+}
+
+// -----------------------------------------------------------------------------------------------------------------------------------------
+
+std::vector<float> CrossSectionHelper::XSec::CountSelectedBackgroundEventsPerRecoBin() const
+{
+    return this->CountSelectedBackgroundEventsPerRecoBin({}, 0u);
+}
+
+// -----------------------------------------------------------------------------------------------------------------------------------------
+
+std::vector<float> CrossSectionHelper::XSec::CountSelectedBackgroundEventsPerRecoBin(const std::vector<std::string> &systematicParams, const unsigned int universeIndex) const
+{
+    return this->CountEventsPerRecoBinWithCriteria([](const OutputEvent &event) {
+
+        return (event.m_sampleType != AnalysisHelper::DataBNB && !event.m_isSignal && event.m_isSelected);
+
+    }, systematicParams, universeIndex);
+}
+
+// -----------------------------------------------------------------------------------------------------------------------------------------
+
+std::vector<float> CrossSectionHelper::XSec::CountSignalEventsPerTrueBin() const
+{
+    return this->CountSignalEventsPerTrueBin({}, 0u);
+}
+
+// -----------------------------------------------------------------------------------------------------------------------------------------
+
+std::vector<float> CrossSectionHelper::XSec::CountSignalEventsPerTrueBin(const std::vector<std::string> &systematicParams, const unsigned int universeIndex) const
+{
+    return this->CountEventsPerTrueBinWithCriteria([](const OutputEvent &event) {
+
+        return event.m_isSignal;
+
+    }, systematicParams, universeIndex);
+}
+
+// -----------------------------------------------------------------------------------------------------------------------------------------
+
+std::vector<float> CrossSectionHelper::XSec::CountSelectedSignalEventsPerTrueBin() const
+{
+    return this->CountSelectedSignalEventsPerTrueBin({}, 0u);
+}
+
+// -----------------------------------------------------------------------------------------------------------------------------------------
+
+std::vector<float> CrossSectionHelper::XSec::CountSelectedSignalEventsPerTrueBin(const std::vector<std::string> &systematicParams, const unsigned int universeIndex) const
+{
+    return this->CountEventsPerTrueBinWithCriteria([](const OutputEvent &event) {
+
+        return (event.m_isSignal && event.m_isSelected);
+
+    }, systematicParams, universeIndex);
+}
+
+// -----------------------------------------------------------------------------------------------------------------------------------------
+
+std::vector< std::vector<float> > CrossSectionHelper::XSec::CountSelectedSignalEventsPerRecoTrueBin() const
+{
+    return this->CountSelectedSignalEventsPerRecoTrueBin({}, 0u);
+}
+
+// -----------------------------------------------------------------------------------------------------------------------------------------
+
+std::vector< std::vector<float> > CrossSectionHelper::XSec::CountSelectedSignalEventsPerRecoTrueBin(const std::vector<std::string> &systematicParams, const unsigned int universeIndex) const
+{
+    return this->CountEventsPerRecoTrueBinWithCriteria([](const OutputEvent &event) {
+
+        return (event.m_isSignal && event.m_isSelected);
+
+    }, systematicParams, universeIndex);
+}
+
+// -----------------------------------------------------------------------------------------------------------------------------------------
+
+std::vector<float> CrossSectionHelper::XSec::GetEfficiencyPerTrueBin() const
+{
+    return this->GetEfficiencyPerTrueBin({}, 0u);
+}
+
+// -----------------------------------------------------------------------------------------------------------------------------------------
+
+std::vector<float> CrossSectionHelper::XSec::GetEfficiencyPerTrueBin(const std::vector<std::string> &systematicParams, const unsigned int universeIndex) const
+{
+    // Count the signal events per bin before and after the selection
+    const auto numerators = this->CountSelectedSignalEventsPerTrueBin(systematicParams, universeIndex);
+    const auto denominators = this->CountSignalEventsPerTrueBin(systematicParams, universeIndex);
+
+    if (numerators.size() != denominators.size())
+        throw std::logic_error("XSec::GetEfficiencyPerTrueBin - vector of numerators and denominators are of different sizes");
+
+    const auto nBins = numerators.size();
+
+    std::vector<float> efficiencies;
+    for (unsigned int iBin = 0; iBin < nBins; ++iBin)
+    {
+        // We don't need the efficiency for the under/overflow bins so just push a dummy value
+        if (this->IsUnderOverFlowBin(iBin))
+        {
+            efficiencies.push_back(-std::numeric_limits<float>::max());
+            continue;
+        }
+
+        const auto denominator = denominators.at(iBin);
+        if (denominator <= std::numeric_limits<float>::epsilon())
+            throw std::logic_error("XSec::GetEfficiencyPerTrueBin - Found bin with no signal events, can't get efficiency");
+
+        const auto numerator = numerators.at(iBin);
+
+        efficiencies.push_back(numerator/denominator);
+    }
+
+    return efficiencies;
+}
+
+// -----------------------------------------------------------------------------------------------------------------------------------------
+
+std::vector< std::vector<float> > CrossSectionHelper::XSec::GetSmearingMatrix() const
+{
+    return this->GetSmearingMatrix({}, 0u);
+}
+
+// -----------------------------------------------------------------------------------------------------------------------------------------
+
+std::vector< std::vector<float> > CrossSectionHelper::XSec::GetSmearingMatrix(const std::vector<std::string> &systematicParams, const unsigned int universeIndex) const
+{
+    if (m_binEdges.size() < 2)
+        throw std::logic_error("XSec::GetSmearingMatrix - binning hasn't been set");
+
+    const auto nBins = m_binEdges.size() - 1;
+
+    // Setup the empty matrix
+    std::vector< std::vector<float> > smearingMatrix;
+    for (unsigned int i = 0; i < nBins; ++i)
+        smearingMatrix.emplace_back(nBins, 0.f);
+
+ 
+    const auto confusionMatrix = this->CountSelectedSignalEventsPerRecoTrueBin(systematicParams, universeIndex);
+    const auto denominators = this->CountSelectedSignalEventsPerTrueBin(systematicParams, universeIndex);
+
+    for (unsigned int iReco = 0; iReco < denominators.size(); ++iReco)
+    {
+        for (unsigned int iTrue = 0; iTrue < denominators.size(); ++iTrue)
+        {
+            const auto denominator = denominators.at(iTrue);
+            if (denominator <= std::numeric_limits<float>::epsilon())
+                throw std::logic_error("XSec::GetSmearingMatrix - Found true bin with no selected signal events, can't get the smearing matrix element");
+
+            smearingMatrix.at(iReco).at(iTrue) = confusionMatrix.at(iReco).at(iTrue) / denominator;
+        }
+    }
+
+    return smearingMatrix;
+}
+
+// -----------------------------------------------------------------------------------------------------------------------------------------
+
+std::vector<float> CrossSectionHelper::XSec::Smear(const std::vector<float> &bins, const std::vector< std::vector<float> > &smearingMatrix) const
+{
+    if (bins.size() != smearingMatrix.size())
+        throw std::invalid_argument("XSec::Smear - dimensions of input bins and smearing matrix do not match");
+
+    std::vector<float> smearedBins;
+    for (unsigned int iReco = 0; iReco < smearingMatrix.size(); ++iReco)
+    {
+        float val = 0.f;
+            
+        const auto &smearingValues = smearingMatrix.at(iReco);
+        if (smearingValues.size() != smearingMatrix.size())
+            throw std::invalid_argument("XSec::Smear - input smearing matrix is malformed");
+    
+        for (unsigned int iTrue = 0; iTrue < smearingMatrix.size(); ++iTrue)
+        {
+            val += bins.at(iTrue) * smearingValues.at(iTrue);
+        }
+
+        smearedBins.push_back(val);
+    }
+
+    return smearedBins;
+}
+
+// -----------------------------------------------------------------------------------------------------------------------------------------
+
+std::vector<float> CrossSectionHelper::XSec::GetSmearedEfficiencyPerRecoBin() const
+{
+    return this->GetSmearedEfficiencyPerRecoBin({}, 0u);
+}
+
+// -----------------------------------------------------------------------------------------------------------------------------------------
+                
+std::vector<float> CrossSectionHelper::XSec::GetSmearedEfficiencyPerRecoBin(const std::vector<std::string> &systematicParams, const unsigned int universeIndex) const
+{
+    // Count the signal events per bin before and after the selection
+    const auto numerators = this->CountSelectedSignalEventsPerTrueBin(systematicParams, universeIndex);
+    const auto denominators = this->CountSignalEventsPerTrueBin(systematicParams, universeIndex);
+
+    if (numerators.size() != denominators.size())
+        throw std::logic_error("XSec::GetSmearedEfficiencyPerRecoBin - vector of numerators and denominators are of different sizes");
+
+    const auto nBins = numerators.size();
+
+    // Smear the numerator and denominators into reco-space
+    const auto smearingMatrix = this->GetSmearingMatrix(systematicParams, universeIndex);
+    const auto smearedNumerators = this->Smear(numerators, smearingMatrix);
+    const auto smearedDenominators = this->Smear(denominators, smearingMatrix);
+
+    std::vector<float> efficiencies;
+    for (unsigned int iBin = 0; iBin < nBins; ++iBin)
+    {
+        // We don't need the efficiency for the under/overflow bins so just push a dummy value
+        if (this->IsUnderOverFlowBin(iBin))
+        {
+            efficiencies.push_back(-std::numeric_limits<float>::max());
+            continue;
+        }
+
+        const auto denominator = smearedDenominators.at(iBin);
+        if (denominator <= std::numeric_limits<float>::epsilon())
+            throw std::logic_error("XSec::GetSmearedEfficiencyPerRecoBin - Found smeared bin with no events");
+
+        const auto numerator = smearedNumerators.at(iBin);
+
+        efficiencies.push_back(numerator/denominator);
+    }
+
+    return efficiencies;
+}
+
+// -----------------------------------------------------------------------------------------------------------------------------------------
+
+std::vector<float> CrossSectionHelper::XSec::GetCrossSectionPerRecoBin(const bool useRealData) const
+{
+    return this->GetCrossSectionPerRecoBin({}, 0u, useRealData);
+}
+
+// -----------------------------------------------------------------------------------------------------------------------------------------
+
+std::vector<float> CrossSectionHelper::XSec::GetCrossSectionPerRecoBin(const std::vector<std::string> &systematicParams, const unsigned int universeIndex, const bool useRealData) const
+{
+    // Get the bin widths
+    if (m_binEdges.size() < 2)
+        throw std::logic_error("XSec::GetCrossSectionPerRecoBin - binning hasn't been set");
+
+    const auto nBins = m_binEdges.size() - 1;
+    const auto binWidths = this->GetBinWidths();
+
+    // Get the selected events
+    const auto selectedEvents = useRealData ? this->CountSelectedBNBDataEventsPerRecoBin(systematicParams, universeIndex) : 
+                                              this->CountSelectedMCEventsPerRecoBin(systematicParams, universeIndex);
+
+    // Get the backgrounds
+    const auto backgrounds = this->CountSelectedBackgroundEventsPerRecoBin(systematicParams, universeIndex);
+
+    // Get the efficiencies
+    const auto efficiencies = this->GetSmearedEfficiencyPerRecoBin(systematicParams, universeIndex);
+
+    std::vector<float> crossSections;
+    for (unsigned int iReco = 0; iReco < nBins; ++iReco)
+    {
+        // We don't need the cross-section in underflow/overflow bins so just use a dummy value
+        if (this->IsUnderOverFlowBin(iReco))
+        {
+            crossSections.push_back(-std::numeric_limits<float>::max());
+            continue;
+        }
+
+        const auto nTotal = selectedEvents.at(iReco);
+        const auto nBackground = backgrounds.at(iReco);
+        const auto binWidth = binWidths.at(iReco);
+        const auto efficiency = efficiencies.at(iReco);
+    
+        if (binWidth <= std::numeric_limits<float>::epsilon())
+            throw std::invalid_argument("XSec::GetCrossSectionPerRecoBin - bin width is zero");
+    
+        if (efficiency <= std::numeric_limits<float>::epsilon())
+            throw std::invalid_argument("XSec::GetCrossSectionPerRecoBin - efficiency is zero");
+
+        const auto crossSection = (nTotal - nBackground) / (efficiency * binWidth * m_nTargets * m_integratedFlux);
+        crossSections.push_back(crossSection);
+    }
+
+    return crossSections;
+}
+
+/*
 void CrossSectionHelper::XSec::GetConfusionMatrix(std::vector< std::vector<float> > &matrix, std::vector< std::vector<float> > &uncertainties) const
 {
     if (m_binEdges.size() < 2)
@@ -1020,24 +1766,6 @@ void CrossSectionHelper::XSec::GetSmearedEfficiencies(std::vector<float> &effici
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
 
-std::vector<float> CrossSectionHelper::XSec::GetBinWidths() const
-{
-    if (m_binEdges.size() < 2)
-        throw std::logic_error("XSec::GetBinWidths - binning hasn't been set");
-    
-    const auto nBins = m_binEdges.size() - 1;
-    
-    std::vector<float> binWidths;
-    for (unsigned int i = 0; i < nBins; ++i)
-    {
-        binWidths.push_back(m_binEdges.at(i+1) - m_binEdges.at(i));
-    }
-
-    return binWidths;
-}
-
-// -----------------------------------------------------------------------------------------------------------------------------------------
-
 float CrossSectionHelper::XSec::GetCrossSection(const float nTotal, const float nBackgrounds, const float efficiency, const float binWidth) const
 {
     if (binWidth <= std::numeric_limits<float>::epsilon())
@@ -1241,45 +1969,6 @@ void CrossSectionHelper::XSec::GetRecoCrossSection(const bool useRealData, std::
         bins.at(i) = xSec;
         uncertainties.at(i) = xSecErr;
     }
-}
-
-// -----------------------------------------------------------------------------------------------------------------------------------------
-
-std::string CrossSectionHelper::XSec::GetBinName(const unsigned int index) const
-{
-    if (m_binEdges.size() < 2)
-        throw std::logic_error("XSec::GetBinName - binning hasn't been set");
-
-    const auto nBins = m_binEdges.size() - 1;
-
-    if (index >= nBins)
-        throw std::invalid_argument("XSec::GetBinName - input index is out of bounds");
-
-    if (index == 0 && m_hasUnderflow)
-        return "Underflow";
-
-    if (index == nBins - 1 && m_hasOverflow)
-        return "Overflow";
-
-    return std::to_string(index - (m_hasUnderflow ? 1 : 0));
-}
-
-// -----------------------------------------------------------------------------------------------------------------------------------------
-
-bool CrossSectionHelper::XSec::IsUnderOverFlowBin(const unsigned int index) const
-{
-    if (m_binEdges.size() < 2)
-        throw std::logic_error("XSec::IsUnderOverFlowBin - binning hasn't been set");
-
-    const auto nBins = m_binEdges.size() - 1;
-
-    if (index == 0 && m_hasUnderflow)
-        return true;
-
-    if (index == nBins - 1 && m_hasOverflow)
-        return true;
-
-    return false;
 }
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
@@ -1585,17 +2274,15 @@ void CrossSectionHelper::XSec::MakePlots(const std::string &fileNamePrefix) cons
 
     // Now make the plot with all x-sec histograms
     // True
-    /*
-    auto hXSecMCTrueClone = static_cast<TH1F *>(hXSecMCTrue->Clone());
-    hXSecMCTrue->SetLineColor(kAzure - 2);
-    hXSecMCTrueClone->SetFillStyle(1001);
-    hXSecMCTrueClone->SetLineColorAlpha(kAzure - 2, 0.f);
-    hXSecMCTrueClone->SetFillColorAlpha(kAzure - 2, 0.3f);
-    hXSecMCTrueClone->GetYaxis()->SetRangeUser(0.f, maxValue * 1.05f);
+//    auto hXSecMCTrueClone = static_cast<TH1F *>(hXSecMCTrue->Clone());
+//    hXSecMCTrue->SetLineColor(kAzure - 2);
+//    hXSecMCTrueClone->SetFillStyle(1001);
+//    hXSecMCTrueClone->SetLineColorAlpha(kAzure - 2, 0.f);
+//    hXSecMCTrueClone->SetFillColorAlpha(kAzure - 2, 0.3f);
+//    hXSecMCTrueClone->GetYaxis()->SetRangeUser(0.f, maxValue * 1.05f);
     
-    hXSecMCTrueClone->Draw("e2");
-    hXSecMCTrue->Draw("hist same");
-    */
+//    hXSecMCTrueClone->Draw("e2");
+//    hXSecMCTrue->Draw("hist same");
 
     // Smeared
 //    auto hXSecMCSmearedClone = static_cast<TH1F *>(hXSecMCSmeared->Clone());
@@ -1687,7 +2374,7 @@ void CrossSectionHelper::XSec::MakePlots(const std::string &fileNamePrefix) cons
 
     PlottingHelper::SaveCanvas(pCanvasRatio, fileNamePrefix + "_ratio");
 }
-
+*/
 } // namespace ubcc1pi
 
 #endif
