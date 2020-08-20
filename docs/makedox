@@ -26,6 +26,11 @@ echo; echo "There were $N_ISSUES issues with the documentation :("
 echo "Press any key for more details..."
 read -n 1
 
+echo; echo "Raw warnings --------------------------"
+cat warnings.txt
+
+echo; echo "Interpreted warnings ------------------"
+
 # Process the warnings.txt file to be more human readable
 COUNTER=1
 while read LINE; do

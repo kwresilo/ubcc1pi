@@ -665,7 +665,7 @@ void PlottingHelper::EfficiencyPlot::SaveAs(const std::vector<std::string> &cuts
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
                 
-void PlottingHelper::EfficiencyPlot::SaveAs(const std::vector<std::string> &cuts, const std::vector<PlottingHelper::PlotStyle> &styles, const std::string &fileName)
+void PlottingHelper::EfficiencyPlot::SaveAs(const std::vector<std::string> &cuts, const std::vector<PlotStyle> &styles, const std::string &fileName)
 {
     // Convert the styles to colors
     std::vector<int> colors;
