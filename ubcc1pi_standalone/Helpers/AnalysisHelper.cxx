@@ -298,7 +298,7 @@ std::vector<std::string> AnalysisHelper::EventCounter::GetTags() const
 
 void AnalysisHelper::EventCounter::PrintBreakdownSummary(const std::string &outputFileName) const
 {
-    FormattingHelper::Table table({"Tag", "", "Signal", "Background", "Efficiency", "Purity", "E*P", "", "BNB Data", "Data/MC ratio"});
+    FormattingHelper::Table table({"Tag", "", "Signal", "Background", "Efficiency", "Purity", "E*P", "Golden fraction", "", "BNB Data", "Data/MC ratio"});
     for (const auto &tag : m_tags)
     {
         table.AddEmptyRow();
@@ -323,6 +323,8 @@ void AnalysisHelper::EventCounter::PrintBreakdownSummary(const std::string &outp
             table.SetEntry("Purity", purity);
             table.SetEntry("E*P", efficiency * purity);
         }
+        
+        table.SetEntry("Golden fraction", this->GetSignalWeight(tag, "S G") / this->GetSignalWeight(tag));
 
         const auto bnbDataWeight = this->GetBNBDataWeight(tag);
         const auto totalMCWeight = this->GetTotalMCWeight(tag);
@@ -1113,6 +1115,26 @@ AnalysisHelper::AnalysisData AnalysisHelper::GetRecoAnalysisData(const Event::Re
 }
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
+        
+unsigned int AnalysisHelper::GetParticleIndexWithPdg(const std::vector<int> &assignedPdgCodes, const int pdgCode)
+{
+    std::vector<unsigned int> indices;
+
+    for (unsigned int i = 0; i < assignedPdgCodes.size(); ++i)
+    {
+        if (assignedPdgCodes.at(i) != pdgCode)
+            continue;
+
+        indices.push_back(i);
+    }
+
+    if (indices.size() != 1)
+        throw std::logic_error("AnalysisHelper::GetParticleIndexWithPdg - Found " + std::to_string(indices.size()) + " particles width assigned PDG code: " + std::to_string(pdgCode) + ", expected 1");
+
+    return indices.front();
+}
+
+// -----------------------------------------------------------------------------------------------------------------------------------------
 
 AnalysisHelper::AnalysisData AnalysisHelper::GetTruthAnalysisData(const Event::Truth &truth, const bool useAbsPdg, const float protonMomentumThreshold)
 {
@@ -1183,6 +1205,25 @@ AnalysisHelper::AnalysisData AnalysisHelper::GetTruthAnalysisData(const Event::T
 
 
     data.muonPionAngle = std::acos(muonDir.Dot(pionDir));
+
+    return data;
+}
+
+// -----------------------------------------------------------------------------------------------------------------------------------------
+        
+AnalysisHelper::AnalysisData AnalysisHelper::GetDummyAnalysisData()
+{
+    AnalysisData data;
+
+    data.muonMomentum = -std::numeric_limits<float>::max();
+    data.muonCosTheta = -std::numeric_limits<float>::max();
+    data.muonPhi = -std::numeric_limits<float>::max();
+    data.pionMomentum = -std::numeric_limits<float>::max();
+    data.pionCosTheta = -std::numeric_limits<float>::max();
+    data.pionPhi = -std::numeric_limits<float>::max();
+    data.muonPionAngle = -std::numeric_limits<float>::max();
+    data.nProtons = std::numeric_limits<unsigned int>::max();
+    data.hasGoldenPion = false;
 
     return data;
 }

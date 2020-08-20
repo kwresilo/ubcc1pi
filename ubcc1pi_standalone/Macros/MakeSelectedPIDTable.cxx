@@ -72,8 +72,19 @@ void MakeSelectedPIDTable(const Config &config)
                 
             // Determine if this is a signal event
             const auto nGoldenPions = AnalysisHelper::CountGoldenParticlesWithPdgCode(AnalysisHelper::SelectVisibleParticles(truthParticles), 211, config.global.useAbsPdg);
-            const auto isTrueSignal = isOverlay && AnalysisHelper::IsTrueCC1Pi(pEvent, config.global.useAbsPdg) &&
-                                      (config.makeSelectedPIDTable.goldenPionIsSignal ? (nGoldenPions != 0) : true);
+            bool isTrueSignal = isOverlay && AnalysisHelper::IsTrueCC1Pi(pEvent, config.global.useAbsPdg) &&
+                                (config.makeSelectedPIDTable.goldenPionIsSignal ? (nGoldenPions != 0) : true);
+
+            //// BEGIN TEST
+            if (isTrueSignal && config.makeSelectedPIDTable.onlyLowMomentumPions)
+            {
+                // Get the true pion momentum
+                const auto truthData = AnalysisHelper::GetTruthAnalysisData(pEvent->truth, config.global.useAbsPdg, config.global.protonMomentumThreshold);
+
+                // Check if this pion has sufficiently low momentum
+                isTrueSignal = (truthData.pionMomentum < config.makeSelectedPIDTable.pionMomentumThreshold);
+            }
+            //// END TEST
 
             // Run the event selection and store which cuts are passed
             std::vector<std::string> cutsPassed;

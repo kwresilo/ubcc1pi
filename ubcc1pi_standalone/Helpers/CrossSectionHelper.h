@@ -14,11 +14,13 @@
 #include <stdexcept>
 #include <string>
 #include <vector>
+#include <random>
 
 #include <TFile.h>
 #include <TTree.h>
 #include <TH2F.h>
 #include <TLine.h>
+#include <TStyle.h>
 
 namespace ubcc1pi
 {
@@ -64,10 +66,10 @@ class CrossSectionHelper
                  *
                  *  @param  lower the lower bin edge of the first bin
                  *  @param  upper the upper bin edge of the last bin
-                 *  @param  targetFracError the target fractional uncertainty in each bin
+                 *  @param  targetEntriesPerBin the target number of entries in each bin
                  *  @param  targetSmearingDiagonal the target entries on the diagonal of the smearing matrix
                  */
-                void SetBinsAuto(const float lower, const float upper, const float targetFracError, const float targetSmearingDiagonal);
+                void SetBinsAuto(const float lower, const float upper, const unsigned int targetEntriesPerBin, const float targetSmearingDiagonal);
 
                 /**
                  *  @brief  Add a signal event 
@@ -76,7 +78,7 @@ class CrossSectionHelper
                  *  @param  isSelected if the event has been selected
                  *  @param  trueValue the true value of the quantity to measure
                  *  @param  recoValue the reco value of the quantity to meaasure
-                 *  @param  weight the weight
+                 *  @param  weight the nominal weight
                  *  @param  normalisation the sample normalisation
                  */
                 void AddSignalEvent(const std::shared_ptr<Event> &pEvent, const bool &isSelected, const float &trueValue, const float &recoValue, const float weight, const float normalisation);
@@ -87,7 +89,7 @@ class CrossSectionHelper
                  *  @param  pEvent the event
                  *  @param  sampleType the sample type (Overlays, EXT, Dirt)
                  *  @param  recoValue the reco value of the quantity to meaasure
-                 *  @param  weight the weight
+                 *  @param  weight the nominal weight
                  *  @param  normalisation the sample normalisation
                  */
                 void AddSelectedBackgroundEvent(const std::shared_ptr<Event> &pEvent, const AnalysisHelper::SampleType sampleType, const float &recoValue, const float weight, const float normalisation);
@@ -96,7 +98,7 @@ class CrossSectionHelper
                  *  @brief  Add a BNB data event that has been selected
                  *
                  *  @param  pEvent the event
-                 *  @param  recoValue the reco value of the quantity to meaasure
+                 *  @param  recoValue the reco value of the quantity to measure
                  */
                 void AddSelectedBNBDataEvent(const std::shared_ptr<Event> &pEvent, const float &recoValue);
 
@@ -195,45 +197,12 @@ class CrossSectionHelper
                 void FillEvent(const AnalysisHelper::SampleType sampleType, const float sampleNorm, const float weight, const float &recoValue, const float &trueValue, const bool isSignal, const bool isSelected, const std::string &classification);
 
                 /**
-                 *  @brief  Get the initial bins within a given range with some minimum number of MC selected signal events per bin
+                 *  @brief  Get reco-true value pairs for selected "MC" events
                  *
-                 *  @param  lower the lower bound of the bins
-                 *  @param  upper the upper bound of the bins
-                 *  @param  minEventsPerBin the minimum number of selected signal MC events per bin
-                 *
-                 *  @return the initial bins
+                 *  @param  recoTrueValuePairs the output vector. The first element is a pair of reco & true values, the second element is the weight
                  */
-                std::vector<float> GetInitialBins(const float lower, const float upper, const unsigned int minEventsPerBin) const;
+                void GetSelectedMCRecoTrueValuePairs(std::vector< std::pair<std::pair<float, float>, float> > &recoTrueValuePairs) const;
 
-                /**
-                 *  @brief  Remove the bin with the largest statistical uncertainty
-                 *
-                 *  @param  targetFracError the target fractional statistical error, we wont remove a bin if the uncertainty is below this target value
-                 *  @param  binEdges the bin edges to modify
-                 *
-                 *  @return boolean, true if a bin was removed - false otherwise
-                 */
-                bool RemoveLowestStatsBin(const float targetFracError, std::vector<float> &binEdges);
-
-                /**
-                 *  @brief  Get the factional uncertainties on the reconstructed cross-section 
-                 *
-                 *  @param  binEdges the input bin edges to use
-                 *
-                 *  @return the fractional uncertainty on the reconstructed cross-section in each bin
-                 */
-                std::vector<float> GetFractionalRecoCrossSectionErrors(const std::vector<float> &binEdges);
-
-                /**
-                 *  @brief  Remove the bin with the smallest diagonal entry of the smearing matrix
-                 *
-                 *  @param  targetSmearingDiagonal the target value of the diagonals of the smearing matrix, we wont remove a bin if the the diagonal is above this value
-                 *  @param  binEdges the bin edges to modify
-                 *
-                 *  @return boolean, true if a bin was removed - false otherwise
-                 */
-                bool RemoveMostSmearedBin(const float targetSmearingDiagonal, std::vector<float> &binEdges);
-                
                 /**
                  *  @brief  Get the differential cross-section in a bin given some parameters
                  *
@@ -355,32 +324,35 @@ class CrossSectionHelper
                 {
                     int          m_sampleType;      ///< The sample type enumeration
                     float        m_sampleNorm;      ///< The sample normalisation factor   
-                    float        m_weight;          ///< The event weight
+                    float        m_weight;          ///< The nominal event weight
                     float        m_recoValue;       ///< The reconstructed value
                     float        m_trueValue;       ///< The true value
                     bool         m_isSignal;        ///< If the event is signal
                     bool         m_isSelected;      ///< If the event is selected
                     std::string  m_classification;  ///< The event classification string
+                    
+                    std::map<std::string, std::vector<float> > m_systWeights; ///< The systematic event weights indexed by [systematicName][universeIndex]
                 };
 
-                std::string    m_fileName; ///< The output file name
-                TFile         *m_pFile;    ///< The output file
-                TTree         *m_pTree;    ///< The output tree (we store in a tree so we don't use too much memory)
-
-                float          m_min;      ///< The minimum possible value of the quantity
-                float          m_max;      ///< The maximum possible value of the quantity
+                std::string        m_fileName; ///< The output file name
+                TFile             *m_pFile;    ///< The output file
+                TTree             *m_pTree;    ///< The output tree (we store in a tree so we don't use too much memory)
+                                  
+                float              m_min;      ///< The minimum possible value of the quantity
+                float              m_max;      ///< The maximum possible value of the quantity
 
                 std::vector<float> m_binEdges;     ///< The bin edges
                 bool               m_hasUnderflow; ///< If we have an underflow bin
                 bool               m_hasOverflow;  ///< If we have an overflow bin
 
-                bool           m_useAbsPdg;                ///< Use absolute PDGs when classifying events
-                bool           m_countProtonsInclusively;  ///< Count protons inclusively when classifying events
-
-                float          m_nTargets;        ///< The number of target particles / 10^31
-                float          m_integratedFlux;  ///< The integrated flux / 10^11 cm^-2
-
-                OutputEvent    m_outputEvent;  ///< The output event struture to bind to the trees
+                bool               m_useAbsPdg;                ///< Use absolute PDGs when classifying events
+                bool               m_countProtonsInclusively;  ///< Count protons inclusively when classifying events
+                                  
+                float              m_nTargets;        ///< The number of target particles / 10^31
+                float              m_integratedFlux;  ///< The integrated flux / 10^11 cm^-2
+                                  
+                OutputEvent        m_outputEvent;         ///< The output event struture to bind to the trees
+                unsigned int       m_nBootstrapUniverses; ///< The number of universes to use when finding the statistical uncertainty
             
         };
 };
@@ -399,7 +371,8 @@ CrossSectionHelper::XSec::XSec(const std::string &fileName, const float &min, co
     m_useAbsPdg(useAbsPdg),
     m_countProtonsInclusively(countProtonsInclusively),
     m_nTargets(4.1741), // TODO make configurable
-    m_integratedFlux(1.26816) // TODO make configurable
+    m_integratedFlux(1.26816), // TODO make configurable
+    m_nBootstrapUniverses(10u)
 {
     // Setup the output branches
     m_pTree->Branch("sampleType", &m_outputEvent.m_sampleType);
@@ -410,6 +383,7 @@ CrossSectionHelper::XSec::XSec(const std::string &fileName, const float &min, co
     m_pTree->Branch("isSignal", &m_outputEvent.m_isSignal);
     m_pTree->Branch("isSelected", &m_outputEvent.m_isSelected);
     m_pTree->Branch("classification", &m_outputEvent.m_classification);
+    m_pTree->Branch("systWeights", &m_outputEvent.m_systWeights);
 }
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
@@ -457,262 +431,130 @@ void CrossSectionHelper::XSec::SetBins(const std::vector<float> &binEdges)
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
 
-std::vector<float> CrossSectionHelper::XSec::GetInitialBins(const float lower, const float upper, const unsigned int minEventsPerBin) const
+void CrossSectionHelper::XSec::GetSelectedMCRecoTrueValuePairs(std::vector< std::pair<std::pair<float, float>, float> > &recoTrueValuePairs) const
 {
-    if (upper <= lower)
-        throw std::invalid_argument("XSec::GetInitialBins - Invalid range: " + std::to_string(lower) + " -> " + std::to_string(upper));
-    
     // Extract the reco values from the tree
-    std::vector<float> recoValues;
     for (unsigned int i = 0; i < m_pTree->GetEntries(); ++i)
     {
         m_pTree->GetEntry(i);
 
-        // We only care about overlays
-        if (m_outputEvent.m_sampleType != AnalysisHelper::Overlay)
+        // We only care about "MC"
+        if (m_outputEvent.m_sampleType == AnalysisHelper::DataBNB)
             continue;
         
-        // Only use selected signal events
-        if (!m_outputEvent.m_isSelected || !m_outputEvent.m_isSignal)
+        // Only use selected events
+        if (!m_outputEvent.m_isSelected)
             continue;
 
-        // Only use events with reconstructed values in the range we care about
-        if (m_outputEvent.m_recoValue < lower || m_outputEvent.m_recoValue > upper)
-            continue;
-
-        recoValues.push_back(m_outputEvent.m_recoValue);
+        const auto weight = m_outputEvent.m_weight * m_outputEvent.m_sampleNorm;
+        recoTrueValuePairs.emplace_back(std::pair<float, float>(m_outputEvent.m_recoValue, m_outputEvent.m_trueValue), weight);
     }
+}
 
-    // Sort the reco values
-    std::sort(recoValues.begin(), recoValues.end()); 
+// -----------------------------------------------------------------------------------------------------------------------------------------
 
-    // Work out how many bins we need to have the required number of events per bin
-    const auto nBins = static_cast<unsigned int>(std::floor(static_cast<float>(recoValues.size()) / static_cast<float>(minEventsPerBin)));
+void CrossSectionHelper::XSec::SetBinsAuto(const float lower, const float upper, const unsigned int targetEntriesPerBin, const float targetSmearingDiagonal)
+{
+    // Get the reco & true values
+    std::vector< std::pair<std::pair<float, float>, float> > recoTrueValuePairs;
+    this->GetSelectedMCRecoTrueValuePairs(recoTrueValuePairs);
 
-    // Work out the average number of events we need to put in each of those bins
-    const auto nEventsPerBin = static_cast<unsigned int>(std::floor(static_cast<float>(recoValues.size()) / static_cast<float>(nBins)));
+    // Check we have at least 2 entries
+    const auto nEntries = recoTrueValuePairs.size();
+    if (nEntries < 2)
+        throw std::logic_error("XSec::SetBinsAuto - there are fewer than 2 entries!");
 
-    // Set the bin edges
-    std::vector<float> binEdges;
-    binEdges.push_back(lower);
+    // Sort the entries by reco-range
+    std::sort(recoTrueValuePairs.begin(), recoTrueValuePairs.end(), [] (const auto &a, const auto &b) {
+        return a.first.first < b.first.first;
+    });
 
-    unsigned int recoValueIndex = nEventsPerBin - 1u;
-    while (recoValueIndex < recoValues.size() - 1u)
-    {
-        const auto edge = recoValues.at(recoValueIndex);
-
-        // This check in required in case we have loads of entries at the same floating point value (e.g. all zero)
-        if (edge > binEdges.back())
-        {
-            binEdges.push_back(edge);
-            recoValueIndex += nEventsPerBin;
-            continue;
-        }
-        
-        recoValueIndex++;
-    }
-
-    // Remove the last bin
-    binEdges.erase(std::next(binEdges.end(), -1));
+    // Coun the number of entries with reco-range in the specified limits
+    std::vector< std::pair<std::pair<float, float>, float> > entriesInRange;
+    const auto nEntriesInRange = std::count_if(recoTrueValuePairs.begin(), recoTrueValuePairs.end(), [&] (const auto &x) {
+        return x.first.first >= lower && x.first.first <= upper;
+    });
     
-    if (upper > binEdges.back())
-        binEdges.push_back(upper);
-
-    return binEdges;
-}
-
-// -----------------------------------------------------------------------------------------------------------------------------------------
-
-bool CrossSectionHelper::XSec::RemoveMostSmearedBin(const float targetSmearingDiagonal, std::vector<float> &binEdges)
-{
-    // Use the current binning
-    this->SetBins(binEdges);
-        
-    // Get the smearing matrix
-    std::vector< std::vector<float> > smearingMatrix, smearingMatrixErr;
-    this->GetSmearingMatrix(smearingMatrix, smearingMatrixErr);
-
-    const auto nBins = smearingMatrix.size();
+    // Check we have enough entries
+    if (nEntriesInRange < 2)
+        throw std::logic_error("XSec::SetBinsAuto - there are fewer than 2 entries in the specified range");
     
-    // Find the bin with the smallest diagonal smearing matrix element
-    float smallestSmearingElement = std::numeric_limits<float>::max();
-    unsigned int mostSmearedBinIndex = 0u;
+    if (nEntriesInRange < targetEntriesPerBin)
+        throw std::logic_error("XSec::SetBinsAuto - there aren't enough entries in the specified range to meet the target entries per bin");
 
-    // Loop over the bins
-    for (unsigned int i = 0; i < nBins; ++i)
-    {
-        // Don't care about underflow or overflow bins
-        if (this->IsUnderOverFlowBin(i))
-            continue;
+    // Get the entries with reco-range in the specified limits
+    entriesInRange.reserve(nEntriesInRange);
+    std::copy_if(recoTrueValuePairs.begin(), recoTrueValuePairs.end(), std::back_inserter(entriesInRange), [&] (const auto &x) {
+        return x.first.first >= lower && x.first.first <= upper;
+    });
 
-        // Get the diagonal entry corresponding to this bin
-        const auto smearingElement = smearingMatrix.at(i).at(i);
+    // Now generate the bin edges
+    std::vector<float> binEdges(1, lower);
 
-        if (smearingElement < smallestSmearingElement)
-        {
-            smallestSmearingElement = smearingElement;
-            mostSmearedBinIndex = i;
-        }
-    }
+    // Variables defining the current bin
+    float lowerEdge = binEdges.back();
+    unsigned int upperEdgeIndex = 0u;
 
-    // Check to see if the smearing is acceptable
-    if (smallestSmearingElement > targetSmearingDiagonal)
-        return false;
-
-    // We have a bin with lots of smearing, so let's merge it with an adjacent bin to help the problem
-    // We need to work out which edge of the bin we should remove
-    bool removeLeftEdge = true;
-
-    if (mostSmearedBinIndex - (m_hasUnderflow ? 1u : 0u) == 0u) // First bin
-    {
-        removeLeftEdge = false;
-    }
-    else if (mostSmearedBinIndex == nBins - 1u - (m_hasOverflow ? 1u : 0u)) // Last bin
-    {
-        removeLeftEdge = true;
-    }
-    else // A middle bin
-    {
-        // Merge with the adjacent bin with the smaller smearing element
-        const auto smearingElementLeft = smearingMatrix.at(mostSmearedBinIndex - 1).at(mostSmearedBinIndex - 1);
-        const auto smearingElementRight = smearingMatrix.at(mostSmearedBinIndex + 1).at(mostSmearedBinIndex + 1);
-
-        removeLeftEdge = (smearingElementLeft < smearingElementRight);
-    }
-
-    // Remove the desired edge of the bad bin
-    binEdges.erase(std::next(binEdges.begin(), mostSmearedBinIndex - (m_hasUnderflow ? 1u : 0u) + (removeLeftEdge ? 0u : 1u)));
-
-    // We made a change
-    return true;
-}
-
-// -----------------------------------------------------------------------------------------------------------------------------------------
-
-std::vector<float> CrossSectionHelper::XSec::GetFractionalRecoCrossSectionErrors(const std::vector<float> &binEdges)
-{
-    // Use the current binning
-    this->SetBins(binEdges);
-
-    // Get the cross-sections from MC (as fake data)
-    std::vector<float> xSec, xSecErr;
-    this->GetRecoCrossSection(false, xSec, xSecErr);
-    const auto nBins = xSec.size();
-
-    // Get the fractional errors in each bin
-    std::vector<float> fracErrs;
-    for (unsigned int i = 0; i < nBins; ++i)
-    {
-        // If there are no entries for the cross-section in a given bin then give it an "infinite" error
-        if (xSec.at(i) <= std::numeric_limits<float>::epsilon())
-        {
-            fracErrs.push_back(std::numeric_limits<float>::max());
-            continue;
-        }
-
-        fracErrs.push_back(xSecErr.at(i) / xSec.at(i));
-    }
-
-    return fracErrs;
-}
-
-// -----------------------------------------------------------------------------------------------------------------------------------------
-
-bool CrossSectionHelper::XSec::RemoveLowestStatsBin(const float targetFracError, std::vector<float> &binEdges)
-{
-    // Get the fractional errors on each bin of the reco cross-section (using MC)
-    const auto fracErrs = this->GetFractionalRecoCrossSectionErrors(binEdges);
-
-    // Now find the bin with the largest fractional error
-    float largestFracErr = -std::numeric_limits<float>::max();
-    unsigned int worstBinIndex = 0u;
-    const auto nBins = fracErrs.size();
-    for (unsigned int i = 0; i < nBins; ++i)
-    {
-        // Don't care about underflow or overflow bins
-        if (this->IsUnderOverFlowBin(i))
-            continue;
-
-        const auto fracErr = fracErrs.at(i);
-
-        if (fracErr > largestFracErr)
-        {
-            largestFracErr = fracErr;
-            worstBinIndex = i;
-        }
-    }
-
-    // Check to see if the fractional error is acceptable
-    if (largestFracErr < targetFracError)
-        return false;
-    
-    // We have a bin with a high fractional error
-    // We need to work out which edge of the bin we should remove
-    bool removeLeftEdge = true;
-
-    if (worstBinIndex - (m_hasUnderflow ? 1u : 0u) == 0u) // First bin
-    {
-        removeLeftEdge = false;
-    }
-    else if (worstBinIndex == nBins - 1u - (m_hasOverflow ? 1u : 0u)) // Last bin
-    {
-        removeLeftEdge = true;
-    }
-    else // A middle bin
-    {
-        // Merge with the adjacent bin with the larger fractional uncertainty
-        const auto fracErrorLeft = fracErrs.at(worstBinIndex - 1);
-        const auto fracErrorRight = fracErrs.at(worstBinIndex + 1);
-
-        removeLeftEdge = (fracErrorLeft > fracErrorRight);
-    }
-
-    // Remove the desired edge of the bad bin
-    binEdges.erase(std::next(binEdges.begin(), worstBinIndex - (m_hasUnderflow ? 1u : 0u) + (removeLeftEdge ? 0u : 1u)));
-
-    // We made a change
-    return true;
-}
-
-// -----------------------------------------------------------------------------------------------------------------------------------------
-
-void CrossSectionHelper::XSec::SetBinsAuto(const float lower, const float upper, const float targetFracError, const float targetSmearingDiagonal)
-{
-    // Get the initial bin edges
-    // The aim here is to have as many bins as we can while still having reasonable statistics in each bin to calculate the fractional
-    // uncertainties and smearing diagonal elements - the actual value doesn't matter that much
-    const unsigned int minEntriesPerBin = 100u;
-    auto binEdges = this->GetInitialBins(lower, upper, minEntriesPerBin);
-
-    // Now iteratively merge / modify the bins
     while (true)
     {
-        bool changeMade = false;
+        // Increment the upper edge index and check if we have reached the end
+        if (++upperEdgeIndex >= nEntriesInRange)
+            break;
 
-        if (this->RemoveMostSmearedBin(targetSmearingDiagonal, binEdges))
+        const float upperEdge = entriesInRange.at(upperEdgeIndex).first.first;
+
+        // Count the number of entries in the current bin
+        auto nEntriesInBinReco = 0.f;
+        auto nEntriesInBinTrue = 0.f;
+        auto nEntriesInBinRecoAndTrue = 0.f;
+
+        for (const auto &entry : entriesInRange)
         {
-            changeMade = true;
-        } 
-        else if (this->RemoveLowestStatsBin(targetFracError, binEdges))
-        {
-            changeMade = true;
+            const auto recoVal = entry.first.first;
+            const auto trueVal = entry.first.second;
+            const auto weight = entry.second;
+
+            const auto inBinReco = (recoVal >= lowerEdge && recoVal < upperEdge);
+            const auto inBinTrue = (trueVal >= lowerEdge && trueVal < upperEdge);
+
+            nEntriesInBinReco += inBinReco ? weight : 0.f;
+            nEntriesInBinTrue += inBinTrue ? weight : 0.f;
+            nEntriesInBinRecoAndTrue += (inBinReco && inBinTrue) ? weight : 0.f;
         }
 
-        const auto nBins = binEdges.size() - 1;
+        // If we don't have enough entries then grow the bin
+        if (nEntriesInBinReco < static_cast<float>(targetEntriesPerBin))
+            continue;
+        
+        // If we don't have any true entries in the is bin, then we can't calculate the smearing matrix element
+        if (nEntriesInBinTrue <= std::numeric_limits<float>::epsilon())
+            continue;
 
-        // Break out if there is nothing left to do
-        if (!changeMade || nBins == 1)
-            break;
+        // Check that the amount of smearing is sufficiently low
+        const auto smearingMatrixElement = nEntriesInBinRecoAndTrue / nEntriesInBinTrue;
+        if (smearingMatrixElement < targetSmearingDiagonal)
+            continue;
+
+        // We have a valid bin!
+        lowerEdge = upperEdge;
+        binEdges.push_back(upperEdge);
     }
 
+    if (binEdges.size() < 2)
+        throw std::logic_error("XSec::SetBinsAuto - no bins automatically generated!");
+
+    // Stretch the last bin to fit the desired range
+    binEdges.at(binEdges.size() - 1) = upper;
+    
     // Set the bin eges and we are done!
-    this->SetBins(binEdges);
+    this->SetBins(binEdges);    
 }
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
 
 void CrossSectionHelper::XSec::FillEvent(const AnalysisHelper::SampleType sampleType, const float sampleNorm, const float weight, const float &recoValue, const float &trueValue, const bool isSignal, const bool isSelected, const std::string &classification)
 {
+    // Set the event parameters
     m_outputEvent.m_sampleType = sampleType;
     m_outputEvent.m_sampleNorm = sampleNorm;
     m_outputEvent.m_weight = weight;
@@ -721,6 +563,21 @@ void CrossSectionHelper::XSec::FillEvent(const AnalysisHelper::SampleType sample
     m_outputEvent.m_isSignal = isSignal;
     m_outputEvent.m_isSelected = isSelected;
     m_outputEvent.m_classification = classification;
+
+    // Set the systematic weights
+    m_outputEvent.m_systWeights.clear();
+
+    // Get the weights for each bootstrap universe (statistical uncertainty)
+    std::default_random_engine generator;
+    std::poisson_distribution<int> poisson(1.f);
+
+    std::vector<float> bootstrapWeights;
+    for (unsigned int i = 0; i < m_nBootstrapUniverses; ++i)
+    {
+        // Get a unit-mean poisson-distributed random weight for this universe
+        bootstrapWeights.emplace_back(static_cast<float>(poisson(generator)));
+    }
+    m_outputEvent.m_systWeights.emplace("stat", bootstrapWeights);
 
     m_pTree->Fill();
 }
@@ -1602,7 +1459,9 @@ void CrossSectionHelper::XSec::MakePlots(const std::string &fileNamePrefix) cons
         }
     }
 
-    hSmearing->Draw("colz");
+    gStyle->SetPaintTextFormat("2.2f");
+    hSmearing->SetMarkerSize(2.2); // Text size
+    hSmearing->Draw("colz text");
     PlottingHelper::SaveCanvas(pCanvas, fileNamePrefix + "_smearingMatrix");
     
     hSmearingErr->Draw("colz");

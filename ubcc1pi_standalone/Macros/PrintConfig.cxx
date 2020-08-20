@@ -207,6 +207,14 @@ void PrintConfig(const Config &config)
     table.AddEmptyRow();
     table.SetEntry("Variable", "makeSelectedPIDTable.goldenPionIsSignal");
     table.SetEntry("Value", config.makeSelectedPIDTable.goldenPionIsSignal);
+
+    table.AddEmptyRow();
+    table.SetEntry("Variable", "makeSelectedPIDTable.onlyLowMomentumPions");
+    table.SetEntry("Value", config.makeSelectedPIDTable.onlyLowMomentumPions);
+    
+    table.AddEmptyRow();
+    table.SetEntry("Variable", "makeSelectedPIDTable.pionMomentumThreshold");
+    table.SetEntry("Value", config.makeSelectedPIDTable.pionMomentumThreshold);
     
     //
     // EfficiencyPlots

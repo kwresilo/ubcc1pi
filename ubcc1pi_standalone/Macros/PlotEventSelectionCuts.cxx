@@ -57,7 +57,8 @@ void PlotEventSelectionCuts(const Config &config)
     PlottingHelper::MultiPlot topologicalScorePlot("TopologicalScore", yLabelEvents, 40u, 0.f, 1.f);
     PlottingHelper::MultiPlot startNearVertexParticlePlot("Distance to vertex / cm", yLabelParticles, PlottingHelper::GenerateLogBinEdges(40u, 0.03f, 1000.f));
     PlottingHelper::MultiPlot startNearVertexEventPlot("Min distance to vertex / cm", yLabelEvents, PlottingHelper::GenerateLogBinEdges(40u, 0.15f, 1000.f));
-    PlottingHelper::MultiPlot likelyGoldenPionPlot("Golden pion BDT response", yLabelEvents, 40u, -0.55f, 0.4f);
+    PlottingHelper::MultiPlot likelyGoldenPionParticlePlot("Golden pion BDT response", yLabelParticles, 40u, -0.55f, 0.4f);
+    PlottingHelper::MultiPlot likelyGoldenPionEventPlot("Golden pion BDT response", yLabelEvents, 40u, -0.55f, 0.4f);
     
     // Set the bin labels where appropriate
     nTracksPlot.SetIntegerBinLabels();
@@ -75,7 +76,8 @@ void PlotEventSelectionCuts(const Config &config)
     topologicalScorePlot.AddCutLine(selection.GetCutNominalValue("topologicalScore"));
     startNearVertexParticlePlot.AddCutLine(selection.GetCutNominalValue("startNearVertex"));
     startNearVertexEventPlot.AddCutLine(selection.GetCutNominalValue("startNearVertex"));
-    likelyGoldenPionPlot.AddCutLine(selection.GetCutNominalValue("likelyGoldenPion"));
+    likelyGoldenPionParticlePlot.AddCutLine(selection.GetCutNominalValue("likelyGoldenPion"));
+    likelyGoldenPionEventPlot.AddCutLine(selection.GetCutNominalValue("likelyGoldenPion"));
     
     //
     // Setup the BDTs
@@ -265,7 +267,8 @@ void PlotEventSelectionCuts(const Config &config)
                 const auto goldenPionBDTResponse = goldenPionBDT.GetResponse(features);
                     
                 const auto plotStyleParticle = PlottingHelper::GetPlotStyle(pion, sampleType, truthParticles, false, config.global.useAbsPdg);
-                likelyGoldenPionPlot.Fill(goldenPionBDTResponse, plotStyleParticle, weight);
+                likelyGoldenPionParticlePlot.Fill(goldenPionBDTResponse, plotStyleParticle, weight);
+                likelyGoldenPionEventPlot.Fill(goldenPionBDTResponse, plotStyleEvent, weight);
             }
         }
     }
@@ -280,7 +283,8 @@ void PlotEventSelectionCuts(const Config &config)
     topologicalScorePlot.SaveAsStacked("plotEventSelectionCuts_topologicalScore_topologicalScore");
     startNearVertexParticlePlot.SaveAsStacked("plotEventSelectionCuts_startNearVertex_vertexDist_allParticles", true);
     startNearVertexEventPlot.SaveAsStacked("plotEventSelectionCuts_startNearVertex_vertexDist_furthestParticle", true);
-    likelyGoldenPionPlot.SaveAsStacked("plotEventSelectionCuts_likelyGoldenPion_goldenPionBDTResponse");
+    likelyGoldenPionParticlePlot.SaveAsStacked("plotEventSelectionCuts_likelyGoldenPion_goldenPionBDTResponse_particles");
+    likelyGoldenPionEventPlot.SaveAsStacked("plotEventSelectionCuts_likelyGoldenPion_goldenPionBDTResponse_events");
 }
 
 } // namespace ubcc1pi_macros

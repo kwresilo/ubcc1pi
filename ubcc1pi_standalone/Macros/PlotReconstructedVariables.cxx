@@ -36,15 +36,44 @@ void PlotReconstructedVariables(const Config &config)
     //
 
     const std::string yLabel = "Number of particles";
+    /*
     PlottingHelper::MultiPlot muonMomentumPlot("Muon momentum / GeV", yLabel, config.global.muonMomentum.binEdges);
     PlottingHelper::MultiPlot muonCosThetaPlot("Muon cos(theta)", yLabel, config.global.muonCosTheta.binEdges);
     PlottingHelper::MultiPlot muonPhiPlot("Muon phi / rad", yLabel, config.global.muonPhi.binEdges);
+    
+    PlottingHelper::MultiPlot muonMomentumParticlePlot("Muon momentum / GeV", yLabel, config.global.muonMomentum.binEdges);
+    PlottingHelper::MultiPlot muonCosThetaParticlePlot("Muon cos(theta)", yLabel, config.global.muonCosTheta.binEdges);
+    PlottingHelper::MultiPlot muonPhiParticlePlot("Muon phi / rad", yLabel, config.global.muonPhi.binEdges);
 
     PlottingHelper::MultiPlot pionMomentumPlot("Pion momentum / GeV", yLabel, config.global.pionMomentum.binEdges);
     PlottingHelper::MultiPlot pionCosThetaPlot("Pion cos(theta)", yLabel, config.global.pionCosTheta.binEdges);
     PlottingHelper::MultiPlot pionPhiPlot("Pion phi / rad", yLabel, config.global.pionPhi.binEdges);
     
+    PlottingHelper::MultiPlot pionMomentumParticlePlot("Pion momentum / GeV", yLabel, config.global.pionMomentum.binEdges);
+    PlottingHelper::MultiPlot pionCosThetaParticlePlot("Pion cos(theta)", yLabel, config.global.pionCosTheta.binEdges);
+    PlottingHelper::MultiPlot pionPhiParticlePlot("Pion phi / rad", yLabel, config.global.pionPhi.binEdges);
+    
     PlottingHelper::MultiPlot muonPionAnglePlot("Muon-pion opening angle / rad", yLabel, config.global.muonPionAngle.binEdges);
+    PlottingHelper::MultiPlot nProtonsPlot("Proton multiplicity", yLabel, config.global.nProtons.binEdges);
+    */
+    
+    PlottingHelper::MultiPlot muonMomentumPlot("Muon momentum / GeV", yLabel, 50u, config.global.muonMomentum.min, config.global.muonMomentum.max);
+    PlottingHelper::MultiPlot muonCosThetaPlot("Muon cos(theta)", yLabel, 50u, config.global.muonCosTheta.min, config.global.muonCosTheta.max);
+    PlottingHelper::MultiPlot muonPhiPlot("Muon phi / rad", yLabel, 50u, config.global.muonPhi.min, config.global.muonPhi.max);
+    
+    PlottingHelper::MultiPlot muonMomentumParticlePlot("Muon momentum / GeV", yLabel, 50u, config.global.muonMomentum.min, config.global.muonMomentum.max);
+    PlottingHelper::MultiPlot muonCosThetaParticlePlot("Muon cos(theta)", yLabel, 50u, config.global.muonCosTheta.min, config.global.muonCosTheta.max);
+    PlottingHelper::MultiPlot muonPhiParticlePlot("Muon phi / rad", yLabel, 50u, config.global.muonPhi.min, config.global.muonPhi.max);
+
+    PlottingHelper::MultiPlot pionMomentumPlot("Pion momentum / GeV", yLabel, 50u, config.global.pionMomentum.min, config.global.pionMomentum.max);
+    PlottingHelper::MultiPlot pionCosThetaPlot("Pion cos(theta)", yLabel, 50u, config.global.pionCosTheta.min, config.global.pionCosTheta.max);
+    PlottingHelper::MultiPlot pionPhiPlot("Pion phi / rad", yLabel, 50u, config.global.pionPhi.min, config.global.pionPhi.max);
+    
+    PlottingHelper::MultiPlot pionMomentumParticlePlot("Pion momentum / GeV", yLabel, 50u, config.global.pionMomentum.min, config.global.pionMomentum.max);
+    PlottingHelper::MultiPlot pionCosThetaParticlePlot("Pion cos(theta)", yLabel, 50u, config.global.pionCosTheta.min, config.global.pionCosTheta.max);
+    PlottingHelper::MultiPlot pionPhiParticlePlot("Pion phi / rad", yLabel, 50u, config.global.pionPhi.min, config.global.pionPhi.max);
+    
+    PlottingHelper::MultiPlot muonPionAnglePlot("Muon-pion opening angle / rad", yLabel, 50u, config.global.muonPionAngle.min, config.global.muonPionAngle.max);
     PlottingHelper::MultiPlot nProtonsPlot("Proton multiplicity", yLabel, config.global.nProtons.binEdges);
 
     //
@@ -75,22 +104,43 @@ void PlotReconstructedVariables(const Config &config)
             // Only use events that at least pass the generic selection
             if (!isSelectedGeneric)
                 continue;
-            
+
             // Get the truth and reco analysis data
             const auto weight = AnalysisHelper::GetNominalEventWeight(pEvent) * normalisation;
             const auto recoData = AnalysisHelper::GetRecoAnalysisData(pEvent->reco, assignedPdgCodes, isSelectedGolden);
     
             const auto plotStyle = PlottingHelper::GetPlotStyle(sampleType, pEvent, config.global.useAbsPdg);
 
+            // Get the true origin of the selected muon and pion candidates
+            const auto &recoParticles = pEvent->reco.particles;
+            const auto &truthParticles = pEvent->truth.particles;
+            
+            const auto muon = recoParticles.at(AnalysisHelper::GetParticleIndexWithPdg(assignedPdgCodes, 13));
+            const auto pion = recoParticles.at(AnalysisHelper::GetParticleIndexWithPdg(assignedPdgCodes, 211));
+
+            const auto muonPlotStyle = PlottingHelper::GetPlotStyle(muon, sampleType, truthParticles, false, config.global.useAbsPdg);
+            const auto pionPlotStyle = PlottingHelper::GetPlotStyle(pion, sampleType, truthParticles, false, config.global.useAbsPdg);
+
+            // Fill the plots
             muonMomentumPlot.Fill(recoData.muonMomentum, plotStyle, weight);
             muonCosThetaPlot.Fill(recoData.muonCosTheta, plotStyle, weight);
             muonPhiPlot.Fill(recoData.muonPhi, plotStyle, weight);
+            
+            muonMomentumParticlePlot.Fill(recoData.muonMomentum, muonPlotStyle, weight);
+            muonCosThetaParticlePlot.Fill(recoData.muonCosTheta, muonPlotStyle, weight);
+            muonPhiParticlePlot.Fill(recoData.muonPhi, muonPlotStyle, weight);
 
             if (recoData.hasGoldenPion)
+            {
                 pionMomentumPlot.Fill(recoData.pionMomentum, plotStyle, weight);
+                pionMomentumParticlePlot.Fill(recoData.pionMomentum, pionPlotStyle, weight);
+            }
 
             pionCosThetaPlot.Fill(recoData.pionCosTheta, plotStyle, weight);
             pionPhiPlot.Fill(recoData.pionPhi, plotStyle, weight);
+            
+            pionCosThetaParticlePlot.Fill(recoData.pionCosTheta, pionPlotStyle, weight);
+            pionPhiParticlePlot.Fill(recoData.pionPhi, pionPlotStyle, weight);
     
             muonPionAnglePlot.Fill(recoData.muonPionAngle, plotStyle, weight);
             nProtonsPlot.Fill(recoData.nProtons, plotStyle, weight);
@@ -100,10 +150,18 @@ void PlotReconstructedVariables(const Config &config)
     muonMomentumPlot.SaveAsStacked("reco_muonMomentum");
     muonCosThetaPlot.SaveAsStacked("reco_muonCosTheta");
     muonPhiPlot.SaveAsStacked("reco_muonPhi");
+    
+    muonMomentumParticlePlot.SaveAsStacked("reco_muonMomentum_particle");
+    muonCosThetaParticlePlot.SaveAsStacked("reco_muonCosTheta_particle");
+    muonPhiParticlePlot.SaveAsStacked("reco_muonPhi_particle");
 
     pionMomentumPlot.SaveAsStacked("reco_pionMomentum");
     pionCosThetaPlot.SaveAsStacked("reco_pionCosTheta");
     pionPhiPlot.SaveAsStacked("reco_pionPhi");
+    
+    pionMomentumParticlePlot.SaveAsStacked("reco_pionMomentum_particle");
+    pionCosThetaParticlePlot.SaveAsStacked("reco_pionCosTheta_particle");
+    pionPhiParticlePlot.SaveAsStacked("reco_pionPhi_particle");
 
     muonPionAnglePlot.SaveAsStacked("reco_muonPionAngle");
     nProtonsPlot.SaveAsStacked("reco_nProtons");

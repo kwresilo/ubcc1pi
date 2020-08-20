@@ -657,12 +657,9 @@ SelectionHelper::EventSelection SelectionHelper::GetDefaultSelection()
     selection.DeclareCut("min2Tracks");
     selection.DeclareCut("max1Uncontained");
     selection.DeclareCut("2NonProtons", -0.06f);
-//    selection.DeclareCut("fakePionRejection", -0.5f);
     selection.DeclareCut("openingAngle", 2.65f);
     selection.DeclareCut("topologicalScore", 0.67f);
     selection.DeclareCut("startNearVertex", 9.5f);
-//    selection.DeclareCut("pionRange", 5.f);
-//    selection.DeclareCut("muonRange", 20.f);
     selection.DeclareCut("likelyGoldenPion", -0.03f);
     
     // Get the BDT feature names

@@ -546,6 +546,23 @@ class AnalysisHelper
         static AnalysisData GetRecoAnalysisData(const Event::Reco &reco, const std::vector<int> &assignedPdgCodes, const bool passesGoldenPionSelection);
 
         /**
+         *  @brief  Get the index of the particle that's been assigned the supplied PDG code
+         *
+         *  @param  assignedPdgCodes the PDG codes assigned to each reco particle
+         *  @param  pdgCode the PDG code to search for
+         *
+         *  @return the index
+         */
+        static unsigned int GetParticleIndexWithPdg(const std::vector<int> &assignedPdgCodes, const int pdgCode);
+
+        /**
+         *  @brief  Get an analysis data object with dummy values
+         *
+         *  @return the dummy analysis data
+         */
+        static AnalysisData GetDummyAnalysisData();
+
+        /**
          *  @brief  Get the ratio of two likelihoods
          *
          *  @param  numerator the numerator likelihood member 

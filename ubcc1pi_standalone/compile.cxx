@@ -51,6 +51,8 @@
         "Macros/PlotMuonRecoVariables.cxx",
         "Macros/PrintRunSubruns.cxx",
         "Macros/PlotReconstructedVariables.cxx",
+        "Macros/SaveSelectedEventInfo.cxx",
+        "Macros/MakeBinningPlots.cxx",
         "Macros/ExtractXSecs.cxx",
 
         "Macros/RunFullAnalysis.cxx"

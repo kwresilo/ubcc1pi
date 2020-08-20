@@ -27,12 +27,9 @@ void MakeEventSelectionTable(const Config &config)
     if (config.makeEventSelectionTable.shouldOptimize)
     {
         selection.EnableOptimization("2NonProtons", false, -0.4f, 0.4f);
-//        selection.EnableOptimization("fakePionRejection", true, -0.8f, 0.f);
         selection.EnableOptimization("openingAngle", true, 2.3f, 3.14f);
         selection.EnableOptimization("topologicalScore", true, 0.f, 0.8f);
         selection.EnableOptimization("startNearVertex", true, 0.f, 10.f);
-        selection.EnableOptimization("pionRange", true, 0.f, 10.f);
-        selection.EnableOptimization("muonRange", true, 0.f, 50.f);
         selection.EnableOptimization("likelyGoldenPion", true, -0.2f, 0.2f, "S G"); // This is optimized for golden signal events
     }
     

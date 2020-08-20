@@ -153,6 +153,20 @@ namespace ubcc1pi_macros
      *  @param  config the input configuration
      */
     void PlotReconstructedVariables(const Config &config = Config());
+    
+    /**
+     *  @brief  Save the truth and reco physics info for selected events in output root file
+     *
+     *  @param  config the input configuration
+     */
+    void SaveSelectedEventInfo(const Config &config = Config());
+    
+    /**
+     *  @brief  Make the plots to motivate the binning choice
+     *
+     *  @param  config the input configuration
+     */
+    void MakeBinningPlots(const Config &config = Config());
 
     /**
      *  @brief  Extract the cross-sections

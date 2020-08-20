@@ -36,6 +36,7 @@ void ExtractXSecs(const Config &config)
     const auto muonMomentumCutoff = config.global.muonMomentum.min;
     const auto pionMomentumCutoff = config.global.pionMomentum.min;
     const auto muonPionAngleCutoff = config.global.muonPionAngle.max;
+    const auto muonPionAngleCutoffLower = config.global.muonPionAngle.min;
 
     // Set up the cross-section objects
     auto xSec_muonCosTheta = CrossSectionHelper::XSec("xsec_muonCosTheta.root", config.global.muonCosTheta.min, config.global.muonCosTheta.max, config.global.useAbsPdg, config.global.countProtonsInclusively);
@@ -111,12 +112,23 @@ void ExtractXSecs(const Config &config)
                     std::cerr << "Warning - found event with reco muon-pion angle: " << recoData.muonPionAngle << " >= " << muonPionAngleCutoff << std::endl;
                     passedThresholds = false;
                 }
+                
+                if (recoData.muonPionAngle <= muonPionAngleCutoffLower)
+                {
+                    std::cerr << "Warning - found event with reco muon-pion angle: " << recoData.muonPionAngle << " <= " << muonPionAngleCutoffLower << std::endl;
+                    passedThresholds = false;
+                }
             }
     
 
             // Here we explicity reject an event if it has reconstructed information outside of the thresholds
             passedGenericSelection = passedThresholds && passedGenericSelection;
             passedGoldenSelection = passedThresholds && passedGoldenSelection;
+
+            //// BEGIN TEST
+            // Make the golden selection be the same as the generic selection
+            passedGoldenSelection = passedGenericSelection;
+            //// END TEST
 
             // Overlay signal events
             if (isOverlay && AnalysisHelper::IsTrueCC1Pi(pEvent, config.global.useAbsPdg))
@@ -126,7 +138,8 @@ void ExtractXSecs(const Config &config)
                 // Apply the phase-space restriction to the signal definition
                 if (truthData.muonMomentum > muonMomentumCutoff &&
                     truthData.pionMomentum > pionMomentumCutoff &&
-                    truthData.muonPionAngle < muonPionAngleCutoff)
+                    truthData.muonPionAngle < muonPionAngleCutoff &&
+                    truthData.muonPionAngle > muonPionAngleCutoffLower)
                 {
                     xSec_muonCosTheta.AddSignalEvent(pEvent, passedGenericSelection, truthData.muonCosTheta, recoData.muonCosTheta, weight, normalisation);
                     xSec_muonPhi.AddSignalEvent(pEvent, passedGenericSelection, truthData.muonPhi, recoData.muonPhi, weight, normalisation);
@@ -183,9 +196,21 @@ void ExtractXSecs(const Config &config)
     xSec_muonMomentum.SetBins(config.global.muonMomentum.binEdges);
     xSec_pionCosTheta.SetBins(config.global.pionCosTheta.binEdges);
     xSec_pionPhi.SetBins(config.global.pionPhi.binEdges);
-    xSec_pionMomentum.SetBins(config.global.pionMomentum.binEdges);
+//    xSec_pionMomentum.SetBins(config.global.pionMomentum.binEdges);
     xSec_muonPionAngle.SetBins(config.global.muonPionAngle.binEdges);
     xSec_nProtons.SetBins(config.global.nProtons.binEdges);
+    
+    /*
+    xSec_muonMomentum.SetBinsAuto(config.global.muonMomentum.binEdges.front(), config.global.muonMomentum.binEdges.back(), 100u, 0.68f);
+    xSec_muonCosTheta.SetBinsAuto(config.global.muonCosTheta.binEdges.front(), config.global.muonCosTheta.binEdges.back(), 100u, 0.68f);
+    xSec_muonPhi.SetBinsAuto(config.global.muonPhi.binEdges.front(), config.global.muonPhi.binEdges.back(), 100u, 0.68f);
+    xSec_pionCosTheta.SetBinsAuto(config.global.pionCosTheta.binEdges.front(), config.global.pionCosTheta.binEdges.back(), 100u, 0.68f);
+    xSec_pionPhi.SetBinsAuto(config.global.pionPhi.binEdges.front(), config.global.pionPhi.binEdges.back(), 100u, 0.68f);
+    xSec_pionMomentum.SetBinsAuto(config.global.pionMomentum.binEdges.front(), config.global.pionMomentum.binEdges.back(), 100u, 0.68f);
+    xSec_muonPionAngle.SetBinsAuto(config.global.muonPionAngle.binEdges.front(), config.global.muonPionAngle.binEdges.back(), 100u, 0.68f);
+    */
+    
+    xSec_pionMomentum.SetBinsAuto(config.global.pionMomentum.binEdges.front(), config.global.pionMomentum.binEdges.back(), 100u, 0.5f);
 
     // Print the results
     std::cout << "Muon cos(theta)" << std::endl;
