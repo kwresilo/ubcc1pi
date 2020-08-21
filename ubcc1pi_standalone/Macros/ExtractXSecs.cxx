@@ -205,11 +205,38 @@ void ExtractXSecs(const Config &config)
     xSec_muonPionAngle.SetBinsAuto(config.global.muonPionAngle.binEdges.front(), config.global.muonPionAngle.binEdges.back(), 100u, 0.68f);
     */
 
-    const auto efficiencies = xSec_muonCosTheta.GetEfficiencyPerTrueBin();
-    std::cout << "DEBUG - efficiencies muon cos(theta)" << std::endl;
-    for (unsigned int i = 0; i < efficiencies.size(); ++i)
+    std::cout << "DEBUG - muon cos(theta) cross-section" << std::endl;
+
+    std::cout << "  - Getting cross-section" << std::endl;
+    const auto xsec = xSec_muonCosTheta.GetCrossSectionPerRecoBin(true);
+    
+    std::cout << "  - Getting stat uncertainty" << std::endl;
+    const auto stat = xSec_muonCosTheta.GetCrossSectionStatUncertaintyPerRecoBin(true); 
+    
+    std::cout << "  - Getting MC stat uncertainty" << std::endl;
+    const auto statMC = xSec_muonCosTheta.GetCrossSectionMCStatUncertaintyPerRecoBin(true); 
+
+    for (unsigned int i = 0; i < xsec.size(); ++i)
     {
-        std::cout << i << " : " << efficiencies.at(i) << std::endl;
+        std::cout << i << " : " << xsec.at(i) << " +- " << stat.at(i) << " (stat) +- " << statMC.at(i) << " (stat MC)" << std::endl;
+    }
+    
+    std::cout << "  - Getting smearing matrix" << std::endl;
+    const auto smearingMatrix = xSec_muonCosTheta.GetSmearingMatrix();
+    
+    std::cout << "  - Getting smearing matrix MC stat uncertainty" << std::endl;
+    const auto smearingMatrixErr = xSec_muonCosTheta.GetSmearingMatrixMCStatUncertainty();
+
+    for (unsigned int iReco = 0; iReco < smearingMatrix.size(); ++iReco)
+    {
+        const auto trueValues = smearingMatrix.at(iReco);
+        const auto trueValuesErr = smearingMatrixErr.at(iReco);
+
+        std::cout << "Reco bin: " << iReco << std::endl;
+        for (unsigned int iTrue = 0; iTrue < trueValues.size(); ++iTrue)
+        {
+            std::cout << " - " << iTrue << " : " << trueValues.at(iTrue) << " +- " << trueValuesErr.at(iTrue) << " (stat MC)" << std::endl;
+        }    
     }
 
     /*
