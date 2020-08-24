@@ -29,12 +29,6 @@ struct Config
      */
     struct Files
     {
-        /*
-        std::string  overlaysFileName = "/uboone/data/users/asmith/ubcc1pi/samples/jun2020/samples/ubcc1piAnalysis_overlays_run1.root";
-        std::string  dirtFileName     = "/uboone/data/users/asmith/ubcc1pi/samples/jun2020/samples/ubcc1piAnalysis_dirt.root";
-        std::string  dataEXTFileName  = "/uboone/data/users/asmith/ubcc1pi/samples/jun2020/samples/combined/ubcc1piAnalysis_extbnb.root";
-        std::string  dataBNBFileName  = "/uboone/data/users/asmith/ubcc1pi/samples/jun2020/samples/combined/ubcc1piAnalysis_bnb.root";
-        */
         std::string  overlaysFileName = "/uboone/data/users/asmith/ubcc1pi/samples/may2020/samples/ubcc1piAnalysis_overlays.root"; ///< Overlays file name input
         std::string  dirtFileName     = "/uboone/data/users/asmith/ubcc1pi/samples/may2020/samples/ubcc1piAnalysis_dirt.root";     ///< Dirt file name input
         std::string  dataEXTFileName  = "/uboone/data/users/asmith/ubcc1pi/samples/may2020/samples/ubcc1piAnalysis_dataEXT.root";  ///< EXT data file name input
@@ -56,11 +50,6 @@ struct Config
     {
         float  overlaysPOT        = 1.22447e+21;   ///< The total POT for the overlays MC
         float  dirtPOT            = 2.85049e+20;   ///< The total POT for the dirt MC
-        /*
-        float  dataEXTTriggers    = 153712863.0;   ///< The EXT triggers for the EXT data
-        float  dataBNBTor875WCut  = 4.404e+20;     ///< The POT measured by the 875m toroid (with quality cuts)
-        float  dataBNBE1DCNTWCut  = 104915323.0;   ///< The BNB spills sent by the accelerator division (with quality cuts)
-        */
         float  dataEXTTriggers    = 62540367.0;    ///< The EXT triggers for the EXT data
         float  dataBNBTor875WCut  = 1.455e+20;     ///< The POT measured by the 875m toroid (with quality cuts)
         float  dataBNBE1DCNTWCut  = 32339256.0;    ///< The BNB spills sent by the accelerator division (with quality cuts)
@@ -156,7 +145,7 @@ struct Config
             float               min = 0.f;                                            ///< Minimum possible value
             float               max = 10.f;                                           ///< Maximum possible value
             //std::vector<float>  binEdges = {0.f, 0.114f, 0.16f, 0.19f, 0.21f, 0.5f};  ///< The bin edges
-            std::vector<float>  binEdges = {0.f, 0.15f, 0.19f, 0.5f};  ///< The bin edges
+            std::vector<float>  binEdges = {0.1f, 0.15f, 0.2f, 0.25f, 0.6f};  ///< The bin edges
         };
         PionMomentum pionMomentum; ///< The pionMomentum plot limits
    
@@ -178,7 +167,7 @@ struct Config
         {
             float               min = 0;                  ///< Minimum possible value
             float               max = 12;                 ///< Maximum possible value
-            std::vector<float>  binEdges = {0, 1, 2, 12};  ///< The bin edges
+            std::vector<float>  binEdges = {0, 1, 2, 3};  ///< The bin edges
         };
         NProtons nProtons; ///< The nProtons plot limits
 

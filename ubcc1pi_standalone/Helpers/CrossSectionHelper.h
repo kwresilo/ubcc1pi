@@ -191,6 +191,29 @@ class CrossSectionHelper
                  *  @return the reco bin efficiencies
                  */
                 std::vector<float> GetSmearedEfficiencyPerRecoBin();
+
+                /**
+                 *  @brief  Get the cross-section from MC using true values
+                 *
+                 *  @param  includeUnderOverFlowBins if we should include underflow/overflow bins in the output (if false, dummy values are returned)
+                 *
+                 *  @return the MC true cross section
+                 */
+                std::vector<float> GetMCTrueCrossSectionPerTrueBin(const bool includeUnderOverFlowBins = false);
+
+                /**
+                 *  @brief  Get the cross-section from MC using smeared true values
+                 *
+                 *  @return the smeared MC true cross section
+                 */
+                std::vector<float> GetSmearedMCTrueCrossSectionPerRecoBin();
+
+                /**
+                 *  @brief  Get the MC stats uncertainty for the cross-section calculated from smeared true values
+                 *
+                 *  @return the smeared MC true cross section MC stat uncertainty
+                 */
+                std::vector<float> GetSmearedMCTrueCrossSectionMCStatUncertaintyPerRecoBin();
                 
                 /**
                  *  @brief  Get the forward folded cross-section in reco bins
@@ -231,6 +254,42 @@ class CrossSectionHelper
                  *  @brief  Print the systematic universes
                  */
                 void PrintSystematicUniverses() const;
+
+                /**
+                 *  @brief  Print the contents of the bins
+                 *
+                 *  @param  outputFileNamePrefix the prefix of the name of the output file we should save the tables to
+                 */
+                void PrintBinContents(const std::string &outputFileNamePrefix);
+
+                /**
+                 *  @brief  Make the relevant plots and save them to disk
+                 *
+                 *  @param  outputFileNamePrefix the prefix of the name of the output files
+                 *  @param  includeSystematicUncertainties if we should run the systematic uncertainties (can be slow) and include them in the plots
+                 */
+                void MakePlots(const std::string &outputFileNamePrefix, const bool includeSystematicUncertainties);
+
+                /**
+                 *  @brief  Get a histogram filled from a set of bin values and uncertainties
+                 *
+                 *  @param  binValues the values of each bin
+                 *  @param  binUncertainties the uncertainties of each bin
+                 *  @param  includeUnderflow include the underflow bin (if it exists)
+                 *  @param  includeOverflow include the overflow bin (if it exists)
+                 *
+                 *  @return the histogram filled with the specified values
+                 */
+                std::shared_ptr<TH1F> GetHistogram(const std::vector<float> &binValues, const std::vector<float> &binUncertainties, const bool includeUnderflow = false, const bool includeOverflow = false) const;
+
+                /**
+                 *  @brief  Get a 2D histogram filled with the supplied values
+                 *
+                 *  @param  binValues the bin values
+                 *
+                 *  @return the histogram
+                 */
+                std::shared_ptr<TH2F> GetHistogram(const std::vector< std::vector<float> > &binValues) const;
                 
                 //std::vector<float> GetSelectedBNBDataEventsPerRecoBinUncertainty(const std::vector<std::string> &systematicParams, const unsigned int nUniverses) const;
 
@@ -267,22 +326,6 @@ class CrossSectionHelper
 //                void GetSmearedEfficiencies(std::vector<float> &efficiencies, std::vector<float> &uncertainties) const;
 
                 /**
-                 *  @brief  Get the cross-section from MC using true values
-                 *
-                 *  @param  bins the output cross-section values
-                 *  @param  uncertainties the uncertainty on the bins
-                 */
-//                void GetMCTrueCrossSection(std::vector<float> &bins, std::vector<float> &uncertainties) const;
-
-                /**
-                 *  @brief  Get the cross-section from MC using smeared true values
-                 *
-                 *  @param  bins the output cross-section values
-                 *  @param  uncertainties the uncertainty on the bins
-                 */
-//                void GetSmearedMCTrueCrossSection(std::vector<float> &bins, std::vector<float> &uncertainties) const;
-
-                /**
                  *  @brief  Get the reco cross-section using either real BNB data or Overlays + EXT + Dirt
                  *
                  *  @param  useRealData if true, use real BNB data, if false use Overlays + EXT + Dirt
@@ -290,13 +333,6 @@ class CrossSectionHelper
                  *  @param  uncertainties the uncertainty on the bins
                  */
 //                void GetRecoCrossSection(const bool useRealData, std::vector<float> &bins, std::vector<float> &uncertainties) const;
-
-                /**
-                 *  @brief  Print the contents of the bins
-                 *
-                 *  @param  outputFileNamePrefix the prefix of the name of the output file we should save the tables to
-                 */
-//                void PrintBinContents(const std::string &outputFileNamePrefix) const;
                 
                 /**
                  *  @brief  Make the plots
@@ -453,6 +489,24 @@ class CrossSectionHelper
                  *  @return boolean, true if underflow or overflow bin
                  */
                 bool IsUnderOverFlowBin(const unsigned int index) const;
+                
+                /**
+                 *  @brief  Determine if a given bin is underflow
+                 *
+                 *  @param  index the bin index
+                 *
+                 *  @return boolean, true if underflow bin
+                 */
+                bool IsUnderflowBin(const unsigned int index) const;
+                
+                /**
+                 *  @brief  Determine if a given bin is overflow
+                 *
+                 *  @param  index the bin index
+                 *
+                 *  @return boolean, true if overflow bin
+                 */
+                bool IsOverflowBin(const unsigned int index) const;
                
                 /**
                  *  @brief  Get the bin widths
@@ -587,6 +641,27 @@ class CrossSectionHelper
                  *  @return the reco efficiency per bin
                  */
                 std::vector<float> GetSmearedEfficiencyPerRecoBin(const std::vector<std::string> &systematicParams, const unsigned int universeIndex);
+                
+                /**
+                 *  @brief  Get the cross-section from MC using true values - applying systematic parameters
+                 *
+                 *  @param  systematicParams the systematic parameters to apply
+                 *  @param  universeIndex the universe to use
+                 *  @param  includeUnderOverFlowBins if we should include underflow/overflow bins in the output (if false, dummy values are returned)
+                 *
+                 *  @return the MC true cross section
+                 */
+                std::vector<float> GetMCTrueCrossSectionPerTrueBin(const std::vector<std::string> &systematicParams, const unsigned int universeIndex, const bool includeUnderOverFlowBins = false);
+
+                /**
+                 *  @brief  Get the cross-section from MC using smeared true values - applying systematic parameters
+                 *
+                 *  @param  systematicParams the systematic parameters to apply
+                 *  @param  universeIndex the universe to use
+                 *
+                 *  @return the smeared MC true cross section
+                 */
+                std::vector<float> GetSmearedMCTrueCrossSectionPerRecoBin(const std::vector<std::string> &systematicParams, const unsigned int universeIndex);
 
                 /**
                  *  @brief  Get the forward folded cross-section in reco bins - applying systematic parameters
@@ -598,6 +673,24 @@ class CrossSectionHelper
                  *  @return the cross section per reco bin
                  */
                 std::vector<float> GetCrossSectionPerRecoBin(const std::vector<std::string> &systematicParams, const unsigned int universeIndex, const bool useRealData);
+
+                /**
+                 *  @brief  Add two vectors in quadrature element-wise: sqrt(a^2 + b^2)
+                 *
+                 *  @param  a the first vector
+                 *  @param  b the second vector
+                 *
+                 *  @return the sum in quadrature
+                 */
+                std::vector<float> AddInQuadrature(const std::vector<float> &a, const std::vector<float> &b) const;
+
+                /**
+                 *  @brief  Set the y-range of a vector of histograms
+                 *
+                 *  @param  hists the histograms to modify
+                 *  @param  capAtZero is we should cap the lower y-value at zero
+                 */
+                void SetHistogramYRanges(std::vector< std::shared_ptr<TH1F> > &hists, const bool capAtZero) const;
 
                 /**
                  *  @brief  Smear the input bins
@@ -639,11 +732,16 @@ class CrossSectionHelper
 
                 std::default_random_engine m_generator;           ///< Random number generator
                 unsigned int               m_nBootstrapUniverses; ///< The number of universes to use when finding the statistical uncertainty
-            
+                
+                static unsigned int m_histIndex;   ///< An index used to ensure all histogram names are unique
         };
 };
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
+// -----------------------------------------------------------------------------------------------------------------------------------------
+
+unsigned int CrossSectionHelper::XSec::m_histIndex = 0u;
+
 // -----------------------------------------------------------------------------------------------------------------------------------------
 
 CrossSectionHelper::XSec::XSec(const std::string &fileName, const float &min, const float &max, const bool useAbsPdg, const bool countProtonsInclusively) : 
@@ -989,10 +1087,10 @@ std::string CrossSectionHelper::XSec::GetBinName(const unsigned int index) const
         throw std::invalid_argument("XSec::GetBinName - input index is out of bounds");
 
     if (index == 0 && m_hasUnderflow)
-        return "Underflow";
+        return "UF";
 
     if (index == nBins - 1 && m_hasOverflow)
-        return "Overflow";
+        return "OF";
 
     return std::to_string(index - (m_hasUnderflow ? 1 : 0));
 }
@@ -1001,18 +1099,31 @@ std::string CrossSectionHelper::XSec::GetBinName(const unsigned int index) const
 
 bool CrossSectionHelper::XSec::IsUnderOverFlowBin(const unsigned int index) const
 {
+    return (this->IsUnderflowBin(index) || this->IsOverflowBin(index));
+}
+
+// -----------------------------------------------------------------------------------------------------------------------------------------
+
+bool CrossSectionHelper::XSec::IsUnderflowBin(const unsigned int index) const
+{
     if (m_binEdges.size() < 2)
-        throw std::logic_error("XSec::IsUnderOverFlowBin - binning hasn't been set");
+        throw std::logic_error("XSec::IsUnderflowBin - binning hasn't been set");
 
     const auto nBins = m_binEdges.size() - 1;
 
-    if (index == 0 && m_hasUnderflow)
-        return true;
+    return (index == 0 && m_hasUnderflow);
+}
 
-    if (index == nBins - 1 && m_hasOverflow)
-        return true;
+// -----------------------------------------------------------------------------------------------------------------------------------------
 
-    return false;
+bool CrossSectionHelper::XSec::IsOverflowBin(const unsigned int index) const
+{
+    if (m_binEdges.size() < 2)
+        throw std::logic_error("XSec::IsOverflowBin - binning hasn't been set");
+
+    const auto nBins = m_binEdges.size() - 1;
+
+    return (index == nBins - 1 && m_hasOverflow);
 }
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
@@ -1427,6 +1538,147 @@ std::vector<float> CrossSectionHelper::XSec::GetSmearedEfficiencyPerRecoBin(cons
 }
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
+                
+std::vector<float> CrossSectionHelper::XSec::GetMCTrueCrossSectionPerTrueBin(const bool includeUnderOverFlowBins)
+{
+    return this->GetMCTrueCrossSectionPerTrueBin({}, 0u, includeUnderOverFlowBins);
+}
+
+// -----------------------------------------------------------------------------------------------------------------------------------------
+                
+std::vector<float> CrossSectionHelper::XSec::GetMCTrueCrossSectionPerTrueBin(const std::vector<std::string> &systematicParams, const unsigned int universeIndex, const bool includeUnderOverFlowBins)
+{
+    // Get the bin widths
+    if (m_binEdges.size() < 2)
+        throw std::logic_error("XSec::GetMCTrueCrossSectionPerTrueBin - binning hasn't been set");
+
+    const auto nBins = m_binEdges.size() - 1;
+    const auto binWidths = this->GetBinWidths();
+
+    // Get the true number of signal events in each bin
+    const auto signalEvents = this->CountSignalEventsPerTrueBin(systematicParams, universeIndex);
+    
+    std::vector<float> crossSections;
+    for (unsigned int iTrue = 0; iTrue < nBins; ++iTrue)
+    {
+        if (this->IsUnderOverFlowBin(iTrue) && !includeUnderOverFlowBins)
+        {
+            crossSections.push_back(-std::numeric_limits<float>::max());
+            continue;
+        }
+
+        const auto nSignal = signalEvents.at(iTrue);
+        const auto binWidth = binWidths.at(iTrue);
+    
+        if (binWidth <= std::numeric_limits<float>::epsilon())
+            throw std::invalid_argument("XSec::GetMCTrueCrossSectionPerTrueBin - bin width is zero");
+    
+        const auto crossSection = (nSignal) / (binWidth * m_nTargets * m_integratedFlux);
+        crossSections.push_back(crossSection);
+    }
+
+    return crossSections;
+}
+
+// -----------------------------------------------------------------------------------------------------------------------------------------
+
+std::vector<float> CrossSectionHelper::XSec::GetSmearedMCTrueCrossSectionPerRecoBin()
+{
+    return this->GetSmearedMCTrueCrossSectionPerRecoBin({}, 0u);
+}
+
+// -----------------------------------------------------------------------------------------------------------------------------------------
+
+std::vector<float> CrossSectionHelper::XSec::GetSmearedMCTrueCrossSectionPerRecoBin(const std::vector<std::string> &systematicParams, const unsigned int universeIndex)
+{
+    // Get the bin widths
+    if (m_binEdges.size() < 2)
+        throw std::logic_error("XSec::GetSmearedMCTrueCrossSectionPerRecoBin - binning hasn't been set");
+
+    const auto nBins = m_binEdges.size() - 1;
+    const auto binWidths = this->GetBinWidths();
+    
+    // Get the MC true cross-section in true bins
+    const auto trueCrossSections = this->GetMCTrueCrossSectionPerTrueBin(systematicParams, universeIndex, true);
+
+    // Scale up by the bin-width to get quantities proportional to event rates
+    std::vector<float> scaledTrueCrossSections;
+    for (unsigned int iTrue = 0; iTrue < nBins; ++iTrue)
+    {
+        const auto trueCrossSection = trueCrossSections.at(iTrue);
+        const auto binWidth = binWidths.at(iTrue);
+        scaledTrueCrossSections.push_back(trueCrossSection * binWidth);
+    }
+
+    // Smear into reco-space
+    const auto smearingMatrix = this->GetSmearingMatrix(systematicParams, universeIndex);
+    const auto scaledSmearedCrossSections = this->Smear(scaledTrueCrossSections, smearingMatrix);
+
+    // Scale back down by the bin widths
+    std::vector<float> smearedCrossSections;
+    for (unsigned int iReco = 0; iReco < nBins; ++iReco)
+    {
+        if (this->IsUnderOverFlowBin(iReco))
+        {
+            smearedCrossSections.push_back(-std::numeric_limits<float>::max());
+            continue;
+        }
+
+        const auto scaledSmearedCrossSection = scaledSmearedCrossSections.at(iReco);
+        const auto binWidth = binWidths.at(iReco);
+
+        if (binWidth <= std::numeric_limits<float>::epsilon())
+            throw std::invalid_argument("XSec::GetSmearedMCTrueCrossSectionPerRecoBin - bin width is zero");
+
+        smearedCrossSections.push_back(scaledSmearedCrossSection / binWidth);
+    }
+
+    return smearedCrossSections;
+}
+
+// -----------------------------------------------------------------------------------------------------------------------------------------
+
+std::vector<float> CrossSectionHelper::XSec::GetSmearedMCTrueCrossSectionMCStatUncertaintyPerRecoBin()
+{
+    if (m_nBootstrapUniverses == 0)
+        throw std::logic_error("XSec::GetSmearedMCTrueCrossSectionMCStatUncertaintyPerRecoBin - zero bootstrap universes have been generated");
+
+    // Get the nominal cross-section
+    const auto crossSectionsNom = this->GetSmearedMCTrueCrossSectionPerRecoBin();
+
+    // Now get the cross-section in each universe of statistical variations
+    const std::vector<std::string> systematicParams = {"stat"};
+    std::vector<float> sumSquaredDiffs(crossSectionsNom.size(), 0.f);
+    for (unsigned int iUni = 0; iUni < m_nBootstrapUniverses; ++iUni)
+    {
+        const auto crossSectionsUni = this->GetSmearedMCTrueCrossSectionPerRecoBin(systematicParams, iUni);
+
+        for (unsigned int iReco = 0; iReco < crossSectionsNom.size(); ++iReco)
+        {
+            if (this->IsUnderOverFlowBin(iReco))
+                continue;
+            
+            sumSquaredDiffs.at(iReco) += std::pow(crossSectionsUni.at(iReco) - crossSectionsNom.at(iReco), 2);
+        }
+    }
+    
+    std::vector<float> uncertainties;
+    for (unsigned int iReco = 0; iReco < crossSectionsNom.size(); ++iReco)
+    {
+        if (this->IsUnderOverFlowBin(iReco))
+        {
+            uncertainties.push_back(-std::numeric_limits<float>::max());
+            continue;
+        }
+
+        const auto standardDeviation = std::pow(sumSquaredDiffs.at(iReco) / static_cast<float>(m_nBootstrapUniverses), 0.5f); 
+        uncertainties.push_back(standardDeviation);
+    }
+
+    return uncertainties;
+}
+
+// -----------------------------------------------------------------------------------------------------------------------------------------
 
 std::vector<float> CrossSectionHelper::XSec::GetCrossSectionPerRecoBin(const bool useRealData)
 {
@@ -1617,6 +1869,257 @@ std::vector< std::vector<float> > CrossSectionHelper::XSec::GetSmearingMatrixMCS
     }
 
     return uncertainties;
+}
+
+// -----------------------------------------------------------------------------------------------------------------------------------------
+
+void CrossSectionHelper::XSec::PrintBinContents(const std::string &outputFileNamePrefix)
+{
+    if (m_binEdges.size() < 2)
+        throw std::logic_error("XSec::PrintBinContents - binning hasn't been set");
+
+    const auto nBins = m_binEdges.size() - 1;
+    
+    // Setup the table of the inputs to the cross-section
+    FormattingHelper::Table inputsTable({
+        "Bin", "",
+        "Min", "Max", "Width", "",
+        "Sig_t", "Eff_t", "",
+        "SelMC_r", "SelData_r", "Bkg_r", "Eff_r"
+    });
+    const auto binWidths = this->GetBinWidths();
+    const auto sig_t = this->CountSignalEventsPerTrueBin();
+    const auto eff_t = this->GetEfficiencyPerTrueBin();
+    const auto selMC_r = this->CountSelectedMCEventsPerRecoBin();
+    const auto selData_r = this->CountSelectedBNBDataEventsPerRecoBin();
+    const auto bkg_r = this->CountSelectedBackgroundEventsPerRecoBin();
+    const auto eff_r = this->GetSmearedEfficiencyPerRecoBin();
+
+
+    // Setup the table of cross-sections
+    FormattingHelper::Table xSecTable({
+        "Bin", "",
+        "MCTrue_t", "MCSmear_r", "MCFake_r", "Data_r"
+    });
+    const auto xsecMCTrue_t = this->GetMCTrueCrossSectionPerTrueBin();
+    const auto xsecMCSmear_r = this->GetSmearedMCTrueCrossSectionPerRecoBin();
+    const auto xsecMCFake_r = this->GetCrossSectionPerRecoBin(false);
+    const auto xsecData_r = this->GetCrossSectionPerRecoBin(true);
+
+    // Setup the table for the smearing matrix
+    std::vector<std::string> headers(1u, "Bin");
+    for (unsigned int iReco = 0u; iReco < nBins; ++iReco)
+        headers.push_back("r" + this->GetBinName(iReco));
+
+    FormattingHelper::Table smearingTable(headers);
+    const auto smearingMatrix = this->GetSmearingMatrix();
+
+
+    // Populate the tables
+    for (unsigned int iBin = 0u; iBin < nBins; ++iBin)
+    {
+        const auto binName = this->GetBinName(iBin);
+
+        inputsTable.AddEmptyRow();
+        inputsTable.SetEntry("Bin", binName);
+        inputsTable.SetEntry("Min", m_binEdges.at(iBin));
+        inputsTable.SetEntry("Max", m_binEdges.at(iBin + 1));
+        inputsTable.SetEntry("Width", binWidths.at(iBin));
+        inputsTable.SetEntry("Sig_t", sig_t.at(iBin));
+        inputsTable.SetEntry("Eff_t", eff_t.at(iBin));
+        inputsTable.SetEntry("SelMC_r", selMC_r.at(iBin));
+        inputsTable.SetEntry("SelData_r", selData_r.at(iBin));
+        inputsTable.SetEntry("Bkg_r", bkg_r.at(iBin));
+        inputsTable.SetEntry("Eff_r", eff_r.at(iBin));
+    
+        xSecTable.AddEmptyRow();
+        xSecTable.SetEntry("Bin", binName);
+        xSecTable.SetEntry("MCTrue_t", xsecMCTrue_t.at(iBin));
+        xSecTable.SetEntry("MCSmear_r", xsecMCSmear_r.at(iBin));
+        xSecTable.SetEntry("MCFake_r", xsecMCFake_r.at(iBin));
+        xSecTable.SetEntry("Data_r", xsecData_r.at(iBin));
+
+        smearingTable.AddEmptyRow();
+        smearingTable.SetEntry("Bin", "t" + binName);
+        for (unsigned int iReco = 0u; iReco < nBins; ++iReco)
+        {
+            smearingTable.SetEntry(headers.at(iReco + 1), smearingMatrix.at(iReco).at(iBin));
+        }
+    }
+        
+    inputsTable.WriteToFile(outputFileNamePrefix + "_inputs.md");
+    xSecTable.WriteToFile(outputFileNamePrefix + "_xSecs.md");
+    smearingTable.WriteToFile(outputFileNamePrefix + "_smearing.md");
+}
+
+// -----------------------------------------------------------------------------------------------------------------------------------------
+
+void CrossSectionHelper::XSec::MakePlots(const std::string &outputFileNamePrefix, const bool includeSystematicUncertainties)
+{
+    // Get the data cross-section and it's uncertainties
+    const auto xsecData = this->GetCrossSectionPerRecoBin(true);
+    const auto xsecDataErr_stat = this->GetCrossSectionStatUncertaintyPerRecoBin(true);
+    std::vector<float> xsecDataErr_syst(xsecData.size(), 0u);
+    if (includeSystematicUncertainties)
+    {
+        xsecDataErr_syst = this->GetCrossSectionMCStatUncertaintyPerRecoBin(true);
+    }
+    const auto xsecDataErr = this->AddInQuadrature(xsecDataErr_stat, xsecDataErr_syst);
+
+    // Get the smeared truth cross-section and it's uncertainties
+    const auto xsecMCSmear = this->GetSmearedMCTrueCrossSectionPerRecoBin();
+    std::vector<float> xsecMCSmearErr(xsecMCSmear.size(), 0u);
+    if (includeSystematicUncertainties)
+    {
+        xsecMCSmearErr = this->GetSmearedMCTrueCrossSectionMCStatUncertaintyPerRecoBin();
+    }
+
+    // Make the plots
+    auto hData = this->GetHistogram(xsecData, xsecDataErr);
+    auto hMCSmear = this->GetHistogram(xsecMCSmear, xsecMCSmearErr);
+
+    std::vector< shared_ptr<TH1F> > hists({hData, hMCSmear});
+    this->SetHistogramYRanges(hists, true);
+
+    PlottingHelper::SetLineStyle(hData, PlottingHelper::Primary);
+    PlottingHelper::SetLineStyle(hMCSmear, PlottingHelper::Secondary);
+
+    // Draw the histograms
+    auto pCanvas = PlottingHelper::GetCanvas();
+
+    // Draw the error band for MC
+    auto hMCSmearClone = static_cast<TH1F *>(hMCSmear->Clone());
+    const auto col = hMCSmearClone->GetLineColor();
+    hMCSmearClone->SetFillStyle(1001);
+    hMCSmearClone->SetLineColorAlpha(col, 0.f);
+    hMCSmearClone->SetFillColorAlpha(col, 0.3f);
+
+    hMCSmearClone->Draw("e2");
+    hMCSmear->Draw("hist same");
+    hData->Draw("e1 same");
+
+    PlottingHelper::SaveCanvas(pCanvas, outputFileNamePrefix + "_dataMC");
+}
+
+// -----------------------------------------------------------------------------------------------------------------------------------------
+
+std::vector<float> CrossSectionHelper::XSec::AddInQuadrature(const std::vector<float> &a, const std::vector<float> &b) const
+{
+    if (a.size() != b.size())
+        throw std::invalid_argument("XSec::AddInQuadrature - inputs are different size");
+
+    std::vector<float> c;
+    for (unsigned int i = 0; i < a.size(); ++i)
+        c.push_back(std::pow(a.at(i)*a.at(i) + b.at(i)*b.at(i), 0.5f));
+
+    return c;
+}
+
+// -----------------------------------------------------------------------------------------------------------------------------------------
+                
+std::shared_ptr<TH1F> CrossSectionHelper::XSec::GetHistogram(const std::vector<float> &binValues, const std::vector<float> &binUncertainties, const bool includeUnderflow, const bool includeOverflow) const
+{
+    if (m_binEdges.size() < 2)
+        throw std::logic_error("XSec::GetHistogram - binning hasn't been set");
+
+    const auto nBins = m_binEdges.size() - 1;
+
+    if (binValues.size() != nBins)
+        throw std::invalid_argument("XSec::GetHistogram - wrong number of input values for the bins already set");
+    
+    if (binUncertainties.size() != nBins)
+        throw std::invalid_argument("XSec::GetHistogram - wrong number of input uncertainties for the bins already set");
+
+    // Get the bin edges that we actually want to use
+    std::vector<float> binEdges;
+    const auto firstBinEdge = std::next(m_binEdges.begin(), (m_hasUnderflow && !includeUnderflow) ? 1u : 0u);
+    const auto lastBinEdge = std::prev(m_binEdges.end(), (m_hasOverflow && !includeOverflow) ? 1u : 0u);
+    binEdges.insert(binEdges.end(), firstBinEdge, lastBinEdge);
+    
+    // Setup the histogram
+    const auto nBinsInUse = binEdges.size() - 1;
+    std::shared_ptr<TH1F> pHist(new TH1F(("hXSec_" + std::to_string(m_histIndex++)).c_str(), "", nBinsInUse, binEdges.data()));
+    
+    // Fill the histogram with the desired values
+    unsigned int histBinIndex = 1u;
+    for (unsigned int iBin = 0; iBin < nBins; ++iBin)
+    {
+        if (this->IsUnderflowBin(iBin) && !includeUnderflow)
+            continue;
+        
+        if (this->IsOverflowBin(iBin) && !includeOverflow)
+            continue;
+
+        pHist->SetBinContent(histBinIndex, binValues.at(iBin));
+        pHist->SetBinError(histBinIndex, binUncertainties.at(iBin));
+
+        histBinIndex++;
+    }
+
+    return pHist;
+}
+
+// -----------------------------------------------------------------------------------------------------------------------------------------
+                
+std::shared_ptr<TH2F> CrossSectionHelper::XSec::GetHistogram(const std::vector< std::vector<float> > &binValues) const
+{
+    if (m_binEdges.size() < 2)
+        throw std::logic_error("XSec::GetHistogram - binning hasn't been set");
+
+    const auto nBins = m_binEdges.size() - 1;
+
+    if (binValues.size() != nBins)
+        throw std::invalid_argument("XSec::GetHistogram - wrong number of input values for the bins already set");
+    
+    // Setup the histogram
+    std::shared_ptr<TH2F> pHist(new TH2F(("hXSec_" + std::to_string(m_histIndex++)).c_str(), "", nBins, 0, nBins, nBins, 0, nBins));
+
+    // Fill the histogram with the desired values
+    for (unsigned int iBinX = 0; iBinX < nBins; ++iBinX)
+    {
+        for (unsigned int iBinY = 0; iBinY < nBins; ++iBinY)
+        {
+            pHist->SetBinContent(iBinX, iBinY, binValues.at(iBinX).at(iBinY));
+        }
+    }
+
+    return pHist;
+}
+
+// -----------------------------------------------------------------------------------------------------------------------------------------
+
+void CrossSectionHelper::XSec::SetHistogramYRanges(std::vector< std::shared_ptr<TH1F> > &hists, const bool capAtZero) const
+{
+    float min = std::numeric_limits<float>::max();
+    float max = -std::numeric_limits<float>::max();
+
+    for (const auto &pHist : hists)
+    {
+        std::cout << "Hist: " << pHist << std::endl;
+
+        for (unsigned int iBin = 1; iBin <= static_cast<unsigned int>(pHist->GetNbinsX()); ++iBin)
+        {    
+            const auto content = static_cast<float>(pHist->GetBinContent(iBin));
+            const auto error = static_cast<float>(pHist->GetBinError(iBin));
+
+            std::cout << iBin << " : " << content << " +- " << error << std::endl;
+            min = std::min(min, content - error);
+            max = std::max(max, content + error);
+        }
+    }
+
+    // Add some padding
+    const auto padding = (max - min) * 0.05;
+    min -= padding;
+    max += padding;
+
+    // Cap the lower end if required
+    if (capAtZero)
+        min = std::max(0.f, min);
+    
+    // Set the ranges
+    for (auto &pHist : hists)
+        pHist->GetYaxis()->SetRangeUser(min, max);
 }
 
 // -----------------------------------------------------------------------------------------------------------------------------------------

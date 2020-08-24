@@ -205,74 +205,38 @@ void ExtractXSecs(const Config &config)
     xSec_muonPionAngle.SetBinsAuto(config.global.muonPionAngle.binEdges.front(), config.global.muonPionAngle.binEdges.back(), 100u, 0.68f);
     */
 
-    std::cout << "DEBUG - muon cos(theta) cross-section" << std::endl;
-
-    std::cout << "  - Getting cross-section" << std::endl;
-    const auto xsec = xSec_muonCosTheta.GetCrossSectionPerRecoBin(true);
-    
-    std::cout << "  - Getting stat uncertainty" << std::endl;
-    const auto stat = xSec_muonCosTheta.GetCrossSectionStatUncertaintyPerRecoBin(true); 
-    
-    std::cout << "  - Getting MC stat uncertainty" << std::endl;
-    const auto statMC = xSec_muonCosTheta.GetCrossSectionMCStatUncertaintyPerRecoBin(true); 
-
-    for (unsigned int i = 0; i < xsec.size(); ++i)
-    {
-        std::cout << i << " : " << xsec.at(i) << " +- " << stat.at(i) << " (stat) +- " << statMC.at(i) << " (stat MC)" << std::endl;
-    }
-    
-    std::cout << "  - Getting smearing matrix" << std::endl;
-    const auto smearingMatrix = xSec_muonCosTheta.GetSmearingMatrix();
-    
-    std::cout << "  - Getting smearing matrix MC stat uncertainty" << std::endl;
-    const auto smearingMatrixErr = xSec_muonCosTheta.GetSmearingMatrixMCStatUncertainty();
-
-    for (unsigned int iReco = 0; iReco < smearingMatrix.size(); ++iReco)
-    {
-        const auto trueValues = smearingMatrix.at(iReco);
-        const auto trueValuesErr = smearingMatrixErr.at(iReco);
-
-        std::cout << "Reco bin: " << iReco << std::endl;
-        for (unsigned int iTrue = 0; iTrue < trueValues.size(); ++iTrue)
-        {
-            std::cout << " - " << iTrue << " : " << trueValues.at(iTrue) << " +- " << trueValuesErr.at(iTrue) << " (stat MC)" << std::endl;
-        }    
-    }
-
-    /*
     // Print the results
     std::cout << "Muon cos(theta)" << std::endl;
     xSec_muonCosTheta.PrintBinContents("xsec_muonCosTheta");
-    xSec_muonCosTheta.MakePlots("xsec_muonCosTheta");
+    xSec_muonCosTheta.MakePlots("xsec_muonCosTheta", true);
     
     std::cout << "Muon phi" << std::endl;
     xSec_muonPhi.PrintBinContents("xsec_muonPhi");
-    xSec_muonPhi.MakePlots("xsec_muonPhi");
+    xSec_muonPhi.MakePlots("xsec_muonPhi", true);
     
     std::cout << "Muon momentum" << std::endl;
     xSec_muonMomentum.PrintBinContents("xsec_muonMomentum");
-    xSec_muonMomentum.MakePlots("xsec_muonMomentum");
+    xSec_muonMomentum.MakePlots("xsec_muonMomentum", true);
     
     std::cout << "Pion cos(theta)" << std::endl;
     xSec_pionCosTheta.PrintBinContents("xsec_pionCosTheta");
-    xSec_pionCosTheta.MakePlots("xsec_pionCosTheta");
+    xSec_pionCosTheta.MakePlots("xsec_pionCosTheta", true);
     
     std::cout << "Pion phi" << std::endl;
     xSec_pionPhi.PrintBinContents("xsec_pionPhi");
-    xSec_pionPhi.MakePlots("xsec_pionPhi");
+    xSec_pionPhi.MakePlots("xsec_pionPhi", true);
     
     std::cout << "Pion momentum" << std::endl;
     xSec_pionMomentum.PrintBinContents("xsec_pionMomentum");
-    xSec_pionMomentum.MakePlots("xsec_pionMomentum");
+    xSec_pionMomentum.MakePlots("xsec_pionMomentum", true);
     
     std::cout << "Muon-pion angle" << std::endl;
     xSec_muonPionAngle.PrintBinContents("xsec_muonPionAngle");
-    xSec_muonPionAngle.MakePlots("xsec_muonPionAngle");
+    xSec_muonPionAngle.MakePlots("xsec_muonPionAngle", true);
     
     std::cout << "nProtons" << std::endl;
     xSec_nProtons.PrintBinContents("xsec_nProtons");
-    xSec_nProtons.MakePlots("xsec_nProtons");
-    */
+    xSec_nProtons.MakePlots("xsec_nProtons", true);
 }
 
 } // namespace ubcc1pi_macros
