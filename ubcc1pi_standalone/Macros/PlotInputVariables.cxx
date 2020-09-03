@@ -13,6 +13,8 @@
 #include "ubcc1pi_standalone/Helpers/AnalysisHelper.h"
 #include "ubcc1pi_standalone/Helpers/NormalisationHelper.h"
 
+#include <TH2F.h>
+
 using namespace ubcc1pi;
 
 namespace ubcc1pi_macros
@@ -124,6 +126,12 @@ void PlotInputVariables(const Config &config)
         pProtonBDT = std::make_shared<BDTHelper::BDT>("proton", protonFeatureNames); 
         pMuonBDT = std::make_shared<BDTHelper::BDT>("muon", muonFeatureNames); 
     }
+    
+    PlottingHelper::MultiPlot phiPlot("Phi / rad", yLabel, 50u, -3.142f, 3.142f);
+    PlottingHelper::MultiPlot cosThetaPlot("cos(theta)", yLabel, 50u, -1.f, 1.f);
+
+    TH2F *hPhiCosThetaData = new TH2F("hPhiCosThetaData", "", 100u, -3.142f, 3.142f, 100u, -1.f, 1.f);
+    TH2F *hPhiCosThetaSim = new TH2F("hPhiCosThetaSim", "", 100u, -3.142f, 3.142f, 100u, -1.f, 1.f);
 
     //
     // Fill the plots
@@ -156,6 +164,28 @@ void PlotInputVariables(const Config &config)
             {
                 const auto &particle = recoParticles.at(index);
 
+                // Get the plot style 
+                const auto particleStyle = PlottingHelper::GetPlotStyle(particle, sampleType, truthParticles, false, config.global.useAbsPdg);
+        
+                // Fill the angle plots
+                if (AnalysisHelper::HasTrackFit(particle))
+                {
+                    const auto dir = TVector3(particle.directionX(), particle.directionY(), particle.directionZ()).Unit();
+                    const auto phi = std::atan2(dir.Y(), dir.X());
+                    const auto cosTheta = dir.Z();
+                    phiPlot.Fill(phi, particleStyle, weight);
+                    cosThetaPlot.Fill(cosTheta, particleStyle, weight);
+
+                    if (sampleType == AnalysisHelper::DataBNB)
+                    {
+                        hPhiCosThetaData->Fill(phi, cosTheta, weight);
+                    }
+                    else
+                    {
+                        hPhiCosThetaSim->Fill(phi, cosTheta, weight);
+                    }
+                }
+
                 bool isContained = false;
                 try
                 {
@@ -165,9 +195,6 @@ void PlotInputVariables(const Config &config)
 
                 if (!isContained)
                     continue;
-
-                // Get the plot style 
-                const auto particleStyle = PlottingHelper::GetPlotStyle(particle, sampleType, truthParticles, false, config.global.useAbsPdg);
 
                 // Get the BDT features
                 std::vector<float> features;
@@ -243,6 +270,19 @@ void PlotInputVariables(const Config &config)
     goldenPionBDTPlot.SaveAsStacked("inputVariables_goldenPionBDTResponse");
     protonBDTPlot.SaveAsStacked("inputVariables_protonBDTResponse");
     muonBDTPlot.SaveAsStacked("inputVariables_muonBDTResponse");
+    
+    phiPlot.SaveAsStacked("inputVariables_phi");
+    cosThetaPlot.SaveAsStacked("inputVariables_cosTheta");
+
+    phiPlot.SaveAs("inputVariables_phi_unstacked", false, false, 500u);
+    cosThetaPlot.SaveAs("inputVariables_cosTheta_unstacked", false, false, 500u);
+
+    auto pCanvas = PlottingHelper::GetCanvas();
+    hPhiCosThetaSim->Draw("colz");
+    PlottingHelper::SaveCanvas(pCanvas, "inputVariables_phi-cosTheta");
+    
+    hPhiCosThetaData->Draw("colz");
+    PlottingHelper::SaveCanvas(pCanvas, "inputVariables_phi-cosTheta_data");
 }
 
 } // ubcc1pi macros

@@ -657,6 +657,8 @@ SelectionHelper::EventSelection SelectionHelper::GetDefaultSelection()
     selection.DeclareCut("min2Tracks");
     selection.DeclareCut("max1Uncontained");
     selection.DeclareCut("2NonProtons", -0.06f);
+    selection.DeclareCut("pionNotInGap");
+    selection.DeclareCut("muonNotInGap");
     selection.DeclareCut("openingAngle", 2.65f);
     selection.DeclareCut("topologicalScore", 0.67f);
     selection.DeclareCut("startNearVertex", 9.5f);
@@ -880,6 +882,22 @@ SelectionHelper::EventSelection SelectionHelper::GetDefaultSelection()
         
         const auto &muon = recoParticles.at(muonIndex);
         const auto &pion = recoParticles.at(pionIndex);
+        
+        // -------------------------------------------------------------
+        // Insist the pion isn't in a gap
+        // -------------------------------------------------------------
+        if (!cuts.GetCutResult("pionNotInGap", [&](){
+            return (pion.nHitsU() > 0 && pion.nHitsV() > 0 && pion.nHitsW() > 0);
+
+        })) return false;
+        
+        // -------------------------------------------------------------
+        // Insist the muon isn't in a gap
+        // -------------------------------------------------------------
+        if (!cuts.GetCutResult("muonNotInGap", [&](){
+            return (muon.nHitsU() > 0 && muon.nHitsV() > 0 && muon.nHitsW() > 0);
+
+        })) return false;
 
         // -------------------------------------------------------------
         // Insist the muon-pion opening angle isn't too wide
@@ -926,27 +944,7 @@ SelectionHelper::EventSelection SelectionHelper::GetDefaultSelection()
             return true;
 
         })) return false;
-       
-        // -------------------------------------------------------------
-        // Insist the pion is sufficiently long
-        // -------------------------------------------------------------
-        /*
-        if (!cuts.GetCutResult("pionRange", [&](const float &cut){
-            return pion.range() >= cut;
-
-        })) return false;
-        */
-
-        // -------------------------------------------------------------
-        // Insist the muon is sufficiently long
-        // -------------------------------------------------------------
-        /*
-        if (!cuts.GetCutResult("muonRange", [&](const float &cut){
-            return muon.range() >= cut;
-
-        })) return false;
-        */
-
+            
         // -------------------------------------------------------------
         // Get the golden pion BDT response of the pion candidate
         // -------------------------------------------------------------

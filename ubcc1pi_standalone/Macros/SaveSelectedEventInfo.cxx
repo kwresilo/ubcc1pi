@@ -42,6 +42,8 @@ void SaveSelectedEventInfo(const Config &config)
     bool o_isCC1Pi;
     std::string o_classification;
     AnalysisHelper::AnalysisData o_recoData, o_truthData;
+    int o_recoMuonHitsU, o_recoMuonHitsV, o_recoMuonHitsW, o_recoMuonClusters;
+    int o_recoPionHitsU, o_recoPionHitsV, o_recoPionHitsW, o_recoPionClusters;
 
     // Bind the variables to the output branches
     pTree->Branch("event", &o_event);
@@ -61,6 +63,15 @@ void SaveSelectedEventInfo(const Config &config)
     pTree->Branch("reco_muonPionAngle", &o_recoData.muonPionAngle);
     pTree->Branch("reco_nProtons", &o_recoData.nProtons);
     pTree->Branch("reco_hasGoldenPion", &o_recoData.hasGoldenPion);
+
+    pTree->Branch("reco_muonHitsU", &o_recoMuonHitsU);
+    pTree->Branch("reco_muonHitsV", &o_recoMuonHitsV);
+    pTree->Branch("reco_muonHitsW", &o_recoMuonHitsW);
+    pTree->Branch("reco_muonClusters", &o_recoMuonClusters);
+    pTree->Branch("reco_pionHitsU", &o_recoPionHitsU);
+    pTree->Branch("reco_pionHitsV", &o_recoPionHitsV);
+    pTree->Branch("reco_pionHitsW", &o_recoPionHitsW);
+    pTree->Branch("reco_pionClusters", &o_recoPionClusters);
     
     pTree->Branch("truth_muonMomentum", &o_truthData.muonMomentum);
     pTree->Branch("truth_muonCosTheta", &o_truthData.muonCosTheta);
@@ -114,6 +125,22 @@ void SaveSelectedEventInfo(const Config &config)
             o_classification = AnalysisHelper::GetClassificationString(pEvent, config.global.useAbsPdg, config.global.countProtonsInclusively);
             o_recoData = AnalysisHelper::GetRecoAnalysisData(pEvent->reco, assignedPdgCodes, passesGoldenPionSelection);
             o_isCC1Pi = (sampleType == AnalysisHelper::Overlay && AnalysisHelper::IsTrueCC1Pi(pEvent, config.global.useAbsPdg));
+
+            //// BEGIN TEST
+            const auto &recoParticles = pEvent->reco.particles;
+            const auto &muon = recoParticles.at(AnalysisHelper::GetParticleIndexWithPdg(assignedPdgCodes, 13));
+            const auto &pion = recoParticles.at(AnalysisHelper::GetParticleIndexWithPdg(assignedPdgCodes, 211));
+
+            o_recoMuonHitsU = muon.nHitsU();
+            o_recoMuonHitsV = muon.nHitsV();
+            o_recoMuonHitsW = muon.nHitsW();
+            o_recoMuonClusters = (muon.nHitsU() > 0 ? 1 : 0) + (muon.nHitsV() > 0 ? 1 : 0) + (muon.nHitsW() > 0 ? 1 : 0);
+            
+            o_recoPionHitsU = pion.nHitsU();
+            o_recoPionHitsV = pion.nHitsV();
+            o_recoPionHitsW = pion.nHitsW();
+            o_recoPionClusters = (pion.nHitsU() > 0 ? 1 : 0) + (pion.nHitsV() > 0 ? 1 : 0) + (pion.nHitsW() > 0 ? 1 : 0);
+            //// END TEST
 
             if (o_isCC1Pi)
             {

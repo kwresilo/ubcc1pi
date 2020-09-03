@@ -161,7 +161,9 @@ void PlottingHelper::MultiPlot::ScaleHistograms(std::unordered_map<PlotStyle, TH
     for (const auto &style : PlottingHelper::AllPlotStyles)
     {
         auto pHist = plotToHistCloneMap.at(style);
-        pHist->Scale(1.f / pHist->Integral(scaleByBinWidth ? "width" : ""));
+        const auto option = scaleByBinWidth ? "width" : "";
+        pHist->Scale(1.f, option);
+        pHist->Scale(1.f / pHist->Integral());
     }
 }
 
@@ -177,7 +179,7 @@ void PlottingHelper::MultiPlot::SetHistogramYRanges(const unsigned int minEntrie
     {
         const auto pHist = plotToHistCloneMap.at(style);
 
-        if (pHist->GetEntries() < minEntriesToDraw)
+        if (pHist->GetEntries() < minEntriesToDraw || pHist->GetEntries() == 0u)
             continue;
 
         yMin = std::min(yMin, static_cast<float>(pHist->GetMinimum()));
@@ -214,7 +216,7 @@ void PlottingHelper::MultiPlot::SaveAs(const std::string &fileName, const bool u
     this->GetHistogramClones(plotToHistCloneMap);
     this->ScaleHistograms(plotToHistCloneMap, scaleByBinWidth);
     this->SetHistogramYRanges(minEntriesToDraw, plotToHistCloneMap);
-
+    
     // Draw the error bands if required
     bool isFirst = true;
     if (m_drawErrors)
@@ -231,9 +233,9 @@ void PlottingHelper::MultiPlot::SaveAs(const std::string &fileName, const bool u
 
             auto pHist = plotToHistCloneMap.at(style);
     
-            if (pHist->GetEntries() < minEntriesToDraw)
+            if (pHist->GetEntries() < minEntriesToDraw || pHist->GetEntries() == 0u)
                 continue;
-            
+        
             // Draw a clone of the histogram so we can safely change it's style
             auto pHistClone = static_cast<TH1F *>(pHist->Clone());
             const auto col = pHistClone->GetLineColor();
@@ -255,9 +257,10 @@ void PlottingHelper::MultiPlot::SaveAs(const std::string &fileName, const bool u
 
         auto pHist = plotToHistCloneMap.at(style);
 
-        if (pHist->GetEntries() < minEntriesToDraw)
+        if (pHist->GetEntries() < minEntriesToDraw || pHist->GetEntries() == 0u)
             continue;
-        
+
+
         const bool usePoints = PlottingHelper::ShouldUsePoints(style);
         const TString tstyle = usePoints ? "e1" : "hist";
         pHist->Draw(isFirst ? tstyle : tstyle + "same");
@@ -820,6 +823,7 @@ std::shared_ptr<TCanvas> PlottingHelper::GetCanvas(const unsigned int width, con
     const auto name = nameStr.c_str();
 
     std::shared_ptr<TCanvas> pCanvas = std::make_shared<TCanvas>(name, "", width, height);
+    pCanvas->cd();
 
     return pCanvas;
 }

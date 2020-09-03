@@ -1045,7 +1045,7 @@ float AnalysisHelper::GetMuonMomentum(const Event::Reco::Particle &muon)
 }
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
-        
+
 AnalysisHelper::AnalysisData AnalysisHelper::GetRecoAnalysisData(const Event::Reco &reco, const std::vector<int> &assignedPdgCodes, const bool passesGoldenPionSelection)
 {
     AnalysisData data;

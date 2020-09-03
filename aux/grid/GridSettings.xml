@@ -65,6 +65,27 @@
     <jobsub>&jobsub;</jobsub>
 </stage>
 
+<stage name="overlaysFileLocationDatabase">
+    <!-- Settings -->
+    <fcl>file_location_database_driver.fcl</fcl>
+    <numjobs>35</numjobs>
+    <maxfilesperjob>11</maxfilesperjob>
+    <numevents>&numEvents;</numevents>
+
+    <!-- Input files -->
+    <inputdef>prodgenie_bnb_nu_uboone_overlay_ccinc_reweight_mcc9.1_run1_joelam</inputdef>
+
+    <!-- Output directories -->
+    <outdir>/pnfs/uboone/scratch/users/&username;/&projectName;/overlaysFileLocationDatabase/</outdir>
+    <logdir>/pnfs/uboone/scratch/users/&username;/&projectName;/overlaysFileLocationDatabase/</logdir>
+    <workdir>/pnfs/uboone/resilient/users/&username;/work/&projectName;/overlaysFileLocationDatabase/</workdir>
+
+    <!-- Options -->
+    <datatier>&dataTier;</datatier>
+    <schema>&schema;</schema>
+    <jobsub>&jobsub;</jobsub>
+</stage>
+
 <!-- dirt -->
 <stage name="dirt">
     <!-- Settings -->
