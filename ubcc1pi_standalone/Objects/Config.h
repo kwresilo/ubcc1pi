@@ -145,7 +145,8 @@ struct Config
             float               min = 0.f;                                            ///< Minimum possible value
             float               max = 10.f;                                           ///< Maximum possible value
             //std::vector<float>  binEdges = {0.f, 0.114f, 0.16f, 0.19f, 0.21f, 0.5f};  ///< The bin edges
-            std::vector<float>  binEdges = {0.1f, 0.15f, 0.2f, 0.25f, 0.6f};  ///< The bin edges
+            //std::vector<float>  binEdges = {0.1f, 0.15f, 0.2f, 0.25f, 0.6f};  ///< The bin edges
+            std::vector<float>  binEdges = {0.1f, 0.16f, 0.19f, 0.22f, 0.6f};  ///< The bin edges
         };
         PionMomentum pionMomentum; ///< The pionMomentum plot limits
    
@@ -155,8 +156,9 @@ struct Config
         struct MuonPionAngle
         {
             float               min = 0.f;                                                         ///< Minimum possible value
-            float               max =  2.65f;                                                      ///< Maximum possible value
-            std::vector<float>  binEdges = {0.f, 0.7f, 0.9f, 1.1f, 1.4f, 1.5f, 1.7f, 2.f, 2.65f};  ///< The bin edges
+            float               max = 2.65f;                                                      ///< Maximum possible value
+            //std::vector<float>  binEdges = {0.f, 0.7f, 0.9f, 1.1f, 1.4f, 1.5f, 1.7f, 2.f, 2.65f};  ///< The bin edges
+            std::vector<float>  binEdges = {0.f, 0.49f, 0.93f, 1.26f, 1.57f, 1.88f, 2.21f, 2.65f};  ///< The bin edges
         };
         MuonPionAngle muonPionAngle; ///< The muonPionAngle plot limits
 
@@ -296,6 +298,17 @@ struct Config
         bool drawErrors = true; ///< If we should draw errors
     };
     EfficiencyPlots efficiencyPlots; ///< The configuration options for the EfficiencyPlots macro
+    
+    // -------------------------------------------------------------------------------------------------------------------------------------
+
+    /**
+     *  @brief  Configuration for the MakeBinningPlots macro 
+     */
+    struct MakeBinningPlots
+    {
+        bool useFineBinEdges = true; ///< If we break up the analsis bins into finer sub-bins
+    };
+    MakeBinningPlots makeBinningPlots; ///< The configuration options for the MakeBinningPlots macro
 };
 
 } // namespace ubcc1pi

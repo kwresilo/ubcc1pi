@@ -33,11 +33,6 @@ void ExtractXSecs(const Config &config)
     // Get the selection
     auto selection = SelectionHelper::GetDefaultSelection();
    
-    const auto muonMomentumCutoff = config.global.muonMomentum.min;
-    const auto pionMomentumCutoff = config.global.pionMomentum.min;
-    const auto muonPionAngleCutoff = config.global.muonPionAngle.max;
-    const auto muonPionAngleCutoffLower = config.global.muonPionAngle.min;
-
     // Set up the cross-section objects
     auto xSec_muonCosTheta = CrossSectionHelper::XSec("xsec_muonCosTheta.root", config.global.muonCosTheta.min, config.global.muonCosTheta.max, config.global.useAbsPdg, config.global.countProtonsInclusively);
     auto xSec_muonPhi = CrossSectionHelper::XSec("xsec_muonPhi.root", config.global.muonPhi.min, config.global.muonPhi.max, config.global.useAbsPdg, config.global.countProtonsInclusively);
@@ -92,34 +87,31 @@ void ExtractXSecs(const Config &config)
             {
                 recoData = AnalysisHelper::GetRecoAnalysisData(pEvent->reco, assignedPdgCodes, passedGoldenSelection);
 
-                // Check that we are within the defined thresholds and warn if not.
-                if (recoData.muonMomentum <= muonMomentumCutoff)
-                {
-                    std::cerr << "Warning - found event with reco muon momentum: " << recoData.muonMomentum << " <= " << muonMomentumCutoff << std::endl;
+                // Determine if this event is within the thresholds that we wish measure in reco
+                if (recoData.muonMomentum < config.global.muonMomentum.min || recoData.muonMomentum > config.global.muonMomentum.max)
                     passedThresholds = false;
-                }
-                
-                if (recoData.pionMomentum <= pionMomentumCutoff)
-                {
-                    std::cerr << std::endl << std::endl;
-                    std::cerr << "Warning - found event with reco pion momentum: " << recoData.pionMomentum << " <= " << pionMomentumCutoff << std::endl;
 
+                if (recoData.muonCosTheta < config.global.muonCosTheta.min || recoData.muonCosTheta > config.global.muonCosTheta.max)
                     passedThresholds = false;
-                }
-                
-                if (recoData.muonPionAngle >= muonPionAngleCutoff)
-                {
-                    std::cerr << "Warning - found event with reco muon-pion angle: " << recoData.muonPionAngle << " >= " << muonPionAngleCutoff << std::endl;
+
+                if (recoData.muonPhi < config.global.muonPhi.min || recoData.muonPhi > config.global.muonPhi.max)
                     passedThresholds = false;
-                }
-                
-                if (recoData.muonPionAngle <= muonPionAngleCutoffLower)
-                {
-                    std::cerr << "Warning - found event with reco muon-pion angle: " << recoData.muonPionAngle << " <= " << muonPionAngleCutoffLower << std::endl;
+
+                if (recoData.pionMomentum < config.global.pionMomentum.min || recoData.pionMomentum > config.global.pionMomentum.max)
                     passedThresholds = false;
-                }
+
+                if (recoData.pionCosTheta < config.global.pionCosTheta.min || recoData.pionCosTheta > config.global.pionCosTheta.max)
+                    passedThresholds = false;
+
+                if (recoData.pionPhi < config.global.pionPhi.min || recoData.pionPhi > config.global.pionPhi.max)
+                    passedThresholds = false;
+
+                if (recoData.muonPionAngle < config.global.muonPionAngle.min || recoData.muonPionAngle > config.global.muonPionAngle.max)
+                    passedThresholds = false;
+
+                if (recoData.nProtons < config.global.nProtons.min || recoData.nProtons > config.global.nProtons.max)
+                    passedThresholds = false;
             }
-    
 
             // Here we explicity reject an event if it has reconstructed information outside of the thresholds
             passedGenericSelection = passedThresholds && passedGenericSelection;
@@ -129,12 +121,34 @@ void ExtractXSecs(const Config &config)
             if (isOverlay && AnalysisHelper::IsTrueCC1Pi(pEvent, config.global.useAbsPdg))
             {
                 const auto truthData = AnalysisHelper::GetTruthAnalysisData(pEvent->truth, config.global.useAbsPdg, config.global.protonMomentumThreshold);
+             
+                bool isSignal = true;
+                if (truthData.muonMomentum < config.global.muonMomentum.min || truthData.muonMomentum > config.global.muonMomentum.max)
+                    isSignal = false;
+
+                if (truthData.muonCosTheta < config.global.muonCosTheta.min || truthData.muonCosTheta > config.global.muonCosTheta.max)
+                    isSignal = false;
+
+                if (truthData.muonPhi < config.global.muonPhi.min || truthData.muonPhi > config.global.muonPhi.max)
+                    isSignal = false;
+
+                if (truthData.pionMomentum < config.global.pionMomentum.min || truthData.pionMomentum > config.global.pionMomentum.max)
+                    isSignal = false;
+
+                if (truthData.pionCosTheta < config.global.pionCosTheta.min || truthData.pionCosTheta > config.global.pionCosTheta.max)
+                    isSignal = false;
+
+                if (truthData.pionPhi < config.global.pionPhi.min || truthData.pionPhi > config.global.pionPhi.max)
+                    isSignal = false;
+
+                if (truthData.muonPionAngle < config.global.muonPionAngle.min || truthData.muonPionAngle > config.global.muonPionAngle.max)
+                    isSignal = false;
+
+                if (truthData.nProtons < config.global.nProtons.min || truthData.nProtons > config.global.nProtons.max)
+                    isSignal = false;
 
                 // Apply the phase-space restriction to the signal definition
-                if (truthData.muonMomentum > muonMomentumCutoff &&
-                    truthData.pionMomentum > pionMomentumCutoff &&
-                    truthData.muonPionAngle < muonPionAngleCutoff &&
-                    truthData.muonPionAngle > muonPionAngleCutoffLower)
+                if (isSignal)
                 {
                     xSec_muonCosTheta.AddSignalEvent(pEvent, passedGenericSelection, truthData.muonCosTheta, recoData.muonCosTheta, weight, normalisation);
                     xSec_muonPhi.AddSignalEvent(pEvent, passedGenericSelection, truthData.muonPhi, recoData.muonPhi, weight, normalisation);
@@ -143,7 +157,8 @@ void ExtractXSecs(const Config &config)
                     xSec_pionPhi.AddSignalEvent(pEvent, passedGenericSelection, truthData.pionPhi, recoData.pionPhi, weight, normalisation);
                     xSec_muonPionAngle.AddSignalEvent(pEvent, passedGenericSelection, truthData.muonPionAngle, recoData.muonPionAngle, weight, normalisation);
                     xSec_nProtons.AddSignalEvent(pEvent, passedGenericSelection, truthData.nProtons, recoData.nProtons, weight, normalisation);
-                    
+                   
+                    // ATTN here we are using the golden selection (the other variables use the generic selection)
                     xSec_pionMomentum.AddSignalEvent(pEvent, passedGoldenSelection, truthData.pionMomentum, recoData.pionMomentum, weight, normalisation);
                 
                     continue;

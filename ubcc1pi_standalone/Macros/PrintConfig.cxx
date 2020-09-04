@@ -224,6 +224,15 @@ void PrintConfig(const Config &config)
     table.AddEmptyRow();
     table.SetEntry("Variable", "efficiencyPlots.drawErrors");
     table.SetEntry("Value", config.efficiencyPlots.drawErrors);
+        
+    //
+    // MakeBinningPlots
+    //
+    table.AddEmptyRow();
+
+    table.AddEmptyRow();
+    table.SetEntry("Variable", "makeBinningPlots.useFineBinEdges");
+    table.SetEntry("Value", config.makeBinningPlots.useFineBinEdges);
 
     // Print out the table
     table.Print();

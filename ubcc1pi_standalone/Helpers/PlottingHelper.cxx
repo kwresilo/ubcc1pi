@@ -559,7 +559,8 @@ void PlottingHelper::EfficiencyPlot::SaveAs(const std::vector<std::string> &cuts
 
         pHistClone->Draw("e2");
     }
-    
+   
+    // ATTN the raw histogram only works for uniform binning!
     pHistRaw->Draw(m_drawErrors ? "hist same" : "hist"); 
     PlottingHelper::SaveCanvas(pCanvas, fileName + "_raw");
 

@@ -1954,7 +1954,8 @@ std::shared_ptr<TH2F> CrossSectionHelper::XSec::GetHistogram(const std::vector< 
 
         for (unsigned int iBinY = 0; iBinY < nBins; ++iBinY)
         {
-            pHist->SetBinContent(iBinX+1, iBinY+1, binValues.at(iBinX).at(iBinY));
+            // Put truth on x-axis & reco on y-axis
+            pHist->SetBinContent(iBinY+1, iBinX+1, binValues.at(iBinX).at(iBinY));
         }
     }
 

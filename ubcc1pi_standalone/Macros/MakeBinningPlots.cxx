@@ -12,6 +12,8 @@
 #include "ubcc1pi_standalone/Helpers/CrossSectionHelper.h"
 #include "ubcc1pi_standalone/Helpers/NormalisationHelper.h"
 
+#include <TStyle.h>
+
 using namespace ubcc1pi;
 
 namespace ubcc1pi_macros
@@ -33,7 +35,7 @@ void MakeBinningPlots(const Config &config)
     auto selection = SelectionHelper::GetDefaultSelection();
 
     // Get the fine bin edges
-    auto getFineBinEdges = [](const unsigned int nBinsTarget, const float min, const float max, const std::vector<float> &coarseBinEdges) -> std::vector<float> {
+    auto getFineBinEdges = [&](const unsigned int nBinsTarget, const float min, const float max, const std::vector<float> &coarseBinEdges) -> std::vector<float> {
 
         // If required extend the bin edges to the min and max
         std::vector<float> extendedCoarseBinEdges;
@@ -45,6 +47,11 @@ void MakeBinningPlots(const Config &config)
 
         if (max - coarseBinEdges.back() > std::numeric_limits<float>::epsilon())
             extendedCoarseBinEdges.push_back(max);
+        
+        if (!config.makeBinningPlots.useFineBinEdges)
+        {
+            return extendedCoarseBinEdges;
+        }
         
         // Now break up the coarse bins into smaller bins
         // Use the nBinsTarget to determine the ideal width of these smaller bins
@@ -86,7 +93,7 @@ void MakeBinningPlots(const Config &config)
     const auto edges_pionPhi = getFineBinEdges(50u, -3.142f, 3.142f, config.global.pionPhi.binEdges);
     const auto nFineBins_pionPhi = edges_pionPhi.size() - 1;
     
-    const auto edges_pionMomentum = getFineBinEdges(50u, 0.f, 0.6f, config.global.pionMomentum.binEdges);
+    const auto edges_pionMomentum = getFineBinEdges(50u, 0.f, 0.8f, config.global.pionMomentum.binEdges);
     const auto nFineBins_pionMomentum = edges_pionMomentum.size() - 1;
     
     const auto edges_muonPionAngle = getFineBinEdges(50u, 0.f, 3.142f, config.global.muonPionAngle.binEdges);
@@ -335,41 +342,43 @@ void MakeBinningPlots(const Config &config)
         pHist->Scale(1.f, "width");
     }
 
+    const std::string suffix = config.makeBinningPlots.useFineBinEdges ? "_fine" : "";
+
     // Save the efficiency plots
     const auto cutStyles = std::vector<PlottingHelper::PlotStyle>({PlottingHelper::Primary, PlottingHelper::Secondary});
-    eff_muonCosTheta.SaveAs(cutLabels, cutStyles, "binningPlots_efficiency_muonCosTheta");
-    eff_muonPhi.SaveAs(cutLabels, cutStyles, "binningPlots_efficiency_muonPhi");
-    eff_muonMomentum.SaveAs(cutLabels, cutStyles, "binningPlots_efficiency_muonMomentum");
-    eff_pionCosTheta.SaveAs(cutLabels, cutStyles, "binningPlots_efficiency_pionCosTheta");
-    eff_pionPhi.SaveAs(cutLabels, cutStyles, "binningPlots_efficiency_pionPhi");
-    eff_pionMomentum.SaveAs(cutLabels, cutStyles, "binningPlots_efficiency_pionMomentum");
-    eff_muonPionAngle.SaveAs(cutLabels, cutStyles, "binningPlots_efficiency_muonPionAngle");
+    eff_muonCosTheta.SaveAs(cutLabels, cutStyles, "binningPlots_efficiency_muonCosTheta" + suffix);
+    eff_muonPhi.SaveAs(cutLabels, cutStyles, "binningPlots_efficiency_muonPhi" + suffix);
+    eff_muonMomentum.SaveAs(cutLabels, cutStyles, "binningPlots_efficiency_muonMomentum" + suffix);
+    eff_pionCosTheta.SaveAs(cutLabels, cutStyles, "binningPlots_efficiency_pionCosTheta" + suffix);
+    eff_pionPhi.SaveAs(cutLabels, cutStyles, "binningPlots_efficiency_pionPhi" + suffix);
+    eff_pionMomentum.SaveAs(cutLabels, cutStyles, "binningPlots_efficiency_pionMomentum" + suffix);
+    eff_muonPionAngle.SaveAs(cutLabels, cutStyles, "binningPlots_efficiency_muonPionAngle" + suffix);
     
     // Save the multi-plots
-    multi_muonCosTheta_generic.SaveAsStacked("binningPlots_stack_generic_muonCosTheta", false, true);
-    multi_muonCosTheta_golden.SaveAsStacked("binningPlots_stack_golden_muonCosTheta", false, true);
+    multi_muonCosTheta_generic.SaveAsStacked("binningPlots_stack_generic_muonCosTheta" + suffix, false, true);
+    multi_muonCosTheta_golden.SaveAsStacked("binningPlots_stack_golden_muonCosTheta" + suffix, false, true);
     
-    multi_muonPhi_generic.SaveAsStacked("binningPlots_stack_generic_muonPhi", false, true);
-    multi_muonPhi_golden.SaveAsStacked("binningPlots_stack_golden_muonPhi", false, true);
+    multi_muonPhi_generic.SaveAsStacked("binningPlots_stack_generic_muonPhi" + suffix, false, true);
+    multi_muonPhi_golden.SaveAsStacked("binningPlots_stack_golden_muonPhi" + suffix, false, true);
     
-    multi_muonMomentum_generic.SaveAsStacked("binningPlots_stack_generic_muonMomentum", false, true);
-    multi_muonMomentum_golden.SaveAsStacked("binningPlots_stack_golden_muonMomentum", false, true);
+    multi_muonMomentum_generic.SaveAsStacked("binningPlots_stack_generic_muonMomentum" + suffix, false, true);
+    multi_muonMomentum_golden.SaveAsStacked("binningPlots_stack_golden_muonMomentum" + suffix, false, true);
     
-    multi_pionCosTheta_generic.SaveAsStacked("binningPlots_stack_generic_pionCosTheta", false, true);
-    multi_pionCosTheta_golden.SaveAsStacked("binningPlots_stack_golden_pionCosTheta", false, true);
+    multi_pionCosTheta_generic.SaveAsStacked("binningPlots_stack_generic_pionCosTheta" + suffix, false, true);
+    multi_pionCosTheta_golden.SaveAsStacked("binningPlots_stack_golden_pionCosTheta" + suffix, false, true);
     
-    multi_pionPhi_generic.SaveAsStacked("binningPlots_stack_generic_pionPhi", false, true);
-    multi_pionPhi_golden.SaveAsStacked("binningPlots_stack_golden_pionPhi", false, true);
+    multi_pionPhi_generic.SaveAsStacked("binningPlots_stack_generic_pionPhi" + suffix, false, true);
+    multi_pionPhi_golden.SaveAsStacked("binningPlots_stack_golden_pionPhi" + suffix, false, true);
     
-    multi_pionMomentum_generic.SaveAsStacked("binningPlots_stack_generic_pionMomentum", false, true);
-    multi_pionMomentum_golden.SaveAsStacked("binningPlots_stack_golden_pionMomentum", false, true);
+    multi_pionMomentum_generic.SaveAsStacked("binningPlots_stack_generic_pionMomentum" + suffix, false, true);
+    multi_pionMomentum_golden.SaveAsStacked("binningPlots_stack_golden_pionMomentum" + suffix, false, true);
 
-    multi_muonPionAngle_generic.SaveAsStacked("binningPlots_stack_generic_muonPionAngle", false, true);
-    multi_muonPionAngle_golden.SaveAsStacked("binningPlots_stack_golden_muonPionAngle", false, true);
+    multi_muonPionAngle_generic.SaveAsStacked("binningPlots_stack_generic_muonPionAngle" + suffix, false, true);
+    multi_muonPionAngle_golden.SaveAsStacked("binningPlots_stack_golden_muonPionAngle" + suffix, false, true);
 
 
     // Save the resolution plots
-    auto saveWithLines = [](TH2F *pHist, const std::vector<float> &binEdges, const std::string &name) {
+    auto saveWithLines = [&](TH2F *pHist, const std::vector<float> &binEdges, const std::string &name) {
 
         const auto xMin = pHist->GetXaxis()->GetXmin();
         const auto xMax = pHist->GetXaxis()->GetXmax();
@@ -396,26 +405,26 @@ void MakeBinningPlots(const Config &config)
         PlottingHelper::SaveCanvas(pCanvas, name);
     };
 
-    saveWithLines(hRes_muonCosTheta_generic, config.global.muonCosTheta.binEdges, "binningPlots_resolution_generic_muonCosTheta");
-    saveWithLines(hRes_muonCosTheta_golden, config.global.muonCosTheta.binEdges, "binningPlots_resolution_golden_muonCosTheta");
+    saveWithLines(hRes_muonCosTheta_generic, config.global.muonCosTheta.binEdges, "binningPlots_resolution_generic_muonCosTheta" + suffix);
+    saveWithLines(hRes_muonCosTheta_golden, config.global.muonCosTheta.binEdges, "binningPlots_resolution_golden_muonCosTheta" + suffix);
     
-    saveWithLines(hRes_muonPhi_generic, config.global.muonPhi.binEdges, "binningPlots_resolution_generic_muonPhi");
-    saveWithLines(hRes_muonPhi_golden, config.global.muonPhi.binEdges, "binningPlots_resolution_golden_muonPhi");
+    saveWithLines(hRes_muonPhi_generic, config.global.muonPhi.binEdges, "binningPlots_resolution_generic_muonPhi" + suffix);
+    saveWithLines(hRes_muonPhi_golden, config.global.muonPhi.binEdges, "binningPlots_resolution_golden_muonPhi" + suffix);
     
-    saveWithLines(hRes_muonMomentum_generic, config.global.muonMomentum.binEdges, "binningPlots_resolution_generic_muonMomentum");
-    saveWithLines(hRes_muonMomentum_golden, config.global.muonMomentum.binEdges, "binningPlots_resolution_golden_muonMomentum");
+    saveWithLines(hRes_muonMomentum_generic, config.global.muonMomentum.binEdges, "binningPlots_resolution_generic_muonMomentum" + suffix);
+    saveWithLines(hRes_muonMomentum_golden, config.global.muonMomentum.binEdges, "binningPlots_resolution_golden_muonMomentum" + suffix);
     
-    saveWithLines(hRes_pionCosTheta_generic, config.global.pionCosTheta.binEdges, "binningPlots_resolution_generic_pionCosTheta");
-    saveWithLines(hRes_pionCosTheta_golden, config.global.pionCosTheta.binEdges, "binningPlots_resolution_golden_pionCosTheta");
+    saveWithLines(hRes_pionCosTheta_generic, config.global.pionCosTheta.binEdges, "binningPlots_resolution_generic_pionCosTheta" + suffix);
+    saveWithLines(hRes_pionCosTheta_golden, config.global.pionCosTheta.binEdges, "binningPlots_resolution_golden_pionCosTheta" + suffix);
     
-    saveWithLines(hRes_pionPhi_generic, config.global.pionPhi.binEdges, "binningPlots_resolution_generic_pionPhi");
-    saveWithLines(hRes_pionPhi_golden, config.global.pionPhi.binEdges, "binningPlots_resolution_golden_pionPhi");
+    saveWithLines(hRes_pionPhi_generic, config.global.pionPhi.binEdges, "binningPlots_resolution_generic_pionPhi" + suffix);
+    saveWithLines(hRes_pionPhi_golden, config.global.pionPhi.binEdges, "binningPlots_resolution_golden_pionPhi" + suffix);
     
-    saveWithLines(hRes_pionMomentum_generic, config.global.pionMomentum.binEdges, "binningPlots_resolution_generic_pionMomentum");
-    saveWithLines(hRes_pionMomentum_golden, config.global.pionMomentum.binEdges, "binningPlots_resolution_golden_pionMomentum");
+    saveWithLines(hRes_pionMomentum_generic, config.global.pionMomentum.binEdges, "binningPlots_resolution_generic_pionMomentum" + suffix);
+    saveWithLines(hRes_pionMomentum_golden, config.global.pionMomentum.binEdges, "binningPlots_resolution_golden_pionMomentum" + suffix);
     
-    saveWithLines(hRes_muonPionAngle_generic, config.global.muonPionAngle.binEdges, "binningPlots_resolution_generic_muonPionAngle");
-    saveWithLines(hRes_muonPionAngle_golden, config.global.muonPionAngle.binEdges, "binningPlots_resolution_golden_muonPionAngle");
+    saveWithLines(hRes_muonPionAngle_generic, config.global.muonPionAngle.binEdges, "binningPlots_resolution_generic_muonPionAngle" + suffix);
+    saveWithLines(hRes_muonPionAngle_golden, config.global.muonPionAngle.binEdges, "binningPlots_resolution_golden_muonPionAngle" + suffix);
 }
 
 } // namespace ubcc1pi_macros
