@@ -757,7 +757,7 @@ SelectionHelper::EventSelection SelectionHelper::GetDefaultSelection()
             const auto &particle = recoParticles.at(index);
             
             if (!AnalysisHelper::IsContained(particle))
-                throw std::logic_error("MakeSelectionTable - Found an uncontained particle that hasn't been identified already!");
+                throw std::logic_error("EventSelection - Found an uncontained particle that hasn't been identified already!");
 
             std::vector<float> features;
             const auto hasFeatures = BDTHelper::GetBDTFeatures(particle, protonFeatureNames, features);
@@ -832,7 +832,7 @@ SelectionHelper::EventSelection SelectionHelper::GetDefaultSelection()
 
             // Anything left is our pion
             if (foundPion)
-                throw std::logic_error("MakeSelectionTable - Found multiple pion candidates!");
+                throw std::logic_error("EventSelection - Found multiple pion candidates!");
 
             pdgCodeMap.at(index) = 211;
             pionIndex = index;
@@ -840,7 +840,7 @@ SelectionHelper::EventSelection SelectionHelper::GetDefaultSelection()
         }
 
         if (!foundPion)
-            throw std::logic_error("MakeSelectionTable - Couldn't find pion candidate!");
+            throw std::logic_error("EventSelection - Couldn't find pion candidate!");
 
         // Set the particle types so they are available outside of this function
         for (unsigned int index = 0; index < recoParticles.size(); ++index)
@@ -867,18 +867,18 @@ SelectionHelper::EventSelection SelectionHelper::GetDefaultSelection()
                     nProtonsIdentified++;
                     break;
                 default:
-                    throw std::logic_error("MakeSelectionTable - Sanity check failed, found reco particle assigned a PDG of: " + std::to_string(pdgCodeMap.at(index)));
+                    throw std::logic_error("EventSelection - Sanity check failed, found reco particle assigned a PDG of: " + std::to_string(pdgCodeMap.at(index)));
             }
         }
 
         if (nMuonsIdentified != 1)
-            throw std::logic_error("MakeSelectionTable - Found " + std::to_string(nMuonsIdentified) + " muon candidates!");
+            throw std::logic_error("EventSelection - Found " + std::to_string(nMuonsIdentified) + " muon candidates!");
 
         if (nPionsIdentified != 1)
-            throw std::logic_error("MakeSelectionTable - Found " + std::to_string(nPionsIdentified) + " pion candidates!");
+            throw std::logic_error("EventSelection - Found " + std::to_string(nPionsIdentified) + " pion candidates!");
 
         if (nMuonsIdentified + nPionsIdentified + nProtonsIdentified != recoParticles.size())
-            throw std::logic_error("MakeSelectionTable - Not all particles have been identified");
+            throw std::logic_error("EventSelection - Not all particles have been identified");
         
         const auto &muon = recoParticles.at(muonIndex);
         const auto &pion = recoParticles.at(pionIndex);
@@ -950,7 +950,7 @@ SelectionHelper::EventSelection SelectionHelper::GetDefaultSelection()
         // -------------------------------------------------------------
         std::vector<float> features;
         if (!BDTHelper::GetBDTFeatures(pion, goldenPionFeatureNames, features))
-            throw std::logic_error("MakeSelectionTable - can't get golden pion BDT features for pion candidate");
+            throw std::logic_error("EventSelection - can't get golden pion BDT features for pion candidate");
 
         const auto goldenPionBDTResponse = goldenPionBDT.GetResponse(features);
         

@@ -44,6 +44,7 @@ void SaveSelectedEventInfo(const Config &config)
     AnalysisHelper::AnalysisData o_recoData, o_truthData;
     int o_recoMuonHitsU, o_recoMuonHitsV, o_recoMuonHitsW, o_recoMuonClusters;
     int o_recoPionHitsU, o_recoPionHitsV, o_recoPionHitsW, o_recoPionClusters;
+    float o_truthPionEndStateHitsU, o_truthPionEndStateHitsV, o_truthPionEndStateHitsW;
 
     // Bind the variables to the output branches
     pTree->Branch("event", &o_event);
@@ -82,6 +83,10 @@ void SaveSelectedEventInfo(const Config &config)
     pTree->Branch("truth_muonPionAngle", &o_truthData.muonPionAngle);
     pTree->Branch("truth_nProtons", &o_truthData.nProtons);
     pTree->Branch("truth_hasGoldenPion", &o_truthData.hasGoldenPion);
+          
+    pTree->Branch("truth_pionEndStateHitsU", &o_truthPionEndStateHitsU);
+    pTree->Branch("truth_pionEndStateHitsV", &o_truthPionEndStateHitsV);
+    pTree->Branch("truth_pionEndStateHitsW", &o_truthPionEndStateHitsW);
     
     pTree->Branch("truth_isCC1Pi", &o_isCC1Pi);
 
@@ -145,6 +150,16 @@ void SaveSelectedEventInfo(const Config &config)
             if (o_isCC1Pi)
             {
                 o_truthData = AnalysisHelper::GetTruthAnalysisData(pEvent->truth, config.global.useAbsPdg, config.global.protonMomentumThreshold);
+    
+                //// BEGIN TEST
+                const auto truePion = *std::find_if(pEvent->truth.particles.begin(), pEvent->truth.particles.end(), [&](const auto &p){
+                    const auto pdg = config.global.useAbsPdg ? std::abs(p.pdgCode()) : p.pdgCode();
+                    return pdg == 211;
+                });
+                o_truthPionEndStateHitsU = truePion.endStateProductsHitWeightU();
+                o_truthPionEndStateHitsV = truePion.endStateProductsHitWeightV();
+                o_truthPionEndStateHitsW = truePion.endStateProductsHitWeightW();
+                //// END TEST
             }
             else
             {
@@ -158,6 +173,10 @@ void SaveSelectedEventInfo(const Config &config)
                 o_truthData.muonPionAngle = -std::numeric_limits<float>::max();
                 o_truthData.nProtons = std::numeric_limits<unsigned int>::max();
                 o_truthData.hasGoldenPion = false;
+                
+                o_truthPionEndStateHitsU = -std::numeric_limits<float>::max();
+                o_truthPionEndStateHitsV = -std::numeric_limits<float>::max();
+                o_truthPionEndStateHitsW = -std::numeric_limits<float>::max();
             }
 
             pTree->Fill();

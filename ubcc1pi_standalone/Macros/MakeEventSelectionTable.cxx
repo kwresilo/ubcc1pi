@@ -41,7 +41,7 @@ void MakeEventSelectionTable(const Config &config)
     // Optimize the cuts
     if (config.makeEventSelectionTable.shouldOptimize)
         selection.Optimize(config.files.dataBNBFileName, config.files.overlaysFileName, overlayWeight, config.files.dataEXTFileName, dataEXTWeight, config.files.dirtFileName, dirtWeight, config.makeEventSelectionTable.nScanPoints, config.makeEventSelectionTable.processFraction);
-
+    
     // Run the selection
     selection.Execute(config.files.dataBNBFileName, config.files.overlaysFileName, overlayWeight, config.files.dataEXTFileName, dataEXTWeight, config.files.dirtFileName, dirtWeight, true, 1.f, 10u);
 }

@@ -37,15 +37,18 @@ void MakeBinningPlots(const Config &config)
     // Get the fine bin edges
     auto getFineBinEdges = [&](const unsigned int nBinsTarget, const float min, const float max, const std::vector<float> &coarseBinEdges) -> std::vector<float> {
 
-        // If required extend the bin edges to the min and max
+        // If required extend/truncate the bin edges to the min and max
         std::vector<float> extendedCoarseBinEdges;
+        for (const auto &edge : coarseBinEdges)
+        {
+            if (edge >= min && edge <= max)
+                extendedCoarseBinEdges.push_back(edge);
+        }
+        
+        if (extendedCoarseBinEdges.front() - min > std::numeric_limits<float>::epsilon())
+            extendedCoarseBinEdges.insert(extendedCoarseBinEdges.begin(), min);
 
-        if (coarseBinEdges.front() - min > std::numeric_limits<float>::epsilon())
-            extendedCoarseBinEdges.push_back(min);
-
-        extendedCoarseBinEdges.insert(extendedCoarseBinEdges.end(), coarseBinEdges.begin(), coarseBinEdges.end());
-
-        if (max - coarseBinEdges.back() > std::numeric_limits<float>::epsilon())
+        if (max - extendedCoarseBinEdges.back() > std::numeric_limits<float>::epsilon())
             extendedCoarseBinEdges.push_back(max);
         
         if (!config.makeBinningPlots.useFineBinEdges)
@@ -98,6 +101,9 @@ void MakeBinningPlots(const Config &config)
     
     const auto edges_muonPionAngle = getFineBinEdges(50u, 0.f, 3.142f, config.global.muonPionAngle.binEdges);
     const auto nFineBins_muonPionAngle = edges_muonPionAngle.size() - 1;
+    
+    const auto edges_nProtons = getFineBinEdges(5u, 0, 5, config.global.nProtons.binEdges);
+    const auto nFineBins_nProtons = edges_nProtons.size() - 1;
 
     // Setup the efficiency plots
     const auto cutLabels = std::vector<std::string>({"generic", "golden"});
@@ -108,6 +114,7 @@ void MakeBinningPlots(const Config &config)
     PlottingHelper::EfficiencyPlot eff_pionPhi("True pion phi / rad", edges_pionPhi, cutLabels);
     PlottingHelper::EfficiencyPlot eff_pionMomentum("True pion momentum / GeV", edges_pionMomentum, cutLabels);
     PlottingHelper::EfficiencyPlot eff_muonPionAngle("True muon-pion opening angle / rad", edges_muonPionAngle, cutLabels);
+    PlottingHelper::EfficiencyPlot eff_nProtons("True proton multiplicity", edges_nProtons, cutLabels);
 
     // Setup the multi-plots
     const std::string yLabel = "Number of events";
@@ -129,13 +136,24 @@ void MakeBinningPlots(const Config &config)
     
     PlottingHelper::MultiPlot multi_pionMomentum_generic("Reco pion momentum / GeV", yLabel, edges_pionMomentum);
     PlottingHelper::MultiPlot multi_pionMomentum_golden("Reco pion momentum / GeV", yLabel, edges_pionMomentum);
+
+    PlottingHelper::MultiPlot multi_pionMomentum_particle_generic("Reco pion momentum / GeV", yLabel, edges_pionMomentum);
+    PlottingHelper::MultiPlot multi_pionMomentum_particle_golden("Reco pion momentum / GeV", yLabel, edges_pionMomentum);
     
     PlottingHelper::MultiPlot multi_muonPionAngle_generic("Reco muon-pion opening angle / rad", yLabel, edges_muonPionAngle);
     PlottingHelper::MultiPlot multi_muonPionAngle_golden("Reco muon-pion opening angle / rad", yLabel, edges_muonPionAngle);
     
+    PlottingHelper::MultiPlot multi_nProtons_generic("Reco proton multiplicity", yLabel, edges_nProtons);
+    PlottingHelper::MultiPlot multi_nProtons_golden("Reco proton multiplicity", yLabel, edges_nProtons);
+    //multi_nProtons_generic.SetIntegerBinLabels();
+    //multi_nProtons_golden.SetIntegerBinLabels();
+    
     // Add the lines at the bin edges
     for (const auto &edge : config.global.muonCosTheta.binEdges)
     {
+        if (edge < edges_muonCosTheta.front() || edge > edges_muonCosTheta.back())
+            continue;
+
         multi_muonCosTheta_generic.AddCutLine(edge);
         multi_muonCosTheta_golden.AddCutLine(edge);
         eff_muonCosTheta.AddCutLine(edge);
@@ -143,6 +161,9 @@ void MakeBinningPlots(const Config &config)
     
     for (const auto &edge : config.global.muonPhi.binEdges)
     {
+        if (edge < edges_muonPhi.front() || edge > edges_muonPhi.back())
+            continue;
+
         multi_muonPhi_generic.AddCutLine(edge);
         multi_muonPhi_golden.AddCutLine(edge);
         eff_muonPhi.AddCutLine(edge);
@@ -150,6 +171,9 @@ void MakeBinningPlots(const Config &config)
     
     for (const auto &edge : config.global.muonMomentum.binEdges)
     {
+        if (edge < edges_muonMomentum.front() || edge > edges_muonMomentum.back())
+            continue;
+
         multi_muonMomentum_generic.AddCutLine(edge);
         multi_muonMomentum_golden.AddCutLine(edge);
         eff_muonMomentum.AddCutLine(edge);
@@ -157,6 +181,9 @@ void MakeBinningPlots(const Config &config)
     
     for (const auto &edge : config.global.pionCosTheta.binEdges)
     {
+        if (edge < edges_pionCosTheta.front() || edge > edges_pionCosTheta.back())
+            continue;
+
         multi_pionCosTheta_generic.AddCutLine(edge);
         multi_pionCosTheta_golden.AddCutLine(edge);
         eff_pionCosTheta.AddCutLine(edge);
@@ -164,6 +191,9 @@ void MakeBinningPlots(const Config &config)
     
     for (const auto &edge : config.global.pionPhi.binEdges)
     {
+        if (edge < edges_pionPhi.front() || edge > edges_pionPhi.back())
+            continue;
+
         multi_pionPhi_generic.AddCutLine(edge);
         multi_pionPhi_golden.AddCutLine(edge);
         eff_pionPhi.AddCutLine(edge);
@@ -171,16 +201,35 @@ void MakeBinningPlots(const Config &config)
     
     for (const auto &edge : config.global.pionMomentum.binEdges)
     {
+        if (edge < edges_pionMomentum.front() || edge > edges_pionMomentum.back())
+            continue;
+
         multi_pionMomentum_generic.AddCutLine(edge);
         multi_pionMomentum_golden.AddCutLine(edge);
         eff_pionMomentum.AddCutLine(edge);
+        
+        multi_pionMomentum_particle_generic.AddCutLine(edge);
+        multi_pionMomentum_particle_golden.AddCutLine(edge);
     }
 
     for (const auto &edge : config.global.muonPionAngle.binEdges)
     {
+        if (edge < edges_muonPionAngle.front() || edge > edges_muonPionAngle.back())
+            continue;
+
         multi_muonPionAngle_generic.AddCutLine(edge);
         multi_muonPionAngle_golden.AddCutLine(edge);
         eff_muonPionAngle.AddCutLine(edge);
+    }
+    
+    for (const auto &edge : config.global.nProtons.binEdges)
+    {
+        if (edge < edges_nProtons.front() || edge > edges_nProtons.back())
+            continue;
+
+        multi_nProtons_generic.AddCutLine(edge);
+        multi_nProtons_golden.AddCutLine(edge);
+        eff_nProtons.AddCutLine(edge);
     }
 
     // Setup the resolution plots
@@ -204,6 +253,9 @@ void MakeBinningPlots(const Config &config)
     
     TH2F *hRes_muonPionAngle_generic = new TH2F("hRes_muonPionAngle_generic", "", nFineBins_muonPionAngle, edges_muonPionAngle.data(), nFineBins_muonPionAngle, edges_muonPionAngle.data());
     TH2F *hRes_muonPionAngle_golden = new TH2F("hRes_muonPionAngle_golden", "", nFineBins_muonPionAngle, edges_muonPionAngle.data(), nFineBins_muonPionAngle, edges_muonPionAngle.data());
+    
+    TH2F *hRes_nProtons_generic = new TH2F("hRes_nProtons_generic", "", nFineBins_nProtons, edges_nProtons.data(), nFineBins_nProtons, edges_nProtons.data());
+    TH2F *hRes_nProtons_golden = new TH2F("hRes_nProtons_golden", "", nFineBins_nProtons, edges_nProtons.data(), nFineBins_nProtons, edges_nProtons.data());
     
     // Loop over the events
     for (const auto [sampleType, fileName, normalisation] : inputData)
@@ -262,6 +314,16 @@ void MakeBinningPlots(const Config &config)
                 
                 eff_muonPionAngle.AddEvent(truthData.muonPionAngle, weight, "generic", passedGenericSelection);
                 eff_muonPionAngle.AddEvent(truthData.muonPionAngle, weight, "golden", passedGoldenSelection);
+                
+                eff_nProtons.AddEvent(truthData.nProtons, weight, "generic", passedGenericSelection);
+                eff_nProtons.AddEvent(truthData.nProtons, weight, "golden", passedGoldenSelection);
+                 
+                auto pionStyle = PlottingHelper::Default;
+                if (passedGenericSelection)
+                {
+                    const auto pion = pEvent->reco.particles.at(AnalysisHelper::GetParticleIndexWithPdg(assignedPdgCodes, 211));
+                    pionStyle = PlottingHelper::GetPlotStyle(pion, sampleType, pEvent->truth.particles, false, config.global.useAbsPdg);
+                }
 
                 // Fill the resolution plots
                 if (passedGenericSelection)
@@ -273,6 +335,9 @@ void MakeBinningPlots(const Config &config)
                     hRes_pionPhi_generic->Fill(truthData.pionPhi, recoData.pionPhi, weight);
                     hRes_pionMomentum_generic->Fill(truthData.pionMomentum, recoData.pionMomentum, weight);
                     hRes_muonPionAngle_generic->Fill(truthData.muonPionAngle, recoData.muonPionAngle, weight);
+                    hRes_nProtons_generic->Fill(truthData.nProtons, recoData.nProtons, weight);
+
+                    multi_pionMomentum_particle_generic.Fill(truthData.pionMomentum, pionStyle, weight);
                 }
 
                 if (passedGoldenSelection)
@@ -284,6 +349,9 @@ void MakeBinningPlots(const Config &config)
                     hRes_pionPhi_golden->Fill(truthData.pionPhi, recoData.pionPhi, weight);
                     hRes_pionMomentum_golden->Fill(truthData.pionMomentum, recoData.pionMomentum, weight);
                     hRes_muonPionAngle_golden->Fill(truthData.muonPionAngle, recoData.muonPionAngle, weight);
+                    hRes_nProtons_golden->Fill(truthData.nProtons, recoData.nProtons, weight);
+
+                    multi_pionMomentum_particle_golden.Fill(truthData.pionMomentum, pionStyle, weight);
                 }
             }
 
@@ -300,6 +368,7 @@ void MakeBinningPlots(const Config &config)
                 multi_pionPhi_generic.Fill(recoData.pionPhi, style, factor);
                 multi_pionMomentum_generic.Fill(recoData.pionMomentum, style, factor);
                 multi_muonPionAngle_generic.Fill(recoData.muonPionAngle, style, factor);
+                multi_nProtons_generic.Fill(recoData.nProtons, style, factor);
             }
             
             if (passedGoldenSelection)
@@ -311,6 +380,7 @@ void MakeBinningPlots(const Config &config)
                 multi_pionPhi_golden.Fill(recoData.pionPhi, style, factor);
                 multi_pionMomentum_golden.Fill(recoData.pionMomentum, style, factor);
                 multi_muonPionAngle_golden.Fill(recoData.muonPionAngle, style, factor);
+                multi_nProtons_golden.Fill(recoData.nProtons, style, factor);
             }
         }
     }
@@ -336,7 +406,10 @@ void MakeBinningPlots(const Config &config)
         hRes_pionMomentum_golden,
 
         hRes_muonPionAngle_generic,
-        hRes_muonPionAngle_golden
+        hRes_muonPionAngle_golden,
+        
+        hRes_nProtons_generic,
+        hRes_nProtons_golden
     })
     {
         pHist->Scale(1.f, "width");
@@ -353,6 +426,7 @@ void MakeBinningPlots(const Config &config)
     eff_pionPhi.SaveAs(cutLabels, cutStyles, "binningPlots_efficiency_pionPhi" + suffix);
     eff_pionMomentum.SaveAs(cutLabels, cutStyles, "binningPlots_efficiency_pionMomentum" + suffix);
     eff_muonPionAngle.SaveAs(cutLabels, cutStyles, "binningPlots_efficiency_muonPionAngle" + suffix);
+    eff_nProtons.SaveAs(cutLabels, cutStyles, "binningPlots_efficiency_nProtons" + suffix);
     
     // Save the multi-plots
     multi_muonCosTheta_generic.SaveAsStacked("binningPlots_stack_generic_muonCosTheta" + suffix, false, true);
@@ -372,9 +446,15 @@ void MakeBinningPlots(const Config &config)
     
     multi_pionMomentum_generic.SaveAsStacked("binningPlots_stack_generic_pionMomentum" + suffix, false, true);
     multi_pionMomentum_golden.SaveAsStacked("binningPlots_stack_golden_pionMomentum" + suffix, false, true);
+    
+    multi_pionMomentum_particle_generic.SaveAsStacked("binningPlots_stack_particle_generic_pionMomentum" + suffix, false, true);
+    multi_pionMomentum_particle_golden.SaveAsStacked("binningPlots_stack_particle_golden_pionMomentum" + suffix, false, true);
 
     multi_muonPionAngle_generic.SaveAsStacked("binningPlots_stack_generic_muonPionAngle" + suffix, false, true);
     multi_muonPionAngle_golden.SaveAsStacked("binningPlots_stack_golden_muonPionAngle" + suffix, false, true);
+    
+    multi_nProtons_generic.SaveAsStacked("binningPlots_stack_generic_nProtons" + suffix, false, false);
+    multi_nProtons_golden.SaveAsStacked("binningPlots_stack_golden_nProtons" + suffix, false, false);
 
 
     // Save the resolution plots
@@ -424,6 +504,9 @@ void MakeBinningPlots(const Config &config)
     saveWithLines(hRes_pionMomentum_golden, config.global.pionMomentum.binEdges, "binningPlots_resolution_golden_pionMomentum" + suffix);
     
     saveWithLines(hRes_muonPionAngle_generic, config.global.muonPionAngle.binEdges, "binningPlots_resolution_generic_muonPionAngle" + suffix);
+    saveWithLines(hRes_muonPionAngle_golden, config.global.muonPionAngle.binEdges, "binningPlots_resolution_golden_muonPionAngle" + suffix);
+    
+    saveWithLines(hRes_nProtons_generic, config.global.nProtons.binEdges, "binningPlots_resolution_generic_nProtons" + suffix);
     saveWithLines(hRes_muonPionAngle_golden, config.global.muonPionAngle.binEdges, "binningPlots_resolution_golden_muonPionAngle" + suffix);
 }
 

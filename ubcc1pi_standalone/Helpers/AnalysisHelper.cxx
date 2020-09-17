@@ -1031,7 +1031,8 @@ float AnalysisHelper::GetMuonMomentumFromMCS(const Event::Reco::Particle &muon)
     if (muon.mcsMomentumBackwardMuon.IsSet())
         return muon.mcsMomentumBackwardMuon();
 
-    return 99.f; // TODO should really throw here, but first need to check mcs momentum is available in event selection
+    // ATTN could throw here instead - would need to add event selection cut to remove ents in which muon momentum isn't available
+    return -std::numeric_limits<float>::max();
 }
 
 // -----------------------------------------------------------------------------------------------------------------------------------------

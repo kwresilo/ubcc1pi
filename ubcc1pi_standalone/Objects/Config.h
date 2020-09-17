@@ -75,7 +75,6 @@ struct Config
         {
             float               min = -1.f;                                                                     ///< Minimum possible value
             float               max =  1.f;                                                                     ///< Maximum possible value
-//            std::vector<float>  binEdges = {-1.f, 0.5f, 0.64f, 0.75f, 0.83f, 0.88f, 0.93f, 0.96f, 0.98f, 1.f};  ///< The bin edges
             std::vector<float>  binEdges = {-1.f, -0.27f, 0.29f, 0.46f, 0.58f, 0.67f, 0.77f, 0.82f, 0.88f, 0.93f, 0.97f, 1.f};  ///< The bin edges
         };
         MuonCosTheta muonCosTheta; ///< The muonCosTheta plot limits
@@ -87,7 +86,6 @@ struct Config
         {
             float               min = -3.142f;                                                           ///< Minimum possible value
             float               max =  3.142f;                                                           ///< Maximum possible value
-            //std::vector<float>  binEdges = PlottingHelper::GenerateUniformBinEdges(10, -3.142f, 3.142f); ///< The bin edges
             std::vector<float>  binEdges = PlottingHelper::GenerateUniformBinEdges(15, -3.142f, 3.142f); ///< The bin edges
         };
         MuonPhi muonPhi; ///< The muonPhi plot limits
@@ -97,14 +95,8 @@ struct Config
          */
         struct MuonMomentum
         {
-            /*
-            float               min = 0.090f;                                         ///< Minimum possible value
-            float               max = 100.f;                                          ///< Maximum possible value
-            std::vector<float>  binEdges = {0.090f, 0.29f, 0.37f, 0.56f, 0.8f, 1.5f}; ///< The bin edges
-            */
-            float               min = 0.15f;                                          ///< Minimum possible value
-            float               max = 100.f;                                          ///< Maximum possible value
-//            std::vector<float>  binEdges = {0.15f, 0.29f, 0.37f, 0.56f, 0.8f, 1.5f};  ///< The bin edges
+            float               min = 0.15f;                                           ///< Minimum possible value
+            float               max = std::numeric_limits<float>::max();               ///< Maximum possible value
             std::vector<float>  binEdges = {0.15f, 0.23f, 0.32f, 0.45f, 0.66f, 1.5f};  ///< The bin edges
         };
         MuonMomentum muonMomentum; ///< The muonMomentum plot limits
@@ -116,7 +108,6 @@ struct Config
         {
             float               min = -1.f;                                                       ///< Minimum possible value
             float               max =  1.f;                                                       ///< Maximum possible value
-//            std::vector<float>  binEdges = {-1.f, -0.2f, 0.23f, 0.37f, 0.6f, 0.84f, 0.92f, 1.f};  ///< The bin edges
             std::vector<float>  binEdges = {-1.f, -0.47f, 0.f, 0.39f, 0.65f, 0.84f, 0.93f, 1.f};  ///< The bin edges
         };
         PionCosTheta pionCosTheta; ///< The pionCosTheta plot limits
@@ -137,15 +128,8 @@ struct Config
          */
         struct PionMomentum
         {
-            /*
-            float               min = 0.114f;                                    ///< Minimum possible value
-            float               max = 10.f;                                      ///< Maximum possible value
-            std::vector<float>  binEdges = {0.114f, 0.16f, 0.19f, 0.21f, 0.5f};  ///< The bin edges
-            */
             float               min = 0.f;                                            ///< Minimum possible value
-            float               max = 10.f;                                           ///< Maximum possible value
-            //std::vector<float>  binEdges = {0.f, 0.114f, 0.16f, 0.19f, 0.21f, 0.5f};  ///< The bin edges
-            //std::vector<float>  binEdges = {0.1f, 0.15f, 0.2f, 0.25f, 0.6f};  ///< The bin edges
+            float               max = std::numeric_limits<float>::max();              ///< Maximum possible value
             std::vector<float>  binEdges = {0.1f, 0.16f, 0.19f, 0.22f, 0.6f};  ///< The bin edges
         };
         PionMomentum pionMomentum; ///< The pionMomentum plot limits
@@ -167,9 +151,9 @@ struct Config
          */
         struct NProtons
         {
-            float               min = 0;                  ///< Minimum possible value
-            float               max = 12;                 ///< Maximum possible value
-            std::vector<float>  binEdges = {0, 1, 2, 3};  ///< The bin edges
+            float               min = 0;                                                 ///< Minimum possible value
+            float               max = std::numeric_limits<float>::max();                 ///< Maximum possible value
+            std::vector<float>  binEdges = {0, 1, 2, std::numeric_limits<float>::max()}; ///< The bin edges
         };
         NProtons nProtons; ///< The nProtons plot limits
 

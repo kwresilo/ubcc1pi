@@ -391,6 +391,10 @@ void PlottingHelper::MultiPlot::SaveAsStacked(const std::string &fileName, const
 
     PlottingHelper::SaveCanvas(pCanvas, fileName);
     
+    // If we don't have BNB data then we are done!
+    if (!hasBNBData)
+        return;
+
     // Now make the ratio plot
     auto pCanvasRatio = PlottingHelper::GetCanvas(960, 270);
     
@@ -588,6 +592,16 @@ void PlottingHelper::EfficiencyPlot::SaveAs(const std::vector<std::string> &cuts
             pHistClone->SetFillStyle(1001);
             pHistClone->SetLineColorAlpha(col, 0.f);
             pHistClone->SetFillColorAlpha(col, 0.3f);
+
+            // We now need to manually find the uncertainty because root assumes the numerator and denominator are independent Poisson
+            // distributed variables - here we use the binomial distribution to account for their dependence.
+            for (unsigned int iBin = 1; iBin <= static_cast<unsigned int>(pHistClone->GetNbinsX()); ++iBin)
+            {
+                const auto numerator = pHistNumerator->GetBinContent(iBin);
+                const auto denominator = pHistDenominator->GetBinContent(iBin);
+                const auto error = (denominator <= 0.f) ? 0.f : AnalysisHelper::GetEfficiencyUncertainty(numerator, denominator);
+                pHistClone->SetBinError(iBin, error);
+            }
 
             efficiencyErrorHists.push_back(pHistClone);
         }

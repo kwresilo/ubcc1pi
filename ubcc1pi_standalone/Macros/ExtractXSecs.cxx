@@ -34,14 +34,19 @@ void ExtractXSecs(const Config &config)
     auto selection = SelectionHelper::GetDefaultSelection();
    
     // Set up the cross-section objects
-    auto xSec_muonCosTheta = CrossSectionHelper::XSec("xsec_muonCosTheta.root", config.global.muonCosTheta.min, config.global.muonCosTheta.max, config.global.useAbsPdg, config.global.countProtonsInclusively);
-    auto xSec_muonPhi = CrossSectionHelper::XSec("xsec_muonPhi.root", config.global.muonPhi.min, config.global.muonPhi.max, config.global.useAbsPdg, config.global.countProtonsInclusively);
-    auto xSec_muonMomentum = CrossSectionHelper::XSec("xsec_muonMomentum.root", config.global.muonMomentum.min, config.global.muonMomentum.max, config.global.useAbsPdg, config.global.countProtonsInclusively);
-    auto xSec_pionCosTheta = CrossSectionHelper::XSec("xsec_pionCosTheta.root", config.global.pionCosTheta.min, config.global.pionCosTheta.max, config.global.useAbsPdg, config.global.countProtonsInclusively);
-    auto xSec_pionPhi = CrossSectionHelper::XSec("xsec_pionPhi.root", config.global.pionPhi.min, config.global.pionPhi.max, config.global.useAbsPdg, config.global.countProtonsInclusively);
-    auto xSec_pionMomentum = CrossSectionHelper::XSec("xsec_pionMomentum.root", config.global.pionMomentum.min, config.global.pionMomentum.max, config.global.useAbsPdg, config.global.countProtonsInclusively);
-    auto xSec_muonPionAngle = CrossSectionHelper::XSec("xsec_muonPionAngle.root", config.global.muonPionAngle.min, config.global.muonPionAngle.max, config.global.useAbsPdg, config.global.countProtonsInclusively);
-    auto xSec_nProtons = CrossSectionHelper::XSec("xsec_nProtons.root", config.global.nProtons.min, config.global.nProtons.max, config.global.useAbsPdg, config.global.countProtonsInclusively);
+    auto xSec_muonCosTheta = CrossSectionHelper::XSec("xsec_muonCosTheta.root", config.global.muonCosTheta.min, config.global.muonCosTheta.max, config.global.useAbsPdg, config.global.countProtonsInclusively, true);
+    auto xSec_muonPhi = CrossSectionHelper::XSec("xsec_muonPhi.root", config.global.muonPhi.min, config.global.muonPhi.max, config.global.useAbsPdg, config.global.countProtonsInclusively, true);
+    auto xSec_muonMomentum = CrossSectionHelper::XSec("xsec_muonMomentum.root", config.global.muonMomentum.min, config.global.muonMomentum.max, config.global.useAbsPdg, config.global.countProtonsInclusively, true);
+    auto xSec_pionCosTheta = CrossSectionHelper::XSec("xsec_pionCosTheta.root", config.global.pionCosTheta.min, config.global.pionCosTheta.max, config.global.useAbsPdg, config.global.countProtonsInclusively, true);
+    auto xSec_pionPhi = CrossSectionHelper::XSec("xsec_pionPhi.root", config.global.pionPhi.min, config.global.pionPhi.max, config.global.useAbsPdg, config.global.countProtonsInclusively, true);
+    auto xSec_pionMomentum = CrossSectionHelper::XSec("xsec_pionMomentum.root", config.global.pionMomentum.min, config.global.pionMomentum.max, config.global.useAbsPdg, config.global.countProtonsInclusively, true);
+    auto xSec_muonPionAngle = CrossSectionHelper::XSec("xsec_muonPionAngle.root", config.global.muonPionAngle.min, config.global.muonPionAngle.max, config.global.useAbsPdg, config.global.countProtonsInclusively, true);
+    auto xSec_nProtons = CrossSectionHelper::XSec("xsec_nProtons.root", config.global.nProtons.min, config.global.nProtons.max, config.global.useAbsPdg, config.global.countProtonsInclusively, false);
+    
+    // Re-use the differential cross-section methodology for the total cross-section as a 1-bin measurement
+    // the limits -1 -> 1 are just dummy values. Every event is filled with a "true" and "reco" dummy value of 0.
+    auto xSec_total = CrossSectionHelper::XSec("xsec_total.root", -1.f, 1.f, config.global.useAbsPdg, config.global.countProtonsInclusively, false);
+    auto xSec_total_golden = CrossSectionHelper::XSec("xsec_total_golden.root", -1.f, 1.f, config.global.useAbsPdg, config.global.countProtonsInclusively, false);
     
     //
     // Fill the cross-section objects
@@ -157,9 +162,13 @@ void ExtractXSecs(const Config &config)
                     xSec_pionPhi.AddSignalEvent(pEvent, passedGenericSelection, truthData.pionPhi, recoData.pionPhi, weight, normalisation);
                     xSec_muonPionAngle.AddSignalEvent(pEvent, passedGenericSelection, truthData.muonPionAngle, recoData.muonPionAngle, weight, normalisation);
                     xSec_nProtons.AddSignalEvent(pEvent, passedGenericSelection, truthData.nProtons, recoData.nProtons, weight, normalisation);
+                    
+                    xSec_total.AddSignalEvent(pEvent, passedGenericSelection, 0.f, 0.f, weight, normalisation);
                    
                     // ATTN here we are using the golden selection (the other variables use the generic selection)
                     xSec_pionMomentum.AddSignalEvent(pEvent, passedGoldenSelection, truthData.pionMomentum, recoData.pionMomentum, weight, normalisation);
+                    
+                    xSec_total_golden.AddSignalEvent(pEvent, passedGoldenSelection, 0.f, 0.f, weight, normalisation);
                 
                     continue;
                 }
@@ -178,9 +187,14 @@ void ExtractXSecs(const Config &config)
                 xSec_muonMomentum.AddSelectedBNBDataEvent(pEvent, recoData.muonMomentum);
                 xSec_muonPionAngle.AddSelectedBNBDataEvent(pEvent, recoData.muonPionAngle);
                 xSec_nProtons.AddSelectedBNBDataEvent(pEvent, recoData.nProtons);
+                
+                xSec_total.AddSelectedBNBDataEvent(pEvent, 0.f);
 
                 if (passedGoldenSelection)
+                {
                     xSec_pionMomentum.AddSelectedBNBDataEvent(pEvent, recoData.pionMomentum);
+                    xSec_total_golden.AddSelectedBNBDataEvent(pEvent, 0.f);
+                }
             }
             // EXT, Dirt, Overlay backgrounds
             else 
@@ -192,9 +206,14 @@ void ExtractXSecs(const Config &config)
                 xSec_muonMomentum.AddSelectedBackgroundEvent(pEvent, sampleType, recoData.muonMomentum, weight, normalisation);
                 xSec_muonPionAngle.AddSelectedBackgroundEvent(pEvent, sampleType, recoData.muonPionAngle, weight, normalisation);
                 xSec_nProtons.AddSelectedBackgroundEvent(pEvent, sampleType, recoData.nProtons, weight, normalisation);
+                
+                xSec_total.AddSelectedBackgroundEvent(pEvent, sampleType, 0.f, weight, normalisation);
 
                 if (passedGoldenSelection)
+                {
                     xSec_pionMomentum.AddSelectedBackgroundEvent(pEvent, sampleType, recoData.pionMomentum, weight, normalisation);
+                    xSec_total_golden.AddSelectedBackgroundEvent(pEvent, sampleType, 0.f, weight, normalisation);
+                }
             }
         }
     }
@@ -209,6 +228,10 @@ void ExtractXSecs(const Config &config)
     xSec_pionMomentum.SetBins(config.global.pionMomentum.binEdges);
     xSec_muonPionAngle.SetBins(config.global.muonPionAngle.binEdges);
     xSec_nProtons.SetBins(config.global.nProtons.binEdges);
+
+    // For the total use a single bin
+    xSec_total.SetBins({-1.f, 1.f});
+    xSec_total_golden.SetBins({-1.f, 1.f});
     
     /*
     xSec_muonMomentum.SetBinsAuto(config.global.muonMomentum.binEdges.front(), config.global.muonMomentum.binEdges.back(), 100u, 0.68f);
@@ -222,36 +245,45 @@ void ExtractXSecs(const Config &config)
 
     // Print the results
     std::cout << "Muon cos(theta)" << std::endl;
-    xSec_muonCosTheta.PrintBinContents("xsec_muonCosTheta");
+    xSec_muonCosTheta.PrintBinContents("xsec_muonCosTheta", true);
     xSec_muonCosTheta.MakePlots("xsec_muonCosTheta", true);
     
     std::cout << "Muon phi" << std::endl;
-    xSec_muonPhi.PrintBinContents("xsec_muonPhi");
+    xSec_muonPhi.PrintBinContents("xsec_muonPhi", true);
     xSec_muonPhi.MakePlots("xsec_muonPhi", true);
     
     std::cout << "Muon momentum" << std::endl;
-    xSec_muonMomentum.PrintBinContents("xsec_muonMomentum");
+    xSec_muonMomentum.PrintBinContents("xsec_muonMomentum", true);
     xSec_muonMomentum.MakePlots("xsec_muonMomentum", true);
     
     std::cout << "Pion cos(theta)" << std::endl;
-    xSec_pionCosTheta.PrintBinContents("xsec_pionCosTheta");
+    xSec_pionCosTheta.PrintBinContents("xsec_pionCosTheta", true);
     xSec_pionCosTheta.MakePlots("xsec_pionCosTheta", true);
     
     std::cout << "Pion phi" << std::endl;
-    xSec_pionPhi.PrintBinContents("xsec_pionPhi");
+    xSec_pionPhi.PrintBinContents("xsec_pionPhi", true);
     xSec_pionPhi.MakePlots("xsec_pionPhi", true);
     
     std::cout << "Pion momentum" << std::endl;
-    xSec_pionMomentum.PrintBinContents("xsec_pionMomentum");
+    xSec_pionMomentum.PrintBinContents("xsec_pionMomentum", true);
     xSec_pionMomentum.MakePlots("xsec_pionMomentum", true);
     
     std::cout << "Muon-pion angle" << std::endl;
-    xSec_muonPionAngle.PrintBinContents("xsec_muonPionAngle");
+    xSec_muonPionAngle.PrintBinContents("xsec_muonPionAngle", true);
     xSec_muonPionAngle.MakePlots("xsec_muonPionAngle", true);
     
     std::cout << "nProtons" << std::endl;
-    xSec_nProtons.PrintBinContents("xsec_nProtons");
+    xSec_nProtons.PrintBinContents("xsec_nProtons", true);
     xSec_nProtons.MakePlots("xsec_nProtons", true);
+    
+    std::cout << "Total (generic selection)" << std::endl;
+    xSec_total.PrintBinContents("xsec_total", true);
+    xSec_total.MakePlots("xsec_total", true);
+    
+    std::cout << "Total (golden selection)" << std::endl;
+    xSec_total_golden.PrintBinContents("xsec_total_golden", true);
+    xSec_total_golden.MakePlots("xsec_total_golden", true);
+
 }
 
 } // namespace ubcc1pi_macros
