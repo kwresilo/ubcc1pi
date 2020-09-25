@@ -29,7 +29,9 @@ struct Config
      */
     struct Files
     {
-        std::string  overlaysFileName = "/uboone/data/users/asmith/ubcc1pi/samples/may2020/samples/ubcc1piAnalysis_overlays.root"; ///< Overlays file name input
+        //std::string  overlaysFileName = "/uboone/data/users/asmith/ubcc1pi/samples/may2020/samples/ubcc1piAnalysis_overlays.root"; ///< Overlays file name input
+        // September overlays files contain systematic weights
+        std::string  overlaysFileName = "/uboone/data/users/asmith/ubcc1pi/samples/sep2020/samples/ubcc1piAnalysis_overlays.root"; ///< Overlays file name input
         std::string  dirtFileName     = "/uboone/data/users/asmith/ubcc1pi/samples/may2020/samples/ubcc1piAnalysis_dirt.root";     ///< Dirt file name input
         std::string  dataEXTFileName  = "/uboone/data/users/asmith/ubcc1pi/samples/may2020/samples/ubcc1piAnalysis_dataEXT.root";  ///< EXT data file name input
         std::string  dataBNBFileName  = "/uboone/data/users/asmith/ubcc1pi/samples/may2020/samples/ubcc1piAnalysis_dataBNB.root";  ///< BNB data file name input

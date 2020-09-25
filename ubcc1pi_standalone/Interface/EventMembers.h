@@ -61,6 +61,9 @@
 #define UBCC1PI_MACRO_EVENT_TRUTH_MEMBERS(p, q, f)                                                                                         \
     f(p, q, false, float,                      splineEventWeight)                                                                          \
     f(p, q, false, float,                      genieTuneEventWeight)                                                                       \
+    f(p, q, true,  std::vector<std::string>,   systParamNames)                                                                             \
+    f(p, q, true,  std::vector<int>,           systParamFirstValueIndex)                                                                   \
+    f(p, q, true,  std::vector<float>,         systParamValues)                                                                            \
     f(p, q, false, bool,                       isCC)                                                                                       \
     f(p, q, false, int,                        interactionMode)                                                                            \
     f(p, q, true,  std::string,                interactionString)                                                                          \

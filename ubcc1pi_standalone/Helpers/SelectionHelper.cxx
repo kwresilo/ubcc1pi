@@ -92,7 +92,9 @@ bool SelectionHelper::EventSelection::CutManager::GetCutResult(const std::string
         const auto passes = this->GetCutResult(cut, method);
 
         if (passes)
+        {
             m_defaultEventCounter.CountEvent(name, m_sampleType, m_pEvent, m_weight);
+        }
             
         return passes;
     }
@@ -123,8 +125,10 @@ bool SelectionHelper::EventSelection::CutManager::GetCutResult(const std::string
         const auto passes = this->GetCutResult(cut, method);
 
         if (passes)
+        {
             m_defaultEventCounter.CountEvent(name, m_sampleType, m_pEvent, m_weight);
-
+        }
+        
         return passes;
     }
 
@@ -729,7 +733,7 @@ SelectionHelper::EventSelection SelectionHelper::GetDefaultSelection()
             return (nTrackParticles >= 2);
 
         })) return false;
-        
+            
         // -------------------------------------------------------------
         // Insist at most one particle is uncontained
         // -------------------------------------------------------------

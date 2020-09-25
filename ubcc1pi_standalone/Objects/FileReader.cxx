@@ -25,6 +25,9 @@ FileReader::FileReader(const std::string &inputFile) :
     
     if (this->GetNumberOfSubruns() == 0)
         std::cout << "ubcc1pi::FileReader: Warning, input file has no subruns" << std::endl;
+
+    // By default, disable the branches that hold the event weights as these are large and only needed in a few cases
+    this->DisableSystematicBranches();
 }
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
@@ -61,6 +64,20 @@ std::shared_ptr<Event> FileReader::GetBoundEventAddress()
 std::shared_ptr<Subrun> FileReader::GetBoundSubrunAddress()
 {
     return m_pSubrun;
+}
+
+// -----------------------------------------------------------------------------------------------------------------------------------------
+
+void FileReader::DisableSystematicBranches()
+{
+    m_pEventTree->SetBranchStatus("truth_systParam*", false);
+}
+
+// -----------------------------------------------------------------------------------------------------------------------------------------
+
+void FileReader::EnableSystematicBranches()
+{
+    m_pEventTree->SetBranchStatus("truth_systParam*", true);
 }
 
 // -----------------------------------------------------------------------------------------------------------------------------------------

@@ -461,6 +461,28 @@ float AnalysisHelper::GetNominalEventWeight(const std::shared_ptr<Event> &pEvent
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
 
+bool AnalysisHelper::IsTrueCCInclusive(const std::shared_ptr<Event> &pEvent, const bool useAbsPdg)
+{
+    if (!pEvent->metadata.hasTruthInfo())
+        throw std::invalid_argument("AnalysisHelper::IsTrueCCInclusive - Input event doesn't have truth information!");
+
+    const auto truth = pEvent->truth;
+
+    // Insist the true neutrino is fiducial
+    if (!AnalysisHelper::IsFiducial(truth.nuVertex()))
+        return false;
+    
+    // Count the visible particles
+    const auto visibleParticles = AnalysisHelper::SelectVisibleParticles(pEvent->truth.particles);
+    const auto nMu = AnalysisHelper::CountParticlesWithPdgCode(visibleParticles, 13, useAbsPdg);
+
+    // Insist the CCInclusive topology
+    return (nMu == 1);
+
+}
+
+// -----------------------------------------------------------------------------------------------------------------------------------------
+
 bool AnalysisHelper::IsTrueCC1Pi(const std::shared_ptr<Event> &pEvent, const bool useAbsPdg)
 {
     if (!pEvent->metadata.hasTruthInfo())

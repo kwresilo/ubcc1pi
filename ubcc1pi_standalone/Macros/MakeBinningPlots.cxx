@@ -9,10 +9,12 @@
 
 #include "ubcc1pi_standalone/Helpers/AnalysisHelper.h"
 #include "ubcc1pi_standalone/Helpers/SelectionHelper.h"
-#include "ubcc1pi_standalone/Helpers/CrossSectionHelper.h"
 #include "ubcc1pi_standalone/Helpers/NormalisationHelper.h"
+#include "ubcc1pi_standalone/Helpers/PlottingHelper.h"
 
 #include <TStyle.h>
+#include <TH2F.h>
+#include <TLine.h>
 
 using namespace ubcc1pi;
 

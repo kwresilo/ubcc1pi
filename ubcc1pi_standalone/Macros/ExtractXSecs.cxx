@@ -11,6 +11,7 @@
 #include "ubcc1pi_standalone/Helpers/SelectionHelper.h"
 #include "ubcc1pi_standalone/Helpers/CrossSectionHelper.h"
 #include "ubcc1pi_standalone/Helpers/NormalisationHelper.h"
+#include "ubcc1pi_standalone/Helpers/FormattingHelper.h"
 
 using namespace ubcc1pi;
 
@@ -30,32 +31,61 @@ void ExtractXSecs(const Config &config)
     inputData.emplace_back(AnalysisHelper::DataBNB, config.files.dataBNBFileName,  1.f);
 
 
+    //
+    // Load the first overlay event so we can store the names of the systematic parameters to apply and the numbers of universes
+    // 
+    FileReader overlayReader(config.files.overlaysFileName);
+    if (overlayReader.GetNumberOfEvents() == 0)
+        throw std::invalid_argument("ExtractXSecs - No overlay events!");
+
+    overlayReader.EnableSystematicBranches();
+    auto pOverlayEvent = overlayReader.GetBoundEventAddress();
+    overlayReader.LoadEvent(0);
+
+    // Get the dimensions of the systematic weights (without the boostrap weights added)
+    auto systWeightsMap_firstEvent = CrossSectionHelper::GetSystematicWeightsMap(pOverlayEvent->truth);
+    const auto systUniverseSizesMapNoBootstrap = CrossSectionHelper::GetSystematicUniverseSizesMap(systWeightsMap_firstEvent);
+   
+    // Add the boostrap weights, and get the dimensions again
+    // TODO make the number of boostrap universes configurable
+    const unsigned int nBootstrapUniverses = 1000u;
+    CrossSectionHelper::AddBootstrapWeights(nBootstrapUniverses, systWeightsMap_firstEvent);
+    const auto systUniverseSizesMap = CrossSectionHelper::GetSystematicUniverseSizesMap(systWeightsMap_firstEvent);
+
+    // Print the systematic parameters we are going to apply
+    FormattingHelper::Table systParamsTable({"Parameter", "Universes"});
+    for (const auto &[name, nUniverses] : systUniverseSizesMap)
+    {
+        systParamsTable.AddEmptyRow();
+        systParamsTable.SetEntry("Parameter", name);
+        systParamsTable.SetEntry("Universes", nUniverses);
+    }
+    systParamsTable.Print();
+
+
+    //
+    // Setup the cross-section objects
+    //
+    
+    // Muon momentum
+    std::vector<float> muonMomentum_extendedBinEdges;
+    bool muonMomentum_hasUnderflow, muonMomentum_hasOverflow;
+    CrossSectionHelper::GetExtendedBinEdges(
+        config.global.muonMomentum.min, config.global.muonMomentum.max, config.global.muonMomentum.binEdges,
+        muonMomentum_extendedBinEdges, muonMomentum_hasUnderflow, muonMomentum_hasOverflow);
+
+    CrossSectionHelper::CrossSection xsec_muonMomentum(muonMomentum_extendedBinEdges, muonMomentum_hasUnderflow, muonMomentum_hasOverflow, true, systUniverseSizesMap);
+
     // Get the selection
     auto selection = SelectionHelper::GetDefaultSelection();
-   
-    // Set up the cross-section objects
-    auto xSec_muonCosTheta = CrossSectionHelper::XSec("xsec_muonCosTheta.root", config.global.muonCosTheta.min, config.global.muonCosTheta.max, config.global.useAbsPdg, config.global.countProtonsInclusively, true);
-    auto xSec_muonPhi = CrossSectionHelper::XSec("xsec_muonPhi.root", config.global.muonPhi.min, config.global.muonPhi.max, config.global.useAbsPdg, config.global.countProtonsInclusively, true);
-    auto xSec_muonMomentum = CrossSectionHelper::XSec("xsec_muonMomentum.root", config.global.muonMomentum.min, config.global.muonMomentum.max, config.global.useAbsPdg, config.global.countProtonsInclusively, true);
-    auto xSec_pionCosTheta = CrossSectionHelper::XSec("xsec_pionCosTheta.root", config.global.pionCosTheta.min, config.global.pionCosTheta.max, config.global.useAbsPdg, config.global.countProtonsInclusively, true);
-    auto xSec_pionPhi = CrossSectionHelper::XSec("xsec_pionPhi.root", config.global.pionPhi.min, config.global.pionPhi.max, config.global.useAbsPdg, config.global.countProtonsInclusively, true);
-    auto xSec_pionMomentum = CrossSectionHelper::XSec("xsec_pionMomentum.root", config.global.pionMomentum.min, config.global.pionMomentum.max, config.global.useAbsPdg, config.global.countProtonsInclusively, true);
-    auto xSec_muonPionAngle = CrossSectionHelper::XSec("xsec_muonPionAngle.root", config.global.muonPionAngle.min, config.global.muonPionAngle.max, config.global.useAbsPdg, config.global.countProtonsInclusively, true);
-    auto xSec_nProtons = CrossSectionHelper::XSec("xsec_nProtons.root", config.global.nProtons.min, config.global.nProtons.max, config.global.useAbsPdg, config.global.countProtonsInclusively, false);
     
-    // Re-use the differential cross-section methodology for the total cross-section as a 1-bin measurement
-    // the limits -1 -> 1 are just dummy values. Every event is filled with a "true" and "reco" dummy value of 0.
-    auto xSec_total = CrossSectionHelper::XSec("xsec_total.root", -1.f, 1.f, config.global.useAbsPdg, config.global.countProtonsInclusively, false);
-    auto xSec_total_golden = CrossSectionHelper::XSec("xsec_total_golden.root", -1.f, 1.f, config.global.useAbsPdg, config.global.countProtonsInclusively, false);
-    
-    //
-    // Fill the cross-section objects
-    //
+    // Loop over the events
     for (const auto [sampleType, fileName, normalisation] : inputData)
     {
         std::cout << "Reading input file: " << fileName << std::endl;
 
         FileReader reader(fileName);
+        reader.EnableSystematicBranches();
         auto pEvent = reader.GetBoundEventAddress();
         const auto isOverlay = (sampleType == AnalysisHelper::Overlay);
         const auto isDataBNB = (sampleType == AnalysisHelper::DataBNB);
@@ -65,225 +95,97 @@ void ExtractXSecs(const Config &config)
         {
             AnalysisHelper::PrintLoadingBar(i, nEvents);
             reader.LoadEvent(i);
-
-            const auto weight = AnalysisHelper::GetNominalEventWeight(pEvent);
+            
+            // Get the nominal event weight, scaled by the sample normalisation
+            const auto weight = AnalysisHelper::GetNominalEventWeight(pEvent) * normalisation;
 
             // Run the event selection and store which cuts are passed
             std::vector<std::string> cutsPassed;
             std::vector<int> assignedPdgCodes;
             auto passedGoldenSelection = selection.Execute(pEvent, cutsPassed, assignedPdgCodes);
             auto passedGenericSelection = (std::find(cutsPassed.begin(), cutsPassed.end(), config.global.lastCutGeneric) != cutsPassed.end());
-
-            // Start with dummy reco data
-            AnalysisHelper::AnalysisData recoData;
-            recoData.muonMomentum = -std::numeric_limits<float>::max();
-            recoData.muonCosTheta = -std::numeric_limits<float>::max();
-            recoData.muonPhi = -std::numeric_limits<float>::max();
-            recoData.pionMomentum = -std::numeric_limits<float>::max();
-            recoData.pionCosTheta = -std::numeric_limits<float>::max();
-            recoData.pionPhi = -std::numeric_limits<float>::max();
-            recoData.muonPionAngle = -std::numeric_limits<float>::max();
-            recoData.nProtons = std::numeric_limits<unsigned int>::max();
-            recoData.hasGoldenPion = false;
-
-            // If we passed the generic selection we should be able to access the reco information
-            bool passedThresholds = true;
+            
+            // Determine if the phase-space restrictions are met in reco
+            auto recoData = AnalysisHelper::GetDummyAnalysisData();
+            bool passesPhaseSpaceReco = true;
             if (passedGenericSelection)
             {
+                // Get the reconstructed kinematic parameters
                 recoData = AnalysisHelper::GetRecoAnalysisData(pEvent->reco, assignedPdgCodes, passedGoldenSelection);
 
-                // Determine if this event is within the thresholds that we wish measure in reco
                 if (recoData.muonMomentum < config.global.muonMomentum.min || recoData.muonMomentum > config.global.muonMomentum.max)
-                    passedThresholds = false;
-
-                if (recoData.muonCosTheta < config.global.muonCosTheta.min || recoData.muonCosTheta > config.global.muonCosTheta.max)
-                    passedThresholds = false;
-
-                if (recoData.muonPhi < config.global.muonPhi.min || recoData.muonPhi > config.global.muonPhi.max)
-                    passedThresholds = false;
-
-                if (recoData.pionMomentum < config.global.pionMomentum.min || recoData.pionMomentum > config.global.pionMomentum.max)
-                    passedThresholds = false;
-
-                if (recoData.pionCosTheta < config.global.pionCosTheta.min || recoData.pionCosTheta > config.global.pionCosTheta.max)
-                    passedThresholds = false;
-
-                if (recoData.pionPhi < config.global.pionPhi.min || recoData.pionPhi > config.global.pionPhi.max)
-                    passedThresholds = false;
-
-                if (recoData.muonPionAngle < config.global.muonPionAngle.min || recoData.muonPionAngle > config.global.muonPionAngle.max)
-                    passedThresholds = false;
-
-                if (recoData.nProtons < config.global.nProtons.min || recoData.nProtons > config.global.nProtons.max)
-                    passedThresholds = false;
+                    passesPhaseSpaceReco = false;
             }
 
-            // Here we explicity reject an event if it has reconstructed information outside of the thresholds
-            passedGenericSelection = passedThresholds && passedGenericSelection;
-            passedGoldenSelection = passedThresholds && passedGoldenSelection;
+            // Apply the phase-space restrictions in reco as an additional event selection cut
+            const bool isSelectedGeneric = passedGenericSelection && passesPhaseSpaceReco;
+            const bool isSelectedGolden = passedGoldenSelection && passesPhaseSpaceReco;
+ 
+            // Determine if the event is truly a signal event
+            const auto isTrueCC1Pi = isOverlay && AnalysisHelper::IsTrueCC1Pi(pEvent, config.global.useAbsPdg);
 
-            // Overlay signal events
-            if (isOverlay && AnalysisHelper::IsTrueCC1Pi(pEvent, config.global.useAbsPdg))
+            // Determine of the phase-space restrictions are met in truth
+            auto truthData = AnalysisHelper::GetDummyAnalysisData();
+            bool passesPhaseSpaceTruth = true;
+            if (isTrueCC1Pi)
             {
-                const auto truthData = AnalysisHelper::GetTruthAnalysisData(pEvent->truth, config.global.useAbsPdg, config.global.protonMomentumThreshold);
-             
-                bool isSignal = true;
+                // Get the true kinematic parameters
+                truthData = AnalysisHelper::GetTruthAnalysisData(pEvent->truth, config.global.useAbsPdg, config.global.protonMomentumThreshold);
+
                 if (truthData.muonMomentum < config.global.muonMomentum.min || truthData.muonMomentum > config.global.muonMomentum.max)
-                    isSignal = false;
-
-                if (truthData.muonCosTheta < config.global.muonCosTheta.min || truthData.muonCosTheta > config.global.muonCosTheta.max)
-                    isSignal = false;
-
-                if (truthData.muonPhi < config.global.muonPhi.min || truthData.muonPhi > config.global.muonPhi.max)
-                    isSignal = false;
-
-                if (truthData.pionMomentum < config.global.pionMomentum.min || truthData.pionMomentum > config.global.pionMomentum.max)
-                    isSignal = false;
-
-                if (truthData.pionCosTheta < config.global.pionCosTheta.min || truthData.pionCosTheta > config.global.pionCosTheta.max)
-                    isSignal = false;
-
-                if (truthData.pionPhi < config.global.pionPhi.min || truthData.pionPhi > config.global.pionPhi.max)
-                    isSignal = false;
-
-                if (truthData.muonPionAngle < config.global.muonPionAngle.min || truthData.muonPionAngle > config.global.muonPionAngle.max)
-                    isSignal = false;
-
-                if (truthData.nProtons < config.global.nProtons.min || truthData.nProtons > config.global.nProtons.max)
-                    isSignal = false;
-
-                // Apply the phase-space restriction to the signal definition
-                if (isSignal)
-                {
-                    xSec_muonCosTheta.AddSignalEvent(pEvent, passedGenericSelection, truthData.muonCosTheta, recoData.muonCosTheta, weight, normalisation);
-                    xSec_muonPhi.AddSignalEvent(pEvent, passedGenericSelection, truthData.muonPhi, recoData.muonPhi, weight, normalisation);
-                    xSec_muonMomentum.AddSignalEvent(pEvent, passedGenericSelection, truthData.muonMomentum, recoData.muonMomentum, weight, normalisation);
-                    xSec_pionCosTheta.AddSignalEvent(pEvent, passedGenericSelection, truthData.pionCosTheta, recoData.pionCosTheta, weight, normalisation);
-                    xSec_pionPhi.AddSignalEvent(pEvent, passedGenericSelection, truthData.pionPhi, recoData.pionPhi, weight, normalisation);
-                    xSec_muonPionAngle.AddSignalEvent(pEvent, passedGenericSelection, truthData.muonPionAngle, recoData.muonPionAngle, weight, normalisation);
-                    xSec_nProtons.AddSignalEvent(pEvent, passedGenericSelection, truthData.nProtons, recoData.nProtons, weight, normalisation);
-                    
-                    xSec_total.AddSignalEvent(pEvent, passedGenericSelection, 0.f, 0.f, weight, normalisation);
-                   
-                    // ATTN here we are using the golden selection (the other variables use the generic selection)
-                    xSec_pionMomentum.AddSignalEvent(pEvent, passedGoldenSelection, truthData.pionMomentum, recoData.pionMomentum, weight, normalisation);
-                    
-                    xSec_total_golden.AddSignalEvent(pEvent, passedGoldenSelection, 0.f, 0.f, weight, normalisation);
-                
-                    continue;
-                }
+                    passesPhaseSpaceTruth = false;
             }
 
-            if (!passedGenericSelection)
+            // A signal event is a true CC1Pi event that passes the phase space restrictions
+            const bool isSignal = isTrueCC1Pi && passesPhaseSpaceTruth;
+
+            // We only need to count signal events, or any event that passes the generic selection - everything else we can savely skip
+            const bool shouldCount = isSignal || isSelectedGeneric;
+            if (!shouldCount)
                 continue;
 
-            // BNB data
+            // Count the BNB data event
             if (isDataBNB)
             {
-                xSec_muonCosTheta.AddSelectedBNBDataEvent(pEvent, recoData.muonCosTheta);
-                xSec_muonPhi.AddSelectedBNBDataEvent(pEvent, recoData.muonPhi);
-                xSec_pionCosTheta.AddSelectedBNBDataEvent(pEvent, recoData.pionCosTheta);
-                xSec_pionPhi.AddSelectedBNBDataEvent(pEvent, recoData.pionPhi);
-                xSec_muonMomentum.AddSelectedBNBDataEvent(pEvent, recoData.muonMomentum);
-                xSec_muonPionAngle.AddSelectedBNBDataEvent(pEvent, recoData.muonPionAngle);
-                xSec_nProtons.AddSelectedBNBDataEvent(pEvent, recoData.nProtons);
-                
-                xSec_total.AddSelectedBNBDataEvent(pEvent, 0.f);
-
-                if (passedGoldenSelection)
+                if (isSelectedGeneric)
                 {
-                    xSec_pionMomentum.AddSelectedBNBDataEvent(pEvent, recoData.pionMomentum);
-                    xSec_total_golden.AddSelectedBNBDataEvent(pEvent, 0.f);
+                    xsec_muonMomentum.AddSelectedBNBDataEvent(recoData.muonMomentum);
                 }
             }
-            // EXT, Dirt, Overlay backgrounds
-            else 
+            else
             {
-                xSec_muonCosTheta.AddSelectedBackgroundEvent(pEvent, sampleType, recoData.muonCosTheta, weight, normalisation);
-                xSec_muonPhi.AddSelectedBackgroundEvent(pEvent, sampleType, recoData.muonPhi, weight, normalisation);
-                xSec_pionCosTheta.AddSelectedBackgroundEvent(pEvent, sampleType, recoData.pionCosTheta, weight, normalisation);
-                xSec_pionPhi.AddSelectedBackgroundEvent(pEvent, sampleType, recoData.pionPhi, weight, normalisation);
-                xSec_muonMomentum.AddSelectedBackgroundEvent(pEvent, sampleType, recoData.muonMomentum, weight, normalisation);
-                xSec_muonPionAngle.AddSelectedBackgroundEvent(pEvent, sampleType, recoData.muonPionAngle, weight, normalisation);
-                xSec_nProtons.AddSelectedBackgroundEvent(pEvent, sampleType, recoData.nProtons, weight, normalisation);
-                
-                xSec_total.AddSelectedBackgroundEvent(pEvent, sampleType, 0.f, weight, normalisation);
-
-                if (passedGoldenSelection)
+                // Count the signal event
+                if (isSignal)
                 {
-                    xSec_pionMomentum.AddSelectedBackgroundEvent(pEvent, sampleType, recoData.pionMomentum, weight, normalisation);
-                    xSec_total_golden.AddSelectedBackgroundEvent(pEvent, sampleType, 0.f, weight, normalisation);
+                    // Get the systematic event weights
+                    auto systWeightsMap = CrossSectionHelper::GetSystematicWeightsMap(pOverlayEvent->truth);
+                    CrossSectionHelper::AddBootstrapWeights(nBootstrapUniverses, systWeightsMap);
+
+                    xsec_muonMomentum.AddSignalEvent(truthData.muonMomentum, recoData.muonMomentum, isSelectedGeneric, weight, systWeightsMap);
+
+                }
+                // Count the background event
+                else
+                {
+                    // Get the systematic event weights
+                    auto systWeightsMap = CrossSectionHelper::GetUnitSystematicWeightsMap(systUniverseSizesMapNoBootstrap);
+                    CrossSectionHelper::AddBootstrapWeights(nBootstrapUniverses, systWeightsMap);
+
+                    if (isSelectedGeneric)
+                    {
+                        xsec_muonMomentum.AddSelectedBackgroundEvent(recoData.muonMomentum, weight, systWeightsMap);
+                    }
                 }
             }
         }
     }
-    
-    // Set the binning
-    std::cout << "Setting bins" << std::endl;
-    xSec_muonCosTheta.SetBins(config.global.muonCosTheta.binEdges);
-    xSec_muonPhi.SetBins(config.global.muonPhi.binEdges);
-    xSec_muonMomentum.SetBins(config.global.muonMomentum.binEdges);
-    xSec_pionCosTheta.SetBins(config.global.pionCosTheta.binEdges);
-    xSec_pionPhi.SetBins(config.global.pionPhi.binEdges);
-    xSec_pionMomentum.SetBins(config.global.pionMomentum.binEdges);
-    xSec_muonPionAngle.SetBins(config.global.muonPionAngle.binEdges);
-    xSec_nProtons.SetBins(config.global.nProtons.binEdges);
 
-    // For the total use a single bin
-    xSec_total.SetBins({-1.f, 1.f});
-    xSec_total_golden.SetBins({-1.f, 1.f});
-    
-    /*
-    xSec_muonMomentum.SetBinsAuto(config.global.muonMomentum.binEdges.front(), config.global.muonMomentum.binEdges.back(), 100u, 0.68f);
-    xSec_muonCosTheta.SetBinsAuto(config.global.muonCosTheta.binEdges.front(), config.global.muonCosTheta.binEdges.back(), 100u, 0.68f);
-    xSec_muonPhi.SetBinsAuto(config.global.muonPhi.binEdges.front(), config.global.muonPhi.binEdges.back(), 100u, 0.68f);
-    xSec_pionCosTheta.SetBinsAuto(config.global.pionCosTheta.binEdges.front(), config.global.pionCosTheta.binEdges.back(), 100u, 0.68f);
-    xSec_pionPhi.SetBinsAuto(config.global.pionPhi.binEdges.front(), config.global.pionPhi.binEdges.back(), 100u, 0.68f);
-    xSec_pionMomentum.SetBinsAuto(config.global.pionMomentum.binEdges.front(), config.global.pionMomentum.binEdges.back(), 100u, 0.68f);
-    xSec_muonPionAngle.SetBinsAuto(config.global.muonPionAngle.binEdges.front(), config.global.muonPionAngle.binEdges.back(), 100u, 0.68f);
-    */
-
-    // Print the results
-    std::cout << "Muon cos(theta)" << std::endl;
-    xSec_muonCosTheta.PrintBinContents("xsec_muonCosTheta", true);
-    xSec_muonCosTheta.MakePlots("xsec_muonCosTheta", true);
-    
-    std::cout << "Muon phi" << std::endl;
-    xSec_muonPhi.PrintBinContents("xsec_muonPhi", true);
-    xSec_muonPhi.MakePlots("xsec_muonPhi", true);
-    
-    std::cout << "Muon momentum" << std::endl;
-    xSec_muonMomentum.PrintBinContents("xsec_muonMomentum", true);
-    xSec_muonMomentum.MakePlots("xsec_muonMomentum", true);
-    
-    std::cout << "Pion cos(theta)" << std::endl;
-    xSec_pionCosTheta.PrintBinContents("xsec_pionCosTheta", true);
-    xSec_pionCosTheta.MakePlots("xsec_pionCosTheta", true);
-    
-    std::cout << "Pion phi" << std::endl;
-    xSec_pionPhi.PrintBinContents("xsec_pionPhi", true);
-    xSec_pionPhi.MakePlots("xsec_pionPhi", true);
-    
-    std::cout << "Pion momentum" << std::endl;
-    xSec_pionMomentum.PrintBinContents("xsec_pionMomentum", true);
-    xSec_pionMomentum.MakePlots("xsec_pionMomentum", true);
-    
-    std::cout << "Muon-pion angle" << std::endl;
-    xSec_muonPionAngle.PrintBinContents("xsec_muonPionAngle", true);
-    xSec_muonPionAngle.MakePlots("xsec_muonPionAngle", true);
-    
-    std::cout << "nProtons" << std::endl;
-    xSec_nProtons.PrintBinContents("xsec_nProtons", true);
-    xSec_nProtons.MakePlots("xsec_nProtons", true);
-    
-    std::cout << "Total (generic selection)" << std::endl;
-    xSec_total.PrintBinContents("xsec_total", true);
-    xSec_total.MakePlots("xsec_total", true);
-    
-    std::cout << "Total (golden selection)" << std::endl;
-    xSec_total_golden.PrintBinContents("xsec_total_golden", true);
-    xSec_total_golden.MakePlots("xsec_total_golden", true);
-
+    // Calculate the cross-section and print it out!
+    const auto xsec_muonMomentum_plot = xsec_muonMomentum.GetCrossSection();
+    for (unsigned int iBin = 1u; iBin <= static_cast<unsigned int>(xsec_muonMomentum_plot->GetXaxis()->GetNbins()); ++iBin)
+    {
+        std::cout << iBin << " : " << xsec_muonMomentum_plot->GetBinContent(iBin) << std::endl;
+    }
 }
 
 } // namespace ubcc1pi_macros

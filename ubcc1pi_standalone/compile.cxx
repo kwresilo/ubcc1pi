@@ -34,6 +34,7 @@
         "Helpers/PlottingHelper.cxx",
         "Helpers/SelectionHelper.cxx",
         "Helpers/NormalisationHelper.cxx",
+        "Helpers/CrossSectionHelper.cxx",
 
         // Macros
         "Macros/PrintConfig.cxx",

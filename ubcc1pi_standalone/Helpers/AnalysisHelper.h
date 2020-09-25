@@ -267,6 +267,16 @@ class AnalysisHelper
          *  @return the nominal event weight
          */
         static float GetNominalEventWeight(const std::shared_ptr<Event> &pEvent);
+        
+        /**
+         *  @brief  Determine if the input event is truly a fiducial CC inclusive event
+         *
+         *  @param  pEvent the input event
+         *  @param  useAbsPdg if we should use the absolute values of PDG codes
+         *
+         *  @return boolean, true if CC Inclusive
+         */
+        static bool IsTrueCCInclusive(const std::shared_ptr<Event> &pEvent, const bool useAbsPdg);
 
         /**
          *  @brief  Determine if the input event is truly a fiducial CC1Pi event

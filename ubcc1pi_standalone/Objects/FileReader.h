@@ -67,6 +67,16 @@ class FileReader
         std::shared_ptr<Subrun> GetBoundSubrunAddress();
 
         /**
+         *  @brief  Disable the branches related to systematic weights
+         */
+        void DisableSystematicBranches();
+        
+        /**
+         *  @brief  Enable the branches related to systematic weights
+         */
+        void EnableSystematicBranches();
+
+        /**
          *  @brief  Load the event with the supplied index
          *
          *  @param  eventIndex the event to load
