@@ -731,6 +731,18 @@ bool AnalysisHelper::IsPointWithinMargins(const TVector3 &point, const float low
         
 // -----------------------------------------------------------------------------------------------------------------------------------------
 
+float AnalysisHelper::GetFiducialVolume()
+{
+    // Get the width of the FV in each direction - here we take off the fiducial margins (see AnalysisHelper::IsFiducial)
+    const auto widthX = (GeometryHelper::highX - GeometryHelper::lowX) - 10.f - 10.f;
+    const auto widthY = (GeometryHelper::highY - GeometryHelper::lowY) - 10.f - 10.f;
+    const auto widthZ = (GeometryHelper::highZ - GeometryHelper::lowZ) - 10.f - 50.f;
+
+    return widthX * widthY * widthZ;
+}
+
+// -----------------------------------------------------------------------------------------------------------------------------------------
+
 bool AnalysisHelper::IsFiducial(const TVector3 &point)
 {
     return AnalysisHelper::IsPointWithinMargins(point, 10.f, 10.f, 10.f, 10.f, 10.f, 50.f);
@@ -1322,21 +1334,32 @@ void AnalysisHelper::PrintLoadingBar(const unsigned int numerator, const unsigne
     if (denominator == 0)
         return;
 
+    // Get the current stage of the loading bar
     const auto width = 85u;
     const auto loadedWidth = static_cast<unsigned int>(std::floor(width * (static_cast<float>(numerator) / static_cast<float>(denominator))));
     const auto unloadedWidth = static_cast<unsigned int>(width - loadedWidth);
-    
+
+    // Get the fraction of the way through the current stage
+    const auto stageLength = static_cast<float>(denominator) / static_cast<float>(width);
+    const unsigned int tenth = std::floor(10 * ((static_cast<float>(numerator) - stageLength * std::floor(static_cast<float>(numerator) / stageLength)) / stageLength));
+
+    // Now do the same but for the last value of the numerator
+    const auto lastLoadedWidth = static_cast<unsigned int>(std::floor(width * (static_cast<float>(numerator - 1) / static_cast<float>(denominator))));
+    const unsigned int lastTenth = std::floor(10 * ((static_cast<float>(numerator - 1) - stageLength * std::floor(static_cast<float>(numerator - 1) / stageLength)) / stageLength));
+
     // Work out if it's worth printing 
-    const bool shouldPrint = (numerator == 0) || (static_cast<unsigned int>(std::floor(width * (static_cast<float>(numerator - 1) / static_cast<float>(denominator)))) != loadedWidth);
+    const bool shouldPrint = (numerator == 0) || (lastLoadedWidth != loadedWidth) || (lastTenth != tenth);
 
     if (!shouldPrint)
         return;
 
+    // Jump back 2 lines
     if (numerator != 0)
         std::cout << "\033[F\033[F";
 
+    // Print the fraction and loading bar
     std::cout << numerator << " / " << denominator << std::endl;
-    std::cout << "|" << std::string(loadedWidth, '=') << std::string(unloadedWidth, ' ') << "|" << std::endl;
+    std::cout << "|" << std::string(loadedWidth, '=') << tenth << std::string(unloadedWidth, ' ') << "|" << std::endl;
 }
 
 } // namespace ubcc1pi

@@ -233,6 +233,55 @@ void PrintConfig(const Config &config)
     table.AddEmptyRow();
     table.SetEntry("Variable", "makeBinningPlots.useFineBinEdges");
     table.SetEntry("Value", config.makeBinningPlots.useFineBinEdges);
+    
+    //
+    // ExtractXSecs
+    //
+    table.AddEmptyRow();
+
+    table.AddEmptyRow();
+    table.SetEntry("Variable", "extractXSecs.nBootstrapUniverses");
+    table.SetEntry("Value", config.extractXSecs.nBootstrapUniverses);
+
+    for (unsigned int i = 0; i < config.extractXSecs.systematicParams.size(); ++i)
+    {
+        const auto &[paramName, nUniverses] = config.extractXSecs.systematicParams.at(i);
+        table.AddEmptyRow();
+        table.SetEntry("Variable", "config.extractXSecs.systematicParams.at(" + std::to_string(i) + ")");
+        table.SetEntry("Value", paramName + " (" + std::to_string(nUniverses) + " universes)");
+    }
+    
+    for (unsigned int i = 0; i < config.extractXSecs.mutuallyExclusiveSystematicParams.size(); ++i)
+    {
+        const auto &[combinedParamName, nUniverses, componentParams] = config.extractXSecs.mutuallyExclusiveSystematicParams.at(i);
+        table.AddEmptyRow();
+        table.SetEntry("Variable", "config.extractXSecs.mutuallyExclusiveSystematicParams.at(" + std::to_string(i) + ")");
+        table.SetEntry("Value", combinedParamName + " (" + std::to_string(nUniverses) + " universes)");
+
+        for (const auto &paramName : componentParams)
+        {
+            table.AddEmptyRow();
+            table.SetEntry("Value", paramName);
+        }
+    }
+    
+    for (unsigned int i = 0; i < config.extractXSecs.fluxParams.size(); ++i)
+    {
+        const auto &paramName = config.extractXSecs.fluxParams.at(i);
+
+        table.AddEmptyRow();
+        table.SetEntry("Variable", "config.extractXSecs.fluxParams.at(" + std::to_string(i) + ")");
+        table.SetEntry("Value", paramName);
+    }
+    
+    for (unsigned int i = 0; i < config.extractXSecs.genieParams.size(); ++i)
+    {
+        const auto &paramName = config.extractXSecs.genieParams.at(i);
+
+        table.AddEmptyRow();
+        table.SetEntry("Variable", "config.extractXSecs.genieParams.at(" + std::to_string(i) + ")");
+        table.SetEntry("Value", paramName);
+    }
 
     // Print out the table
     table.Print();

@@ -15,6 +15,9 @@
 #include <sstream>
 #include <cmath>
 
+#include <TH1F.h>
+#include <TH2F.h>
+
 namespace ubcc1pi
 {
 
@@ -107,6 +110,24 @@ class FormattingHelper
          *  @return the value with error 
          */
         static std::string GetValueWithError(const float &value, const float &uncertainty);
+            
+        /**
+         *  @brief  Save a 1D histogram as a table
+         *
+         *  @param  pHist the input histogram
+         *  @param  fileName the output file name 
+         *  @param  alsoPrint if we should also print the table to the terminal
+         */
+        static void SaveHistAsTable(const std::shared_ptr<TH1F> &pHist, const std::string &fileName, const bool alsoPrint = true);
+        
+        /**
+         *  @brief  Save a 2D histogram as a table
+         *
+         *  @param  pHist the input histogram
+         *  @param  fileName the output file name 
+         *  @param  alsoPrint if we should also print the table to the terminal
+         */
+        static void SaveHistAsTable(const std::shared_ptr<TH2F> &pHist, const std::string &fileName, const bool alsoPrint = true);
 
         /**
          *  @brief  Print a line of '-' characters
@@ -324,6 +345,76 @@ std::string FormattingHelper::GetValueWithError(const float &value, const float 
 void FormattingHelper::PrintLine()
 {
     std::cout << std::string(87, '-') << std::endl;
+}
+
+// -----------------------------------------------------------------------------------------------------------------------------------------
+        
+void FormattingHelper::SaveHistAsTable(const std::shared_ptr<TH1F> &pHist, const std::string &fileName, const bool alsoPrint)
+{
+    FormattingHelper::Table table({"Bin", "Lower", "Upper", "Width", "", "Value"});
+    for (unsigned int iBin = 1; iBin <= static_cast<unsigned int>(pHist->GetNbinsX()); ++iBin)
+    {
+        table.AddEmptyRow();
+        table.SetEntry("Bin", iBin);
+
+        const auto lower = pHist->GetBinLowEdge(iBin);
+        table.SetEntry("Lower", lower);
+
+        const auto width = pHist->GetBinWidth(iBin);
+        table.SetEntry("Width", width);
+
+        const auto upper = lower + width;
+        table.SetEntry("Upper", upper);
+
+        const auto value = pHist->GetBinContent(iBin);
+        table.SetEntry("Value", value);
+    }
+
+    table.WriteToFile(fileName, alsoPrint);
+}
+
+// -----------------------------------------------------------------------------------------------------------------------------------------
+        
+void FormattingHelper::SaveHistAsTable(const std::shared_ptr<TH2F> &pHist, const std::string &fileName, const bool alsoPrint)
+{
+    FormattingHelper::Table table({"Bin X", "Bin Y", "Lower", "Upper", "Width", "", "Value"});
+
+    for (unsigned int iBin = 1; iBin <= static_cast<unsigned int>(pHist->GetNbinsX()); ++iBin)
+    {
+        table.AddEmptyRow();
+        table.SetEntry("Bin X", iBin);
+
+        const auto xAxis = pHist->GetXaxis();
+        const auto xLower = xAxis->GetBinLowEdge(iBin);
+        table.SetEntry("Lower", xLower);
+
+        const auto xWidth = xAxis->GetBinWidth(iBin);
+        table.SetEntry("Width", xWidth);
+
+        const auto xUpper = xLower + xWidth;
+        table.SetEntry("Upper", xUpper);
+
+        for (unsigned int jBin = 1; jBin <= static_cast<unsigned int>(pHist->GetNbinsY()); ++jBin)
+        {
+            table.AddEmptyRow();
+            table.SetEntry("Bin Y", jBin);
+        
+            const auto yAxis = pHist->GetYaxis();
+            const auto yLower = yAxis->GetBinLowEdge(jBin);
+            table.SetEntry("Lower", yLower);
+
+            const auto yWidth = yAxis->GetBinWidth(jBin);
+            table.SetEntry("Width", yWidth);
+
+            const auto yUpper = yLower + yWidth;
+            table.SetEntry("Upper", yUpper);
+
+            const auto value = pHist->GetBinContent(iBin, jBin);
+            table.SetEntry("Value", value);
+        }
+    }
+
+    table.WriteToFile(fileName, alsoPrint);
 }
 
 } // namespace ubcc1pi

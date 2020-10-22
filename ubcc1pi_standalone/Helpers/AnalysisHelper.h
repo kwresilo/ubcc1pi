@@ -376,6 +376,13 @@ class AnalysisHelper
         static bool IsPointWithinMargins(const TVector3 &point, const float lowXMargin, const float highXMargin, const float lowYMargin, const float highYMargin, const float lowZMargin, const float highZMargin);
 
         /**
+         *  @brief  Get the fiducial volume in cm^3
+         *
+         *  @return the fiducial volume
+         */
+        static float GetFiducialVolume();
+
+        /**
          *  @brief  Determine if a given point is in the fiducial volume
          *
          *  @param  point the point

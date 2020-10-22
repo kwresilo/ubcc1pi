@@ -167,6 +167,13 @@ namespace ubcc1pi_macros
      *  @param  config the input configuration
      */
     void MakeBinningPlots(const Config &config = Config());
+    
+    /**
+     *  @brief  Plot the systematic weights
+     *
+     *  @param  config the input configuration
+     */
+    void PlotSystematicWeights(const Config &config = Config());
 
     /**
      *  @brief  Extract the cross-sections

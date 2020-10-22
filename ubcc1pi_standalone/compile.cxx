@@ -60,6 +60,7 @@
         "Macros/PlotReconstructedVariables.cxx",
         "Macros/SaveSelectedEventInfo.cxx",
         "Macros/MakeBinningPlots.cxx",
+        "Macros/PlotSystematicWeights.cxx",
         "Macros/ExtractXSecs.cxx",
 
         "Macros/RunFullAnalysis.cxx"

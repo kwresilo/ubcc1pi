@@ -12,6 +12,7 @@
 #include <unordered_map>
 
 #include <TH1F.h>
+#include <TH2F.h>
 #include <TCanvas.h>
 
 #include "ubcc1pi_standalone/Interface/Event.h"
@@ -413,10 +414,33 @@ class PlottingHelper
          *  @return the output bin edges
          */
         static std::vector<float> GenerateLogBinEdges(const unsigned int nBins, const float min, const float max);
+        
+        /**
+         *  @brief  Draw and save an input bias vector and the corresponding fractional bias vector
+         *
+         *  @param  vector the input N-bin bias vector (N = number of analysis bins)
+         *  @param  crossSection the input M-bin cross-section including possible under/overflow bins (M = N - hasOverflow - hasUnderflow)
+         *  @param  hasUnderflow if the input cross section has an underflow bin
+         *  @param  hasOverflow if the input cross section has an overflow bin
+         *  @param  namePrefix a prefix for the name for the plots to make
+         */
+        static void SaveBiasVector(const std::shared_ptr<TH1F> &vector, const std::shared_ptr<TH1F> &crossSection, const bool hasUnderflow, const bool hasOverflow, const std::string &namePrefix);
+
+        /**
+         *  @brief  Draw and save an input covariance matrix and the corresponding fractional covariance matrix and linear correlation matrix
+         *
+         *  @param  matrix the input NxN covaraince matrix (N = number of analysis bins)
+         *  @param  crossSection the input cross-section with M bins including possible under/overflow bins (M = N - hasOverflow - hasUnderflow) 
+         *  @param  hasUnderflow if the input cross section has an underflow bin
+         *  @param  hasOverflow if the input cross section has an overflow bin
+         *  @param  namePrefix a prefix for the name for the plots to make
+         */
+        static void SaveCovarianceMatrix(const std::shared_ptr<TH2F> &matrix, const std::shared_ptr<TH1F> &crossSection, const bool hasUnderflow, const bool hasOverflow, const std::string &namePrefix);
 
     private:
 
         static unsigned int m_lastCanvasId;  ///< The last canvas ID
+        static unsigned int m_lastPlotId;  ///< The last plot ID
 };
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
@@ -470,6 +494,10 @@ unsigned int PlottingHelper::EfficiencyPlot::m_lastId = 0;
 // -----------------------------------------------------------------------------------------------------------------------------------------
         
 unsigned int PlottingHelper::m_lastCanvasId = 0;
+
+// -----------------------------------------------------------------------------------------------------------------------------------------
+
+unsigned int PlottingHelper::m_lastPlotId = 0;
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
         

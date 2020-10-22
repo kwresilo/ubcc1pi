@@ -890,5 +890,169 @@ std::vector<float> PlottingHelper::GenerateLogBinEdges(const unsigned int nBins,
     return outVect;
 }
 
+// -----------------------------------------------------------------------------------------------------------------------------------------
+        
+void PlottingHelper::SaveBiasVector(const std::shared_ptr<TH1F> &vector, const std::shared_ptr<TH1F> &crossSection, const bool hasUnderflow, const bool hasOverflow, const std::string &namePrefix)
+{
+    // Check we have sensible binning
+    const unsigned int nBins = crossSection->GetNbinsX();
+
+    const auto nUnderOverflowBins = (hasUnderflow ? 1u : 0u) + (hasOverflow ? 1u : 0u);
+    if (nBins <= nUnderOverflowBins)
+        throw std::invalid_argument("PlottingHelper::SaveBiasVector - Input cross section doesn't have any non-underflow/overflow bins!");
+
+    const auto nAnalysisBins = nBins - nUnderOverflowBins;
+    
+    const unsigned int biasVectorBins = vector->GetNbinsX();
+    if (biasVectorBins != nAnalysisBins)
+    {
+        throw std::invalid_argument("PlottingHelper::SaveBiasVector - Input bias vector has " + std::to_string(biasVectorBins) +
+            " bins, but input cross-section has " + std::to_string(nBins) + " bins, of which " + std::to_string(nUnderOverflowBins) +
+            " are under/overflow bins - this doesn't add up!");
+    }
+    
+    // Make the plots for the bias & fractional bias vectors
+    auto biasVector = std::make_shared<TH1F>(("bias_" + std::to_string(m_lastPlotId++)).c_str(), "", nAnalysisBins, 0, nAnalysisBins);
+    auto fracBiasVector = std::make_shared<TH1F>(("bias_" + std::to_string(m_lastPlotId++)).c_str(), "", nAnalysisBins, 0, nAnalysisBins);
+
+    float maxBias = -std::numeric_limits<float>::max();
+    float maxFracBias = -std::numeric_limits<float>::max();
+
+    for (unsigned int iBin = 1u; iBin <= nAnalysisBins; ++iBin)
+    {
+        // Set the bin labels of each plot (here we enumerate from zero)
+        for (auto &pHist : {biasVector, fracBiasVector})
+            pHist->GetXaxis()->SetBinLabel(iBin, std::to_string(iBin - 1).c_str());
+
+        // Get the cross section in this bin
+        const auto xSec = crossSection->GetBinContent(iBin + (hasUnderflow ? 1u : 0u));
+        if (xSec <= std::numeric_limits<float>::epsilon())
+            throw std::logic_error("PlottingHelper::SaveBiasVector - Cross section in analysis bin: " + std::to_string(iBin) + " is <= 0");
+
+        // Get the bias in this bin
+        const auto bias = vector->GetBinContent(iBin);
+        biasVector->SetBinContent(iBin, bias);
+
+        // Get the fractional bias
+        const auto fracBias = bias / xSec;
+        fracBiasVector->SetBinContent(iBin, fracBias);
+
+        // Store the maximum bias
+        const auto padding = 1.05f;
+        maxBias = std::max(maxBias, std::abs(bias) * padding);
+        maxFracBias = std::max(maxFracBias, std::abs(fracBias) * padding);
+    }
+
+    // Set the y-limits
+    biasVector->GetYAxis()->SetRangeUser(-maxBias, +maxBias);
+    biasFracVector->GetYAxis()->SetRangeUser(-maxFracBias, +maxFracBias);
+    
+    // Make the plots
+    auto pCanvas = PlottingHelper::GetCanvas();
+   
+    biasVector->Draw("hist");
+    PlottingHelper::SaveCanvas(pCanvas, namePrefix + "_bias");
+    
+    fracBiasVector->Draw("hist");
+    PlottingHelper::SaveCanvas(pCanvas, namePrefix + "_fracBias");
+}
+        
+// -----------------------------------------------------------------------------------------------------------------------------------------
+
+void PlottingHelper::SaveCovarianceMatrix(const std::shared_ptr<TH2F> &matrix, const std::shared_ptr<TH1F> &crossSection, const bool hasUnderflow, const bool hasOverflow, const std::string &namePrefix)
+{
+    // Check we have sensible binning
+    const unsigned int nBins = crossSection->GetNbinsX();
+
+    const auto nUnderOverflowBins = (hasUnderflow ? 1u : 0u) + (hasOverflow ? 1u : 0u);
+    if (nBins <= nUnderOverflowBins)
+        throw std::invalid_argument("PlottingHelper::SaveCovarianceMatrix - Input cross section doesn't have any non-underflow/overflow bins!");
+
+    const auto nAnalysisBins = nBins - nUnderOverflowBins;
+
+    const unsigned int matrixBinsX = matrix->GetNbinsX();
+    const unsigned int matrixBinsY = matrix->GetNbinsY();
+
+    if (matrixBinsX != matrixBinsY)
+        throw std::invalid_argument("PlottingHelper::SaveCovarianceMatrix - Input covariance matrix is not square!");
+
+    if (matrixBinsX != nAnalysisBins)
+    {
+        throw std::invalid_argument("PlottingHelper::SaveCovarianceMatrix - Input covariance matrix has " + std::to_string(matrixBinsX) +
+            " bins, but input cross-section has " + std::to_string(nBins) + " bins, of which " + std::to_string(nUnderOverflowBins) +
+            " are under/overflow bins - this doesn't add up!");
+    }
+
+    // Make the fractional covariance and linear correlation matricies
+    auto covarianceMatrix = std::make_shared<TH2F>(("matrix_" + std::to_string(m_lastPlotId++)).c_str(), "", nAnalysisBins, 0, nAnalysisBins, nAnalysisBins, 0, nAnalysisBins);
+    auto fracCovarianceMatrix = std::make_shared<TH2F>(("matrix_" + std::to_string(m_lastPlotId++)).c_str(), "", nAnalysisBins, 0, nAnalysisBins, nAnalysisBins, 0, nAnalysisBins);
+    auto correlationMatrix = std::make_shared<TH2F>(("matrix_" + std::to_string(m_lastPlotId++)).c_str(), "", nAnalysisBins, 0, nAnalysisBins, nAnalysisBins, 0, nAnalysisBins);
+    
+    // Set the number of decimal places & text size to print in each bin
+    gStyle->SetPaintTextFormat("2.2f");
+    covarianceMatrix->SetMarkerSize(2.2);
+    fracCovarianceMatrix->SetMarkerSize(2.2);
+    correlationMatrix->SetMarkerSize(2.2);
+
+    for (unsigned int iBin = 1u; iBin <= nAnalysisBins; ++iBin)
+    {
+        // Set the bin labels of each plot (here we enumerate from zero)
+        for (auto &pHist : {covarianceMatrix, fracCovarianceMatrix, correlationMatrix})
+        {
+            for (auto &pAxis : {pHist->GetXaxis(), pHist->GetYaxis()})
+            {
+                pAxis->SetBinLabel(iBin, std::to_string(iBin - 1).c_str());
+            }
+        }
+
+        // Get the cross section in bin i
+        const auto xSecI = crossSection->GetBinContent(iBin + (hasUnderflow ? 1u : 0u));
+        if (xSecI <= std::numeric_limits<float>::epsilon())
+            throw std::logic_error("PlottingHelper::SaveCovarianceMatrix - Cross section in analysis bin: " + std::to_string(iBin) + " is <= 0");
+            
+        // Get the standard deviation in bin i
+        const auto stdI = std::pow(matrix->GetBinContent(iBin, iBin), 0.5);
+        if (stdI <= std::numeric_limits<float>::epsilon())
+            throw std::logic_error("PlottingHelper::SaveCovarianceMatrix - Variance in analysis bin: " + std::to_string(iBin) + " is <= 0");
+            
+
+        for (unsigned int jBin = 1u; jBin <= nAnalysisBins; ++jBin)
+        {
+            // Get the cross section in bin j
+            const auto xSecJ = crossSection->GetBinContent(jBin + (hasUnderflow ? 1u : 0u));
+            if (xSecJ <= std::numeric_limits<float>::epsilon())
+                throw std::logic_error("PlottingHelper::SaveCovarianceMatrix - Cross section in analysis bin: " + std::to_string(jBin) + " is <= 0");
+
+            // Get the standard deviation in bin j
+            const auto stdJ = std::pow(matrix->GetBinContent(jBin, jBin), 0.5);
+            if (stdJ <= std::numeric_limits<float>::epsilon())
+                throw std::logic_error("PlottingHelper::SaveCovarianceMatrix - Variance in analysis bin: " + std::to_string(jBin) + " is <= 0");
+
+            // Set the covariance
+            const auto covariance = matrix->GetBinContent(iBin, jBin);
+            covarianceMatrix->SetBinContent(iBin, jBin, covariance);
+
+            // Set the fractional covariance
+            const auto fracCovariance = covariance / (xSecI * xSecJ);
+            fracCovarianceMatrix->SetBinContent(iBin, jBin, fracCovariance);
+
+            // Set the linear correlation
+            const auto correlation = covariance / (stdI * stdJ);
+            correlationMatrix->SetBinContent(iBin, jBin, correlation);
+        }
+    }
+
+    // Make the plots
+    auto pCanvas = PlottingHelper::GetCanvas(960, 960);
+    
+    covarianceMatrix->Draw("colz text");
+    PlottingHelper::SaveCanvas(pCanvas, namePrefix + "_covariance");
+
+    fracCovarianceMatrix->Draw("colz text");
+    PlottingHelper::SaveCanvas(pCanvas, namePrefix + "_fracCovariance");
+
+    correlationMatrix->Draw("colz text");
+    PlottingHelper::SaveCanvas(pCanvas, namePrefix + "_linearCorrelation");
+}
 
 } // namespace ubcc1pi

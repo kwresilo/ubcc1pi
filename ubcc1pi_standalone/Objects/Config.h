@@ -59,6 +59,38 @@ struct Config
     Norms norms; ///< The sample normalisations
 
     // -------------------------------------------------------------------------------------------------------------------------------------
+    
+    /**
+     *  @brief  The flux structure
+     *
+     *  The values stored here are taken from MICROBOONE-NOTE-1031-PUB
+     */
+    struct Flux
+    {
+        /**
+         *  @brief  The neutrino energy bin edges for the flux [GeV]
+         */
+        std::vector<float> binEdges = {
+            0.00f, 0.05f, 0.10f, 0.15f, 0.20f, 0.25f, 0.30f, 0.35f, 0.40f, 0.45f, 0.50f, 0.55f, 0.60f, 0.65f, 0.70f, 0.75f, 0.80f, 0.85f,
+            0.90f, 0.95f, 1.00f, 1.05f, 1.10f, 1.15f, 1.20f, 1.25f, 1.30f, 1.35f, 1.40f, 1.45f, 1.50f, 1.55f, 1.60f, 1.65f, 1.70f, 1.75f,
+            1.80f, 1.85f, 1.90f, 1.95f, 2.00f, 2.05f, 2.10f, 2.15f, 2.20f, 2.25f, 2.30f, 2.35f, 2.40f, 2.45f, 2.50f, 2.55f, 2.60f, 2.65f,
+            2.70f, 2.75f, 2.80f, 2.85f, 2.90f, 2.95f, 3.00f
+        };
+
+        /**
+         *  @brief  The value of the flux in each energy bin [e-10 cm^-2 POT^-1]
+         */
+        std::vector<float> energyBins = {
+            3.09e-2, 1.19e-1, 1.53e-1, 1.83e-1, 2.27e-1, 2.50e-1, 2.67e-1, 2.80e-1, 2.96e-1, 3.09e-1, 3.16e-1, 3.16e-1,
+            3.12e-1, 3.09e-1, 3.06e-1, 2.99e-1, 2.87e-1, 2.75e-1, 2.63e-1, 2.49e-1, 2.36e-1, 2.22e-1, 2.06e-1, 1.92e-1,
+            1.78e-1, 1.62e-1, 1.47e-1, 1.32e-1, 1.17e-1, 1.02e-1, 8.85e-2, 7.65e-2, 6.50e-2, 5.48e-2, 4.63e-2, 3.83e-2,
+            3.18e-2, 2.57e-2, 2.10e-2, 1.70e-2, 1.35e-2, 1.11e-2, 9.11e-3, 7.23e-3, 6.21e-3, 5.35e-3, 4.63e-3, 4.04e-3,
+            3.67e-3, 3.33e-3, 3.08e-3, 2.89e-3, 2.78e-3, 2.69e-3, 2.58e-3, 2.40e-3, 2.37e-3, 2.29e-3, 2.25e-3, 2.09e-3
+        };
+    };
+    Flux flux; ///< The flux
+
+    // -------------------------------------------------------------------------------------------------------------------------------------
 
     /**
      *  @brief  Global configuration options structure
@@ -69,14 +101,15 @@ struct Config
         bool        countProtonsInclusively = true;               ///< If we should count protons inclusively (as Xp), or exclusively as (0p, 1p, 2p, ...)
         std::string lastCutGeneric          = "startNearVertex";  ///< The last cut of the generic selection (remaining cuts are part of the golden selection)
         float       protonMomentumThreshold = 0.3f;               ///< The minimum proton momentum to be counted [GeV]
+        float       targetDensity           = 8.44191f;           ///< The number of target nuclei per unit volume - units e23 / cm^3 
 
         /**
          *  @brief  The muonCosTheta plot limits structure
          */
         struct MuonCosTheta
         {
-            float               min = -1.f;                                                                     ///< Minimum possible value
-            float               max =  1.f;                                                                     ///< Maximum possible value
+            float               min = -1.f;                                                                                     ///< Minimum possible value
+            float               max =  1.f;                                                                                     ///< Maximum possible value
             std::vector<float>  binEdges = {-1.f, -0.27f, 0.29f, 0.46f, 0.58f, 0.67f, 0.77f, 0.82f, 0.88f, 0.93f, 0.97f, 1.f};  ///< The bin edges
         };
         MuonCosTheta muonCosTheta; ///< The muonCosTheta plot limits
@@ -295,6 +328,60 @@ struct Config
         bool useFineBinEdges = true; ///< If we break up the analsis bins into finer sub-bins
     };
     MakeBinningPlots makeBinningPlots; ///< The configuration options for the MakeBinningPlots macro
+    
+    // -------------------------------------------------------------------------------------------------------------------------------------
+    
+    /**
+     *  @brief  Configuration for the ExtractXSecs macro
+     */
+    struct ExtractXSecs
+    {
+        unsigned int nBootstrapUniverses = 1000u; ///< The number of bootrap universes to generate for the MC stat uncertainty
+
+        std::vector< std::pair<std::string, unsigned int> > systematicParams = {
+            {"All_Genie", 100u},
+            {"expskin_FluxUnisim", 1000u},
+            {"horncurrent_FluxUnisim", 1000u},
+            {"nucleoninexsec_FluxUnisim", 1000u},
+            {"nucleonqexsec_FluxUnisim", 1000u},
+            {"nucleontotxsec_FluxUnisim", 1000u},
+            {"pioninexsec_FluxUnisim", 1000u},
+            {"pionqexsec_FluxUnisim", 1000u},
+            {"piontotxsec_FluxUnisim", 1000u}
+        }; ///< The systematic parameters to apply & the number of universes
+
+        std::vector< std::tuple<std::string, unsigned int, std::vector<std::string> > > mutuallyExclusiveSystematicParams = {
+            {
+                {"fluxHadronProduction", 1000u,
+                    {
+                        "kminus_PrimaryHadronNormalization",
+                        "kplus_PrimaryHadronFeynmanScaling",
+                        "kzero_PrimaryHadronSanfordWang",
+                        "piminus_PrimaryHadronSWCentralSplineVariation",
+                        "piplus_PrimaryHadronSWCentralSplineVariation"
+                    }
+                }
+            }
+        }; ///< The systematic parameters that should be applied together as a mutually exclusive set
+
+        std::vector<std::string> fluxParams = {
+            "expskin_FluxUnisim",
+            "horncurrent_FluxUnisim",
+            "nucleoninexsec_FluxUnisim",
+            "nucleonqexsec_FluxUnisim",
+            "nucleontotxsec_FluxUnisim",
+            "pioninexsec_FluxUnisim",
+            "pionqexsec_FluxUnisim",
+            "piontotxsec_FluxUnisim",
+            "fluxHadronProduction"
+        }; ///< The parameters that modify the overall flux
+        
+        std::vector<std::string> genieParams = {
+            "All_Genie"
+        }; ///< The GENIE parameters, these will be scaled down by genieTuneEventWeight - see the ExtractXSecs macro for more details
+
+    };
+    ExtractXSecs extractXSecs; ///< The configuration options for the ExtractXSecs macro
 };
 
 } // namespace ubcc1pi

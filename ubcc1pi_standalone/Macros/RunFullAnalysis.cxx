@@ -18,7 +18,9 @@ namespace ubcc1pi_macros
 void RunFullAnalysis(const Config &config)
 {
     PrintConfig(config);
+    std::cout << "TODO - Still need to put all the steps of the analysis together into this RunFullAnalysis macro" << std::endl;
 
+    /*
     TruthStudy(config);
     CCInclusiveMuonPIDStudy(config);
     MultiPlanePIDDemo(config);
@@ -39,6 +41,7 @@ void RunFullAnalysis(const Config &config)
     MakeEventSelectionEfficiencyPlots(config);
     PlotReconstructedVariables(config);
     ExtractXSecs(config);
+    */
 }
 
 }
