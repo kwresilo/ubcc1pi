@@ -61,6 +61,26 @@ void EventFactory::PopulateEventTruthInfo(const art::Event &event, const Config 
         {
             const auto &mcEventWeight = mcEventWeights.front();
 
+            // Extract the systematic parameters in the desired format
+            std::vector<std::string> systParamNames;
+            std::vector<int> systParamFirstValueIndex;
+            std::vector<float> systParamValues;
+
+            for (const auto &entry : mcEventWeight->fWeight)
+            {
+                const auto &label = entry.first;
+                const auto &weights = entry.second;
+
+                systParamNames.push_back(label);
+                systParamFirstValueIndex.push_back(static_cast<int>(systParamValues.size()));
+                systParamValues.insert(systParamValues.end(), weights.begin(), weights.end());
+            }
+
+            truth.systParamNames.Set(systParamNames);
+            truth.systParamFirstValueIndex.Set(systParamFirstValueIndex);
+            truth.systParamValues.Set(systParamValues);
+
+            // Explicitly save the nominal weights
             for (const auto &entry : mcEventWeight->fWeight)
             {
                 const auto &label = entry.first;
