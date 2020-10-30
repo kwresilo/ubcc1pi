@@ -930,11 +930,11 @@ void PlottingHelper::SaveBiasVector(const std::shared_ptr<TH1F> &vector, const s
             throw std::logic_error("PlottingHelper::SaveBiasVector - Cross section in analysis bin: " + std::to_string(iBin) + " is <= 0");
 
         // Get the bias in this bin
-        const auto bias = vector->GetBinContent(iBin);
+        const float bias = vector->GetBinContent(iBin);
         biasVector->SetBinContent(iBin, bias);
 
         // Get the fractional bias
-        const auto fracBias = bias / xSec;
+        const float fracBias = bias / xSec;
         fracBiasVector->SetBinContent(iBin, fracBias);
 
         // Store the maximum bias
@@ -943,20 +943,97 @@ void PlottingHelper::SaveBiasVector(const std::shared_ptr<TH1F> &vector, const s
         maxFracBias = std::max(maxFracBias, std::abs(fracBias) * padding);
     }
 
-    // Set the y-limits
-    biasVector->GetYAxis()->SetRangeUser(-maxBias, +maxBias);
-    biasFracVector->GetYAxis()->SetRangeUser(-maxFracBias, +maxFracBias);
-    
     // Make the plots
+    gStyle->SetHistMinimumZero(true);
     auto pCanvas = PlottingHelper::GetCanvas();
+    
+    // Set the y-limits
+    biasVector->GetYaxis()->SetRangeUser(-maxBias, +maxBias);
+    fracBiasVector->GetYaxis()->SetRangeUser(-maxFracBias, +maxFracBias);
+    
    
-    biasVector->Draw("hist");
+    biasVector->SetFillColor(PlottingHelper::GetColor(Default));
+    fracBiasVector->SetFillColor(PlottingHelper::GetColor(Default));
+
+    biasVector->Draw("bar");
     PlottingHelper::SaveCanvas(pCanvas, namePrefix + "_bias");
     
-    fracBiasVector->Draw("hist");
+    fracBiasVector->Draw("bar");
     PlottingHelper::SaveCanvas(pCanvas, namePrefix + "_fracBias");
+    gStyle->SetHistMinimumZero(false);
 }
         
+// -----------------------------------------------------------------------------------------------------------------------------------------
+        
+void PlottingHelper::SaveSmearingMatrixBiasVector(const std::shared_ptr<TH1F> &vector, const bool hasUnderflow, const bool hasOverflow, const std::string &namePrefix)
+{
+    // Get the number of bins of the original cross-section (this smearing matrix should have the square of this number of bins)
+    const unsigned int nBins = vector->GetNbinsX(); 
+    const auto nBinsSqrt = static_cast<unsigned int>(std::round(std::pow(static_cast<float>(nBins), 0.5f)));
+    if (nBinsSqrt*nBinsSqrt != nBins)
+        throw std::invalid_argument("PlottingHelper::SaveSmearingMatrixBiasVector - Number of bins for input bias vector isn't a perfect square");
+
+    const auto nUnderOverflowBins = (hasUnderflow ? 1u : 0u) + (hasOverflow ? 1u : 0u);
+    if (nBinsSqrt <= nUnderOverflowBins)
+        throw std::invalid_argument("PlottingHelper::SaveSmearingMatrixBiasVector - Input bias vector doesn't have any non-underflow/overflow bins!");
+
+    // Setup a new histogram so we can style it without modifying the input
+    auto biasVector = std::make_shared<TH1F>(("smearingBias_" + std::to_string(m_lastPlotId++)).c_str(), "", nBins, 0, nBins);
+
+    float maxBias = -std::numeric_limits<float>::max();
+    for (unsigned int iBin = 1u; iBin <= nBins; ++iBin)
+    {
+        // Get the corresponding reco-true bins
+        const unsigned int iTrue = (iBin-1) / nBinsSqrt;
+        const unsigned int iReco = (iBin-1) % nBinsSqrt;
+
+        // Set the bin labels 
+        const auto isTrueUnderflow = (iTrue == 0 && hasUnderflow);
+        const auto isRecoUnderflow = (iReco == 0 && hasUnderflow);
+        
+        const auto isTrueOverflow = (iTrue == (nBinsSqrt-1) && hasOverflow);
+        const auto isRecoOverflow = (iReco == (nBinsSqrt-1) && hasOverflow);
+
+        const std::string trueBinName = isTrueUnderflow ? "UF" : (isTrueOverflow ? "OF" : std::to_string(iTrue - (hasUnderflow ? 1u : 0u)));
+        const std::string recoBinName = isRecoUnderflow ? "UF" : (isRecoOverflow ? "OF" : std::to_string(iReco - (hasUnderflow ? 1u : 0u)));
+
+        biasVector->GetXaxis()->SetBinLabel(iBin, ("T-" + trueBinName + " R-" + recoBinName).c_str());
+
+        // Store this bias value
+        const float bias = vector->GetBinContent(iBin);
+
+        // Choose a nice y-axis range
+        const auto padding = 1.05f;
+        maxBias = std::max(maxBias, std::abs(bias) * padding);
+
+        biasVector->SetBinContent(iBin, bias);
+    }
+    
+    biasVector->GetYaxis()->SetRangeUser(-maxBias, +maxBias);
+    biasVector->GetXaxis()->LabelsOption("v");
+    biasVector->SetFillColor(PlottingHelper::GetColor(Default));
+
+    // Draw the histogram
+    gStyle->SetHistMinimumZero(true);
+    auto pCanvas = PlottingHelper::GetCanvas();
+    pCanvas->SetBottomMargin(0.15f);
+    biasVector->Draw("bar");
+
+    // Add lines to show the original binning
+    std::vector<std::shared_ptr<TLine> > lines;
+    for (unsigned int iBin = 0; iBin <= nBinsSqrt; ++iBin)
+    {
+        const auto binEdge = iBin * nBinsSqrt;
+        lines.emplace_back(std::make_shared<TLine>(binEdge, -maxBias, binEdge, maxBias));
+        auto &pLine = lines.back();
+        pLine->SetLineWidth(2);
+        pLine->Draw();
+    }
+
+    PlottingHelper::SaveCanvas(pCanvas, namePrefix + "_smearing_bias");
+    gStyle->SetHistMinimumZero(false);
+}
+
 // -----------------------------------------------------------------------------------------------------------------------------------------
 
 void PlottingHelper::SaveCovarianceMatrix(const std::shared_ptr<TH2F> &matrix, const std::shared_ptr<TH1F> &crossSection, const bool hasUnderflow, const bool hasOverflow, const std::string &namePrefix)
@@ -1053,6 +1130,228 @@ void PlottingHelper::SaveCovarianceMatrix(const std::shared_ptr<TH2F> &matrix, c
 
     correlationMatrix->Draw("colz text");
     PlottingHelper::SaveCanvas(pCanvas, namePrefix + "_linearCorrelation");
+}
+
+// -----------------------------------------------------------------------------------------------------------------------------------------
+        
+void PlottingHelper::SaveSmearingMatrixCovarianceMatrix(const std::shared_ptr<TH2F> &matrix, const bool hasUnderflow, const bool hasOverflow, const std::string &namePrefix)
+{
+    // Check we have sensible binning
+    const unsigned int matrixBinsX = matrix->GetNbinsX();
+    const unsigned int matrixBinsY = matrix->GetNbinsY();
+
+    if (matrixBinsX != matrixBinsY)
+        throw std::invalid_argument("PlottingHelper::SaveSmearingMatrixCovarianceMatrix - Input covariance matrix is not square!");
+
+    // Get the number of bins of the original cross-section (this smearing matrix should have the square of this number of bins)
+    const auto nBins = matrixBinsX;
+    const auto nBinsSqrt = static_cast<unsigned int>(std::round(std::pow(static_cast<float>(nBins), 0.5f)));
+    if (nBinsSqrt*nBinsSqrt != nBins)
+        throw std::invalid_argument("PlottingHelper::SaveSmearingMatrixCovarianceMatrix - Number of bins for input bias vector isn't a perfect square");
+
+    const auto nUnderOverflowBins = (hasUnderflow ? 1u : 0u) + (hasOverflow ? 1u : 0u);
+    if (nBinsSqrt <= nUnderOverflowBins)
+        throw std::invalid_argument("PlottingHelper::SaveSmearingMatrixCovarianceMatrix - Input cross section doesn't have any non-underflow/overflow bins!");
+
+    // Setup a new histogram so we can style it without modifying the input
+    auto covarianceMatrix = std::make_shared<TH2F>(("matrix_" + std::to_string(m_lastPlotId++)).c_str(), "", nBins, 0, nBins, nBins, 0, nBins);
+    
+    // Loop over the bins
+    for (unsigned int iBin = 1u; iBin <= nBins; ++iBin)
+    {
+        // Get the corresponding reco-true bins
+        const unsigned int iTrue = (iBin-1) / nBinsSqrt;
+        const unsigned int iReco = (iBin-1) % nBinsSqrt;
+
+        // Set the bin labels 
+        const auto isTrueUnderflow = (iTrue == 0 && hasUnderflow);
+        const auto isRecoUnderflow = (iReco == 0 && hasUnderflow);
+        
+        const auto isTrueOverflow = (iTrue == (nBinsSqrt-1) && hasOverflow);
+        const auto isRecoOverflow = (iReco == (nBinsSqrt-1) && hasOverflow);
+
+        const std::string trueBinName = isTrueUnderflow ? "UF" : (isTrueOverflow ? "OF" : std::to_string(iTrue - (hasUnderflow ? 1u : 0u)));
+        const std::string recoBinName = isRecoUnderflow ? "UF" : (isRecoOverflow ? "OF" : std::to_string(iReco - (hasUnderflow ? 1u : 0u)));
+      
+        const std::string binLabel = "T-" + trueBinName + " R-" + recoBinName;
+        covarianceMatrix->GetXaxis()->SetBinLabel(iBin, binLabel.c_str());
+        covarianceMatrix->GetYaxis()->SetBinLabel(iBin, binLabel.c_str());
+   
+        // Copy the content of the bins
+        for (unsigned int jBin = 1u; jBin <= nBins; ++jBin)
+        {
+            const auto binContent = matrix->GetBinContent(iBin, jBin);
+            covarianceMatrix->SetBinContent(iBin, jBin, binContent);
+        }
+    }
+    
+    // Draw the histogram
+    auto pCanvas = PlottingHelper::GetCanvas(960, 960);
+    covarianceMatrix->GetXaxis()->LabelsOption("v");
+    covarianceMatrix->GetYaxis()->LabelsOption("h");
+    covarianceMatrix->Draw("colz");
+
+    // Add lines to show the original binning
+    std::vector<std::shared_ptr<TLine> > lines;
+    for (unsigned int iBin = 0; iBin <= nBinsSqrt; ++iBin)
+    {
+        const auto binEdge = iBin * nBinsSqrt;
+        lines.emplace_back(std::make_shared<TLine>(0, binEdge, nBins, binEdge));
+        auto &pLineX = lines.back();
+        pLineX->SetLineWidth(2);
+        pLineX->Draw();
+        
+        lines.emplace_back(std::make_shared<TLine>(binEdge, 0, binEdge, nBins));
+        auto &pLineY = lines.back();
+        pLineY->SetLineWidth(2);
+        pLineY->Draw();
+    }
+
+    PlottingHelper::SaveCanvas(pCanvas, namePrefix + "_smearing_covariance");
+}
+
+// -----------------------------------------------------------------------------------------------------------------------------------------
+        
+void PlottingHelper::SaveCrossSection(const std::shared_ptr<TH1F> &crossSection, const std::shared_ptr<TH1F> &statUncertainty, const std::shared_ptr<TH2F> &totalSystCovarianceMatrix, const bool hasUnderflow, const bool hasOverflow, const std::string &namePrefix)
+{
+    // Check we have sensible binning
+    const unsigned int nBins = crossSection->GetNbinsX();
+
+    const auto nUnderOverflowBins = (hasUnderflow ? 1u : 0u) + (hasOverflow ? 1u : 0u);
+    if (nBins <= nUnderOverflowBins)
+        throw std::invalid_argument("PlottingHelper::SaveCrossSection - Input cross section doesn't have any non-underflow/overflow bins!");
+
+    const auto nAnalysisBins = nBins - nUnderOverflowBins;
+
+    const unsigned int statUncertaintyBins = statUncertainty->GetNbinsX();
+    if (statUncertaintyBins != nAnalysisBins)
+    {
+        throw std::invalid_argument("PlottingHelper::SaveCrossSection - Input cross-section stat uncertainty has " + std::to_string(nAnalysisBins) +
+            " bins, but input cross-section has " + std::to_string(nBins) + " bins, of which " + std::to_string(nUnderOverflowBins) +
+            " are under/overflow bins - this doesn't add up!");
+    }
+
+    const unsigned int matrixBinsX = totalSystCovarianceMatrix->GetNbinsX();
+    const unsigned int matrixBinsY = totalSystCovarianceMatrix->GetNbinsY();
+
+    if (matrixBinsX != matrixBinsY)
+        throw std::invalid_argument("PlottingHelper::SaveCrossSection - Input covariance matrix is not square!");
+
+    if (matrixBinsX != nAnalysisBins)
+    {
+        throw std::invalid_argument("PlottingHelper::SaveCrossSection - Input covariance matrix has " + std::to_string(matrixBinsX) +
+            " bins, but input cross-section has " + std::to_string(nBins) + " bins, of which " + std::to_string(nUnderOverflowBins) +
+            " are under/overflow bins - this doesn't add up!");
+    }
+
+    // Get the bin edges from the cross-section histogram
+    std::vector<float> binEdges;
+    const auto firstBin = 1u + (hasUnderflow ? 1u : 0u);
+    const auto lastBin = nBins - (hasOverflow ? 1u : 0u);
+    for (unsigned int iBin = firstBin; iBin <= lastBin; ++iBin)
+    {
+        binEdges.push_back(crossSection->GetBinLowEdge(iBin));
+    }
+    binEdges.push_back(crossSection->GetBinLowEdge(lastBin) + crossSection->GetBinWidth(lastBin));
+
+    // Perform a sanity check just for debugging purposes
+    if (binEdges.size() - 1 != nAnalysisBins)
+        throw std::logic_error("PlottingHelper::SaveCrossSection - Sanity check failed! Something went wrong getting the bin edges");
+
+    // Make new histograms for drawing. Here we make 2 histograms with the same values, but one has the stat-only uncertainty and the other
+    // has the total uncertainty
+    auto xsecStatOnly = std::make_shared<TH1F>(("xsecWithErr_" + std::to_string(m_lastPlotId++)).c_str(), "", nAnalysisBins, binEdges.data());
+    auto xsecTotalErr = std::make_shared<TH1F>(("xsecWithErr_" + std::to_string(m_lastPlotId++)).c_str(), "", nAnalysisBins, binEdges.data());
+
+    float maxValue = -std::numeric_limits<float>::max();
+    float minValue = +std::numeric_limits<float>::max();
+
+    for (unsigned int iBin = 1u; iBin <= nAnalysisBins; ++iBin)
+    {
+        // Get the cross-section value and the stat & systematic uncertaint
+        // NB. Here we just use the diagonal of the covarianc matrix for the plot
+        const float xsec = crossSection->GetBinContent(iBin + (hasUnderflow ? 1u : 0u));
+        const float statErr = statUncertainty->GetBinContent(iBin);
+        const float systErr2 = totalSystCovarianceMatrix->GetBinContent(iBin, iBin);
+        const float totalErr = std::pow(statErr*statErr + systErr2, 0.5f);
+
+        maxValue = std::max(maxValue, xsec + totalErr);
+        minValue = std::min(minValue, xsec - totalErr);
+
+        xsecStatOnly->SetBinContent(iBin, xsec);
+        xsecStatOnly->SetBinError(iBin, statErr);
+        
+        xsecTotalErr->SetBinContent(iBin, xsec);
+        xsecTotalErr->SetBinError(iBin, totalErr);
+    }
+
+    // Make the plots
+    auto pCanvas = PlottingHelper::GetCanvas();
+    gStyle->SetEndErrorSize(4);
+
+    // Set the axis ranges
+    const auto padding = (maxValue - minValue) * 0.05;
+    minValue -= padding;
+    maxValue += padding;
+    minValue = std::max(0.f, minValue);
+    xsecStatOnly->GetYaxis()->SetRangeUser(minValue, maxValue);
+    xsecTotalErr->GetYaxis()->SetRangeUser(minValue, maxValue);
+
+    // Draw the data points as error bars
+    PlottingHelper::SetLineStyle(xsecStatOnly, Default);
+    PlottingHelper::SetLineStyle(xsecTotalErr, Default);
+
+    xsecStatOnly->Draw("e1");
+    xsecTotalErr->Draw("e1 same");
+    PlottingHelper::SaveCanvas(pCanvas, namePrefix + "_xsecWithErrors");
+    gStyle->SetEndErrorSize(2);
+}
+
+// -----------------------------------------------------------------------------------------------------------------------------------------
+
+void PlottingHelper::SaveSmearingMatrix(const std::shared_ptr<TH2F> &matrix, const bool hasUnderflow, const bool hasOverflow, const std::string &namePrefix)
+{
+    // Check we have sensible binning
+    const unsigned int matrixBinsX = matrix->GetNbinsX();
+    const unsigned int matrixBinsY = matrix->GetNbinsY();
+    
+    if (matrixBinsX != matrixBinsY)
+        throw std::invalid_argument("PlottingHelper::SaveSmearingMatrix - Input smearing matrix is not square!");
+
+    const auto nBins = matrixBinsX;
+    const auto nUnderOverflowBins = (hasUnderflow ? 1u : 0u) + (hasOverflow ? 1u : 0u);
+    if (nBins <= nUnderOverflowBins)
+        throw std::invalid_argument("PlottingHelper::SaveSmearingMatrix - Input cross section doesn't have any non-underflow/overflow bins!");
+    
+    // Make a new histogram so we can style it without modifying the original
+    auto smearingMatrix = std::make_shared<TH2F>(("matrix_" + std::to_string(m_lastPlotId++)).c_str(), "", nBins, 0, nBins, nBins, 0, nBins);
+    for (unsigned int iTrue = 1u; iTrue <= nBins; ++iTrue)
+    {
+        // Set the bin labels 
+        const auto isUnderflow = (iTrue == 1 && hasUnderflow);
+        const auto isOverflow = (iTrue == nBins && hasOverflow);
+        const std::string binName = isUnderflow ? "UF" : (isOverflow ? "OF" : std::to_string(iTrue - 1u - (hasUnderflow ? 1u : 0u)));
+        
+        smearingMatrix->GetXaxis()->SetBinLabel(iTrue, ("T-" + binName).c_str());
+        smearingMatrix->GetYaxis()->SetBinLabel(iTrue, ("R-" + binName).c_str());
+
+        // Copy the bin contents
+        for (unsigned int iReco = 1u; iReco <= nBins; ++iReco)
+        {
+            const auto binContent = matrix->GetBinContent(iTrue, iReco);
+            smearingMatrix->SetBinContent(iTrue, iReco, binContent);
+        }
+    }
+    
+    // Draw the histogram
+    auto pCanvas = PlottingHelper::GetCanvas(960, 960);
+    gStyle->SetPaintTextFormat("2.2f");
+    smearingMatrix->SetMarkerSize(1.2);
+    smearingMatrix->GetXaxis()->LabelsOption("v");
+    smearingMatrix->GetYaxis()->LabelsOption("h");
+    smearingMatrix->Draw("colz text");
+    
+    PlottingHelper::SaveCanvas(pCanvas, namePrefix + "_smearing");
 }
 
 } // namespace ubcc1pi

@@ -1,0 +1,5 @@
+#include "analysis_file_writer_driver.fcl"
+
+process_name: UBCC1PiAnalysisFileWriterNoEventWeights
+
+physics.analyzers.analysisFileWriter.EventFactoryConfig.GetEventWeights: false

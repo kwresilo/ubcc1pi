@@ -292,16 +292,30 @@ std::shared_ptr<TH1F> CrossSectionHelper::CrossSection::Smear(const std::shared_
                 
 std::shared_ptr<TH1F> CrossSectionHelper::CrossSection::GetSmearedEfficiency(const std::shared_ptr<TH2F> &signalSelectedRecoTrue, const std::shared_ptr<TH1F> &signalAllTrue) const
 {
+    const auto smearingMatrix = this->GetSmearingMatrix(signalSelectedRecoTrue);
+    return this->GetSmearedEfficiency(smearingMatrix, signalSelectedRecoTrue, signalAllTrue);
+}
+
+// -----------------------------------------------------------------------------------------------------------------------------------------
+
+std::shared_ptr<TH1F> CrossSectionHelper::CrossSection::GetSmearedEfficiency(const std::shared_ptr<TH2F> &smearingMatrix, const std::shared_ptr<TH2F> &signalSelectedRecoTrue, const std::shared_ptr<TH1F> &signalAllTrue) const
+{
     // Check the input objects have the correct dimensions
     const auto nBins = m_binEdges.size() - 1;
 
     if (static_cast<unsigned int>(signalAllTrue->GetXaxis()->GetNbins()) != nBins)
         throw std::logic_error("CrossSection::GetSmearedEfficiency - input object signalAllTrue has the wrong dimensions");
 
+    if (static_cast<unsigned int>(smearingMatrix->GetXaxis()->GetNbins()) != nBins ||
+        static_cast<unsigned int>(smearingMatrix->GetYaxis()->GetNbins()) != nBins)
+    {
+        throw std::logic_error("CrossSection::GetSmearedEfficiency - input smearing matrix has the wrong dimensions");
+    }
+    
     if (static_cast<unsigned int>(signalSelectedRecoTrue->GetXaxis()->GetNbins()) != nBins ||
         static_cast<unsigned int>(signalSelectedRecoTrue->GetYaxis()->GetNbins()) != nBins)
     {
-        throw std::logic_error("CrossSection::GetSmearedEfficiency - input matrix has the wrong dimensions");
+        throw std::logic_error("CrossSection::GetSmearedEfficiency - input signalSelectedRecoTrue matrix has the wrong dimensions");
     }
 
     // Get the total selected events per true bin
@@ -319,7 +333,6 @@ std::shared_ptr<TH1F> CrossSectionHelper::CrossSection::GetSmearedEfficiency(con
     }
 
     // Now smear the numerator and denominators of the efficiency
-    const auto smearingMatrix = this->GetSmearingMatrix(signalSelectedRecoTrue);
     const auto signalSelectedSmearedReco = this->Smear(signalSelectedTrue, smearingMatrix);
     const auto signalAllSmearedReco = this->Smear(signalAllTrue, smearingMatrix);
 
@@ -349,6 +362,7 @@ std::shared_ptr<TH1F> CrossSectionHelper::CrossSection::GetSmearedEfficiency(con
 void CrossSectionHelper::CrossSection::ClearCache()
 {
     m_crossSectionCache.clear();
+    m_smearingMatrixCache.clear();
     m_shouldResetCache = false;
 }
 
@@ -388,8 +402,9 @@ std::shared_ptr<TH1F> CrossSectionHelper::CrossSection::GetCachedCrossSection(co
             ? this->GetReweightedFlux(m_allEventsNuEnergyTrue.at(systParameter).at(universeIndex))
             : m_inputData.m_flux);
 
-    // Get the smeared efficiency distribution
-    const auto smearedEff = this->GetSmearedEfficiency(m_signalSelectedRecoTrue.at(systParameter).at(universeIndex), m_signalAllTrue.at(systParameter).at(universeIndex));
+    // Get the smeared efficiency distribution and cache the smearing matrix if required
+    const auto smearingMatrix = this->GetCachedSmearingMatrix(systParameter, universeIndex);
+    const auto smearedEff = this->GetSmearedEfficiency(smearingMatrix, m_signalSelectedRecoTrue.at(systParameter).at(universeIndex), m_signalAllTrue.at(systParameter).at(universeIndex));
 
     // Get the cross-section and cache it
     auto &cachedXSec = m_crossSectionCache[systParameter][universeIndex];
@@ -399,6 +414,40 @@ std::shared_ptr<TH1F> CrossSectionHelper::CrossSection::GetCachedCrossSection(co
         smearedEff, totalFlux);                                                 //   - Smeared efficiency and flux in this universe
 
     return cachedXSec;
+}
+
+// -----------------------------------------------------------------------------------------------------------------------------------------
+                
+std::shared_ptr<TH2F> CrossSectionHelper::CrossSection::GetCachedSmearingMatrix(const std::string &systParameter, const unsigned int universeIndex)
+{
+    // Check that we have an entry for the requested systematic paramter
+    const auto iter = m_inputData.m_systUniverseSizesMap.find(systParameter);
+    if (iter == m_inputData.m_systUniverseSizesMap.end())
+        throw std::invalid_argument("CrossSection::GetCachedSmearingMatrix - unknown parameter: \"" + systParameter + "\"");
+
+    // Get the number of universes
+    const auto nUniverses = iter->second;
+    if (universeIndex >= nUniverses)
+        throw std::range_error("CrossSection::GetCachedSmearingMatrix - Universe index for parameter: \"" + systParameter + "\" is out of range");
+
+    // Reset the cached cross-section if required
+    if (m_shouldResetCache)
+        this->ClearCache();
+        
+    // Get the cached smearing matrix (if it exists)
+    const auto paramIter = m_smearingMatrixCache.find(systParameter);
+    if (paramIter != m_smearingMatrixCache.end())
+    {
+        const auto universeIter = paramIter->second.find(universeIndex);
+        if (universeIter != paramIter->second.end())
+            return universeIter->second;
+    }
+
+    // We don't have an entry for this smearing matrix, so make it!
+    auto &cachedSmearingMatrix = m_smearingMatrixCache[systParameter][universeIndex];
+    cachedSmearingMatrix = this->GetSmearingMatrix(m_signalSelectedRecoTrue.at(systParameter).at(universeIndex));
+
+    return cachedSmearingMatrix;
 }
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
@@ -458,6 +507,48 @@ std::shared_ptr<TH1F> CrossSectionHelper::CrossSection::GetCrossSection() const
     const auto smearedEff = this->GetSmearedEfficiency(m_signalSelectedNomRecoTrue, m_signalAllNomTrue);
     const auto totalFlux = CrossSectionHelper::GetTotalFlux(m_inputData.m_flux);
     return this->GetCrossSection(m_dataSelectedReco, m_backgroundSelectedNomReco, smearedEff, totalFlux);
+}
+
+// -----------------------------------------------------------------------------------------------------------------------------------------
+                
+std::shared_ptr<TH1F> CrossSectionHelper::CrossSection::GetCrossSectionStatUncertainty() const
+{
+    // Setup the output histogram
+    const auto nBins = m_binEdges.size() - 1;
+    const auto nAnalysisBins = nBins - (m_hasUnderflow ? 1 : 0) - (m_hasOverflow ? 1 : 0);
+    const std::string name = "xSecStatErr_" + std::to_string(m_histCount++);
+    auto statErrHist = std::make_shared<TH1F>(name.c_str(), "", nAnalysisBins, 0, nAnalysisBins);
+
+    const auto smearedEff = this->GetSmearedEfficiency(m_signalSelectedNomRecoTrue, m_signalAllNomTrue);
+    const auto totalFlux = CrossSectionHelper::GetTotalFlux(m_inputData.m_flux);
+    const auto normFactor = 1.f / (totalFlux * m_inputData.m_exposurePOT * m_inputData.m_nTargets);
+
+    for (unsigned int iBin = 1u; iBin <= nBins; ++iBin)
+    {
+        if (this->IsUnderOverflowBin(iBin))
+            continue;
+        
+        const auto binWidth = m_scaleByBinWidth ? (m_binEdges.at(iBin) - m_binEdges.at(iBin - 1)) : 1.f;
+        const auto nDataEvents = m_dataSelectedReco->GetBinContent(iBin);
+        const auto efficiency = smearedEff->GetBinContent(iBin);
+        
+        if (std::abs(std::abs(efficiency) - std::numeric_limits<float>::max()) <= std::numeric_limits<float>::epsilon() ||
+            efficiency <= std::numeric_limits<float>::epsilon())
+        {
+            throw std::logic_error("CrossSection::GetCrossSectionStatUncertainty - Found bin in which smeared efficiency couldn't be calculated!");
+        }
+
+        // Get the uncertainty on the number of data events
+        const auto nDataEventsErr = AnalysisHelper::GetCountUncertainty(nDataEvents);
+
+        // Get the corresponding uncertainty on the cross-section
+        // Cross-section = normFactor * (nDataEvents - nBackgroundsEvents) / (efficiency * binWidth)
+        const auto uncertainty = nDataEventsErr * normFactor / (efficiency * binWidth);
+
+        statErrHist->SetBinContent(iBin - (m_hasUnderflow ? 1 : 0), uncertainty);
+    }
+
+    return statErrHist;
 }
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
@@ -702,6 +793,119 @@ CrossSectionHelper::CovarianceBiasPair CrossSectionHelper::CrossSection::GetCros
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
                 
+CrossSectionHelper::CovarianceBiasPair CrossSectionHelper::CrossSection::GetSmearingMatrixCovarianceMatrix(const std::string &systParameter)
+{
+    // Check that we have an entry for the requested systematic paramter
+    const auto iter = m_inputData.m_systUniverseSizesMap.find(systParameter);
+    if (iter == m_inputData.m_systUniverseSizesMap.end())
+        throw std::invalid_argument("CrossSection::GetSmearingMatrixCovarianceMatrix - unknown parameter: \"" + systParameter + "\"");
+   
+    // Get the number of universes
+    const auto nUniverses = iter->second;
+    if (nUniverses == 0)
+        throw std::logic_error("CrossSection::GetSmearingMatrixCovarianceMatrix - No universes for parameter: \"" + systParameter + "\"");
+    
+    // Setup the covairance matrix and bias vector (here we flatten the bins of the smearing matrix into 1D)
+    const auto nBins = m_binEdges.size() - 1;
+    const auto nSmearingBins = nBins*nBins;
+
+    const std::string covName = "xSecSmearingCov_" + std::to_string(m_histCount++);
+    const std::string biasName = "xSecSmearingBias_" + std::to_string(m_histCount++);
+    CovarianceBiasPair pair (
+        std::make_shared<TH2F>(covName.c_str(), "", nSmearingBins, 0, nSmearingBins, nSmearingBins, 0, nSmearingBins),
+        std::make_shared<TH1F>(biasName.c_str(), "", nSmearingBins, 0, nSmearingBins)
+    );
+    
+    auto &covarianceMatrix = pair.first;
+    auto &biasVector = pair.second;
+
+    //// BEGIN DEBUG
+    std::cout << "Getting mean smearing matrix for parameter: " << systParameter << std::endl;
+    //// END DEBUG
+
+    // Get the mean smearing matrix
+    auto meanSmearingMatrix = this->GetEmptyHist2D();
+    for (unsigned int iUni = 0; iUni < nUniverses; ++iUni)
+    {
+        //// BEGIN DEBUG
+        AnalysisHelper::PrintLoadingBar(iUni, nUniverses);
+        //// END DEBUG
+
+        // Get the smearing matrix from the cache (or add it if we haven't calculated this smearing matrix yet)
+        const auto smearingMatrix = this->GetCachedSmearingMatrix(systParameter, iUni);
+        meanSmearingMatrix->Add(smearingMatrix.get());
+    }
+    const auto universeNormalisation = 1.f / static_cast<float>(nUniverses);
+    meanSmearingMatrix->Scale(universeNormalisation);
+
+    // Get the nominal smearing matrix
+    const auto nomSmearingMatrix = this->GetSmearingMatrix();
+
+    // Flatten the mean and nominal smearing matrices
+    std::vector<float> meanSmearingMatrixFlat, nomSmearingMatrixFlat;
+    for (unsigned int iTrue = 1u; iTrue <= nBins; ++iTrue)
+    {
+        for (unsigned int iReco = 1u; iReco <= nBins; ++iReco)
+        {
+            meanSmearingMatrixFlat.push_back(meanSmearingMatrix->GetBinContent(iTrue, iReco));
+            nomSmearingMatrixFlat.push_back(nomSmearingMatrix->GetBinContent(iTrue, iReco));
+        }
+    }
+
+    // Get the bias vector
+    for (unsigned int iFlat = 0u; iFlat < nSmearingBins; ++iFlat)
+    {
+        const auto bias = meanSmearingMatrixFlat.at(iFlat) - nomSmearingMatrixFlat.at(iFlat);
+        biasVector->SetBinContent(iFlat + 1, bias); // +1 to account for root enumerating bins from 1
+    }
+    
+    //// BEGIN DEBUG
+    std::cout << "Getting covariance matrix of smearing matrix for parameter: " << systParameter << std::endl;
+    //// END DEBUG
+
+    // Get the covariance matrix
+    for (unsigned int iUni = 0u; iUni < nUniverses; ++iUni)
+    {
+        //// BEGIN DEBUG
+        AnalysisHelper::PrintLoadingBar(iUni, nUniverses);
+        //// END DEBUG
+        
+        // Get the smearing matrix from the cache
+        const auto smearingMatrix = this->GetCachedSmearingMatrix(systParameter, iUni);
+
+        // Flatten the smearing matrix
+        std::vector<float> smearingMatrixFlat;
+        for (unsigned int iTrue = 1u; iTrue <= nBins; ++iTrue)
+        {
+            for (unsigned int iReco = 1u; iReco <= nBins; ++iReco)
+            {
+                smearingMatrixFlat.push_back(smearingMatrix->GetBinContent(iTrue, iReco));
+            }
+        }
+
+        // Loop over the flattened indices and add to the covariance matrix
+        for (unsigned int iFlat = 0u; iFlat < nSmearingBins; ++iFlat)
+        {
+            for (unsigned int jFlat = 0u; jFlat <= iFlat; ++jFlat)
+            {
+                const auto currentValue = covarianceMatrix->GetBinContent(iFlat + 1, jFlat + 1); // +1 to account for root enumerating bins from 1
+                const auto newValue = currentValue + (
+                        (smearingMatrixFlat.at(iFlat) - meanSmearingMatrixFlat.at(iFlat)) * 
+                        (smearingMatrixFlat.at(jFlat) - meanSmearingMatrixFlat.at(jFlat)));
+
+                // The matrix is symmetric so we can switch iFlat -> jFlat
+                covarianceMatrix->SetBinContent(iFlat + 1, jFlat + 1, newValue);
+                covarianceMatrix->SetBinContent(jFlat + 1, iFlat + 1, newValue);
+            }
+        }
+    }
+    covarianceMatrix->Scale(universeNormalisation);
+
+    return pair;
+}
+
+// -----------------------------------------------------------------------------------------------------------------------------------------
+                
 std::shared_ptr<TH1F> CrossSectionHelper::CrossSection::GetReweightedFlux(const std::shared_ptr<TH1F> &nuEnergyUniverse) const
 {
     // Check the input histogram has the right number of bins
@@ -811,6 +1015,21 @@ std::map< std::string, CrossSectionHelper::CovarianceBiasPair > CrossSectionHelp
     for (const auto &[param, nUniverses] : m_inputData.m_systUniverseSizesMap)
     {
         const auto pair = this->GetCrossSectionCovarianceMatrix(param);
+        outputMap.emplace(param, pair);
+    }
+
+    return outputMap;
+}
+
+// -----------------------------------------------------------------------------------------------------------------------------------------
+                
+std::map< std::string, CrossSectionHelper::CovarianceBiasPair > CrossSectionHelper::CrossSection::GetSmearingMatrixCovarianceMatricies()
+{
+    std::map< std::string, CovarianceBiasPair> outputMap;
+
+    for (const auto &[param, nUniverses] : m_inputData.m_systUniverseSizesMap)
+    {
+        const auto pair = this->GetSmearingMatrixCovarianceMatrix(param);
         outputMap.emplace(param, pair);
     }
 

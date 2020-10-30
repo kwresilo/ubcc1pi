@@ -177,13 +177,27 @@ class CrossSectionHelper
                  *  @return the cross section in reco bins
                  */
                 std::shared_ptr<TH1F> GetCrossSection() const;
+                
+                /**
+                 *  @brief  Get the statistical uncertainty on the cross-section due to limited BNB data statistics (NB. the MC statistics are treated as a systematic)
+                 *
+                 *  @return the statistical uncertainty on the cross-section 
+                 */
+                std::shared_ptr<TH1F> GetCrossSectionStatUncertainty() const;
 
                 /**
                  *  @brief  Get the covariance matricies for the cross-section for each systematic paramter
                  *
-                 *  @return a map from systematic paramter name to the covarianve matrix matrix / bias vector for that parameter
+                 *  @return a map from systematic paramter name to the covarianve matrix / bias vector for that parameter
                  */
                 std::map< std::string, CovarianceBiasPair > GetCrossSectionCovarianceMatricies();
+                
+                /**
+                 *  @brief  Get the covariance matrives for the smearing matric for each systematic parameter
+                 *
+                 *  @return a map from systematic paramter name to the covarianve matrix / bias vector for that parameter
+                 */
+                std::map< std::string, CovarianceBiasPair > GetSmearingMatrixCovarianceMatricies();
                 
                 /**
                  *  @brief  Get the scatter plots of the value of the cross-sections in each pair of bins for each universe of each paramter
@@ -258,12 +272,23 @@ class CrossSectionHelper
                 /**
                  *  @brief  Get the smeared efficiency in reco bins
                  *
-                 *  @param  signalSelectedRecoTrue the reco vs. true distribution of selected signal events
+                 *  @param  signalSelectedRecoTrue the input reco vs. true distribution of selected signal events
                  *  @param  signalAllTrue the true distribution of all signal events
                  *
                  *  @return the smeared efficiency per reco bin
                  */
                 std::shared_ptr<TH1F> GetSmearedEfficiency(const std::shared_ptr<TH2F> &signalSelectedRecoTrue, const std::shared_ptr<TH1F> &signalAllTrue) const;
+                
+                /**
+                 *  @brief  Get the smeared efficicncy in reco bins
+                 *
+                 *  @param  smearingMatrix the input smearing matrix to use
+                 *  @param  signalSelectedRecoTrue the input reco vs. true distribution of selected signal events (that corresponds to the smearing matrix)
+                 *  @param  signalAllTrue the true distributions of all signal events
+                 *
+                 *  @return the smeared efficiency per reco bin
+                 */
+                std::shared_ptr<TH1F> GetSmearedEfficiency(const std::shared_ptr<TH2F> &smearingMatrix, const std::shared_ptr<TH2F> &signalSelectedRecoTrue, const std::shared_ptr<TH1F> &signalAllTrue) const;
 
                 /**
                  *  @brief  Get the forward-folded cross-section in reco bins
@@ -287,6 +312,17 @@ class CrossSectionHelper
                  *  @return the cross-section
                  */
                 std::shared_ptr<TH1F> GetCachedCrossSection(const std::string &systParameter, const unsigned int universeIndex);
+                
+                /**
+                 *  @brief  Get the cached smearing matrix in a given systematic universe. If the cached value doesn't exist, then this
+                 *          function will calculate it and cache it.
+                 *
+                 *  @param  systParameter the systematic parameter
+                 *  @param  universeIndex the universe index
+                 *
+                 *  @return the smearing matrix
+                 */
+                std::shared_ptr<TH2F> GetCachedSmearingMatrix(const std::string &systParameter, const unsigned int universeIndex);
 
                 /**
                  *  @brief  Get the scatter plots showing the universe variations for each pair of bins
@@ -302,9 +338,18 @@ class CrossSectionHelper
                  *
                  *  @param  systParameter the systematic parameter to apply
                  *
-                 *  @return a pair of matricies, first is the covariance matrix, second is the bias vector
+                 *  @return a pair, first is the covariance matrix, second is the bias vector
                  */
                 CovarianceBiasPair GetCrossSectionCovarianceMatrix(const std::string &systParameter);
+
+                /**
+                 *  @brief  Get the covariance matrix for the smearing matrix for a given systematic parameter
+                 *
+                 *  @param  systParameter the systematic parameter to apply
+                 *
+                 *  @return a pair, first is the covariance matrix, second is the bias vector
+                 */
+                CovarianceBiasPair GetSmearingMatrixCovarianceMatrix(const std::string &systParameter);
 
                 /**
                  *  @brief  Get a reweighted flux distribution according to the input neutrino energy spectrum (for the desired universe)
@@ -352,6 +397,7 @@ class CrossSectionHelper
 
                 // The cached objects for speed
                 SystCache<std::shared_ptr<TH1F> >   m_crossSectionCache;          ///< The cached cross-sections in each systematic universe to hold in memory
+                SystCache<std::shared_ptr<TH2F> >   m_smearingMatrixCache;        ///< The cached smearing matricies in each systematic universe to hold in memory
                 bool                                m_shouldResetCache;           ///< If we need to re-calculate the cached values because something has changed
                 
                 static unsigned int                 m_histCount;                  ///< A counter for the total number of histograms - used to avoid name collisions

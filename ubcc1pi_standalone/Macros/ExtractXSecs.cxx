@@ -103,6 +103,7 @@ void ExtractXSecs(const Config &config)
             AnalysisHelper::PrintLoadingBar(i, nEvents);
 
             //// BEGIN DEBUG
+            /*
             // Reduce the rate of events for speed while debugging
             const unsigned int nEventsTarget = isOverlay ? 10000u : nEvents;
             const unsigned int batchSize = std::round(static_cast<float>(nEvents) / static_cast<float>(std::min(nEvents, nEventsTarget)));
@@ -112,13 +113,14 @@ void ExtractXSecs(const Config &config)
             // Work out the amount by which we need to up-weight the events we do use to make the scaling work
             const auto nEventsUsed = nEvents / batchSize; // Integer division
             const auto debugScaling = static_cast<float>(nEvents) / static_cast<float>(nEventsUsed);
+            */
             //// END DEBUG
 
             reader.LoadEvent(i);
             
             // Get the nominal event weight, scaled by the sample normalisation
-            const auto weight = AnalysisHelper::GetNominalEventWeight(pEvent) * normalisation * debugScaling; //// DEBUG remove debugScaling
-//            const auto weight = AnalysisHelper::GetNominalEventWeight(pEvent) * normalisation;
+//            const auto weight = AnalysisHelper::GetNominalEventWeight(pEvent) * normalisation * debugScaling; //// DEBUG remove debugScaling
+            const auto weight = AnalysisHelper::GetNominalEventWeight(pEvent) * normalisation;
             
             // Get the systematic event weights non BNB data events
             CrossSectionHelper::SystematicWeightsMap systWeightsMap;
@@ -266,157 +268,7 @@ void ExtractXSecs(const Config &config)
         PlottingHelper::SaveCanvas(pCanvas, "xsec_fluxVariations_" + paramName);
     }
 
-    /*
-    // Define a function to make the scatter plots
-    const auto MakeScatterPlots = [](const auto &xsec, const auto &covariances, const auto &scatterPlots, const std::string &namePrefix)
-    {
-        auto pSquareCanvas = PlottingHelper::GetCanvas(960, 960);
-
-        for (const auto &[param, covarianceBiasPair] : covariances)
-        {
-            for (const auto &[iBin, jBin, graph] : scatterPlots.at(param))
-            {
-                // Get the eigenvectors of the covariance matrix
-                const auto eigenVectors = CrossSectionHelper::GetUncertaintyEigenVectors(covarianceBiasPair, iBin, jBin);
-
-                // Get the bias vector
-                const auto iBias = covarianceBiasPair.second->GetBinContent(iBin);
-                const auto jBias = covarianceBiasPair.second->GetBinContent(jBin);
-
-                // Get the cross-section in the nominal universe in these bins
-                const auto iValue = xsec->GetBinContent(iBin);
-                const auto jValue = xsec->GetBinContent(jBin);
-
-                // Draw the scatter graph
-                graph->Draw("ap");
-
-                // Add the bias line
-                std::vector< std::shared_ptr<TArrow> > lines;
-                lines.emplace_back(std::make_shared<TArrow>(
-                            iValue, jValue,                  // X, Y start of line
-                            iValue + iBias, jValue + jBias,  // X, Y end of line
-                            0.01, "->"                       // Arrow style
-                ));
-
-                auto &pBiasLine = lines.back();
-                pBiasLine->SetLineColor(kBlue);
-                pBiasLine->Draw();
-
-                // Add the eigenvector lines
-                for (const auto &vector : {eigenVectors.first, eigenVectors.second})
-                {
-                    lines.emplace_back(std::make_shared<TArrow>(
-                                iValue + iBias - vector.X(), jValue + jBias - vector.Y(),  // X, Y start of line
-                                iValue + iBias + vector.X(), jValue + jBias + vector.Y(),  // X, Y end of line
-                                0.01, "<>"                                                 // Arrow style
-                    ));
-
-                    auto &pLine = lines.back();
-                    pLine->SetLineColor(kRed);
-                    pLine->Draw();
-                }
-
-                PlottingHelper::SaveCanvas(pSquareCanvas, "xsec_scatter_" + namePrefix + "_" + param + "_" + std::to_string(iBin) + "-" + std::to_string(jBin));
-            }
-        }
-    };
-
-    // Define a function to save the cross-section plots
-    const auto MakeXSecPlot = [] (const auto &xsec, const auto &plot, const auto &covariances, const std::string &namePrefix)
-    {
-        auto pCanv = PlottingHelper::GetCanvas();
-
-        // Loop over the normal bins and get the bin edges
-        const unsigned int nBinsTotal = plot->GetXaxis()->GetNbins();
-        std::vector<float> binEdges;
-        for (unsigned int iBin = 1; iBin <= nBinsTotal; ++iBin)
-        {
-            if (xsec.IsUnderOverflowBin(iBin))
-                continue;
-
-            binEdges.push_back(plot->GetBinLowEdge(iBin));
-        }
-        
-        const auto hasOverflow = xsec.IsUnderOverflowBin(nBinsTotal);
-        const auto lastBinIndex = hasOverflow ? (nBinsTotal-1) : nBinsTotal;
-        const auto upperEdge = plot->GetBinLowEdge(lastBinIndex) + plot->GetBinWidth(lastBinIndex);
-        binEdges.push_back(upperEdge);
-
-        // Make new plots skipping the under-overflow bins
-        const auto nNewBins = binEdges.size() - 1;
-        auto pXSecHist = std::make_shared<TH1F>(("xsec_plot_" + namePrefix).c_str(), "", nNewBins, binEdges.data());
-        std::map< std::string, std::shared_ptr<TH1F> > biasMap, fracBiasMap;
-        std::map< std::string, std::shared_ptr<TH2F> > covarianceMap, fracCovarianceMap;
-
-        for (const auto &[paramName, covarianceBiasPair] : covariances)
-        {
-            biasMap.emplace(paramName, std::make_shared<TH1F>(("xsec_bias_" + namePrefix).c_str(), "", nNewBins, 0, nNewBins));
-            fracBiasMap.emplace(paramName, std::make_shared<TH1F>(("xsec_fracBias_" + namePrefix).c_str(), "", nNewBins, 0, nNewBins));
-            covarianceMap.emplace(paramName, std::make_shared<TH2F>(("xsec_cov_" + namePrefix).c_str(), "", nNewBins, 0, nNewBins, nNewBins, 0, nNewBins));
-            fracCovarianceMap.emplace(paramName, std::make_shared<TH2F>(("xsec_fracCov_" + namePrefix).c_str(), "", nNewBins, 0, nNewBins, nNewBins, 0, nNewBins));
-        }
-
-        unsigned int iBinNew = 1;
-        for (unsigned int iBin = 1; iBin <= nBinsTotal; ++iBin)
-        {
-            if (xsec.IsUnderOverflowBin(iBin))
-                continue;
-
-            pXSecHist->SetBinContent(iBinNew, plot->GetBinContent(iBin));
-            
-            for (const auto &[paramName, covarianceBiasPair] : covariances)
-            {
-                biasMap.at(paramName)->SetBinContent(iBinNew, covarianceBiasPair.second->GetBinContent(iBin));
-                fracBiasMap.at(paramName)->SetBinContent(iBinNew, covarianceBiasPair.second->GetBinContent(iBin) / plot->GetBinContent(iBin));
-                
-                unsigned int jBinNew = 1;
-                for (unsigned int jBin = 1; jBin <= nBinsTotal; ++jBin)
-                {
-                    if (xsec.IsUnderOverflowBin(jBin))
-                        continue;
-                
-                    covarianceMap.at(paramName)->SetBinContent(iBinNew, jBinNew, covarianceBiasPair.first->GetBinContent(iBin, jBin));
-                    fracCovarianceMap.at(paramName)->SetBinContent(iBinNew, jBinNew, covarianceBiasPair.first->GetBinContent(iBin, jBin) / (plot->GetBinContent(iBin) * plot->GetBinContent(jBin)));
-
-                    jBinNew++;
-                }
-            }
-
-            iBinNew++;
-        }
-   
-        // Save the plots
-        pXSecHist->Draw("hist");
-        PlottingHelper::SaveCanvas(pCanv, "xsec_" + namePrefix);
-
-        for (const auto &[paramName, pHist] : covarianceMap)
-        {
-            pHist->Draw("colz");
-            PlottingHelper::SaveCanvas(pCanv, "xsec_covariance_" + namePrefix + "_" + paramName);
-        }
-        
-        for (const auto &[paramName, pHist] : fracCovarianceMap)
-        {
-            pHist->Draw("colz");
-            PlottingHelper::SaveCanvas(pCanv, "xsec_fracCovariance_" + namePrefix + "_" + paramName);
-        }
-        
-        for (const auto &[paramName, pHist] : biasMap)
-        {
-            pHist->Draw("colz");
-            PlottingHelper::SaveCanvas(pCanv, "xsec_bias_" + namePrefix + "_" + paramName);
-        }
-
-        for (const auto &[paramName, pHist] : fracBiasMap)
-        {
-            pHist->Draw("colz");
-            PlottingHelper::SaveCanvas(pCanv, "xsec_fracBias_" + namePrefix + "_" + paramName);
-        }
-    };
-*/
-
-    // Calculate the cross-section and print it out!
-
+    // Calculate the cross-section for each kinematic parameter and print it out!
     for (auto &[namePrefix, xsec] : std::vector<std::pair<std::string, CrossSectionHelper::CrossSection> >({
         {"muonMomentum", xsec_muonMomentum},
         {"total", xsec_total},
@@ -430,6 +282,10 @@ void ExtractXSecs(const Config &config)
         std::cout << "Cross-section" << std::endl;
         const auto &xsec_plot = xsec.GetCrossSection();
         FormattingHelper::SaveHistAsTable(xsec_plot, "xsec_" + namePrefix + ".md");
+        
+        // Get the stat uncertainties on the cross-seciton
+        const auto &xsec_statErr = xsec.GetCrossSectionStatUncertainty();
+        FormattingHelper::SaveHistAsTable(xsec_statErr, "xsec_" + namePrefix + "_statUncertainty.md");
 
         // Get the covariance matrices and bias vectors for each systematic parameter
         std::cout << "Getting covariance & biases" << std::endl;
@@ -448,11 +304,43 @@ void ExtractXSecs(const Config &config)
             PlottingHelper::SaveCovarianceMatrix(covarianceMatrix, xsec_plot, xsec.HasUnderflowBin(), xsec.HasOverflowBin(), "xsec_" + namePrefix + "_" + paramName);
         }
 
+        // Get the smearing matrix
+        std::cout << "Smearing matrix" << std::endl;
+        const auto &xsec_smearing = xsec.GetSmearingMatrix();
+        FormattingHelper::SaveHistAsTable(xsec_smearing, "xsec_" + namePrefix + "_smearing.md");
+        PlottingHelper::SaveSmearingMatrix(xsec_smearing, xsec.HasUnderflowBin(), xsec.HasOverflowBin(), "xsec_" + namePrefix);
+
+        // Get the covariance and bias vectors for the smearing matrix for each systematic parameter
+        std::cout << "Getting covariance & biases for smearing matrix" << std::endl;
+        const auto &xsec_smearing_covariances = xsec.GetSmearingMatrixCovarianceMatricies();
+        for (const auto &[paramName, covarianceBiasPair] : xsec_smearing_covariances)
+        {
+            const auto &covarianceMatrix = covarianceBiasPair.first;
+            const auto &biasVector = covarianceBiasPair.second;
+
+            std::cout << "Bias vector" << std::endl;
+            FormattingHelper::SaveHistAsTable(biasVector, "xsec_" + namePrefix + "_" + paramName + "_smearing_bias.md");
+            PlottingHelper::SaveSmearingMatrixBiasVector(biasVector, xsec.HasUnderflowBin(), xsec.HasOverflowBin(), "xsec_" + namePrefix + "_" + paramName);
+            
+            std::cout << "Covariance matrix" << std::endl;
+            FormattingHelper::SaveHistAsTable(covarianceMatrix, "xsec_" + namePrefix + "_"+ paramName + "_smearing_covariance.md");
+            PlottingHelper::SaveSmearingMatrixCovarianceMatrix(covarianceMatrix, xsec.HasUnderflowBin(), xsec.HasOverflowBin(), "xsec_" + namePrefix + "_" + paramName);
+        }
+
         // Get the total covariance matrix, accounting for the biases
         std::cout << "Getting total covariance matrix" << std::endl;
         const auto &xsec_totalCovariance = CrossSectionHelper::GetTotalCovarianceMatrix(xsec_covariances);
         FormattingHelper::SaveHistAsTable(xsec_totalCovariance, "xsec_" + namePrefix + "_allParams_covariance.md");
         PlottingHelper::SaveCovarianceMatrix(xsec_totalCovariance, xsec_plot, xsec.HasUnderflowBin(), xsec.HasOverflowBin(), "xsec_" + namePrefix + "_allParams");
+        
+        // Save the cross-section plot with error bars
+        PlottingHelper::SaveCrossSection(xsec_plot, xsec_statErr, xsec_totalCovariance, xsec.HasUnderflowBin(), xsec.HasOverflowBin(), "xsec_" + namePrefix);
+        
+        // Get the total covariance matrix, accounting for the biases for the smearing matrix
+        std::cout << "Getting total covariance matrix for smearing matrix" << std::endl;
+        const auto &xsec_smearing_totalCovariance = CrossSectionHelper::GetTotalCovarianceMatrix(xsec_smearing_covariances);
+        FormattingHelper::SaveHistAsTable(xsec_smearing_totalCovariance, "xsec_" + namePrefix + "_allParams_smearing_covariance.md");
+        PlottingHelper::SaveSmearingMatrixCovarianceMatrix(xsec_smearing_totalCovariance, xsec.HasUnderflowBin(), xsec.HasOverflowBin(), "xsec_" + namePrefix + "_allParams");
 
         // For performance clear the cached cross-sections from memory
         xsec.ClearCache();
