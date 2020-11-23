@@ -138,7 +138,7 @@ struct Config
         bool        countProtonsInclusively = true;               ///< If we should count protons inclusively (as Xp), or exclusively as (0p, 1p, 2p, ...)
         std::string lastCutGeneric          = "startNearVertex";  ///< The last cut of the generic selection (remaining cuts are part of the golden selection)
         float       protonMomentumThreshold = 0.3f;               ///< The minimum proton momentum to be counted [GeV]
-        float       targetDensity           = 8.44191f;           ///< The number of target nuclei per unit volume - units e23 / cm^3 
+        float       targetDensity           = 8.44191f;           ///< The number of target nuclei per unit volume - units e23 / cm^3
 
         /**
          *  @brief  The muonCosTheta plot limits structure
@@ -241,7 +241,7 @@ struct Config
     {
         bool  useOverlays           = true; ///< If we should count the POT for the overlays
         bool  useDirt               = true; ///< If we should count the POT for the dirt
-        bool  useDetectorVariations = true; ///< If we should count the POT for the detector variations 
+        bool  useDetectorVariations = true; ///< If we should count the POT for the detector variations
     };
     CountPOT countPOT; ///< The configuration options for the CountPOT macro
 
@@ -359,7 +359,7 @@ struct Config
     // -------------------------------------------------------------------------------------------------------------------------------------
 
     /**
-     *  @brief  Configuration for the MakeBinningPlots macro 
+     *  @brief  Configuration for the MakeBinningPlots macro
      */
     struct MakeBinningPlots
     {

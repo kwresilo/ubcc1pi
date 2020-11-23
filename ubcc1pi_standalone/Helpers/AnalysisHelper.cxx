@@ -114,7 +114,7 @@ float AnalysisHelper::EventCounter::GetBNBDataWeight(const std::string &tag) con
 }
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
-                
+
 bool AnalysisHelper::EventCounter::IsSignalClassification(const std::string &classification, const std::string &searchQuery) const
 {
     if (classification.empty())
@@ -123,7 +123,7 @@ bool AnalysisHelper::EventCounter::IsSignalClassification(const std::string &cla
     // Signal classifications always begin with 'S'
     if (classification.at(0) != 'S')
         return false;
- 
+
     if (searchQuery.empty())
         return true;
 
@@ -175,7 +175,7 @@ float AnalysisHelper::EventCounter::GetBackgroundWeight(const std::string &tag, 
     {
         if (this->IsSignalClassification(classification, searchQuery))
             continue;
-    
+
         for (const auto &type : AnalysisHelper::AllSampleTypes)
         {
             if (type == DataBNB)
@@ -193,10 +193,10 @@ float AnalysisHelper::EventCounter::GetBackgroundWeight(const std::string &tag, 
 float AnalysisHelper::EventCounter::GetSignalEfficiency(const std::string &tag, const std::string &searchQuery) const
 {
     const auto allWeight = this->GetSignalWeight("all", searchQuery);
-    
+
     if (allWeight <= std::numeric_limits<float>::epsilon())
         return -std::numeric_limits<float>::max();
-    
+
     const auto weight = this->GetSignalWeight(tag, searchQuery);
 
     return weight / allWeight;
@@ -210,10 +210,10 @@ float AnalysisHelper::EventCounter::GetSignalPurity(const std::string &tag, cons
         throw std::invalid_argument("AnalysisHelper::EventCounter::GetSignalPurity - Can't get purity for tag \"all\", as it won't be available for off-beam data");
 
     const auto totalWeight = this->GetTotalMCWeight(tag);
-    
+
     if (totalWeight <= std::numeric_limits<float>::epsilon())
         return -std::numeric_limits<float>::max();
-    
+
     const auto weight = this->GetSignalWeight(tag, searchQuery);
 
     return weight / totalWeight;
@@ -227,7 +227,7 @@ float AnalysisHelper::EventCounter::GetEfficiency(const std::string &tag, const 
         throw std::invalid_argument("AnalysisHelper::EventCounter::GetEfficiency - Can't get efficiency of data!");
 
     const auto allWeight = this->GetWeight("all", sampleType, classification);
-    
+
     if (allWeight <= std::numeric_limits<float>::epsilon())
         return -std::numeric_limits<float>::max();
 
@@ -250,7 +250,7 @@ float AnalysisHelper::EventCounter::GetPurity(const std::string &tag, const Samp
 
     if (totalWeight <= std::numeric_limits<float>::epsilon())
         return -std::numeric_limits<float>::epsilon();
-    
+
     const auto weight = this->GetWeight(tag, sampleType, classification);
 
     return weight / totalWeight;
@@ -268,7 +268,7 @@ void AnalysisHelper::EventCounter::CountEvent(const std::string &tag, const Samp
     const auto useAbsPdg = true; // TODO make this configurable
     const auto countProtonsInclusively = true; // TODO make this configurable
     const auto classification = AnalysisHelper::GetClassificationString(pEvent, useAbsPdg, countProtonsInclusively);
-    
+
     // Keep track of this classification if we haven't seen it before
     if (std::find(m_classifications.begin(), m_classifications.end(), classification) == m_classifications.end())
         m_classifications.push_back(classification);
@@ -289,7 +289,7 @@ void AnalysisHelper::EventCounter::CountEvent(const std::string &tag, const Samp
 }
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
-                
+
 std::vector<std::string> AnalysisHelper::EventCounter::GetTags() const
 {
     return m_tags;
@@ -324,14 +324,14 @@ void AnalysisHelper::EventCounter::PrintBreakdownSummary(const std::string &outp
             table.SetEntry("Purity", purity);
             table.SetEntry("E*P", efficiency * purity);
         }
-        
+
         table.SetEntry("Golden fraction", this->GetSignalWeight(tag, "S G") / this->GetSignalWeight(tag));
 
         const auto bnbDataWeight = this->GetBNBDataWeight(tag);
         const auto totalMCWeight = this->GetTotalMCWeight(tag);
 
         table.SetEntry("BNB Data", bnbDataWeight);
-        
+
         if (totalMCWeight <= std::numeric_limits<float>::epsilon())
         {
             table.SetEntry("Data/MC ratio", "?");
@@ -346,17 +346,17 @@ void AnalysisHelper::EventCounter::PrintBreakdownSummary(const std::string &outp
 }
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
-                
+
 void AnalysisHelper::EventCounter::PrintBreakdownDetails(const std::string &outputFileName, const unsigned int nEntries) const
 {
     FormattingHelper::Table table({"Tag", "", "Sample", "Classification", "", "Weight", "Efficiency", "Purity"});
 
     for (const auto &tag : m_tags)
     {
-        // Print a separator row 
+        // Print a separator row
         if (tag != m_tags.front())
             table.AddEmptyRow();
-          
+
         // The total MC weight we have and haven't printed
         float totalMCWeight = 0.f;
         float totalMCWeightPrinted = 0.f;
@@ -387,7 +387,7 @@ void AnalysisHelper::EventCounter::PrintBreakdownDetails(const std::string &outp
                 return a.second > b.second;
             });
 
-            // Print the entries 
+            // Print the entries
             unsigned int entriesPrinted = 0;
             for (const auto &entry : classificationWeightVector)
             {
@@ -399,7 +399,7 @@ void AnalysisHelper::EventCounter::PrintBreakdownDetails(const std::string &outp
 
                 if (entriesPrinted == nEntries)
                     continue;
-                
+
                 if (sample != AnalysisHelper::DataBNB)
                     totalMCWeightPrinted += weight;
 
@@ -418,18 +418,18 @@ void AnalysisHelper::EventCounter::PrintBreakdownDetails(const std::string &outp
                 {
                     table.SetEntry("Purity", this->GetPurity(tag, sample, classification));
                 }
-                
+
                 entriesPrinted++;
             }
         }
-   
+
         // Print the other catagory
         const auto mcWeightNotPrinted = totalMCWeight - totalMCWeightPrinted;
         table.AddEmptyRow();
         table.SetEntry("Tag", tag);
         table.SetEntry("Classification", "Other");
         table.SetEntry("Weight", mcWeightNotPrinted);
-        
+
         if (totalMCWeight > std::numeric_limits<float>::epsilon())
         {
             const auto otherPurity = mcWeightNotPrinted / totalMCWeight;
@@ -443,7 +443,7 @@ void AnalysisHelper::EventCounter::PrintBreakdownDetails(const std::string &outp
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
 // -----------------------------------------------------------------------------------------------------------------------------------------
-        
+
 float AnalysisHelper::GetNominalEventWeight(const std::shared_ptr<Event> &pEvent)
 {
     float weight = 1.f;
@@ -454,7 +454,7 @@ float AnalysisHelper::GetNominalEventWeight(const std::shared_ptr<Event> &pEvent
     // failure in the event weighting code - for now we just skip infinite weights
     if (truth.splineEventWeight.IsSet() && std::abs(truth.splineEventWeight()) < std::numeric_limits<float>::max())
         weight *= truth.splineEventWeight();
-    
+
     if (truth.genieTuneEventWeight.IsSet() && std::abs(truth.genieTuneEventWeight()) < std::numeric_limits<float>::max())
         weight *= truth.genieTuneEventWeight();
 
@@ -473,7 +473,7 @@ bool AnalysisHelper::IsTrueCCInclusive(const std::shared_ptr<Event> &pEvent, con
     // Insist the true neutrino is fiducial
     if (!AnalysisHelper::IsFiducial(truth.nuVertex()))
         return false;
-    
+
     // Count the visible particles
     const auto visibleParticles = AnalysisHelper::SelectVisibleParticles(pEvent->truth.particles);
     const auto nMu = AnalysisHelper::CountParticlesWithPdgCode(visibleParticles, 13, useAbsPdg);
@@ -495,7 +495,7 @@ bool AnalysisHelper::IsTrueCC1Pi(const std::shared_ptr<Event> &pEvent, const boo
     // Insist the true neutrino is fiducial
     if (!AnalysisHelper::IsFiducial(truth.nuVertex()))
         return false;
-    
+
     // Count the visible particles
     const auto visibleParticles = AnalysisHelper::SelectVisibleParticles(pEvent->truth.particles);
     const auto nMu = AnalysisHelper::CountParticlesWithPdgCode(visibleParticles, 13, useAbsPdg);
@@ -508,7 +508,7 @@ bool AnalysisHelper::IsTrueCC1Pi(const std::shared_ptr<Event> &pEvent, const boo
 }
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
-    
+
 bool AnalysisHelper::PassesVisibilityThreshold(const Event::Truth::Particle &particle)
 {
     // First only consider specific particle types that can lead to hits
@@ -524,7 +524,7 @@ bool AnalysisHelper::PassesVisibilityThreshold(const Event::Truth::Particle &par
 }
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
-        
+
 std::vector<Event::Truth::Particle> AnalysisHelper::SelectVisibleParticles(const std::vector<Event::Truth::Particle> &particles)
 {
     std::vector<Event::Truth::Particle> visibleParticles;
@@ -539,7 +539,7 @@ std::vector<Event::Truth::Particle> AnalysisHelper::SelectVisibleParticles(const
 }
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
-        
+
 unsigned int AnalysisHelper::CountParticlesWithPdgCode(const std::vector<Event::Truth::Particle> &particles, const int pdgCode, const bool useAbsPdg)
 {
     unsigned int count = 0;
@@ -569,7 +569,7 @@ unsigned int AnalysisHelper::CountGoldenParticlesWithPdgCode(const std::vector<E
 }
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
-        
+
 void AnalysisHelper::GetPdgCodeCountMap(const std::vector<Event::Truth::Particle> &particles, const bool useAbsPdg, std::vector<int> &foundPdgs, std::unordered_map<int, unsigned int> &pdgCodeCountMap)
 {
     if (!foundPdgs.empty())
@@ -624,7 +624,7 @@ std::string AnalysisHelper::GetTopologyString(const std::vector<Event::Truth::Pa
     {
         const auto count = pdgCodeCountMap.at(pdg);
         const auto countStr = std::to_string(count);
-    
+
         switch (pdg)
         {
             case 11:
@@ -690,18 +690,18 @@ std::string AnalysisHelper::GetClassificationString(const std::shared_ptr<Event>
         return "D,  ";
 
     const auto truth = pEvent->truth;
-    
+
     // Insist the true neutrino is fiducial
     if (!AnalysisHelper::IsFiducial(truth.nuVertex()))
         return "NF, ";
 
     std::string classification = "";
     const auto visibleParticles = AnalysisHelper::SelectVisibleParticles(truth.particles);
-    
+
     // Signal or background
     const auto isTrueCC1Pi = AnalysisHelper::IsTrueCC1Pi(pEvent, useAbsPdg);
     classification += isTrueCC1Pi ? "S" : "B,  ";
-    
+
     if (isTrueCC1Pi)
     {
         // Check if we have a golden pion
@@ -723,14 +723,14 @@ std::string AnalysisHelper::GetClassificationString(const std::shared_ptr<Event>
 
 bool AnalysisHelper::IsPointWithinMargins(const TVector3 &point, const float lowXMargin, const float highXMargin, const float lowYMargin, const float highYMargin, const float lowZMargin, const float highZMargin)
 {
-    return ((point.x() > GeometryHelper::lowX + lowXMargin)   && 
+    return ((point.x() > GeometryHelper::lowX + lowXMargin)   &&
             (point.x() < GeometryHelper::highX - highXMargin) &&
             (point.y() > GeometryHelper::lowY + lowYMargin)   &&
             (point.y() < GeometryHelper::highY - highYMargin) &&
             (point.z() > GeometryHelper::lowZ + lowZMargin)   &&
             (point.z() < GeometryHelper::highZ - highZMargin) );
 }
-        
+
 // -----------------------------------------------------------------------------------------------------------------------------------------
 
 float AnalysisHelper::GetFiducialVolume()
@@ -824,7 +824,7 @@ unsigned int AnalysisHelper::GetBestMatchedTruthParticleIndex(const Event::Reco:
 
     if (!foundMatch)
         throw std::logic_error("AnalysisHelper::GetBestMatchedTruthParticleIndex - input reco particle has no matched truth particle");
-    
+
     return bestMatchedParticleId;
 }
 
@@ -836,7 +836,7 @@ Event::Truth::Particle AnalysisHelper::GetBestMatchedTruthParticle(const Event::
 }
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
-            
+
 bool AnalysisHelper::IsGolden(const Event::Truth::Particle &particle)
 {
     return (particle.nElasticScatters() == 0 &&
@@ -851,8 +851,8 @@ std::shared_ptr<TF1> AnalysisHelper::GetRangeToMomentumFunction()
 {
     // Work out the maximum straight-line range a particle can have, so we can set sensible limits on the fit
     const auto minRange = 0.f;
-    const auto maxRange = std::pow( std::pow(GeometryHelper::highX - GeometryHelper::lowX, 2) + 
-                                    std::pow(GeometryHelper::highY - GeometryHelper::lowY, 2) + 
+    const auto maxRange = std::pow( std::pow(GeometryHelper::highX - GeometryHelper::lowX, 2) +
+                                    std::pow(GeometryHelper::highY - GeometryHelper::lowY, 2) +
                                     std::pow(GeometryHelper::highZ - GeometryHelper::lowZ, 2) , 0.5f);
 
     std::shared_ptr<TF1> pFunc(new TF1(("fitFunc_" + std::to_string(m_fitFunctionIndex++)).c_str(), "[0] + [1]*x - [2]*pow(x, -[3])", minRange, maxRange));
@@ -913,7 +913,7 @@ void AnalysisHelper::GetRangeToMomentumFunctionParameters(const std::shared_ptr<
 }
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
-        
+
 void AnalysisHelper::GetRangeToMomentumFitParameters(const std::vector<float> &ranges, const std::vector<float> &momenta, RangeToMomentumFitParameters &params)
 {
     if (ranges.size() != momenta.size())
@@ -921,7 +921,7 @@ void AnalysisHelper::GetRangeToMomentumFitParameters(const std::vector<float> &r
 
     // In general for a given range, there can be a significant (and asymmetric) spread of momenta around the most probable value.
     // The idea here is to first bin the ranges, and get the most probable value at each range, then fit those most probable values
-    
+
     // The number of data points to put in each bin
     const unsigned int nPointsPerBin = 100u;
 
@@ -948,7 +948,7 @@ void AnalysisHelper::GetRangeToMomentumFitParameters(const std::vector<float> &r
         // If we have enough points in the current bin, then add another
         if (i % nPointsPerBin == 0)
             binnedPoints.emplace_back();
-        
+
         // Add this data point to the last bin
         binnedPoints.back().push_back(dataPoints.at(i));
     }
@@ -980,7 +980,7 @@ void AnalysisHelper::GetRangeToMomentumFitParameters(const std::vector<float> &r
 
         // Get the mean of the ranges in the bin
         const auto meanRange = std::accumulate(rangesInBin.begin(), rangesInBin.end(), 0.f) / static_cast<float>(rangesInBin.size());
-        
+
         // Get the minimum momenta in the bin
         const auto minMomentum = *std::min_element(momentaInBin.begin(), momentaInBin.end());
 
@@ -1003,7 +1003,7 @@ void AnalysisHelper::GetRangeToMomentumFitParameters(const std::vector<float> &r
         // Find the mean momenta in the most probable bin
         const auto mostProbableMomenta = momentumBinsVector.front().second;
         const auto meanMomentum = std::accumulate(mostProbableMomenta.begin(), mostProbableMomenta.end(), 0.f) / static_cast<float>(mostProbableMomenta.size());
-    
+
         // Save this as a data point to fit
         fitRanges.push_back(meanRange);
         fitMomenta.push_back(meanMomentum);
@@ -1013,21 +1013,21 @@ void AnalysisHelper::GetRangeToMomentumFitParameters(const std::vector<float> &r
     const auto minRange = *std::min_element(fitRanges.begin(), fitRanges.end());
     const auto maxRange = *std::max_element(fitRanges.begin(), fitRanges.end());
 
-        
+
     // Make a TGraph to fit
     const auto nPoints = fitRanges.size();
     std::shared_ptr<TGraph> pGraph(new TGraph(nPoints, fitRanges.data(), fitMomenta.data()));
 
     // Get the function we want to fit
     auto pFunc = AnalysisHelper::GetRangeToMomentumFunction();
-    
+
     // Set some initial values to help the fit converge quickly. For reference, I just eyeballed these numbers from a plot of muons
     params.a = 2e-1f;
     params.b = 2e-3f;
     params.c = 1e-1f;
     params.d = 2e-1f;
     AnalysisHelper::SetRangeToMomentumFunctionParameters(params, pFunc);
-    
+
     // Run the fit
     //  - M = do it gooder (about as much information as the ROOT documentation gives you!)
     //  - N = don't draw the result
@@ -1042,7 +1042,7 @@ void AnalysisHelper::GetRangeToMomentumFitParameters(const std::vector<float> &r
 }
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
-        
+
 float AnalysisHelper::GetPionMomentumFromRange(const float &range)
 {
     auto pFunc = AnalysisHelper::GetRangeToMomentumFunctionPion();
@@ -1050,7 +1050,7 @@ float AnalysisHelper::GetPionMomentumFromRange(const float &range)
 }
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
-        
+
 float AnalysisHelper::GetMuonMomentumFromRange(const float &range)
 {
     auto pFunc = AnalysisHelper::GetRangeToMomentumFunctionMuon();
@@ -1063,7 +1063,7 @@ float AnalysisHelper::GetMuonMomentumFromMCS(const Event::Reco::Particle &muon)
 {
     if (muon.mcsMomentumForwardMuon.IsSet())
         return muon.mcsMomentumForwardMuon();
-    
+
     if (muon.mcsMomentumBackwardMuon.IsSet())
         return muon.mcsMomentumBackwardMuon();
 
@@ -1072,12 +1072,12 @@ float AnalysisHelper::GetMuonMomentumFromMCS(const Event::Reco::Particle &muon)
 }
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
-        
+
 float AnalysisHelper::GetMuonMomentum(const Event::Reco::Particle &muon)
 {
     if (AnalysisHelper::IsContained(muon))
         return AnalysisHelper::GetMuonMomentumFromRange(muon.range());
-    
+
     return AnalysisHelper::GetMuonMomentumFromMCS(muon);
 }
 
@@ -1086,7 +1086,7 @@ float AnalysisHelper::GetMuonMomentum(const Event::Reco::Particle &muon)
 AnalysisHelper::AnalysisData AnalysisHelper::GetRecoAnalysisData(const Event::Reco &reco, const std::vector<int> &assignedPdgCodes, const bool passesGoldenPionSelection)
 {
     AnalysisData data;
-        
+
     // Sanity check
     const auto recoParticles = reco.particles;
     if (assignedPdgCodes.size() != recoParticles.size())
@@ -1152,7 +1152,7 @@ AnalysisHelper::AnalysisData AnalysisHelper::GetRecoAnalysisData(const Event::Re
 }
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
-        
+
 unsigned int AnalysisHelper::GetParticleIndexWithPdg(const std::vector<int> &assignedPdgCodes, const int pdgCode)
 {
     std::vector<unsigned int> indices;
@@ -1202,12 +1202,12 @@ AnalysisHelper::AnalysisData AnalysisHelper::GetTruthAnalysisData(const Event::T
             data.pionCosTheta = cosTheta;
             data.pionPhi = phi;
             data.hasGoldenPion = AnalysisHelper::IsGolden(particle);
-            
+
             pionDir = dir;
 
             continue;
         }
-        
+
         if (pdg == 13)
         {
             if (foundMuon)
@@ -1218,7 +1218,7 @@ AnalysisHelper::AnalysisData AnalysisHelper::GetTruthAnalysisData(const Event::T
             data.muonMomentum = particle.momentum();
             data.muonCosTheta = cosTheta;
             data.muonPhi = phi;
-            
+
             muonDir = dir;
 
             continue;
@@ -1247,7 +1247,7 @@ AnalysisHelper::AnalysisData AnalysisHelper::GetTruthAnalysisData(const Event::T
 }
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
-        
+
 AnalysisHelper::AnalysisData AnalysisHelper::GetDummyAnalysisData()
 {
     AnalysisData data;
@@ -1266,14 +1266,14 @@ AnalysisHelper::AnalysisData AnalysisHelper::GetDummyAnalysisData()
 }
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
-        
+
 bool AnalysisHelper::GetLogLikelihoodRatio(const Member<float> &numerator, const Member<float> &denominator, float &ratio)
 {
     ratio = -std::numeric_limits<float>::max();
 
     if (!numerator.IsSet() || !denominator.IsSet())
         return false;
-    
+
     if (numerator() < 0.f)
         return false;
 
@@ -1285,7 +1285,7 @@ bool AnalysisHelper::GetLogLikelihoodRatio(const Member<float> &numerator, const
 }
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
-        
+
 bool AnalysisHelper::GetSoftmax(const Member<float> &signal, const Member<float> &background, float &softmax)
 {
     softmax = -std::numeric_limits<float>::max();
@@ -1302,7 +1302,7 @@ bool AnalysisHelper::GetSoftmax(const Member<float> &signal, const Member<float>
 }
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
-        
+
 float AnalysisHelper::GetCountUncertainty(const float &count)
 {
     if (count < 0)
@@ -1312,12 +1312,12 @@ float AnalysisHelper::GetCountUncertainty(const float &count)
 }
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
-        
+
 float AnalysisHelper::GetEfficiencyUncertainty(const float &numerator, const float &denominator)
 {
     if (denominator <= std::numeric_limits<float>::epsilon())
         throw std::logic_error("AnalysisHelper::GetEfficiencyUncertainty - denominator is <= 0");
-    
+
     if (numerator > denominator)
         throw std::logic_error("AnalysisHelper::GetEfficiencyUncertainty - numerator > denomintaor");
 
@@ -1349,7 +1349,7 @@ void AnalysisHelper::PrintLoadingBar(const unsigned int numerator, const unsigne
     const auto lastLoadedWidth = static_cast<unsigned int>(std::floor(width * (static_cast<float>(numerator - 1) / static_cast<float>(denominator))));
     const unsigned int lastTenth = std::floor(10 * ((static_cast<float>(numerator - 1) - stageLength * std::floor(static_cast<float>(numerator - 1) / stageLength)) / stageLength));
 
-    // Work out if it's worth printing 
+    // Work out if it's worth printing
     const bool shouldPrint = (numerator == 0) || (lastLoadedWidth != loadedWidth) || (lastTenth != tenth);
 
     if (!shouldPrint)

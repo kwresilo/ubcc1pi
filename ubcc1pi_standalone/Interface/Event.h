@@ -68,7 +68,7 @@ class Event
 
             std::vector<Particle> particles; ///< The truth particles
         };
-        
+
         /**
          *  @brief  The reco information structure
          */
@@ -103,7 +103,7 @@ class Event
          *  @param  pTree the tree with which to bind
          */
         void BindToOutputTree(TTree * pTree);
-        
+
         /**
          *  @brief  Bind this event to an input tree
          *

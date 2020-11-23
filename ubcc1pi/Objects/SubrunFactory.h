@@ -17,7 +17,7 @@ namespace ubcc1pi
 {
 
 /**
- *  @brief  The subrun factory class is used to populate a ubcc1pi::Subrun from an art::Subrun 
+ *  @brief  The subrun factory class is used to populate a ubcc1pi::Subrun from an art::Subrun
  *          This implementation is separated from the Subrun class itself so that one can use the Subrun without any coupling to LArSoft
  */
 class SubrunFactory

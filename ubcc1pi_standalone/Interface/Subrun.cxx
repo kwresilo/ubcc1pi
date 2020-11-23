@@ -12,7 +12,7 @@ namespace ubcc1pi
 void Subrun::Print() const
 {
     std::cout << std::string(80, '=') << std::endl;
-    
+
     std::cout << std::string(80, '-') << std::endl;
     std::cout << "SUBRUN" << std::endl;
     std::cout << std::string(80, '-') << std::endl;
@@ -30,7 +30,7 @@ void Subrun::BindToOutputTree(TTree * pTree)
 }
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
-        
+
 void Subrun::BindToInputTree(TTree * pTree)
 {
     auto &subrun = *this;
@@ -38,7 +38,7 @@ void Subrun::BindToInputTree(TTree * pTree)
 }
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
-        
+
 void Subrun::Reset()
 {
     auto &subrun = *this;

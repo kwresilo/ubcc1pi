@@ -66,7 +66,7 @@ MCParticleVector TruthHelper::GetMCParticlesFromMCTruth(const art::Event &event,
 }
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
-        
+
 MCParticleVector TruthHelper::GetPrimaryMCParticles(const MCParticleVector &allMCParticles)
 {
     MCParticleVector primaryMCParticles;
@@ -84,7 +84,7 @@ MCParticleVector TruthHelper::GetPrimaryMCParticles(const MCParticleVector &allM
 
 bool TruthHelper::IsPrimary(const art::Ptr<simb::MCParticle> &particle)
 {
-    return (particle->Process() == "primary");    
+    return (particle->Process() == "primary");
 }
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
@@ -148,7 +148,7 @@ TruthHelper::Interaction::Interaction(const art::Event &event, const art::InputT
     m_neutrino = nu.Nu();
     m_ccnc = static_cast<simb::curr_type_>(nu.CCNC());
     m_mode = static_cast<simb::int_type_>(nu.Mode());
-    
+
     m_allMCParticles = TruthHelper::GetMCParticlesFromMCTruth(event, mcTruthLabel, mcParticleLabel, nuMCTruth);
 }
 
@@ -160,14 +160,14 @@ simb::MCParticle TruthHelper::Interaction::GetNeutrino() const
 }
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
-        
+
 simb::curr_type_ TruthHelper::Interaction::GetCCNC() const
 {
     return m_ccnc;
 }
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
-        
+
 simb::int_type_ TruthHelper::Interaction::GetInteractionMode() const
 {
     return m_mode;
@@ -205,7 +205,7 @@ void TruthHelper::GetDownstreamParticles(const art::Ptr<simb::MCParticle> &parti
 void TruthHelper::FollowScatters(const art::Ptr<simb::MCParticle> &particle, const MCParticleMap &mcParticleMap, ScatterVector &scatters, art::Ptr<simb::MCParticle> &scatteredParticle)
 {
     scatteredParticle = particle;
-    
+
     // First look for elastic scatters
     for (const auto &daughter : TruthHelper::GetDaughters(particle, mcParticleMap))
     {
@@ -247,7 +247,7 @@ void TruthHelper::FollowScatters(const art::Ptr<simb::MCParticle> &particle, con
                 foundInelasticScatter = false;
                 break;
             }
-        
+
             finalStateParticle = daughter;
             foundInelasticScatter = true;
         }
@@ -283,7 +283,7 @@ TruthHelper::Scatter TruthHelper::GetElasticScatter(const art::Ptr<simb::MCParti
     const unsigned int nTrajectoryPoints = incident->NumberTrajectoryPoints();
     if (nTrajectoryPoints < 2)
         throw cet::exception("TruthHelper::GetElasticScatter") << " - Incident particle has less than 2 trajectory points!" << std::endl;
-    
+
     // Find the trajectory points just before and just after the scatter
     const float scatterTime(target->T());
     unsigned int postScatterIndex = std::numeric_limits<unsigned int>::max();
@@ -333,7 +333,7 @@ TruthHelper::EndState TruthHelper::GetEndState(const art::Ptr<simb::MCParticle> 
 
     for (const auto &daughter : TruthHelper::GetDaughters(particle, mcParticleMap))
     {
-        // Ignore ionisation electrons 
+        // Ignore ionisation electrons
         if (daughter->PdgCode() == 11 && daughter->Process() == "hIoni")
             continue;
 
@@ -349,7 +349,7 @@ TruthHelper::EndState TruthHelper::GetEndState(const art::Ptr<simb::MCParticle> 
 
         if (daughter->PdgCode() == -13 && daughter->Process() == "Decay")
             hasDecayMuon = true;
-        
+
         if (daughter->PdgCode() == 14 && daughter->Process() == "Decay")
             hasDecayMuonNeutrino = true;
     }
@@ -367,14 +367,14 @@ TruthHelper::EndState TruthHelper::GetEndState(const art::Ptr<simb::MCParticle> 
     {
         type = hasPi0 ? EndState::Type::Pi0ChargeExchange : EndState::Type::InelasticAbsorption;
     }
-    
+
     return TruthHelper::EndState(type, finalParticleMomentum, products);
 }
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
 // -----------------------------------------------------------------------------------------------------------------------------------------
-                
-TruthHelper::Scatter::Scatter(const bool isElastic, const TVector3 initialMomentum, const TVector3 finalMomentum, const art::Ptr<simb::MCParticle> finalParticle, const MCParticleVector products) : 
+
+TruthHelper::Scatter::Scatter(const bool isElastic, const TVector3 initialMomentum, const TVector3 finalMomentum, const art::Ptr<simb::MCParticle> finalParticle, const MCParticleVector products) :
     m_isElastic(isElastic),
     m_initialMomentum(initialMomentum),
     m_finalMomentum(finalMomentum),
@@ -384,7 +384,7 @@ TruthHelper::Scatter::Scatter(const bool isElastic, const TVector3 initialMoment
 }
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
-                
+
 float TruthHelper::Scatter::GetScatteringCosTheta() const
 {
     if (m_initialMomentum.Mag() * m_finalMomentum.Mag() < std::numeric_limits<float>::epsilon())
@@ -394,7 +394,7 @@ float TruthHelper::Scatter::GetScatteringCosTheta() const
 }
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
-                
+
 float TruthHelper::Scatter::GetMomentumFractionLost() const
 {
     if (m_initialMomentum.Mag() * m_finalMomentum.Mag() < std::numeric_limits<float>::epsilon())
@@ -405,7 +405,7 @@ float TruthHelper::Scatter::GetMomentumFractionLost() const
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
 // -----------------------------------------------------------------------------------------------------------------------------------------
-                
+
 TruthHelper::EndState::EndState(const Type type, const TVector3 &finalParticleMomentum, const MCParticleVector &products) :
     m_type(type),
     m_finalParticleMomentum(finalParticleMomentum),

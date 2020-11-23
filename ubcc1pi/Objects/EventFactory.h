@@ -22,7 +22,7 @@ namespace ubcc1pi
 {
 
 /**
- *  @brief  The event factory class is used to populate a ubcc1pi::Event from an art::Event 
+ *  @brief  The event factory class is used to populate a ubcc1pi::Event from an art::Event
  *          This implementation is separated from the Event class itself so that one can use the Event without any coupling to LArSoft
  */
 class EventFactory
@@ -42,7 +42,7 @@ class EventFactory
                 fhicl::Name("HasTruthInfo"),
                 fhicl::Comment("If the input events have truth info that we should look for")
             };
-            
+
             /**
              *  @brief  If we should try to collect event weights
              */
@@ -51,7 +51,7 @@ class EventFactory
                 fhicl::Name("GetEventWeights"),
                 fhicl::Comment("If we should try to collect event weights")
             };
-            
+
             /**
              *  @brief  The MCEventWeight label
              */
@@ -69,7 +69,7 @@ class EventFactory
                 fhicl::Name("MCTruthLabel"),
                 fhicl::Comment("The label for the neutrino MCTruth producer")
             };
-            
+
             /**
              *  @brief  The MCParticle label
              */
@@ -78,7 +78,7 @@ class EventFactory
                 fhicl::Name("MCParticleLabel"),
                 fhicl::Comment("The label for the MCParticle producer")
             };
-            
+
             /**
              *  @brief  The backtracker label
              */
@@ -87,7 +87,7 @@ class EventFactory
                 fhicl::Name("BacktrackerLabel"),
                 fhicl::Comment("The label for the MCParticle to hit backtracker producer")
             };
-            
+
             /**
              *  @brief  The hit label
              */
@@ -96,7 +96,7 @@ class EventFactory
                 fhicl::Name("HitLabel"),
                 fhicl::Comment("The label for the Hit producer")
             };
-            
+
             /**
              *  @brief  The slice label
              */
@@ -105,7 +105,7 @@ class EventFactory
                 fhicl::Name("SliceLabel"),
                 fhicl::Comment("The label for the Slice producer")
             };
-            
+
             /**
              *  @brief  The PFParticle label
              */
@@ -114,7 +114,7 @@ class EventFactory
                 fhicl::Name("PFParticleLabel"),
                 fhicl::Comment("The label for the PFParticle producer")
             };
-            
+
             /**
              *  @brief  The vertex label
              */
@@ -123,7 +123,7 @@ class EventFactory
                 fhicl::Name("VertexLabel"),
                 fhicl::Comment("The label for the Vertex producer")
             };
-            
+
             /**
              *  @brief  The spacepoint label
              */
@@ -132,7 +132,7 @@ class EventFactory
                 fhicl::Name("SpacePointLabel"),
                 fhicl::Comment("The label for the SpacePoint producer")
             };
-            
+
             /**
              *  @brief  The track label
              */
@@ -141,7 +141,7 @@ class EventFactory
                 fhicl::Name("TrackLabel"),
                 fhicl::Comment("The label for the Track producer")
             };
-            
+
             /**
              *  @brief  The MCS fit result label
              */
@@ -150,7 +150,7 @@ class EventFactory
                 fhicl::Name("MCSFitResultLabel"),
                 fhicl::Comment("The label for the MCSFitResult producer")
             };
-            
+
             /**
              *  @brief  The calorimetry label
              */
@@ -159,7 +159,7 @@ class EventFactory
                 fhicl::Name("CalorimetryLabel"),
                 fhicl::Comment("The label for the Calorimetry producer")
             };
-            
+
             /**
              *  @brief  The PID label
              */
@@ -168,7 +168,7 @@ class EventFactory
                 fhicl::Name("PIDLabel"),
                 fhicl::Comment("The label for the PID producer")
             };
-            
+
             /**
              *  @brief  The CC inclusive label
              */
@@ -177,7 +177,7 @@ class EventFactory
                 fhicl::Name("CCInclusiveLabel"),
                 fhicl::Comment("The label for the CC inclusive T0 tag producer")
             };
-            
+
             /**
              *  @brief  The track end space point distance (see fhicl comment)
              */
@@ -186,7 +186,7 @@ class EventFactory
                 fhicl::Name("TrackEndSpacePointDistance"),
                 fhicl::Comment("The distance within which a spacepoint must be from the end of a track to be counted in the nSpacePointsNearEnd feature")
             };
-            
+
             /**
              *  @brief  The squared sin angle threshold (see fhicl comment)
              */
@@ -195,7 +195,7 @@ class EventFactory
                 fhicl::Name("Sin2AngleThreshold"),
                 fhicl::Comment("The squared sin of the angular threshold outside of which a track must point with respect to the collection plane wires to use information that plane")
             };
-            
+
             /**
              *  @brief  The number of hits to skip (see fhicl comment)
              */
@@ -204,7 +204,7 @@ class EventFactory
                 fhicl::Name("NHitsToSkip"),
                 fhicl::Comment("The number of hits to skip at the start of a track when calculating the truncated mean dEdx")
             };
-            
+
             /**
              *  @brief  The length fraction (see fhicl comment)
              */
@@ -323,7 +323,7 @@ class EventFactory
          *  @param  pfParticleMap the PFParticle map
          *  @param  pfParticleToMetadata the input mapping from PFParticle to metadata
          *  @param  pfParticleToHits the input mapping from PFParticle to hits
-         *  @param  particle the output particle 
+         *  @param  particle the output particle
          */
         static void PopulateEventRecoParticlePatRecInfo(const art::Ptr<recob::PFParticle> &pfParticle, const PFParticleMap &pfParticleMap, const PFParticleToMetadata &pfParticleToMetadata, const PFParticleToHits &pfParticleToHits, Event::Reco::Particle &particle);
 
@@ -374,7 +374,7 @@ class EventFactory
          *  @param  member the member to set
          */
         static void SetBraggLikelihood(const art::Ptr<anab::ParticleID> &pid, const int &pdg, const geo::View_t &view, const anab::kTrackDir &dir, Member<float> &member);
-        
+
         /**
          *  @brief  Set the value of the input member variable to the bragg likelihood from the PID with given parameters using all planes
          *

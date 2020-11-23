@@ -35,7 +35,7 @@ void MomentumThresholdsStudy(const Config &config)
     // Setup the plots
     const std::vector<string> cuts({"withHit", "withRecoParticle"});
     PlottingHelper::EfficiencyPlot protonMomentumPlot("Proton momentum / GeV", 50u, 0.f, 1.f, cuts, false);
-    
+
     // Loop over the events
     for (unsigned int i = 0; i < nEvents; ++i)
     {
@@ -45,20 +45,20 @@ void MomentumThresholdsStudy(const Config &config)
         // Only consider true CC1Pi events
         if (!AnalysisHelper::IsTrueCC1Pi(pEvent, config.global.useAbsPdg))
             continue;
-            
+
         // Insist we pass the CC inclusive
         if (!pEvent->reco.passesCCInclusive())
             continue;
-    
+
         // Insist we pass the generic selection
         std::vector<std::string> cutsPassed;
         std::vector<int> assignedPdgCodes;
         const auto passedGoldenSelection = selection.Execute(pEvent, cutsPassed, assignedPdgCodes);
         const auto passedGenericSelection = (std::find(cutsPassed.begin(), cutsPassed.end(), config.global.lastCutGeneric) != cutsPassed.end());
-        
+
         if (!passedGenericSelection)
             continue;
-        
+
         // Make the mapping from truth -> reco particles
         std::map<unsigned int, std::vector<unsigned int> > truthToRecoParticleIndices;
         const auto truthParticles = pEvent->truth.particles;
@@ -101,7 +101,7 @@ void MomentumThresholdsStudy(const Config &config)
             protonMomentumPlot.AddEvent(momentum, weight, "withRecoParticle", hasRecoParticle);
         }
     }
-    
+
     // Setup the styles
     const std::vector<PlottingHelper::PlotStyle> styles({
         PlottingHelper::Primary,                                // withHit

@@ -18,7 +18,7 @@ namespace ubcc1pi
 {
 
 /**
- *  @brief  A map intended to hold the mapping from PFParticle.Self() -> PFParticle - for navigation of the PFParticle hierarchy 
+ *  @brief  A map intended to hold the mapping from PFParticle.Self() -> PFParticle - for navigation of the PFParticle hierarchy
  */
 typedef std::unordered_map<int, art::Ptr<recob::PFParticle> > PFParticleMap;
 
@@ -38,7 +38,7 @@ class RecoHelper
         static PFParticleMap GetPFParticleMap(const PFParticleVector &allPFParticles);
 
         /**
-         *  @brief  Check if the input PFParticle is a reconstructed neutrino 
+         *  @brief  Check if the input PFParticle is a reconstructed neutrino
          *
          *  @param  pfParticle the input PFParticle
          *
@@ -98,7 +98,7 @@ class RecoHelper
          *  @brief  Get the parent of the input PFParticle
          *
          *  @param  particle the child PFParticle
-         *  @param  pfParticleMap the PFParticle mapping 
+         *  @param  pfParticleMap the PFParticle mapping
          *
          *  @return the partent PFParticle
          */

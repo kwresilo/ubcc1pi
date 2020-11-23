@@ -24,12 +24,12 @@ void PlotInputVariables(const Config &config)
 {
     //
     // Setup the input files
-    // 
+    //
     std::vector< std::tuple<AnalysisHelper::SampleType, std::string, float> > inputData;
-    
-    inputData.emplace_back(AnalysisHelper::Overlay, config.files.overlaysFileName, NormalisationHelper::GetOverlaysNormalisation(config)); 
-    inputData.emplace_back(AnalysisHelper::Dirt,    config.files.dirtFileName,     NormalisationHelper::GetDirtNormalisation(config)); 
-    inputData.emplace_back(AnalysisHelper::DataEXT, config.files.dataEXTFileName,  NormalisationHelper::GetDataEXTNormalisation(config)); 
+
+    inputData.emplace_back(AnalysisHelper::Overlay, config.files.overlaysFileName, NormalisationHelper::GetOverlaysNormalisation(config));
+    inputData.emplace_back(AnalysisHelper::Dirt,    config.files.dirtFileName,     NormalisationHelper::GetDirtNormalisation(config));
+    inputData.emplace_back(AnalysisHelper::DataEXT, config.files.dataEXTFileName,  NormalisationHelper::GetDataEXTNormalisation(config));
     inputData.emplace_back(AnalysisHelper::DataBNB, config.files.dataBNBFileName,  1.f);
 
 
@@ -113,20 +113,20 @@ void PlotInputVariables(const Config &config)
     const auto goldenPionFeatureNames = BDTHelper::GoldenPionBDTFeatureNames;
     const auto protonFeatureNames = BDTHelper::ProtonBDTFeatureNames;
     const auto muonFeatureNames = BDTHelper::MuonBDTFeatureNames;
-        
+
     PlottingHelper::MultiPlot muonBDTPlot("Muon BDT response", yLabel, 40, -0.85f, 0.50f);
     PlottingHelper::MultiPlot protonBDTPlot("Proton BDT response", yLabel, 40, -0.60f, 0.60f);
     PlottingHelper::MultiPlot goldenPionBDTPlot("Golden pion BDT response", yLabel, 40, -0.8f, 0.4f);
-   
+
     std::shared_ptr<BDTHelper::BDT> pGoldenPionBDT, pProtonBDT, pMuonBDT;
     if (config.plotInputVariables.plotBDTResponses)
     {
         // Setup the BDTs
-        pGoldenPionBDT = std::make_shared<BDTHelper::BDT>("goldenPion", goldenPionFeatureNames); 
-        pProtonBDT = std::make_shared<BDTHelper::BDT>("proton", protonFeatureNames); 
-        pMuonBDT = std::make_shared<BDTHelper::BDT>("muon", muonFeatureNames); 
+        pGoldenPionBDT = std::make_shared<BDTHelper::BDT>("goldenPion", goldenPionFeatureNames);
+        pProtonBDT = std::make_shared<BDTHelper::BDT>("proton", protonFeatureNames);
+        pMuonBDT = std::make_shared<BDTHelper::BDT>("muon", muonFeatureNames);
     }
-    
+
     PlottingHelper::MultiPlot phiPlot("Phi / rad", yLabel, 50u, -3.142f, 3.142f);
     PlottingHelper::MultiPlot cosThetaPlot("cos(theta)", yLabel, 50u, -1.f, 1.f);
 
@@ -153,7 +153,7 @@ void PlotInputVariables(const Config &config)
             // Only use events passing the CC inclusive selection
             if (!pEvent->reco.passesCCInclusive())
                 continue;
-       
+
             const auto weight = normalisation * AnalysisHelper::GetNominalEventWeight(pEvent);
             const auto recoParticles = pEvent->reco.particles;
 
@@ -164,9 +164,9 @@ void PlotInputVariables(const Config &config)
             {
                 const auto &particle = recoParticles.at(index);
 
-                // Get the plot style 
+                // Get the plot style
                 const auto particleStyle = PlottingHelper::GetPlotStyle(particle, sampleType, truthParticles, false, config.global.useAbsPdg);
-        
+
                 // Fill the angle plots
                 if (AnalysisHelper::HasTrackFit(particle))
                 {
@@ -200,7 +200,7 @@ void PlotInputVariables(const Config &config)
                 std::vector<float> features;
                 if (!BDTHelper::GetBDTFeatures(particle, featureNames, features))
                     continue;
-                    
+
                 // Fill the feature plots
                 for (unsigned int iFeature = 0; iFeature < featureNames.size(); ++iFeature)
                 {
@@ -266,11 +266,11 @@ void PlotInputVariables(const Config &config)
         plotVector.at(iFeature).SaveAsStacked("inputVariables_" + featureName);
         plotVectorSignal.at(iFeature).SaveAs("inputVariables_signal_" + featureName);
     }
-        
+
     goldenPionBDTPlot.SaveAsStacked("inputVariables_goldenPionBDTResponse");
     protonBDTPlot.SaveAsStacked("inputVariables_protonBDTResponse");
     muonBDTPlot.SaveAsStacked("inputVariables_muonBDTResponse");
-    
+
     phiPlot.SaveAsStacked("inputVariables_phi");
     cosThetaPlot.SaveAsStacked("inputVariables_cosTheta");
 
@@ -280,7 +280,7 @@ void PlotInputVariables(const Config &config)
     auto pCanvas = PlottingHelper::GetCanvas();
     hPhiCosThetaSim->Draw("colz");
     PlottingHelper::SaveCanvas(pCanvas, "inputVariables_phi-cosTheta");
-    
+
     hPhiCosThetaData->Draw("colz");
     PlottingHelper::SaveCanvas(pCanvas, "inputVariables_phi-cosTheta_data");
 }

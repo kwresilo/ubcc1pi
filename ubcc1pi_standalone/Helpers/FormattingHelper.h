@@ -51,7 +51,7 @@ class FormattingHelper
                  *  @brief  Print the table in markdown syntax
                  */
                 void Print() const;
-                
+
                 /**
                  *  @brief  Write the table in markdown syntax to an output file
                  *
@@ -107,24 +107,24 @@ class FormattingHelper
          *  @param  value the value
          *  @param  uncertainty the uncertainty
          *
-         *  @return the value with error 
+         *  @return the value with error
          */
         static std::string GetValueWithError(const float &value, const float &uncertainty);
-            
+
         /**
          *  @brief  Save a 1D histogram as a table
          *
          *  @param  pHist the input histogram
-         *  @param  fileName the output file name 
+         *  @param  fileName the output file name
          *  @param  alsoPrint if we should also print the table to the terminal
          */
         static void SaveHistAsTable(const std::shared_ptr<TH1F> &pHist, const std::string &fileName, const bool alsoPrint = true);
-        
+
         /**
          *  @brief  Save a 2D histogram as a table
          *
          *  @param  pHist the input histogram
-         *  @param  fileName the output file name 
+         *  @param  fileName the output file name
          *  @param  alsoPrint if we should also print the table to the terminal
          */
         static void SaveHistAsTable(const std::shared_ptr<TH2F> &pHist, const std::string &fileName, const bool alsoPrint = true);
@@ -153,7 +153,7 @@ FormattingHelper::Table::Table(const std::vector<std::string> &headers) :
 }
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
-            
+
 unsigned int FormattingHelper::Table::GetNumberOfRows() const
 {
     return m_entries.size();
@@ -165,14 +165,14 @@ unsigned int FormattingHelper::Table::GetColumnWidth(const std::string &header) 
 {
     if (header.empty())
         return 0u;
-    
+
     auto width = header.size();
     for (const auto &entriesInRow : m_entries)
     {
         const auto &entry = entriesInRow.at(header);
         width = std::max(width, entry.size());
     }
-    
+
     return width;
 }
 
@@ -196,7 +196,7 @@ void FormattingHelper::Table::Print() const
         std::cout << " " << std::setw(width) << std::left << header << " ";
     }
     std::cout << "|" << std::endl;
-    
+
     // Print the horizontal line
     for (unsigned int iHeader = 0; iHeader < m_headers.size(); ++iHeader)
     {
@@ -206,7 +206,7 @@ void FormattingHelper::Table::Print() const
 
         if (header.empty())
             continue;
-        
+
         const auto width = widths.at(iHeader);
 
         std::cout << std::string(width + 2, '-');
@@ -224,7 +224,7 @@ void FormattingHelper::Table::Print() const
 
             if (header.empty())
                 continue;
-            
+
             const auto width = widths.at(iHeader);
             const auto &entry = entriesInRow.at(header);
 
@@ -235,7 +235,7 @@ void FormattingHelper::Table::Print() const
 }
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
-                
+
 void FormattingHelper::Table::WriteToFile(const std::string &fileName, const bool alsoPrint) const
 {
     fstream file;
@@ -243,7 +243,7 @@ void FormattingHelper::Table::WriteToFile(const std::string &fileName, const boo
 
     // Get the stream buffers for cout and the file
     std::streambuf* stream_buffer_cout = std::cout.rdbuf();
-    std::streambuf* stream_buffer_file = file.rdbuf(); 
+    std::streambuf* stream_buffer_file = file.rdbuf();
 
     // Redirect cout to the file
     cout.rdbuf(stream_buffer_file);
@@ -277,7 +277,7 @@ void FormattingHelper::Table::SetEntry(const std::string &header, const unsigned
     if (header.empty())
         throw std::invalid_argument("FormattingHelper::Table::SetEntry - Input header is empty string");
 
-    if (row >= m_entries.size()) 
+    if (row >= m_entries.size())
         throw std::invalid_argument("FormattingHelper::Table::SetEntry - Input row is out of bounds");
 
     // Find this header
@@ -296,7 +296,7 @@ void FormattingHelper::Table::SetEntry(const std::string &header, const unsigned
 }
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
-            
+
 void FormattingHelper::Table::AddEmptyRow()
 {
     std::unordered_map<std::string, std::string> row;
@@ -313,7 +313,7 @@ void FormattingHelper::Table::AddEmptyRow()
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
 // -----------------------------------------------------------------------------------------------------------------------------------------
-        
+
 std::string FormattingHelper::GetValueWithError(const float &value, const float &uncertainty)
 {
     stringstream ss;
@@ -321,7 +321,7 @@ std::string FormattingHelper::GetValueWithError(const float &value, const float 
     if (uncertainty < std::numeric_limits<float>::epsilon())
     {
         // Just convert the floats to strings
-        ss << value << " +- " << uncertainty;    
+        ss << value << " +- " << uncertainty;
     }
     else
     {
@@ -341,14 +341,14 @@ std::string FormattingHelper::GetValueWithError(const float &value, const float 
 }
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
-        
+
 void FormattingHelper::PrintLine()
 {
     std::cout << std::string(87, '-') << std::endl;
 }
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
-        
+
 void FormattingHelper::SaveHistAsTable(const std::shared_ptr<TH1F> &pHist, const std::string &fileName, const bool alsoPrint)
 {
     FormattingHelper::Table table({"Bin", "Lower", "Upper", "Width", "", "Value"});
@@ -374,7 +374,7 @@ void FormattingHelper::SaveHistAsTable(const std::shared_ptr<TH1F> &pHist, const
 }
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
-        
+
 void FormattingHelper::SaveHistAsTable(const std::shared_ptr<TH2F> &pHist, const std::string &fileName, const bool alsoPrint)
 {
     FormattingHelper::Table table({"Bin X", "Bin Y", "Lower", "Upper", "Width", "", "Value"});
@@ -398,7 +398,7 @@ void FormattingHelper::SaveHistAsTable(const std::shared_ptr<TH2F> &pHist, const
         {
             table.AddEmptyRow();
             table.SetEntry("Bin Y", jBin);
-        
+
             const auto yAxis = pHist->GetYaxis();
             const auto yLower = yAxis->GetBinLowEdge(jBin);
             table.SetEntry("Lower", yLower);

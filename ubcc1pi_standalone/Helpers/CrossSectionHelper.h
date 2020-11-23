@@ -29,7 +29,7 @@ namespace ubcc1pi
 class CrossSectionHelper
 {
     public:
-        
+
         /**
          *  @brief  A mapping from a systematic parameter name to the associated weights (one per universe)
          */
@@ -91,7 +91,7 @@ class CrossSectionHelper
                  */
                 template <typename T>
                 using SystCache = std::unordered_map<std::string, std::unordered_map<unsigned int, T> >;
-                
+
                 /**
                  *  @brief  A map with indices [runID][detectorVariationName] to an arbitrary type, T
                  *
@@ -99,7 +99,7 @@ class CrossSectionHelper
                  */
                 template <typename T>
                 using DetVarSystMap = std::unordered_map< std::string, std::unordered_map< std::string, T > >;
-            
+
             public:
 
                 /**
@@ -133,7 +133,7 @@ class CrossSectionHelper
                  *  @return has underflow
                  */
                 bool HasUnderflowBin() const;
-                
+
                 /**
                  *  @brief  Check if this cross-section has an overflow bin
                  *
@@ -152,7 +152,7 @@ class CrossSectionHelper
                 void AddNeutrinoEvent(const float trueNuEnergy, const float nominalWeight, const SystematicWeightsMap &systWeightsMap);
 
                 /**
-                 *  @brief  Add a signal event 
+                 *  @brief  Add a signal event
                  *
                  *  @param  trueValue the true value of the parameter
                  *  @param  recoValue the reconstructed value of the parameter
@@ -173,7 +173,7 @@ class CrossSectionHelper
                  *  @param  detectorVariationParameter the name of the detector variation parameter (NB. the name "CV" is reserved for the central-value)
                  */
                 void AddSignalEventDetVar(const float trueValue, const float recoValue, const bool isSelected, const float nominalWeight, const std::string &runId, const std::string &detectorVariationParameter);
-                
+
                 /**
                  *  @brief  Add a selected background event with systematic weights
                  *
@@ -183,7 +183,7 @@ class CrossSectionHelper
                  *  @param  isOverlay if this is an overlay background
                  */
                 void AddSelectedBackgroundEvent(const float recoValue, const float nominalWeight, const SystematicWeightsMap &systWeightsMap, const bool isOverlay);
-                
+
                 /**
                  *  @brief  Add a selected background event from a detector variation sample
                  *
@@ -193,32 +193,32 @@ class CrossSectionHelper
                  *  @param  detectorVariationParameter the name of the detector variation parameter (NB. the name "CV" is reserved for the central-value)
                  */
                 void AddSelectedBackgroundOverlayEventDetVar(const float recoValue, const float nominalWeight, const std::string &runId, const std::string &detectorVariationParameter);
-                
+
                 /**
                  *  @brief  Add a selected BNB data event
                  *
                  *  @param  recoValue the reconstructed value of the parameter
                  */
                 void AddSelectedBNBDataEvent(const float recoValue);
-                
+
                 /**
                  *  @brief  Get the smearing matrix in the nominal universe
                  *
                  *  @return the smearing matrix (x-axis is true, y-axis is reco)
                  */
                 std::shared_ptr<TH2F> GetSmearingMatrix() const;
-                
+
                 /**
                  *  @brief  Get the forward folded cross section in the nominal universe
                  *
                  *  @return the cross section in reco bins
                  */
                 std::shared_ptr<TH1F> GetCrossSection() const;
-                
+
                 /**
                  *  @brief  Get the statistical uncertainty on the cross-section due to limited BNB data statistics (NB. the MC statistics are treated as a systematic)
                  *
-                 *  @return the statistical uncertainty on the cross-section 
+                 *  @return the statistical uncertainty on the cross-section
                  */
                 std::shared_ptr<TH1F> GetCrossSectionStatUncertainty() const;
 
@@ -228,28 +228,28 @@ class CrossSectionHelper
                  *  @return a map from systematic paramter name to the covarianve matrix / bias vector for that parameter
                  */
                 std::map< std::string, CovarianceBiasPair > GetCrossSectionCovarianceMatrices();
-                
+
                 /**
                  *  @brief  Get the covariance matrives for the smearing matric for each systematic parameter
                  *
                  *  @return a map from systematic paramter name to the covarianve matrix / bias vector for that parameter
                  */
                 std::map< std::string, CovarianceBiasPair > GetSmearingMatrixCovarianceMatrices();
-                
+
                 /**
                  *  @brief  Get the scatter plots of the value of the cross-sections in each pair of bins for each universe of each paramter
                  *
                  *  @return the scatter plots
                  */
                 std::map< std::string, std::vector< std::tuple<unsigned int, unsigned int, std::shared_ptr<TGraph> > > > GetCrossSectionBinScatterPlots();
-                
+
                 /**
                  *  @brief  Get the flux variations for each flux systematic parameter
                  *
                  *  @return the mapping from a flux systematic parameter to the distribution of the variations of the flux
                  */
                 std::map< std::string, std::shared_ptr<TH2F> > GetFluxVariations() const;
-                
+
                 /**
                  *  @brief  Check if a bin index is an underflow or an overflow bin
                  *
@@ -265,7 +265,7 @@ class CrossSectionHelper
                 void ClearCache();
 
             private:
-                
+
                 /**
                  *  @brief  Get a new empty 1D histogram with a unique name with the same binning as the flux
                  *
@@ -279,7 +279,7 @@ class CrossSectionHelper
                  *  @return the histogram
                  */
                 std::shared_ptr<TH1F> GetEmptyHist1D() const;
-                
+
                 /**
                  *  @brief  Get a new empty 2D histogram with a unique name
                  *
@@ -315,7 +315,7 @@ class CrossSectionHelper
                  *  @return the smeared efficiency per reco bin
                  */
                 std::shared_ptr<TH1F> GetSmearedEfficiency(const std::shared_ptr<TH2F> &signalSelectedRecoTrue, const std::shared_ptr<TH1F> &signalAllTrue) const;
-                
+
                 /**
                  *  @brief  Get the smeared efficicncy in reco bins
                  *
@@ -349,7 +349,7 @@ class CrossSectionHelper
                  *  @return the cross-section
                  */
                 std::shared_ptr<TH1F> GetCachedCrossSection(const std::string &systParameter, const unsigned int universeIndex);
-                
+
                 /**
                  *  @brief  Get the cached smearing matrix in a given systematic universe. If the cached value doesn't exist, then this
                  *          function will calculate it and cache it.
@@ -369,7 +369,7 @@ class CrossSectionHelper
                  *  @return a vector of tuples, first two elements are the indices of the bins and the last is the scatter plot
                  */
                 std::vector< std::tuple<unsigned int, unsigned int, std::shared_ptr<TGraph> > > GetCrossSectionBinScatterPlots(const std::string &systParameter);
-                
+
                 /**
                  *  @brief  Get the cross-section covariance matrix and bias vector for a given systematic paramter
                  *
@@ -378,7 +378,7 @@ class CrossSectionHelper
                  *  @return a pair, first is the covariance matrix, second is the bias vector
                  */
                 CovarianceBiasPair GetCrossSectionCovarianceMatrix(const std::string &systParameter);
-                
+
                 /**
                  *  @brief  Get the cross-section covariance matrix and bias vector for a given detector variation parameter
                  *
@@ -400,7 +400,7 @@ class CrossSectionHelper
 
                 /**
                  *  @brief  Get a reweighted flux distribution according to the input neutrino energy spectrum (for the desired universe)
-                 *          
+                 *
                  *          In each true neutrino energy bin, this function finds the ratio of the total number of neutrino events in the
                  *          supplied universe to the nominal universe. The number of events in a given energy bin depends on the
                  *          cross-section and the flux at that energy. If the input universe differs only in the flux to the nominal
@@ -412,13 +412,13 @@ class CrossSectionHelper
                  *  @return the reweighted flux distribution
                  */
                 std::shared_ptr<TH1F> GetReweightedFlux(const std::shared_ptr<TH1F> &nuEnergyUniverse) const;
-                
+
                 /**
                  *  @brief  Get the distribution of reweighted fluxes for a given flux systematic parameter
                  *
                  *  @param  systParameter the systematic flux parameter
                  *
-                 *  @return the flux universe variations 
+                 *  @return the flux universe variations
                  */
                 std::shared_ptr<TH2F> GetFluxVariations(const std::string &systParameter) const;
 
@@ -434,7 +434,7 @@ class CrossSectionHelper
                 SystMap<std::shared_ptr<TH2F> >     m_signalSelectedRecoTrue;     ///< The 2D histograms of selected signal events with reco & true bin indices for each universe
                 SystMap<std::shared_ptr<TH1F> >     m_signalAllTrue;              ///< The 1D histograms of all signal events with true bin indices for each universe
                 SystMap<std::shared_ptr<TH1F> >     m_backgroundSelectedReco;     ///< The 1D histograms of selected background events with reco bin indices for each universe
-                
+
                 // The raw event counts for the detector variation systematic parameters
                 DetVarSystMap<std::shared_ptr<TH2F> > m_signalSelectedDetVarRecoTrue;           ///< The 2D histograms of selected signal events with reco & true bin indices for each detector parameter
                 DetVarSystMap<std::shared_ptr<TH1F> > m_signalAllDetVarTrue;                    ///< The 1D histograms of all signal events with true bin indices for each detector parameter
@@ -452,7 +452,7 @@ class CrossSectionHelper
                 SystCache<std::shared_ptr<TH1F> >   m_crossSectionCache;          ///< The cached cross-sections in each systematic universe to hold in memory
                 SystCache<std::shared_ptr<TH2F> >   m_smearingMatrixCache;        ///< The cached smearing matrices in each systematic universe to hold in memory
                 bool                                m_shouldResetCache;           ///< If we need to re-calculate the cached values because something has changed
-                
+
                 static unsigned int                 m_histCount;                  ///< A counter for the total number of histograms - used to avoid name collisions
                 static std::string                  m_cvString;                   ///< The string to indicate the CV sample for the detector varitaions
         };
@@ -468,7 +468,7 @@ class CrossSectionHelper
          *  @return the event weights
          */
         static std::vector<float> GetSystematicWeights(const Event::Truth &truth, const std::string &parameter);
-        
+
         /**
          *  @brief  Add the event weights for a given set of systematic parameters to the input systematic weights map
          *
@@ -482,7 +482,7 @@ class CrossSectionHelper
          *  @brief  add a set of mutually exclusive systematic parameters to the input systematics weights map and combine them as a single parameter
          *
          *  @param  truth the input truth information (this contains the weights)
-         *  @param  params the input mutually exclusive parameters to combine 
+         *  @param  params the input mutually exclusive parameters to combine
          *  @param  systweightsmap the systematic weights map to update
          */
         static void AddMutuallyExclusiveSystematicWeights(const Event::Truth &truth, const MutuallyExclusiveParamVector &params, SystematicWeightsMap &systWeightsMap);
@@ -498,7 +498,7 @@ class CrossSectionHelper
         /**
          *  @brief  Add weights of 1.f for each parameter in each universe supplied to the input systematic weights map
          *
-         *  @param  params the input parameters 
+         *  @param  params the input parameters
          *  @param  systWeightsMap the systematic weights map to update
          */
         static void AddUnitWeights(const SystematicParamUniversesPairVector &params, SystematicWeightsMap &systWeightsMap);
@@ -552,7 +552,7 @@ class CrossSectionHelper
          */
         template <typename T>
         static std::tuple<std::vector<float>, bool, bool> GetExtendedBinEdges(const T &binningConfig);
-        
+
         /**
          *  @brief  Get the histogram corresponding to the input flux distribution
          *
@@ -586,7 +586,7 @@ class CrossSectionHelper
          *  @return the uncertainty eigenvectors
          */
         static std::pair<TVector2, TVector2> GetUncertaintyEigenVectors(const CovarianceBiasPair &covarianceBias, const unsigned int iBin, const unsigned int jBin);
-                
+
         /**
          *  @brief  Get the total covariance matrix by combining the input covarainces and biases for the systematic parameters used
          *
@@ -595,7 +595,7 @@ class CrossSectionHelper
          *  @return the total covaraince matrix
          */
         static std::shared_ptr<TH2F> GetTotalCovarianceMatrix(const std::map< std::string, CovarianceBiasPair > &covarianceBiasPairs);
-    
+
     private:
         static std::default_random_engine m_generator; ///< The random number generator
         static unsigned int               m_histCount; ///< A counter to ensure histogram names are unique
@@ -617,7 +617,7 @@ unsigned int CrossSectionHelper::m_histCount = 0u;
 // -----------------------------------------------------------------------------------------------------------------------------------------
 
 std::default_random_engine CrossSectionHelper::m_generator = std::default_random_engine();
-        
+
 // -----------------------------------------------------------------------------------------------------------------------------------------
 
 template <typename T>

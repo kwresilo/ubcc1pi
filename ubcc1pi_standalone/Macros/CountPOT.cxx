@@ -22,7 +22,7 @@ void CountPOT(const Config &config)
 
     if (config.countPOT.useOverlays)
         fileNames.push_back(config.files.overlaysFileName);
-    
+
     if (config.countPOT.useDirt)
         fileNames.push_back(config.files.dirtFileName);
 
@@ -41,11 +41,11 @@ void CountPOT(const Config &config)
         FileReader reader(inputFileName);
         auto pSubrun = reader.GetBoundSubrunAddress();
         const auto nSubruns = reader.GetNumberOfSubruns();
-        
+
         // Count the total POT
         std::cout << "Processing file: " << inputFileName << std::endl;
         std::cout << "  - Getting total POT over " << nSubruns << " sub-runs." << std::endl;
-        
+
         float totalPOT = 0.f;
         for (unsigned int i = 0; i < nSubruns; ++i)
         {

@@ -156,14 +156,14 @@ void ExtractCCInclusiveXSecs(const Config &config)
                     {
                         for (const auto &genieParam : config.extractXSecs.genieParams)
                         {
-                            // Get the weights for this genie parameter 
+                            // Get the weights for this genie parameter
                             auto genieParamIter = systWeightsMap.find(genieParam);
                             if (genieParamIter == systWeightsMap.end())
                                 throw std::logic_error("ExtractCCInclusiveXSecs - Supplied GENIE parameter: " + genieParam + " not found");
 
                             // Divide each weight down by the GENIE tune event weight
                             for (auto &weight : genieParamIter->second)
-                                weight /= genieTuneEventWeight; 
+                                weight /= genieTuneEventWeight;
                         }
                     }
 

@@ -18,7 +18,7 @@ namespace ubcc1pi_macros
 
 void PlotSystematicWeights(const Config &config)
 {
-    // Open the input file for reading    
+    // Open the input file for reading
     FileReader reader(config.files.overlaysFileName);
     reader.EnableSystematicBranches();
 
@@ -33,7 +33,7 @@ void PlotSystematicWeights(const Config &config)
 
     // Setup a mapping from [systParamName] to the sum of square of the difference of the weights from unity
     std::map<std::string, float> sqrDiffSumMap;
-    
+
     // Setup a mapping from [systParamName] to the total number of weights used
     std::map<std::string, float> totalMap;
 
@@ -58,12 +58,12 @@ void PlotSystematicWeights(const Config &config)
         CrossSectionHelper::AddSystematicWeights(pEvent->truth, config.extractXSecs.systematicParams, systWeightsMap);
         CrossSectionHelper::AddMutuallyExclusiveSystematicWeights(pEvent->truth, config.extractXSecs.mutuallyExclusiveSystematicParams, systWeightsMap);
         CrossSectionHelper::AddBootstrapWeights(config.extractXSecs.nBootstrapUniverses, systWeightsMap);
-        
+
         // Add the nominal event weight
         const auto weight = AnalysisHelper::GetNominalEventWeight(pEvent);
         systWeightsMap.emplace("nominal", std::vector<float>({weight}));
 
-        // Print out the weights from the first event 
+        // Print out the weights from the first event
         if (fiducialEventIndices.size() == 1)
         {
             std::cout << "Systematic weights: " << systWeightsMap.size() << std::endl;
@@ -83,7 +83,7 @@ void PlotSystematicWeights(const Config &config)
                 return (x < (std::numeric_limits<float>::max() - std::numeric_limits<float>::epsilon()));
             });
             filteredWeights.resize(std::distance(filteredWeights.begin(), itFilter));
-            
+
             // Count the number of bad weights
             nBadWeights += (weights.size() - filteredWeights.size());
 
@@ -165,12 +165,12 @@ void PlotSystematicWeights(const Config &config)
 
         // Add this to the plot map
         plotMap.at("nominal")->Fill(weight, style);
-        
+
         if (std::abs(weight - 1.f) > std::numeric_limits<float>::epsilon())
         {
             noOnesPlotMap.at("nominal")->Fill(weight, style);
         }
-        
+
         if (passedGenericSelection)
         {
             selectedPlotMap.at("nominal")->Fill(weight, style);
@@ -188,12 +188,12 @@ void PlotSystematicWeights(const Config &config)
             for (const auto &weight : weights)
             {
                 plotMap.at(param)->Fill(weight, style);
-        
+
                 if (std::abs(weight - 1.f) > std::numeric_limits<float>::epsilon())
                 {
                     noOnesPlotMap.at(param)->Fill(weight, style);
                 }
-        
+
                 if (passedGenericSelection)
                 {
                     selectedPlotMap.at(param)->Fill(weight, style);
@@ -207,12 +207,12 @@ void PlotSystematicWeights(const Config &config)
     {
         pPlot->SaveAsStacked("plotSystematicWeights_" + param);
     }
-    
+
     for (const auto &[param, pPlot] : noOnesPlotMap)
     {
         pPlot->SaveAsStacked("plotSystematicWeights_noOnes_" + param);
     }
-    
+
     for (const auto &[param, pPlot] : selectedPlotMap)
     {
         pPlot->SaveAsStacked("plotSystematicWeights_selected_" + param);

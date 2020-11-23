@@ -28,7 +28,7 @@ void TruthStudy(const Config &config)
     FileReader reader(config.files.overlaysFileName);
     auto pEvent = reader.GetBoundEventAddress();
     const auto nEvents = reader.GetNumberOfEvents();
-     
+
     // Setup the counters
     std::vector<std::pair< std::string, float > > interactionToEventCountVect;
     float totalCC1PiEventCount = 0.f;
@@ -44,7 +44,7 @@ void TruthStudy(const Config &config)
     {
         AnalysisHelper::PrintLoadingBar(i, nEvents);
         reader.LoadEvent(i);
-        
+
         // Ge the event weight
         const auto weight = AnalysisHelper::GetNominalEventWeight(pEvent);
 
@@ -63,7 +63,7 @@ void TruthStudy(const Config &config)
 
         // Find the vector entry for this interaction string (if it exists)
         auto iter = std::find_if(interactionToEventCountVect.begin(), interactionToEventCountVect.end(), [&](const auto &x) {
-            return x.first == interactionString;        
+            return x.first == interactionString;
         });
 
         // If we haven't seen this interaction before, then add it to the vetor
@@ -79,7 +79,7 @@ void TruthStudy(const Config &config)
 
         const auto analysisData = AnalysisHelper::GetTruthAnalysisData(pEvent->truth, config.global.useAbsPdg, config.global.protonMomentumThreshold);
         hPionMomentum->Fill(analysisData.pionMomentum, weight);
-        
+
         if (analysisData.hasGoldenPion)
         {
             hGoldenPionMomentum->Fill(analysisData.pionMomentum, weight);
@@ -127,8 +127,8 @@ void TruthStudy(const Config &config)
     hNonGoldenPionMomentum->Draw("hist same");
     PlottingHelper::SaveCanvas(pCanvas, "truthStudy_pionMomentum");
 
-    std::cout << "Total CC inclusive events: " << totalCCInclusiveEventCount << std::endl; 
-    std::cout << "Total CC1Pi events: " << totalCC1PiEventCount << std::endl; 
+    std::cout << "Total CC inclusive events: " << totalCCInclusiveEventCount << std::endl;
+    std::cout << "Total CC1Pi events: " << totalCC1PiEventCount << std::endl;
 }
 
 } // namespace ubcc1pi_macros

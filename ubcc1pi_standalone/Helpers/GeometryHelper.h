@@ -35,7 +35,7 @@ float GeometryHelper::highY = 116.5f;
 
 float GeometryHelper::lowZ  = 0.f;
 float GeometryHelper::highZ = 1036.8f;
-    
+
 
 } // namespace ubcc1pi
 

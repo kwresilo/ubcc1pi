@@ -49,7 +49,7 @@ physics.producers.pandoraAllAsTrackCaliSCE.CalorimetryModuleLabel:    "pandoraAl
 
 physics.producers.pandoraAllAsTrackCaliPidSCE.TrackModuleLabel:       "pandoraAllAsTrack"
 physics.producers.pandoraAllAsTrackCaliPidSCE.CalorimetryModuleLabel: "pandoraAllAsTrackCaliSCE"
-         
+
 physics.producers.pandoraAllAsTrackCaliPidSCE.ProducerLabels.CaloTrackAssn:    "pandoraAllAsTrackCaliSCE"
 physics.producers.pandoraAllAsTrackCaliPidSCE.ProducerLabels.CalorimetryLabel: "pandoraAllAsTrackCaliSCE"
 physics.producers.pandoraAllAsTrackCaliPidSCE.ProducerLabels.HitTrackAssn:     "pandoraAllAsTrack"

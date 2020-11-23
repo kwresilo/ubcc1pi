@@ -24,12 +24,12 @@ void PlotEventSelectionCuts(const Config &config)
 {
     //
     // Setup the input files
-    // 
+    //
     std::vector< std::tuple<AnalysisHelper::SampleType, std::string, float> > inputData;
-    
-    inputData.emplace_back(AnalysisHelper::Overlay, config.files.overlaysFileName, NormalisationHelper::GetOverlaysNormalisation(config)); 
-    inputData.emplace_back(AnalysisHelper::Dirt,    config.files.dirtFileName,     NormalisationHelper::GetDirtNormalisation(config)); 
-    inputData.emplace_back(AnalysisHelper::DataEXT, config.files.dataEXTFileName,  NormalisationHelper::GetDataEXTNormalisation(config)); 
+
+    inputData.emplace_back(AnalysisHelper::Overlay, config.files.overlaysFileName, NormalisationHelper::GetOverlaysNormalisation(config));
+    inputData.emplace_back(AnalysisHelper::Dirt,    config.files.dirtFileName,     NormalisationHelper::GetDirtNormalisation(config));
+    inputData.emplace_back(AnalysisHelper::DataEXT, config.files.dataEXTFileName,  NormalisationHelper::GetDataEXTNormalisation(config));
     inputData.emplace_back(AnalysisHelper::DataBNB, config.files.dataBNBFileName,  1.f);
 
     //
@@ -37,7 +37,7 @@ void PlotEventSelectionCuts(const Config &config)
     //
     auto selection = SelectionHelper::GetDefaultSelection();
     const auto allCuts = selection.GetCuts();
-                
+
     const auto protonBDTCut = selection.GetCutNominalValue("2NonProtons");
 
     //
@@ -61,7 +61,7 @@ void PlotEventSelectionCuts(const Config &config)
     PlottingHelper::MultiPlot startNearVertexEventPlot("Min distance to vertex / cm", yLabelEvents, PlottingHelper::GenerateLogBinEdges(40u, 0.15f, 1000.f));
     PlottingHelper::MultiPlot likelyGoldenPionParticlePlot("Golden pion BDT response", yLabelParticles, 40u, -0.55f, 0.4f);
     PlottingHelper::MultiPlot likelyGoldenPionEventPlot("Golden pion BDT response", yLabelEvents, 40u, -0.55f, 0.4f);
-    
+
     // Set the bin labels where appropriate
     nTracksPlot.SetIntegerBinLabels();
     nUncontainedPlot.SetIntegerBinLabels();
@@ -80,18 +80,18 @@ void PlotEventSelectionCuts(const Config &config)
     startNearVertexEventPlot.AddCutLine(selection.GetCutNominalValue("startNearVertex"));
     likelyGoldenPionParticlePlot.AddCutLine(selection.GetCutNominalValue("likelyGoldenPion"));
     likelyGoldenPionEventPlot.AddCutLine(selection.GetCutNominalValue("likelyGoldenPion"));
-    
+
     //
     // Setup the BDTs
     //
     const auto goldenPionFeatureNames = BDTHelper::GoldenPionBDTFeatureNames;
     const auto protonFeatureNames = BDTHelper::ProtonBDTFeatureNames;
     const auto muonFeatureNames = BDTHelper::MuonBDTFeatureNames;
-        
-    BDTHelper::BDT goldenPionBDT("goldenPion", goldenPionFeatureNames); 
-    BDTHelper::BDT protonBDT("proton", protonFeatureNames); 
-    BDTHelper::BDT muonBDT("muon", muonFeatureNames); 
-    
+
+    BDTHelper::BDT goldenPionBDT("goldenPion", goldenPionFeatureNames);
+    BDTHelper::BDT protonBDT("proton", protonFeatureNames);
+    BDTHelper::BDT muonBDT("muon", muonFeatureNames);
+
     // Define a function scoped to this macro to determine if a cut was passed
     auto passedCut = [&](const std::string &cut, const std::vector<std::string> &cutsPassed) -> bool {
         return (std::find(cutsPassed.begin(), cutsPassed.end(), cut) != cutsPassed.end());
@@ -135,14 +135,14 @@ void PlotEventSelectionCuts(const Config &config)
             std::vector<std::string> cutsPassed;
             std::vector<int> assignedPdgCodes;
             const auto passesGoldenPionSelection = selection.Execute(pEvent, cutsPassed, assignedPdgCodes);
-           
+
             // Get the plot style of the event
             const auto weight = AnalysisHelper::GetNominalEventWeight(pEvent) * normalisation;
             const auto plotStyleEvent = PlottingHelper::GetPlotStyle(sampleType, pEvent, config.global.useAbsPdg);
 
             // Fill the plots
             // ...
-            
+
             if (wasInputToCut("min2Tracks", cutsPassed))
             {
                 unsigned int nTracks = 0u;
@@ -165,10 +165,10 @@ void PlotEventSelectionCuts(const Config &config)
 
                     const auto isContained = AnalysisHelper::IsContained(recoParticle);
                     nUncontained += isContained ? 0u : 1u;
-                
+
                     const auto plotStyleParticle = PlottingHelper::GetPlotStyle(recoParticle, sampleType, truthParticles, false, config.global.useAbsPdg);
                     isContainedPlot.Fill(isContained ? 1.f : 0.f, plotStyleParticle, weight);
-                
+
                     if (!isContained)
                     {
                         const TVector3 start(recoParticle.startX(), recoParticle.startY(), recoParticle.startZ());
@@ -199,7 +199,7 @@ void PlotEventSelectionCuts(const Config &config)
                     const auto &particle = recoParticles.at(index);
                     if (!AnalysisHelper::HasTrackFit(particle))
                         continue;
-            
+
                     std::vector<float> features;
                     const auto hasFeatures = BDTHelper::GetBDTFeatures(particle, protonFeatureNames, features);
 
@@ -217,7 +217,7 @@ void PlotEventSelectionCuts(const Config &config)
 
                 nNonProtonsPlot.Fill(static_cast<float>(nNonProtons), plotStyleEvent, weight);
             }
-            
+
             if (wasInputToCut("pionNotInGap", cutsPassed))
             {
                 const auto recoData = AnalysisHelper::GetRecoAnalysisData(pEvent->reco, assignedPdgCodes, passesGoldenPionSelection);
@@ -234,12 +234,12 @@ void PlotEventSelectionCuts(const Config &config)
                 const auto recoData = AnalysisHelper::GetRecoAnalysisData(pEvent->reco, assignedPdgCodes, passesGoldenPionSelection);
                 openingAnglePlot.Fill(recoData.muonPionAngle, plotStyleEvent, weight);
             }
-            
+
             if (wasInputToCut("topologicalScore", cutsPassed))
             {
                 topologicalScorePlot.Fill(pEvent->reco.selectedTopologicalScore(), plotStyleEvent, weight);
             }
-            
+
             if (wasInputToCut("startNearVertex", cutsPassed))
             {
                 float maxVertexDist = -std::numeric_limits<float>::max();
@@ -270,7 +270,7 @@ void PlotEventSelectionCuts(const Config &config)
                     throw std::logic_error("PlotEventSelectionCuts - No pion candidate found");
 
                 const auto pion = recoParticles.at(std::distance(assignedPdgCodes.begin(), pionIter));
-                    
+
                 std::vector<float> features;
                 const auto hasFeatures = BDTHelper::GetBDTFeatures(pion, goldenPionFeatureNames, features);
 
@@ -278,14 +278,14 @@ void PlotEventSelectionCuts(const Config &config)
                     throw std::logic_error("PlotEventSelectionCuts - Pion candidate doesn't have BDT features");
 
                 const auto goldenPionBDTResponse = goldenPionBDT.GetResponse(features);
-                    
+
                 const auto plotStyleParticle = PlottingHelper::GetPlotStyle(pion, sampleType, truthParticles, false, config.global.useAbsPdg);
                 likelyGoldenPionParticlePlot.Fill(goldenPionBDTResponse, plotStyleParticle, weight);
                 likelyGoldenPionEventPlot.Fill(goldenPionBDTResponse, plotStyleEvent, weight);
             }
         }
     }
-    
+
     nTracksPlot.SaveAsStacked("plotEventSelectionCuts_min2Tracks_nTracks");
     isContainedPlot.SaveAsStacked("plotEventSelectionCuts_max1Uncontained_isContained");
     uncontainedVertexDistPlot.SaveAsStacked("plotEventSelectionCuts_max1Uncontained_vertexDist_uncontainedParticles", true);

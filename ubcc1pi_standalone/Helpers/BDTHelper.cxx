@@ -18,7 +18,7 @@ BDTHelper::EventShuffler::EventShuffler(const unsigned int nEvents, const unsign
 {
     if (nTraining > nEvents)
         throw std::invalid_argument("BDTHelper::EventShuffler::EventShuffler - Number of training events greater than total number of events");
-    
+
     // Setup the training and testing events
     const auto nTesting = nEvents - nTraining;
     m_isTrainingEvent.insert(m_isTrainingEvent.end(), nTraining, true);
@@ -40,7 +40,7 @@ bool BDTHelper::EventShuffler::IsTrainingEvent(const unsigned int eventIndex)
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
 // -----------------------------------------------------------------------------------------------------------------------------------------
-                
+
 BDTHelper::BDTBase::BDTBase(const std::string &bdtName, const std::vector<std::string> &featureNames) :
     m_bdtName(bdtName),
     m_featureNames(featureNames)
@@ -56,7 +56,7 @@ std::string BDTHelper::BDTBase::GetName() const
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
 // -----------------------------------------------------------------------------------------------------------------------------------------
-                
+
 BDTHelper::BDTFactory::BDTFactory(const std::string &bdtName, const std::vector<std::string> &featureNames) :
     BDTBase(bdtName, featureNames),
     m_pOutputFile(nullptr),
@@ -84,24 +84,24 @@ BDTHelper::BDTFactory::~BDTFactory()
 }
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
-                
+
 void BDTHelper::BDTFactory::AddEntry(const std::vector<float> &features, const bool isSignal, const bool isTraining, const float weight)
 {
     if (isSignal && isTraining)
         this->AddSignalTrainingEntry(features, weight);
-    
+
     if (!isSignal && isTraining)
         this->AddBackgroundTrainingEntry(features, weight);
-    
+
     if (isSignal && !isTraining)
         this->AddSignalTestEntry(features, weight);
-    
+
     if (!isSignal && !isTraining)
         this->AddBackgroundTestEntry(features, weight);
 }
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
-                
+
 void BDTHelper::BDTFactory::AddSignalTrainingEntry(const std::vector<float> &features, const float weight)
 {
     if (features.size() != m_featureNames.size())
@@ -155,7 +155,7 @@ void BDTHelper::BDTFactory::BookMethod()
 
         m_pDataLoader->PrepareTrainingAndTestTree("0==0", m_nSignalTraining, m_nBackgroundTraining, m_nSignalTest, m_nBackgroundTest);
         m_pFactory->BookMethod(m_pDataLoader, TMVA::Types::kBDT, "BDT", "!H:!V:NTrees=505:MinNodeSize=1.26436%:MaxDepth=4:BoostType=AdaBoost:AdaBoostBeta=0.2:UseBaggedBoost:BaggedSampleFraction=0.5:SeparationType=GiniIndex:nCuts=20");
-    
+
         m_isBooked = true;
     }
 }
@@ -177,10 +177,10 @@ void BDTHelper::BDTFactory::OptimizeParameters()
 void BDTHelper::BDTFactory::TrainAndTest()
 {
     this->BookMethod();
-    
+
     if (!m_pOutputFile || !m_pFactory)
         throw std::logic_error("BDTFactory::OptimizeParameters - Invalid output file or TMVA factory");
-    
+
     m_pFactory->TrainAllMethods();
     m_pFactory->TestAllMethods();
     m_pFactory->EvaluateAllMethods();
@@ -204,7 +204,7 @@ BDTHelper::BDT::BDT(const std::string &bdtName, const std::vector<std::string> &
 }
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
-                
+
 float BDTHelper::BDT::GetResponse(const std::vector<float> &features)
 {
     if (features.size() != m_features.size())
@@ -220,7 +220,7 @@ float BDTHelper::BDT::GetResponse(const std::vector<float> &features)
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
 // -----------------------------------------------------------------------------------------------------------------------------------------
-        
+
 bool BDTHelper::GetBDTFeatures(const Event::Reco::Particle &recoParticle, const std::vector<std::string> &featureNames, std::vector<float> &features, const bool shouldDebug)
 {
     if (!features.empty())
@@ -238,7 +238,7 @@ bool BDTHelper::GetBDTFeatures(const Event::Reco::Particle &recoParticle, const 
             {
                 if (shouldDebug)
                     std::cout << "DEBUG - Can't calculate: " << name << std::endl;
-                
+
                 return false;
             }
 
@@ -253,7 +253,7 @@ bool BDTHelper::GetBDTFeatures(const Event::Reco::Particle &recoParticle, const 
             {
                 if (shouldDebug)
                     std::cout << "DEBUG - Can't calculate: " << name << std::endl;
-                
+
                 return false;
             }
 
@@ -267,7 +267,7 @@ bool BDTHelper::GetBDTFeatures(const Event::Reco::Particle &recoParticle, const 
             {
                 if (shouldDebug)
                     std::cout << "DEBUG - Can't calculate: " << name << std::endl;
-                
+
                 return false;
             }
 
@@ -282,7 +282,7 @@ bool BDTHelper::GetBDTFeatures(const Event::Reco::Particle &recoParticle, const 
             {
                 if (shouldDebug)
                     std::cout << "DEBUG - Can't calculate: " << name << std::endl;
-                
+
                 return false;
             }
 
@@ -297,7 +297,7 @@ bool BDTHelper::GetBDTFeatures(const Event::Reco::Particle &recoParticle, const 
             {
                 if (shouldDebug)
                     std::cout << "DEBUG - Can't calculate: " << name << std::endl;
-                
+
                 return false;
             }
 
@@ -311,7 +311,7 @@ bool BDTHelper::GetBDTFeatures(const Event::Reco::Particle &recoParticle, const 
             {
                 if (shouldDebug)
                     std::cout << "DEBUG - Can't calculate: " << name << std::endl;
-                
+
                 return false;
             }
 
@@ -325,7 +325,7 @@ bool BDTHelper::GetBDTFeatures(const Event::Reco::Particle &recoParticle, const 
             {
                 if (shouldDebug)
                     std::cout << "DEBUG - Can't calculate: " << name << std::endl;
-                
+
                 return false;
             }
 
@@ -339,7 +339,7 @@ bool BDTHelper::GetBDTFeatures(const Event::Reco::Particle &recoParticle, const 
             {
                 if (shouldDebug)
                     std::cout << "DEBUG - Can't calculate: " << name << std::endl;
-                
+
                 return false;
             }
 
@@ -353,7 +353,7 @@ bool BDTHelper::GetBDTFeatures(const Event::Reco::Particle &recoParticle, const 
             {
                 if (shouldDebug)
                     std::cout << "DEBUG - Can't calculate: " << name << std::endl;
-                
+
                 return false;
             }
 
@@ -372,7 +372,7 @@ bool BDTHelper::GetBDTFeatures(const Event::Reco::Particle &recoParticle, const 
 }
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
-        
+
 void BDTHelper::GetROCCurve(const BDTResponseWeightVector &signalResponses, const BDTResponseWeightVector &backgroundResponses, const unsigned int nSamplePoints, std::vector<float> &signalPassingRates, std::vector<float> &backgroundRejectionRates, std::vector<float> &signalPassingRateErrors, std::vector<float> &backgroundRejectionRateErrors)
 {
     if (signalResponses.empty() || backgroundResponses.empty())
@@ -380,7 +380,7 @@ void BDTHelper::GetROCCurve(const BDTResponseWeightVector &signalResponses, cons
 
     if (nSamplePoints < 2)
         throw std::invalid_argument("BDTHelper::GetROCCurve - need at least 2 sample points");
-    
+
     if (!signalPassingRates.empty() || !backgroundRejectionRates.empty() || !signalPassingRateErrors.empty() || !backgroundRejectionRateErrors.empty())
         throw std::invalid_argument("BDTHelper::GetROCCurve - output vectors need to be empty");
 
@@ -390,7 +390,7 @@ void BDTHelper::GetROCCurve(const BDTResponseWeightVector &signalResponses, cons
     // Sort the responses
     auto sortedSignalResponses = signalResponses;
     std::sort(sortedSignalResponses.begin(), sortedSignalResponses.end(), comp);
-    
+
     auto sortedBackgroundResponses = backgroundResponses;
     std::sort(sortedBackgroundResponses.begin(), sortedBackgroundResponses.end(), comp);
 
@@ -419,7 +419,7 @@ void BDTHelper::GetROCCurve(const BDTResponseWeightVector &signalResponses, cons
             signalWeight += sortedSignalResponses.at(iSignal).second;
             iSignal++;
         }
-        
+
         while (iBackground < sortedBackgroundResponses.size())
         {
             if (sortedBackgroundResponses.at(iBackground).first > X)
@@ -437,7 +437,7 @@ void BDTHelper::GetROCCurve(const BDTResponseWeightVector &signalResponses, cons
     // Sanity check that we have seen every BDT response
     if (iSignal != sortedSignalResponses.size())
         throw std::logic_error("BDTHelper::GetROCCurve - sanity check failed, haven't used all signal responses");
-    
+
     if (iBackground != sortedBackgroundResponses.size())
         throw std::logic_error("BDTHelper::GetROCCurve - sanity check failed, haven't used all background responses");
 
@@ -450,14 +450,14 @@ void BDTHelper::GetROCCurve(const BDTResponseWeightVector &signalResponses, cons
         // The signal passing rate
         const auto fracS = 1.f - (vectS.at(iSample) / signalWeightTotal);
         const auto errS = AnalysisHelper::GetEfficiencyUncertainty(vectS.at(iSample), signalWeightTotal);
-        
+
         // The background rejection rate
         const auto fracB = vectB.at(iSample) / backgroundWeightTotal;
         const auto errB = AnalysisHelper::GetEfficiencyUncertainty(vectB.at(iSample), backgroundWeightTotal);
 
         signalPassingRates.push_back(fracS);
         backgroundRejectionRates.push_back(fracB);
-        
+
         signalPassingRateErrors.push_back(errS);
         backgroundRejectionRateErrors.push_back(errB);
     }
@@ -470,7 +470,7 @@ float BDTHelper::GetROCIntegral(const std::vector<float> &signalPassingRates, co
     if (signalPassingRates.size() != backgroundRejectionRates.size())
         throw std::invalid_argument("BDTHelper::GetROCIntegral - sizes of input vectors doesn't match");
 
-    const auto nSamples = signalPassingRates.size(); 
+    const auto nSamples = signalPassingRates.size();
     if (nSamples < 2)
         throw std::invalid_argument("BDTHelper::GetROCIntegral - need at least 2 samples");
 
@@ -481,7 +481,7 @@ float BDTHelper::GetROCIntegral(const std::vector<float> &signalPassingRates, co
         data.emplace_back(signalPassingRates.at(i), backgroundRejectionRates.at(i));
     }
     std::sort(data.begin(), data.end(), [](const auto &a, const auto &b) { return a.first < b.first; });
- 
+
     // Perform trapezium integration
     float integral = 0.f;
     for (unsigned int i = 1; i < nSamples; ++i)
@@ -511,7 +511,7 @@ float BDTHelper::GetROCIntegral(const std::vector<float> &signalPassingRates, co
 
 float BDTHelper::GetROCIntegralError(const std::vector<float> &signalPassingRates, const std::vector<float> &backgroundRejectionRates, const std::vector<float> &signalPassingRateErrs, const std::vector<float> &backgroundRejectionRateErrs, const unsigned nUniverses)
 {
-    const auto nSamples = signalPassingRates.size(); 
+    const auto nSamples = signalPassingRates.size();
     if (backgroundRejectionRates.size() != nSamples || signalPassingRateErrs.size() != nSamples || backgroundRejectionRateErrs.size() != nSamples)
         throw std::invalid_argument("BDTHelper::GetROCIntegralError - sizes of input vectors doesn't match");
 
@@ -526,7 +526,7 @@ float BDTHelper::GetROCIntegralError(const std::vector<float> &signalPassingRate
         signalDistributions.emplace_back(signalPassingRates.at(i), signalPassingRateErrs.at(i));
         backgroundDistributions.emplace_back(backgroundRejectionRates.at(i), backgroundRejectionRateErrs.at(i));
     }
-    
+
     // Here we use a MC technique to estimate the uncertainty
     std::vector<float> rocIntegrals;
     float summedROCIntegral = 0.f;
@@ -535,7 +535,7 @@ float BDTHelper::GetROCIntegralError(const std::vector<float> &signalPassingRate
     {
         // Generate signal passing rate and background rejection rate vectors with random 1 sigma variations
         std::vector<float> generatedSignalPassingRates, generatedBackgroundRejectionRates;
-    
+
         for (unsigned int i = 0; i < nSamples; ++i)
         {
             generatedSignalPassingRates.push_back(signalDistributions.at(i)(generator));

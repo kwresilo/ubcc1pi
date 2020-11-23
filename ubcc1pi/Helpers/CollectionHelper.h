@@ -78,7 +78,7 @@ typedef Association<recob::PFParticle, anab::T0> PFParticleToT0s;               
 typedef Association<recob::Track, recob::MCSFitResult> TrackToMCSFitResults;           ///< Association from Tracks to MCS fit results
 typedef Association<recob::Track, anab::ParticleID> TrackToPIDs;                       ///< Association from Tracks to PIDs
 typedef Association<recob::Track, anab::Calorimetry> TrackToCalorimetries;             ///< Association from Tracks to Calorimetries
-                
+
 typedef std::unordered_map<art::Ptr<recob::Hit>, bool> HitsToBool;                     ///< Mapping from Hit to boolean
 typedef std::unordered_map<art::Ptr<recob::Slice>, bool> SlicesToBool;                 ///< Mapping from Slice to boolean
 
@@ -99,7 +99,7 @@ class CollectionHelper
          */
         template <typename T>
         static Collection<T> GetCollection(const art::Event &event, const art::InputTag &label);
-        
+
         /**
          *  @brief  Get an object in the desired format from the subrun
          *
@@ -110,7 +110,7 @@ class CollectionHelper
          */
         template <typename T>
         static T GetObject(const art::SubRun &subrun, const art::InputTag &label);
-        
+
         /**
          *  @brief  Get an association between objects in the desired format from the event
          *
@@ -122,7 +122,7 @@ class CollectionHelper
          */
         template <typename L, typename R>
         static Association<L, R> GetAssociation(const art::Event &event, const art::InputTag &collectionLabel, const art::InputTag &associationLabel);
-        
+
         /**
          *  @brief  Get an association between objects in the desired format from the event
          *
@@ -135,7 +135,7 @@ class CollectionHelper
         static Association<L, R> GetAssociation(const art::Event &event, const art::InputTag &label);
 
         /**
-         *  @brief  Get an association from two collections which have a 1:1 ordered mapping for their entries 
+         *  @brief  Get an association from two collections which have a 1:1 ordered mapping for their entries
          *
          *  @param  event the art event
          *  @param  collectionLabelL the label of the first (L) collection
@@ -145,7 +145,7 @@ class CollectionHelper
          */
         template <typename L, typename R>
         static Association<L, R> GetAssociationFromAlignedCollections(const art::Event &event, const art::InputTag &collectionLabelL, const art::InputTag &collectionLabelR);
-        
+
         /**
          *  @brief  Get the reversed association (R -> L) from in input association (L -> R)
          *
@@ -155,7 +155,7 @@ class CollectionHelper
          */
         template <typename L, typename R>
         static Association<R, L> GetReversedAssociation(const Association<L, R> &forwardAssociation);
-        
+
         /**
          *  @brief  Get the objects associated to a given input object, if the association doesn't exist an empty collection is returned
          *
@@ -166,7 +166,7 @@ class CollectionHelper
          */
         template <typename L, typename R>
         static Collection<R> GetManyAssociated(const art::Ptr<L> &objectL, const Association<L, R> &association);
-        
+
         /**
          *  @brief  Check if there is any association availble for the input object
          *
@@ -177,7 +177,7 @@ class CollectionHelper
          */
         template <typename L, typename R>
         static bool HasAssociated(const art::Ptr<L> &objectL, const Association<L, R> &association);
-        
+
         /**
          *  @brief  Get the single object associated to a given input object
          *
@@ -188,7 +188,7 @@ class CollectionHelper
          */
         template <typename L, typename R>
         static art::Ptr<R> GetSingleAssociated(const art::Ptr<L> &objectL, const Association<L, R> &association);
-        
+
         /**
          *  @brief  Get an association between objects in the desired format from the event with data
          *
@@ -200,7 +200,7 @@ class CollectionHelper
          */
         template <typename L, typename R, typename D>
         static AssociationData<L, R, D> GetAssociationWithData(const art::Event &event, const art::InputTag &collectionLabel, const art::InputTag &associationLabel);
-        
+
         /**
          *  @brief  Get an association between objects in the desired format from the event with data
          *
@@ -211,7 +211,7 @@ class CollectionHelper
          */
         template <typename L, typename R, typename D>
         static AssociationData<L, R, D> GetAssociationWithData(const art::Event &event, const art::InputTag &label);
-        
+
         /**
          *  @brief  Get the reversed association (R -> L) from in input association (L -> R) with data
          *
@@ -221,7 +221,7 @@ class CollectionHelper
          */
         template <typename L, typename R, typename D>
         static AssociationData<R, L, D> GetReversedAssociation(const AssociationData<L, R, D> &forwardAssociation);
-        
+
         /**
          *  @brief  Get the objects associated to a given input object
          *
@@ -232,7 +232,7 @@ class CollectionHelper
          */
         template <typename L, typename R, typename D>
         static Collection<R> GetManyAssociated(const art::Ptr<L> &objectL, const AssociationData<L, R, D> &association);
-        
+
         /**
          *  @brief  Get the single object associated to a given input object
          *
@@ -254,7 +254,7 @@ class CollectionHelper
          */
         template <typename L, typename R, typename D>
         static CollectionData<R, D> GetManyAssociatedWithData(const art::Ptr<L> &objectL, const AssociationData<L, R, D> &association);
-        
+
         /**
          *  @brief  Get the single object associated to a given input object with data
          *
@@ -301,7 +301,7 @@ inline Collection<T> CollectionHelper::GetCollection(const art::Event &event, co
     const auto handle = event.getValidHandle< std::vector<T> >(label);
     for (size_t i = 0; i < handle->size(); ++i)
     {
-        outputCollection.emplace_back(handle, i);    
+        outputCollection.emplace_back(handle, i);
     }
 
     return outputCollection;
@@ -317,15 +317,15 @@ inline T CollectionHelper::GetObject(const art::SubRun &subrun, const art::Input
 }
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
-        
+
 template <typename L, typename R>
 inline Association<L, R> CollectionHelper::GetAssociation(const art::Event &event, const art::InputTag &label)
 {
-    return CollectionHelper::GetAssociation<L, R>(event, label, label);  
+    return CollectionHelper::GetAssociation<L, R>(event, label, label);
 }
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
-        
+
 template <typename L, typename R>
 inline Association<L, R> CollectionHelper::GetAssociation(const art::Event &event, const art::InputTag &collectionLabel, const art::InputTag &associationLabel)
 {
@@ -346,7 +346,7 @@ inline Association<L, R> CollectionHelper::GetAssociation(const art::Event &even
 }
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
-        
+
 template <typename L, typename R>
 inline Association<L, R> CollectionHelper::GetAssociationFromAlignedCollections(const art::Event &event, const art::InputTag &collectionLabelL, const art::InputTag &collectionLabelR)
 {
@@ -366,7 +366,7 @@ inline Association<L, R> CollectionHelper::GetAssociationFromAlignedCollections(
 }
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
-        
+
 template <typename L, typename R>
 inline Association<R, L> CollectionHelper::GetReversedAssociation(const Association<L, R> &forwardAssociation)
 {
@@ -388,7 +388,7 @@ inline Association<R, L> CollectionHelper::GetReversedAssociation(const Associat
         // This should never happen, but let's check for sanity
         if (iter == forwardAssociation.end())
             throw cet::exception("CollectionHelper::GetReversedAssociation") << " - sanity check failed!" << std::endl;
-        
+
         for (const auto &objectR : iter->second)
             reverseAssociation[objectR].push_back(objectL);
     }
@@ -397,7 +397,7 @@ inline Association<R, L> CollectionHelper::GetReversedAssociation(const Associat
 }
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
-        
+
 template <typename L, typename R>
 inline Collection<R> CollectionHelper::GetManyAssociated(const art::Ptr<L> &objectL, const Association<L, R> &association)
 {
@@ -419,7 +419,7 @@ inline bool CollectionHelper::HasAssociated(const art::Ptr<L> &objectL, const As
 }
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
-        
+
 template <typename L, typename R>
 inline art::Ptr<R> CollectionHelper::GetSingleAssociated(const art::Ptr<L> &objectL, const Association<L, R> &association)
 {
@@ -432,7 +432,7 @@ inline art::Ptr<R> CollectionHelper::GetSingleAssociated(const art::Ptr<L> &obje
 }
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
-        
+
 template <typename L, typename R, typename D>
 inline AssociationData<L, R, D> CollectionHelper::GetAssociationWithData(const art::Event &event, const art::InputTag &label)
 {
@@ -440,7 +440,7 @@ inline AssociationData<L, R, D> CollectionHelper::GetAssociationWithData(const a
 }
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
-        
+
 template <typename L, typename R, typename D>
 inline AssociationData<L, R, D> CollectionHelper::GetAssociationWithData(const art::Event &event, const art::InputTag &collectionLabel, const art::InputTag &associationLabel)
 {
@@ -467,7 +467,7 @@ inline AssociationData<L, R, D> CollectionHelper::GetAssociationWithData(const a
 }
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
-        
+
 template <typename L, typename R, typename D>
 inline AssociationData<R, L, D> CollectionHelper::GetReversedAssociation(const AssociationData<L, R, D> &forwardAssociation)
 {
@@ -483,7 +483,7 @@ inline AssociationData<R, L, D> CollectionHelper::GetReversedAssociation(const A
 }
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
-        
+
 template <typename L, typename R, typename D>
 inline Collection<R> CollectionHelper::GetManyAssociated(const art::Ptr<L> &objectL, const AssociationData<L, R, D> &association)
 {
@@ -500,7 +500,7 @@ inline Collection<R> CollectionHelper::GetManyAssociated(const art::Ptr<L> &obje
 }
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
-        
+
 template <typename L, typename R, typename D>
 inline art::Ptr<R> CollectionHelper::GetSingleAssociated(const art::Ptr<L> &objectL, const AssociationData<L, R, D> &association)
 {
@@ -513,7 +513,7 @@ inline art::Ptr<R> CollectionHelper::GetSingleAssociated(const art::Ptr<L> &obje
 }
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
-        
+
 template <typename L, typename R, typename D>
 inline CollectionData<R, D> CollectionHelper::GetManyAssociatedWithData(const art::Ptr<L> &objectL, const AssociationData<L, R, D> &association)
 {
@@ -526,7 +526,7 @@ inline CollectionData<R, D> CollectionHelper::GetManyAssociatedWithData(const ar
 }
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
-        
+
 template <typename L, typename R, typename D>
 inline ObjectData<R, D> CollectionHelper::GetSingleAssociatedWithData(const art::Ptr<L> &objectL, const AssociationData<L, R, D> &association)
 {
@@ -539,7 +539,7 @@ inline ObjectData<R, D> CollectionHelper::GetSingleAssociatedWithData(const art:
 }
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
-        
+
 template <typename T>
 inline Collection<T> CollectionHelper::GetIntersection(const Collection<T> &a, const Collection<T> &b)
 {
@@ -550,12 +550,12 @@ inline Collection<T> CollectionHelper::GetIntersection(const Collection<T> &a, c
         if (std::find(b.begin(), b.end(), objectA) != b.end())
             intersection.push_back(objectA);
     }
-    
+
     return intersection;
 }
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
-        
+
 template <typename A, typename B, typename C>
 inline Association<A, C> CollectionHelper::GetAssociationViaCollection(const art::Event &event, const art::InputTag &labelA, const art::InputTag &labelB, const art::InputTag &labelC)
 {

@@ -19,15 +19,15 @@ namespace ubcc1pi_macros
 {
 
 void MakeSelectedPIDTable(const Config &config)
-{       
+{
     //
     // Setup the input files
-    // 
+    //
     std::vector< std::tuple<AnalysisHelper::SampleType, std::string, float> > inputData;
-    
-    inputData.emplace_back(AnalysisHelper::Overlay, config.files.overlaysFileName, NormalisationHelper::GetOverlaysNormalisation(config)); 
-    inputData.emplace_back(AnalysisHelper::Dirt,    config.files.dirtFileName,     NormalisationHelper::GetDirtNormalisation(config)); 
-    inputData.emplace_back(AnalysisHelper::DataEXT, config.files.dataEXTFileName,  NormalisationHelper::GetDataEXTNormalisation(config)); 
+
+    inputData.emplace_back(AnalysisHelper::Overlay, config.files.overlaysFileName, NormalisationHelper::GetOverlaysNormalisation(config));
+    inputData.emplace_back(AnalysisHelper::Dirt,    config.files.dirtFileName,     NormalisationHelper::GetDirtNormalisation(config));
+    inputData.emplace_back(AnalysisHelper::DataEXT, config.files.dataEXTFileName,  NormalisationHelper::GetDataEXTNormalisation(config));
 
     //
     // Get the selection
@@ -43,7 +43,7 @@ void MakeSelectedPIDTable(const Config &config)
 
     //  Counter with index [recoPdgCode][truePdgCode][isSignalOnly]
     std::unordered_map< int, std::unordered_map< int, std::unordered_map<bool, float > > > recoToTruePdgMap;
-                        
+
     for (const auto [sampleType, fileName, normalisation] : inputData)
     {
         std::cout << "Reading input file: " << fileName << std::endl;
@@ -66,10 +66,10 @@ void MakeSelectedPIDTable(const Config &config)
             // For speed skip events that didn't even pass the pre-selection
             if (!pEvent->reco.passesCCInclusive())
                 continue;
-            
+
             const auto truthParticles = pEvent->truth.particles; // ATTN this is empty for data events
             const auto recoParticles = pEvent->reco.particles;
-                
+
             // Determine if this is a signal event
             const auto nGoldenPions = AnalysisHelper::CountGoldenParticlesWithPdgCode(AnalysisHelper::SelectVisibleParticles(truthParticles), 211, config.global.useAbsPdg);
             bool isTrueSignal = isOverlay && AnalysisHelper::IsTrueCC1Pi(pEvent, config.global.useAbsPdg) &&
@@ -138,13 +138,13 @@ void MakeSelectedPIDTable(const Config &config)
                 {
                     if (isTrueSignal)
                         iter->second.at(true) += weight;
-                        
+
                     iter->second.at(false) += weight;
                 }
             }
         }
     }
-    
+
     // Extract the PDG codes we want to print
     std::vector<int> recoPdgs, truePdgs;
     std::unordered_map<int, float> recoPdgToTotalWeightMap, recoPdgToTotalWeightMapSignal;
@@ -167,7 +167,7 @@ void MakeSelectedPIDTable(const Config &config)
 
             recoPdgToTotalWeightMap.at(recoPdgCode) += trueEntry.second.at(false);
             recoPdgToTotalWeightMapSignal.at(recoPdgCode) += trueEntry.second.at(true);
-        
+
             // Store this PDG code if not yet seen
             if (std::find(truePdgs.begin(), truePdgs.end(), truePdgCode) == truePdgs.end())
                 truePdgs.push_back(truePdgCode);
@@ -196,7 +196,7 @@ void MakeSelectedPIDTable(const Config &config)
     {
         const auto count = recoPdgToTotalWeightMap.at(recoPdg);
         const auto signalCount = recoPdgToTotalWeightMapSignal.at(recoPdg);
-            
+
         table.SetEntry(std::to_string(recoPdg), count);
         signalTable.SetEntry(std::to_string(recoPdg), signalCount);
     }
@@ -213,7 +213,7 @@ void MakeSelectedPIDTable(const Config &config)
         {
             const auto countTotal = recoPdgToTotalWeightMap.at(recoPdg);
             const auto signalCountTotal = recoPdgToTotalWeightMapSignal.at(recoPdg);
-            
+
             float count = 0.f;
             float signalCount = 0.f;
 

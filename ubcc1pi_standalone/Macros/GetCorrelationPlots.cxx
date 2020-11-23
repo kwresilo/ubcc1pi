@@ -32,7 +32,7 @@ void GetCorrelationPlots(const Config &config)
 
     // Setup the data structures
     std::map<PlottingHelper::PlotStyle, std::map< std::string, std::vector<float> > > typeToFeatureNameToValuesMap;
-    
+
     // Get the feature names
     const auto featureNames = BDTHelper::ParticleBDTFeatureNames;
     const auto nFeatures = featureNames.size();
@@ -42,7 +42,7 @@ void GetCorrelationPlots(const Config &config)
     {
         AnalysisHelper::PrintLoadingBar(eventIndex, nEvents);
         reader.LoadEvent(eventIndex);
-        
+
         // Event must be true CC1Pi
         if (!AnalysisHelper::IsTrueCC1Pi(pEvent, config.global.useAbsPdg))
             continue;
@@ -50,7 +50,7 @@ void GetCorrelationPlots(const Config &config)
         // Event must pass the CCInclusive selection
         if (!pEvent->reco.passesCCInclusive())
             continue;
-     
+
         for (const auto &particle : pEvent->reco.particles)
         {
             // Find the MC origin of this reco particle
@@ -93,7 +93,7 @@ void GetCorrelationPlots(const Config &config)
         for (unsigned int jFeature = iFeature; jFeature < nFeatures; ++jFeature)
         {
             const auto featureNameJ = featureNames.at(jFeature);
-   
+
             // Make a scatter graph for every style
             std::vector<TGraph *> graphVector;
 
@@ -121,11 +121,11 @@ void GetCorrelationPlots(const Config &config)
 
             // Save the graph
             PlottingHelper::SaveCanvas(pCanvas, "covariance_" + featureNameI + "-vs-" + featureNameJ);
-            
+
             // Clean up the heap
             for (auto &pGraph : graphVector)
                 delete pGraph;
-        } 
+        }
     }
 
 
@@ -134,7 +134,7 @@ void GetCorrelationPlots(const Config &config)
 
     for (const auto &style : allStyles)
     {
-        std::string particleType = "Other-" + std::to_string(style); 
+        std::string particleType = "Other-" + std::to_string(style);
         switch (style)
         {
             case PlottingHelper::Muon:
@@ -169,7 +169,7 @@ void GetCorrelationPlots(const Config &config)
             const auto label = std::to_string(iFeature).c_str();
             pHist->GetXaxis()->SetBinLabel(iFeature + 1, label);
             pHist->GetYaxis()->SetBinLabel(iFeature + 1, label);
-    
+
             for (unsigned int jFeature = iFeature; jFeature < nFeatures; ++jFeature)
             {
                 const auto featureNameJ = featureNames.at(jFeature);

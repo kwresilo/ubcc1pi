@@ -43,7 +43,7 @@ namespace ubcc1pi
              *  @return the normalisation factor
              */
             static float GetDataEXTNormalisation(const Config &config);
-            
+
             /**
              *  @brief  Get the normalisation factor for a detector variation file
              *

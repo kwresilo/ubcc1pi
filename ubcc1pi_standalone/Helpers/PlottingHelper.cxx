@@ -1,7 +1,7 @@
 /**
  *  @file  ubcc1pi_standalone/Helpers/PlottingHelper.cxx
  *
- *  @brief The implementation file of the plotting helper class 
+ *  @brief The implementation file of the plotting helper class
  */
 
 #include "ubcc1pi_standalone/Helpers/PlottingHelper.h"
@@ -44,12 +44,12 @@ PlottingHelper::MultiPlot::MultiPlot(const std::string &xLabel, const std::strin
         const auto name = nameStr.c_str();
 
         auto pHist = std::make_shared<TH1F>(name, "", m_nBins, m_binEdges.data());
-        
+
         pHist->Sumw2();
         PlottingHelper::SetLineStyle(pHist.get(), style);
         //pHist->GetXaxis()->SetTitle(xLabel.c_str());
         //pHist->GetYaxis()->SetTitle(yLabel.c_str());
-        
+
         m_plotToHistMap.emplace(style, pHist);
     }
 }
@@ -92,7 +92,7 @@ void PlottingHelper::MultiPlot::SetIntegerBinLabels()
 }
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
-                
+
 void PlottingHelper::MultiPlot::SetBinLabels(const std::vector<std::string> &labels)
 {
     if (labels.size() != m_nBins)
@@ -112,7 +112,7 @@ void PlottingHelper::MultiPlot::SetBinLabels(const std::vector<std::string> &lab
 }
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
-                
+
 void PlottingHelper::MultiPlot::AddCutLine(const float value)
 {
     if (value < m_min || value > m_max)
@@ -122,7 +122,7 @@ void PlottingHelper::MultiPlot::AddCutLine(const float value)
 }
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
-                
+
 void PlottingHelper::MultiPlot::Fill(const float value, const PlotStyle &plotStyle, const float weight)
 {
     auto iter = m_plotToHistMap.find(plotStyle);
@@ -135,7 +135,7 @@ void PlottingHelper::MultiPlot::Fill(const float value, const PlotStyle &plotSty
     // Fill the histogram
     iter->second->Fill(value, weight);
 }
-                
+
 // -----------------------------------------------------------------------------------------------------------------------------------------
 
 void PlottingHelper::MultiPlot::GetHistogramClones(std::unordered_map<PlotStyle, TH1F*> &plotToHistCloneMap)
@@ -186,13 +186,13 @@ void PlottingHelper::MultiPlot::SetHistogramYRanges(const unsigned int minEntrie
         yMax = std::max(yMax, static_cast<float>(pHist->GetMaximum()));
         shouldScale = true;
     }
-    
+
     if (!shouldScale)
         return;
 
     // Add some padding to the top of the histogram
     yMax += (yMax - yMin) * 0.05;
-    
+
     for (const auto &style : PlottingHelper::AllPlotStyles)
     {
         auto pHist = plotToHistCloneMap.at(style);
@@ -216,7 +216,7 @@ void PlottingHelper::MultiPlot::SaveAs(const std::string &fileName, const bool u
     this->GetHistogramClones(plotToHistCloneMap);
     this->ScaleHistograms(plotToHistCloneMap, scaleByBinWidth);
     this->SetHistogramYRanges(minEntriesToDraw, plotToHistCloneMap);
-    
+
     // Draw the error bands if required
     bool isFirst = true;
     if (m_drawErrors)
@@ -232,10 +232,10 @@ void PlottingHelper::MultiPlot::SaveAs(const std::string &fileName, const bool u
                 continue;
 
             auto pHist = plotToHistCloneMap.at(style);
-    
+
             if (pHist->GetEntries() < minEntriesToDraw || pHist->GetEntries() == 0u)
                 continue;
-        
+
             // Draw a clone of the histogram so we can safely change it's style
             auto pHistClone = static_cast<TH1F *>(pHist->Clone());
             const auto col = pHistClone->GetLineColor();
@@ -247,7 +247,7 @@ void PlottingHelper::MultiPlot::SaveAs(const std::string &fileName, const bool u
             isFirst = false;
         }
     }
-        
+
     // Draw the histogram itself
     for (const auto &style : PlottingHelper::AllPlotStyles)
     {
@@ -332,17 +332,17 @@ void PlottingHelper::MultiPlot::SaveAsStacked(const std::string &fileName, const
 
         pHistTotal->Add(pHist);
     }
-    
+
     // Get the maximum and minimum Y coordinates
     yMin = std::min(yMin, static_cast<float>(pHistTotal->GetMinimum()));
     yMax = std::max(yMax, static_cast<float>(pHistTotal->GetMaximum()));
     yMax += (yMax - yMin) * 0.05;
-        
+
     // Draw the stacked histogram
     const auto nameStackStr = "ubcc1pi_plotPlot_" + std::to_string(m_id) + "_stack";
     const auto nameStack = nameStackStr.c_str();
     auto pHistStack = std::make_shared<THStack>(nameStack, "");
-    
+
     for (const auto &style : PlottingHelper::AllPlotStyles)
     {
         // Don't draw BNB data
@@ -350,22 +350,22 @@ void PlottingHelper::MultiPlot::SaveAsStacked(const std::string &fileName, const
             continue;
 
         auto pHist = plotToHistCloneMap.at(style);
-        
+
         if (pHist->GetEntries() == 0)
             continue;
-        
+
         const auto col = pHist->GetLineColor();
         pHist->SetLineColorAlpha(col, 0.f);
         pHist->SetFillStyle(1001);
         pHist->SetFillColor(col);
-       
+
         pHistStack->Add(pHist);
     }
 
     pHistStack->SetMinimum(0.f);
     pHistStack->SetMaximum(yMax / (1+gStyle->GetHistTopMargin()));
     pHistStack->Draw("hist");
-           
+
     // Draw the error bands on the stack if required
     if (m_drawErrors)
     {
@@ -390,14 +390,14 @@ void PlottingHelper::MultiPlot::SaveAsStacked(const std::string &fileName, const
     }
 
     PlottingHelper::SaveCanvas(pCanvas, fileName);
-    
+
     // If we don't have BNB data then we are done!
     if (!hasBNBData)
         return;
 
     // Now make the ratio plot
     auto pCanvasRatio = PlottingHelper::GetCanvas(960, 270);
-    
+
     if (useLogX)
     {
         pCanvasRatio->SetLogx();
@@ -438,7 +438,7 @@ void PlottingHelper::MultiPlot::SaveAsStacked(const std::string &fileName, const
     l->Draw();
     lPlus->Draw();
     lMinus->Draw();
-    
+
     // Draw the cut lines
     for (const auto &cutValue : m_cutValues)
     {
@@ -492,7 +492,7 @@ PlottingHelper::EfficiencyPlot::EfficiencyPlot(const std::string &xLabel, const 
         auto plotPair = std::pair< std::shared_ptr<TH1F>, std::shared_ptr<TH1F> >(
             std::make_shared<TH1F>(nameNumerator.c_str(), "", m_nBins, m_binEdges.data()),
             std::make_shared<TH1F>(nameDenominator.c_str(), "", m_nBins, m_binEdges.data()));
-        
+
         // Setup the plots
         for (auto &pHist : {plotPair.first, plotPair.second})
         {
@@ -500,13 +500,13 @@ PlottingHelper::EfficiencyPlot::EfficiencyPlot(const std::string &xLabel, const 
             //pHist->GetXaxis()->SetTitle(xLabel.c_str());
             //pHist->GetYaxis()->SetTitle("Efficiency");
         }
-        
+
         m_cutToPlotsMap.emplace(cut, plotPair);
     }
 }
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
-                
+
 void PlottingHelper::EfficiencyPlot::AddCutLine(const float value)
 {
     if (value < m_min || value > m_max)
@@ -516,7 +516,7 @@ void PlottingHelper::EfficiencyPlot::AddCutLine(const float value)
 }
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
-       
+
 void PlottingHelper::EfficiencyPlot::AddEvent(const float value, const float weight, const std::string &cut, const bool passedCut)
 {
     auto plotPairIter = m_cutToPlotsMap.find(cut);
@@ -539,7 +539,7 @@ void PlottingHelper::EfficiencyPlot::SaveAs(const std::vector<std::string> &cuts
 {
     if (cuts.size() != colors.size())
         throw std::invalid_argument("EfficiencyPlot::SaveAs - number of cuts and colors doesn't match");
-        
+
     for (const auto &cut : cuts)
     {
         if (std::find(m_cuts.begin(), m_cuts.end(), cut) == m_cuts.end())
@@ -563,16 +563,16 @@ void PlottingHelper::EfficiencyPlot::SaveAs(const std::vector<std::string> &cuts
 
         pHistClone->Draw("e2");
     }
-   
+
     // ATTN the raw histogram only works for uniform binning!
-    pHistRaw->Draw(m_drawErrors ? "hist same" : "hist"); 
+    pHistRaw->Draw(m_drawErrors ? "hist same" : "hist");
     PlottingHelper::SaveCanvas(pCanvas, fileName + "_raw");
 
     // Get the efficiency histograms
     std::vector<TH1F *> efficiencyHists;
     std::vector<TH1F *> efficiencyErrorHists;
     for (unsigned int i = 0; i < cuts.size(); ++i)
-    {   
+    {
         const auto &cut = cuts.at(i);
         const auto col = colors.at(i);
 
@@ -585,7 +585,7 @@ void PlottingHelper::EfficiencyPlot::SaveAs(const std::vector<std::string> &cuts
         pHistEfficiency->Divide(pHistDenominator.get());
         PlottingHelper::SetLineStyle(pHistEfficiency, col);
         efficiencyHists.push_back(pHistEfficiency);
-    
+
         if (m_drawErrors)
         {
             auto pHistClone = static_cast<TH1F *>(pHistEfficiency->Clone());
@@ -616,7 +616,7 @@ void PlottingHelper::EfficiencyPlot::SaveAs(const std::vector<std::string> &cuts
         yMin = std::min(yMin, static_cast<float>(pHist->GetMinimum()));
         yMax = std::max(yMax, static_cast<float>(pHist->GetMaximum()));
     }
-    
+
     // Add some padding to the top of the histogram
     yMax += (yMax - yMin) * 0.05;
 
@@ -624,7 +624,7 @@ void PlottingHelper::EfficiencyPlot::SaveAs(const std::vector<std::string> &cuts
     yMin = 0.f;
     yMax = 1.05f;
     //// END TEST
-    
+
     // Make the cut lines
     std::vector< shared_ptr<TLine> > lines;
     for (const auto &cutValue : m_cutValues)
@@ -642,7 +642,7 @@ void PlottingHelper::EfficiencyPlot::SaveAs(const std::vector<std::string> &cuts
         if (m_drawErrors)
         {
             auto pHistErr = efficiencyErrorHists.at(i);
-            pHistErr->GetYaxis()->SetRangeUser(yMin, yMax); 
+            pHistErr->GetYaxis()->SetRangeUser(yMin, yMax);
             pHistErr->Draw("e2");
         }
 
@@ -653,7 +653,7 @@ void PlottingHelper::EfficiencyPlot::SaveAs(const std::vector<std::string> &cuts
         // Draw the cut value lines
         for (const auto &pLine : lines)
             pLine->Draw();
-    
+
         PlottingHelper::SaveCanvas(pCanvas, fileName + "_" + std::to_string(i) + "_" + cut);
     }
 
@@ -665,7 +665,7 @@ void PlottingHelper::EfficiencyPlot::SaveAs(const std::vector<std::string> &cuts
         pHist->Draw(isFirst ? "e2" : "e2 same");
         isFirst = false;
     }
-    
+
     // Draw the histogram lines all together
     for (const auto &pHist : efficiencyHists)
     {
@@ -673,23 +673,23 @@ void PlottingHelper::EfficiencyPlot::SaveAs(const std::vector<std::string> &cuts
         pHist->Draw(isFirst ? "hist" : "hist same");
         isFirst = false;
     }
-        
+
     // Draw the cut value lines
     for (const auto &pLine : lines)
         pLine->Draw();
-    
+
     PlottingHelper::SaveCanvas(pCanvas, fileName);
 }
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
-                
+
 void PlottingHelper::EfficiencyPlot::SaveAs(const std::vector<std::string> &cuts, const std::vector<PlotStyle> &styles, const std::string &fileName)
 {
     // Convert the styles to colors
     std::vector<int> colors;
     for (const auto &style : styles)
         colors.push_back(PlottingHelper::GetColor(style));
-    
+
     this->SaveAs(cuts, colors, fileName);
 }
 
@@ -708,7 +708,7 @@ void PlottingHelper::EfficiencyPlot::SaveAs(const std::string &fileName)
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
 // -----------------------------------------------------------------------------------------------------------------------------------------
-        
+
 PlottingHelper::PlotStyle PlottingHelper::GetPlotStyle(const Event::Reco::Particle &particle, const AnalysisHelper::SampleType &sampleType, const std::vector<Event::Truth::Particle> &truthParticles, const bool usePoints, const bool useAbsPdg)
 {
     const auto externalType = usePoints ? ExternalPoints : External;
@@ -767,21 +767,21 @@ PlottingHelper::PlotStyle PlottingHelper::GetPlotStyle(const Event::Reco::Partic
 }
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
-        
+
 PlottingHelper::PlotStyle PlottingHelper::GetPlotStyle(const AnalysisHelper::SampleType &sampleType, const std::shared_ptr<Event> &pEvent, const bool useAbsPdg)
 {
     if (sampleType == AnalysisHelper::Dirt)
         return Dirt;
-    
+
     if (sampleType == AnalysisHelper::DataEXT)
         return External;
-    
+
     if (sampleType == AnalysisHelper::DataBNB)
         return BNBData;
 
     if (!AnalysisHelper::IsFiducial(pEvent->truth.nuVertex()))
         return NonFiducial;
-    
+
     // Count the particles by PDG code
     std::vector<int> foundPdgs;
     std::unordered_map<int, unsigned int> pdgCodeCountMap;
@@ -800,7 +800,7 @@ PlottingHelper::PlotStyle PlottingHelper::GetPlotStyle(const AnalysisHelper::Sam
 
     if (!hasMuon && hasElectron)
         return Nue;
-    
+
     if (!hasMuon && !hasElectron)
         return NC;
 
@@ -826,7 +826,7 @@ PlottingHelper::PlotStyle PlottingHelper::GetPlotStyle(const AnalysisHelper::Sam
 
         return NumuCC1PiChargedNonGolden;
     }
-    
+
     return NumuCCOther;
 }
 
@@ -869,7 +869,7 @@ std::vector<float> PlottingHelper::GenerateUniformBinEdges(const unsigned int nB
 }
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
-        
+
 std::vector<float> PlottingHelper::GenerateLogBinEdges(const unsigned int nBins, const float min, const float max)
 {
     if (std::min(min, max) <= 0.f)
@@ -891,7 +891,7 @@ std::vector<float> PlottingHelper::GenerateLogBinEdges(const unsigned int nBins,
 }
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
-        
+
 void PlottingHelper::SaveBiasVector(const std::shared_ptr<TH1F> &vector, const std::shared_ptr<TH1F> &crossSection, const bool hasUnderflow, const bool hasOverflow, const std::string &namePrefix)
 {
     // Check we have sensible binning
@@ -902,7 +902,7 @@ void PlottingHelper::SaveBiasVector(const std::shared_ptr<TH1F> &vector, const s
         throw std::invalid_argument("PlottingHelper::SaveBiasVector - Input cross section doesn't have any non-underflow/overflow bins!");
 
     const auto nAnalysisBins = nBins - nUnderOverflowBins;
-    
+
     const unsigned int biasVectorBins = vector->GetNbinsX();
     if (biasVectorBins != nAnalysisBins)
     {
@@ -910,7 +910,7 @@ void PlottingHelper::SaveBiasVector(const std::shared_ptr<TH1F> &vector, const s
             " bins, but input cross-section has " + std::to_string(nBins) + " bins, of which " + std::to_string(nUnderOverflowBins) +
             " are under/overflow bins - this doesn't add up!");
     }
-    
+
     // Make the plots for the bias & fractional bias vectors
     auto biasVector = std::make_shared<TH1F>(("bias_" + std::to_string(m_lastPlotId++)).c_str(), "", nAnalysisBins, 0, nAnalysisBins);
     auto fracBiasVector = std::make_shared<TH1F>(("bias_" + std::to_string(m_lastPlotId++)).c_str(), "", nAnalysisBins, 0, nAnalysisBins);
@@ -946,29 +946,29 @@ void PlottingHelper::SaveBiasVector(const std::shared_ptr<TH1F> &vector, const s
     // Make the plots
     gStyle->SetHistMinimumZero(true);
     auto pCanvas = PlottingHelper::GetCanvas();
-    
+
     // Set the y-limits
     biasVector->GetYaxis()->SetRangeUser(-maxBias, +maxBias);
     fracBiasVector->GetYaxis()->SetRangeUser(-maxFracBias, +maxFracBias);
-    
-   
+
+
     biasVector->SetFillColor(PlottingHelper::GetColor(Default));
     fracBiasVector->SetFillColor(PlottingHelper::GetColor(Default));
 
     biasVector->Draw("bar");
     PlottingHelper::SaveCanvas(pCanvas, namePrefix + "_bias");
-    
+
     fracBiasVector->Draw("bar");
     PlottingHelper::SaveCanvas(pCanvas, namePrefix + "_fracBias");
     gStyle->SetHistMinimumZero(false);
 }
-        
+
 // -----------------------------------------------------------------------------------------------------------------------------------------
-        
+
 void PlottingHelper::SaveSmearingMatrixBiasVector(const std::shared_ptr<TH1F> &vector, const bool hasUnderflow, const bool hasOverflow, const std::string &namePrefix)
 {
     // Get the number of bins of the original cross-section (this smearing matrix should have the square of this number of bins)
-    const unsigned int nBins = vector->GetNbinsX(); 
+    const unsigned int nBins = vector->GetNbinsX();
     const auto nBinsSqrt = static_cast<unsigned int>(std::round(std::pow(static_cast<float>(nBins), 0.5f)));
     if (nBinsSqrt*nBinsSqrt != nBins)
         throw std::invalid_argument("PlottingHelper::SaveSmearingMatrixBiasVector - Number of bins for input bias vector isn't a perfect square");
@@ -987,10 +987,10 @@ void PlottingHelper::SaveSmearingMatrixBiasVector(const std::shared_ptr<TH1F> &v
         const unsigned int iTrue = (iBin-1) / nBinsSqrt;
         const unsigned int iReco = (iBin-1) % nBinsSqrt;
 
-        // Set the bin labels 
+        // Set the bin labels
         const auto isTrueUnderflow = (iTrue == 0 && hasUnderflow);
         const auto isRecoUnderflow = (iReco == 0 && hasUnderflow);
-        
+
         const auto isTrueOverflow = (iTrue == (nBinsSqrt-1) && hasOverflow);
         const auto isRecoOverflow = (iReco == (nBinsSqrt-1) && hasOverflow);
 
@@ -1008,7 +1008,7 @@ void PlottingHelper::SaveSmearingMatrixBiasVector(const std::shared_ptr<TH1F> &v
 
         biasVector->SetBinContent(iBin, bias);
     }
-    
+
     biasVector->GetYaxis()->SetRangeUser(-maxBias, +maxBias);
     biasVector->GetXaxis()->LabelsOption("v");
     biasVector->SetFillColor(PlottingHelper::GetColor(Default));
@@ -1064,7 +1064,7 @@ void PlottingHelper::SaveCovarianceMatrix(const std::shared_ptr<TH2F> &matrix, c
     auto covarianceMatrix = std::make_shared<TH2F>(("matrix_" + std::to_string(m_lastPlotId++)).c_str(), "", nAnalysisBins, 0, nAnalysisBins, nAnalysisBins, 0, nAnalysisBins);
     auto fracCovarianceMatrix = std::make_shared<TH2F>(("matrix_" + std::to_string(m_lastPlotId++)).c_str(), "", nAnalysisBins, 0, nAnalysisBins, nAnalysisBins, 0, nAnalysisBins);
     auto correlationMatrix = std::make_shared<TH2F>(("matrix_" + std::to_string(m_lastPlotId++)).c_str(), "", nAnalysisBins, 0, nAnalysisBins, nAnalysisBins, 0, nAnalysisBins);
-    
+
     // Set the number of decimal places & text size to print in each bin
     gStyle->SetPaintTextFormat("2.2f");
     covarianceMatrix->SetMarkerSize(2.2);
@@ -1086,7 +1086,7 @@ void PlottingHelper::SaveCovarianceMatrix(const std::shared_ptr<TH2F> &matrix, c
         const auto xSecI = crossSection->GetBinContent(iBin + (hasUnderflow ? 1u : 0u));
         if (xSecI <= std::numeric_limits<float>::epsilon())
             throw std::logic_error("PlottingHelper::SaveCovarianceMatrix - Cross section in analysis bin: " + std::to_string(iBin) + " is <= 0");
-            
+
         for (unsigned int jBin = 1u; jBin <= nAnalysisBins; ++jBin)
         {
             // Get the cross section in bin j
@@ -1101,7 +1101,7 @@ void PlottingHelper::SaveCovarianceMatrix(const std::shared_ptr<TH2F> &matrix, c
             // Set the fractional covariance
             const auto fracCovariance = covariance / (xSecI * xSecJ);
             fracCovarianceMatrix->SetBinContent(iBin, jBin, fracCovariance);
-        
+
             // Get the standard deviation in bin i
             const auto varI = matrix->GetBinContent(iBin, iBin);
             if (varI <= std::numeric_limits<float>::epsilon())
@@ -1110,9 +1110,9 @@ void PlottingHelper::SaveCovarianceMatrix(const std::shared_ptr<TH2F> &matrix, c
                 correlationMatrix->SetBinContent(iBin, jBin, -std::numeric_limits<float>::max());
                 continue;
             }
-        
+
             const auto stdI = std::pow(varI, 0.5);
-            
+
             // Get the standard deviation in bin j
             const auto varJ = matrix->GetBinContent(jBin, jBin);
             if (varJ <= std::numeric_limits<float>::epsilon())
@@ -1132,7 +1132,7 @@ void PlottingHelper::SaveCovarianceMatrix(const std::shared_ptr<TH2F> &matrix, c
 
     // Make the plots
     auto pCanvas = PlottingHelper::GetCanvas(960, 960);
-    
+
     covarianceMatrix->Draw("colz text");
     PlottingHelper::SaveCanvas(pCanvas, namePrefix + "_covariance");
 
@@ -1144,7 +1144,7 @@ void PlottingHelper::SaveCovarianceMatrix(const std::shared_ptr<TH2F> &matrix, c
 }
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
-        
+
 void PlottingHelper::SaveSmearingMatrixCovarianceMatrix(const std::shared_ptr<TH2F> &matrix, const bool hasUnderflow, const bool hasOverflow, const std::string &namePrefix)
 {
     // Check we have sensible binning
@@ -1166,7 +1166,7 @@ void PlottingHelper::SaveSmearingMatrixCovarianceMatrix(const std::shared_ptr<TH
 
     // Setup a new histogram so we can style it without modifying the input
     auto covarianceMatrix = std::make_shared<TH2F>(("matrix_" + std::to_string(m_lastPlotId++)).c_str(), "", nBins, 0, nBins, nBins, 0, nBins);
-    
+
     // Loop over the bins
     for (unsigned int iBin = 1u; iBin <= nBins; ++iBin)
     {
@@ -1174,20 +1174,20 @@ void PlottingHelper::SaveSmearingMatrixCovarianceMatrix(const std::shared_ptr<TH
         const unsigned int iTrue = (iBin-1) / nBinsSqrt;
         const unsigned int iReco = (iBin-1) % nBinsSqrt;
 
-        // Set the bin labels 
+        // Set the bin labels
         const auto isTrueUnderflow = (iTrue == 0 && hasUnderflow);
         const auto isRecoUnderflow = (iReco == 0 && hasUnderflow);
-        
+
         const auto isTrueOverflow = (iTrue == (nBinsSqrt-1) && hasOverflow);
         const auto isRecoOverflow = (iReco == (nBinsSqrt-1) && hasOverflow);
 
         const std::string trueBinName = isTrueUnderflow ? "UF" : (isTrueOverflow ? "OF" : std::to_string(iTrue - (hasUnderflow ? 1u : 0u)));
         const std::string recoBinName = isRecoUnderflow ? "UF" : (isRecoOverflow ? "OF" : std::to_string(iReco - (hasUnderflow ? 1u : 0u)));
-      
+
         const std::string binLabel = "T-" + trueBinName + " R-" + recoBinName;
         covarianceMatrix->GetXaxis()->SetBinLabel(iBin, binLabel.c_str());
         covarianceMatrix->GetYaxis()->SetBinLabel(iBin, binLabel.c_str());
-   
+
         // Copy the content of the bins
         for (unsigned int jBin = 1u; jBin <= nBins; ++jBin)
         {
@@ -1195,7 +1195,7 @@ void PlottingHelper::SaveSmearingMatrixCovarianceMatrix(const std::shared_ptr<TH
             covarianceMatrix->SetBinContent(iBin, jBin, binContent);
         }
     }
-    
+
     // Draw the histogram
     auto pCanvas = PlottingHelper::GetCanvas(960, 960);
     covarianceMatrix->GetXaxis()->LabelsOption("v");
@@ -1211,7 +1211,7 @@ void PlottingHelper::SaveSmearingMatrixCovarianceMatrix(const std::shared_ptr<TH
         auto &pLineX = lines.back();
         pLineX->SetLineWidth(2);
         pLineX->Draw();
-        
+
         lines.emplace_back(std::make_shared<TLine>(binEdge, 0, binEdge, nBins));
         auto &pLineY = lines.back();
         pLineY->SetLineWidth(2);
@@ -1222,7 +1222,7 @@ void PlottingHelper::SaveSmearingMatrixCovarianceMatrix(const std::shared_ptr<TH
 }
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
-        
+
 void PlottingHelper::SaveCrossSection(const std::shared_ptr<TH1F> &crossSection, const std::shared_ptr<TH1F> &statUncertainty, const std::shared_ptr<TH2F> &totalSystCovarianceMatrix, const bool hasUnderflow, const bool hasOverflow, const std::string &namePrefix)
 {
     // Check we have sensible binning
@@ -1291,7 +1291,7 @@ void PlottingHelper::SaveCrossSection(const std::shared_ptr<TH1F> &crossSection,
 
         xsecStatOnly->SetBinContent(iBin, xsec);
         xsecStatOnly->SetBinError(iBin, statErr);
-        
+
         xsecTotalErr->SetBinContent(iBin, xsec);
         xsecTotalErr->SetBinError(iBin, totalErr);
     }
@@ -1325,7 +1325,7 @@ void PlottingHelper::SaveSmearingMatrix(const std::shared_ptr<TH2F> &matrix, con
     // Check we have sensible binning
     const unsigned int matrixBinsX = matrix->GetNbinsX();
     const unsigned int matrixBinsY = matrix->GetNbinsY();
-    
+
     if (matrixBinsX != matrixBinsY)
         throw std::invalid_argument("PlottingHelper::SaveSmearingMatrix - Input smearing matrix is not square!");
 
@@ -1333,16 +1333,16 @@ void PlottingHelper::SaveSmearingMatrix(const std::shared_ptr<TH2F> &matrix, con
     const auto nUnderOverflowBins = (hasUnderflow ? 1u : 0u) + (hasOverflow ? 1u : 0u);
     if (nBins <= nUnderOverflowBins)
         throw std::invalid_argument("PlottingHelper::SaveSmearingMatrix - Input cross section doesn't have any non-underflow/overflow bins!");
-    
+
     // Make a new histogram so we can style it without modifying the original
     auto smearingMatrix = std::make_shared<TH2F>(("matrix_" + std::to_string(m_lastPlotId++)).c_str(), "", nBins, 0, nBins, nBins, 0, nBins);
     for (unsigned int iTrue = 1u; iTrue <= nBins; ++iTrue)
     {
-        // Set the bin labels 
+        // Set the bin labels
         const auto isUnderflow = (iTrue == 1 && hasUnderflow);
         const auto isOverflow = (iTrue == nBins && hasOverflow);
         const std::string binName = isUnderflow ? "UF" : (isOverflow ? "OF" : std::to_string(iTrue - 1u - (hasUnderflow ? 1u : 0u)));
-        
+
         smearingMatrix->GetXaxis()->SetBinLabel(iTrue, ("T-" + binName).c_str());
         smearingMatrix->GetYaxis()->SetBinLabel(iTrue, ("R-" + binName).c_str());
 
@@ -1353,7 +1353,7 @@ void PlottingHelper::SaveSmearingMatrix(const std::shared_ptr<TH2F> &matrix, con
             smearingMatrix->SetBinContent(iTrue, iReco, binContent);
         }
     }
-    
+
     // Draw the histogram
     auto pCanvas = PlottingHelper::GetCanvas(960, 960);
     gStyle->SetPaintTextFormat("2.2f");
@@ -1361,7 +1361,7 @@ void PlottingHelper::SaveSmearingMatrix(const std::shared_ptr<TH2F> &matrix, con
     smearingMatrix->GetXaxis()->LabelsOption("v");
     smearingMatrix->GetYaxis()->LabelsOption("h");
     smearingMatrix->Draw("colz text");
-    
+
     PlottingHelper::SaveCanvas(pCanvas, namePrefix + "_smearing");
 }
 

@@ -10,7 +10,7 @@
 
 namespace ubcc1pi
 {
-        
+
 float NormalisationHelper::GetOverlaysNormalisation(const Config &config)
 {
     if (config.norms.overlaysPOT <= std::numeric_limits<float>::epsilon())
@@ -25,7 +25,7 @@ float NormalisationHelper::GetDirtNormalisation(const Config &config)
 {
     if (config.norms.dirtPOT <= std::numeric_limits<float>::epsilon())
         throw std::invalid_argument("NormalisationHelper::GetDirtNormalisation - Dirt POT is invalid");
-    
+
     return config.norms.dataBNBTor875WCut / config.norms.dirtPOT;
 }
 
@@ -40,11 +40,11 @@ float NormalisationHelper::GetDataEXTNormalisation(const Config &config)
 }
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
-            
+
 float NormalisationHelper::GetDetectorVariationNormalisation(const Config &config, const std::string &runId, const std::string &paramName)
 {
     const auto iter = std::find_if(config.norms.detVarPOTs.begin(), config.norms.detVarPOTs.end(), [&](const auto &x) {
-        return std::get<0>(x) == runId && std::get<1>(x) == paramName;        
+        return std::get<0>(x) == runId && std::get<1>(x) == paramName;
     });
 
     if (iter == config.norms.detVarPOTs.end())

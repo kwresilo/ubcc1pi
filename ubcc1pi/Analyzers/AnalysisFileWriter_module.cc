@@ -28,14 +28,14 @@ void AnalysisFileWriter::analyze(const art::Event &event)
 
     std::cout << "DEBUG - Printing event" << std::endl;
     m_pEvent->Print();
-    
+
     std::cout << "DEBUG - Filling event" << std::endl;
     m_writer.FillEvent();
 }
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
 
-        
+
 void AnalysisFileWriter::endSubRun(const art::SubRun &subrun)
 {
     std::cout << "DEBUG - Populating subrun" << std::endl;
@@ -43,7 +43,7 @@ void AnalysisFileWriter::endSubRun(const art::SubRun &subrun)
 
     std::cout << "DEBUG - Printing subrun" << std::endl;
     m_pSubrun->Print();
-    
+
     std::cout << "DEBUG - Filling subrun" << std::endl;
     m_writer.FillSubrun();
 }

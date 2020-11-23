@@ -7,7 +7,7 @@ event_factory_config:
     MCTruthLabel:       "generator"
     MCParticleLabel:    "largeant"
     BacktrackerLabel:   "gaushitTruthMatch"
-    
+
     # Reco labels
     HitLabel:           "gaushit"
     SliceLabel:         "pandora"

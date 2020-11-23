@@ -28,7 +28,7 @@ void CCInclusiveMuonPIDStudy(const Config &config)
     FileReader reader(config.files.overlaysFileName);
     auto pEvent = reader.GetBoundEventAddress();
     const auto nEvents = reader.GetNumberOfEvents();
-     
+
     // Setup the plots
     const std::string yLabel = "Fraction of events";
     PlottingHelper::MultiPlot momentumPlot("True muon momentum / GeV", yLabel, 40u, 0.f, 1.5f);
@@ -59,11 +59,11 @@ void CCInclusiveMuonPIDStudy(const Config &config)
         bool foundCCInclusiveMuonCandidate = false;
         for (const auto &particle : pEvent->reco.particles)
         {
-            if (!particle.isCCInclusiveMuonCandidate()) 
+            if (!particle.isCCInclusiveMuonCandidate())
                 continue;
 
             foundCCInclusiveMuonCandidate = true;
-        
+
             // Get the plotting style based on the best matched MC particle (if it exists)
             const auto style = PlottingHelper::GetPlotStyle(particle, AnalysisHelper::Overlay, pEvent->truth.particles, false, config.global.useAbsPdg);
 

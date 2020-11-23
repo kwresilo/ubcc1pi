@@ -54,7 +54,7 @@ void FileLocationDatabase::analyze(const art::Event &event)
 }
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
-        
+
 void FileLocationDatabase::respondToOpenInputFile(const art::FileBlock &fileBlock)
 {
     m_currentFileName = fileBlock.fileName();

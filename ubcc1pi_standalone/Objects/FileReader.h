@@ -35,14 +35,14 @@ class FileReader
          *  @brief  Destructor
          */
         ~FileReader();
-        
+
         /**
-         *  @brief  Get the total number of events 
+         *  @brief  Get the total number of events
          *
          *  @return number of events
          */
         unsigned int GetNumberOfEvents() const;
-        
+
         /**
          *  @brief  Get the total number of subruns
          *
@@ -58,7 +58,7 @@ class FileReader
          *  @return the address of the bound event
          */
         std::shared_ptr<Event> GetBoundEventAddress();
-        
+
         /**
          *  @brief  Get the subrun bound to the output tree
          *
@@ -70,7 +70,7 @@ class FileReader
          *  @brief  Disable the branches related to systematic weights
          */
         void DisableSystematicBranches();
-        
+
         /**
          *  @brief  Enable the branches related to systematic weights
          */
@@ -82,7 +82,7 @@ class FileReader
          *  @param  eventIndex the event to load
          */
         void LoadEvent(const unsigned int eventIndex);
-        
+
         /**
          *  @brief  Load the subrun with the supplied index
          *
@@ -96,7 +96,7 @@ class FileReader
          *  @brief  Bind the event member to the input tree
          */
         void BindEventToTree();
-        
+
         /**
          *  @brief  Bind the subrun member to the input tree
          */

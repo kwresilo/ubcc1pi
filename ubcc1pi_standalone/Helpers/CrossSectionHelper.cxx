@@ -58,7 +58,7 @@ CrossSectionHelper::CrossSection::CrossSection(const std::vector<float> &binEdge
         if (!hasCV)
             throw std::invalid_argument("CrossSection::CrossSection - Run: " + runId + " doesn't have a central value. Expected to see a sample with name: " + m_cvString);
     }
-    
+
     // Setup the histograms for the detector variations
     for (const auto &[runId, detVarParam] : m_inputData.m_detVarParameters)
     {
@@ -69,14 +69,14 @@ CrossSectionHelper::CrossSection::CrossSection(const std::vector<float> &binEdge
 }
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
-                
+
 bool CrossSectionHelper::CrossSection::HasUnderflowBin() const
 {
     return m_hasUnderflow;
 }
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
-                
+
 bool CrossSectionHelper::CrossSection::HasOverflowBin() const
 {
     return m_hasOverflow;
@@ -92,7 +92,7 @@ void CrossSectionHelper::CrossSection::AddNeutrinoEvent(const float trueNuEnergy
 
     // Add this event in the nominal universe
     m_allEventsNuEnergyNomTrue->Fill(trueNuEnergy, nominalWeight);
-    
+
     // Add the event in each systematic universe
     for (const auto &[name, nUniverses] : m_inputData.m_systUniverseSizesMap)
     {
@@ -135,18 +135,18 @@ void CrossSectionHelper::CrossSection::AddSignalEvent(const float trueValue, con
         {
             const auto universeWeight = weights.at(iUni);
             signalAllTrueVect.at(iUni)->Fill(trueValue, nominalWeight * universeWeight);
-            
+
             if (isSelected)
                 signalSelectedRecoTrueVect.at(iUni)->Fill(trueValue, recoValue, nominalWeight * universeWeight);
         }
     }
-    
+
     // Mark that the inputs have changed and any cached values need to be re-calculated
     m_shouldResetCache = true;
 }
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
-                
+
 void CrossSectionHelper::CrossSection::AddSignalEventDetVar(const float trueValue, const float recoValue, const bool isSelected, const float nominalWeight, const std::string &runId, const std::string &detectorVariationParameter)
 {
     // Check if this is a value run-ID / detector variation parameter
@@ -157,7 +157,7 @@ void CrossSectionHelper::CrossSection::AddSignalEventDetVar(const float trueValu
 
     // Add this event to the counter for all signal events
     m_signalAllDetVarTrue.at(runId).at(detectorVariationParameter)->Fill(trueValue, nominalWeight);
-    
+
     if (isSelected)
     {
         // Add this event to the counter for selected signal events
@@ -218,13 +218,13 @@ void CrossSectionHelper::CrossSection::AddSelectedBackgroundOverlayEventDetVar(c
 void CrossSectionHelper::CrossSection::AddSelectedBNBDataEvent(const float recoValue)
 {
     m_dataSelectedReco->Fill(recoValue);
-    
+
     // Mark that the inputs have changed and any cached values need to be re-calculated
     m_shouldResetCache = true;
 }
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
-                
+
 std::shared_ptr<TH1F> CrossSectionHelper::CrossSection::GetEmptyFluxHist() const
 {
     const std::string name = "xSecHist_" + std::to_string(m_histCount++);
@@ -245,7 +245,7 @@ std::shared_ptr<TH1F> CrossSectionHelper::CrossSection::GetEmptyFluxHist() const
 }
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
-                
+
 std::shared_ptr<TH1F> CrossSectionHelper::CrossSection::GetEmptyHist1D() const
 {
     const std::string name = "xSecHist_" + std::to_string(m_histCount++);
@@ -253,7 +253,7 @@ std::shared_ptr<TH1F> CrossSectionHelper::CrossSection::GetEmptyHist1D() const
 }
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
-                
+
 std::shared_ptr<TH2F> CrossSectionHelper::CrossSection::GetEmptyHist2D() const
 {
     const std::string name = "xSecHist_" + std::to_string(m_histCount++);
@@ -261,7 +261,7 @@ std::shared_ptr<TH2F> CrossSectionHelper::CrossSection::GetEmptyHist2D() const
 }
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
-                
+
 bool CrossSectionHelper::CrossSection::IsUnderOverflowBin(const unsigned int binIndex) const
 {
     const auto nBins = m_binEdges.size() - 1;
@@ -272,7 +272,7 @@ bool CrossSectionHelper::CrossSection::IsUnderOverflowBin(const unsigned int bin
 }
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
-                
+
 std::shared_ptr<TH2F> CrossSectionHelper::CrossSection::GetSmearingMatrix(const std::shared_ptr<TH2F> &signalSelectedRecoTrue) const
 {
     // Check the input matrix has the correct dimensions
@@ -321,7 +321,7 @@ std::shared_ptr<TH2F> CrossSectionHelper::CrossSection::GetSmearingMatrix(const 
 }
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
-                
+
 std::shared_ptr<TH1F> CrossSectionHelper::CrossSection::Smear(const std::shared_ptr<TH1F> &values, const std::shared_ptr<TH2F> &smearingMatrix) const
 {
     // Check the input objects have the correct dimensions
@@ -355,7 +355,7 @@ std::shared_ptr<TH1F> CrossSectionHelper::CrossSection::Smear(const std::shared_
 }
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
-                
+
 std::shared_ptr<TH1F> CrossSectionHelper::CrossSection::GetSmearedEfficiency(const std::shared_ptr<TH2F> &signalSelectedRecoTrue, const std::shared_ptr<TH1F> &signalAllTrue) const
 {
     const auto smearingMatrix = this->GetSmearingMatrix(signalSelectedRecoTrue);
@@ -377,7 +377,7 @@ std::shared_ptr<TH1F> CrossSectionHelper::CrossSection::GetSmearedEfficiency(con
     {
         throw std::logic_error("CrossSection::GetSmearedEfficiency - input smearing matrix has the wrong dimensions");
     }
-    
+
     if (static_cast<unsigned int>(signalSelectedRecoTrue->GetXaxis()->GetNbins()) != nBins ||
         static_cast<unsigned int>(signalSelectedRecoTrue->GetYaxis()->GetNbins()) != nBins)
     {
@@ -424,7 +424,7 @@ std::shared_ptr<TH1F> CrossSectionHelper::CrossSection::GetSmearedEfficiency(con
 }
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
-                
+
 void CrossSectionHelper::CrossSection::ClearCache()
 {
     m_crossSectionCache.clear();
@@ -433,7 +433,7 @@ void CrossSectionHelper::CrossSection::ClearCache()
 }
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
-                
+
 std::shared_ptr<TH1F> CrossSectionHelper::CrossSection::GetCachedCrossSection(const std::string &systParameter, const unsigned int universeIndex)
 {
     // Check that we have an entry for the requested systematic paramter
@@ -449,7 +449,7 @@ std::shared_ptr<TH1F> CrossSectionHelper::CrossSection::GetCachedCrossSection(co
     // Reset the cached cross-section if required
     if (m_shouldResetCache)
         this->ClearCache();
-        
+
     // Get the cached cross-section (if it exists)
     const auto paramIter = m_crossSectionCache.find(systParameter);
     if (paramIter != m_crossSectionCache.end())
@@ -460,7 +460,7 @@ std::shared_ptr<TH1F> CrossSectionHelper::CrossSection::GetCachedCrossSection(co
     }
 
     // We don't have an entry for this cross-section, so make it!
-    
+
     // Determine if this is a flux parameter and if so, reweight the total flux
     const auto isFluxParam = (std::find(m_inputData.m_fluxParameters.begin(), m_inputData.m_fluxParameters.end(), systParameter) != m_inputData.m_fluxParameters.end());
 
@@ -483,7 +483,7 @@ std::shared_ptr<TH1F> CrossSectionHelper::CrossSection::GetCachedCrossSection(co
 }
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
-                
+
 std::shared_ptr<TH2F> CrossSectionHelper::CrossSection::GetCachedSmearingMatrix(const std::string &systParameter, const unsigned int universeIndex)
 {
     // Check that we have an entry for the requested systematic paramter
@@ -499,7 +499,7 @@ std::shared_ptr<TH2F> CrossSectionHelper::CrossSection::GetCachedSmearingMatrix(
     // Reset the cached cross-section if required
     if (m_shouldResetCache)
         this->ClearCache();
-        
+
     // Get the cached smearing matrix (if it exists)
     const auto paramIter = m_smearingMatrixCache.find(systParameter);
     if (paramIter != m_smearingMatrixCache.end())
@@ -517,11 +517,11 @@ std::shared_ptr<TH2F> CrossSectionHelper::CrossSection::GetCachedSmearingMatrix(
 }
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
-                
+
 std::shared_ptr<TH1F> CrossSectionHelper::CrossSection::GetCrossSection(const std::shared_ptr<TH1F> &selected, const std::shared_ptr<TH1F> &background, const std::shared_ptr<TH1F> &smearedEff, const float totalFlux) const
 {
     const auto normFactor = 1.f / (totalFlux * m_inputData.m_exposurePOT * m_inputData.m_nTargets);
-    
+
     // Check the input objects have the correct dimensions
     const auto nBins = m_binEdges.size() - 1;
 
@@ -560,7 +560,7 @@ std::shared_ptr<TH1F> CrossSectionHelper::CrossSection::GetCrossSection(const st
 }
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
-                
+
 std::shared_ptr<TH2F> CrossSectionHelper::CrossSection::GetSmearingMatrix() const
 {
     return this->GetSmearingMatrix(m_signalSelectedNomRecoTrue);
@@ -576,7 +576,7 @@ std::shared_ptr<TH1F> CrossSectionHelper::CrossSection::GetCrossSection() const
 }
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
-                
+
 std::shared_ptr<TH1F> CrossSectionHelper::CrossSection::GetCrossSectionStatUncertainty() const
 {
     // Setup the output histogram
@@ -593,11 +593,11 @@ std::shared_ptr<TH1F> CrossSectionHelper::CrossSection::GetCrossSectionStatUncer
     {
         if (this->IsUnderOverflowBin(iBin))
             continue;
-        
+
         const auto binWidth = m_scaleByBinWidth ? (m_binEdges.at(iBin) - m_binEdges.at(iBin - 1)) : 1.f;
         const auto nDataEvents = m_dataSelectedReco->GetBinContent(iBin);
         const auto efficiency = smearedEff->GetBinContent(iBin);
-        
+
         if (std::abs(std::abs(efficiency) - std::numeric_limits<float>::max()) <= std::numeric_limits<float>::epsilon() ||
             efficiency <= std::numeric_limits<float>::epsilon())
         {
@@ -618,7 +618,7 @@ std::shared_ptr<TH1F> CrossSectionHelper::CrossSection::GetCrossSectionStatUncer
 }
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
-                
+
 std::map< std::string, std::vector< std::tuple<unsigned int, unsigned int, std::shared_ptr<TGraph> > > > CrossSectionHelper::CrossSection::GetCrossSectionBinScatterPlots()
 {
     std::map< std::string, std::vector< std::tuple<unsigned int, unsigned int, std::shared_ptr<TGraph> > > > outputMap;
@@ -639,7 +639,7 @@ std::vector< std::tuple<unsigned int, unsigned int, std::shared_ptr<TGraph> > > 
     const auto iter = m_inputData.m_systUniverseSizesMap.find(systParameter);
     if (iter == m_inputData.m_systUniverseSizesMap.end())
         throw std::invalid_argument("CrossSection::GetCrossSectionBinScatterPlots - unknown parameter: \"" + systParameter + "\"");
-   
+
     const auto nUniverses = iter->second;
 
     // Setup the output vector
@@ -651,7 +651,7 @@ std::vector< std::tuple<unsigned int, unsigned int, std::shared_ptr<TGraph> > > 
     {
         if (this->IsUnderOverflowBin(iBin))
             continue;
-    
+
         for (unsigned int jBin = 1u; jBin <= iBin; ++jBin)
         {
             if (this->IsUnderOverflowBin(jBin))
@@ -663,14 +663,14 @@ std::vector< std::tuple<unsigned int, unsigned int, std::shared_ptr<TGraph> > > 
             float maxValue = -std::numeric_limits<float>::max();
 
             for (unsigned int iUni = 0u; iUni < nUniverses; ++iUni)
-            {    
+            {
                 // Get the values of the cross-section in the current pair of bins and make sure they are valid
                 const auto crossSection = this->GetCachedCrossSection(systParameter, iUni);
 
                 const float iValue = crossSection->GetBinContent(iBin);
                 if (std::abs(std::abs(iValue) - std::numeric_limits<float>::max()) < std::numeric_limits<float>::epsilon())
                     continue;
-                
+
                 const float jValue = crossSection->GetBinContent(jBin);
                 if (std::abs(std::abs(jValue) - std::numeric_limits<float>::max()) < std::numeric_limits<float>::epsilon())
                     continue;
@@ -700,14 +700,14 @@ std::vector< std::tuple<unsigned int, unsigned int, std::shared_ptr<TGraph> > > 
 }
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
-                
+
 CrossSectionHelper::CovarianceBiasPair CrossSectionHelper::CrossSection::GetCrossSectionCovarianceMatrix(const std::string &systParameter)
 {
     // Check that we have an entry for the requested systematic paramter
     const auto iter = m_inputData.m_systUniverseSizesMap.find(systParameter);
     if (iter == m_inputData.m_systUniverseSizesMap.end())
         throw std::invalid_argument("CrossSection::GetCrossSectionCovarianceMatrix - unknown parameter: \"" + systParameter + "\"");
-   
+
     // Get the number of universes
     const auto nUniverses = iter->second;
     if (nUniverses == 0)
@@ -715,7 +715,7 @@ CrossSectionHelper::CovarianceBiasPair CrossSectionHelper::CrossSection::GetCros
 
     // Get the nominal cross section
     const auto crossSectionNom = this->GetCrossSection();
-    
+
     // Get the cross-section in each universe and the mean cross-section over all universes
     std::vector< std::shared_ptr<TH1F> > crossSections;
 
@@ -726,13 +726,13 @@ CrossSectionHelper::CovarianceBiasPair CrossSectionHelper::CrossSection::GetCros
     //// BEGIN DEBUG
     std::cout << "Getting covariance matrix for parameter: " << systParameter << std::endl;
     //// END DEBUG
-    
+
     for (unsigned int iUni = 0; iUni < nUniverses; ++iUni)
     {
         //// BEGIN DEBUG
         AnalysisHelper::PrintLoadingBar(iUni, nUniverses);
         //// END DEBUG
-        
+
         // Get the cross-section from the cache (or add it if we haven't calculated this cross section yet)
         const auto crossSection = this->GetCachedCrossSection(systParameter, iUni);
         crossSections.push_back(crossSection);
@@ -777,7 +777,7 @@ CrossSectionHelper::CovarianceBiasPair CrossSectionHelper::CrossSection::GetCros
         std::make_shared<TH2F>(covName.c_str(), "", nAnalysisBins, 0, nAnalysisBins, nAnalysisBins, 0, nAnalysisBins),
         std::make_shared<TH1F>(biasName.c_str(), "", nAnalysisBins, 0, nAnalysisBins)
     );
-    
+
     auto &covarianceMatrix = pair.first;
     auto &biasVector = pair.second;
 
@@ -795,7 +795,7 @@ CrossSectionHelper::CovarianceBiasPair CrossSectionHelper::CrossSection::GetCros
             std::cout << "WARNING - Bin: " << iBin << " of nominal cross-section is invalid" << std::endl;
             continue;
         }
-        
+
         if (std::abs(std::abs(meanI) - std::numeric_limits<float>::max()) <= std::numeric_limits<float>::epsilon())
         {
             std::cout << "WARNING - Bin: " << iBin << " of has an incalculable mean value over all universe variations" << std::endl;
@@ -811,7 +811,7 @@ CrossSectionHelper::CovarianceBiasPair CrossSectionHelper::CrossSection::GetCros
         {
             if (this->IsUnderOverflowBin(jBin))
                 continue;
-        
+
             const auto meanJ = meanCrossSection->GetBinContent(jBin);
             const auto nomJ = crossSectionNom->GetBinContent(jBin);
 
@@ -833,17 +833,17 @@ CrossSectionHelper::CovarianceBiasPair CrossSectionHelper::CrossSection::GetCros
                 // Skip dummy bins
                 if (std::abs(std::abs(sigmaI) - std::numeric_limits<float>::max()) <= std::numeric_limits<float>::epsilon())
                     continue;
-                
+
                 if (std::abs(std::abs(sigmaJ) - std::numeric_limits<float>::max()) <= std::numeric_limits<float>::epsilon())
                     continue;
-                
+
                 numerator   += (sigmaI - meanI) * (sigmaJ - meanJ);
                 denominator += 1.f;
             }
 
             if (denominator <= std::numeric_limits<float>::epsilon())
             {
-                throw std::logic_error("CrossSection::GetCrossSectionCovarianceMatrix - For parameter: \"" + systParameter + "\", " + 
+                throw std::logic_error("CrossSection::GetCrossSectionCovarianceMatrix - For parameter: \"" + systParameter + "\", " +
                     "can't calculate covariance in bin: " + std::to_string(iBin) + ", " + std::to_string(jBin));
             }
 
@@ -964,7 +964,7 @@ CrossSectionHelper::CovarianceBiasPair CrossSectionHelper::CrossSection::GetCros
         std::cout << "Detector parameter: " << detVarParam << std::endl;
         std::cout << "  - Bin: " << iBin << std::endl;
         std::cout << "  - Variation: " << xsec << std::endl;
-        std::cout << "  - CV (" << runId << "): " << xsecCV << std::endl; 
+        std::cout << "  - CV (" << runId << "): " << xsecCV << std::endl;
         std::cout << "  - Nominal: " << xsecNom << std::endl;
         std::cout << "  - CV-to-Nom factor: " << cvToNomFactor << std::endl;
         std::cout << "  - Bias: " << bias << std::endl;
@@ -986,12 +986,12 @@ CrossSectionHelper::CovarianceBiasPair CrossSectionHelper::CrossSection::GetSmea
     const auto iter = m_inputData.m_systUniverseSizesMap.find(systParameter);
     if (iter == m_inputData.m_systUniverseSizesMap.end())
         throw std::invalid_argument("CrossSection::GetSmearingMatrixCovarianceMatrix - unknown parameter: \"" + systParameter + "\"");
-   
+
     // Get the number of universes
     const auto nUniverses = iter->second;
     if (nUniverses == 0)
         throw std::logic_error("CrossSection::GetSmearingMatrixCovarianceMatrix - No universes for parameter: \"" + systParameter + "\"");
-    
+
     // Setup the covairance matrix and bias vector (here we flatten the bins of the smearing matrix into 1D)
     const auto nBins = m_binEdges.size() - 1;
     const auto nSmearingBins = nBins*nBins;
@@ -1002,7 +1002,7 @@ CrossSectionHelper::CovarianceBiasPair CrossSectionHelper::CrossSection::GetSmea
         std::make_shared<TH2F>(covName.c_str(), "", nSmearingBins, 0, nSmearingBins, nSmearingBins, 0, nSmearingBins),
         std::make_shared<TH1F>(biasName.c_str(), "", nSmearingBins, 0, nSmearingBins)
     );
-    
+
     auto &covarianceMatrix = pair.first;
     auto &biasVector = pair.second;
 
@@ -1045,7 +1045,7 @@ CrossSectionHelper::CovarianceBiasPair CrossSectionHelper::CrossSection::GetSmea
         const auto bias = meanSmearingMatrixFlat.at(iFlat) - nomSmearingMatrixFlat.at(iFlat);
         biasVector->SetBinContent(iFlat + 1, bias); // +1 to account for root enumerating bins from 1
     }
-    
+
     //// BEGIN DEBUG
     std::cout << "Getting covariance matrix of smearing matrix for parameter: " << systParameter << std::endl;
     //// END DEBUG
@@ -1056,7 +1056,7 @@ CrossSectionHelper::CovarianceBiasPair CrossSectionHelper::CrossSection::GetSmea
         //// BEGIN DEBUG
         AnalysisHelper::PrintLoadingBar(iUni, nUniverses);
         //// END DEBUG
-        
+
         // Get the smearing matrix from the cache
         const auto smearingMatrix = this->GetCachedSmearingMatrix(systParameter, iUni);
 
@@ -1077,7 +1077,7 @@ CrossSectionHelper::CovarianceBiasPair CrossSectionHelper::CrossSection::GetSmea
             {
                 const auto currentValue = covarianceMatrix->GetBinContent(iFlat + 1, jFlat + 1); // +1 to account for root enumerating bins from 1
                 const auto newValue = currentValue + (
-                        (smearingMatrixFlat.at(iFlat) - meanSmearingMatrixFlat.at(iFlat)) * 
+                        (smearingMatrixFlat.at(iFlat) - meanSmearingMatrixFlat.at(iFlat)) *
                         (smearingMatrixFlat.at(jFlat) - meanSmearingMatrixFlat.at(jFlat)));
 
                 // The matrix is symmetric so we can switch iFlat -> jFlat
@@ -1092,7 +1092,7 @@ CrossSectionHelper::CovarianceBiasPair CrossSectionHelper::CrossSection::GetSmea
 }
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
-                
+
 std::shared_ptr<TH1F> CrossSectionHelper::CrossSection::GetReweightedFlux(const std::shared_ptr<TH1F> &nuEnergyUniverse) const
 {
     // Check the input histogram has the right number of bins
@@ -1124,7 +1124,7 @@ std::shared_ptr<TH1F> CrossSectionHelper::CrossSection::GetReweightedFlux(const 
 }
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
-                
+
 std::map< std::string, std::shared_ptr<TH2F> > CrossSectionHelper::CrossSection::GetFluxVariations() const
 {
     std::map< std::string, std::shared_ptr<TH2F> > outputMap;
@@ -1136,7 +1136,7 @@ std::map< std::string, std::shared_ptr<TH2F> > CrossSectionHelper::CrossSection:
 }
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
-                
+
 std::shared_ptr<TH2F> CrossSectionHelper::CrossSection::GetFluxVariations(const std::string &systParameter) const
 {
     if (std::find(m_inputData.m_fluxParameters.begin(), m_inputData.m_fluxParameters.end(), systParameter) == m_inputData.m_fluxParameters.end())
@@ -1177,7 +1177,7 @@ std::shared_ptr<TH2F> CrossSectionHelper::CrossSection::GetFluxVariations(const 
         edgesY.push_back(minFlux + static_cast<float>(iBin) * (maxFlux - minFlux) / static_cast<float>(nBinsY - 1));
 
     auto outputHist = std::make_shared<TH2F>(name.c_str(), "", edgesX.size() - 1, edgesX.data(), edgesY.size() - 1, edgesY.data());
-    
+
     // Fill the histogram with the flux variations
     for (const auto &flux : fluxVariations)
     {
@@ -1194,7 +1194,7 @@ std::shared_ptr<TH2F> CrossSectionHelper::CrossSection::GetFluxVariations(const 
 }
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
-                
+
 std::map< std::string, CrossSectionHelper::CovarianceBiasPair > CrossSectionHelper::CrossSection::GetCrossSectionCovarianceMatrices()
 {
     std::map< std::string, CovarianceBiasPair> outputMap;
@@ -1217,7 +1217,7 @@ std::map< std::string, CrossSectionHelper::CovarianceBiasPair > CrossSectionHelp
 }
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
-                
+
 std::map< std::string, CrossSectionHelper::CovarianceBiasPair > CrossSectionHelper::CrossSection::GetSmearingMatrixCovarianceMatrices()
 {
     std::map< std::string, CovarianceBiasPair> outputMap;
@@ -1246,7 +1246,7 @@ std::vector<float> CrossSectionHelper::GetSystematicWeights(const Event::Truth &
     // Get the total number of parameters available
     if (systParamNames.size() != systParamFirstValueIndex.size())
         throw std::logic_error("CrossSectionHelper::GetSystematicWeights - Number of parameters is inconsistent in input truth information");
-    
+
     const auto nParameters = systParamNames.size();
 
     // Find the requested parameter
@@ -1256,7 +1256,7 @@ std::vector<float> CrossSectionHelper::GetSystematicWeights(const Event::Truth &
 
     const unsigned int index = std::distance(systParamNames.begin(), iter);
 
-    // Get the first and last index in the weights vector 
+    // Get the first and last index in the weights vector
     const unsigned int firstValueIndex = systParamFirstValueIndex.at(index);
     const unsigned int lastValueIndex = ((index == nParameters - 1u) ? systParamValues.size() : systParamFirstValueIndex.at(index + 1u));
 
@@ -1265,7 +1265,7 @@ std::vector<float> CrossSectionHelper::GetSystematicWeights(const Event::Truth &
 
     // Pick out the weights corresponding to the requested paramter
     std::vector<float> weights(std::next(systParamValues.begin(), firstValueIndex), std::next(systParamValues.begin(), lastValueIndex));
-   
+
     // Ensure the the input weights are valid
     for (auto &weight : weights)
     {
@@ -1281,13 +1281,13 @@ std::vector<float> CrossSectionHelper::GetSystematicWeights(const Event::Truth &
 }
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
-        
+
 void CrossSectionHelper::AddSystematicWeights(const Event::Truth &truth, const SystematicParamUniversesPairVector &params, SystematicWeightsMap &systWeightsMap)
 {
     for (const auto &[name, nUniverses] : params)
     {
         const auto &weights = CrossSectionHelper::GetSystematicWeights(truth, name);
-        
+
         if (weights.size() != nUniverses)
             throw std::logic_error("CrossSectionHelper::GetSystematicWeightsMap - Unexpected number of universes");
 
@@ -1297,7 +1297,7 @@ void CrossSectionHelper::AddSystematicWeights(const Event::Truth &truth, const S
 }
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
-        
+
 void CrossSectionHelper::AddMutuallyExclusiveSystematicWeights(const Event::Truth &truth, const MutuallyExclusiveParamVector &params, SystematicWeightsMap &systWeightsMap)
 {
     for (const auto &[combinedName, nUniverses, paramsToCombine] : params)
@@ -1306,7 +1306,7 @@ void CrossSectionHelper::AddMutuallyExclusiveSystematicWeights(const Event::Trut
         SystematicParamUniversesPairVector paramUniverseVector;
         for (const auto &name : paramsToCombine)
             paramUniverseVector.emplace_back(name, nUniverses);
-        
+
         // Get the weights for these parameters
         SystematicWeightsMap weightsMap;
         CrossSectionHelper::AddSystematicWeights(truth, paramUniverseVector, weightsMap);
@@ -1343,7 +1343,7 @@ void CrossSectionHelper::AddMutuallyExclusiveSystematicWeights(const Event::Trut
             // Store the weight that was varied (or 1.f if there was no variation)
             combinedWeights.push_back(variedWeights.empty() ? 1.f : variedWeights.front());
         }
-        
+
         // Add the combined weights to the output map
         if (!systWeightsMap.emplace(combinedName, combinedWeights).second)
             throw std::invalid_argument("CrossSectionHelper::AddMutuallyExclusiveSystematicWeights - Repeated systematic parameter: \"" + combinedName + "\"");
@@ -1351,7 +1351,7 @@ void CrossSectionHelper::AddMutuallyExclusiveSystematicWeights(const Event::Trut
 }
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
-        
+
 void CrossSectionHelper::AddBootstrapWeights(const unsigned int nBootstrapUniverses, SystematicWeightsMap &systWeightsMap)
 {
     // Add the entry in the input map for the bootstrap systematic parameter - intially with unit weights
@@ -1374,7 +1374,7 @@ void CrossSectionHelper::AddUnitWeights(const SystematicParamUniversesPairVector
     for (const auto &[name, nUniverses] : params)
     {
         if (!systWeightsMap.emplace(name, std::vector<float>(nUniverses, 1.f)).second)
-            throw std::logic_error("CrossSectionHelper::AddUnitWeights - Parameter \"" + name + "\" is already in the input map"); 
+            throw std::logic_error("CrossSectionHelper::AddUnitWeights - Parameter \"" + name + "\" is already in the input map");
     }
 }
 
@@ -1385,7 +1385,7 @@ void CrossSectionHelper::AddUnitWeights(const MutuallyExclusiveParamVector &para
     for (const auto &[name, nUniverses, exclusiveNames] : params)
     {
         if (!systWeightsMap.emplace(name, std::vector<float>(nUniverses, 1.f)).second)
-            throw std::logic_error("CrossSectionHelper::AddUnitWeights - Parameter \"" + name + "\" is already in the input map"); 
+            throw std::logic_error("CrossSectionHelper::AddUnitWeights - Parameter \"" + name + "\" is already in the input map");
     }
 }
 
@@ -1410,7 +1410,7 @@ bool CrossSectionHelper::CheckSystematicWeightsMapDimensions(const SystematicWei
 }
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
-        
+
 CrossSectionHelper::SystematicUniverseSizesMap CrossSectionHelper::GetSystematicUniverseSizesMap(const SystematicWeightsMap &systWeightsMap)
 {
     // Sort the parameter names for reproducibility
@@ -1448,7 +1448,7 @@ void CrossSectionHelper::GetExtendedBinEdges(const float min, const float max, c
 
     if (firstBinEdge < min)
         throw std::invalid_argument("CrossSectionHelper::GetExtendedBinEdges - lowest bin edge is less than the supplied minimum value");
-    
+
     if (lastBinEdge > max)
         throw std::invalid_argument("CrossSectionHelper::GetExtendedBinEdges - highest bin edge is greater than the supplied maximum value");
 
@@ -1458,7 +1458,7 @@ void CrossSectionHelper::GetExtendedBinEdges(const float min, const float max, c
     // Extend the bins as required
     if (hasUnderflow)
         extendedBinEdges.push_back(min);
-    
+
     extendedBinEdges.insert(extendedBinEdges.end(), binEdges.begin(), binEdges.end());
 
     if (hasOverflow)
@@ -1489,7 +1489,7 @@ std::shared_ptr<TH1F> CrossSectionHelper::GetFluxHistogram(const Config::Flux &f
 float CrossSectionHelper::GetTotalFlux(const std::shared_ptr<TH1F> &fluxHist)
 {
     float total = 0.f;
-    
+
     const unsigned int nBins = fluxHist->GetNbinsX();
     for (unsigned int iBin = 1; iBin <= nBins; ++iBin)
     {
@@ -1517,7 +1517,7 @@ std::pair<TVector2, TVector2> CrossSectionHelper::GetUncertaintyEigenVectors(con
         throw std::range_error("CrossSectionHelper::GetUncertaintyEigenVectors - Supplied bin index iBin = " + std::to_string(iBin) +
             " is out of range of input matrices: 1 - " + std::to_string(nBins));
     }
-    
+
     if (jBin == 0 || jBin > static_cast<unsigned int>(nBins))
     {
         throw std::range_error("CrossSectionHelper::GetUncertaintyEigenVectors - Supplied bin index jBin = " + std::to_string(jBin) +
@@ -1559,7 +1559,7 @@ std::pair<TVector2, TVector2> CrossSectionHelper::GetUncertaintyEigenVectors(con
 }
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
-        
+
 std::shared_ptr<TH2F> CrossSectionHelper::GetTotalCovarianceMatrix(const std::map< std::string, CovarianceBiasPair > &covarianceBiasPairs)
 {
     std::shared_ptr<TH2F> totalCovarianceMatrix;
@@ -1573,7 +1573,7 @@ std::shared_ptr<TH2F> CrossSectionHelper::GetTotalCovarianceMatrix(const std::ma
         const unsigned int nBins = covarianceMatrix->GetNbinsX();
         if (static_cast<unsigned int>(covarianceMatrix->GetNbinsY()) != nBins)
             throw std::invalid_argument("CrossSectionHelper::GetTotalCovarianceMatrix - Input covariance matrix is not square");
-        
+
         if (static_cast<unsigned int>(biasVector->GetNbinsX()) != nBins)
             throw std::invalid_argument("CrossSectionHelper::GetTotalCovarianceMatrix - Input bias vector has different dimensions to covariance matrix");
 

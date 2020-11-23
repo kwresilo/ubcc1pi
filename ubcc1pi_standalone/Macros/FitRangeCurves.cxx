@@ -45,7 +45,7 @@ void FitRangeCurves(const Config &config)
         // Only consider true CC1Pi events
         if (!AnalysisHelper::IsTrueCC1Pi(pEvent, config.global.useAbsPdg))
             continue;
-        
+
         const auto weight = AnalysisHelper::GetNominalEventWeight(pEvent);
         const auto &truthParticles = pEvent->truth.particles;
 
@@ -81,7 +81,7 @@ void FitRangeCurves(const Config &config)
 
             rangeMap[pdgCode].push_back(recoParticle.range());
             momentumMap[pdgCode].push_back(truthParticle.momentum());
-            
+
             auto iter = histMap.find(pdgCode);
             if (iter != histMap.end())
             {
@@ -117,15 +117,15 @@ void FitRangeCurves(const Config &config)
         table.AddEmptyRow();
         table.SetEntry("Parameter", "a");
         table.SetEntry("Value", params.a);
-        
+
         table.AddEmptyRow();
         table.SetEntry("Parameter", "b");
         table.SetEntry("Value", params.b);
-        
+
         table.AddEmptyRow();
         table.SetEntry("Parameter", "c");
         table.SetEntry("Value", params.c);
-        
+
         table.AddEmptyRow();
         table.SetEntry("Parameter", "d");
         table.SetEntry("Value", params.d);
@@ -137,7 +137,7 @@ void FitRangeCurves(const Config &config)
         if (iter != histMap.end())
         {
             iter->second->Draw("colz");
-    
+
             auto pFunc = AnalysisHelper::GetRangeToMomentumFunction();
             AnalysisHelper::SetRangeToMomentumFunctionParameters(params, pFunc);
 

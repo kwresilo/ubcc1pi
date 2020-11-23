@@ -22,7 +22,7 @@ FileReader::FileReader(const std::string &inputFile) :
 
     if (this->GetNumberOfEvents() == 0)
         std::cout << "ubcc1pi::FileReader: Warning, input file has no entries" << std::endl;
-    
+
     if (this->GetNumberOfSubruns() == 0)
         std::cout << "ubcc1pi::FileReader: Warning, input file has no subruns" << std::endl;
 
@@ -53,14 +53,14 @@ void FileReader::BindSubrunToTree()
 }
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
-        
+
 std::shared_ptr<Event> FileReader::GetBoundEventAddress()
 {
     return m_pEvent;
 }
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
-        
+
 std::shared_ptr<Subrun> FileReader::GetBoundSubrunAddress()
 {
     return m_pSubrun;
@@ -81,21 +81,21 @@ void FileReader::EnableSystematicBranches()
 }
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
-        
+
 unsigned int FileReader::GetNumberOfEvents() const
 {
     return m_pEventTree->GetEntries();
 }
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
-        
+
 unsigned int FileReader::GetNumberOfSubruns() const
 {
     return m_pSubrunTree->GetEntries();
 }
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
-        
+
 void FileReader::LoadEvent(const unsigned int eventIndex)
 {
     const auto nEvents = this->GetNumberOfEvents();
@@ -108,7 +108,7 @@ void FileReader::LoadEvent(const unsigned int eventIndex)
 }
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
-        
+
 void FileReader::LoadSubrun(const unsigned int subrunIndex)
 {
     const auto nSubruns = this->GetNumberOfSubruns();

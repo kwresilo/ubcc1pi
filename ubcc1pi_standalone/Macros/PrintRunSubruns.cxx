@@ -20,12 +20,12 @@ void PrintRunSubruns(const Config &config)
 {
     //
     // Setup the input files
-    // 
+    //
     std::vector< std::tuple<AnalysisHelper::SampleType, std::string, float> > inputData;
-    
-    inputData.emplace_back(AnalysisHelper::Overlay, config.files.overlaysFileName, NormalisationHelper::GetOverlaysNormalisation(config)); 
-    inputData.emplace_back(AnalysisHelper::Dirt,    config.files.dirtFileName,     NormalisationHelper::GetDirtNormalisation(config)); 
-    inputData.emplace_back(AnalysisHelper::DataEXT, config.files.dataEXTFileName,  NormalisationHelper::GetDataEXTNormalisation(config)); 
+
+    inputData.emplace_back(AnalysisHelper::Overlay, config.files.overlaysFileName, NormalisationHelper::GetOverlaysNormalisation(config));
+    inputData.emplace_back(AnalysisHelper::Dirt,    config.files.dirtFileName,     NormalisationHelper::GetDirtNormalisation(config));
+    inputData.emplace_back(AnalysisHelper::DataEXT, config.files.dataEXTFileName,  NormalisationHelper::GetDataEXTNormalisation(config));
     inputData.emplace_back(AnalysisHelper::DataBNB, config.files.dataBNBFileName,  1.f);
 
     //
@@ -49,7 +49,7 @@ void PrintRunSubruns(const Config &config)
 
         FileReader reader(fileName);
         auto pEvent = reader.GetBoundEventAddress();
-        
+
         const auto nEvents = reader.GetNumberOfEvents();
         for (unsigned int i = 0; i < nEvents; ++i)
         {
@@ -82,7 +82,7 @@ void PrintRunSubruns(const Config &config)
                     foundRecoMuon = true;
                 }
             }
-            
+
             if (!foundRecoMuon)
                 continue;
 

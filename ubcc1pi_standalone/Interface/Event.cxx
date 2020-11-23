@@ -20,13 +20,13 @@ Event::Event()
 void Event::Print() const
 {
     std::cout << std::string(80, '=') << std::endl;
-    
+
     std::cout << std::string(80, '-') << std::endl;
     std::cout << "METADATA" << std::endl;
     std::cout << std::string(80, '-') << std::endl;
 
     UBCC1PI_MACRO_EVENT_METADATA_MEMBERS("", metadata, UBCC1PI_MACRO_PRINT_MEMBER)
-    
+
     std::cout << std::string(80, '-') << std::endl;
     std::cout << "TRUTH" << std::endl;
     std::cout << std::string(80, '-') << std::endl;
@@ -63,7 +63,7 @@ void Event::BindToOutputTree(TTree * pTree)
 }
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
-        
+
 void Event::BindToInputTree(TTree * pTree)
 {
     UBCC1PI_MACRO_EVENT_METADATA_MEMBERS(metadata, metadata, UBCC1PI_MACRO_BIND_INPUT_BRANCH)
@@ -74,7 +74,7 @@ void Event::BindToInputTree(TTree * pTree)
 }
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
-        
+
 void Event::Reset()
 {
     UBCC1PI_MACRO_EVENT_METADATA_MEMBERS("", metadata, UBCC1PI_MACRO_RESET_MEMBER)
@@ -82,7 +82,7 @@ void Event::Reset()
     UBCC1PI_MACRO_EVENT_TRUTH_MEMBERS("", truth, UBCC1PI_MACRO_RESET_MEMBER)
     UBCC1PI_MACRO_EVENT_TRUTH_PARTICLE_MEMBERS(truth_particle, "", UBCC1PI_MACRO_RESET_MEMBER_VECTOR)
     truth.particles.clear();
-    
+
     UBCC1PI_MACRO_EVENT_RECO_MEMBERS("", reco, UBCC1PI_MACRO_RESET_MEMBER)
     UBCC1PI_MACRO_EVENT_RECO_PARTICLE_MEMBERS(reco_particle, "", UBCC1PI_MACRO_RESET_MEMBER_VECTOR)
     reco.particles.clear();
@@ -96,7 +96,7 @@ void Event::PrepareForTreeFill()
     {
         UBCC1PI_MACRO_EVENT_TRUTH_PARTICLE_MEMBERS(truth_particle, particle, UBCC1PI_MACRO_FILL_MEMBER_VECTOR)
     }
-    
+
     for (const auto &particle : reco.particles)
     {
         UBCC1PI_MACRO_EVENT_RECO_PARTICLE_MEMBERS(reco_particle, particle, UBCC1PI_MACRO_FILL_MEMBER_VECTOR)
@@ -109,13 +109,13 @@ void Event::PrepareAfterTreeRead()
 {
     unsigned int nTruthParticles;
     UBCC1PI_MACRO_EVENT_TRUTH_PARTICLE_MEMBERS(truth_particle, &nTruthParticles, UBCC1PI_MACRO_GET_MEMBER_VECTOR_SIZE)
-    
+
     truth.particles.resize(nTruthParticles);
     UBCC1PI_MACRO_EVENT_TRUTH_PARTICLE_MEMBERS(truth_particle, truth.particles, UBCC1PI_MACRO_READ_MEMBER_VECTOR)
-    
+
     unsigned int nRecoParticles;
     UBCC1PI_MACRO_EVENT_RECO_PARTICLE_MEMBERS(reco_particle, &nRecoParticles, UBCC1PI_MACRO_GET_MEMBER_VECTOR_SIZE)
-    
+
     reco.particles.resize(nRecoParticles);
     UBCC1PI_MACRO_EVENT_RECO_PARTICLE_MEMBERS(reco_particle, reco.particles, UBCC1PI_MACRO_READ_MEMBER_VECTOR)
 }

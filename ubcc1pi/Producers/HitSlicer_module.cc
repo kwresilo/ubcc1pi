@@ -25,7 +25,7 @@ HitSlicer::HitSlicer(const art::EDProducer::Table<Config> &config) :
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
 
-void HitSlicer::produce(art::Event &event) 
+void HitSlicer::produce(art::Event &event)
 {
     std::cout << "--------------------------------------------------------" << std::endl;
     std::cout << " Run    : " << event.run() << std::endl;
@@ -37,7 +37,7 @@ void HitSlicer::produce(art::Event &event)
     std::unique_ptr< std::vector<recob::Hit> > outputHits( new std::vector<recob::Hit> );
     std::unique_ptr< art::Assns<simb::MCParticle, recob::Hit, anab::BackTrackerHitMatchingData> > outputMCPsToHits( new art::Assns<simb::MCParticle, recob::Hit, anab::BackTrackerHitMatchingData> );
 
-    // Get the input reco collections 
+    // Get the input reco collections
     const auto slices = CollectionHelper::GetCollection<recob::Slice>(event, m_config().SliceLabel());
     const auto slicesToPFPs = CollectionHelper::GetAssociation<recob::Slice, recob::PFParticle>(event, m_config().SliceToPFParticlesLabel());
     const auto slicesToHits = CollectionHelper::GetAssociation<recob::Slice, recob::Hit>(event, m_config().SliceToHitsLabel());
@@ -49,7 +49,7 @@ void HitSlicer::produce(art::Event &event)
         mcpToHitsData = CollectionHelper::GetAssociationWithData<simb::MCParticle, recob::Hit, anab::BackTrackerHitMatchingData>(event, m_config().MCParticleLabel(), m_config().BacktrackerLabel());
     }
     const auto hitsToMCPData = CollectionHelper::GetReversedAssociation(mcpToHitsData);
-    
+
     // Find the reconstructed neutrino slice (if it exists)
     const art::PtrMaker<recob::Hit> makePtrHit(event);
     bool foundNeutrino = false;
@@ -76,7 +76,7 @@ void HitSlicer::produce(art::Event &event)
             if (m_config().HasMC())
             {
                 const auto mcpDataVector = CollectionHelper::GetManyAssociatedWithData(hit, hitsToMCPData);
-    
+
                 for (const auto &mcpData : mcpDataVector)
                     outputMCPsToHits->addSingle(mcpData.first, makePtrHit(outputHits->size()), mcpData.second);
 
@@ -85,7 +85,7 @@ void HitSlicer::produce(art::Event &event)
             outputHits->push_back(*hit);
         }
     }
- 
+
     // Save the output
     event.put(std::move(outputHits));
 

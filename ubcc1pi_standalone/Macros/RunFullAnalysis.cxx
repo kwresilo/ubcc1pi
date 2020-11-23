@@ -34,7 +34,7 @@ void RunFullAnalysis(const Config &config)
     auto customConfig = config;
     customConfig.makeSelectedPIDTable.useGenericSelection = true;
     MakeSelectedPIDTable(customConfig);
-    
+
     customConfig.makeSelectedPIDTable.useGenericSelection = false;
     MakeSelectedPIDTable(customConfig);
 

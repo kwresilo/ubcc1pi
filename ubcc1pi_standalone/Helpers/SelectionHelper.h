@@ -52,7 +52,7 @@ class SelectionHelper
                          *  @return boolean, the result of the cut - true if passes
                          */
                         bool GetCutResult(const std::string &name, const std::function<bool()> &method);
-                        
+
                         /**
                          *  @brief  Get the result of a cut using the supplied method and possibly store the result if opimizing
                          *
@@ -90,7 +90,7 @@ class SelectionHelper
                                 bool        m_isEnabled;       ///< If the cut is enabled
                                 float       m_value;           ///< The value if the cut
                         };
-                    
+
                     private:
 
                         friend EventSelection;  ///< The event selection class is a friend
@@ -112,7 +112,7 @@ class SelectionHelper
                          *  @return reference to the cut
                          */
                         Cut& GetCut(const std::string &name);
-                        
+
                         /**
                          *  @brief  Get the immutable cut with the specified name
                          *
@@ -121,7 +121,7 @@ class SelectionHelper
                          *  @return reference to the cut
                          */
                         const Cut& GetCut(const std::string &name) const;
-                        
+
                         /**
                          *  @brief  Get the result of the cut using the supplied method
                          *
@@ -131,7 +131,7 @@ class SelectionHelper
                          *  @return booean, true if cut passes
                          */
                         bool GetCutResult(const Cut &cut, const std::function<bool()> &method) const;
-    
+
                         /**
                          *  @brief  Get the result of the cut using the supplied method
                          *
@@ -141,10 +141,10 @@ class SelectionHelper
                          *  @return booean, true if cut passes
                          */
                         bool GetCutResult(const Cut &cut, const std::function<bool(const float&)> &method) const;
-    
+
                         std::vector<Cut>                          m_cuts;                  ///< The cuts declared by the user
                         unsigned int                              m_nScanPoints;           ///< The number of points to scan while optimizing
-                
+
                         std::shared_ptr<Event>                    m_pEvent;                ///< The current event
                         AnalysisHelper::SampleType                m_sampleType;            ///< The sample type of the current event
                         float                                     m_weight;                ///< The weight of the current event
@@ -172,7 +172,7 @@ class SelectionHelper
                          *  @param  featureNames the features
                          */
                         void Add(const std::string &name, const std::vector<std::string> &featureNames);
-    
+
                         /**
                          *  @brief  Get the BDT with supplied name
                          *
@@ -198,7 +198,7 @@ class SelectionHelper
                  *  @param  name the name of the cut
                  */
                 void DeclareCut(const std::string &name);
-                
+
                 /**
                  *  @brief  Declare a cut which can be optionally be disabled, and have the cut value varied during optimisation
                  *
@@ -214,7 +214,7 @@ class SelectionHelper
                  *  @param  nominal the nominal cut value to set
                  */
                 void SetCutNominalValue(const std::string &name, const float &nominal);
-               
+
                 /**
                  *  @brief  Enable the optimization of a cut
                  *
@@ -332,7 +332,7 @@ class SelectionHelper
          *  @return the event selection
          */
         static EventSelection GetDefaultSelection();
-       
+
         /**
          *  @brief  Get the muon candidate index
          *

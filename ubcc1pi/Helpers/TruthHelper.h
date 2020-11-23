@@ -19,7 +19,7 @@ namespace ubcc1pi
 {
 
 /**
- *  @brief  A map intended to hold the mapping from MCParticle.TrackId() -> MCParticle - for navigation of the MCParticle hierarchy 
+ *  @brief  A map intended to hold the mapping from MCParticle.TrackId() -> MCParticle - for navigation of the MCParticle hierarchy
  */
 typedef std::unordered_map<int, art::Ptr<simb::MCParticle> > MCParticleMap;
 
@@ -35,7 +35,7 @@ class TruthHelper
         class Interaction
         {
             public:
-                
+
                 /**
                  *  @brief  No default constructor
                  */
@@ -58,7 +58,7 @@ class TruthHelper
                 simb::MCParticle GetNeutrino() const;
 
                 /**
-                 *  @brief  Get the interaction type CC vs. NC (charged current vs. neutral current) 
+                 *  @brief  Get the interaction type CC vs. NC (charged current vs. neutral current)
                  *
                  *  @return the interaction type
                  */
@@ -85,7 +85,7 @@ class TruthHelper
                 simb::curr_type_  m_ccnc;             ///< If the iteraction is CC or NC
                 simb::int_type_   m_mode;             ///< The interaction mode: QE, RES, DIS...
         };
-        
+
         /**
          *  @brief  Class describing the scatter of a particle
          */
@@ -158,7 +158,7 @@ class TruthHelper
 
                 Type                m_type;                     ///< The type of end state
                 TVector3            m_finalParticleMomentum;    ///< The momentum of the particle just before the end state interaction in the lab frame
-                MCParticleVector    m_products;                 ///< The final state products of the interaction 
+                MCParticleVector    m_products;                 ///< The final state products of the interaction
         };
 
         /**
@@ -219,7 +219,7 @@ class TruthHelper
          *  @return the mother MCParticle
          */
         static art::Ptr<simb::MCParticle> GetMother(const art::Ptr<simb::MCParticle> &particle, const MCParticleMap &mcParticleMap);
-        
+
         /**
          *  @brief  Get the daughter MCParticles of the input particle
          *
@@ -229,9 +229,9 @@ class TruthHelper
          *  @return the daughter MCParticles
          */
         static MCParticleVector GetDaughters(const art::Ptr<simb::MCParticle> &particle, const MCParticleMap &mcParticleMap);
-        
+
         /**
-         *  @brief  Get the MCParticles downstream of the input particle 
+         *  @brief  Get the MCParticles downstream of the input particle
          *
          *  @param  particle the input MCParticle
          *  @param  mcParticleMap the mapping from TrackId -> MCParticle
@@ -248,9 +248,9 @@ class TruthHelper
          *  @param  downstreamParticles the output vector of downstream particles
          */
         static void GetDownstreamParticles(const art::Ptr<simb::MCParticle> &particle, const MCParticleMap &mcParticleMap, MCParticleVector &downstreamParticles);
-        
+
         /**
-         *  @brief  Navigate the particle heirarchy to follow it's elastic and inelastic scatters 
+         *  @brief  Navigate the particle heirarchy to follow it's elastic and inelastic scatters
          *
          *  @param  particle the particle to follow
          *  @param  mcParticleMap the mapping from MCParticle ID to art Ptr

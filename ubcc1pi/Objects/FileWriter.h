@@ -43,7 +43,7 @@ class FileWriter
          *  @return the address of the bound event
          */
         Event * GetBoundEventAddress();
-        
+
         /**
          *  @brief  Get the subrun bound to the output tree
          *
@@ -55,7 +55,7 @@ class FileWriter
          *  @brief  Fill the output tree with the event
          */
         void FillEvent();
-        
+
         /**
          *  @brief  Fill the output tree with the subrun
          */
@@ -67,7 +67,7 @@ class FileWriter
          *  @brief  Bind the event member to the output tree
          */
         void BindEventToTree();
-        
+
         /**
          *  @brief  Bind the subrun member to the output tree
          */
