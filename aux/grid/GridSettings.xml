@@ -15,7 +15,7 @@
 <!-- Shorthands -->
 <!ENTITY projectName     "ubcc1pi">
 <!ENTITY dataTier        "ana">
-<!ENTITY schema          "root">
+<!ENTITY schema          "root">    <!-- Can also use gsiftp which is less efficiency but usually more stable, you may need to request extra resources -->
 <!ENTITY jobsub           "--append_condor_requirements='(TARGET.HAS_CVMFS_uboone_osgstorage_org==true)' -e XRD_LOADBALANCERTTL=7200 -e XRD_CONNECTIONRETRY=32 -e XRD_REQUESTTIMEOUT=3600 -e XRD_REDIRECTLIMIT=255">
 
 ]>
@@ -30,7 +30,7 @@
         <qual>&qual;</qual>
         <local>/pnfs/uboone/resilient/users/&username;/tars/&projectName;/local.tar</local>
     </larsoft>
-    
+
     <!-- =============================================================================================================================== -->
     <!-- Set up the project -->
     <!-- =============================================================================================================================== -->
@@ -130,94 +130,6 @@
     <jobsub>&jobsub;</jobsub>
 </stage>
 
-<!-- bnb_run2-D2 -->
-<stage name="bnb_run2-D2">
-    <!-- Settings -->
-    <fcl>analysis_file_writer_driver_data.fcl</fcl>
-    <numjobs>450</numjobs>
-    <maxfilesperjob>10</maxfilesperjob>
-    <numevents>&numEvents;</numevents>
-
-    <!-- Input files -->
-    <inputdef>data_bnb_mcc9.1_v08_00_00_25_reco2_D2_nucc_reco2_high_lifetime</inputdef>
-
-    <!-- Output directories -->
-    <outdir>/pnfs/uboone/scratch/users/&username;/&projectName;/bnb_run2-D2/</outdir>
-    <logdir>/pnfs/uboone/scratch/users/&username;/&projectName;/bnb_run2-D2/</logdir>
-    <workdir>/pnfs/uboone/resilient/users/&username;/work/&projectName;/bnb_run2-D2/</workdir>
-
-    <!-- Options -->
-    <datatier>&dataTier;</datatier>
-    <schema>&schema;</schema>
-    <jobsub>&jobsub;</jobsub>
-</stage>
-
-<!-- bnb_run2-E1 -->
-<stage name="bnb_run2-E1">
-    <!-- Settings -->
-    <fcl>analysis_file_writer_driver_data.fcl</fcl>
-    <numjobs>126</numjobs>
-    <maxfilesperjob>10</maxfilesperjob>
-    <numevents>&numEvents;</numevents>
-
-    <!-- Input files -->
-    <inputdef>data_bnb_mcc9.1_v08_00_00_25_reco2_E1_nucc_reco2_high_lifetime</inputdef>
-
-    <!-- Output directories -->
-    <outdir>/pnfs/uboone/scratch/users/&username;/&projectName;/bnb_run2-E1/</outdir>
-    <logdir>/pnfs/uboone/scratch/users/&username;/&projectName;/bnb_run2-E1/</logdir>
-    <workdir>/pnfs/uboone/resilient/users/&username;/work/&projectName;/bnb_run2-E1/</workdir>
-
-    <!-- Options -->
-    <datatier>&dataTier;</datatier>
-    <schema>&schema;</schema>
-    <jobsub>&jobsub;</jobsub>
-</stage>
-
-<!-- bnb_run3-F -->
-<stage name="bnb_run3-F">
-    <!-- Settings -->
-    <fcl>analysis_file_writer_driver_data.fcl</fcl>
-    <numjobs>76</numjobs>
-    <maxfilesperjob>10</maxfilesperjob>
-    <numevents>&numEvents;</numevents>
-
-    <!-- Input files -->
-    <inputdef>data_bnb_mcc9.1_v08_00_00_25_reco2_F_nucc_reco2_high_lifetime</inputdef>
-
-    <!-- Output directories -->
-    <outdir>/pnfs/uboone/scratch/users/&username;/&projectName;/bnb_run3-F/</outdir>
-    <logdir>/pnfs/uboone/scratch/users/&username;/&projectName;/bnb_run3-F/</logdir>
-    <workdir>/pnfs/uboone/resilient/users/&username;/work/&projectName;/bnb_run3-F/</workdir>
-
-    <!-- Options -->
-    <datatier>&dataTier;</datatier>
-    <schema>&schema;</schema>
-    <jobsub>&jobsub;</jobsub>
-</stage>
-
-<!-- bnb_run3-G1 -->
-<stage name="bnb_run3-G1">
-    <!-- Settings -->
-    <fcl>analysis_file_writer_driver_data.fcl</fcl>
-    <numjobs>532</numjobs>
-    <maxfilesperjob>10</maxfilesperjob>
-    <numevents>&numEvents;</numevents>
-
-    <!-- Input files -->
-    <inputdef>data_bnb_mcc9.1_v08_00_00_25_reco2_G1_nucc_reco2_high_lifetime</inputdef>
-
-    <!-- Output directories -->
-    <outdir>/pnfs/uboone/scratch/users/&username;/&projectName;/bnb_run3-G1/</outdir>
-    <logdir>/pnfs/uboone/scratch/users/&username;/&projectName;/bnb_run3-G1/</logdir>
-    <workdir>/pnfs/uboone/resilient/users/&username;/work/&projectName;/bnb_run3-G1/</workdir>
-
-    <!-- Options -->
-    <datatier>&dataTier;</datatier>
-    <schema>&schema;</schema>
-    <jobsub>&jobsub;</jobsub>
-</stage>
-
 <!-- extbnb_run1-C1 -->
 <stage name="extbnb_run1-C1">
     <!-- Settings -->
@@ -255,160 +167,6 @@
     <outdir>/pnfs/uboone/scratch/users/&username;/&projectName;/extbnb_run1-C2/</outdir>
     <logdir>/pnfs/uboone/scratch/users/&username;/&projectName;/extbnb_run1-C2/</logdir>
     <workdir>/pnfs/uboone/resilient/users/&username;/work/&projectName;/extbnb_run1-C2/</workdir>
-
-    <!-- Options -->
-    <datatier>&dataTier;</datatier>
-    <schema>&schema;</schema>
-    <jobsub>&jobsub;</jobsub>
-</stage>
-
-<!-- extbnb_run2-D2 -->
-<stage name="extbnb_run2-D2">
-    <!-- Settings -->
-    <fcl>analysis_file_writer_driver_data.fcl</fcl>
-    <numjobs>638</numjobs>
-    <maxfilesperjob>10</maxfilesperjob>
-    <numevents>&numEvents;</numevents>
-
-    <!-- Input files -->
-    <inputdef>data_extbnb_mcc9.1_v08_00_00_25_reco2_D2_nucc_reco2_high_lifetime</inputdef>
-
-    <!-- Output directories -->
-    <outdir>/pnfs/uboone/scratch/users/&username;/&projectName;/extbnb_run2-D2/</outdir>
-    <logdir>/pnfs/uboone/scratch/users/&username;/&projectName;/extbnb_run2-D2/</logdir>
-    <workdir>/pnfs/uboone/resilient/users/&username;/work/&projectName;/extbnb_run2-D2/</workdir>
-
-    <!-- Options -->
-    <datatier>&dataTier;</datatier>
-    <schema>&schema;</schema>
-    <jobsub>&jobsub;</jobsub>
-</stage>
-
-<!-- extbnb_run2-E1 -->
-<stage name="extbnb_run2-E1">
-    <!-- Settings -->
-    <fcl>analysis_file_writer_driver_data.fcl</fcl>
-    <numjobs>133</numjobs>
-    <maxfilesperjob>10</maxfilesperjob>
-    <numevents>&numEvents;</numevents>
-
-    <!-- Input files -->
-    <inputdef>data_extbnb_mcc9.1_v08_00_00_25_reco2_E1_nucc_reco2_high_lifetime</inputdef>
-
-    <!-- Output directories -->
-    <outdir>/pnfs/uboone/scratch/users/&username;/&projectName;/extbnb_run2-E1/</outdir>
-    <logdir>/pnfs/uboone/scratch/users/&username;/&projectName;/extbnb_run2-E1/</logdir>
-    <workdir>/pnfs/uboone/resilient/users/&username;/work/&projectName;/extbnb_run2-E1/</workdir>
-
-    <!-- Options -->
-    <datatier>&dataTier;</datatier>
-    <schema>&schema;</schema>
-    <jobsub>&jobsub;</jobsub>
-</stage>
-
-<!-- extbnb_run2-E2 -->
-<stage name="extbnb_run2-E2">
-    <!-- Settings -->
-    <fcl>analysis_file_writer_driver_data.fcl</fcl>
-    <numjobs>111</numjobs>
-    <maxfilesperjob>10</maxfilesperjob>
-    <numevents>&numEvents;</numevents>
-
-    <!-- Input files -->
-    <inputdef>data_extbnb_mcc9.1_v08_00_00_25_reco2_E2_nucc_reco2_high_lifetime</inputdef>
-
-    <!-- Output directories -->
-    <outdir>/pnfs/uboone/scratch/users/&username;/&projectName;/extbnb_run2-E2/</outdir>
-    <logdir>/pnfs/uboone/scratch/users/&username;/&projectName;/extbnb_run2-E2/</logdir>
-    <workdir>/pnfs/uboone/resilient/users/&username;/work/&projectName;/extbnb_run2-E2/</workdir>
-
-    <!-- Options -->
-    <datatier>&dataTier;</datatier>
-    <schema>&schema;</schema>
-    <jobsub>&jobsub;</jobsub>
-</stage>
-
-<!-- extbnb_run3-F -->
-<stage name="extbnb_run3-F">
-    <!-- Settings -->
-    <fcl>analysis_file_writer_driver_data.fcl</fcl>
-    <numjobs>48</numjobs>
-    <maxfilesperjob>10</maxfilesperjob>
-    <numevents>&numEvents;</numevents>
-
-    <!-- Input files -->
-    <inputdef>data_extbnb_mcc9.1_v08_00_00_25_reco2_F_nucc_reco2_high_lifetime</inputdef>
-
-    <!-- Output directories -->
-    <outdir>/pnfs/uboone/scratch/users/&username;/&projectName;/extbnb_run3-F/</outdir>
-    <logdir>/pnfs/uboone/scratch/users/&username;/&projectName;/extbnb_run3-F/</logdir>
-    <workdir>/pnfs/uboone/resilient/users/&username;/work/&projectName;/extbnb_run3-F/</workdir>
-
-    <!-- Options -->
-    <datatier>&dataTier;</datatier>
-    <schema>&schema;</schema>
-    <jobsub>&jobsub;</jobsub>
-</stage>
-
-<!-- extbnb_run3-G1 -->
-<stage name="extbnb_run3-G1">
-    <!-- Settings -->
-    <fcl>analysis_file_writer_driver_data.fcl</fcl>
-    <numjobs>578</numjobs>
-    <maxfilesperjob>10</maxfilesperjob>
-    <numevents>&numEvents;</numevents>
-
-    <!-- Input files -->
-    <inputdef>data_extbnb_mcc9.1_v08_00_00_25_reco2_G1_nucc_reco2_high_lifetime</inputdef>
-
-    <!-- Output directories -->
-    <outdir>/pnfs/uboone/scratch/users/&username;/&projectName;/extbnb_run3-G1/</outdir>
-    <logdir>/pnfs/uboone/scratch/users/&username;/&projectName;/extbnb_run3-G1/</logdir>
-    <workdir>/pnfs/uboone/resilient/users/&username;/work/&projectName;/extbnb_run3-G1/</workdir>
-
-    <!-- Options -->
-    <datatier>&dataTier;</datatier>
-    <schema>&schema;</schema>
-    <jobsub>&jobsub;</jobsub>
-</stage>
-
-<!-- extbnb_run3-G2 -->
-<stage name="extbnb_run3-G2">
-    <!-- Settings -->
-    <fcl>analysis_file_writer_driver_data.fcl</fcl>
-    <numjobs>36</numjobs>
-    <maxfilesperjob>10</maxfilesperjob>
-    <numevents>&numEvents;</numevents>
-
-    <!-- Input files -->
-    <inputdef>data_extbnb_mcc9.1_v08_00_00_25_reco2_G2_nucc_reco2_high_lifetime</inputdef>
-
-    <!-- Output directories -->
-    <outdir>/pnfs/uboone/scratch/users/&username;/&projectName;/extbnb_run3-G2/</outdir>
-    <logdir>/pnfs/uboone/scratch/users/&username;/&projectName;/extbnb_run3-G2/</logdir>
-    <workdir>/pnfs/uboone/resilient/users/&username;/work/&projectName;/extbnb_run3-G2/</workdir>
-
-    <!-- Options -->
-    <datatier>&dataTier;</datatier>
-    <schema>&schema;</schema>
-    <jobsub>&jobsub;</jobsub>
-</stage>
-
-<!-- extbnb_run3-G2a -->
-<stage name="extbnb_run3-G2a">
-    <!-- Settings -->
-    <fcl>analysis_file_writer_driver_data.fcl</fcl>
-    <numjobs>81</numjobs>
-    <maxfilesperjob>10</maxfilesperjob>
-    <numevents>&numEvents;</numevents>
-
-    <!-- Input files -->
-    <inputdef>data_extbnb_mcc9.1_v08_00_00_25_reco2_G2a_nucc_reco2_high_lifetime</inputdef>
-
-    <!-- Output directories -->
-    <outdir>/pnfs/uboone/scratch/users/&username;/&projectName;/extbnb_run3-G2a/</outdir>
-    <logdir>/pnfs/uboone/scratch/users/&username;/&projectName;/extbnb_run3-G2a/</logdir>
-    <workdir>/pnfs/uboone/resilient/users/&username;/work/&projectName;/extbnb_run3-G2a/</workdir>
 
     <!-- Options -->
     <datatier>&dataTier;</datatier>
@@ -544,8 +302,7 @@
 
     <!-- Options -->
     <datatier>&dataTier;</datatier>
-    <!--schema>&schema;</schema-->
-    <schema>gsiftp</schema> <!-- ATTN Should use the default schema, this is just a test -->
+    <schema>&schema;</schema>
     <jobsub>&jobsub;</jobsub>
 </stage>
 
@@ -567,8 +324,7 @@
 
     <!-- Options -->
     <datatier>&dataTier;</datatier>
-    <!--schema>&schema;</schema-->
-    <schema>gsiftp</schema> <!-- ATTN Should use the default schema, this is just a test -->
+    <schema>&schema;</schema>
     <jobsub>&jobsub;</jobsub>
 </stage>
 
@@ -590,8 +346,7 @@
 
     <!-- Options -->
     <datatier>&dataTier;</datatier>
-    <!--schema>&schema;</schema-->
-    <schema>gsiftp</schema> <!-- ATTN Should use the default schema, this is just a test -->
+    <schema>&schema;</schema>
     <jobsub>&jobsub;</jobsub>
 </stage>
 
@@ -613,8 +368,7 @@
 
     <!-- Options -->
     <datatier>&dataTier;</datatier>
-    <!--schema>&schema;</schema-->
-    <schema>gsiftp</schema> <!-- ATTN Should use the default schema, this is just a test -->
+    <schema>&schema;</schema>
     <jobsub>&jobsub;</jobsub>
 </stage>
 

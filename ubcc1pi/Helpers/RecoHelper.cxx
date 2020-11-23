@@ -64,27 +64,6 @@ art::Ptr<recob::PFParticle> RecoHelper::GetNeutrino(const PFParticleVector &allP
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
 
-PFParticleToPFParticles RecoHelper::GetNewToOldPFParticlesMap(const PFParticleVector &pfParticlesOld, const PFParticleVector &pfParticlesNew)
-{
-    PFParticleToPFParticles outputMap;
-
-    for (const auto &newPFParticle : pfParticlesNew)
-    {
-        outputMap.emplace(newPFParticle, PFParticleVector());
-        for (const auto &oldPFParticle : pfParticlesOld)
-        {
-            if (newPFParticle->Self() == oldPFParticle->Self())
-            {
-                outputMap.at(newPFParticle).push_back(oldPFParticle);
-            }
-        }
-    }
-
-    return outputMap;
-}
-
-// -----------------------------------------------------------------------------------------------------------------------------------------
-
 PFParticleVector RecoHelper::GetNeutrinoFinalStates(const PFParticleVector &allPFParticles)
 {
     // Get the neutrino PFParticle - if there is one!

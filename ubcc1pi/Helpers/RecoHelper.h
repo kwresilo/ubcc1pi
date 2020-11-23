@@ -74,16 +74,6 @@ class RecoHelper
         static PFParticleVector GetNeutrinoFinalStates(const PFParticleVector &allPFParticles);
 
         /**
-         *  @brief  Get the mapping from new PFParticles to old PFParticles via their common ID
-         *
-         *  @param  pfParticlesOld the input vector of old PFParticles (produced by Pandora)
-         *  @param  pfParticlesNew the input vector of new PFParticles (with IDs that map to the old PFParticles)
-         *
-         *  @return the new to old mapping
-         */
-        static PFParticleToPFParticles GetNewToOldPFParticlesMap(const PFParticleVector &pfParticlesOld, const PFParticleVector &pfParticlesNew);
-
-        /**
          *  @brief  Get the reconstructed neutrino interaction vertex position
          *
          *  @param  event the art event record
