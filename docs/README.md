@@ -10,7 +10,7 @@ cd ubcc1pi/docs
 ./makedox
 
 # If you are developing the code... if there is any undocumented code, this script will tell you what and where you need to document!
-# Please do that, and then re-run makedox 
+# Please do that, and then re-run makedox
 
 # View the documentation in your web browser
 #     Please note, if you are using an ssh session then this will open up firefox on the remote machine.
