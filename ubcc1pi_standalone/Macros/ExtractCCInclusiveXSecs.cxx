@@ -1,7 +1,7 @@
 /**
- *  @file  ubcc1pi_standalone/Macros/ExtractXSecs.cxx
+ *  @file  ubcc1pi_standalone/Macros/ExtractCCInclusiveXSecs.cxx
  *
- *  @brief The implementation file of the ExtractXSecs macro
+ *  @brief The implementation file of the ExtractCCInclusiveXSecs macro
  */
 
 #include "ubcc1pi_standalone/Macros/Macros.h"
@@ -13,15 +13,12 @@
 #include "ubcc1pi_standalone/Helpers/NormalisationHelper.h"
 #include "ubcc1pi_standalone/Helpers/FormattingHelper.h"
 
-#include <TLine.h>
-#include <TArrow.h>
-
 using namespace ubcc1pi;
 
 namespace ubcc1pi_macros
 {
 
-void ExtractXSecs(const Config &config)
+void ExtractCCInclusiveXSecs(const Config &config)
 {
     //
     // Setup the input files
@@ -113,10 +110,6 @@ void ExtractXSecs(const Config &config)
     // the cross-section isn't scaled by bin width.
     CrossSectionHelper::CrossSection xsec_total({-1.f, 1.f}, false, false, false, inputXSecData);
 
-    // Muon momentum
-    const auto &[muonMomentum_extendedBinEdges, muonMomentum_hasUnderflow, muonMomentum_hasOverflow] = CrossSectionHelper::GetExtendedBinEdges(config.global.muonMomentum);
-    CrossSectionHelper::CrossSection xsec_muonMomentum(muonMomentum_extendedBinEdges, muonMomentum_hasUnderflow, muonMomentum_hasOverflow, true, inputXSecData);
-
     // Loop over the events
     for (const auto &[sampleType, fileName, normalisation, runId, detVarParam] : inputData)
     {
@@ -166,7 +159,7 @@ void ExtractXSecs(const Config &config)
                             // Get the weights for this genie parameter 
                             auto genieParamIter = systWeightsMap.find(genieParam);
                             if (genieParamIter == systWeightsMap.end())
-                                throw std::logic_error("ExtractXSecs - Supplied GENIE parameter: " + genieParam + " not found");
+                                throw std::logic_error("ExtractCCInclusiveXSecs - Supplied GENIE parameter: " + genieParam + " not found");
 
                             // Divide each weight down by the GENIE tune event weight
                             for (auto &weight : genieParamIter->second)
@@ -178,10 +171,7 @@ void ExtractXSecs(const Config &config)
                     // energy spectrum in each universe to estimate the impact of the flux systematic variations on the total flux.
                     if (AnalysisHelper::IsFiducial(pEvent->truth.nuVertex()))
                     {
-                        for (auto &xsec : std::vector<CrossSectionHelper::CrossSection>{
-                            xsec_total,
-                            xsec_muonMomentum
-                        }) xsec.AddNeutrinoEvent(pEvent->truth.nuEnergy(), weight, systWeightsMap);
+                        xsec_total.AddNeutrinoEvent(pEvent->truth.nuEnergy(), weight, systWeightsMap);
                     }
                 }
                 else
@@ -196,59 +186,23 @@ void ExtractXSecs(const Config &config)
             }
 
 
-            // Run the event selection and store which cuts are passed
-            std::vector<std::string> cutsPassed;
-            std::vector<int> assignedPdgCodes;
-            auto passedGoldenSelection = selection.Execute(pEvent, cutsPassed, assignedPdgCodes);
-            auto passedGenericSelection = (std::find(cutsPassed.begin(), cutsPassed.end(), config.global.lastCutGeneric) != cutsPassed.end());
-
-            // Determine if the phase-space restrictions are met in reco
-            auto recoData = AnalysisHelper::GetDummyAnalysisData();
-            bool passesPhaseSpaceReco = true;
-            if (passedGenericSelection)
-            {
-                // Get the reconstructed kinematic parameters
-                recoData = AnalysisHelper::GetRecoAnalysisData(pEvent->reco, assignedPdgCodes, passedGoldenSelection);
-
-                if (recoData.muonMomentum < config.global.muonMomentum.min || recoData.muonMomentum > config.global.muonMomentum.max)
-                    passesPhaseSpaceReco = false;
-            }
-
-            // Apply the phase-space restrictions in reco as an additional event selection cut
-            const bool isSelectedGeneric = passedGenericSelection && passesPhaseSpaceReco;
-            const bool isSelectedGolden = passedGoldenSelection && passesPhaseSpaceReco;
-
+            // Check if this event passed the CCInclusive selection
+            auto isSelected = pEvent->reco.passesCCInclusive();
 
             // Determine if the event is truly a signal event
-            const auto isTrueCC1Pi = (isOverlay || isDetVar) && AnalysisHelper::IsTrueCC1Pi(pEvent, config.global.useAbsPdg);
-
-            // Determine of the phase-space restrictions are met in truth
-            auto truthData = AnalysisHelper::GetDummyAnalysisData();
-            bool passesPhaseSpaceTruth = true;
-            if (isTrueCC1Pi)
-            {
-                // Get the true kinematic parameters
-                truthData = AnalysisHelper::GetTruthAnalysisData(pEvent->truth, config.global.useAbsPdg, config.global.protonMomentumThreshold);
-
-                if (truthData.muonMomentum < config.global.muonMomentum.min || truthData.muonMomentum > config.global.muonMomentum.max)
-                    passesPhaseSpaceTruth = false;
-            }
-
-            // A signal event is a true CC1Pi event that passes the phase space restrictions
-            const bool isSignal = isTrueCC1Pi && passesPhaseSpaceTruth;
+            const auto isSignal = (isOverlay || isDetVar) && AnalysisHelper::IsTrueCCInclusive(pEvent, config.global.useAbsPdg);
 
             // We only need to count signal events, or any event that passes the generic selection - everything else we can safely skip
-            const bool shouldCount = isSignal || isSelectedGeneric;
+            const bool shouldCount = isSignal || isSelected;
             if (!shouldCount)
                 continue;
 
             // Count selected BNB data events
             if (isDataBNB)
             {
-                if (isSelectedGeneric)
+                if (isSelected)
                 {
                     xsec_total.AddSelectedBNBDataEvent(0.f); // ATTN here a dummy value is used of 0.f
-                    xsec_muonMomentum.AddSelectedBNBDataEvent(recoData.muonMomentum);
                 }
             }
             else if (isDetVar)
@@ -256,20 +210,14 @@ void ExtractXSecs(const Config &config)
                 if (isSignal)
                 {
                     // Count selected signal events
-
-                    xsec_total.AddSignalEventDetVar(0.f, 0.f, isSelectedGeneric, weight, runId, detVarParam); // ATTN here a dummy value is used of 0.f
-
-                    xsec_muonMomentum.AddSignalEventDetVar(truthData.muonMomentum, recoData.muonMomentum, isSelectedGeneric, weight, runId, detVarParam);
+                    xsec_total.AddSignalEventDetVar(0.f, 0.f, isSelected, weight, runId, detVarParam); // ATTN here a dummy value is used of 0.f
                 }
                 else
                 {
                     // Count selected background events
-
-                    if (isSelectedGeneric)
+                    if (isSelected)
                     {
                         xsec_total.AddSelectedBackgroundOverlayEventDetVar(0.f, weight, runId, detVarParam); // ATTN here a dummy value is used of 0.f
-
-                        xsec_muonMomentum.AddSelectedBackgroundOverlayEventDetVar(recoData.muonMomentum, weight, runId, detVarParam);
                     }
                 }
             }
@@ -278,20 +226,14 @@ void ExtractXSecs(const Config &config)
                 if (isSignal)
                 {
                     // Count selected signal events
-
-                    xsec_total.AddSignalEvent(0.f, 0.f, isSelectedGeneric, weight, systWeightsMap); // ATTN here a dummy value is used of 0.f
-
-                    xsec_muonMomentum.AddSignalEvent(truthData.muonMomentum, recoData.muonMomentum, isSelectedGeneric, weight, systWeightsMap);
+                    xsec_total.AddSignalEvent(0.f, 0.f, isSelected, weight, systWeightsMap); // ATTN here a dummy value is used of 0.f
                 }
                 else
                 {
                     // Count selected background events
-
-                    if (isSelectedGeneric)
+                    if (isSelected)
                     {
                         xsec_total.AddSelectedBackgroundEvent(0.f, weight, systWeightsMap, isOverlay); // ATTN here a dummy value is used of 0.f
-
-                        xsec_muonMomentum.AddSelectedBackgroundEvent(recoData.muonMomentum, weight, systWeightsMap, isOverlay);
                     }
                 }
             }
@@ -304,13 +246,12 @@ void ExtractXSecs(const Config &config)
     {
         pHist->Draw("colz");
         inputXSecData.m_flux->Draw("hist same");
-        PlottingHelper::SaveCanvas(pCanvas, "xsec_fluxVariations_" + paramName);
+        PlottingHelper::SaveCanvas(pCanvas, "xsec_ccinc_fluxVariations_" + paramName);
     }
 
     // Calculate the cross-section for each kinematic parameter and print it out!
     for (auto &[namePrefix, xsec] : std::vector<std::pair<std::string, CrossSectionHelper::CrossSection> >({
-        {"muonMomentum", xsec_muonMomentum},
-        {"total", xsec_total},
+        {"total", xsec_total}
     }))
     {
         FormattingHelper::PrintLine();
@@ -320,11 +261,11 @@ void ExtractXSecs(const Config &config)
         // Get the cross-section itself
         std::cout << "Cross-section" << std::endl;
         const auto &xsec_plot = xsec.GetCrossSection();
-        FormattingHelper::SaveHistAsTable(xsec_plot, "xsec_" + namePrefix + ".md");
+        FormattingHelper::SaveHistAsTable(xsec_plot, "xsec_ccinc_" + namePrefix + ".md");
 
         // Get the stat uncertainties on the cross-seciton
         const auto &xsec_statErr = xsec.GetCrossSectionStatUncertainty();
-        FormattingHelper::SaveHistAsTable(xsec_statErr, "xsec_" + namePrefix + "_statUncertainty.md");
+        FormattingHelper::SaveHistAsTable(xsec_statErr, "xsec_ccinc_" + namePrefix + "_statUncertainty.md");
 
         // Get the covariance matrices and bias vectors for each systematic parameter
         std::cout << "Getting covariance & biases" << std::endl;
@@ -335,51 +276,22 @@ void ExtractXSecs(const Config &config)
             const auto &biasVector = covarianceBiasPair.second;
 
             std::cout << "Bias vector" << std::endl;
-            FormattingHelper::SaveHistAsTable(biasVector, "xsec_" + namePrefix + "_" + paramName + "_bias.md");
-            PlottingHelper::SaveBiasVector(biasVector, xsec_plot, xsec.HasUnderflowBin(), xsec.HasOverflowBin(), "xsec_" + namePrefix + "_" + paramName);
+            FormattingHelper::SaveHistAsTable(biasVector, "xsec_ccinc_" + namePrefix + "_" + paramName + "_bias.md");
+            PlottingHelper::SaveBiasVector(biasVector, xsec_plot, xsec.HasUnderflowBin(), xsec.HasOverflowBin(), "xsec_ccinc_" + namePrefix + "_" + paramName);
 
             std::cout << "Covariance matrix" << std::endl;
-            FormattingHelper::SaveHistAsTable(covarianceMatrix, "xsec_" + namePrefix + "_"+ paramName + "_covariance.md");
-            PlottingHelper::SaveCovarianceMatrix(covarianceMatrix, xsec_plot, xsec.HasUnderflowBin(), xsec.HasOverflowBin(), "xsec_" + namePrefix + "_" + paramName);
-        }
-
-        // Get the smearing matrix
-        std::cout << "Smearing matrix" << std::endl;
-        const auto &xsec_smearing = xsec.GetSmearingMatrix();
-        FormattingHelper::SaveHistAsTable(xsec_smearing, "xsec_" + namePrefix + "_smearing.md");
-        PlottingHelper::SaveSmearingMatrix(xsec_smearing, xsec.HasUnderflowBin(), xsec.HasOverflowBin(), "xsec_" + namePrefix);
-
-        // Get the covariance and bias vectors for the smearing matrix for each systematic parameter
-        std::cout << "Getting covariance & biases for smearing matrix" << std::endl;
-        const auto &xsec_smearing_covariances = xsec.GetSmearingMatrixCovarianceMatrices();
-        for (const auto &[paramName, covarianceBiasPair] : xsec_smearing_covariances)
-        {
-            const auto &covarianceMatrix = covarianceBiasPair.first;
-            const auto &biasVector = covarianceBiasPair.second;
-
-            std::cout << "Bias vector" << std::endl;
-            FormattingHelper::SaveHistAsTable(biasVector, "xsec_" + namePrefix + "_" + paramName + "_smearing_bias.md");
-            PlottingHelper::SaveSmearingMatrixBiasVector(biasVector, xsec.HasUnderflowBin(), xsec.HasOverflowBin(), "xsec_" + namePrefix + "_" + paramName);
-
-            std::cout << "Covariance matrix" << std::endl;
-            FormattingHelper::SaveHistAsTable(covarianceMatrix, "xsec_" + namePrefix + "_"+ paramName + "_smearing_covariance.md");
-            PlottingHelper::SaveSmearingMatrixCovarianceMatrix(covarianceMatrix, xsec.HasUnderflowBin(), xsec.HasOverflowBin(), "xsec_" + namePrefix + "_" + paramName);
+            FormattingHelper::SaveHistAsTable(covarianceMatrix, "xsec_ccinc" + namePrefix + "_"+ paramName + "_covariance.md");
+            PlottingHelper::SaveCovarianceMatrix(covarianceMatrix, xsec_plot, xsec.HasUnderflowBin(), xsec.HasOverflowBin(), "xsec_ccinc_" + namePrefix + "_" + paramName);
         }
 
         // Get the total covariance matrix, accounting for the biases
         std::cout << "Getting total covariance matrix" << std::endl;
         const auto &xsec_totalCovariance = CrossSectionHelper::GetTotalCovarianceMatrix(xsec_covariances);
-        FormattingHelper::SaveHistAsTable(xsec_totalCovariance, "xsec_" + namePrefix + "_allParams_covariance.md");
-        PlottingHelper::SaveCovarianceMatrix(xsec_totalCovariance, xsec_plot, xsec.HasUnderflowBin(), xsec.HasOverflowBin(), "xsec_" + namePrefix + "_allParams");
+        FormattingHelper::SaveHistAsTable(xsec_totalCovariance, "xsec_ccinc_" + namePrefix + "_allParams_covariance.md");
+        PlottingHelper::SaveCovarianceMatrix(xsec_totalCovariance, xsec_plot, xsec.HasUnderflowBin(), xsec.HasOverflowBin(), "xsec_ccinc_" + namePrefix + "_allParams");
 
         // Save the cross-section plot with error bars
-        PlottingHelper::SaveCrossSection(xsec_plot, xsec_statErr, xsec_totalCovariance, xsec.HasUnderflowBin(), xsec.HasOverflowBin(), "xsec_" + namePrefix);
-
-        // Get the total covariance matrix, accounting for the biases for the smearing matrix
-        std::cout << "Getting total covariance matrix for smearing matrix" << std::endl;
-        const auto &xsec_smearing_totalCovariance = CrossSectionHelper::GetTotalCovarianceMatrix(xsec_smearing_covariances);
-        FormattingHelper::SaveHistAsTable(xsec_smearing_totalCovariance, "xsec_" + namePrefix + "_allParams_smearing_covariance.md");
-        PlottingHelper::SaveSmearingMatrixCovarianceMatrix(xsec_smearing_totalCovariance, xsec.HasUnderflowBin(), xsec.HasOverflowBin(), "xsec_" + namePrefix + "_allParams");
+        PlottingHelper::SaveCrossSection(xsec_plot, xsec_statErr, xsec_totalCovariance, xsec.HasUnderflowBin(), xsec.HasOverflowBin(), "xsec_ccinc_" + namePrefix);
 
         // For performance clear the cached cross-sections from memory
         xsec.ClearCache();

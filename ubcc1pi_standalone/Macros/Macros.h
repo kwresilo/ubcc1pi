@@ -181,7 +181,14 @@ namespace ubcc1pi_macros
      *  @param  config the input configuration
      */
     void ExtractXSecs(const Config &config = Config());
-    
+
+    /**
+     *  @brief  Extract the cross-sections for CC inclusive
+     *
+     *  @param  config the input configuration
+     */
+    void ExtractCCInclusiveXSecs(const Config &config = Config());
+
     /**
      *  @brief  Print run and subruns for specific events - chosen in the config
      *

@@ -29,12 +29,33 @@ struct Config
      */
     struct Files
     {
-        //std::string  overlaysFileName = "/uboone/data/users/asmith/ubcc1pi/samples/may2020/samples/ubcc1piAnalysis_overlays.root"; ///< Overlays file name input
         // September overlays files contain systematic weights
         std::string  overlaysFileName = "/uboone/data/users/asmith/ubcc1pi/samples/sep2020/samples/ubcc1piAnalysis_overlays.root"; ///< Overlays file name input
         std::string  dirtFileName     = "/uboone/data/users/asmith/ubcc1pi/samples/may2020/samples/ubcc1piAnalysis_dirt.root";     ///< Dirt file name input
         std::string  dataEXTFileName  = "/uboone/data/users/asmith/ubcc1pi/samples/may2020/samples/ubcc1piAnalysis_dataEXT.root";  ///< EXT data file name input
         std::string  dataBNBFileName  = "/uboone/data/users/asmith/ubcc1pi/samples/may2020/samples/ubcc1piAnalysis_dataBNB.root";  ///< BNB data file name input
+
+        /**
+         *  @brief  The detector variation files
+         *
+         *          The events in each detector variation sample (in the same run) are identical apart from the detector parameter that's
+         *          been changed - this way we can limit the effects of statistical variations. As a result we also need to have a
+         *          central-value (CV) sample in which nothing is changed that we can compare to. Here, only some of the variations are
+         *          available for run 1. Instead we use run3b, for which the varaitions are available. In every case the variation is
+         *          considered wrt to the relevant "CV" file, and the fractional difference is quantity we care about.
+         */
+        std::vector< std::tuple<std::string, std::string, std::string> > detVarFiles = {
+            {"run1",  "CV",            "/uboone/data/users/asmith/ubcc1pi/samples/oct2020/samples/ubcc1piAnalysis_overlays_DetVar_CV_run1.root"},
+            {"run1",  "LYDown",        "/uboone/data/users/asmith/ubcc1pi/samples/oct2020/samples/ubcc1piAnalysis_overlays_DetVar_LYDown_run1.root"},
+            {"run1",  "LYRayleigh",    "/uboone/data/users/asmith/ubcc1pi/samples/oct2020/samples/ubcc1piAnalysis_overlays_DetVar_LYRayleigh_run1.root"},
+            {"run3b", "CV",            "/uboone/data/users/asmith/ubcc1pi/samples/oct2020/samples/ubcc1piAnalysis_overlays_DetVar_CV_run3b.root"},
+            {"run3b", "SCE",           "/uboone/data/users/asmith/ubcc1pi/samples/oct2020/samples/ubcc1piAnalysis_overlays_DetVar_SCE_run3b.root"},
+            {"run3b", "Recomb2",       "/uboone/data/users/asmith/ubcc1pi/samples/oct2020/samples/ubcc1piAnalysis_overlays_DetVar_Recomb2_run3b.root"},
+            {"run3b", "WireModX",       "/uboone/data/users/asmith/ubcc1pi/samples/oct2020/samples/ubcc1piAnalysis_overlays_DetVar_WireModX_run3b.root"},
+            {"run3b", "WireModYZ",       "/uboone/data/users/asmith/ubcc1pi/samples/oct2020/samples/ubcc1piAnalysis_overlays_DetVar_WireModYZ_run3b.root"},
+            {"run3b", "WireModThetaXZ",       "/uboone/data/users/asmith/ubcc1pi/samples/oct2020/samples/ubcc1piAnalysis_overlays_DetVar_WireModThetaXZ_run3b.root"},
+            {"run3b", "WireModThetaYZ",       "/uboone/data/users/asmith/ubcc1pi/samples/oct2020/samples/ubcc1piAnalysis_overlays_DetVar_WireModThetaYZ_run3b.root"}
+        };
     };
     Files files; ///< The input files
 
@@ -55,11 +76,27 @@ struct Config
         float  dataEXTTriggers    = 62540367.0;    ///< The EXT triggers for the EXT data
         float  dataBNBTor875WCut  = 1.455e+20;     ///< The POT measured by the 875m toroid (with quality cuts)
         float  dataBNBE1DCNTWCut  = 32339256.0;    ///< The BNB spills sent by the accelerator division (with quality cuts)
+
+        /**
+         *  @brief  The detector variation POTs - First parameter is the run, second is the variation name, third is the number of POT
+         */
+        std::vector< std::tuple<std::string, std::string, float> > detVarPOTs = {
+            {"run1", "CV", 1.14339e+20},
+            {"run1", "LYDown", 1.05031e+20},
+            {"run1", "LYRayleigh", 1.06661e+20},
+            {"run3b", "CV", 9.82298e+19},
+            {"run3b", "SCE", 1.02517e+20},
+            {"run3b", "Recomb2", 1.00832e+20},
+            {"run3b", "WireModX", 1.09739e+20},
+            {"run3b", "WireModYZ", 1.10877e+20},
+            {"run3b", "WireModThetaXZ", 1.12906e+20},
+            {"run3b", "WireModThetaYZ", 1.09244e+20},
+        };
     };
     Norms norms; ///< The sample normalisations
 
     // -------------------------------------------------------------------------------------------------------------------------------------
-    
+
     /**
      *  @brief  The flux structure
      *
@@ -135,7 +172,7 @@ struct Config
             std::vector<float>  binEdges = {0.15f, 0.23f, 0.32f, 0.45f, 0.66f, 1.5f};  ///< The bin edges
         };
         MuonMomentum muonMomentum; ///< The muonMomentum plot limits
-       
+
         /**
          *  @brief  The pionCosTheta plot limits structure
          */
@@ -168,7 +205,7 @@ struct Config
             std::vector<float>  binEdges = {0.1f, 0.16f, 0.19f, 0.22f, 0.6f};  ///< The bin edges
         };
         PionMomentum pionMomentum; ///< The pionMomentum plot limits
-   
+
         /**
          *  @brief  The muonPionAngle plot limits structure
          */
@@ -194,7 +231,7 @@ struct Config
 
     };
     Global global; ///< The global configuration options
-        
+
     // -------------------------------------------------------------------------------------------------------------------------------------
 
     /**
@@ -202,11 +239,12 @@ struct Config
      */
     struct CountPOT
     {
-        bool  useOverlays = true; ///< If we should count the POT for the overlays
-        bool  useDirt     = true; ///< If we should count the POT for the dirt
+        bool  useOverlays           = true; ///< If we should count the POT for the overlays
+        bool  useDirt               = true; ///< If we should count the POT for the dirt
+        bool  useDetectorVariations = true; ///< If we should count the POT for the detector variations 
     };
     CountPOT countPOT; ///< The configuration options for the CountPOT macro
-    
+
     // -------------------------------------------------------------------------------------------------------------------------------------
 
     /**
@@ -218,9 +256,9 @@ struct Config
         bool  useDataBNB = true; ///< If we should run on the BNB data
     };
     GetRunSubrunList getRunSubrunList; ///< The configuration options for the GetRunSubrunList macro
-    
+
     // -------------------------------------------------------------------------------------------------------------------------------------
-    
+
     /**
      *  @brief  Configuration for the MultiPlanePIDDemo macro
      */
@@ -229,7 +267,7 @@ struct Config
         float sin2AngleThreshold = 0.175; ///< The squared sin angular threshold between a particle and a wire in the YZ plane to use dEdx information
     };
     MultiPlanePIDDemo multiPlanePIDDemo; ///< The configuration options for the MultiPlanePIDDemo macro
-    
+
     // -------------------------------------------------------------------------------------------------------------------------------------
 
     /**
@@ -240,7 +278,7 @@ struct Config
         bool plotBDTResponses = true; ///< If we should plot the responses of the trained BDTs, set to true if you haven't already trained the BDTs
     };
     PlotInputVariables plotInputVariables; ///< The configuration options for the PlotInputVariables macro
-    
+
     // -------------------------------------------------------------------------------------------------------------------------------------
 
     /**
@@ -264,7 +302,7 @@ struct Config
         unsigned int nSamplePoints = 300u;                                    ///< The number of sampling points to use when finding the ROC curves
     };
     NMinusOneBDTStudy nMinusOneBDTStudy; ///< The configuration options for the NMinusOneBDTStudy macro
-    
+
     // -------------------------------------------------------------------------------------------------------------------------------------
 
     /**
@@ -292,7 +330,7 @@ struct Config
         float        processFraction = 0.2f;  ///< The fraction of events to process while optimizing
     };
     MakeEventSelectionTable makeEventSelectionTable; ///< The configuration options for the MakeEventSelectionTable macro
-    
+
     // -------------------------------------------------------------------------------------------------------------------------------------
 
     /**
@@ -306,9 +344,9 @@ struct Config
         float pionMomentumThreshold = 0.1f; ///< The threshold pion momentum below which we consider "signal" if onlyLowMomentumPions == true
     };
     MakeSelectedPIDTable makeSelectedPIDTable; ///< The configuration options for the MakeSelectedPIDTable macro
-    
+
     // -------------------------------------------------------------------------------------------------------------------------------------
-    
+
     /**
      *  @brief  Configuration for the EfficiencyPlots macro
      */
@@ -317,7 +355,7 @@ struct Config
         bool drawErrors = true; ///< If we should draw errors
     };
     EfficiencyPlots efficiencyPlots; ///< The configuration options for the EfficiencyPlots macro
-    
+
     // -------------------------------------------------------------------------------------------------------------------------------------
 
     /**
@@ -328,9 +366,9 @@ struct Config
         bool useFineBinEdges = true; ///< If we break up the analsis bins into finer sub-bins
     };
     MakeBinningPlots makeBinningPlots; ///< The configuration options for the MakeBinningPlots macro
-    
+
     // -------------------------------------------------------------------------------------------------------------------------------------
-    
+
     /**
      *  @brief  Configuration for the ExtractXSecs macro
      */
@@ -375,7 +413,7 @@ struct Config
             "piontotxsec_FluxUnisim",
             "fluxHadronProduction"
         }; ///< The parameters that modify the overall flux
-        
+
         std::vector<std::string> genieParams = {
             "All_Genie"
         }; ///< The GENIE parameters, these will be scaled down by genieTuneEventWeight - see the ExtractXSecs macro for more details

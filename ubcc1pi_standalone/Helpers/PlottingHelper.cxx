@@ -1087,23 +1087,12 @@ void PlottingHelper::SaveCovarianceMatrix(const std::shared_ptr<TH2F> &matrix, c
         if (xSecI <= std::numeric_limits<float>::epsilon())
             throw std::logic_error("PlottingHelper::SaveCovarianceMatrix - Cross section in analysis bin: " + std::to_string(iBin) + " is <= 0");
             
-        // Get the standard deviation in bin i
-        const auto stdI = std::pow(matrix->GetBinContent(iBin, iBin), 0.5);
-        if (stdI <= std::numeric_limits<float>::epsilon())
-            throw std::logic_error("PlottingHelper::SaveCovarianceMatrix - Variance in analysis bin: " + std::to_string(iBin) + " is <= 0");
-            
-
         for (unsigned int jBin = 1u; jBin <= nAnalysisBins; ++jBin)
         {
             // Get the cross section in bin j
             const auto xSecJ = crossSection->GetBinContent(jBin + (hasUnderflow ? 1u : 0u));
             if (xSecJ <= std::numeric_limits<float>::epsilon())
                 throw std::logic_error("PlottingHelper::SaveCovarianceMatrix - Cross section in analysis bin: " + std::to_string(jBin) + " is <= 0");
-
-            // Get the standard deviation in bin j
-            const auto stdJ = std::pow(matrix->GetBinContent(jBin, jBin), 0.5);
-            if (stdJ <= std::numeric_limits<float>::epsilon())
-                throw std::logic_error("PlottingHelper::SaveCovarianceMatrix - Variance in analysis bin: " + std::to_string(jBin) + " is <= 0");
 
             // Set the covariance
             const auto covariance = matrix->GetBinContent(iBin, jBin);
@@ -1112,6 +1101,28 @@ void PlottingHelper::SaveCovarianceMatrix(const std::shared_ptr<TH2F> &matrix, c
             // Set the fractional covariance
             const auto fracCovariance = covariance / (xSecI * xSecJ);
             fracCovarianceMatrix->SetBinContent(iBin, jBin, fracCovariance);
+        
+            // Get the standard deviation in bin i
+            const auto varI = matrix->GetBinContent(iBin, iBin);
+            if (varI <= std::numeric_limits<float>::epsilon())
+            {
+                std::cout << "PlottingHelper::SaveCovarianceMatrix - WARNING - Variance in bin: " << iBin << " is " << varI << ". Setting to correlation matrix element to dummy value"<< std::endl;
+                correlationMatrix->SetBinContent(iBin, jBin, -std::numeric_limits<float>::max());
+                continue;
+            }
+        
+            const auto stdI = std::pow(varI, 0.5);
+            
+            // Get the standard deviation in bin j
+            const auto varJ = matrix->GetBinContent(jBin, jBin);
+            if (varJ <= std::numeric_limits<float>::epsilon())
+            {
+                std::cout << "PlottingHelper::SaveCovarianceMatrix - WARNING - Variance in bin: " << jBin << " is " << varJ << ". Setting to correlation matrix element to dummy value"<< std::endl;
+                correlationMatrix->SetBinContent(iBin, jBin, -std::numeric_limits<float>::max());
+                continue;
+            }
+
+            const auto stdJ = std::pow(varJ, 0.5);
 
             // Set the linear correlation
             const auto correlation = covariance / (stdI * stdJ);

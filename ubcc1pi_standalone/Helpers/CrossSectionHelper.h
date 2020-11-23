@@ -51,6 +51,11 @@ class CrossSectionHelper
         typedef std::vector<SystematicParamUniversesPair> SystematicParamUniversesPairVector;
 
         /**
+         *  @brief  A vector of pairs for each detector variation, first = runID, second = varied parameter
+         */
+        typedef std::vector< std::pair<std::string, std::string> > DetVarSystParams;
+
+        /**
          *  @brief  A set of mutually exclusive parameters, first = name for the combined parameters, second = number of universes, third = list of mutually exclusive params
          */
         typedef std::tuple<std::string, unsigned int, std::vector<std::string> > MutuallyExclusiveParam;
@@ -61,7 +66,7 @@ class CrossSectionHelper
         typedef std::vector<MutuallyExclusiveParam> MutuallyExclusiveParamVector;
 
         /**
-         *  @brief  A pair of matricies - the first element is a covariance matrix, and the second if the bias vector
+         *  @brief  A pair of matrices - the first element is a covariance matrix, and the second if the bias vector
          */
         typedef std::pair<std::shared_ptr<TH2F>, std::shared_ptr<TH1F> > CovarianceBiasPair;
 
@@ -78,7 +83,7 @@ class CrossSectionHelper
                  */
                 template <typename T>
                 using SystMap = std::unordered_map< std::string, std::vector< T > >;
-                
+
                 /**
                  *  @brief  A map with indices [systematicParamterName][universeIndex] to an arbitrary type, T - used to cache values
                  *
@@ -86,6 +91,14 @@ class CrossSectionHelper
                  */
                 template <typename T>
                 using SystCache = std::unordered_map<std::string, std::unordered_map<unsigned int, T> >;
+                
+                /**
+                 *  @brief  A map with indices [runID][detectorVariationName] to an arbitrary type, T
+                 *
+                 *  @tparam T the mapped value type
+                 */
+                template <typename T>
+                using DetVarSystMap = std::unordered_map< std::string, std::unordered_map< std::string, T > >;
             
             public:
 
@@ -99,6 +112,7 @@ class CrossSectionHelper
                     float                        m_nTargets;             ///< The number of target nucleons (units e+31 nucleons)
 
                     SystematicUniverseSizesMap   m_systUniverseSizesMap; ///< The mapping from a systematic parameter name to the number of universes for that parameter
+                    DetVarSystParams             m_detVarParameters;     ///< The detector variation parameters
                     std::vector<std::string>     m_fluxParameters;       ///< The systematic parameters for which we should consider variations on the flux
                 };
 
@@ -138,7 +152,7 @@ class CrossSectionHelper
                 void AddNeutrinoEvent(const float trueNuEnergy, const float nominalWeight, const SystematicWeightsMap &systWeightsMap);
 
                 /**
-                 *  @brief  Add a signal event
+                 *  @brief  Add a signal event 
                  *
                  *  @param  trueValue the true value of the parameter
                  *  @param  recoValue the reconstructed value of the parameter
@@ -147,6 +161,18 @@ class CrossSectionHelper
                  *  @param  systWeightsMap the systematic weights map
                  */
                 void AddSignalEvent(const float trueValue, const float recoValue, const bool isSelected, const float nominalWeight, const SystematicWeightsMap &systWeightsMap);
+
+                /**
+                 *  @brief  Add a signal event from a detector variation sample
+                 *
+                 *  @param  trueValue the true value of the parameter
+                 *  @param  recoValue the reconstructed value of the parameter
+                 *  @param  isSelected if the event passes the selection
+                 *  @param  nominalWeight the nominal event weight
+                 *  @param  runId an identifier for the run used
+                 *  @param  detectorVariationParameter the name of the detector variation parameter (NB. the name "CV" is reserved for the central-value)
+                 */
+                void AddSignalEventDetVar(const float trueValue, const float recoValue, const bool isSelected, const float nominalWeight, const std::string &runId, const std::string &detectorVariationParameter);
                 
                 /**
                  *  @brief  Add a selected background event with systematic weights
@@ -154,8 +180,19 @@ class CrossSectionHelper
                  *  @param  recoValue the reconstructed value of the parameter
                  *  @param  nominalWeight the nominal event weight
                  *  @param  systWeightsMap the systematics weight map
+                 *  @param  isOverlay if this is an overlay background
                  */
-                void AddSelectedBackgroundEvent(const float recoValue, const float nominalWeight, const SystematicWeightsMap &systWeightsMap);
+                void AddSelectedBackgroundEvent(const float recoValue, const float nominalWeight, const SystematicWeightsMap &systWeightsMap, const bool isOverlay);
+                
+                /**
+                 *  @brief  Add a selected background event from a detector variation sample
+                 *
+                 *  @param  recoValue the reconstructed value of the parameter
+                 *  @param  nominalWeight the nominal event weight
+                 *  @param  runId an identifier for the run used
+                 *  @param  detectorVariationParameter the name of the detector variation parameter (NB. the name "CV" is reserved for the central-value)
+                 */
+                void AddSelectedBackgroundOverlayEventDetVar(const float recoValue, const float nominalWeight, const std::string &runId, const std::string &detectorVariationParameter);
                 
                 /**
                  *  @brief  Add a selected BNB data event
@@ -186,18 +223,18 @@ class CrossSectionHelper
                 std::shared_ptr<TH1F> GetCrossSectionStatUncertainty() const;
 
                 /**
-                 *  @brief  Get the covariance matricies for the cross-section for each systematic paramter
+                 *  @brief  Get the covariance matrices for the cross-section for each systematic paramter
                  *
                  *  @return a map from systematic paramter name to the covarianve matrix / bias vector for that parameter
                  */
-                std::map< std::string, CovarianceBiasPair > GetCrossSectionCovarianceMatricies();
+                std::map< std::string, CovarianceBiasPair > GetCrossSectionCovarianceMatrices();
                 
                 /**
                  *  @brief  Get the covariance matrives for the smearing matric for each systematic parameter
                  *
                  *  @return a map from systematic paramter name to the covarianve matrix / bias vector for that parameter
                  */
-                std::map< std::string, CovarianceBiasPair > GetSmearingMatrixCovarianceMatricies();
+                std::map< std::string, CovarianceBiasPair > GetSmearingMatrixCovarianceMatrices();
                 
                 /**
                  *  @brief  Get the scatter plots of the value of the cross-sections in each pair of bins for each universe of each paramter
@@ -334,13 +371,23 @@ class CrossSectionHelper
                 std::vector< std::tuple<unsigned int, unsigned int, std::shared_ptr<TGraph> > > GetCrossSectionBinScatterPlots(const std::string &systParameter);
                 
                 /**
-                 *  @brief  Get the cross-section covariance matrix for a given systematic paramter
+                 *  @brief  Get the cross-section covariance matrix and bias vector for a given systematic paramter
                  *
                  *  @param  systParameter the systematic parameter to apply
                  *
                  *  @return a pair, first is the covariance matrix, second is the bias vector
                  */
                 CovarianceBiasPair GetCrossSectionCovarianceMatrix(const std::string &systParameter);
+                
+                /**
+                 *  @brief  Get the cross-section covariance matrix and bias vector for a given detector variation parameter
+                 *
+                 *  @param  runId the indentifier for the run to use
+                 *  @param  detVarParam the name of the detector variation
+                 *
+                 *  @return a pair, first is the covariance matrix (zero by construction), second is the bias vector
+                 */
+                CovarianceBiasPair GetCrossSectionCovarianceMatrixDetVar(const std::string &runId, const std::string &detVarParam);
 
                 /**
                  *  @brief  Get the covariance matrix for the smearing matrix for a given systematic parameter
@@ -387,6 +434,12 @@ class CrossSectionHelper
                 SystMap<std::shared_ptr<TH2F> >     m_signalSelectedRecoTrue;     ///< The 2D histograms of selected signal events with reco & true bin indices for each universe
                 SystMap<std::shared_ptr<TH1F> >     m_signalAllTrue;              ///< The 1D histograms of all signal events with true bin indices for each universe
                 SystMap<std::shared_ptr<TH1F> >     m_backgroundSelectedReco;     ///< The 1D histograms of selected background events with reco bin indices for each universe
+                
+                // The raw event counts for the detector variation systematic parameters
+                DetVarSystMap<std::shared_ptr<TH2F> > m_signalSelectedDetVarRecoTrue;           ///< The 2D histograms of selected signal events with reco & true bin indices for each detector parameter
+                DetVarSystMap<std::shared_ptr<TH1F> > m_signalAllDetVarTrue;                    ///< The 1D histograms of all signal events with true bin indices for each detector parameter
+                DetVarSystMap<std::shared_ptr<TH1F> > m_backgroundSelectedOverlayDetVarReco;    ///< The 1D histograms of selected background events with reco bin indices for each detector parameter
+                std::shared_ptr<TH1F>                 m_backgroundSelectedNonOverlayDetVarReco; ///< The 1D histogram of selected non-overlay background events with reco bin indices. This is added to the overlay events for each detector variation parameter
 
                 // The raw event counts in the nominal universe
                 std::shared_ptr<TH1F>               m_allEventsNuEnergyNomTrue;   ///< The true neutrino energy spetrum of all events in the nominal universe
@@ -397,10 +450,11 @@ class CrossSectionHelper
 
                 // The cached objects for speed
                 SystCache<std::shared_ptr<TH1F> >   m_crossSectionCache;          ///< The cached cross-sections in each systematic universe to hold in memory
-                SystCache<std::shared_ptr<TH2F> >   m_smearingMatrixCache;        ///< The cached smearing matricies in each systematic universe to hold in memory
+                SystCache<std::shared_ptr<TH2F> >   m_smearingMatrixCache;        ///< The cached smearing matrices in each systematic universe to hold in memory
                 bool                                m_shouldResetCache;           ///< If we need to re-calculate the cached values because something has changed
                 
                 static unsigned int                 m_histCount;                  ///< A counter for the total number of histograms - used to avoid name collisions
+                static std::string                  m_cvString;                   ///< The string to indicate the CV sample for the detector varitaions
         };
 
         // ---------------------------------------------------------------------------------------------------------------------------------
@@ -551,6 +605,10 @@ class CrossSectionHelper
 // -----------------------------------------------------------------------------------------------------------------------------------------
 
 unsigned int CrossSectionHelper::CrossSection::m_histCount = 0u;
+
+// -----------------------------------------------------------------------------------------------------------------------------------------
+
+std::string CrossSectionHelper::CrossSection::m_cvString = "CV";
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
 

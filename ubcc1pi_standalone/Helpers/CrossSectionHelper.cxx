@@ -22,6 +22,7 @@ CrossSectionHelper::CrossSection::CrossSection(const std::vector<float> &binEdge
     m_signalSelectedNomRecoTrue(this->GetEmptyHist2D()),
     m_signalAllNomTrue(this->GetEmptyHist1D()),
     m_backgroundSelectedNomReco(this->GetEmptyHist1D()),
+    m_backgroundSelectedNonOverlayDetVarReco(this->GetEmptyHist1D()),
     m_shouldResetCache(true)
 {
     // Setup the histograms for the universe variations
@@ -39,6 +40,31 @@ CrossSectionHelper::CrossSection::CrossSection(const std::vector<float> &binEdge
             signalAllTrueVect.push_back(this->GetEmptyHist1D());
             backgroundSelectedRecoVect.push_back(this->GetEmptyHist1D());
         }
+    }
+
+    // Check that each run ID of the detector variations has a CV samples
+    std::map<std::string, bool> runIdToHasCVMap;
+    for (const auto &[runId, detVarParam] : m_inputData.m_detVarParameters)
+    {
+        // Add this run ID to the map if we haven't seen it before
+        if (runIdToHasCVMap.find(runId) == runIdToHasCVMap.end())
+            runIdToHasCVMap.emplace(runId, false);
+
+        runIdToHasCVMap.at(runId) = (runIdToHasCVMap.at(runId) || detVarParam == m_cvString);
+    }
+
+    for (const auto &[runId, hasCV] : runIdToHasCVMap)
+    {
+        if (!hasCV)
+            throw std::invalid_argument("CrossSection::CrossSection - Run: " + runId + " doesn't have a central value. Expected to see a sample with name: " + m_cvString);
+    }
+    
+    // Setup the histograms for the detector variations
+    for (const auto &[runId, detVarParam] : m_inputData.m_detVarParameters)
+    {
+        m_signalSelectedDetVarRecoTrue[runId][detVarParam] = this->GetEmptyHist2D();
+        m_signalAllDetVarTrue[runId][detVarParam] = this->GetEmptyHist1D();
+        m_backgroundSelectedOverlayDetVarReco[runId][detVarParam] = this->GetEmptyHist1D();
     }
 }
 
@@ -120,8 +146,28 @@ void CrossSectionHelper::CrossSection::AddSignalEvent(const float trueValue, con
 }
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
+                
+void CrossSectionHelper::CrossSection::AddSignalEventDetVar(const float trueValue, const float recoValue, const bool isSelected, const float nominalWeight, const std::string &runId, const std::string &detectorVariationParameter)
+{
+    // Check if this is a value run-ID / detector variation parameter
+    if (std::find(m_inputData.m_detVarParameters.begin(), m_inputData.m_detVarParameters.end(), std::pair<std::string, std::string> (runId, detectorVariationParameter)) == m_inputData.m_detVarParameters.end())
+    {
+        throw std::invalid_argument("CrossSection::AddSignalEventDetVar - Unknown detector variation parameter: " + detectorVariationParameter + " for run: " + runId);
+    }
 
-void CrossSectionHelper::CrossSection::AddSelectedBackgroundEvent(const float recoValue, const float nominalWeight, const SystematicWeightsMap &systWeightsMap)
+    // Add this event to the counter for all signal events
+    m_signalAllDetVarTrue.at(runId).at(detectorVariationParameter)->Fill(trueValue, nominalWeight);
+    
+    if (isSelected)
+    {
+        // Add this event to the counter for selected signal events
+        m_signalSelectedDetVarRecoTrue.at(runId).at(detectorVariationParameter)->Fill(trueValue, recoValue, nominalWeight);
+    }
+}
+
+// -----------------------------------------------------------------------------------------------------------------------------------------
+
+void CrossSectionHelper::CrossSection::AddSelectedBackgroundEvent(const float recoValue, const float nominalWeight, const SystematicWeightsMap &systWeightsMap, const bool isOverlay)
 {
     // Check the validity of the input map if systematic weights
     if (!CrossSectionHelper::CheckSystematicWeightsMapDimensions(systWeightsMap, m_inputData.m_systUniverseSizesMap))
@@ -142,9 +188,29 @@ void CrossSectionHelper::CrossSection::AddSelectedBackgroundEvent(const float re
             backgroundSelectedRecoVect.at(iUni)->Fill(recoValue, nominalWeight * universeWeight);
         }
     }
-    
+
+    // ATTN here we also count non-overlay events so they can be used when calculating the detector systematics
+    if (!isOverlay)
+    {
+        m_backgroundSelectedNonOverlayDetVarReco->Fill(recoValue, nominalWeight);
+    }
+
     // Mark that the inputs have changed and any cached values need to be re-calculated
     m_shouldResetCache = true;
+}
+
+// -----------------------------------------------------------------------------------------------------------------------------------------
+
+void CrossSectionHelper::CrossSection::AddSelectedBackgroundOverlayEventDetVar(const float recoValue, const float nominalWeight, const std::string &runId, const std::string &detectorVariationParameter)
+{
+    // Check if this is a value run-ID / detector variation parameter
+    if (std::find(m_inputData.m_detVarParameters.begin(), m_inputData.m_detVarParameters.end(), std::pair<std::string, std::string> (runId, detectorVariationParameter)) == m_inputData.m_detVarParameters.end())
+    {
+        throw std::invalid_argument("CrossSection::AddSelectedBackgroundOverlayEventDetVar - Unknown detector variation parameter: " + detectorVariationParameter + " for run: " + runId);
+    }
+
+    // Add this event to the counter for selected background events
+    m_backgroundSelectedOverlayDetVarReco.at(runId).at(detectorVariationParameter)->Fill(recoValue, nominalWeight);
 }
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
@@ -792,7 +858,128 @@ CrossSectionHelper::CovarianceBiasPair CrossSectionHelper::CrossSection::GetCros
 }
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
-                
+
+CrossSectionHelper::CovarianceBiasPair CrossSectionHelper::CrossSection::GetCrossSectionCovarianceMatrixDetVar(const std::string &runId, const std::string &detVarParam)
+{
+    // Check if this is a valid run-ID / detector variation parameter
+    if (std::find(m_inputData.m_detVarParameters.begin(), m_inputData.m_detVarParameters.end(), std::pair<std::string, std::string> (runId, detVarParam)) == m_inputData.m_detVarParameters.end())
+    {
+        throw std::invalid_argument("CrossSection::GetCrossSectionCovarianceMatrixDetVar - Unknown detector variation parameter: " + detVarParam + " for run: " + runId);
+    }
+
+    // Get the total flux
+    const auto totalFlux = CrossSectionHelper::GetTotalFlux(m_inputData.m_flux);
+
+    // Get the smeared efficiency in the central value sample and the sample for this detector parameter
+    const auto smearedEffCV = this->GetSmearedEfficiency(m_signalSelectedDetVarRecoTrue.at(runId).at(m_cvString), m_signalAllDetVarTrue.at(runId).at(m_cvString));
+    const auto smearedEff = this->GetSmearedEfficiency(m_signalSelectedDetVarRecoTrue.at(runId).at(detVarParam), m_signalAllDetVarTrue.at(runId).at(detVarParam));
+
+    // Get the backgrounds in the central value sample and the sample for this detector parameter. Here we add the backgrounds from the
+    // overlay detector variation samples, to those from other sources - e.g. dirt or EXT.
+    auto backgroundsCV = this->GetEmptyHist1D();
+    auto backgrounds = this->GetEmptyHist1D();
+
+    // Overlay backgrounds (from detector variation samples)
+    backgroundsCV->Add(m_backgroundSelectedOverlayDetVarReco.at(runId).at(m_cvString).get());
+    backgrounds->Add(m_backgroundSelectedOverlayDetVarReco.at(runId).at(detVarParam).get());
+
+    // Non overlay backgrounds (dirt / EXT)
+    backgroundsCV->Add(m_backgroundSelectedNonOverlayDetVarReco.get());
+    backgrounds->Add(m_backgroundSelectedNonOverlayDetVarReco.get());
+
+    //// BEGIN DEBUG
+    // Print the difference between the backgrounsd in the central value and nominal samples
+    std::cout << "BACKGROUNDS" << std::endl;
+    for (unsigned int iBin = 1u; iBin <= static_cast<unsigned int>(backgroundsCV->GetNbinsX()); ++iBin)
+    {
+        std::cout << "Bin: " << iBin << std::endl;
+        std::cout << "  - CV:  " << backgroundsCV->GetBinContent(iBin) << std::endl;
+        std::cout << "  - Var: " << backgrounds->GetBinContent(iBin) << std::endl;
+        std::cout << "  - Nom: " << m_backgroundSelectedNomReco->GetBinContent(iBin) << std::endl;
+    }
+    //// END DEBUG
+
+    // Get the cross-section in the central value sample and the sample for this detector parameter
+    const auto crossSectionCV = this->GetCrossSection(m_dataSelectedReco, backgroundsCV, smearedEffCV, totalFlux);
+    const auto crossSection = this->GetCrossSection(m_dataSelectedReco, backgrounds, smearedEff, totalFlux);
+
+    // Now get the nominal cross-section (using the normal overlays sample)
+    const auto crossSectionNom = this->GetCrossSection();
+
+    // Build the covariance matrix and bias vector
+    const auto nBins = m_binEdges.size() - 1;
+    const auto nAnalysisBins = nBins - (m_hasUnderflow ? 1 : 0) - (m_hasOverflow ? 1 : 0);
+
+    const std::string covName = "xSecCov_" + std::to_string(m_histCount++);
+    const std::string biasName = "xSecBias_" + std::to_string(m_histCount++);
+    CovarianceBiasPair pair (
+        std::make_shared<TH2F>(covName.c_str(), "", nAnalysisBins, 0, nAnalysisBins, nAnalysisBins, 0, nAnalysisBins),
+        std::make_shared<TH1F>(biasName.c_str(), "", nAnalysisBins, 0, nAnalysisBins)
+    );
+
+    // ATTN here the covariance matrix shall remain zero by construction, we will instead treat the detector variation entirely as a bias
+    auto &biasVector = pair.second;
+
+    for (unsigned int iBin = 1; iBin <= nBins; ++iBin)
+    {
+        if (this->IsUnderOverflowBin(iBin))
+            continue;
+
+        const auto xsec = crossSection->GetBinContent(iBin);
+        const auto xsecCV = crossSectionCV->GetBinContent(iBin);
+        const auto xsecNom = crossSectionNom->GetBinContent(iBin);
+
+        // Check for dummy bins and warn if they exists
+        if (std::abs(std::abs(xsec) - std::numeric_limits<float>::max()) <= std::numeric_limits<float>::epsilon())
+        {
+            std::cout << "WARNING - Bin: " << iBin << " of cross-section for detector parameter: " + detVarParam + " is invalid"  << std::endl;
+            continue;
+        }
+
+        if (std::abs(std::abs(xsecCV) - std::numeric_limits<float>::max()) <= std::numeric_limits<float>::epsilon())
+        {
+            std::cout << "WARNING - Bin: " << iBin << " of cross-section for central value of detector variations in run: " + runId + " is invalid"  << std::endl;
+            continue;
+        }
+
+        if (std::abs(std::abs(xsecNom) - std::numeric_limits<float>::max()) <= std::numeric_limits<float>::epsilon())
+        {
+            std::cout << "WARNING - Bin: " << iBin << " of cross-section in nominal sample is invalid"  << std::endl;
+            continue;
+        }
+
+        // Get the scaling factor to translate the central value of the detector variations to the nominal simulation
+        if (std::abs(xsecCV) <= std::numeric_limits<float>::epsilon())
+            throw std::logic_error("CrossSection::GetCrossSectionCovarianceMatrixDetVar - Central value cross-section in bin: " + std::to_string(iBin) + " is zero");
+
+        const auto cvToNomFactor = xsecNom / xsecCV;
+
+        // Get the bias vector element
+        // Here we find the difference between the cross-section as calculated with and without the detector variation applied. The central
+        // value sample contains the same events as those in the detector variation sample. We then scale this difference by the ratio of
+        // the cross-section in the nominal to the central value samples.
+        const auto bias = (xsec - xsecCV) * cvToNomFactor;
+
+        //// BEGIN DEBUG
+        std::cout << "Detector parameter: " << detVarParam << std::endl;
+        std::cout << "  - Bin: " << iBin << std::endl;
+        std::cout << "  - Variation: " << xsec << std::endl;
+        std::cout << "  - CV (" << runId << "): " << xsecCV << std::endl; 
+        std::cout << "  - Nominal: " << xsecNom << std::endl;
+        std::cout << "  - CV-to-Nom factor: " << cvToNomFactor << std::endl;
+        std::cout << "  - Bias: " << bias << std::endl;
+        //// END DEBUG
+
+        // Store the result
+        const auto iBinOutput = iBin - (m_hasUnderflow ? 1 : 0);
+        biasVector->SetBinContent(iBinOutput, bias);
+    }
+
+    return pair;
+}
+
+// -----------------------------------------------------------------------------------------------------------------------------------------
+
 CrossSectionHelper::CovarianceBiasPair CrossSectionHelper::CrossSection::GetSmearingMatrixCovarianceMatrix(const std::string &systParameter)
 {
     // Check that we have an entry for the requested systematic paramter
@@ -1008,10 +1195,18 @@ std::shared_ptr<TH2F> CrossSectionHelper::CrossSection::GetFluxVariations(const 
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
                 
-std::map< std::string, CrossSectionHelper::CovarianceBiasPair > CrossSectionHelper::CrossSection::GetCrossSectionCovarianceMatricies()
+std::map< std::string, CrossSectionHelper::CovarianceBiasPair > CrossSectionHelper::CrossSection::GetCrossSectionCovarianceMatrices()
 {
     std::map< std::string, CovarianceBiasPair> outputMap;
 
+    // Get the covariance matrices and bias vectors for the detector parameters
+    for (const auto &[runId, param] : m_inputData.m_detVarParameters)
+    {
+        const auto pair = this->GetCrossSectionCovarianceMatrixDetVar(runId, param);
+        outputMap.emplace(param, pair);
+    }
+
+    // Get the covariance matrices and bias vectors for the event-weighted systematic parameters
     for (const auto &[param, nUniverses] : m_inputData.m_systUniverseSizesMap)
     {
         const auto pair = this->GetCrossSectionCovarianceMatrix(param);
@@ -1023,7 +1218,7 @@ std::map< std::string, CrossSectionHelper::CovarianceBiasPair > CrossSectionHelp
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
                 
-std::map< std::string, CrossSectionHelper::CovarianceBiasPair > CrossSectionHelper::CrossSection::GetSmearingMatrixCovarianceMatricies()
+std::map< std::string, CrossSectionHelper::CovarianceBiasPair > CrossSectionHelper::CrossSection::GetSmearingMatrixCovarianceMatrices()
 {
     std::map< std::string, CovarianceBiasPair> outputMap;
 
@@ -1311,7 +1506,7 @@ std::pair<TVector2, TVector2> CrossSectionHelper::GetUncertaintyEigenVectors(con
     // Pick out the covariance matrix
     const auto &covarianceMatrix = covarianceBias.first;
 
-    // Make sure we have square matricies of the same dimensions
+    // Make sure we have square matrices of the same dimensions
     const auto &nBins = covarianceMatrix->GetNbinsX();
     if (covarianceMatrix->GetNbinsY() != nBins)
         throw std::invalid_argument("CrossSectionHelper::GetUncertaintyEigenVectors - Input covariance matrix is not square");
@@ -1320,13 +1515,13 @@ std::pair<TVector2, TVector2> CrossSectionHelper::GetUncertaintyEigenVectors(con
     if (iBin == 0 || iBin > static_cast<unsigned int>(nBins))
     {
         throw std::range_error("CrossSectionHelper::GetUncertaintyEigenVectors - Supplied bin index iBin = " + std::to_string(iBin) +
-            " is out of range of input matricies: 1 - " + std::to_string(nBins));
+            " is out of range of input matrices: 1 - " + std::to_string(nBins));
     }
     
     if (jBin == 0 || jBin > static_cast<unsigned int>(nBins))
     {
         throw std::range_error("CrossSectionHelper::GetUncertaintyEigenVectors - Supplied bin index jBin = " + std::to_string(jBin) +
-            " is out of range of input matricies: 1 - " + std::to_string(nBins));
+            " is out of range of input matrices: 1 - " + std::to_string(nBins));
     }
 
     // Get the total error matrix elements for the bins we care about

@@ -32,7 +32,8 @@ class AnalysisHelper
             DataBNB,
             DataEXT,
             Overlay,
-            Dirt
+            Dirt,
+            DetectorVariation
         };
 
         /**

@@ -13,13 +13,12 @@
 #include <algorithm>
 #include <numeric>
 
-        #include <TCanvas.h>
 #include <TGraph.h>
 #include <TFitResult.h>
 
 namespace ubcc1pi
 {
-        
+
 std::string AnalysisHelper::GetSampleTypeName(const SampleType &sampleType)
 {
     switch (sampleType)
@@ -32,15 +31,17 @@ std::string AnalysisHelper::GetSampleTypeName(const SampleType &sampleType)
             return "Data EXT";
         case Dirt:
             return "Dirt";
+        case DetectorVariation:
+            return "Detector variation";
         default: break;
     }
-            
+
     throw std::invalid_argument("AnalysisHelper::GetSampleTypeName - unknown sample type");
 }
-    
+
 // -----------------------------------------------------------------------------------------------------------------------------------------
 // -----------------------------------------------------------------------------------------------------------------------------------------
-                
+
 AnalysisHelper::EventCounter::EventCounter()
 {
     // The "all" is treated differently when printing out
@@ -446,6 +447,7 @@ void AnalysisHelper::EventCounter::PrintBreakdownDetails(const std::string &outp
 float AnalysisHelper::GetNominalEventWeight(const std::shared_ptr<Event> &pEvent)
 {
     float weight = 1.f;
+
     const auto &truth = pEvent->truth;
 
     // ATTN unfortunately when the event weights are applied a small fraction of events are given an infinite weight, I assume due to a

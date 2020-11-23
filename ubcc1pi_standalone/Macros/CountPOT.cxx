@@ -26,6 +26,14 @@ void CountPOT(const Config &config)
     if (config.countPOT.useDirt)
         fileNames.push_back(config.files.dirtFileName);
 
+    if (config.countPOT.useDetectorVariations)
+    {
+        for (const auto &[run, name, fileName] : config.files.detVarFiles)
+        {
+            fileNames.push_back(fileName);
+        }
+    }
+
     // For each of the input files
     for (const auto &inputFileName : fileNames)
     {

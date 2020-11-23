@@ -18,7 +18,9 @@ namespace ubcc1pi_macros
 void PrintConfig(const Config &config)
 {
     FormattingHelper::Table table({"Variable", "Value"});
-    
+
+    // TODO make sure this is up to date!
+
     //
     // Files
     // 
