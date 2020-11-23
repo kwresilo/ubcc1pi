@@ -479,11 +479,11 @@ class CrossSectionHelper
         static void AddSystematicWeights(const Event::Truth &truth, const SystematicParamUniversesPairVector &params, SystematicWeightsMap &systWeightsMap);
 
         /**
-         *  @brief  add a set of mutually exclusive systematic parameters to the input systematics weights map and combine them as a single parameter
+         *  @brief  Add a set of mutually exclusive systematic parameters to the input systematics weights map and combine them as a single parameter
          *
          *  @param  truth the input truth information (this contains the weights)
          *  @param  params the input mutually exclusive parameters to combine
-         *  @param  systweightsmap the systematic weights map to update
+         *  @param  systWeightsMap the systematic weights map to update
          */
         static void AddMutuallyExclusiveSystematicWeights(const Event::Truth &truth, const MutuallyExclusiveParamVector &params, SystematicWeightsMap &systWeightsMap);
 
