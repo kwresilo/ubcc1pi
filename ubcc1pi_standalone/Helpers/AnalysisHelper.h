@@ -32,7 +32,8 @@ class AnalysisHelper
             DataBNB,
             DataEXT,
             Overlay,
-            Dirt
+            Dirt,
+            DetectorVariation
         };
 
         /**
@@ -50,7 +51,7 @@ class AnalysisHelper
             unsigned int  nProtons;        ///< The number of protons
             bool          hasGoldenPion;   ///< If the event has a golden pion
         };
-        
+
         /**
          *  @brief  The parameters required for a range-to-momentum fit of the form: momentum = a + b*range - c*pow(range, -d)
          */
@@ -96,7 +97,7 @@ class AnalysisHelper
                  *  @param  weight a weight to apply to the event
                  */
                 void CountEvent(const std::string &tag, const SampleType &sampleType, const std::shared_ptr<Event> &pEvent, const float weight = 1.f);
-                
+
                 /**
                  *  @brief  Get the total weight for a given tag, sample and classification - if the entry doesn't exist a weight of zero is returned
                  *
@@ -119,7 +120,7 @@ class AnalysisHelper
                  *  @return boolean, true if an entry exists
                  */
                 bool GetWeight(const std::string &tag, const SampleType &sampleType, const std::string &classification, float &weight) const;
-                
+
                 /**
                  *  @brief  Get the total weight for a given tag over all non beam data sample types at a given tag
                  *
@@ -137,7 +138,7 @@ class AnalysisHelper
                  *  @return the weight
                  */
                 float GetBNBDataWeight(const std::string &tag) const;
-                
+
                 /**
                  *  @brief  Get the total weight for signal events with the given tag
                  *
@@ -147,7 +148,7 @@ class AnalysisHelper
                  *  @return the weight
                  */
                 float GetSignalWeight(const std::string &tag, const std::string &searchQuery = "") const;
-                
+
                 /**
                  *  @brief  Get the total weight for background events with the given tag
                  *
@@ -157,7 +158,7 @@ class AnalysisHelper
                  *  @return the weight
                  */
                 float GetBackgroundWeight(const std::string &tag, const std::string &searchQuery = "") const;
-                
+
                 /**
                  *  @brief  Get the purity for signal events at a given tag
                  *
@@ -167,10 +168,10 @@ class AnalysisHelper
                  *  @return the purity
                  */
                 float GetSignalPurity(const std::string &tag, const std::string &searchQuery = "") const;
-                
+
                 /**
                  *  @brief  Get the efficiency for signal events at the given tag
-                 * 
+                 *
                  *  @param  tag the input tag
                  *  @param  searchQuery additional string that must be found in the classification name to count as signal
                  *
@@ -183,7 +184,7 @@ class AnalysisHelper
                  *
                  *  @param  searchQuery additional string that must be found in the classification name to count as signal
                  *
-                 *  @return classifications meeting criteria 
+                 *  @return classifications meeting criteria
                  */
                 std::vector<std::string> GetSignalClassifications(const std::string &searchQuery = "") const;
 
@@ -207,7 +208,7 @@ class AnalysisHelper
                  *  @return the purity
                  */
                 float GetPurity(const std::string &tag, const SampleType &sampleType, const std::string &classification) const;
-                
+
                 /**
                  *  @brief  Get the efficiency for the specified subsample at the given tag
                  *
@@ -232,7 +233,7 @@ class AnalysisHelper
                  *  @param  outputFileName the name of the output file in which we should save the table
                  */
                 void PrintBreakdownSummary(const std::string &outputFileName) const;
-                
+
                 /**
                  *  @brief  Print a breakdown of the counted events tag-by-tag broken down into individual classifications
                  *
@@ -252,7 +253,7 @@ class AnalysisHelper
                  *  @tparam T the mapped type
                  */
                 template <typename T>
-                using CounterMap = std::unordered_map<std::string, std::unordered_map<SampleType, std::unordered_map<std::string, T> > >; 
+                using CounterMap = std::unordered_map<std::string, std::unordered_map<SampleType, std::unordered_map<std::string, T> > >;
 
                 std::vector<std::string> m_tags;            ///< The tags
                 std::vector<std::string> m_classifications; ///< The classifications
@@ -267,6 +268,16 @@ class AnalysisHelper
          *  @return the nominal event weight
          */
         static float GetNominalEventWeight(const std::shared_ptr<Event> &pEvent);
+
+        /**
+         *  @brief  Determine if the input event is truly a fiducial CC inclusive event
+         *
+         *  @param  pEvent the input event
+         *  @param  useAbsPdg if we should use the absolute values of PDG codes
+         *
+         *  @return boolean, true if CC Inclusive
+         */
+        static bool IsTrueCCInclusive(const std::shared_ptr<Event> &pEvent, const bool useAbsPdg);
 
         /**
          *  @brief  Determine if the input event is truly a fiducial CC1Pi event
@@ -306,7 +317,7 @@ class AnalysisHelper
          *  @return the number of particles with the pdg code
          */
         static unsigned int CountParticlesWithPdgCode(const std::vector<Event::Truth::Particle> &particles, const int pdgCode, const bool useAbsPdg);
-        
+
         /**
          *  @brief  Count the number of particles in the input vector with the supplied PDG code that are golden
          *
@@ -366,6 +377,13 @@ class AnalysisHelper
         static bool IsPointWithinMargins(const TVector3 &point, const float lowXMargin, const float highXMargin, const float lowYMargin, const float highYMargin, const float lowZMargin, const float highZMargin);
 
         /**
+         *  @brief  Get the fiducial volume in cm^3
+         *
+         *  @return the fiducial volume
+         */
+        static float GetFiducialVolume();
+
+        /**
          *  @brief  Determine if a given point is in the fiducial volume
          *
          *  @param  point the point
@@ -373,7 +391,7 @@ class AnalysisHelper
          *  @return boolean, true if in fiducial volume
          */
         static bool IsFiducial(const TVector3 &point);
-        
+
         /**
          *  @brief  Determine if a given point is contained within the detector
          *
@@ -382,16 +400,16 @@ class AnalysisHelper
          *  @return boolean, true if contained
          */
         static bool IsContained(const TVector3 &point);
-        
+
         /**
-         *  @brief  Determine if a given truth particle is contained 
+         *  @brief  Determine if a given truth particle is contained
          *
          *  @param  particle
          *
          *  @return boolean, true if contained
          */
         static bool IsContained(const Event::Truth::Particle &particle);
-        
+
         /**
          *  @brief  Determine if a given reco particle is contained
          *
@@ -400,7 +418,7 @@ class AnalysisHelper
          *  @return boolean, true if contained
          */
         static bool IsContained(const Event::Reco::Particle &particle);
-        
+
         /**
          *  @brief  Determine if the input reco particle has a fitted track
          *
@@ -409,7 +427,7 @@ class AnalysisHelper
          *  @return boolean, true if track fit information is available
          */
         static bool HasTrackFit(const Event::Reco::Particle &particle);
-        
+
         /**
          *  @brief  Get the index of the truth particle that best matches to the input reco particle
          *
@@ -447,14 +465,14 @@ class AnalysisHelper
          *  @return the function
          */
         static std::shared_ptr<TF1> GetRangeToMomentumFunction();
-        
+
         /**
          *  @brief  Get a function which maps range to momentum for contained muons
          *
          *  @return the function
          */
         static std::shared_ptr<TF1> GetRangeToMomentumFunctionMuon();
-        
+
         /**
          *  @brief  Get a function which maps range to momentum for golden pions
          *
@@ -495,7 +513,7 @@ class AnalysisHelper
          *  @return the momentum
          */
         static float GetPionMomentumFromRange(const float &range);
-        
+
         /**
          *  @brief  Get the momentum of a muon from range
          *
@@ -513,7 +531,7 @@ class AnalysisHelper
          *  @return the momentum
          */
         static float GetMuonMomentumFromMCS(const Event::Reco::Particle &muon);
-        
+
         /**
          *  @brief  Get the momentum of a muon using range where possible and MCS otherwise
          *
@@ -565,7 +583,7 @@ class AnalysisHelper
         /**
          *  @brief  Get the ratio of two likelihoods
          *
-         *  @param  numerator the numerator likelihood member 
+         *  @param  numerator the numerator likelihood member
          *  @param  denominator the denominator likelihood member
          *  @param  ratio the output ratio
          *
@@ -620,7 +638,7 @@ class AnalysisHelper
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
 // -----------------------------------------------------------------------------------------------------------------------------------------
-        
+
 const std::vector<AnalysisHelper::SampleType> AnalysisHelper::AllSampleTypes = {
     DataBNB,
     Overlay,

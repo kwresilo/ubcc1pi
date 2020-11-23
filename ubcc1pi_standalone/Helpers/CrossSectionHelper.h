@@ -7,20 +7,18 @@
 #ifndef UBCC1PI_STANDALONE_HELPERS_CROSS_SECTION_HELPER
 #define UBCC1PI_STANDALONE_HELPERS_CROSS_SECTION_HELPER
 
-#include "ubcc1pi_standalone/Helpers/AnalysisHelper.h"
-#include "ubcc1pi_standalone/Helpers/FormattingHelper.h"
-#include "ubcc1pi_standalone/Helpers/PlottingHelper.h"
+#include "ubcc1pi_standalone/Interface/Event.h"
+#include "ubcc1pi_standalone/Objects/Config.h"
 
-#include <stdexcept>
 #include <string>
+#include <unordered_map>
+#include <map>
 #include <vector>
+#include <memory>
 #include <random>
-
-#include <TFile.h>
-#include <TTree.h>
+#include <TH1F.h>
 #include <TH2F.h>
-#include <TLine.h>
-#include <TStyle.h>
+#include <TGraph.h>
 
 namespace ubcc1pi
 {
@@ -31,1661 +29,606 @@ namespace ubcc1pi
 class CrossSectionHelper
 {
     public:
-        
+
         /**
-         *  @brief  The cross-section object
+         *  @brief  A mapping from a systematic parameter name to the associated weights (one per universe)
          */
-        class XSec
+        typedef std::unordered_map<std::string, std::vector<float> > SystematicWeightsMap;
+
+        /**
+         *  @brief  A mapping from a systematic parameter name to the number of universes
+         */
+        typedef std::map<std::string, unsigned int> SystematicUniverseSizesMap;
+
+        /**
+         *  @brief  A pair of values, first = name of a systematic parameter, second = the number of universes
+         */
+        typedef std::pair<std::string, unsigned int> SystematicParamUniversesPair;
+
+        /**
+         *  @brief  A vector of SystematicParamUniversesPair
+         */
+        typedef std::vector<SystematicParamUniversesPair> SystematicParamUniversesPairVector;
+
+        /**
+         *  @brief  A vector of pairs for each detector variation, first = runID, second = varied parameter
+         */
+        typedef std::vector< std::pair<std::string, std::string> > DetVarSystParams;
+
+        /**
+         *  @brief  A set of mutually exclusive parameters, first = name for the combined parameters, second = number of universes, third = list of mutually exclusive params
+         */
+        typedef std::tuple<std::string, unsigned int, std::vector<std::string> > MutuallyExclusiveParam;
+
+        /**
+         *  @brief  A vector of MutuallyExclusiveParam
+         */
+        typedef std::vector<MutuallyExclusiveParam> MutuallyExclusiveParamVector;
+
+        /**
+         *  @brief  A pair of matrices - the first element is a covariance matrix, and the second if the bias vector
+         */
+        typedef std::pair<std::shared_ptr<TH2F>, std::shared_ptr<TH1F> > CovarianceBiasPair;
+
+        /**
+         *  @brief  The cross-section class
+         */
+        class CrossSection
         {
+            private:
+                /**
+                 *  @brief  A map with indices [systematicParamterName][universeIndex] to an arbitrary type, T
+                 *
+                 *  @tparam T the mapped value type
+                 */
+                template <typename T>
+                using SystMap = std::unordered_map< std::string, std::vector< T > >;
+
+                /**
+                 *  @brief  A map with indices [systematicParamterName][universeIndex] to an arbitrary type, T - used to cache values
+                 *
+                 *  @tparam T the mapped value type
+                 */
+                template <typename T>
+                using SystCache = std::unordered_map<std::string, std::unordered_map<unsigned int, T> >;
+
+                /**
+                 *  @brief  A map with indices [runID][detectorVariationName] to an arbitrary type, T
+                 *
+                 *  @tparam T the mapped value type
+                 */
+                template <typename T>
+                using DetVarSystMap = std::unordered_map< std::string, std::unordered_map< std::string, T > >;
+
             public:
+
+                /**
+                 *  @brief  The input information required by the cross-section class that is common to all cross-sections
+                 */
+                struct InputData
+                {
+                    std::shared_ptr<TH1F>        m_flux;                 ///< The flux distribution in bins of true neutrino energy
+                    float                        m_exposurePOT;          ///< The total POT for the BNB data sample (units of e+20 POT)
+                    float                        m_nTargets;             ///< The number of target nucleons (units e+31 nucleons)
+
+                    SystematicUniverseSizesMap   m_systUniverseSizesMap; ///< The mapping from a systematic parameter name to the number of universes for that parameter
+                    DetVarSystParams             m_detVarParameters;     ///< The detector variation parameters
+                    std::vector<std::string>     m_fluxParameters;       ///< The systematic parameters for which we should consider variations on the flux
+                };
+
                 /**
                  *  @brief  Constructor
                  *
-                 *  @param  fileName the name of the output file
-                 *  @param  min the minimum possible value that the quantity can take
-                 *  @param  max the maximum possible value that the quantity can take
-                 *  @param  useAbsPdg use absolute PDG code when classifying event types
-                 *  @param  countProtonsInclusively count protons inclusively when classifying event types
+                 *  @param  binEdges the bin edges of the cross-section
+                 *  @param  hasUnderflow if the first bin is an underflow bin
+                 *  @param  hasOverflow if the last bin is an overflow bin
+                 *  @param  scaleByBinWidth if we should should divide by the bin-width when calculating the cross-section
+                 *  @param  inputData the flux, exposure, number of targets, and systematic parameters to use for the cross-section calculation
                  */
-                XSec(const std::string &fileName, const float &min, const float &max, const bool useAbsPdg, const bool countProtonsInclusively);
+                CrossSection(const std::vector<float> &binEdges, const bool hasUnderflow, const bool hasOverflow, const bool scaleByBinWidth, const InputData &inputData);
 
                 /**
-                 *  @brief  Destructor
+                 *  @brief  Check if this cross-section has an underflow bin
+                 *
+                 *  @return has underflow
                  */
-                ~XSec();
+                bool HasUnderflowBin() const;
 
                 /**
-                 *  @brief  Manually set the bins
+                 *  @brief  Check if this cross-section has an overflow bin
                  *
-                 *  @param  binEdges the bin edges - has size nBins + 1
+                 *  @return has overflow
                  */
-                void SetBins(const std::vector<float> &binEdges);
+                bool HasOverflowBin() const;
 
                 /**
-                 *  @brief  Automatically choose the bins at sensible values
+                 *  @brief  Add a neutrino event - the event added isn't used explicitly in the cross-section calculation, but is needed to
+                 *          be able to get the total flux in each universe.
                  *
-                 *  @param  lower the lower bin edge of the first bin
-                 *  @param  upper the upper bin edge of the last bin
-                 *  @param  targetEntriesPerBin the target number of entries in each bin
-                 *  @param  targetSmearingDiagonal the target entries on the diagonal of the smearing matrix
+                 *  @param  trueNuEnergy the true neutrino energy
+                 *  @param  nominalWeight the nominal event weight
+                 *  @param  systWeightsMap the systematic weights map
                  */
-                void SetBinsAuto(const float lower, const float upper, const unsigned int targetEntriesPerBin, const float targetSmearingDiagonal);
+                void AddNeutrinoEvent(const float trueNuEnergy, const float nominalWeight, const SystematicWeightsMap &systWeightsMap);
 
                 /**
-                 *  @brief  Add a signal event 
+                 *  @brief  Add a signal event
                  *
-                 *  @param  pEvent the event
-                 *  @param  isSelected if the event has been selected
-                 *  @param  trueValue the true value of the quantity to measure
-                 *  @param  recoValue the reco value of the quantity to meaasure
-                 *  @param  weight the nominal weight
-                 *  @param  normalisation the sample normalisation
+                 *  @param  trueValue the true value of the parameter
+                 *  @param  recoValue the reconstructed value of the parameter
+                 *  @param  isSelected if the event passes the selection
+                 *  @param  nominalWeight the nominal event weight
+                 *  @param  systWeightsMap the systematic weights map
                  */
-                void AddSignalEvent(const std::shared_ptr<Event> &pEvent, const bool &isSelected, const float &trueValue, const float &recoValue, const float weight, const float normalisation);
+                void AddSignalEvent(const float trueValue, const float recoValue, const bool isSelected, const float nominalWeight, const SystematicWeightsMap &systWeightsMap);
 
                 /**
-                 *  @brief  Add a background event that has been selected
+                 *  @brief  Add a signal event from a detector variation sample
                  *
-                 *  @param  pEvent the event
-                 *  @param  sampleType the sample type (Overlays, EXT, Dirt)
-                 *  @param  recoValue the reco value of the quantity to meaasure
-                 *  @param  weight the nominal weight
-                 *  @param  normalisation the sample normalisation
+                 *  @param  trueValue the true value of the parameter
+                 *  @param  recoValue the reconstructed value of the parameter
+                 *  @param  isSelected if the event passes the selection
+                 *  @param  nominalWeight the nominal event weight
+                 *  @param  runId an identifier for the run used
+                 *  @param  detectorVariationParameter the name of the detector variation parameter (NB. the name "CV" is reserved for the central-value)
                  */
-                void AddSelectedBackgroundEvent(const std::shared_ptr<Event> &pEvent, const AnalysisHelper::SampleType sampleType, const float &recoValue, const float weight, const float normalisation);
-                
-                /**
-                 *  @brief  Add a BNB data event that has been selected
-                 *
-                 *  @param  pEvent the event
-                 *  @param  recoValue the reco value of the quantity to measure
-                 */
-                void AddSelectedBNBDataEvent(const std::shared_ptr<Event> &pEvent, const float &recoValue);
+                void AddSignalEventDetVar(const float trueValue, const float recoValue, const bool isSelected, const float nominalWeight, const std::string &runId, const std::string &detectorVariationParameter);
 
                 /**
-                 *  @brief  Get the confusion matrix, M[reco][true]
+                 *  @brief  Add a selected background event with systematic weights
                  *
-                 *  @param  matrix the output confusion matrix
-                 *  @param  uncertainties the output uncertainties on the confusion matrix elements
+                 *  @param  recoValue the reconstructed value of the parameter
+                 *  @param  nominalWeight the nominal event weight
+                 *  @param  systWeightsMap the systematics weight map
+                 *  @param  isOverlay if this is an overlay background
                  */
-                void GetConfusionMatrix(std::vector< std::vector<float> > &matrix, std::vector< std::vector<float> > &uncertainties) const;
-                
-                /**
-                 *  @brief  Get the smearing matrix, S[reco][true] = P(reco | true)
-                 *
-                 *  @param  matrix the output smearing matrix
-                 *  @param  uncertainties the output uncertainties on the smearing matrix elements
-                 */
-                void GetSmearingMatrix(std::vector< std::vector<float> > &matrix, std::vector< std::vector<float> > &uncertainties) const;
-                
-                /**
-                 *  @brief  Get the selection efficiencies in the true bins
-                 *
-                 *  @param  efficiencies the output efficiency per bin
-                 *  @param  uncertainties the output uncertainty on the efficiency per bin
-                 */
-                void GetTrueEfficiencies(std::vector<float> &efficiencies, std::vector<float> &uncertainties) const;
+                void AddSelectedBackgroundEvent(const float recoValue, const float nominalWeight, const SystematicWeightsMap &systWeightsMap, const bool isOverlay);
 
                 /**
-                 *  @brief  Get the smeared selection efficiencies
+                 *  @brief  Add a selected background event from a detector variation sample
                  *
-                 *  @param  efficiencies the output smeared efficiency per bin
-                 *  @param  uncertainties the output uncertainty on the efficiency per bin
+                 *  @param  recoValue the reconstructed value of the parameter
+                 *  @param  nominalWeight the nominal event weight
+                 *  @param  runId an identifier for the run used
+                 *  @param  detectorVariationParameter the name of the detector variation parameter (NB. the name "CV" is reserved for the central-value)
                  */
-                void GetSmearedEfficiencies(std::vector<float> &efficiencies, std::vector<float> &uncertainties) const;
-                
-                /**
-                 *  @brief  Get the bin widths
-                 *
-                 *  @return the bin widths
-                 */
-                std::vector<float> GetBinWidths() const;
+                void AddSelectedBackgroundOverlayEventDetVar(const float recoValue, const float nominalWeight, const std::string &runId, const std::string &detectorVariationParameter);
 
                 /**
-                 *  @brief  Get the cross-section from MC using true values
+                 *  @brief  Add a selected BNB data event
                  *
-                 *  @param  bins the output cross-section values
-                 *  @param  uncertainties the uncertainty on the bins
+                 *  @param  recoValue the reconstructed value of the parameter
                  */
-                void GetMCTrueCrossSection(std::vector<float> &bins, std::vector<float> &uncertainties) const;
+                void AddSelectedBNBDataEvent(const float recoValue);
 
                 /**
-                 *  @brief  Get the cross-section from MC using smeared true values
+                 *  @brief  Get the smearing matrix in the nominal universe
                  *
-                 *  @param  bins the output cross-section values
-                 *  @param  uncertainties the uncertainty on the bins
+                 *  @return the smearing matrix (x-axis is true, y-axis is reco)
                  */
-                void GetSmearedMCTrueCrossSection(std::vector<float> &bins, std::vector<float> &uncertainties) const;
+                std::shared_ptr<TH2F> GetSmearingMatrix() const;
 
                 /**
-                 *  @brief  Get the reco cross-section using either real BNB data or Overlays + EXT + Dirt
+                 *  @brief  Get the forward folded cross section in the nominal universe
                  *
-                 *  @param  useRealData if true, use real BNB data, if false use Overlays + EXT + Dirt
-                 *  @param  bins the output cross-section values
-                 *  @param  uncertainties the uncertainty on the bins
+                 *  @return the cross section in reco bins
                  */
-                void GetRecoCrossSection(const bool useRealData, std::vector<float> &bins, std::vector<float> &uncertainties) const;
+                std::shared_ptr<TH1F> GetCrossSection() const;
 
                 /**
-                 *  @brief  Print the contents of the bins
+                 *  @brief  Get the statistical uncertainty on the cross-section due to limited BNB data statistics (NB. the MC statistics are treated as a systematic)
                  *
-                 *  @param  outputFileNamePrefix the prefix of the name of the output file we should save the tables to
+                 *  @return the statistical uncertainty on the cross-section
                  */
-                void PrintBinContents(const std::string &outputFileNamePrefix) const;
-                
+                std::shared_ptr<TH1F> GetCrossSectionStatUncertainty() const;
+
                 /**
-                 *  @brief  Make the plots
+                 *  @brief  Get the covariance matrices for the cross-section for each systematic paramter
                  *
-                 *  @param  fileNamePrefix the file name prefix
+                 *  @return a map from systematic paramter name to the covarianve matrix / bias vector for that parameter
                  */
-                void MakePlots(const std::string &fileNamePrefix) const;
+                std::map< std::string, CovarianceBiasPair > GetCrossSectionCovarianceMatrices();
+
+                /**
+                 *  @brief  Get the covariance matrives for the smearing matric for each systematic parameter
+                 *
+                 *  @return a map from systematic paramter name to the covarianve matrix / bias vector for that parameter
+                 */
+                std::map< std::string, CovarianceBiasPair > GetSmearingMatrixCovarianceMatrices();
+
+                /**
+                 *  @brief  Get the scatter plots of the value of the cross-sections in each pair of bins for each universe of each paramter
+                 *
+                 *  @return the scatter plots
+                 */
+                std::map< std::string, std::vector< std::tuple<unsigned int, unsigned int, std::shared_ptr<TGraph> > > > GetCrossSectionBinScatterPlots();
+
+                /**
+                 *  @brief  Get the flux variations for each flux systematic parameter
+                 *
+                 *  @return the mapping from a flux systematic parameter to the distribution of the variations of the flux
+                 */
+                std::map< std::string, std::shared_ptr<TH2F> > GetFluxVariations() const;
+
+                /**
+                 *  @brief  Check if a bin index is an underflow or an overflow bin
+                 *
+                 *  @param  binIndex the ROOT bin index (enumeratred from 1)
+                 *
+                 *  @return if the bin is under/overflow
+                 */
+                bool IsUnderOverflowBin(const unsigned int binIndex) const;
+
+                /**
+                 *  @brief  Clear the cached cross-sections to free up some memory
+                 */
+                void ClearCache();
 
             private:
 
                 /**
-                 *  @brief  Fill the output tree with an event
+                 *  @brief  Get a new empty 1D histogram with a unique name with the same binning as the flux
                  *
-                 *  @param  sampleType the sample type
-                 *  @param  sampleNorm the sample normalisation
-                 *  @param  weight the event weight
-                 *  @param  recoValue the reco value
-                 *  @param  trueValue the true value
-                 *  @param  isSignal if the event is signal
-                 *  @param  isSelected if the event is selected
-                 *  @param  classification the event classification
+                 *  @return the histogram
                  */
-                void FillEvent(const AnalysisHelper::SampleType sampleType, const float sampleNorm, const float weight, const float &recoValue, const float &trueValue, const bool isSignal, const bool isSelected, const std::string &classification);
+                std::shared_ptr<TH1F> GetEmptyFluxHist() const;
 
                 /**
-                 *  @brief  Get reco-true value pairs for selected "MC" events
+                 *  @brief  Get a new empty 1D histogram with a unique name
                  *
-                 *  @param  recoTrueValuePairs the output vector. The first element is a pair of reco & true values, the second element is the weight
+                 *  @return the histogram
                  */
-                void GetSelectedMCRecoTrueValuePairs(std::vector< std::pair<std::pair<float, float>, float> > &recoTrueValuePairs) const;
+                std::shared_ptr<TH1F> GetEmptyHist1D() const;
 
                 /**
-                 *  @brief  Get the differential cross-section in a bin given some parameters
+                 *  @brief  Get a new empty 2D histogram with a unique name
                  *
-                 *  @param  nTotal the total number of events selected
-                 *  @param  nBackgrounds the expected number of background events
-                 *  @param  efficiency the efficiency of the selection
-                 *  @param  binWidth the width of the bin
-                 *
-                 *  @return the cross-section value
+                 *  @return the histogram
                  */
-                float GetCrossSection(const float nTotal, const float nBackgrounds, const float efficiency, const float binWidth) const;
+                std::shared_ptr<TH2F> GetEmptyHist2D() const;
 
                 /**
-                 *  @brief  Get the uncertainty on the differential cross-section in a bin
+                 *  @brief  Get the smearing matrix from the reco vs. true distribution
                  *
-                 *  @param  nTotal the total number of events selected
-                 *  @param  totalErr the error on the total count
-                 *  @param  nBackgrounds the expected number of background events
-                 *  @param  backgroundsErr the error on the background count
-                 *  @param  efficiency the efficiency of the selection
-                 *  @param  efficiencyErr the error on the efficiency
-                 *  @param  binWidth the bin width
+                 *  @param  signalSelectedRecoTrue the reco vs. true distribution of selected signal events
                  *
-                 *  @return the error on the cross-section value
+                 *  @return the smearing matrix
                  */
-                float GetCrossSectionUncertainty(const float nTotal, const float totalErr, const float nBackgrounds, const float backgroundsErr, const float efficiency, const float efficiencyErr, const float binWidth) const;
-                
+                std::shared_ptr<TH2F> GetSmearingMatrix(const std::shared_ptr<TH2F> &signalSelectedRecoTrue) const;
 
                 /**
-                 *  @brief  Get the total number of signal events in each true bin
+                 *  @brief  Smear the input values using the supplied smearing matrix
                  *
-                 *  @param  mustBeSelected if we should insist that the events are selected
+                 *  @param  values the input values to smear (in true bins)
+                 *  @param  smearingMatrix the smearing matrix
                  *
-                 *  @return the true signal per bin
+                 *  @return the smeared values (in reco bins)
                  */
-                std::vector<float> GetTrueSignalPerBin(const bool mustBeSelected) const;
-                
-                /**
-                 *  @brief  Get the overlay normalisation 
-                 *
-                 *  @return the normalisation factor for overlays
-                 */
-                float GetOverlayNormalisation() const;
-                
-                /**
-                 *  @brief  Get the selected BNB data in each bin
-                 *
-                 *  @param  bins the values per bin
-                 *  @param  uncertainties the uncertainties
-                 *  @param  useRealData if true we will use real BNB data, if false we use Overlays + EXT + Dirt as fake data
-                 */
-                void GetBNBDataPerBin(std::vector<float> &bins, std::vector<float> &uncertainties, const bool useRealData = true) const;
+                std::shared_ptr<TH1F> Smear(const std::shared_ptr<TH1F> &values, const std::shared_ptr<TH2F> &smearingMatrix) const;
 
                 /**
-                 *  @brief  Get the expected number of backgrounds in each bin
+                 *  @brief  Get the smeared efficiency in reco bins
                  *
-                 *  @param  bins the values per bin
-                 *  @param  uncertainties the uncertainties
-                 */
-                void GetBackgroundsPerBin(std::vector<float> &bins, std::vector<float> &uncertainties) const;
-                
-                /**
-                 *  @brief  Get the purity in each bin
+                 *  @param  signalSelectedRecoTrue the input reco vs. true distribution of selected signal events
+                 *  @param  signalAllTrue the true distribution of all signal events
                  *
-                 *  @param  bins the output purity values per bin
+                 *  @return the smeared efficiency per reco bin
                  */
-                void GetPurityPerBin(std::vector<float> &bins) const;
+                std::shared_ptr<TH1F> GetSmearedEfficiency(const std::shared_ptr<TH2F> &signalSelectedRecoTrue, const std::shared_ptr<TH1F> &signalAllTrue) const;
 
                 /**
-                 *  @brief  Get the index of a bin from the input value
+                 *  @brief  Get the smeared efficicncy in reco bins
                  *
-                 *  @param  value the input value
+                 *  @param  smearingMatrix the input smearing matrix to use
+                 *  @param  signalSelectedRecoTrue the input reco vs. true distribution of selected signal events (that corresponds to the smearing matrix)
+                 *  @param  signalAllTrue the true distributions of all signal events
                  *
-                 *  @return the bin index
+                 *  @return the smeared efficiency per reco bin
                  */
-                unsigned int GetBinIndex(const float &value) const;
+                std::shared_ptr<TH1F> GetSmearedEfficiency(const std::shared_ptr<TH2F> &smearingMatrix, const std::shared_ptr<TH2F> &signalSelectedRecoTrue, const std::shared_ptr<TH1F> &signalAllTrue) const;
 
                 /**
-                 *  @brief  Get the name of the bin with the given index (can be numerical or underflow/overflow)
+                 *  @brief  Get the forward-folded cross-section in reco bins
                  *
-                 *  @param  index the bin index
+                 *  @param  selected the distribution of selected events (reco bins)
+                 *  @param  background the distribution of background events (reco bins)
+                 *  @param  smearedEff the smeared efficiency (reco bins)
+                 *  @param  totalFlux the total flux (units e-10 / cm^2 / POT)
                  *
-                 *  @return the bin name
+                 *  @return the cross-section
                  */
-                std::string GetBinName(const unsigned int index) const;
+                std::shared_ptr<TH1F> GetCrossSection(const std::shared_ptr<TH1F> &selected, const std::shared_ptr<TH1F> &background, const std::shared_ptr<TH1F> &smearedEff, const float totalFlux) const;
 
                 /**
-                 *  @brief  Determine if a given bin is under or overflow
+                 *  @brief  Get the cached cross-section in a given systematic universe. If the cached value doesn't exist, then this
+                 *          function will calculate the cross-section and cache it.
                  *
-                 *  @param  index the bin index
+                 *  @param  systParameter the systematic paramter
+                 *  @param  universeIndex the universe index
                  *
-                 *  @return boolean, true if underflow or overflow bin
+                 *  @return the cross-section
                  */
-                bool IsUnderOverFlowBin(const unsigned int index) const;
-                
-                /**
-                 *  @brief  Smear the input bins
-                 *
-                 *  @param  inputBins the input bin values
-                 *  @param  inputUncertainties the uncertainties on the bin values
-                 *  @param  bins the output smeared bins
-                 *  @param  uncertainties the output smeared uncertainties
-                 */
-                void SmearBins(const std::vector<float> &inputBins, const std::vector<float> &inputUncertainties, std::vector<float> &bins, std::vector<float> &uncertainties) const;
+                std::shared_ptr<TH1F> GetCachedCrossSection(const std::string &systParameter, const unsigned int universeIndex);
 
                 /**
-                 *  @brief  Print a matrix as a table
+                 *  @brief  Get the cached smearing matrix in a given systematic universe. If the cached value doesn't exist, then this
+                 *          function will calculate it and cache it.
                  *
-                 *  @param  matrix the matrix to print
-                 *  @param  uncertainties the uncertainties on the values in the matrix
-                 *  @param  outputFileName the output file name for the table
+                 *  @param  systParameter the systematic parameter
+                 *  @param  universeIndex the universe index
+                 *
+                 *  @return the smearing matrix
                  */
-                void PrintMatrix(const std::vector< std::vector<float> > &matrix, const std::vector< std::vector<float> > &uncertainties, const std::string &outputFileName) const;
+                std::shared_ptr<TH2F> GetCachedSmearingMatrix(const std::string &systParameter, const unsigned int universeIndex);
 
                 /**
-                 *  @brief  The output event structure
+                 *  @brief  Get the scatter plots showing the universe variations for each pair of bins
+                 *
+                 *  @param  systParameter the systematic paramter
+                 *
+                 *  @return a vector of tuples, first two elements are the indices of the bins and the last is the scatter plot
                  */
-                struct OutputEvent
-                {
-                    int          m_sampleType;      ///< The sample type enumeration
-                    float        m_sampleNorm;      ///< The sample normalisation factor   
-                    float        m_weight;          ///< The nominal event weight
-                    float        m_recoValue;       ///< The reconstructed value
-                    float        m_trueValue;       ///< The true value
-                    bool         m_isSignal;        ///< If the event is signal
-                    bool         m_isSelected;      ///< If the event is selected
-                    std::string  m_classification;  ///< The event classification string
-                    
-                    std::map<std::string, std::vector<float> > m_systWeights; ///< The systematic event weights indexed by [systematicName][universeIndex]
-                };
+                std::vector< std::tuple<unsigned int, unsigned int, std::shared_ptr<TGraph> > > GetCrossSectionBinScatterPlots(const std::string &systParameter);
 
-                std::string        m_fileName; ///< The output file name
-                TFile             *m_pFile;    ///< The output file
-                TTree             *m_pTree;    ///< The output tree (we store in a tree so we don't use too much memory)
-                                  
-                float              m_min;      ///< The minimum possible value of the quantity
-                float              m_max;      ///< The maximum possible value of the quantity
+                /**
+                 *  @brief  Get the cross-section covariance matrix and bias vector for a given systematic paramter
+                 *
+                 *  @param  systParameter the systematic parameter to apply
+                 *
+                 *  @return a pair, first is the covariance matrix, second is the bias vector
+                 */
+                CovarianceBiasPair GetCrossSectionCovarianceMatrix(const std::string &systParameter);
 
-                std::vector<float> m_binEdges;     ///< The bin edges
-                bool               m_hasUnderflow; ///< If we have an underflow bin
-                bool               m_hasOverflow;  ///< If we have an overflow bin
+                /**
+                 *  @brief  Get the cross-section covariance matrix and bias vector for a given detector variation parameter
+                 *
+                 *  @param  runId the indentifier for the run to use
+                 *  @param  detVarParam the name of the detector variation
+                 *
+                 *  @return a pair, first is the covariance matrix (zero by construction), second is the bias vector
+                 */
+                CovarianceBiasPair GetCrossSectionCovarianceMatrixDetVar(const std::string &runId, const std::string &detVarParam);
 
-                bool               m_useAbsPdg;                ///< Use absolute PDGs when classifying events
-                bool               m_countProtonsInclusively;  ///< Count protons inclusively when classifying events
-                                  
-                float              m_nTargets;        ///< The number of target particles / 10^31
-                float              m_integratedFlux;  ///< The integrated flux / 10^11 cm^-2
-                                  
-                OutputEvent        m_outputEvent;         ///< The output event struture to bind to the trees
-                unsigned int       m_nBootstrapUniverses; ///< The number of universes to use when finding the statistical uncertainty
-            
+                /**
+                 *  @brief  Get the covariance matrix for the smearing matrix for a given systematic parameter
+                 *
+                 *  @param  systParameter the systematic parameter to apply
+                 *
+                 *  @return a pair, first is the covariance matrix, second is the bias vector
+                 */
+                CovarianceBiasPair GetSmearingMatrixCovarianceMatrix(const std::string &systParameter);
+
+                /**
+                 *  @brief  Get a reweighted flux distribution according to the input neutrino energy spectrum (for the desired universe)
+                 *
+                 *          In each true neutrino energy bin, this function finds the ratio of the total number of neutrino events in the
+                 *          supplied universe to the nominal universe. The number of events in a given energy bin depends on the
+                 *          cross-section and the flux at that energy. If the input universe differs only in the flux to the nominal
+                 *          universe, then this ratio gives the fractional change in the flux. This is then used to reweight the nominal
+                 *          flux distribution.
+                 *
+                 *  @param  nuEnergyUniverse the total neutrino energy spectrum in the desired universe
+                 *
+                 *  @return the reweighted flux distribution
+                 */
+                std::shared_ptr<TH1F> GetReweightedFlux(const std::shared_ptr<TH1F> &nuEnergyUniverse) const;
+
+                /**
+                 *  @brief  Get the distribution of reweighted fluxes for a given flux systematic parameter
+                 *
+                 *  @param  systParameter the systematic flux parameter
+                 *
+                 *  @return the flux universe variations
+                 */
+                std::shared_ptr<TH2F> GetFluxVariations(const std::string &systParameter) const;
+
+                // Binning information
+                std::vector<float>                  m_binEdges;                   ///< The bin edges
+                bool                                m_hasUnderflow;               ///< If the first bin is an underflow bin
+                bool                                m_hasOverflow;                ///< If the last bin is an overflow bin
+                bool                                m_scaleByBinWidth;            ///< If we should scale by bin width
+                InputData                           m_inputData;                  ///< The extra information required to calculate the cross-section
+
+                // The raw event counts in each systematic universe
+                SystMap<std::shared_ptr<TH1F> >     m_allEventsNuEnergyTrue;      ///< The true neutrino energy spetrum of all events for each universe
+                SystMap<std::shared_ptr<TH2F> >     m_signalSelectedRecoTrue;     ///< The 2D histograms of selected signal events with reco & true bin indices for each universe
+                SystMap<std::shared_ptr<TH1F> >     m_signalAllTrue;              ///< The 1D histograms of all signal events with true bin indices for each universe
+                SystMap<std::shared_ptr<TH1F> >     m_backgroundSelectedReco;     ///< The 1D histograms of selected background events with reco bin indices for each universe
+
+                // The raw event counts for the detector variation systematic parameters
+                DetVarSystMap<std::shared_ptr<TH2F> > m_signalSelectedDetVarRecoTrue;           ///< The 2D histograms of selected signal events with reco & true bin indices for each detector parameter
+                DetVarSystMap<std::shared_ptr<TH1F> > m_signalAllDetVarTrue;                    ///< The 1D histograms of all signal events with true bin indices for each detector parameter
+                DetVarSystMap<std::shared_ptr<TH1F> > m_backgroundSelectedOverlayDetVarReco;    ///< The 1D histograms of selected background events with reco bin indices for each detector parameter
+                std::shared_ptr<TH1F>                 m_backgroundSelectedNonOverlayDetVarReco; ///< The 1D histogram of selected non-overlay background events with reco bin indices. This is added to the overlay events for each detector variation parameter
+
+                // The raw event counts in the nominal universe
+                std::shared_ptr<TH1F>               m_allEventsNuEnergyNomTrue;   ///< The true neutrino energy spetrum of all events in the nominal universe
+                std::shared_ptr<TH1F>               m_dataSelectedReco;           ///< The 1D histogram of selected BNB data events with reco bin indices for each universe
+                std::shared_ptr<TH2F>               m_signalSelectedNomRecoTrue;  ///< The 1D histogram of selected BNB data events with reco bin indices in the nominal universe
+                std::shared_ptr<TH1F>               m_signalAllNomTrue;           ///< The 1D histogram of all signal events with true bin indices in the nominal universe
+                std::shared_ptr<TH1F>               m_backgroundSelectedNomReco;  ///< The 1D histogram of selected background events with reco bin indices in the nominal universe
+
+                // The cached objects for speed
+                SystCache<std::shared_ptr<TH1F> >   m_crossSectionCache;          ///< The cached cross-sections in each systematic universe to hold in memory
+                SystCache<std::shared_ptr<TH2F> >   m_smearingMatrixCache;        ///< The cached smearing matrices in each systematic universe to hold in memory
+                bool                                m_shouldResetCache;           ///< If we need to re-calculate the cached values because something has changed
+
+                static unsigned int                 m_histCount;                  ///< A counter for the total number of histograms - used to avoid name collisions
+                static std::string                  m_cvString;                   ///< The string to indicate the CV sample for the detector varitaions
         };
+
+        // ---------------------------------------------------------------------------------------------------------------------------------
+
+        /**
+         *  @brief  Get the event weights corresponding to a given systematic paramter (one per universe)
+         *
+         *  @param  truth the input event truth information
+         *  @param  parameter the systematic parameter name
+         *
+         *  @return the event weights
+         */
+        static std::vector<float> GetSystematicWeights(const Event::Truth &truth, const std::string &parameter);
+
+        /**
+         *  @brief  Add the event weights for a given set of systematic parameters to the input systematic weights map
+         *
+         *  @param  truth the input truth information (this contains the weights)
+         *  @param  params the parameters to add to the map - pairs of universe names and the number of universes expected
+         *  @param  systWeightsMap the systematic weights map to update
+         */
+        static void AddSystematicWeights(const Event::Truth &truth, const SystematicParamUniversesPairVector &params, SystematicWeightsMap &systWeightsMap);
+
+        /**
+         *  @brief  Add a set of mutually exclusive systematic parameters to the input systematics weights map and combine them as a single parameter
+         *
+         *  @param  truth the input truth information (this contains the weights)
+         *  @param  params the input mutually exclusive parameters to combine
+         *  @param  systWeightsMap the systematic weights map to update
+         */
+        static void AddMutuallyExclusiveSystematicWeights(const Event::Truth &truth, const MutuallyExclusiveParamVector &params, SystematicWeightsMap &systWeightsMap);
+
+        /**
+         *  @brief  Add the specified number of boostrap universes to the input systematic weights map
+         *
+         *  @param  nBootstrapUniverses the number of boostrap universes to use
+         *  @param  systWeightsMap the systematic weights map to update
+         */
+        static void AddBootstrapWeights(const unsigned int nBootstrapUniverses, SystematicWeightsMap &systWeightsMap);
+
+        /**
+         *  @brief  Add weights of 1.f for each parameter in each universe supplied to the input systematic weights map
+         *
+         *  @param  params the input parameters
+         *  @param  systWeightsMap the systematic weights map to update
+         */
+        static void AddUnitWeights(const SystematicParamUniversesPairVector &params, SystematicWeightsMap &systWeightsMap);
+
+        /**
+         *  @brief  Add weights of 1.f for each combined parameter in each universe supplied to the input systematic weights map
+         *
+         *  @param  params the input paramters
+         *  @param  systWeightsMap the systematic weights map to update
+         */
+        static void AddUnitWeights(const MutuallyExclusiveParamVector &params, SystematicWeightsMap &systWeightsMap);
+
+        /**
+         *  @brief  Get the mapping from systematic parameters name to the number of universe variations
+         *
+         *  @param systWeightsMap a mapping from systematic parameters to weights in each universe
+         *
+         *  @return the output systematic universe sizes map
+         */
+        static SystematicUniverseSizesMap GetSystematicUniverseSizesMap(const SystematicWeightsMap &systWeightsMap);
+
+        /**
+         *  @brief  Check that the input map of systematic weights has the supplied dimensions
+         *
+         *  @param  systWeightsMap the input mapping from systematic parameters to the weights in each universe
+         *  @param  systUniverseSizesMap the input mappin from systematic parameters to the expected number of universes
+         *
+         *  @return boolean, true if the dimensions of the input objects match
+         */
+        static bool CheckSystematicWeightsMapDimensions(const SystematicWeightsMap &systWeightsMap, const SystematicUniverseSizesMap &systUniverseSizesMap);
+
+        /**
+         *  @brief  Extend the analysis bin edges to the supplied extremities
+         *
+         *  @param  min the minimum possible value
+         *  @param  max the maximum possible value
+         *  @param  binEdges the analysis bin edges
+         *  @param  extendedBinEdges the output extended bin edges (from min -> max)
+         *  @param  hasUnderflow if an underflow bin was added
+         *  @param  hasOverflow if an overflow bin was added
+         */
+        static void GetExtendedBinEdges(const float min, const float max, const std::vector<float> &binEdges, std::vector<float> &extendedBinEdges, bool &hasUnderflow, bool &hasOverflow);
+
+        /**
+         *  @brief  Extend the analysis bin edges to the supplied extremities
+         *
+         *  @tparam T the type of the binning config
+         *  @param  binningConfig the binning configuration, must have a min, max and binEdges property
+         *
+         *  @return a tuple containing the: extended bin edges, hasUnderflow, hasOverflow
+         */
+        template <typename T>
+        static std::tuple<std::vector<float>, bool, bool> GetExtendedBinEdges(const T &binningConfig);
+
+        /**
+         *  @brief  Get the histogram corresponding to the input flux distribution
+         *
+         *  @param  flux the input flux distribution
+         *
+         *  @return the flux histogram
+         */
+        static std::shared_ptr<TH1F> GetFluxHistogram(const Config::Flux &flux);
+
+        /**
+         *  @brief  Get the total flux in the input flux histogram
+         *
+         *  @param  fluxHist the input flux histogram
+         *
+         *  @return the total flux
+         */
+        static float GetTotalFlux(const std::shared_ptr<TH1F> &fluxHist);
+
+        /**
+         *  @brief  Get the uncertainty for a given pair of bins in the input covariance as eigen vectors.
+         *          This function returns the major & minor eigenvectors of the error sub-matrix for the supplied bins. The length of the
+         *          vectors are the corresponding eigenvalue. In a scatter plot of values of the cross-section (in iBin vs. jBin) from the
+         *          universes used to construct the covariance matrix... these vectors point along the primary & secondary axes
+         *          of the 2D Gaussian distribution that we are using to model the uncertainty distribution. The length of the vectors is
+         *          the standard deviation of the Gaussian along those axes.
+         *
+         *  @param  covarianceBias the input pair of corresponding covariance matric & bias vector
+         *  @param  iBin a bin index in the inupt matrix
+         *  @param  jBin another bin index in the input matrix
+         *
+         *  @return the uncertainty eigenvectors
+         */
+        static std::pair<TVector2, TVector2> GetUncertaintyEigenVectors(const CovarianceBiasPair &covarianceBias, const unsigned int iBin, const unsigned int jBin);
+
+        /**
+         *  @brief  Get the total covariance matrix by combining the input covarainces and biases for the systematic parameters used
+         *
+         *  @param  covarianceBiasPairs the input covariance matrix / bias vector pairs
+         *
+         *  @return the total covaraince matrix
+         */
+        static std::shared_ptr<TH2F> GetTotalCovarianceMatrix(const std::map< std::string, CovarianceBiasPair > &covarianceBiasPairs);
+
+    private:
+        static std::default_random_engine m_generator; ///< The random number generator
+        static unsigned int               m_histCount; ///< A counter to ensure histogram names are unique
 };
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
 // -----------------------------------------------------------------------------------------------------------------------------------------
 
-CrossSectionHelper::XSec::XSec(const std::string &fileName, const float &min, const float &max, const bool useAbsPdg, const bool countProtonsInclusively) : 
-    m_fileName(fileName),
-    m_pFile(new TFile(m_fileName.c_str(), "RECREATE")),
-    m_pTree(new TTree("events", "events")),
-    m_min(min),
-    m_max(max),
-    m_hasUnderflow(false),
-    m_hasOverflow(false),
-    m_useAbsPdg(useAbsPdg),
-    m_countProtonsInclusively(countProtonsInclusively),
-    m_nTargets(4.1741), // TODO make configurable
-    m_integratedFlux(1.26816), // TODO make configurable
-    m_nBootstrapUniverses(10u)
-{
-    // Setup the output branches
-    m_pTree->Branch("sampleType", &m_outputEvent.m_sampleType);
-    m_pTree->Branch("sampleNorm", &m_outputEvent.m_sampleNorm);
-    m_pTree->Branch("weight", &m_outputEvent.m_weight);
-    m_pTree->Branch("recoValue", &m_outputEvent.m_recoValue);
-    m_pTree->Branch("trueValue", &m_outputEvent.m_trueValue);
-    m_pTree->Branch("isSignal", &m_outputEvent.m_isSignal);
-    m_pTree->Branch("isSelected", &m_outputEvent.m_isSelected);
-    m_pTree->Branch("classification", &m_outputEvent.m_classification);
-    m_pTree->Branch("systWeights", &m_outputEvent.m_systWeights);
-}
-
-// -----------------------------------------------------------------------------------------------------------------------------------------
-                
-CrossSectionHelper::XSec::~XSec()
-{
-    m_pFile->Write();
-    m_pFile->Close();
-}
+unsigned int CrossSectionHelper::CrossSection::m_histCount = 0u;
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
 
-void CrossSectionHelper::XSec::SetBins(const std::vector<float> &binEdges)
-{
-    if (binEdges.size() < 2)
-        throw std::invalid_argument("XSec::SetBins - There must be at least two bin edges");
-
-    auto sortedBinEdges = binEdges;
-    std::sort(sortedBinEdges.begin(), sortedBinEdges.end());
-
-    if (sortedBinEdges.front() < m_min)
-        throw std::invalid_argument("XSec::SetBins - Lowest bin edge is out if bounds");
-    
-    if (sortedBinEdges.back() > m_max)
-        throw std::invalid_argument("XSec::SetBins - Highest bin edge is out if bounds");
-   
-    // Remove any binning we currently have
-    m_binEdges.clear();
-
-    // If required add underflow bin
-    m_hasUnderflow = sortedBinEdges.front() > m_min;
-
-    if (m_hasUnderflow)
-        m_binEdges.push_back(m_min);
-
-    // Add the main bins
-    m_binEdges.insert(m_binEdges.end(), sortedBinEdges.begin(), sortedBinEdges.end());
-
-    // If required add an overflow bin
-    m_hasOverflow = sortedBinEdges.back() < m_max;
-
-    if (m_hasOverflow)
-        m_binEdges.push_back(m_max);
-}
+std::string CrossSectionHelper::CrossSection::m_cvString = "CV";
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
 
-void CrossSectionHelper::XSec::GetSelectedMCRecoTrueValuePairs(std::vector< std::pair<std::pair<float, float>, float> > &recoTrueValuePairs) const
-{
-    // Extract the reco values from the tree
-    for (unsigned int i = 0; i < m_pTree->GetEntries(); ++i)
-    {
-        m_pTree->GetEntry(i);
-
-        // We only care about "MC"
-        if (m_outputEvent.m_sampleType == AnalysisHelper::DataBNB)
-            continue;
-        
-        // Only use selected events
-        if (!m_outputEvent.m_isSelected)
-            continue;
-
-        const auto weight = m_outputEvent.m_weight * m_outputEvent.m_sampleNorm;
-        recoTrueValuePairs.emplace_back(std::pair<float, float>(m_outputEvent.m_recoValue, m_outputEvent.m_trueValue), weight);
-    }
-}
+unsigned int CrossSectionHelper::m_histCount = 0u;
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
 
-void CrossSectionHelper::XSec::SetBinsAuto(const float lower, const float upper, const unsigned int targetEntriesPerBin, const float targetSmearingDiagonal)
-{
-    // Get the reco & true values
-    std::vector< std::pair<std::pair<float, float>, float> > recoTrueValuePairs;
-    this->GetSelectedMCRecoTrueValuePairs(recoTrueValuePairs);
-
-    // Check we have at least 2 entries
-    const auto nEntries = recoTrueValuePairs.size();
-    if (nEntries < 2)
-        throw std::logic_error("XSec::SetBinsAuto - there are fewer than 2 entries!");
-
-    // Sort the entries by reco-range
-    std::sort(recoTrueValuePairs.begin(), recoTrueValuePairs.end(), [] (const auto &a, const auto &b) {
-        return a.first.first < b.first.first;
-    });
-
-    // Coun the number of entries with reco-range in the specified limits
-    std::vector< std::pair<std::pair<float, float>, float> > entriesInRange;
-    const auto nEntriesInRange = std::count_if(recoTrueValuePairs.begin(), recoTrueValuePairs.end(), [&] (const auto &x) {
-        return x.first.first >= lower && x.first.first <= upper;
-    });
-    
-    // Check we have enough entries
-    if (nEntriesInRange < 2)
-        throw std::logic_error("XSec::SetBinsAuto - there are fewer than 2 entries in the specified range");
-    
-    if (nEntriesInRange < targetEntriesPerBin)
-        throw std::logic_error("XSec::SetBinsAuto - there aren't enough entries in the specified range to meet the target entries per bin");
-
-    // Get the entries with reco-range in the specified limits
-    entriesInRange.reserve(nEntriesInRange);
-    std::copy_if(recoTrueValuePairs.begin(), recoTrueValuePairs.end(), std::back_inserter(entriesInRange), [&] (const auto &x) {
-        return x.first.first >= lower && x.first.first <= upper;
-    });
-
-    // Now generate the bin edges
-    std::vector<float> binEdges(1, lower);
-
-    // Variables defining the current bin
-    float lowerEdge = binEdges.back();
-    unsigned int upperEdgeIndex = 0u;
-
-    while (true)
-    {
-        // Increment the upper edge index and check if we have reached the end
-        if (++upperEdgeIndex >= nEntriesInRange)
-            break;
-
-        const float upperEdge = entriesInRange.at(upperEdgeIndex).first.first;
-
-        // Count the number of entries in the current bin
-        auto nEntriesInBinReco = 0.f;
-        auto nEntriesInBinTrue = 0.f;
-        auto nEntriesInBinRecoAndTrue = 0.f;
-
-        for (const auto &entry : entriesInRange)
-        {
-            const auto recoVal = entry.first.first;
-            const auto trueVal = entry.first.second;
-            const auto weight = entry.second;
-
-            const auto inBinReco = (recoVal >= lowerEdge && recoVal < upperEdge);
-            const auto inBinTrue = (trueVal >= lowerEdge && trueVal < upperEdge);
-
-            nEntriesInBinReco += inBinReco ? weight : 0.f;
-            nEntriesInBinTrue += inBinTrue ? weight : 0.f;
-            nEntriesInBinRecoAndTrue += (inBinReco && inBinTrue) ? weight : 0.f;
-        }
-
-        // If we don't have enough entries then grow the bin
-        if (nEntriesInBinReco < static_cast<float>(targetEntriesPerBin))
-            continue;
-        
-        // If we don't have any true entries in the is bin, then we can't calculate the smearing matrix element
-        if (nEntriesInBinTrue <= std::numeric_limits<float>::epsilon())
-            continue;
-
-        // Check that the amount of smearing is sufficiently low
-        const auto smearingMatrixElement = nEntriesInBinRecoAndTrue / nEntriesInBinTrue;
-        if (smearingMatrixElement < targetSmearingDiagonal)
-            continue;
-
-        // We have a valid bin!
-        lowerEdge = upperEdge;
-        binEdges.push_back(upperEdge);
-    }
-
-    if (binEdges.size() < 2)
-        throw std::logic_error("XSec::SetBinsAuto - no bins automatically generated!");
-
-    // Stretch the last bin to fit the desired range
-    binEdges.at(binEdges.size() - 1) = upper;
-    
-    // Set the bin eges and we are done!
-    this->SetBins(binEdges);    
-}
+std::default_random_engine CrossSectionHelper::m_generator = std::default_random_engine();
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
 
-void CrossSectionHelper::XSec::FillEvent(const AnalysisHelper::SampleType sampleType, const float sampleNorm, const float weight, const float &recoValue, const float &trueValue, const bool isSignal, const bool isSelected, const std::string &classification)
+template <typename T>
+std::tuple<std::vector<float>, bool, bool> CrossSectionHelper::GetExtendedBinEdges(const T &binningConfig)
 {
-    // Set the event parameters
-    m_outputEvent.m_sampleType = sampleType;
-    m_outputEvent.m_sampleNorm = sampleNorm;
-    m_outputEvent.m_weight = weight;
-    m_outputEvent.m_recoValue = recoValue;
-    m_outputEvent.m_trueValue = trueValue;
-    m_outputEvent.m_isSignal = isSignal;
-    m_outputEvent.m_isSelected = isSelected;
-    m_outputEvent.m_classification = classification;
+    std::vector<float> extendedBinEdges;
+    bool hasUnderflow, hasOverflow;
 
-    // Set the systematic weights
-    m_outputEvent.m_systWeights.clear();
+    CrossSectionHelper::GetExtendedBinEdges(binningConfig.min, binningConfig.max, binningConfig.binEdges, extendedBinEdges, hasUnderflow, hasOverflow);
 
-    // Get the weights for each bootstrap universe (statistical uncertainty)
-    std::default_random_engine generator;
-    std::poisson_distribution<int> poisson(1.f);
-
-    std::vector<float> bootstrapWeights;
-    for (unsigned int i = 0; i < m_nBootstrapUniverses; ++i)
-    {
-        // Get a unit-mean poisson-distributed random weight for this universe
-        bootstrapWeights.emplace_back(static_cast<float>(poisson(generator)));
-    }
-    m_outputEvent.m_systWeights.emplace("stat", bootstrapWeights);
-
-    m_pTree->Fill();
-}
-
-// -----------------------------------------------------------------------------------------------------------------------------------------
-
-void CrossSectionHelper::XSec::AddSignalEvent(const std::shared_ptr<Event> &pEvent, const bool &isSelected, const float &trueValue, const float &recoValue, const float weight, const float normalisation)
-{
-    const auto classification = AnalysisHelper::GetClassificationString(pEvent, m_useAbsPdg, m_countProtonsInclusively);
-    this->FillEvent(AnalysisHelper::Overlay, normalisation, weight, recoValue, trueValue, true, isSelected, classification);
-}
-
-// -----------------------------------------------------------------------------------------------------------------------------------------
-
-void CrossSectionHelper::XSec::AddSelectedBackgroundEvent(const std::shared_ptr<Event> &pEvent, const AnalysisHelper::SampleType sampleType, const float &recoValue, const float weight, const float normalisation)
-{
-    if (sampleType == AnalysisHelper::DataBNB)
-        throw std::invalid_argument("XSec::AddSelectedBackgroundEvent - You can't add BNB data as a known background");
-
-    const auto classification = AnalysisHelper::GetClassificationString(pEvent, m_useAbsPdg, m_countProtonsInclusively);
-    this->FillEvent(sampleType, normalisation, weight, recoValue, std::numeric_limits<float>::max(), false, true, classification);
-}
-
-// -----------------------------------------------------------------------------------------------------------------------------------------
-
-void CrossSectionHelper::XSec::AddSelectedBNBDataEvent(const std::shared_ptr<Event> &pEvent, const float &recoValue)
-{
-    const auto classification = AnalysisHelper::GetClassificationString(pEvent, m_useAbsPdg, m_countProtonsInclusively);
-    this->FillEvent(AnalysisHelper::DataBNB, 1.f, 1.f, recoValue, std::numeric_limits<float>::max(), false, true, classification);
-}
-                
-// -----------------------------------------------------------------------------------------------------------------------------------------
-
-unsigned int CrossSectionHelper::XSec::GetBinIndex(const float &value) const
-{
-    if (m_binEdges.size() < 2)
-        throw std::logic_error("XSec::GetBinIndex - binning hasn't been set");
-
-    const auto nBins = m_binEdges.size() - 1;
-    for (unsigned int i = 0; i < nBins; ++i)
-    {
-        const auto binLower = m_binEdges.at(i);
-        const auto binUpper = m_binEdges.at(i+1);
-
-        if (value >= binLower && value <= binUpper)
-            return i;
-    }
-   
-    std::cout << "DEBUG - Value = " << value << std::endl;
-    throw std::logic_error("XSec::GetBinIndex - input value is out of bounds");
-}
-
-// -----------------------------------------------------------------------------------------------------------------------------------------
-
-void CrossSectionHelper::XSec::GetConfusionMatrix(std::vector< std::vector<float> > &matrix, std::vector< std::vector<float> > &uncertainties) const
-{
-    if (m_binEdges.size() < 2)
-        throw std::logic_error("XSec::GetConfusionMatrix - binning hasn't been set");
-    
-    if (!matrix.empty())
-        throw std::logic_error("XSec::GetConfusionMatrix - input matrix isn't empty");
-    
-    if (!uncertainties.empty())
-        throw std::logic_error("XSec::GetConfusionMatrix - input uncertainty matrix isn't empty");
-
-    const auto nBins = m_binEdges.size() - 1;
-
-    matrix = std::vector< std::vector<float> >(nBins, std::vector<float>(nBins, 0.f));
-    uncertainties = std::vector< std::vector<float> >(nBins, std::vector<float>(nBins, 0.f));
-    
-    // Loop through the tree
-    for (unsigned int i = 0; i < m_pTree->GetEntries(); ++i)
-    {
-        m_pTree->GetEntry(i);
-
-        // We only care about overlays
-        if (m_outputEvent.m_sampleType != AnalysisHelper::Overlay)
-            continue;
-        
-        // Only use selected signal events
-        if (!m_outputEvent.m_isSelected || !m_outputEvent.m_isSignal)
-            continue;
-
-        const auto trueBinIndex = this->GetBinIndex(m_outputEvent.m_trueValue);
-        const auto recoBinIndex = this->GetBinIndex(m_outputEvent.m_recoValue);
-
-        matrix.at(recoBinIndex).at(trueBinIndex) += m_outputEvent.m_weight;
-    }
-
-    for (unsigned int iReco = 0; iReco < nBins; ++iReco)
-    {
-        for (unsigned int iTrue = 0; iTrue < nBins; ++iTrue)
-        {
-            uncertainties.at(iReco).at(iTrue) = AnalysisHelper::GetCountUncertainty(matrix.at(iReco).at(iTrue));
-        }
-    }
-}
-
-// -----------------------------------------------------------------------------------------------------------------------------------------
-
-void CrossSectionHelper::XSec::GetSmearingMatrix(std::vector< std::vector<float> > &matrix, std::vector< std::vector<float> > &uncertainties) const
-{
-    if (!matrix.empty())
-        throw std::logic_error("XSec::GetSmearingMatrix - input matrix isn't empty");
-    
-    if (!uncertainties.empty())
-        throw std::logic_error("XSec::GetSmearingMatrix - input uncertainty matrix isn't empty");
-
-    std::vector< std::vector<float> > confusionMatrix, confusionMatrixUncertainties;
-    this->GetConfusionMatrix(confusionMatrix, confusionMatrixUncertainties);
-
-    const auto nBins = confusionMatrix.size();
-    matrix = std::vector< std::vector<float> >(nBins, std::vector<float>(nBins, 0.f));
-    uncertainties = std::vector< std::vector<float> >(nBins, std::vector<float>(nBins, 0.f));
-
-    // Get the total number of true entries in each bin
-    auto truthWeights = std::vector<float>(nBins, 0.f);
-    for (unsigned int iTrue = 0; iTrue < nBins; ++iTrue)
-    {
-        for (unsigned int iReco = 0; iReco < nBins; ++iReco)
-        {
-            truthWeights.at(iTrue) += confusionMatrix.at(iReco).at(iTrue);   
-        }    
-    }
-    
-    // Populate the smearing matrix
-    for (unsigned int iTrue = 0; iTrue < nBins; ++iTrue)
-    {
-        const auto truthWeight = truthWeights.at(iTrue);
-        if (truthWeight <= std::numeric_limits<float>::epsilon())
-            throw std::invalid_argument("XSec::GetSmearingMatrix - Found truth bin with total weight: " + std::to_string(truthWeight));
-
-        for (unsigned int iReco = 0; iReco < nBins; ++iReco)
-        {
-            matrix.at(iReco).at(iTrue) = confusionMatrix.at(iReco).at(iTrue) / truthWeight; 
-            uncertainties.at(iReco).at(iTrue) = AnalysisHelper::GetEfficiencyUncertainty(confusionMatrix.at(iReco).at(iTrue), truthWeight);
-        }    
-    }
-}
-
-// -----------------------------------------------------------------------------------------------------------------------------------------
-
-std::vector<float> CrossSectionHelper::XSec::GetTrueSignalPerBin(const bool mustBeSelected) const
-{
-    if (m_binEdges.size() < 2)
-        throw std::logic_error("XSec::GetTrueSignalPerBin - binning hasn't been set");
-
-    const auto nBins = m_binEdges.size() - 1;
-    auto bins = std::vector<float>(nBins, 0.f);
-
-    // Loop through the tree
-    for (unsigned int i = 0; i < m_pTree->GetEntries(); ++i)
-    {
-        m_pTree->GetEntry(i);
-
-        // We only care about overlays
-        if (m_outputEvent.m_sampleType != AnalysisHelper::Overlay)
-            continue;
-        
-        // Only use signal events
-        if (!m_outputEvent.m_isSignal)
-            continue;
-
-        // Insist the event is selected if required
-        if (mustBeSelected && !m_outputEvent.m_isSelected)
-            continue;
-
-        // Fill the bins
-        const auto trueBinIndex = this->GetBinIndex(m_outputEvent.m_trueValue);
-        bins.at(trueBinIndex) += m_outputEvent.m_weight;
-    }
-
-    return bins;
-}
-
-// -----------------------------------------------------------------------------------------------------------------------------------------
-                
-float CrossSectionHelper::XSec::GetOverlayNormalisation() const
-{
-    // Loop through the tree
-    for (unsigned int i = 0; i < m_pTree->GetEntries(); ++i)
-    {
-        m_pTree->GetEntry(i);
-
-        // ATTN here we are assume all events have same sample norm (which should be true, if it's not something is going wrong)
-        if (m_outputEvent.m_sampleType == AnalysisHelper::Overlay)
-            return m_outputEvent.m_sampleNorm;
-    }
-
-    throw std::logic_error("XSec::GetOverlayNormalisation - no overlays added");
-}
-
-// -----------------------------------------------------------------------------------------------------------------------------------------
-
-void CrossSectionHelper::XSec::GetBNBDataPerBin(std::vector<float> &bins, std::vector<float> &uncertainties, const bool useRealData) const
-{
-    if (m_binEdges.size() < 2)
-        throw std::logic_error("XSec::GetBNBDataPerBin - binning hasn't been set");
-    
-    if (!bins.empty())
-        throw std::invalid_argument("XSec::GetBNBDataPerBin - input bins vector isn't empty");
-    
-    if (!uncertainties.empty())
-        throw std::invalid_argument("XSec::GetBNBDataPerBin - input uncertainties vector isn't empty");
-
-    const auto nBins = m_binEdges.size() - 1;
-    bins.resize(nBins, 0.f);
-    uncertainties.resize(nBins, 0.f);
-    
-    // Loop through the tree
-    for (unsigned int i = 0; i < m_pTree->GetEntries(); ++i)
-    {
-        m_pTree->GetEntry(i);
-
-        // Check we have the type of data we want
-        const auto isBNBData = m_outputEvent.m_sampleType == AnalysisHelper::DataBNB;
-        if (useRealData && !isBNBData)
-            continue;
-
-        if (!useRealData && isBNBData)
-            continue;
-        
-        // Insist the event is selected
-        if (!m_outputEvent.m_isSelected)
-            continue;
-
-        // Fill the bins
-        const auto recoBinIndex = this->GetBinIndex(m_outputEvent.m_recoValue);
-        bins.at(recoBinIndex) += m_outputEvent.m_weight * m_outputEvent.m_sampleNorm;
-    }
-     
-    // Fill the uncertainties
-    for (unsigned int i = 0; i < nBins; ++i)
-        uncertainties.at(i) = AnalysisHelper::GetCountUncertainty(bins.at(i));
-}
-
-// -----------------------------------------------------------------------------------------------------------------------------------------
-
-void CrossSectionHelper::XSec::GetBackgroundsPerBin(std::vector<float> &bins, std::vector<float> &uncertainties) const
-{
-    if (m_binEdges.size() < 2)
-        throw std::logic_error("XSec::GetBackgroundsPerBin - binning hasn't been set");
-    
-    if (!bins.empty())
-        throw std::invalid_argument("XSec::GetBackgroundsPerBin - input bins vector isn't empty");
-    
-    if (!uncertainties.empty())
-        throw std::invalid_argument("XSec::GetBackgroundsPerBin - input uncertainties vector isn't empty");
-
-    const auto nBins = m_binEdges.size() - 1;
-    bins.resize(nBins, 0.f);
-    uncertainties.resize(nBins, 0.f);
-
-    std::vector< std::unordered_map<int, float> > weightsPerSampleType(nBins);
-    std::unordered_map<int, float> sampleTypeNorms;
-    std::vector<int> sampleTypes;
-
-    // Loop through the tree
-    for (unsigned int i = 0; i < m_pTree->GetEntries(); ++i)
-    {
-        m_pTree->GetEntry(i);
-
-        // We only don't care about BNB data
-        if (m_outputEvent.m_sampleType == AnalysisHelper::DataBNB)
-            continue;
-        
-        // Insist the event is selected
-        if (!m_outputEvent.m_isSelected)
-            continue;
-
-        // Insist the event isn't true signal
-        if (m_outputEvent.m_sampleType == AnalysisHelper::Overlay && m_outputEvent.m_isSignal)
-            continue;
-
-        // Store the weights and normalisations
-        const auto recoBinIndex = this->GetBinIndex(m_outputEvent.m_recoValue);
-
-        auto &sampleWeightMap = weightsPerSampleType.at(recoBinIndex);
-        if (sampleWeightMap.find(m_outputEvent.m_sampleType) == sampleWeightMap.end())
-        {
-            sampleWeightMap.emplace(m_outputEvent.m_sampleType, m_outputEvent.m_weight);
-        }
-        else
-        {
-            sampleWeightMap.at(m_outputEvent.m_sampleType) += m_outputEvent.m_weight;
-        }
-
-        sampleTypeNorms[m_outputEvent.m_sampleType] = m_outputEvent.m_sampleNorm;
-
-        if (std::find(sampleTypes.begin(), sampleTypes.end(), m_outputEvent.m_sampleType) == sampleTypes.end())
-            sampleTypes.push_back(m_outputEvent.m_sampleType);
-    }
-     
-    // Fill the bins
-    for (unsigned int i = 0; i < nBins; ++i)
-    {
-        float uncertaintySquared = 0.f;
-        float binValue = 0.f;
-
-        for (const auto &sampleType : sampleTypes)
-        {
-            const auto iter = weightsPerSampleType.at(i).find(sampleType);
-
-            if (iter == weightsPerSampleType.at(i).end())
-                continue;
-
-            const auto weight = iter->second;
-            const auto norm = sampleTypeNorms.at(sampleType);
-
-            binValue += weight * norm;
-            uncertaintySquared += std::pow(norm * AnalysisHelper::GetCountUncertainty(weight), 2);
-        }
-
-        uncertainties.at(i) = std::pow(uncertaintySquared, 0.5f);
-        bins.at(i) = binValue;
-    }
-}
-
-// -----------------------------------------------------------------------------------------------------------------------------------------
-
-void CrossSectionHelper::XSec::GetPurityPerBin(std::vector<float> &bins) const
-{
-    if (!bins.empty())
-        throw std::invalid_argument("XSec::GetPurityPerBin - input bins vector isn't empty");
-    
-    const bool useRealData = false;
-    std::vector<float> selected, selectedErr;
-    this->GetBNBDataPerBin(selected, selectedErr, useRealData);
-    
-    std::vector<float> backgrounds, backgroundsErr;
-    this->GetBackgroundsPerBin(backgrounds, backgroundsErr);
-
-    const auto nBins = selected.size();
-    if (backgrounds.size() != nBins)
-        throw std::logic_error("XSec::GetPurityPerBin - Number of selected and backgrounds bins don't match!");
-
-    for (unsigned int i = 0; i < nBins; ++i)
-    {
-        const auto selectedInBin = selected.at(i);
-        if (selectedInBin <= std::numeric_limits<float>::epsilon())
-            throw std::logic_error("XSec::GetPurityPerBin - Found empty bin - no selected event in MC");
-
-        const auto signalInBin = selectedInBin - backgrounds.at(i);
-        const auto purityInBin = signalInBin / selectedInBin;
-
-        bins.push_back(purityInBin);
-    }
-}
-
-// -----------------------------------------------------------------------------------------------------------------------------------------
-
-void CrossSectionHelper::XSec::GetTrueEfficiencies(std::vector<float> &efficiencies, std::vector<float> &uncertainties) const
-{
-    if (m_binEdges.size() < 2)
-        throw std::logic_error("XSec::GetTrueEfficiencies - binning hasn't been set");
-
-    if (!efficiencies.empty())
-        throw std::invalid_argument("XSec::GetTrueEfficiencies - input efficiencies vector isn't empty");
-    
-    if (!uncertainties.empty())
-        throw std::invalid_argument("XSec::GetTrueEfficiencies - input uncertainties vector isn't empty");
-
-    const auto nBins = m_binEdges.size() - 1;
-    const auto binsAll = this->GetTrueSignalPerBin(false);
-    const auto binsSelected = this->GetTrueSignalPerBin(true);
-
-    efficiencies.resize(nBins, 0.f);
-    uncertainties.resize(nBins, 0.f);
-    
-    // Calculate the efficiencies
-    for (unsigned int i = 0; i < nBins; ++i)
-    {
-        const auto numerator = binsSelected.at(i);
-        const auto denominator = binsAll.at(i);
-
-        if (denominator <= std::numeric_limits<float>::epsilon())
-            throw std::logic_error("XSec::GetTrueEfficiencies - found true bin with no entries");
-
-        efficiencies.at(i) = numerator / denominator;
-        uncertainties.at(i) = AnalysisHelper::GetEfficiencyUncertainty(numerator, denominator);
-    }
-}
-
-// -----------------------------------------------------------------------------------------------------------------------------------------
-
-void CrossSectionHelper::XSec::GetSmearedEfficiencies(std::vector<float> &efficiencies, std::vector<float> &uncertainties) const
-{
-    if (m_binEdges.size() < 2)
-        throw std::logic_error("XSec::GetSmearedEfficiencies - binning hasn't been set");
-
-    if (!efficiencies.empty())
-        throw std::invalid_argument("XSec::GetSmearedEfficiencies - input efficiencies vector isn't empty");
-    
-    if (!uncertainties.empty())
-        throw std::invalid_argument("XSec::GetSmearedEfficiencies - input uncertainties vector isn't empty");
-    
-    const auto nBins = m_binEdges.size() - 1;
-    efficiencies.resize(nBins, 0.f);
-    uncertainties.resize(nBins, 0.f);
-
-    // The the number of events before and after the selection in true bins
-    const auto binsAll = this->GetTrueSignalPerBin(false);
-    const auto binsSelected = this->GetTrueSignalPerBin(true);
-
-    std::vector<float> binsAllErr, binsSelectedErr;
-    for (unsigned int i = 0; i < nBins; ++i)
-    {
-        binsAllErr.push_back(AnalysisHelper::GetCountUncertainty(binsAll.at(i)));
-        binsSelectedErr.push_back(AnalysisHelper::GetCountUncertainty(binsSelected.at(i)));
-    }
-
-    // Smear these counts
-    std::vector<float> binsAllSmear, binsAllSmearErr, binsSelectedSmear, binsSelectedSmearErr;
-    this->SmearBins(binsAll, binsAllErr, binsAllSmear, binsAllSmearErr);
-    this->SmearBins(binsSelected, binsSelectedErr, binsSelectedSmear, binsSelectedSmearErr);
-    
-    // Calculate the smeared efficiencies
-    for (unsigned int iReco = 0; iReco < nBins; ++iReco)
-    {
-        // Smear the numerator and denominator of the efficiency
-        float allSmeared = binsAllSmear.at(iReco);
-        float allSmearedErrSquared = std::pow(binsAllSmearErr.at(iReco), 2);
-
-        float selectedSmeared = binsSelectedSmear.at(iReco);
-        float selectedSmearedErrSquared = std::pow(binsSelectedSmearErr.at(iReco), 2);
-
-        if (allSmeared <= std::numeric_limits<float>::epsilon())
-            throw std::logic_error("XSec::GetSmearedEfficiencies - found smeared bin with no entries");
-       
-        if (selectedSmeared <= std::numeric_limits<float>::epsilon())
-            throw std::logic_error("XSec::GetSmearedEfficiencies - found smeared bin with no selected entries");
-
-        const auto efficiencySmeared = selectedSmeared / allSmeared;
-        const auto uncertaintySmeared = efficiencySmeared * std::pow((selectedSmearedErrSquared / std::pow(selectedSmeared, 2)) + (allSmearedErrSquared / std::pow(allSmeared, 2)), 0.5f);
-
-        efficiencies.at(iReco) = efficiencySmeared;
-        uncertainties.at(iReco) = uncertaintySmeared;
-    }
-}
-
-// -----------------------------------------------------------------------------------------------------------------------------------------
-
-std::vector<float> CrossSectionHelper::XSec::GetBinWidths() const
-{
-    if (m_binEdges.size() < 2)
-        throw std::logic_error("XSec::GetBinWidths - binning hasn't been set");
-    
-    const auto nBins = m_binEdges.size() - 1;
-    
-    std::vector<float> binWidths;
-    for (unsigned int i = 0; i < nBins; ++i)
-    {
-        binWidths.push_back(m_binEdges.at(i+1) - m_binEdges.at(i));
-    }
-
-    return binWidths;
-}
-
-// -----------------------------------------------------------------------------------------------------------------------------------------
-
-float CrossSectionHelper::XSec::GetCrossSection(const float nTotal, const float nBackgrounds, const float efficiency, const float binWidth) const
-{
-    if (binWidth <= std::numeric_limits<float>::epsilon())
-        throw std::invalid_argument("XSec::GetCrossSection - bin width is zero");
-    
-    if (efficiency <= std::numeric_limits<float>::epsilon())
-        throw std::invalid_argument("XSec::GetCrossSection - efficiency is zero");
-
-    return (nTotal - nBackgrounds) / (efficiency * binWidth * m_nTargets * m_integratedFlux);
-}
-
-// -----------------------------------------------------------------------------------------------------------------------------------------
-
-float CrossSectionHelper::XSec::GetCrossSectionUncertainty(const float nTotal, const float totalErr, const float nBackgrounds, const float backgroundsErr, const float efficiency, const float efficiencyErr, const float binWidth) const
-{
-    if (binWidth <= std::numeric_limits<float>::epsilon())
-        throw std::invalid_argument("XSec::GetCrossSectionUncertainty - bin width is zero");
-    
-    if (efficiency <= std::numeric_limits<float>::epsilon())
-        throw std::invalid_argument("XSec::GetCrossSectionUncertainty - efficiency is zero");
-
-    const auto nSignalSelected = nTotal - nBackgrounds;
-    const auto nSignalSelectedErr = std::pow(totalErr*totalErr + backgroundsErr*backgroundsErr, 0.5f);
-
-    if (nSignalSelected <= std::numeric_limits<float>::epsilon())
-        throw std::invalid_argument("XSec::GetCrossSectionUncertainty - found bin with no expected signal events");
-
-    const auto nSignal = nSignalSelected / efficiency;
-    const auto nSignalErr = nSignal * std::pow(std::pow(nSignalSelectedErr / nSignalSelected, 2) + std::pow(efficiencyErr / efficiency, 2), 0.5f);
-
-    return nSignalErr / (binWidth * m_nTargets * m_integratedFlux);
-}
-
-// -----------------------------------------------------------------------------------------------------------------------------------------
-
-void CrossSectionHelper::XSec::GetMCTrueCrossSection(std::vector<float> &bins, std::vector<float> &uncertainties) const
-{
-    if (m_binEdges.size() < 2)
-        throw std::logic_error("XSec::GetMCTrueCrossSection - binning hasn't been set");
-    
-    if (!bins.empty())
-        throw std::invalid_argument("XSec::GetMCTrueCrossSection - input bins vector isn't empty");
-    
-    if (!uncertainties.empty())
-        throw std::invalid_argument("XSec::GetMCTrueCrossSection - input uncertainties vector isn't empty");
-
-    const auto nBins = m_binEdges.size() - 1;
-    bins.resize(nBins, 0.f);
-    uncertainties.resize(nBins, 0.f);
-
-    const auto binWidths = this->GetBinWidths();
-    const auto nSignalPerBin = this->GetTrueSignalPerBin(false);
-    const auto norm = this->GetOverlayNormalisation();
-
-    for (unsigned int i = 0; i < nBins; ++i)
-    {
-        const auto nTotal = norm * nSignalPerBin.at(i);
-        const auto totalErr = norm * AnalysisHelper::GetCountUncertainty(nTotal);
-        const auto binWidth = binWidths.at(i);
-
-        bins.at(i) = this->GetCrossSection(nTotal, 0.f, 1.f, binWidth);
-        uncertainties.at(i) = this->GetCrossSectionUncertainty(nTotal, totalErr, 0.f, 0.f, 1.f, 0.f, binWidth);
-    }
-}
-
-// -----------------------------------------------------------------------------------------------------------------------------------------
-
-void CrossSectionHelper::XSec::SmearBins(const std::vector<float> &inputBins, const std::vector<float> &inputUncertainties, std::vector<float> &bins, std::vector<float> &uncertainties) const
-{
-    if (m_binEdges.size() < 2)
-        throw std::logic_error("XSec::SmearBins - binning hasn't been set");
-    
-    if (!bins.empty())
-        throw std::invalid_argument("XSec::SmearBins - bins vector isn't empty");
-    
-    if (!uncertainties.empty())
-        throw std::invalid_argument("XSec::SmearBins - uncertainties vector isn't empty");
-
-    const auto nBins = m_binEdges.size() - 1;
-    bins.resize(nBins, 0.f);
-    uncertainties.resize(nBins, 0.f);
-
-    if (inputBins.size() != nBins)
-        throw std::invalid_argument("XSec::SmearBins - input bins has wrong size");
-    
-    if (inputUncertainties.size() != nBins)
-        throw std::invalid_argument("XSec::SmearBins - input uncertainties has wrong size");
-
-    std::vector< std::vector<float> > smearingMatrix, smearingMatrixUncertainties;
-    this->GetSmearingMatrix(smearingMatrix, smearingMatrixUncertainties);
-
-    // Apply the smearing matrix
-    for (unsigned int iReco = 0; iReco < nBins; ++iReco)
-    {
-        float smearedValue = 0.f;
-        float smearedErrSquared = 0.f;
-
-        for (unsigned int iTrue = 0; iTrue < nBins; ++iTrue)
-        {
-            const auto smearingElement = smearingMatrix.at(iReco).at(iTrue);
-            const auto smearingElementErr = smearingMatrixUncertainties.at(iReco).at(iTrue);
-            const auto binValue = inputBins.at(iTrue);
-            const auto binValueErr = inputUncertainties.at(iTrue);
-
-            const auto contribution = smearingElement * binValue;
-            smearedValue += contribution;
-            
-            if (smearingElement > std::numeric_limits<float>::epsilon() && binValue > std::numeric_limits<float>::epsilon())
-            {
-                smearedErrSquared += std::pow(contribution, 2) * (std::pow(smearingElementErr / smearingElement, 2) + std::pow(binValueErr / binValue, 2));
-            }
-        }
-
-        bins.at(iReco) = smearedValue;
-        uncertainties.at(iReco) = std::pow(smearedErrSquared, 0.5f);
-    }
-}
-
-// -----------------------------------------------------------------------------------------------------------------------------------------
-
-void CrossSectionHelper::XSec::GetSmearedMCTrueCrossSection(std::vector<float> &bins, std::vector<float> &uncertainties) const
-{
-    if (m_binEdges.size() < 2)
-        throw std::logic_error("XSec::GetSmearedMCTrueCrossSection - binning hasn't been set");
-    
-    if (!bins.empty())
-        throw std::invalid_argument("XSec::GetSmearedMCTrueCrossSection - input bins vector isn't empty");
-    
-    if (!uncertainties.empty())
-        throw std::invalid_argument("XSec::GetSmearedMCTrueCrossSection - input uncertainties vector isn't empty");
-
-    const auto nBins = m_binEdges.size() - 1;
-    bins.resize(nBins, 0.f);
-    uncertainties.resize(nBins, 0.f);
-
-    std::vector<float> mcTrueXSec, mcTrueXSecErr;
-    this->GetMCTrueCrossSection(mcTrueXSec, mcTrueXSecErr);
-
-    // Scale up by bin widths before smearing
-    const auto binWidths = this->GetBinWidths();
-    std::vector<float> mcTrueXSecScaled, mcTrueXSecErrScaled;
-    for (unsigned int i = 0; i < nBins; ++i)
-    {
-        mcTrueXSecScaled.push_back(mcTrueXSec.at(i) * binWidths.at(i));
-        mcTrueXSecErrScaled.push_back(mcTrueXSecErr.at(i) * binWidths.at(i));
-    }
-
-    // Now apply the smearing matrix
-    std::vector<float> mcTrueXSecScaledSmeared, mcTrueXSecErrScaledSmeared;
-    this->SmearBins(mcTrueXSecScaled, mcTrueXSecErrScaled, mcTrueXSecScaledSmeared, mcTrueXSecErrScaledSmeared);
-
-    // Scale back down by the bin widths after smearing
-    for (unsigned int i = 0; i < nBins; ++i)
-    {
-        const auto binWidth = binWidths.at(i);
-
-        if (binWidth <= std::numeric_limits<float>::epsilon())
-            throw std::invalid_argument("XSec::GetSmearedMCTrueCrossSection - bin width is zero");
-
-        bins.at(i) = mcTrueXSecScaledSmeared.at(i) / binWidth;
-        uncertainties.at(i) = mcTrueXSecErrScaledSmeared.at(i) / binWidth;
-    }
-}
-
-// -----------------------------------------------------------------------------------------------------------------------------------------
-
-void CrossSectionHelper::XSec::GetRecoCrossSection(const bool useRealData, std::vector<float> &bins, std::vector<float> &uncertainties) const
-{
-    if (m_binEdges.size() < 2)
-        throw std::logic_error("XSec::GetRecoCrossSection - binning hasn't been set");
-    
-    if (!bins.empty())
-        throw std::invalid_argument("XSec::GetRecoCrossSection - input bins vector isn't empty");
-    
-    if (!uncertainties.empty())
-        throw std::invalid_argument("XSec::GetRecoCrossSection - input uncertainties vector isn't empty");
-
-    const auto nBins = m_binEdges.size() - 1;
-    bins.resize(nBins, 0.f);
-    uncertainties.resize(nBins, 0.f);
-
-    std::vector<float> selected, selectedErr;
-    this->GetBNBDataPerBin(selected, selectedErr, useRealData);
-    
-    std::vector<float> backgrounds, backgroundsErr;
-    this->GetBackgroundsPerBin(backgrounds, backgroundsErr);
-
-    std::vector<float> efficiencies, efficienciesErr;
-    this->GetSmearedEfficiencies(efficiencies, efficienciesErr);
-
-    const auto binWidths = this->GetBinWidths();
-
-    for (unsigned int i = 0; i < nBins; ++i)
-    {
-        if (this->IsUnderOverFlowBin(i))
-            continue;
-
-        const auto xSec = this->GetCrossSection(selected.at(i), backgrounds.at(i), efficiencies.at(i), binWidths.at(i));
-        const auto xSecErr = this->GetCrossSectionUncertainty(selected.at(i), selectedErr.at(i), backgrounds.at(i), backgroundsErr.at(i), efficiencies.at(i), efficienciesErr.at(i), binWidths.at(i));
-        
-        bins.at(i) = xSec;
-        uncertainties.at(i) = xSecErr;
-    }
-}
-
-// -----------------------------------------------------------------------------------------------------------------------------------------
-
-std::string CrossSectionHelper::XSec::GetBinName(const unsigned int index) const
-{
-    if (m_binEdges.size() < 2)
-        throw std::logic_error("XSec::GetBinName - binning hasn't been set");
-
-    const auto nBins = m_binEdges.size() - 1;
-
-    if (index >= nBins)
-        throw std::invalid_argument("XSec::GetBinName - input index is out of bounds");
-
-    if (index == 0 && m_hasUnderflow)
-        return "Underflow";
-
-    if (index == nBins - 1 && m_hasOverflow)
-        return "Overflow";
-
-    return std::to_string(index - (m_hasUnderflow ? 1 : 0));
-}
-
-// -----------------------------------------------------------------------------------------------------------------------------------------
-
-bool CrossSectionHelper::XSec::IsUnderOverFlowBin(const unsigned int index) const
-{
-    if (m_binEdges.size() < 2)
-        throw std::logic_error("XSec::IsUnderOverFlowBin - binning hasn't been set");
-
-    const auto nBins = m_binEdges.size() - 1;
-
-    if (index == 0 && m_hasUnderflow)
-        return true;
-
-    if (index == nBins - 1 && m_hasOverflow)
-        return true;
-
-    return false;
-}
-
-// -----------------------------------------------------------------------------------------------------------------------------------------
-
-void CrossSectionHelper::XSec::PrintMatrix(const std::vector< std::vector<float> > &matrix, const std::vector< std::vector<float> > &uncertainties, const std::string &outputFileName) const
-{
-    // Fill the headers with the truth bins
-    std::vector<std::string> headers = {"Bin"};
-    for (unsigned int iTrue = 0; iTrue < matrix.size(); ++iTrue)
-        headers.push_back("T " + this->GetBinName(iTrue));
-    
-    FormattingHelper::Table table(headers);
-
-    for (unsigned int iReco = 0; iReco < matrix.size(); ++iReco)
-    {
-        table.AddEmptyRow();
-        table.SetEntry("Bin", "R " + this->GetBinName(iReco));
-
-        for (unsigned int iTrue = 0; iTrue < matrix.size(); ++iTrue)
-        {
-            const auto value = FormattingHelper::GetValueWithError(matrix.at(iReco).at(iTrue), uncertainties.at(iReco).at(iTrue));
-            table.SetEntry("T " + this->GetBinName(iTrue), value);
-        }
-    }
-
-    table.WriteToFile(outputFileName);
-}
-
-// -----------------------------------------------------------------------------------------------------------------------------------------
-
-void CrossSectionHelper::XSec::PrintBinContents(const std::string &outputFileNamePrefix) const
-{
-    if (m_binEdges.size() < 2)
-        throw std::logic_error("XSec::PrintBinContents - binning hasn't been set");
-
-    const auto nBins = m_binEdges.size() - 1;
-                
-    // Get the bin values
-    std::vector<float> bnbData, bnbDataErr, fakeBNBData, fakeBNBDataErr, backgrounds, backgroundsErr;
-    this->GetBNBDataPerBin(bnbData, bnbDataErr, true);
-    this->GetBNBDataPerBin(fakeBNBData, fakeBNBDataErr, false);
-    this->GetBackgroundsPerBin(backgrounds, backgroundsErr);
-    const auto trueSignal = this->GetTrueSignalPerBin(true);
-
-    std::vector<float> purities;
-    this->GetPurityPerBin(purities);
-
-    // Print the bins
-    FormattingHelper::PrintLine();
-    std::cout << "Bins" << std::endl;
-    FormattingHelper::PrintLine();
-    FormattingHelper::Table binTable({"Bin", "", "Min", "Max", "", "True MC signal", "", "BNB data", "Fake data (MC)", "data - MC", "", "Backgrounds MC", "Purity MC"});
-    for (unsigned int i = 0; i < nBins; ++i)
-    {
-        binTable.AddEmptyRow();
-        binTable.SetEntry("Bin", this->GetBinName(i));
-        binTable.SetEntry("Min", m_binEdges.at(i));
-        binTable.SetEntry("Max", m_binEdges.at(i+1));
-        binTable.SetEntry("True MC signal", trueSignal.at(i));
-        binTable.SetEntry("BNB data", FormattingHelper::GetValueWithError(bnbData.at(i), bnbDataErr.at(i)));
-        binTable.SetEntry("Fake data (MC)", FormattingHelper::GetValueWithError(fakeBNBData.at(i), fakeBNBDataErr.at(i)));
-
-        const auto dataMinusMC = bnbData.at(i) - fakeBNBData.at(i);
-        const auto dataMinusMCErr = std::pow(std::pow(bnbDataErr.at(i), 2) + std::pow(fakeBNBDataErr.at(i), 2), 0.5f);
-        binTable.SetEntry("data - MC", FormattingHelper::GetValueWithError(dataMinusMC, dataMinusMCErr));
-
-        binTable.SetEntry("Backgrounds MC", FormattingHelper::GetValueWithError(backgrounds.at(i), backgroundsErr.at(i)));
-        binTable.SetEntry("Purity MC", purities.at(i));
-    }
-    binTable.WriteToFile(outputFileNamePrefix + "_bins.md");
-    
-    // Print the confusion matrix
-    FormattingHelper::PrintLine();
-    std::cout << "Confusion matrix" << std::endl;
-    FormattingHelper::PrintLine();
-
-    std::vector< std::vector<float> > confusionMatrix, confusionMatrixUncertainties;
-    this->GetConfusionMatrix(confusionMatrix, confusionMatrixUncertainties);
-    this->PrintMatrix(confusionMatrix, confusionMatrixUncertainties, outputFileNamePrefix + "_confusionMatrix.md");
-    
-    // Print the smearing matrix
-    FormattingHelper::PrintLine();
-    std::cout << "Smearing matrix" << std::endl;
-    FormattingHelper::PrintLine();
-
-    std::vector< std::vector<float> > smearingMatrix, smearingMatrixUncertainties;
-    this->GetSmearingMatrix(smearingMatrix, smearingMatrixUncertainties);
-    this->PrintMatrix(smearingMatrix, smearingMatrixUncertainties, outputFileNamePrefix + "_smearingMatrix.md");
-   
-    // Print the efficiencies
-    FormattingHelper::PrintLine();
-    std::cout << "Selection efficiencies" << std::endl;
-    FormattingHelper::PrintLine();
-    FormattingHelper::Table efficiencyTable({"Bin", "True efficiency", "Smeared efficiency"});
-    
-    std::vector<float> trueEfficiencies, trueEfficiencyUncertainties;
-    this->GetTrueEfficiencies(trueEfficiencies, trueEfficiencyUncertainties);
-    
-    std::vector<float> recoEfficiencies, recoEfficiencyUncertainties;
-    this->GetSmearedEfficiencies(recoEfficiencies, recoEfficiencyUncertainties);
-
-    for (unsigned int i = 0; i < nBins; ++i)
-    {
-        const auto trueEfficiency = FormattingHelper::GetValueWithError(trueEfficiencies.at(i), trueEfficiencyUncertainties.at(i));
-        const auto recoEfficiency = FormattingHelper::GetValueWithError(recoEfficiencies.at(i), recoEfficiencyUncertainties.at(i));
-
-        efficiencyTable.AddEmptyRow();
-        efficiencyTable.SetEntry("Bin", this->GetBinName(i));
-        efficiencyTable.SetEntry("True efficiency", trueEfficiency);
-        efficiencyTable.SetEntry("Smeared efficiency", recoEfficiency);
-    }
-    efficiencyTable.WriteToFile(outputFileNamePrefix + "_efficiencies.md");
-
-    // Print the extracted cross-sections
-    FormattingHelper::PrintLine();
-    std::cout << "Cross-sections" << std::endl;
-    FormattingHelper::PrintLine();
-    FormattingHelper::Table xSecTable({"Bin", "", "xSec MC true", "", "xSec MC smeared", "xSec MC reco", "xSec Data"});
-
-    std::vector<float> xSecMCTrue, xSecMCTrueErr, xSecMCSmeared, xSecMCSmearedErr, xSecMCReco, xSecMCRecoErr, xSecData, xSecDataErr;
-    this->GetMCTrueCrossSection(xSecMCTrue, xSecMCTrueErr);
-    this->GetSmearedMCTrueCrossSection(xSecMCSmeared, xSecMCSmearedErr);
-    this->GetRecoCrossSection(false, xSecMCReco, xSecMCRecoErr);
-    this->GetRecoCrossSection(true, xSecData, xSecDataErr);
-
-    for (unsigned int i = 0; i < nBins; ++i)
-    {
-        xSecTable.AddEmptyRow();
-        xSecTable.SetEntry("Bin", this->GetBinName(i));
-        xSecTable.SetEntry("xSec MC true", FormattingHelper::GetValueWithError(xSecMCTrue.at(i), xSecMCTrueErr.at(i)));
-        xSecTable.SetEntry("xSec MC smeared", FormattingHelper::GetValueWithError(xSecMCSmeared.at(i), xSecMCSmearedErr.at(i)));
-        xSecTable.SetEntry("xSec MC reco", FormattingHelper::GetValueWithError(xSecMCReco.at(i), xSecMCRecoErr.at(i)));
-        xSecTable.SetEntry("xSec Data", FormattingHelper::GetValueWithError(xSecData.at(i), xSecDataErr.at(i)));
-    }
-
-    xSecTable.WriteToFile(outputFileNamePrefix + "_xSecs.md");
-
-}
-
-// -----------------------------------------------------------------------------------------------------------------------------------------
-
-// TODO this function is vomit on toast - make it less so.
-void CrossSectionHelper::XSec::MakePlots(const std::string &fileNamePrefix) const
-{
-    if (m_binEdges.size() < 2)
-        throw std::logic_error("XSec::MakePlotsPrint - binning hasn't been set");
-
-    const auto nBins = m_binEdges.size() - 1;
-
-    auto pCanvas = PlottingHelper::GetCanvas();
-
-    // Make the smearing matrix plot
-    std::vector< std::vector<float> > smearingMatrix, smearingMatrixUncertainties;
-    this->GetSmearingMatrix(smearingMatrix, smearingMatrixUncertainties);
-
-    TH2F *hSmearing = new TH2F(("hSmearing_" + fileNamePrefix).c_str(), "", nBins, 0, nBins, nBins, 0, nBins);
-    TH2F *hSmearingErr = new TH2F(("hSmearingErr_" + fileNamePrefix).c_str(), "", nBins, 0, nBins, nBins, 0, nBins);
-    
-    for (unsigned int i = 1; i <= nBins; ++i)
-    {
-        const auto recoName = "R " + this->GetBinName(i-1);
-        const auto trueName = "T " + this->GetBinName(i-1);
-
-        hSmearing->GetXaxis()->SetBinLabel(i, recoName.c_str());
-        hSmearing->GetYaxis()->SetBinLabel(i, trueName.c_str());
-        
-        hSmearingErr->GetXaxis()->SetBinLabel(i, recoName.c_str());
-        hSmearingErr->GetYaxis()->SetBinLabel(i, trueName.c_str());
-    }
-
-    for (unsigned int iReco = 1; iReco <= nBins; ++iReco)
-    {
-        for (unsigned int iTrue = 1; iTrue <= nBins; ++iTrue)
-        {
-            hSmearing->SetBinContent(iReco, iTrue, smearingMatrix.at(iReco-1).at(iTrue-1));
-            hSmearingErr->SetBinContent(iReco, iTrue, smearingMatrixUncertainties.at(iReco-1).at(iTrue-1));
-        }
-    }
-
-    gStyle->SetPaintTextFormat("2.2f");
-    hSmearing->SetMarkerSize(2.2); // Text size
-    hSmearing->Draw("colz text");
-    PlottingHelper::SaveCanvas(pCanvas, fileNamePrefix + "_smearingMatrix");
-    
-    hSmearingErr->Draw("colz");
-    PlottingHelper::SaveCanvas(pCanvas, fileNamePrefix + "_smearingMatrixUncertainties");
-
-    // Now plot the cross-sections
-    std::vector<float> xSecMCTrue, xSecMCTrueErr, xSecMCSmeared, xSecMCSmearedErr, xSecMCReco, xSecMCRecoErr, xSecData, xSecDataErr;
-    this->GetMCTrueCrossSection(xSecMCTrue, xSecMCTrueErr);
-    this->GetSmearedMCTrueCrossSection(xSecMCSmeared, xSecMCSmearedErr);
-    this->GetRecoCrossSection(false, xSecMCReco, xSecMCRecoErr);
-    this->GetRecoCrossSection(true, xSecData, xSecDataErr);
-    
-    std::vector<float> trueEfficiencies, trueEfficienciesErr, smearedEfficiencies, smearedEfficienciesErr;
-    this->GetTrueEfficiencies(trueEfficiencies, trueEfficienciesErr);
-    this->GetSmearedEfficiencies(smearedEfficiencies, smearedEfficienciesErr);
-
-
-    const auto nNormalBins = nBins - (m_hasUnderflow ? 1u : 0u) - (m_hasOverflow ? 1u : 0u);
-    std::vector<float> normalBinEdges;
-    for (unsigned int i = 0; i < nBins; ++i)
-    {
-        if (this->IsUnderOverFlowBin(i))
-            continue;
-
-        // Add the lower edge of the bin
-        normalBinEdges.push_back(m_binEdges.at(i));
-
-        // If this is the last bin, then include the upper edge too
-        if (i - (m_hasUnderflow ? 1u : 0u) == nNormalBins - 1)
-            normalBinEdges.push_back(m_binEdges.at(i+1));
-    }
-
-    // Fill the histograms
-    TH1F *hXSecMCTrue = new TH1F(("hXSecMCTrue_" + fileNamePrefix).c_str(), "", nNormalBins, normalBinEdges.data());
-    TH1F *hXSecMCSmeared = new TH1F(("hXSecMCSmeared_" + fileNamePrefix).c_str(), "", nNormalBins, normalBinEdges.data());
-    TH1F *hXSecMCReco = new TH1F(("hXSecMCReco_" + fileNamePrefix).c_str(), "", nNormalBins, normalBinEdges.data());
-    TH1F *hXSecData = new TH1F(("hXSecData_" + fileNamePrefix).c_str(), "", nNormalBins, normalBinEdges.data());
-    TH1F *hEff = new TH1F(("hEff_" + fileNamePrefix).c_str(), "", nNormalBins, normalBinEdges.data());
-    TH1F *hEffSmeared = new TH1F(("hEffSmeared_" + fileNamePrefix).c_str(), "", nNormalBins, normalBinEdges.data());
-    hXSecMCTrue->SetLineWidth(2);
-    hXSecMCSmeared->SetLineWidth(2);
-    hXSecMCReco->SetLineWidth(2);
-    hXSecData->SetLineWidth(2);
-    hEff->SetLineWidth(2);
-    hEffSmeared->SetLineWidth(2);
-    hEff->SetLineColor(kAzure - 2);
-    hEffSmeared->SetLineColor(kOrange - 3);
-
-    float maxValue = -std::numeric_limits<float>::max();
-    float maxEfficiency = 0.1f;
-
-    const int binOffset = (m_hasUnderflow ? 1 : 0) - 1; // Here we -1 as root bins are enumerated from 1 and ours are from 0
-    for (unsigned int i = 1; i <= nNormalBins; ++i)
-    {
-        if (this->IsUnderOverFlowBin(i + binOffset))
-            continue;
-
-        hXSecMCTrue->SetBinContent(i, xSecMCTrue.at(i + binOffset));
-        hXSecMCTrue->SetBinError(i, xSecMCTrueErr.at(i + binOffset));
-        maxValue = std::max(maxValue, xSecMCTrue.at(i + binOffset) + xSecMCTrueErr.at(i + binOffset));
-        
-        hXSecMCSmeared->SetBinContent(i, xSecMCSmeared.at(i + binOffset));
-        hXSecMCSmeared->SetBinError(i, xSecMCSmearedErr.at(i + binOffset));
-        maxValue = std::max(maxValue, xSecMCSmeared.at(i + binOffset) + xSecMCSmearedErr.at(i + binOffset));
-        
-        hXSecMCReco->SetBinContent(i, xSecMCReco.at(i + binOffset));
-        hXSecMCReco->SetBinError(i, xSecMCRecoErr.at(i + binOffset));
-        maxValue = std::max(maxValue, xSecMCReco.at(i + binOffset) + xSecMCRecoErr.at(i + binOffset));
-        
-        hXSecData->SetBinContent(i, xSecData.at(i + binOffset));
-        hXSecData->SetBinError(i, xSecDataErr.at(i + binOffset));
-        maxValue = std::max(maxValue, xSecData.at(i + binOffset) + xSecDataErr.at(i + binOffset));
-
-        hEff->SetBinContent(i, trueEfficiencies.at(i + binOffset));
-        hEff->SetBinError(i, trueEfficienciesErr.at(i + binOffset));
-        maxEfficiency = std::max(maxEfficiency, trueEfficiencies.at(i + binOffset) + trueEfficienciesErr.at(i + binOffset));
-
-        hEffSmeared->SetBinContent(i, smearedEfficiencies.at(i + binOffset));
-        hEffSmeared->SetBinError(i, smearedEfficienciesErr.at(i + binOffset));
-        maxEfficiency = std::max(maxEfficiency, smearedEfficiencies.at(i + binOffset) + smearedEfficienciesErr.at(i + binOffset));
-    }
-
-    const std::vector< std::pair<TH1F *, std::string> > histos = {
-        {hXSecMCTrue, "xSecMCTrue"},
-        {hXSecMCSmeared, "xSecMCSmeared"},
-        {hXSecMCReco, "xSecMCReco"},
-        {hXSecData, "xSecData"}
-    };
-
-    for (const auto &entry : histos)
-    {
-        const auto &pHist = entry.first;
-        const auto &name = entry.second;
-
-        pHist->GetYaxis()->SetRangeUser(0.f, maxValue * 1.05f);
-
-        auto pHistClone = static_cast<TH1F *>(pHist->Clone());
-        const auto col = pHistClone->GetLineColor();
-        pHistClone->SetFillStyle(1001);
-        pHistClone->SetLineColorAlpha(col, 0.f);
-        pHistClone->SetFillColorAlpha(col, 0.3f);
-
-        pHistClone->Draw("e2");
-        pHist->Draw("hist same");
-    
-        PlottingHelper::SaveCanvas(pCanvas, fileNamePrefix + "_" + name);
-    }
-
-    // Sanity check plot
-    auto hXSecMCRecoClone = static_cast<TH1F *>(hXSecMCReco->Clone());
-    auto hXSecMCSmearedClone = static_cast<TH1F *>(hXSecMCSmeared->Clone());
-    hXSecMCRecoClone->SetLineColor(kBlack);
-    hXSecMCRecoClone->SetLineStyle(2);
-    hXSecMCSmearedClone->SetLineColor(kOrange - 3);
-
-    hXSecMCSmearedClone->Draw("hist");
-    hXSecMCRecoClone->Draw("hist same");
-    PlottingHelper::SaveCanvas(pCanvas, fileNamePrefix + "_sanityCheck");
-
-
-
-    // Now make the plot with all x-sec histograms
-    // True
-    /*
-    auto hXSecMCTrueClone = static_cast<TH1F *>(hXSecMCTrue->Clone());
-    hXSecMCTrue->SetLineColor(kAzure - 2);
-    hXSecMCTrueClone->SetFillStyle(1001);
-    hXSecMCTrueClone->SetLineColorAlpha(kAzure - 2, 0.f);
-    hXSecMCTrueClone->SetFillColorAlpha(kAzure - 2, 0.3f);
-    hXSecMCTrueClone->GetYaxis()->SetRangeUser(0.f, maxValue * 1.05f);
-    
-    hXSecMCTrueClone->Draw("e2");
-    hXSecMCTrue->Draw("hist same");
-    */
-
-    // Smeared
-//    auto hXSecMCSmearedClone = static_cast<TH1F *>(hXSecMCSmeared->Clone());
-    hXSecMCSmeared->SetLineColor(kOrange - 3);
-    hXSecMCSmearedClone->SetFillStyle(1001);
-    hXSecMCSmearedClone->SetLineColorAlpha(kOrange - 3, 0.f);
-    hXSecMCSmearedClone->SetFillColorAlpha(kOrange - 3, 0.3f);
-    
-    hXSecMCSmearedClone->Draw("e2");
-    hXSecMCSmeared->Draw("hist same");
-
-    // Data
-    hXSecData->SetLineColor(kBlack);
-    hXSecData->Draw("e1 same");
-
-    PlottingHelper::SaveCanvas(pCanvas, fileNamePrefix + "_combined");
-
-    // Make the efficiency plots
-    hEff->GetYaxis()->SetRangeUser(0.f, maxEfficiency * 1.05);
-    hEffSmeared->GetYaxis()->SetRangeUser(0.f, maxEfficiency * 1.05);
-
-    auto hEffClone = static_cast<TH1F *>(hEff->Clone());
-    hEffClone->SetFillStyle(1001);
-    hEffClone->SetLineColorAlpha(hEffClone->GetLineColor(), 0.f);
-    hEffClone->SetFillColorAlpha(hEffClone->GetLineColor(), 0.3f);
-    
-    auto hEffSmearedClone = static_cast<TH1F *>(hEffSmeared->Clone());
-    hEffSmearedClone->SetFillStyle(1001);
-    hEffSmearedClone->SetLineColorAlpha(hEffSmearedClone->GetLineColor(), 0.f);
-    hEffSmearedClone->SetFillColorAlpha(hEffSmearedClone->GetLineColor(), 0.3f);
-
-    hEffClone->Draw("e2");
-    hEff->Draw("hist same");
-    hEffSmearedClone->Draw("e2 same");
-    hEffSmeared->Draw("hist same");
-
-    PlottingHelper::SaveCanvas(pCanvas, fileNamePrefix + "_efficiencies");
-
-
-    // Ratio plot
-    auto pCanvasRatio = PlottingHelper::GetCanvas(960, 270);
-
-    auto hXSecDataRatio = static_cast<TH1F *>(hXSecData->Clone());
-    hXSecDataRatio->Sumw2();
-    hXSecMCSmeared->Sumw2();
-    hXSecDataRatio->Divide(hXSecMCSmeared);
-    
-    // Set the y-axis range
-    float minRatio = 0.75f;
-    float maxRatio = 1.25f;
-    
-    std::cout << "TEST : " << fileNamePrefix << std::endl;
-    float chi2Sum = 0.f;
-    float nDof = 0.f;
-    for (unsigned int i = 1; i <= static_cast<unsigned int>(hXSecDataRatio->GetNbinsX()); ++i)
-    {
-        minRatio = std::min(minRatio, static_cast<float>(hXSecDataRatio->GetBinContent(i) - hXSecDataRatio->GetBinError(i)));
-        maxRatio = std::max(maxRatio, static_cast<float>(hXSecDataRatio->GetBinContent(i) + hXSecDataRatio->GetBinError(i)));
-
-        const auto diff = (hXSecDataRatio->GetBinContent(i) - 1.f) / hXSecDataRatio->GetBinError(i);
-        std::cout << "  - " << i << " : " << hXSecDataRatio->GetBinContent(i) << ", " << hXSecDataRatio->GetBinError(i) << ", " << diff << std::endl;
-        chi2Sum += std::pow(diff, 2);
-        nDof += 1.f;
-    }
-    std::cout << "  - Chi2 = " << chi2Sum << " (" << nDof << ")" << std::endl;
-    std::cout << "  - Chi2/dof = " << (chi2Sum / nDof) << std::endl;
-
-    const auto padding = (maxRatio - minRatio) * 0.05f;
-    hXSecDataRatio->GetYaxis()->SetRangeUser(std::max(0.f, minRatio - padding), maxRatio + padding);
-
-    hXSecDataRatio->Draw("e1");
-    pCanvasRatio->Update();
-
-    // Add the lines at 0.8, 1.0 and 1.2
-    TLine *l=new TLine(pCanvasRatio->GetUxmin(),1.0,pCanvasRatio->GetUxmax(),1.0);
-    TLine *lPlus=new TLine(pCanvasRatio->GetUxmin(), 1.2f, pCanvasRatio->GetUxmax(), 1.2f);
-    TLine *lMinus=new TLine(pCanvasRatio->GetUxmin(), 0.8f, pCanvasRatio->GetUxmax(), 0.8f);
-
-    l->SetLineColor(kOrange - 3);
-    lPlus->SetLineColor(kOrange - 3);
-    lMinus->SetLineColor(kOrange - 3);
-
-    lPlus->SetLineStyle(2);
-    lMinus->SetLineStyle(2);
-
-    l->Draw();
-    lPlus->Draw();
-    lMinus->Draw();
-
-    PlottingHelper::SaveCanvas(pCanvasRatio, fileNamePrefix + "_ratio");
+    return std::tuple<std::vector<float>, bool, bool>(extendedBinEdges, hasUnderflow, hasOverflow);
 }
 
 } // namespace ubcc1pi

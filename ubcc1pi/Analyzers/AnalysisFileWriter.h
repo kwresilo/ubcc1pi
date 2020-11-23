@@ -49,7 +49,7 @@ class AnalysisFileWriter : public art::EDAnalyzer
                 fhicl::Name("EventFactoryConfig"),
                 fhicl::Comment("The configuration of the event factory")
             };
-            
+
             /**
              *  @brief  The subrun factory configuration
              */

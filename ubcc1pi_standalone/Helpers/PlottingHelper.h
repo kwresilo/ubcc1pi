@@ -12,6 +12,7 @@
 #include <unordered_map>
 
 #include <TH1F.h>
+#include <TH2F.h>
 #include <TCanvas.h>
 
 #include "ubcc1pi_standalone/Interface/Event.h"
@@ -62,7 +63,7 @@ class PlottingHelper
             NumuCCOther,
             Nue,
             NC,
-            
+
             // Common types
             External,
             ExternalPoints,
@@ -73,12 +74,12 @@ class PlottingHelper
             OtherPoints,
             Default,
         };
-        
+
         /**
          *  @brief  The vector of all plot styles
          */
         static const std::vector<PlotStyle> AllPlotStyles;
-        
+
         /**
          *  @brief  If we should draw the input style with points (or a line)
          *
@@ -89,7 +90,7 @@ class PlottingHelper
         static bool ShouldUsePoints(const PlotStyle &style);
 
         /**
-         *  @brief  The plot class that manages multiple related histograms 
+         *  @brief  The plot class that manages multiple related histograms
          */
         class MultiPlot
         {
@@ -100,12 +101,12 @@ class PlottingHelper
                  *  @param  xLabel the x-label of the histogram
                  *  @param  yLabel the y-label of the histogram
                  *  @param  nBins the number of bins
-                 *  @param  min the minimum value 
+                 *  @param  min the minimum value
                  *  @param  max the maximum value
                  *  @param  drawErrors whether to draw the error bands
                  */
                 MultiPlot(const std::string &xLabel, const std::string &yLabel, unsigned int nBins, float min, float max, bool drawErrors = true);
-                
+
                 /**
                  *  @brief  Constructor
                  *
@@ -153,7 +154,7 @@ class PlottingHelper
                  *  @param  minEntriesToDraw the minimum number of entries required before we will draw a given histogram
                  */
                 void SaveAs(const std::string &fileName, const bool useLogX = false, const bool scaleByBinWidth = false, const unsigned int minEntriesToDraw = 0u);
-                
+
                 /**
                  *  @brief  Draw and save the plot as a stacked histogram
                  *
@@ -165,7 +166,7 @@ class PlottingHelper
 
             private:
                 /**
-                 *  @brief  Get clones of the histograms so they can be safely manipulated 
+                 *  @brief  Get clones of the histograms so they can be safely manipulated
                  *
                  *  @param  plotToHistCloneMap the output map of cloned histograms
                  */
@@ -213,13 +214,13 @@ class PlottingHelper
                  *
                  *  @param  xLabel the x-label of the histogram
                  *  @param  nBins the number of bins
-                 *  @param  min the minimum value 
+                 *  @param  min the minimum value
                  *  @param  max the maximum value
                  *  @param  cuts the names of all possible cuts in order
                  *  @param  drawErrors whether to draw the error bands
                  */
                 EfficiencyPlot(const std::string &xLabel, unsigned int nBins, float min, float max, const std::vector<string> &cuts, bool drawErrors = true);
-       
+
                 /**
                  *  @brief  Constructor
                  *
@@ -235,7 +236,7 @@ class PlottingHelper
                  *
                  *  @param  value the value at which to add the event
                  *  @param  weight the event weight
-                 *  @param  cut the cut 
+                 *  @param  cut the cut
                  *  @param  passedCut if the cut was passed
                  */
                 void AddEvent(const float value, const float weight, const std::string &cut, const bool passedCut);
@@ -246,7 +247,7 @@ class PlottingHelper
                  *  @param  value the value
                  */
                 void AddCutLine(const float value);
-                
+
                 /**
                  *  @brief  Draw and save the plots for the specified cuts, and styles
                  *
@@ -322,7 +323,7 @@ class PlottingHelper
          *  @return the colors
          */
         static std::vector<int> GetColorVector();
-        
+
         /**
          *  @brief  Get the plot style of an event
          *
@@ -333,7 +334,7 @@ class PlottingHelper
          *  @return the plot style
          */
         static PlotStyle GetPlotStyle(const AnalysisHelper::SampleType &sampleType, const std::shared_ptr<Event> &pEvent, const bool useAbsPdg);
-        
+
         /**
          *  @brief  Set the line style for a given plot type
          *
@@ -353,7 +354,7 @@ class PlottingHelper
          */
         template<typename T>
         static void SetLineStyle(T *pObject, const int col);
-        
+
         /**
          *  @brief  Set the line style for a given plot type
          *
@@ -363,7 +364,7 @@ class PlottingHelper
          */
         template<typename T>
         static void SetLineStyle(std::shared_ptr<T> &pObject, const PlotStyle plotStyle);
-        
+
         /**
          *  @brief  Set the line style for a given plot type
          *
@@ -402,7 +403,7 @@ class PlottingHelper
          *  @return the output bin edges
          */
         static std::vector<float> GenerateUniformBinEdges(const unsigned int nBins, const float min, const float max);
-        
+
         /**
          *  @brief  Generate log bin edges in the specified range
          *
@@ -414,9 +415,74 @@ class PlottingHelper
          */
         static std::vector<float> GenerateLogBinEdges(const unsigned int nBins, const float min, const float max);
 
+        /**
+         *  @brief  Draw and save an input bias vector and the corresponding fractional bias vector
+         *
+         *  @param  vector the input N-bin bias vector (N = number of analysis bins)
+         *  @param  crossSection the input M-bin cross-section including possible under/overflow bins (M = N + hasOverflow + hasUnderflow)
+         *  @param  hasUnderflow if the input cross section has an underflow bin
+         *  @param  hasOverflow if the input cross section has an overflow bin
+         *  @param  namePrefix a prefix for the name for the plots to make
+         */
+        static void SaveBiasVector(const std::shared_ptr<TH1F> &vector, const std::shared_ptr<TH1F> &crossSection, const bool hasUnderflow, const bool hasOverflow, const std::string &namePrefix);
+
+        /**
+         *  @brief  Draw and save the input bias vector for the smearing matrix
+         *
+         *  @param  vector the input bias vector
+         *  @param  hasUnderflow if the input cross section has an underflow bin
+         *  @param  hasOverflow if the input cross section has an overflow bin
+         *  @param  namePrefix a prefix for the name of the plot to make
+         */
+        static void SaveSmearingMatrixBiasVector(const std::shared_ptr<TH1F> &vector, const bool hasUnderflow, const bool hasOverflow, const std::string &namePrefix);
+
+        /**
+         *  @brief  Draw and save an input covariance matrix and the corresponding fractional covariance matrix and linear correlation matrix
+         *
+         *  @param  matrix the input NxN covaraince matrix (N = number of analysis bins)
+         *  @param  crossSection the input cross-section with M bins including possible under/overflow bins (M = N + hasOverflow + hasUnderflow)
+         *  @param  hasUnderflow if the input cross section has an underflow bin
+         *  @param  hasOverflow if the input cross section has an overflow bin
+         *  @param  namePrefix a prefix for the name for the plots to make
+         */
+        static void SaveCovarianceMatrix(const std::shared_ptr<TH2F> &matrix, const std::shared_ptr<TH1F> &crossSection, const bool hasUnderflow, const bool hasOverflow, const std::string &namePrefix);
+
+        /**
+         *  @brief  Draw and save the input covaraince matrix for the smearing matrix
+         *
+         *  @param  matrix the input smearing matrix
+         *  @param  hasUnderflow if the input cross section has an underflow bin
+         *  @param  hasOverflow if the input cross section has an overflow bin
+         *  @param  namePrefix a prefix for the name of the plot to make
+         */
+        static void SaveSmearingMatrixCovarianceMatrix(const std::shared_ptr<TH2F> &matrix, const bool hasUnderflow, const bool hasOverflow, const std::string &namePrefix);
+
+        /**
+         *  @brief  Save the cross-section plot including the stat and (diagonal) systematic uncertainties
+         *
+         *  @param  crossSection the input cross-section with M bins including possible under/overflow bins
+         *  @param  statUncertainty the input N-bin stat uncertainty (N = number of analysis bins = M - hasUnderflow - hasOverflow)
+         *  @param  totalSystCovarianceMatrix the input NxN covarianc matrix for all systematic parameters combined
+         *  @param  hasUnderflow if the input cross section has an underflow bin
+         *  @param  hasOverflow if the input cross section has an overflow bin
+         *  @param  namePrefix a prefix for the name for the plots to make
+         */
+        static void SaveCrossSection(const std::shared_ptr<TH1F> &crossSection, const std::shared_ptr<TH1F> &statUncertainty, const std::shared_ptr<TH2F> &totalSystCovarianceMatrix, const bool hasUnderflow, const bool hasOverflow, const std::string &namePrefix);
+
+        /**
+         *  @brief  Draw and save the input smearing matrix
+         *
+         *  @param  matrix the input smearing matrix
+         *  @param  hasUnderflow it the input cross section has an underflow bin
+         *  @param  hasOverflow if the input cross section has an overflow bin
+         *  @param  namePrefix a prefix for the name for the plots to make
+         */
+        static void SaveSmearingMatrix(const std::shared_ptr<TH2F> &matrix, const bool hasUnderflow, const bool hasOverflow, const std::string &namePrefix);
+
     private:
 
         static unsigned int m_lastCanvasId;  ///< The last canvas ID
+        static unsigned int m_lastPlotId;  ///< The last plot ID
 };
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
@@ -468,11 +534,15 @@ unsigned int PlottingHelper::MultiPlot::m_lastId = 0;
 unsigned int PlottingHelper::EfficiencyPlot::m_lastId = 0;
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
-        
+
 unsigned int PlottingHelper::m_lastCanvasId = 0;
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
-        
+
+unsigned int PlottingHelper::m_lastPlotId = 0;
+
+// -----------------------------------------------------------------------------------------------------------------------------------------
+
 template<typename T>
 inline void PlottingHelper::SetLineStyle(std::shared_ptr<T> &pObject, const PlotStyle plotStyle)
 {
@@ -480,7 +550,7 @@ inline void PlottingHelper::SetLineStyle(std::shared_ptr<T> &pObject, const Plot
 }
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
-        
+
 template<typename T>
 inline void PlottingHelper::SetLineStyle(std::shared_ptr<T> &pObject, const int col)
 {
@@ -492,7 +562,7 @@ inline void PlottingHelper::SetLineStyle(std::shared_ptr<T> &pObject, const int 
 int PlottingHelper::GetColor(const PlotStyle plotStyle)
 {
     auto col = static_cast<int>(kBlack);
-    
+
     switch (plotStyle)
     {
         case Primary:
@@ -527,19 +597,19 @@ int PlottingHelper::GetColor(const PlotStyle plotStyle)
         case NumuCC1PiChargedNonGolden:
             col = kMagenta + 1;
             break;
-        
+
         case PiMinus:
         case PiMinusPoints:
         case NonFiducial:
             col = kRed - 4;
             break;
-        
+
         case Electron:
         case ElectronPoints:
         case NumuCCOther:
             col = kCyan + 1;
             break;
-        
+
         case Photon:
         case PhotonPoints:
         case Nue:
@@ -549,12 +619,12 @@ int PlottingHelper::GetColor(const PlotStyle plotStyle)
         case NC:
             col = kGreen + 3;
             break;
-        
+
         case External:
         case ExternalPoints:
             col = kGray + 3;
             break;
-        
+
         case Dirt:
         case DirtPoints:
             col = kMagenta - 5;
@@ -564,13 +634,13 @@ int PlottingHelper::GetColor(const PlotStyle plotStyle)
         case OtherPoints:
             col = kGray;
             break;
-        
+
         default: break;
     }
 
     return col;
 }
-        
+
 // -----------------------------------------------------------------------------------------------------------------------------------------
 
 std::vector<int> PlottingHelper::GetColorVector()
@@ -621,7 +691,7 @@ inline void PlottingHelper::SetLineStyle(T *pObject, const PlotStyle plotStyle)
 }
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
-        
+
 bool PlottingHelper::ShouldUsePoints(const PlotStyle &style)
 {
     if (style == ExternalPoints ||

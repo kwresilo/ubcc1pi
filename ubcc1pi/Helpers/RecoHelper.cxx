@@ -23,7 +23,7 @@ PFParticleMap RecoHelper::GetPFParticleMap(const PFParticleVector &allPFParticle
 }
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
-        
+
 bool RecoHelper::IsNeutrino(const art::Ptr<recob::PFParticle> &pfParticle)
 {
     const auto pdg = std::abs(pfParticle->PdgCode());
@@ -43,7 +43,7 @@ PFParticleVector RecoHelper::GetNeutrinos(const PFParticleVector &allPFParticles
         if (RecoHelper::IsNeutrino(particle))
             neutrinos.push_back(particle);
     }
-            
+
     return neutrinos;
 }
 
@@ -77,7 +77,7 @@ PFParticleToPFParticles RecoHelper::GetNewToOldPFParticlesMap(const PFParticleVe
             {
                 outputMap.at(newPFParticle).push_back(oldPFParticle);
             }
-        }    
+        }
     }
 
     return outputMap;
@@ -98,7 +98,7 @@ PFParticleVector RecoHelper::GetNeutrinoFinalStates(const PFParticleVector &allP
         // No neutrino found
         return PFParticleVector();
     }
-    
+
     const auto pfParticleMap = RecoHelper::GetPFParticleMap(allPFParticles);
     return RecoHelper::GetDaughters(neutrino, pfParticleMap);
 }
@@ -175,7 +175,7 @@ void RecoHelper::GetDownstreamParticles(const art::Ptr<recob::PFParticle> &parti
 }
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
-        
+
 unsigned int RecoHelper::GetGeneration(const art::Ptr<recob::PFParticle> &particle, const PFParticleMap &pfParticleMap)
 {
     unsigned int generation = 0;
@@ -191,19 +191,19 @@ unsigned int RecoHelper::GetGeneration(const art::Ptr<recob::PFParticle> &partic
 }
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
-        
+
 bool RecoHelper::IsSliceSelectedAsNu(const art::Ptr<recob::Slice> &slice, const SlicesToPFParticles &slicesToPFParticles)
 {
     const auto neutrinos = RecoHelper::GetNeutrinos(CollectionHelper::GetManyAssociated(slice, slicesToPFParticles));
-    
+
     if (neutrinos.size() > 1)
         throw cet::exception("RecoHelper::IsSliceSelectedAsNu") << " - Found multiple neutrino PFParticles associated to slice." << std::endl;
- 
+
     return (!neutrinos.empty());
 }
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
-        
+
 bool RecoHelper::HasMetadataValue(const art::Ptr<larpandoraobj::PFParticleMetadata> &metadata, const std::string &property)
 {
     const auto &properties = metadata->GetPropertiesMap();
@@ -286,7 +286,7 @@ TVector3 RecoHelper::CorrectForSpaceCharge(const TVector3 &position, const space
 }
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
-            
+
 float RecoHelper::GetPidScore(const art::Ptr<anab::ParticleID> &pid, const std::function<bool(const anab::sParticleIDAlgScores &)> &fCriteria)
 {
     bool found = false;
@@ -308,19 +308,19 @@ float RecoHelper::GetPidScore(const art::Ptr<anab::ParticleID> &pid, const std::
 }
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
-            
+
 geo::View_t RecoHelper::GetView(const std::bitset<8> &planeMask)
 {
     const bool usesW = planeMask.test(2);
     const bool usesU = planeMask.test(0);
     const bool usesV = planeMask.test(1);
-    
+
     if (usesW && !usesU && !usesV)
         return geo::kW;
-    
+
     if (!usesW && usesU && !usesV)
         return geo::kU;
-    
+
     if (!usesW && !usesU && usesV)
         return geo::kV;
 
@@ -344,7 +344,7 @@ float RecoHelper::GetBraggLikelihood(const art::Ptr<anab::ParticleID> &pid, cons
 float RecoHelper::GetBraggLikelihood(const art::Ptr<anab::ParticleID> &pid, const int &pdg, const anab::kTrackDir &dir, const float yzAngle, const float sin2AngleThreshold, const unsigned int nHitsU, const unsigned int nHitsV)
 {
     const auto piBy3 = std::acos(0.5f);
-    
+
     const auto likelihoodW = RecoHelper::GetBraggLikelihood(pid, pdg, geo::kW, dir);
     const bool isTrackAlongWWire = (std::pow(std::sin(yzAngle), 2) < sin2AngleThreshold);
     const auto hasW = (likelihoodW > -1.f && !isTrackAlongWWire);
@@ -364,13 +364,13 @@ float RecoHelper::GetBraggLikelihood(const art::Ptr<anab::ParticleID> &pid, cons
     const auto dofU = hasU ? static_cast<float>(nHitsU) : 0.f;
     const auto dofV = hasV ? static_cast<float>(nHitsV) : 0.f;
     const auto dofUV = dofU + dofV;
-    
+
     const auto weightU = hasU ? (likelihoodU * dofU) : 0.f;
     const auto weightV = hasV ? (likelihoodV * dofV) : 0.f;
 
     if ((!hasU && !hasV) || (nHitsU == 0 && nHitsV == 0) || dofUV <= std::numeric_limits<float>::epsilon())
         return -std::numeric_limits<float>::max();
-    
+
     return (weightU + weightV) / dofUV;
 }
 
@@ -450,19 +450,19 @@ float RecoHelper::GetTrackWiggliness(const art::Ptr<recob::Track> &track)
         // Bind between -1 and 1 at floating precision to avoid issues with cast from double
         const auto cosTheta = std::min(1.f, std::max(-1.f, static_cast<float>(dir.Dot(dirPrev))));
         const auto theta = std::acos(cosTheta);
-    
+
         thetaSum += theta;
         thetaVector.push_back(theta);
     }
 
     const auto thetaMean = thetaSum / static_cast<float>(thetaVector.size());
-    
+
     float thetaDiffSum = 0.f;
     for (const auto &theta : thetaVector)
     {
         thetaDiffSum += std::pow(theta - thetaMean, 2);
     }
-    
+
     const auto variance = thetaDiffSum / static_cast<float>(thetaVector.size() - 1);
 
     return std::sqrt(variance);
@@ -472,7 +472,7 @@ float RecoHelper::GetTrackWiggliness(const art::Ptr<recob::Track> &track)
 
 unsigned int RecoHelper::CountSpacePointsNearTrackEnd(const art::Ptr<recob::Track> &track, const SpacePointVector &spacePoints, const float distance, const spacecharge::SpaceChargeService::provider_type *const pSpaceChargeService)
 {
-    const auto distSquared = distance * distance;  
+    const auto distSquared = distance * distance;
     const auto end = RecoHelper::CorrectForSpaceCharge(TVector3(track->End().X(), track->End().Y(), track->End().Z()), pSpaceChargeService);
 
     unsigned int nPoints = 0;
@@ -538,21 +538,21 @@ float RecoHelper::GetTruncatedMeandEdxAtTrackStart(const std::vector<float> dedx
     // Sort the dEdx so we can find the median
     std::sort(dedxPerHitAtStart.begin(), dedxPerHitAtStart.end());
     const auto median = dedxPerHitAtStart.at(nHits / 2);
-   
+
     // Now find the mean
     float total = 0.f;
     for (const auto &dEdx : dedxPerHitAtStart)
         total += dEdx;
 
     const auto mean = total / static_cast<float>(nHits);
-    
+
     // Now find the variance
     float squareSum = 0.f;
     for (const auto &dEdx : dedxPerHitAtStart)
         squareSum += std::pow(dEdx - mean, 2);
 
     const auto variance = squareSum / static_cast<float>(nHits);
-    
+
     // Get the mean dEdx of the hits within one standard deviation of the median
     float truncatedTotal = 0.f;
     unsigned int nTruncatedHits = 0;
@@ -560,14 +560,14 @@ float RecoHelper::GetTruncatedMeandEdxAtTrackStart(const std::vector<float> dedx
     {
         if (std::pow(dEdx - median, 2) > variance)
             continue;
-        
+
         truncatedTotal += dEdx;
         nTruncatedHits++;
     }
-    
+
     if (nTruncatedHits == 0)
         return -std::numeric_limits<float>::max();
-    
+
     const auto truncatedMean = truncatedTotal / static_cast<float>(nTruncatedHits);
 
     return truncatedMean;

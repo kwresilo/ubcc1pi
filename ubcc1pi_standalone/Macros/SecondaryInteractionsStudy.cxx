@@ -50,11 +50,11 @@ void SecondaryInteractionsStudy(const Config &config)
 
     // nScatters plot
     std::shared_ptr<TH2F> pNScattersHist(new TH2F("nScatters", "", 3, 0, 3, 3, 0, 3));
-    
+
     // Momentum lost in scatter plots
     std::shared_ptr<TH1F> pMomLostElastic(new TH1F("momLostElastic", "", 50, 0.f, 1.f));
     std::shared_ptr<TH1F> pMomLostInelastic(new TH1F("momLostInelastic", "", 50, 0.f, 1.f));
-    
+
     // Reco-true momentum resolution plots (index of map is a descriptor, eg. "contained")
     std::map<std::string, std::shared_ptr<TH1F> > pionMomentumResolutionPlots, muonMomentumResolutionPlots;
 
@@ -62,7 +62,7 @@ void SecondaryInteractionsStudy(const Config &config)
     pionMomentumResolutionPlots.emplace("contained", new TH1F("pionRes_contained", "", 50, -1.f, 1.5f));
     pionMomentumResolutionPlots.emplace("contained-stopping", new TH1F("pionRes_contained-stopping", "", 50, -1.f, 1.5f));
     pionMomentumResolutionPlots.emplace("contained-stopping-noScatters", new TH1F("pionRes_contained-stopping-noScatters", "", 50, -1.f, 1.5f));
-    
+
     muonMomentumResolutionPlots.emplace("all_range", new TH1F("muonRes_all_range", "", 50, -1.f, 0.7f));
     muonMomentumResolutionPlots.emplace("contained_range", new TH1F("muonRes_contained_range", "", 50, -1.f, 0.7f));
     muonMomentumResolutionPlots.emplace("all_MCS", new TH1F("muonRes_all_MCS", "", 50, -1.f, 0.7f));
@@ -84,7 +84,7 @@ void SecondaryInteractionsStudy(const Config &config)
         // Only consider true CC1Pi events
         if (!AnalysisHelper::IsTrueCC1Pi(pEvent, config.global.useAbsPdg))
             continue;
-        
+
         const auto weight = AnalysisHelper::GetNominalEventWeight(pEvent);
         const auto &truthParticles = pEvent->truth.particles;
 
@@ -107,7 +107,7 @@ void SecondaryInteractionsStudy(const Config &config)
                 pionIndex = index;
                 foundPion = true;
             }
-            
+
             if (pdgCode == 13)
             {
                 if (foundMuon)
@@ -120,7 +120,7 @@ void SecondaryInteractionsStudy(const Config &config)
 
         if (!foundPion)
             throw std::logic_error("SecondaryInteractionsStudy - Couldn't find the pion in a signal event!");
-        
+
         if (!foundMuon)
             throw std::logic_error("SecondaryInteractionsStudy - Couldn't find the muon in a signal event!");
 
@@ -131,7 +131,7 @@ void SecondaryInteractionsStudy(const Config &config)
         const auto pionMomentum = pion.momentum();
         const auto pionEndMomentum = pion.endMomentum();
         const auto pionEndState = pion.endState();
-        
+
         const auto muonMomentum = muon.momentum();
 
         // Get the reco particles
@@ -164,7 +164,7 @@ void SecondaryInteractionsStudy(const Config &config)
                         }
                     }
                 }
-                
+
                 if (AnalysisHelper::IsGolden(pion))
                 {
                     pPionMomVsRange->Fill(recoParticle.range(), pionMomentum, weight);
@@ -210,7 +210,7 @@ void SecondaryInteractionsStudy(const Config &config)
         {
             iter->second += weight;
         }
-        
+
         if (pion.isStopping())
         {
             auto stoppingIter = stoppingPionEndStateMap.find(pionEndState);
@@ -232,7 +232,7 @@ void SecondaryInteractionsStudy(const Config &config)
         {
             const auto isElastic = pion.scatterIsElastic().at(iScatter);
             const auto momentumFracLost = pion.scatterMomentumFracsLost().at(iScatter);
-            
+
             if (isElastic)
             {
                 pMomLostElastic->Fill(momentumFracLost, weight);
@@ -276,14 +276,14 @@ void SecondaryInteractionsStudy(const Config &config)
 
     if (totalWeight <= std::numeric_limits<float>::epsilon())
         throw std::logic_error("SecondaryInteractionsStudy - No pions from CC1Pi events found");
-    
+
     // Make the momentum plots
     pionMomentumPlot_endState.SaveAsStacked("secondaryInteractions_pionMomentum_endStates");
     pionEndMomentumPlot_endState.SaveAsStacked("secondaryInteractions_pionEndMomentum_endStates");
 
     // Setup the output canvas for the remaining plots
     auto pCanvas = PlottingHelper::GetCanvas();
-    
+
     // Make the momentum resolution plots
     PlottingHelper::SetLineStyle(pionMomentumResolutionPlots.at("all"), PlottingHelper::Primary);
     PlottingHelper::SetLineStyle(pionMomentumResolutionPlots.at("contained"), PlottingHelper::Secondary);
@@ -307,7 +307,7 @@ void SecondaryInteractionsStudy(const Config &config)
     muonMomentumResolutionPlots.at("all_MCS")->Draw("hist");
     muonMomentumResolutionPlots.at("contained_MCS")->Draw("hist same");
     PlottingHelper::SaveCanvas(pCanvas, "secondaryInteractions_muonMomentumResolution_MCS");
-    
+
     // Save the 2D resolution plots
     pPionMomVsRange->Draw("colz");
     auto pFuncPion = AnalysisHelper::GetRangeToMomentumFunctionPion();
@@ -315,7 +315,7 @@ void SecondaryInteractionsStudy(const Config &config)
     PlottingHelper::SaveCanvas(pCanvas, "secondaryInteractions_pionMomentumVsRange_golden");
     pPionResVsRange->Draw("colz");
     PlottingHelper::SaveCanvas(pCanvas, "secondaryInteractions_pionMomentumResolutionVsRange_golden");
-    
+
     pMuonMomVsRange->Draw("colz");
     auto pFuncMuon = AnalysisHelper::GetRangeToMomentumFunctionMuon();
     pFuncMuon->Draw("same");
@@ -366,7 +366,7 @@ void SecondaryInteractionsStudy(const Config &config)
     std::cout << "All CC1pi pions" << std::endl;
     FormattingHelper::PrintLine();
     table.WriteToFile("secondaryInteractions_pionEndStates.md");
-    
+
     FormattingHelper::Table stoppingTable({"End state", "Events", "Fraction"});
     for (const auto &entry : stoppingPionEndStateMap)
     {
@@ -379,7 +379,7 @@ void SecondaryInteractionsStudy(const Config &config)
         stoppingTable.SetEntry("Events", weight);
         stoppingTable.SetEntry("Fraction", fraction);
     }
-    
+
     FormattingHelper::PrintLine();
     std::cout << "All CC1pi stopping pions" << std::endl;
     FormattingHelper::PrintLine();

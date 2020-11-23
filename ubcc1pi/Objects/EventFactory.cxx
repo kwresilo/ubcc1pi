@@ -18,7 +18,7 @@ namespace ubcc1pi
 void EventFactory::PopulateEvent(const art::Event &event, const Config &config, Event *pOutputEvent)
 {
     pOutputEvent->Reset();
-   
+
     // Get the output data structures
     auto &metadata = pOutputEvent->metadata;
     auto &truth = pOutputEvent->truth;
@@ -26,7 +26,7 @@ void EventFactory::PopulateEvent(const art::Event &event, const Config &config, 
 
     // Populate the structures with information from the input event
     EventFactory::PopulateEventMetadata(event, config, metadata);
-    
+
     MCParticleVector finalStateMCParticles;
     EventFactory::PopulateEventTruthInfo(event, config, truth, finalStateMCParticles);
     EventFactory::PopulateEventRecoInfo(event, config, finalStateMCParticles, reco);
@@ -48,7 +48,7 @@ void EventFactory::PopulateEventTruthInfo(const art::Event &event, const Config 
 {
     if (!config.HasTruthInfo())
         return;
-    
+
     // Fill the slice information
     EventFactory::PopulateEventTruthSliceInfo(event, config, truth);
 
@@ -61,6 +61,26 @@ void EventFactory::PopulateEventTruthInfo(const art::Event &event, const Config 
         {
             const auto &mcEventWeight = mcEventWeights.front();
 
+            // Extract the systematic parameters in the desired format
+            std::vector<std::string> systParamNames;
+            std::vector<int> systParamFirstValueIndex;
+            std::vector<float> systParamValues;
+
+            for (const auto &entry : mcEventWeight->fWeight)
+            {
+                const auto &label = entry.first;
+                const auto &weights = entry.second;
+
+                systParamNames.push_back(label);
+                systParamFirstValueIndex.push_back(static_cast<int>(systParamValues.size()));
+                systParamValues.insert(systParamValues.end(), weights.begin(), weights.end());
+            }
+
+            truth.systParamNames.Set(systParamNames);
+            truth.systParamFirstValueIndex.Set(systParamFirstValueIndex);
+            truth.systParamValues.Set(systParamValues);
+
+            // Explicitly save the nominal weights
             for (const auto &entry : mcEventWeight->fWeight)
             {
                 const auto &label = entry.first;
@@ -77,7 +97,7 @@ void EventFactory::PopulateEventTruthInfo(const art::Event &event, const Config 
                     if (!weights.empty())
                         truth.splineEventWeight.Set(weights.front());
                 }
-                
+
                 if (label == "TunedCentralValue_Genie")
                 {
                     if (truth.genieTuneEventWeight.IsSet())
@@ -95,7 +115,7 @@ void EventFactory::PopulateEventTruthInfo(const art::Event &event, const Config 
 
     // Get the generator level interaction
     const TruthHelper::Interaction interaction(event, config.MCTruthLabel(), config.MCParticleLabel());
-    
+
     // Fill the interaction type info
     truth.isCC.Set(interaction.GetCCNC() == simb::kCC);
     truth.interactionMode.Set(interaction.GetInteractionMode());
@@ -106,7 +126,7 @@ void EventFactory::PopulateEventTruthInfo(const art::Event &event, const Config 
     truth.nuPdgCode.Set(neutrino.PdgCode());
     truth.nuEnergy.Set(neutrino.E());
     truth.nuVertex.Set(TVector3(neutrino.Vx(), neutrino.Vy(), neutrino.Vz()));
-    
+
     finalStateMCParticles = TruthHelper::GetPrimaryMCParticles(interaction.GetAllMCParticles());
     truth.nFinalStates.Set(finalStateMCParticles.size());
 
@@ -134,7 +154,7 @@ void EventFactory::PopulateEventTruthParticleInfo(const art::Event &event, const
     particle.startX.Set(start.X());
     particle.startY.Set(start.Y());
     particle.startZ.Set(start.Z());
-    
+
     const auto end = mcParticle->EndPosition().Vect();
     particle.endX.Set(end.X());
     particle.endY.Set(end.Y());
@@ -150,7 +170,7 @@ void EventFactory::PopulateEventTruthParticleInfo(const art::Event &event, const
     particle.hitWeightU.Set(BacktrackHelper::GetHitWeightInView(mcParticle, mcParticleToHitWeights, geo::kU));
     particle.hitWeightV.Set(BacktrackHelper::GetHitWeightInView(mcParticle, mcParticleToHitWeights, geo::kV));
     particle.hitWeightW.Set(BacktrackHelper::GetHitWeightInView(mcParticle, mcParticleToHitWeights, geo::kW));
-    
+
     // Follow the hierarchy information
     TruthHelper::ScatterVector scatters;
     art::Ptr<simb::MCParticle> scatteredParticle;
@@ -160,10 +180,10 @@ void EventFactory::PopulateEventTruthParticleInfo(const art::Event &event, const
     // Output the scattering info
     unsigned int nElasticScatters = 0;
     unsigned int nInelasticScatters = 0;
-    
+
     std::vector<float> scatterCosThetas, scatterMomentumFracsLost;
     std::vector<int> scatterIsElastic;
-    
+
     for (const auto &scatter : scatters)
     {
         nElasticScatters += scatter.m_isElastic ? 1 : 0;
@@ -190,7 +210,7 @@ void EventFactory::PopulateEventTruthParticleInfo(const art::Event &event, const
 
     // The end-state
     particle.endState.Set(endState.m_type);
-   
+
     // The hit weight of the end-state
     const auto endStateMCParticleToHitWeights = CollectionHelper::GetReversedAssociation(BacktrackHelper::GetHitToMCParticleWeightMap(event, config.MCParticleLabel(), config.BacktrackerLabel(), endState.m_products));
 
@@ -210,7 +230,7 @@ void EventFactory::PopulateEventTruthParticleInfo(const art::Event &event, const
 }
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
-    
+
 void EventFactory::PopulateEventRecoInfo(const art::Event &event, const Config &config, const MCParticleVector &finalStateMCParticles, Event::Reco &reco)
 {
     // Fill the slice information
@@ -231,7 +251,7 @@ void EventFactory::PopulateEventRecoInfo(const art::Event &event, const Config &
 
     if (!hasNeutrino)
         return;
-    
+
     // Set the neutrino information
     const auto pSpaceChargeService = RecoHelper::GetSpaceChargeService();
     const auto nuVertex = RecoHelper::GetRecoNeutrinoVertex(event, neutrinos, config.VertexLabel());
@@ -239,7 +259,7 @@ void EventFactory::PopulateEventRecoInfo(const art::Event &event, const Config &
 
     reco.nuVertex.Set(nuVertexSCC);
     reco.nuPdgCode.Set(neutrinos.front()->PdgCode());
-    
+
     const auto finalStatePFParticles = RecoHelper::GetNeutrinoFinalStates(allPFParticles);
     reco.nFinalStates.Set(finalStatePFParticles.size());
 
@@ -263,7 +283,7 @@ void EventFactory::PopulateEventRecoInfo(const art::Event &event, const Config &
     const auto trackToCalorimetries = CollectionHelper::GetAssociation<recob::Track, anab::Calorimetry>(event, config.TrackLabel(), config.CalorimetryLabel());
     const auto spacePoints = CollectionHelper::GetCollection<recob::SpacePoint>(event, config.SpacePointLabel());
     const auto trackToMCSFitResults = CollectionHelper::GetAssociationFromAlignedCollections<recob::Track, recob::MCSFitResult>(event, config.TrackLabel(), config.MCSFitResultLabel());
-    
+
     for (const auto &pfParticle : finalStatePFParticles)
     {
         reco.particles.emplace_back();
@@ -275,7 +295,7 @@ void EventFactory::PopulateEventRecoInfo(const art::Event &event, const Config &
         if (particle.isCCInclusiveMuonCandidate())
             reco.passesCCInclusive.Set(true);
     }
-}   
+}
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
 
@@ -283,7 +303,7 @@ void EventFactory::PopulateEventRecoParticleInfo(const Config &config, const art
 {
     if (!config.HasTruthInfo() && pBacktrackerData)
         throw cet::exception("EventFactory::PopulateEventRecoParticleInfo") << " - Supplied with backtracker data even though there should be no truth info." << std::endl;
-  
+
     particle.isCCInclusiveMuonCandidate.Set(EventFactory::IsCCInclusiveMuonCandidate(pfParticle, pfParticleToT0s));
 
     EventFactory::PopulateEventRecoParticlePatRecInfo(pfParticle, pfParticleMap, pfParticleToMetadata, pfParticleToHits, particle);
@@ -292,17 +312,17 @@ void EventFactory::PopulateEventRecoParticleInfo(const Config &config, const art
     {
         const auto track = CollectionHelper::GetSingleAssociated(pfParticle, pfParticleToTracks);
         EventFactory::PopulateEventRecoParticleTrackInfo(config, track, spacePoints, nuVertex, particle);
-        
+
         try
         {
             const auto pid = CollectionHelper::GetSingleAssociated(track, trackToPIDs);
             EventFactory::PopulateEventRecoParticlePIDInfo(config, pid, particle);
         }
         catch (const cet::exception &) {}
-        
+
         const auto calos = CollectionHelper::GetManyAssociated(track, trackToCalorimetries);
         EventFactory::PopulateEventRecoParticleCalorimetryInfo(config, calos, particle);
-        
+
         const auto mcsFitResult = CollectionHelper::GetSingleAssociated(track, trackToMCSFitResults);
         EventFactory::PopulateEventRecoParticleMCSFitInfo(mcsFitResult, particle);
     }
@@ -315,8 +335,8 @@ void EventFactory::PopulateEventRecoParticleInfo(const Config &config, const art
 
     if (!pBacktrackerData)
         throw cet::exception("EventFactory::PopulateEventRecoParticleInfo") << " - Invalid backtracker data." << std::endl;
-    
-    // Get the MCParticle with the strongest match 
+
+    // Get the MCParticle with the strongest match
     art::Ptr<simb::MCParticle> bestMatchedMCParticle;
     try
     {
@@ -327,7 +347,7 @@ void EventFactory::PopulateEventRecoParticleInfo(const Config &config, const art
     {
         particle.hasMatchedMCParticle.Set(false);
     }
-    
+
     // Fill the reco-true matches for this PFParticle
     std::vector<float> truthMatchPurities, truthMatchCompletenesses;
     for (unsigned int i = 0; i < finalStateMCParticles.size(); ++i)
@@ -336,7 +356,7 @@ void EventFactory::PopulateEventRecoParticleInfo(const Config &config, const art
 
         truthMatchPurities.push_back(pBacktrackerData->GetMatchPurity(pfParticle, mcParticle));
         truthMatchCompletenesses.push_back(pBacktrackerData->GetMatchCompleteness(pfParticle, mcParticle));
-        
+
         if (particle.hasMatchedMCParticle() && mcParticle == bestMatchedMCParticle)
             particle.bestMatchedMCParticleIndex.Set(i);
     }
@@ -354,7 +374,7 @@ bool EventFactory::IsCCInclusiveMuonCandidate(const art::Ptr<recob::PFParticle> 
 }
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
-    
+
 void EventFactory::PopulateEventRecoParticlePatRecInfo(const art::Ptr<recob::PFParticle> &pfParticle, const PFParticleMap &pfParticleMap, const PFParticleToMetadata &pfParticleToMetadata, const PFParticleToHits &pfParticleToHits, Event::Reco::Particle &particle)
 {
     particle.pdgCode.Set(pfParticle->PdgCode());
@@ -397,7 +417,7 @@ void EventFactory::PopulateEventRecoParticlePatRecInfo(const art::Ptr<recob::PFP
     particle.nDescendentHitsV.Set(nDescendentHitsV);
     particle.nDescendentHitsW.Set(nDescendentHitsW);
     particle.nHitsInLargestDescendent.Set(nHitsInLargestDescendent);
-    
+
     const auto metadata = CollectionHelper::GetSingleAssociated(pfParticle, pfParticleToMetadata);
     const auto trackScore = RecoHelper::GetTrackScore(metadata);
 
@@ -407,7 +427,7 @@ void EventFactory::PopulateEventRecoParticlePatRecInfo(const art::Ptr<recob::PFP
 }
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
-        
+
 void EventFactory::PopulateEventRecoParticleTrackInfo(const Config &config, const art::Ptr<recob::Track> &track, const SpacePointVector &spacePoints, const TVector3 &nuVertex, Event::Reco::Particle &particle)
 {
     const auto pSpaceChargeService = RecoHelper::GetSpaceChargeService();
@@ -416,7 +436,7 @@ void EventFactory::PopulateEventRecoParticleTrackInfo(const Config &config, cons
     particle.startX.Set(start.X());
     particle.startY.Set(start.Y());
     particle.startZ.Set(start.Z());
-    
+
     const auto end = RecoHelper::CorrectForSpaceCharge(TVector3(track->End().X(), track->End().Y(), track->End().Z()), pSpaceChargeService);
     particle.endX.Set(end.X());
     particle.endY.Set(end.Y());
@@ -441,12 +461,12 @@ void EventFactory::PopulateEventRecoParticleTrackInfo(const Config &config, cons
     particle.transverseVertexDist.Set(transverseVertexDist);
     particle.longitudinalVertexDist.Set(longitudinalVertexDist);
     particle.wiggliness.Set(RecoHelper::GetTrackWiggliness(track));
-    
+
     particle.nSpacePointsNearEnd.Set(RecoHelper::CountSpacePointsNearTrackEnd(track, spacePoints, config.TrackEndSpacePointDistance(), pSpaceChargeService));
 }
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
-            
+
 void EventFactory::PopulateEventRecoParticleMCSFitInfo(const art::Ptr<recob::MCSFitResult> &mcsFitResult, Event::Reco::Particle &particle)
 {
     // ATTN the MCS fitter will default to the maximum sampled momentum if the likelihood scan doesn't converge
@@ -457,7 +477,7 @@ void EventFactory::PopulateEventRecoParticleMCSFitInfo(const art::Ptr<recob::MCS
     // // We do however still save the likelihood in-case that is useful
     const auto maxMomentum = 14.f;
 
-   
+
     // Forward fit
     const auto forwardMomentum = mcsFitResult->fwdMomentum();
     if (forwardMomentum >= 0.f && forwardMomentum < maxMomentum)
@@ -480,7 +500,7 @@ void EventFactory::PopulateEventRecoParticleMCSFitInfo(const art::Ptr<recob::MCS
 }
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
-            
+
 void EventFactory::PopulateEventRecoParticlePIDInfo(const Config &config, const art::Ptr<anab::ParticleID> &pid, Event::Reco::Particle &particle)
 {
     EventFactory::SetBraggLikelihood(pid, 13, geo::kU, anab::kForward, particle.likelihoodForwardMuonU);
@@ -489,25 +509,25 @@ void EventFactory::PopulateEventRecoParticlePIDInfo(const Config &config, const 
     EventFactory::SetBraggLikelihood(pid, 13, geo::kU, anab::kBackward, particle.likelihoodBackwardMuonU);
     EventFactory::SetBraggLikelihood(pid, 13, geo::kV, anab::kBackward, particle.likelihoodBackwardMuonV);
     EventFactory::SetBraggLikelihood(pid, 13, geo::kW, anab::kBackward, particle.likelihoodBackwardMuonW);
-    
+
     EventFactory::SetBraggLikelihood(pid, 211, geo::kU, anab::kForward, particle.likelihoodForwardPionU);
     EventFactory::SetBraggLikelihood(pid, 211, geo::kV, anab::kForward, particle.likelihoodForwardPionV);
     EventFactory::SetBraggLikelihood(pid, 211, geo::kW, anab::kForward, particle.likelihoodForwardPionW);
     EventFactory::SetBraggLikelihood(pid, 211, geo::kU, anab::kBackward, particle.likelihoodBackwardPionU);
     EventFactory::SetBraggLikelihood(pid, 211, geo::kV, anab::kBackward, particle.likelihoodBackwardPionV);
     EventFactory::SetBraggLikelihood(pid, 211, geo::kW, anab::kBackward, particle.likelihoodBackwardPionW);
-    
+
     EventFactory::SetBraggLikelihood(pid, 2212, geo::kU, anab::kForward, particle.likelihoodForwardProtonU);
     EventFactory::SetBraggLikelihood(pid, 2212, geo::kV, anab::kForward, particle.likelihoodForwardProtonV);
     EventFactory::SetBraggLikelihood(pid, 2212, geo::kW, anab::kForward, particle.likelihoodForwardProtonW);
     EventFactory::SetBraggLikelihood(pid, 2212, geo::kU, anab::kBackward, particle.likelihoodBackwardProtonU);
     EventFactory::SetBraggLikelihood(pid, 2212, geo::kV, anab::kBackward, particle.likelihoodBackwardProtonV);
     EventFactory::SetBraggLikelihood(pid, 2212, geo::kW, anab::kBackward, particle.likelihoodBackwardProtonW);
-    
+
     EventFactory::SetBraggLikelihood(pid, 0, geo::kU, anab::kForward, particle.likelihoodMIPU);
     EventFactory::SetBraggLikelihood(pid, 0, geo::kV, anab::kForward, particle.likelihoodMIPV);
     EventFactory::SetBraggLikelihood(pid, 0, geo::kW, anab::kForward, particle.likelihoodMIPW);
-    
+
     // We need the yz angle to do the rest
     if (!particle.yzAngle.IsSet())
         return;
@@ -519,13 +539,13 @@ void EventFactory::PopulateEventRecoParticlePIDInfo(const Config &config, const 
 
     EventFactory::SetBraggLikelihood(pid, 13, anab::kForward, yzAngle, sin2AngleThreshold, nHitsU, nHitsV, particle.likelihoodForwardMuon);
     EventFactory::SetBraggLikelihood(pid, 13, anab::kBackward, yzAngle, sin2AngleThreshold, nHitsU, nHitsV, particle.likelihoodBackwardMuon);
-    
+
     EventFactory::SetBraggLikelihood(pid, 211, anab::kForward, yzAngle, sin2AngleThreshold, nHitsU, nHitsV, particle.likelihoodForwardPion);
     EventFactory::SetBraggLikelihood(pid, 211, anab::kBackward, yzAngle, sin2AngleThreshold, nHitsU, nHitsV, particle.likelihoodBackwardPion);
-    
+
     EventFactory::SetBraggLikelihood(pid, 2212, anab::kForward, yzAngle, sin2AngleThreshold, nHitsU, nHitsV, particle.likelihoodForwardProton);
     EventFactory::SetBraggLikelihood(pid, 2212, anab::kBackward, yzAngle, sin2AngleThreshold, nHitsU, nHitsV, particle.likelihoodBackwardProton);
-    
+
     EventFactory::SetBraggLikelihood(pid, 0, anab::kForward, yzAngle, sin2AngleThreshold, nHitsU, nHitsV, particle.likelihoodMIP);
 }
 
@@ -558,7 +578,7 @@ void EventFactory::PopulateEventRecoParticleCalorimetryInfo(const Config &config
     float uWeight = 0.f;
     float vWeight = 0.f;
     for (const auto &calo : calos)
-    {        
+    {
         const auto dedxPerHit = calo->dEdx();
         const auto residualRangePerHit = calo->ResidualRange();
         const auto truncatedMeandEdx = RecoHelper::GetTruncatedMeandEdxAtTrackStart(dedxPerHit, residualRangePerHit, config.NHitsToSkip(), config.LengthFraction());
@@ -618,7 +638,7 @@ void EventFactory::PopulateEventRecoSliceInfo(const art::Event &event, const Con
     const auto pfParticlesToSlices = CollectionHelper::GetAssociation<recob::PFParticle, recob::Slice>(event, config.PFParticleLabel(), config.SliceLabel());
     const auto slicesToPFParticles = CollectionHelper::GetReversedAssociation(pfParticlesToSlices);
     const auto pfParticlesToMetadata = CollectionHelper::GetAssociation<recob::PFParticle, larpandoraobj::PFParticleMetadata>(event, config.PFParticleLabel());
-    
+
     // Work out which slice (if any) was selected as the neutrino
     art::Ptr<recob::Slice> selectedSlice;
     std::vector<bool> sliceIsSelectedAsNu;
@@ -626,7 +646,7 @@ void EventFactory::PopulateEventRecoSliceInfo(const art::Event &event, const Con
     {
         const auto isSelectedAsNu = RecoHelper::IsSliceSelectedAsNu(slice, slicesToPFParticles);
         sliceIsSelectedAsNu.push_back(isSelectedAsNu);
-        
+
         if (isSelectedAsNu)
         {
             if (selectedSlice.isNonnull())
@@ -661,13 +681,13 @@ void EventFactory::PopulateEventRecoSliceInfo(const art::Event &event, const Con
             }
         }
 
-        // ATTN the output topological scores can contain dummy values - this keeps the vectors in sync. 
+        // ATTN the output topological scores can contain dummy values - this keeps the vectors in sync.
         sliceTopologicalScores.push_back(topologicalScore);
 
         if (slice == selectedSlice)
             reco.selectedTopologicalScore.Set(topologicalScore);
     }
-    
+
     reco.nSlices.Set(slices.size());
     reco.hasSelectedSlice.Set(hasSelectedSlice);
     reco.sliceTopologicalScores.Set(sliceTopologicalScores);

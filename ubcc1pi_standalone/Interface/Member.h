@@ -62,7 +62,7 @@ class Member
 
         friend class Event;
         friend class EventFactory;
-        
+
         friend class Subrun;
         friend class SubrunFactory;
 
@@ -113,7 +113,7 @@ Member<T>::Member(const std::string &name) :
     m_name(name)
 {
     this->Reset();
-}   
+}
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
 
@@ -124,7 +124,7 @@ inline bool Member<T>::IsSet() const
 }
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
-        
+
 template <typename T>
 inline void Member<T>::Set(const T &value)
 {
@@ -145,12 +145,12 @@ inline const T Member<T>::Get() const
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
 
-template <typename T>        
+template <typename T>
 inline const T Member<T>::operator()() const
 {
     return this->Get();
 }
-        
+
 // -----------------------------------------------------------------------------------------------------------------------------------------
 
 template <typename T>
@@ -236,7 +236,7 @@ inline void Member< std::vector<float> >::SetDefault()
 
 /** @brief doxygen wants this :( */
 /**
- *  @brief  Set the member variable to default 
+ *  @brief  Set the member variable to default
  */
 template <>
 inline void Member< std::vector<bool> >::SetDefault()
@@ -248,7 +248,7 @@ inline void Member< std::vector<bool> >::SetDefault()
 
 /** @brief doxygen wants this :( */
 /**
- *  @brief  Set the member variable to default 
+ *  @brief  Set the member variable to default
  */
 template <>
 inline void Member< std::vector<int> >::SetDefault()
@@ -364,12 +364,12 @@ inline std::string Member< std::vector<float> >::ToString() const
 
     const auto value = this->Get();
     std::string str = "[" + std::to_string(value.size()) + "]  ";
-    
+
     unsigned int i = 0;
     for (const auto &entry : value)
     {
         str += std::to_string(entry) + "  ";
-        
+
         if (++i >= m_maxVectorPrint)
             break;
     }
@@ -395,16 +395,16 @@ inline std::string Member< std::vector<bool> >::ToString() const
 
     const auto value = this->Get();
     std::string str = "[" + std::to_string(value.size()) + "]  ";
-    
+
     unsigned int i = 0;
     for (const auto &entry : value)
     {
         str += std::string(entry ? "true" : "false") + "  ";
-        
+
         if (++i >= m_maxVectorPrint)
             break;
     }
-    
+
     if (i < value.size())
         str += "...";
 
@@ -426,16 +426,16 @@ inline std::string Member< std::vector<int> >::ToString() const
 
     const auto value = this->Get();
     std::string str = "[" + std::to_string(value.size()) + "]  ";
-    
+
     unsigned int i = 0;
     for (const auto &entry : value)
     {
         str += std::to_string(entry) + "  ";
-        
+
         if (++i >= m_maxVectorPrint)
             break;
     }
-    
+
     if (i < value.size())
         str += "...";
 
@@ -466,7 +466,7 @@ inline std::string Member< std::vector<std::string> >::ToString() const
         if (++i >= m_maxVectorPrint)
             break;
     }
-    
+
     if (i < value.size())
         str += "...";
 
@@ -521,17 +521,17 @@ inline std::string Member< std::vector<std::string> >::ToString() const
     {                                                                                                                                      \
         if (p##_##n##_isSet_inputVect->at(i))                                                                                              \
             q.at(i).n.Set(p##_##n##_inputVect->at(i));                                                                                     \
-    }                                                                                                                                      
+    }
 
 /** Define a macro to count the size of the member vector - here q will receive the size of the vector */
 #define UBCC1PI_MACRO_GET_MEMBER_VECTOR_SIZE(p, q, r, t, n)                                                                                \
-    *q = p##_##n##_inputVect->size();                                                                                                       
+    *q = p##_##n##_inputVect->size();
 
 /** Define a macro that prints each of the member variables */
 #define UBCC1PI_MACRO_PRINT_MEMBER(p, q, r, t, n)                                                                                          \
     std::cout << std::setw(28) << "(" #t ")" << "  ";                                                                                      \
     std::cout << std::setw(44) << (#q "." #n "()") << "  ";                                                                                \
-    std::cout << q.n.ToString() << std::endl;                                                                                              
+    std::cout << q.n.ToString() << std::endl;
 
 /** Define a macro to bind a member variable to an output branch */
 #define UBCC1PI_MACRO_BIND_OUTPUT_BRANCH(p, q, r, t, n)                                                                                    \
@@ -547,7 +547,7 @@ inline std::string Member< std::vector<std::string> >::ToString() const
 #define UBCC1PI_MACRO_BIND_INPUT_BRANCH(p, q, r, t, n)                                                                                     \
     pTree->SetBranchAddress(#p "_" #n "_isSet", &q.n.m_isSet);                                                                             \
     if (r) {pTree->SetBranchAddress(#p "_" #n, &(q.n.m_pAddress));} else {pTree->SetBranchAddress(#p "_" #n, q.n.m_pAddress);}
-    
+
 /** Define a macro to bind a member variable to an input vector branch */
 #define UBCC1PI_MACRO_BIND_INPUT_VECTOR_BRANCH(p, q, r, t, n)                                                                              \
     pTree->SetBranchAddress(#p "_" #n "_vect", &p##_##n##_inputVect);                                                                      \

@@ -20,6 +20,6 @@
     f(p, q, false, float,       totalPOT)                                                                                                  \
     f(p, q, false, float,       totalGoodPOT)                                                                                              \
     f(p, q, false, int,         totalSpills)                                                                                               \
-    f(p, q, false, int,         goodSpills)                                                                                                
+    f(p, q, false, int,         goodSpills)
 
 #endif

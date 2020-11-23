@@ -24,12 +24,12 @@ void SaveSelectedEventInfo(const Config &config)
 {
     //
     // Setup the input files
-    // 
+    //
     std::vector< std::tuple<AnalysisHelper::SampleType, std::string, float> > inputData;
-    
-    inputData.emplace_back(AnalysisHelper::Overlay, config.files.overlaysFileName, NormalisationHelper::GetOverlaysNormalisation(config)); 
-    inputData.emplace_back(AnalysisHelper::Dirt,    config.files.dirtFileName,     NormalisationHelper::GetDirtNormalisation(config)); 
-    inputData.emplace_back(AnalysisHelper::DataEXT, config.files.dataEXTFileName,  NormalisationHelper::GetDataEXTNormalisation(config)); 
+
+    inputData.emplace_back(AnalysisHelper::Overlay, config.files.overlaysFileName, NormalisationHelper::GetOverlaysNormalisation(config));
+    inputData.emplace_back(AnalysisHelper::Dirt,    config.files.dirtFileName,     NormalisationHelper::GetDirtNormalisation(config));
+    inputData.emplace_back(AnalysisHelper::DataEXT, config.files.dataEXTFileName,  NormalisationHelper::GetDataEXTNormalisation(config));
     inputData.emplace_back(AnalysisHelper::DataBNB, config.files.dataBNBFileName,  1.f);
 
     // Setup the output file
@@ -42,6 +42,9 @@ void SaveSelectedEventInfo(const Config &config)
     bool o_isCC1Pi;
     std::string o_classification;
     AnalysisHelper::AnalysisData o_recoData, o_truthData;
+    int o_recoMuonHitsU, o_recoMuonHitsV, o_recoMuonHitsW, o_recoMuonClusters;
+    int o_recoPionHitsU, o_recoPionHitsV, o_recoPionHitsW, o_recoPionClusters;
+    float o_truthPionEndStateHitsU, o_truthPionEndStateHitsV, o_truthPionEndStateHitsW;
 
     // Bind the variables to the output branches
     pTree->Branch("event", &o_event);
@@ -51,7 +54,7 @@ void SaveSelectedEventInfo(const Config &config)
     pTree->Branch("normalisation", &o_normalisation);
     pTree->Branch("weight", &o_weight);
     pTree->Branch("classification", &o_classification);
-    
+
     pTree->Branch("reco_muonMomentum", &o_recoData.muonMomentum);
     pTree->Branch("reco_muonCosTheta", &o_recoData.muonCosTheta);
     pTree->Branch("reco_muonPhi", &o_recoData.muonPhi);
@@ -61,7 +64,16 @@ void SaveSelectedEventInfo(const Config &config)
     pTree->Branch("reco_muonPionAngle", &o_recoData.muonPionAngle);
     pTree->Branch("reco_nProtons", &o_recoData.nProtons);
     pTree->Branch("reco_hasGoldenPion", &o_recoData.hasGoldenPion);
-    
+
+    pTree->Branch("reco_muonHitsU", &o_recoMuonHitsU);
+    pTree->Branch("reco_muonHitsV", &o_recoMuonHitsV);
+    pTree->Branch("reco_muonHitsW", &o_recoMuonHitsW);
+    pTree->Branch("reco_muonClusters", &o_recoMuonClusters);
+    pTree->Branch("reco_pionHitsU", &o_recoPionHitsU);
+    pTree->Branch("reco_pionHitsV", &o_recoPionHitsV);
+    pTree->Branch("reco_pionHitsW", &o_recoPionHitsW);
+    pTree->Branch("reco_pionClusters", &o_recoPionClusters);
+
     pTree->Branch("truth_muonMomentum", &o_truthData.muonMomentum);
     pTree->Branch("truth_muonCosTheta", &o_truthData.muonCosTheta);
     pTree->Branch("truth_muonPhi", &o_truthData.muonPhi);
@@ -71,7 +83,11 @@ void SaveSelectedEventInfo(const Config &config)
     pTree->Branch("truth_muonPionAngle", &o_truthData.muonPionAngle);
     pTree->Branch("truth_nProtons", &o_truthData.nProtons);
     pTree->Branch("truth_hasGoldenPion", &o_truthData.hasGoldenPion);
-    
+
+    pTree->Branch("truth_pionEndStateHitsU", &o_truthPionEndStateHitsU);
+    pTree->Branch("truth_pionEndStateHitsV", &o_truthPionEndStateHitsV);
+    pTree->Branch("truth_pionEndStateHitsW", &o_truthPionEndStateHitsW);
+
     pTree->Branch("truth_isCC1Pi", &o_isCC1Pi);
 
     //
@@ -79,7 +95,7 @@ void SaveSelectedEventInfo(const Config &config)
     //
     auto selection = SelectionHelper::GetDefaultSelection();
     const auto allCuts = selection.GetCuts();
-                
+
     // Loop over the events
     for (const auto [sampleType, fileName, normalisation] : inputData)
     {
@@ -99,7 +115,7 @@ void SaveSelectedEventInfo(const Config &config)
             std::vector<int> assignedPdgCodes;
             const auto passesGoldenPionSelection = selection.Execute(pEvent, cutsPassed, assignedPdgCodes);
             const auto passesGenericSelection = (std::find(cutsPassed.begin(), cutsPassed.end(), config.global.lastCutGeneric) != cutsPassed.end());
-         
+
             // Only care about selected events
             if (!passesGenericSelection)
                 continue;
@@ -115,9 +131,35 @@ void SaveSelectedEventInfo(const Config &config)
             o_recoData = AnalysisHelper::GetRecoAnalysisData(pEvent->reco, assignedPdgCodes, passesGoldenPionSelection);
             o_isCC1Pi = (sampleType == AnalysisHelper::Overlay && AnalysisHelper::IsTrueCC1Pi(pEvent, config.global.useAbsPdg));
 
+            //// BEGIN TEST
+            const auto &recoParticles = pEvent->reco.particles;
+            const auto &muon = recoParticles.at(AnalysisHelper::GetParticleIndexWithPdg(assignedPdgCodes, 13));
+            const auto &pion = recoParticles.at(AnalysisHelper::GetParticleIndexWithPdg(assignedPdgCodes, 211));
+
+            o_recoMuonHitsU = muon.nHitsU();
+            o_recoMuonHitsV = muon.nHitsV();
+            o_recoMuonHitsW = muon.nHitsW();
+            o_recoMuonClusters = (muon.nHitsU() > 0 ? 1 : 0) + (muon.nHitsV() > 0 ? 1 : 0) + (muon.nHitsW() > 0 ? 1 : 0);
+
+            o_recoPionHitsU = pion.nHitsU();
+            o_recoPionHitsV = pion.nHitsV();
+            o_recoPionHitsW = pion.nHitsW();
+            o_recoPionClusters = (pion.nHitsU() > 0 ? 1 : 0) + (pion.nHitsV() > 0 ? 1 : 0) + (pion.nHitsW() > 0 ? 1 : 0);
+            //// END TEST
+
             if (o_isCC1Pi)
             {
                 o_truthData = AnalysisHelper::GetTruthAnalysisData(pEvent->truth, config.global.useAbsPdg, config.global.protonMomentumThreshold);
+
+                //// BEGIN TEST
+                const auto truePion = *std::find_if(pEvent->truth.particles.begin(), pEvent->truth.particles.end(), [&](const auto &p){
+                    const auto pdg = config.global.useAbsPdg ? std::abs(p.pdgCode()) : p.pdgCode();
+                    return pdg == 211;
+                });
+                o_truthPionEndStateHitsU = truePion.endStateProductsHitWeightU();
+                o_truthPionEndStateHitsV = truePion.endStateProductsHitWeightV();
+                o_truthPionEndStateHitsW = truePion.endStateProductsHitWeightW();
+                //// END TEST
             }
             else
             {
@@ -131,6 +173,10 @@ void SaveSelectedEventInfo(const Config &config)
                 o_truthData.muonPionAngle = -std::numeric_limits<float>::max();
                 o_truthData.nProtons = std::numeric_limits<unsigned int>::max();
                 o_truthData.hasGoldenPion = false;
+
+                o_truthPionEndStateHitsU = -std::numeric_limits<float>::max();
+                o_truthPionEndStateHitsV = -std::numeric_limits<float>::max();
+                o_truthPionEndStateHitsW = -std::numeric_limits<float>::max();
             }
 
             pTree->Fill();

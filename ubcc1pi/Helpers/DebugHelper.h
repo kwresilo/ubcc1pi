@@ -33,7 +33,7 @@ class DebugHelper
         static void Print(const art::Ptr<simb::MCParticle> &particle, const unsigned int depth = 0);
 
         /**
-         *  @brief  Print a vector of MCParticls 
+         *  @brief  Print a vector of MCParticls
          *
          *  @param  particles the particles to print
          *  @param  depth the number of indents to use, for hierarchical information
@@ -116,7 +116,7 @@ class DebugHelper
          */
         template <typename T>
         static void PrintProperty(const std::string &key, const T &value, const unsigned int depth = 0);
-       
+
     private:
 
         static unsigned int m_indent;     ///< The number of spaces to an indent

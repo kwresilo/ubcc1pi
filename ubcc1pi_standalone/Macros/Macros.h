@@ -20,7 +20,7 @@ namespace ubcc1pi_macros
      *  @param  config the input configuration
      */
     void PrintConfig(const Config &config = Config());
-    
+
     /**
      *  @brief  Count the POT for the overlays and dirt samples and print the results
      *
@@ -34,28 +34,28 @@ namespace ubcc1pi_macros
      *  @param  config the input configuration
      */
     void GetRunSubrunList(const Config &config = Config());
-    
+
     /**
      *  @brief  Look at the truth information related to signal events
      *
      *  @param  config the input configuration
      */
     void TruthStudy(const Config &config = Config());
-   
+
     /**
      *  @brief  Look at the truth information relating to secondary interactions
      *
      *  @param  config the input configuration
      */
     void SecondaryInteractionsStudy(const Config &config = Config());
-    
+
     /**
-     *  @brief  Get the range->momentum curve fit parameters 
+     *  @brief  Get the range->momentum curve fit parameters
      *
      *  @param  config the input configuration
      */
     void FitRangeCurves(const Config &config = Config());
-    
+
     /**
      *  @brief  Determine the momentum thresholds to apply
      *
@@ -104,21 +104,21 @@ namespace ubcc1pi_macros
      *  @param  config the input configuration
      */
     void NMinusOneBDTStudy(const Config &config = Config());
-    
+
     /**
      *  @brief  Study the impact of the muon PID
      *
      *  @param  config the input configuration
      */
     void MuonPIDStudy(const Config &config = Config());
-    
+
     /**
      *  @brief  Make the event selection table
      *
      *  @param  config the input configuration
      */
     void MakeEventSelectionTable(const Config &config = Config());
-    
+
     /**
      *  @brief  Make the PID table
      *
@@ -132,7 +132,7 @@ namespace ubcc1pi_macros
      *  @param  config the input configuration
      */
     void MakeEventSelectionEfficiencyPlots(const Config &config = Config());
-    
+
     /**
      *  @brief  Plot the variables that are used by the selection at the point of usage
      *
@@ -153,14 +153,14 @@ namespace ubcc1pi_macros
      *  @param  config the input configuration
      */
     void PlotReconstructedVariables(const Config &config = Config());
-    
+
     /**
      *  @brief  Save the truth and reco physics info for selected events in output root file
      *
      *  @param  config the input configuration
      */
     void SaveSelectedEventInfo(const Config &config = Config());
-    
+
     /**
      *  @brief  Make the plots to motivate the binning choice
      *
@@ -169,12 +169,26 @@ namespace ubcc1pi_macros
     void MakeBinningPlots(const Config &config = Config());
 
     /**
+     *  @brief  Plot the systematic weights
+     *
+     *  @param  config the input configuration
+     */
+    void PlotSystematicWeights(const Config &config = Config());
+
+    /**
      *  @brief  Extract the cross-sections
      *
      *  @param  config the input configuration
      */
     void ExtractXSecs(const Config &config = Config());
-    
+
+    /**
+     *  @brief  Extract the cross-sections for CC inclusive
+     *
+     *  @param  config the input configuration
+     */
+    void ExtractCCInclusiveXSecs(const Config &config = Config());
+
     /**
      *  @brief  Print run and subruns for specific events - chosen in the config
      *

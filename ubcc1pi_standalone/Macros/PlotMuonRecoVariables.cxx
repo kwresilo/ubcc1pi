@@ -24,19 +24,19 @@ void PlotMuonRecoVariables(const Config &config)
 {
     // Setup the input files
     std::vector< std::tuple<AnalysisHelper::SampleType, std::string, float> > inputData;
-    
-    inputData.emplace_back(AnalysisHelper::Overlay, config.files.overlaysFileName, NormalisationHelper::GetOverlaysNormalisation(config)); 
-    inputData.emplace_back(AnalysisHelper::Dirt,    config.files.dirtFileName,     NormalisationHelper::GetDirtNormalisation(config)); 
-    inputData.emplace_back(AnalysisHelper::DataEXT, config.files.dataEXTFileName,  NormalisationHelper::GetDataEXTNormalisation(config)); 
+
+    inputData.emplace_back(AnalysisHelper::Overlay, config.files.overlaysFileName, NormalisationHelper::GetOverlaysNormalisation(config));
+    inputData.emplace_back(AnalysisHelper::Dirt,    config.files.dirtFileName,     NormalisationHelper::GetDirtNormalisation(config));
+    inputData.emplace_back(AnalysisHelper::DataEXT, config.files.dataEXTFileName,  NormalisationHelper::GetDataEXTNormalisation(config));
     inputData.emplace_back(AnalysisHelper::DataBNB, config.files.dataBNBFileName,  1.f);
-    
+
     // Get the selection
     auto selection = SelectionHelper::GetDefaultSelection();
     const auto cuts = selection.GetCuts();
-    
+
     // Get the muon BDT
     const auto muonFeatureNames = BDTHelper::MuonBDTFeatureNames;
-    BDTHelper::BDT muonBDT("muon", muonFeatureNames); 
+    BDTHelper::BDT muonBDT("muon", muonFeatureNames);
 
     //
     // Setup the plots
@@ -44,7 +44,7 @@ void PlotMuonRecoVariables(const Config &config)
     const std::string yLabel = "Number of particles";
     std::vector<PlottingHelper::MultiPlot> muonMomentumPlots, muonCosThetaPlots, muonPhiPlots;
     for (const auto &cut : cuts)
-    {    
+    {
         muonMomentumPlots.emplace_back("Muon momentum / GeV", yLabel, config.global.muonMomentum.binEdges);
         muonCosThetaPlots.emplace_back("Muon cos(theta)", yLabel, config.global.muonCosTheta.binEdges);
         muonPhiPlots.emplace_back("Muon phi / rad", yLabel, config.global.muonPhi.binEdges);
@@ -66,7 +66,7 @@ void PlotMuonRecoVariables(const Config &config)
 
             if (!pEvent->reco.passesCCInclusive())
                 continue;
-            
+
             const auto recoParticles = pEvent->reco.particles;
 
             // Run the event selection and store which cuts are passed
@@ -77,7 +77,7 @@ void PlotMuonRecoVariables(const Config &config)
             // Get the truth and reco analysis data
             const auto weight = AnalysisHelper::GetNominalEventWeight(pEvent) * normalisation;
             const auto plotStyle = PlottingHelper::GetPlotStyle(sampleType, pEvent, config.global.useAbsPdg);
-    
+
             // Get the muon reco data
             const auto muonIndex = SelectionHelper::GetMuonCandidateIndex(recoParticles, muonFeatureNames, muonBDT);
             const auto muon = recoParticles.at(muonIndex);
@@ -85,7 +85,7 @@ void PlotMuonRecoVariables(const Config &config)
             const float muonCosTheta = muonDir.Z();
             const float muonPhi = std::atan2(muonDir.Y(), muonDir.X());
             const float muonMomentum = AnalysisHelper::GetMuonMomentum(muon);
-               
+
             for (unsigned int iCut = 0; iCut < cuts.size(); ++iCut)
             {
                 const auto passesCut = (std::find(cutsPassed.begin(), cutsPassed.end(), cuts.at(iCut)) != cutsPassed.end());
@@ -99,7 +99,7 @@ void PlotMuonRecoVariables(const Config &config)
             }
         }
     }
-    
+
     for (unsigned int iCut = 0; iCut < cuts.size(); ++iCut)
     {
         const auto &cut = cuts.at(iCut);

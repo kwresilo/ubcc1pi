@@ -36,7 +36,7 @@ void NMinusOneBDTStudy(const Config &config)
     {
         AnalysisHelper::PrintLoadingBar(eventIndex, nEvents);
         reader.LoadEvent(eventIndex);
-        
+
         // Event must be true CC1Pi
         if (!AnalysisHelper::IsTrueCC1Pi(pEvent, config.global.useAbsPdg))
             continue;
@@ -47,13 +47,13 @@ void NMinusOneBDTStudy(const Config &config)
 
         cc1PiEventIndices.push_back(eventIndex);
     }
- 
+
     // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     // Randomly choose the training events
     // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     const auto nCC1PiEvents = cc1PiEventIndices.size();
     const auto nTrainingEvents = static_cast<unsigned int>(std::floor(static_cast<float>(nCC1PiEvents) * config.trainBDTs.trainingFraction));
-    BDTHelper::EventShuffler shuffler(nCC1PiEvents, nTrainingEvents); 
+    BDTHelper::EventShuffler shuffler(nCC1PiEvents, nTrainingEvents);
     std::cout << "Found " << nCC1PiEvents << " CC1Pi events passing CC inclusive seleciton. Using " << nTrainingEvents << " for training." << std::endl;
 
     // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -100,7 +100,7 @@ void NMinusOneBDTStudy(const Config &config)
         {
             bdtFactoryVector.emplace_back(signalString + "_N-" + nFeaturesString + "_minus_" + config.nMinusOneBDTStudy.featureNames.at(i), nameVector);
         }
-            
+
         reducedFeatureNames.push_back(nameVector);
     }
 
@@ -178,7 +178,7 @@ void NMinusOneBDTStudy(const Config &config)
                         throw std::invalid_argument("NMinusOneBDTStudy - Input signal type must be: proton, muon or golden pion");
                 }
 
-                // Fill the BDTs 
+                // Fill the BDTs
                 for (unsigned int iBDT = 0; iBDT < reducedFeatureNames.size(); ++iBDT)
                 {
                     const auto &usedFeatureNames = reducedFeatureNames.at(iBDT);
@@ -203,7 +203,7 @@ void NMinusOneBDTStudy(const Config &config)
             bdtFactory.TrainAndTest();
 
     }
-    
+
     // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     // Get the performance table / plots
     // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -223,7 +223,7 @@ void NMinusOneBDTStudy(const Config &config)
 
     // Setup the structure to hold the data
     BDTHelper::BDTResponseMap bdtResponseMap;
-    
+
     // Now test the BDTs
     for (unsigned int i = 0; i < nCC1PiEvents; ++i)
     {
@@ -239,7 +239,7 @@ void NMinusOneBDTStudy(const Config &config)
         const auto truthParticles = pEvent->truth.particles;
         const auto recoParticles = pEvent->reco.particles;
         const float eventWeight = AnalysisHelper::GetNominalEventWeight(pEvent);
-        
+
         for (const auto &recoParticle : recoParticles)
         {
             // Only use contained particles for testing
@@ -262,7 +262,7 @@ void NMinusOneBDTStudy(const Config &config)
 
                 // Get the BDT responses
                 const auto bdtResponse = bdtVector.at(iBDT).GetResponse(features);
-            
+
                 // Store the result
                 bdtResponseMap[missingFeature][particleType].emplace_back(bdtResponse, eventWeight);
 
@@ -371,7 +371,7 @@ void NMinusOneBDTStudy(const Config &config)
         for (auto &pGraph : curves)
             delete pGraph;
     }
-        
+
     // Make the ROC integral plot
     float padding = (maxROCIntegral - minROCIntegral) * 0.1;
     minROCIntegral -= padding;
@@ -385,7 +385,7 @@ void NMinusOneBDTStudy(const Config &config)
 
         auto pHist = histMap.at(background);
         pHist->GetYaxis()->SetRangeUser(minROCIntegral, maxROCIntegral);
-       
+
         // Draw the histogram with it's uncertainties
         auto pHistClone = static_cast<TH1F *>(pHist->Clone());
         pHistClone->SetFillStyle(1001);
@@ -393,7 +393,7 @@ void NMinusOneBDTStudy(const Config &config)
         pHistClone->SetFillColorAlpha(pHist->GetLineColor(), 0.3f);
         pHistClone->Draw(isFirstHist ? "e2" : "e2 same");
         pHist->Draw("hist same");
-    
+
         // Draw the line at the none value
         const auto nBins = pHist->GetNbinsX();
         const auto noneROCIntegral = pHist->GetBinContent(nBins);
@@ -412,7 +412,7 @@ void NMinusOneBDTStudy(const Config &config)
     const auto pHist = histMap.at(PlottingHelper::Other);
     const auto noneROCIntegral = pHist->GetBinContent(pHist->GetNbinsX());
     const auto noneROCIntegralErr = pHist->GetBinError(pHist->GetNbinsX());
-    
+
     // Store the features that aren't doing much
     std::vector< std::pair<unsigned int, float> > badFeatures;
 
@@ -451,7 +451,7 @@ void NMinusOneBDTStudy(const Config &config)
 
         if (missingFeature == "none")
             continue;
-        
+
         // Assume the feature shouldn't be removed for now
         table.SetEntry("Should remove", "No");
 
@@ -469,7 +469,7 @@ void NMinusOneBDTStudy(const Config &config)
     }
 
     table.WriteToFile("rocCurveIntegralsTable_N-" + nFeaturesString + "_" + signalString + ".md");
-        
+
     // Clean up the heap
     for (auto &entry : histMap)
         delete entry.second;

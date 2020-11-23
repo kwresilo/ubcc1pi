@@ -65,6 +65,27 @@
     <jobsub>&jobsub;</jobsub>
 </stage>
 
+<stage name="overlaysFileLocationDatabase">
+    <!-- Settings -->
+    <fcl>file_location_database_driver.fcl</fcl>
+    <numjobs>35</numjobs>
+    <maxfilesperjob>11</maxfilesperjob>
+    <numevents>&numEvents;</numevents>
+
+    <!-- Input files -->
+    <inputdef>prodgenie_bnb_nu_uboone_overlay_ccinc_reweight_mcc9.1_run1_joelam</inputdef>
+
+    <!-- Output directories -->
+    <outdir>/pnfs/uboone/scratch/users/&username;/&projectName;/overlaysFileLocationDatabase/</outdir>
+    <logdir>/pnfs/uboone/scratch/users/&username;/&projectName;/overlaysFileLocationDatabase/</logdir>
+    <workdir>/pnfs/uboone/resilient/users/&username;/work/&projectName;/overlaysFileLocationDatabase/</workdir>
+
+    <!-- Options -->
+    <datatier>&dataTier;</datatier>
+    <schema>&schema;</schema>
+    <jobsub>&jobsub;</jobsub>
+</stage>
+
 <!-- dirt -->
 <stage name="dirt">
     <!-- Settings -->
@@ -394,4 +415,273 @@
     <schema>&schema;</schema>
     <jobsub>&jobsub;</jobsub>
 </stage>
+
+<!-- Detector variation CV run 1-->
+<stage name="overlays_DetVar_CV_run1">
+    <!-- Settings -->
+    <fcl>analysis_file_writer_driver_noEventWeights.fcl</fcl>
+    <numjobs>217</numjobs>
+    <maxfilesperjob>10</maxfilesperjob>
+    <numevents>&numEvents;</numevents>
+
+    <!-- Input files -->
+    <inputdef>prodgenie_bnb_nu_overlay_DetVar_CV_reco2_v08_00_00_38_run1_reco2_reco2</inputdef>
+
+    <!-- Output directories -->
+    <outdir>/pnfs/uboone/scratch/users/&username;/&projectName;/overlays_DetVar_CV_run1/</outdir>
+    <logdir>/pnfs/uboone/scratch/users/&username;/&projectName;/overlays_DetVar_CV_run1/</logdir>
+    <workdir>/pnfs/uboone/resilient/users/&username;/work/&projectName;/overlays_DetVar_CV_run1/</workdir>
+
+    <!-- Options -->
+    <datatier>&dataTier;</datatier>
+    <schema>&schema;</schema>
+    <jobsub>&jobsub;</jobsub>
+</stage>
+
+<!-- Detector variation CV run 3b-->
+<stage name="overlays_DetVar_CV_run3b">
+    <!-- Settings -->
+    <fcl>analysis_file_writer_driver_noEventWeights.fcl</fcl>
+    <numjobs>188</numjobs>
+    <maxfilesperjob>10</maxfilesperjob>
+    <numevents>&numEvents;</numevents>
+
+    <!-- Input files -->
+    <inputdef>prodgenie_bnb_nu_overlay_DetVar_CV_reco2_v08_00_00_38_run3b_reco2_reco2</inputdef>
+
+    <!-- Output directories -->
+    <outdir>/pnfs/uboone/scratch/users/&username;/&projectName;/overlays_DetVar_CV_run3b/</outdir>
+    <logdir>/pnfs/uboone/scratch/users/&username;/&projectName;/overlays_DetVar_CV_run3b/</logdir>
+    <workdir>/pnfs/uboone/resilient/users/&username;/work/&projectName;/overlays_DetVar_CV_run3b/</workdir>
+
+    <!-- Options -->
+    <datatier>&dataTier;</datatier>
+    <schema>&schema;</schema>
+    <jobsub>&jobsub;</jobsub>
+</stage>
+
+<!-- Detector variation light yeild down run 1-->
+<stage name="overlays_DetVar_LYDown_run1">
+    <!-- Settings -->
+    <fcl>analysis_file_writer_driver_noEventWeights.fcl</fcl>
+    <numjobs>218</numjobs>
+    <maxfilesperjob>10</maxfilesperjob>
+    <numevents>&numEvents;</numevents>
+
+    <!-- Input files -->
+    <inputdef>prodgenie_bnb_nu_overlay_DetVar_LYDown_v08_00_00_37_run1_reco2_reco2</inputdef>
+
+    <!-- Output directories -->
+    <outdir>/pnfs/uboone/scratch/users/&username;/&projectName;/overlays_DetVar_LYDown_run1/</outdir>
+    <logdir>/pnfs/uboone/scratch/users/&username;/&projectName;/overlays_DetVar_LYDown_run1/</logdir>
+    <workdir>/pnfs/uboone/resilient/users/&username;/work/&projectName;/overlays_DetVar_LYDown_run1/</workdir>
+
+    <!-- Options -->
+    <datatier>&dataTier;</datatier>
+    <schema>&schema;</schema>
+    <jobsub>&jobsub;</jobsub>
+</stage>
+
+<!-- Detector variation light yeild Rayleigh run 1-->
+<stage name="overlays_DetVar_LYRayleigh_run1">
+    <!-- Settings -->
+    <fcl>analysis_file_writer_driver_noEventWeights.fcl</fcl>
+    <numjobs>220</numjobs>
+    <maxfilesperjob>10</maxfilesperjob>
+    <numevents>&numEvents;</numevents>
+
+    <!-- Input files -->
+    <inputdef>prodgenie_bnb_nu_overlay_DetVar_LYRayleigh_v08_00_00_37_run1_reco2_reco2</inputdef>
+
+    <!-- Output directories -->
+    <outdir>/pnfs/uboone/scratch/users/&username;/&projectName;/overlays_DetVar_LYRayleigh_run1/</outdir>
+    <logdir>/pnfs/uboone/scratch/users/&username;/&projectName;/overlays_DetVar_LYRayleigh_run1/</logdir>
+    <workdir>/pnfs/uboone/resilient/users/&username;/work/&projectName;/overlays_DetVar_LYRayleigh_run1/</workdir>
+
+    <!-- Options -->
+    <datatier>&dataTier;</datatier>
+    <schema>&schema;</schema>
+    <jobsub>&jobsub;</jobsub>
+</stage>
+
+<!-- Detector variation light yeild attenuation run 1-->
+<stage name="overlays_DetVar_LYAttenuation_run1">
+    <!-- Settings -->
+    <fcl>analysis_file_writer_driver_noEventWeights.fcl</fcl>
+    <numjobs>10</numjobs> <!-- 218 -->
+    <maxfilesperjob>10</maxfilesperjob>
+    <numevents>&numEvents;</numevents>
+
+    <!-- Input files -->
+    <inputdef>prodgenie_bnb_nu_overlay_DetVar_LYAttenuation_v08_00_00_38_run1_reco2_reco2</inputdef>
+
+    <!-- Output directories -->
+    <outdir>/pnfs/uboone/scratch/users/&username;/&projectName;/overlays_DetVar_LYAttenuation_run1/</outdir>
+    <logdir>/pnfs/uboone/scratch/users/&username;/&projectName;/overlays_DetVar_LYAttenuation_run1/</logdir>
+    <workdir>/pnfs/uboone/resilient/users/&username;/work/&projectName;/overlays_DetVar_LYAttenuation_run1/</workdir>
+
+    <!-- Options -->
+    <datatier>&dataTier;</datatier>
+    <schema>&schema;</schema>
+    <jobsub>&jobsub;</jobsub>
+</stage>
+
+<!-- Detector variation wire mod X run 3b-->
+<stage name="overlays_DetVar_WireModX_run3b">
+    <!-- Settings -->
+    <fcl>analysis_file_writer_driver_noEventWeights_runCCInclusive.fcl</fcl>
+    <numjobs>192</numjobs>
+    <maxfilesperjob>10</maxfilesperjob>
+    <numevents>&numEvents;</numevents>
+
+    <!-- Input files -->
+    <inputdef>prodgenie_bnb_nu_overlay_DetVar_wiremod_ScaleX_v08_00_00_38_run3b_reco2_reco2</inputdef>
+
+    <!-- Output directories -->
+    <outdir>/pnfs/uboone/scratch/users/&username;/&projectName;/overlays_DetVar_WireModX_run3b/</outdir>
+    <logdir>/pnfs/uboone/scratch/users/&username;/&projectName;/overlays_DetVar_WireModX_run3b/</logdir>
+    <workdir>/pnfs/uboone/resilient/users/&username;/work/&projectName;/overlays_DetVar_WireModX_run3b/</workdir>
+
+    <!-- Options -->
+    <datatier>&dataTier;</datatier>
+    <!--schema>&schema;</schema-->
+    <schema>gsiftp</schema> <!-- ATTN Should use the default schema, this is just a test -->
+    <jobsub>&jobsub;</jobsub>
+</stage>
+
+<!-- Detector variation wire mod YZ run 3b-->
+<stage name="overlays_DetVar_WireModYZ_run3b">
+    <!-- Settings -->
+    <fcl>analysis_file_writer_driver_noEventWeights_runCCInclusive.fcl</fcl>
+    <numjobs>191</numjobs>
+    <maxfilesperjob>10</maxfilesperjob>
+    <numevents>&numEvents;</numevents>
+
+    <!-- Input files -->
+    <inputdef>prodgenie_bnb_nu_overlay_DetVar_wiremod_ScaleYZ_v08_00_00_38_run3b_reco2_reco2</inputdef>
+
+    <!-- Output directories -->
+    <outdir>/pnfs/uboone/scratch/users/&username;/&projectName;/overlays_DetVar_WireModYZ_run3b/</outdir>
+    <logdir>/pnfs/uboone/scratch/users/&username;/&projectName;/overlays_DetVar_WireModYZ_run3b/</logdir>
+    <workdir>/pnfs/uboone/resilient/users/&username;/work/&projectName;/overlays_DetVar_WireModYZ_run3b/</workdir>
+
+    <!-- Options -->
+    <datatier>&dataTier;</datatier>
+    <!--schema>&schema;</schema-->
+    <schema>gsiftp</schema> <!-- ATTN Should use the default schema, this is just a test -->
+    <jobsub>&jobsub;</jobsub>
+</stage>
+
+<!-- Detector variation wire mod theta XZ run 3b-->
+<stage name="overlays_DetVar_WireModThetaXZ_run3b">
+    <!-- Settings -->
+    <fcl>analysis_file_writer_driver_noEventWeights_runCCInclusive.fcl</fcl>
+    <numjobs>193</numjobs>
+    <maxfilesperjob>10</maxfilesperjob>
+    <numevents>&numEvents;</numevents>
+
+    <!-- Input files -->
+    <inputdef>prodgenie_bnb_nu_overlay_DetVar_WireModAngleXZ_v08_00_00_38_exe_run3b_reco2_reco2</inputdef>
+
+    <!-- Output directories -->
+    <outdir>/pnfs/uboone/scratch/users/&username;/&projectName;/overlays_DetVar_WireModThetaXZ_run3b/</outdir>
+    <logdir>/pnfs/uboone/scratch/users/&username;/&projectName;/overlays_DetVar_WireModThetaXZ_run3b/</logdir>
+    <workdir>/pnfs/uboone/resilient/users/&username;/work/&projectName;/overlays_DetVar_WireModThetaXZ_run3b/</workdir>
+
+    <!-- Options -->
+    <datatier>&dataTier;</datatier>
+    <!--schema>&schema;</schema-->
+    <schema>gsiftp</schema> <!-- ATTN Should use the default schema, this is just a test -->
+    <jobsub>&jobsub;</jobsub>
+</stage>
+
+<!-- Detector variation wire mod theta YZ run 3b-->
+<stage name="overlays_DetVar_WireModThetaYZ_run3b">
+    <!-- Settings -->
+    <fcl>analysis_file_writer_driver_noEventWeights_runCCInclusive.fcl</fcl>
+    <numjobs>192</numjobs>
+    <maxfilesperjob>10</maxfilesperjob>
+    <numevents>&numEvents;</numevents>
+
+    <!-- Input files -->
+    <inputdef>prodgenie_bnb_nu_overlay_DetVar_WireModAngleYZ_v08_00_00_38_exe_run3b_reco2_reco2</inputdef>
+
+    <!-- Output directories -->
+    <outdir>/pnfs/uboone/scratch/users/&username;/&projectName;/overlays_DetVar_WireModThetaYZ_run3b/</outdir>
+    <logdir>/pnfs/uboone/scratch/users/&username;/&projectName;/overlays_DetVar_WireModThetaYZ_run3b/</logdir>
+    <workdir>/pnfs/uboone/resilient/users/&username;/work/&projectName;/overlays_DetVar_WireModThetaYZ_run3b/</workdir>
+
+    <!-- Options -->
+    <datatier>&dataTier;</datatier>
+    <!--schema>&schema;</schema-->
+    <schema>gsiftp</schema> <!-- ATTN Should use the default schema, this is just a test -->
+    <jobsub>&jobsub;</jobsub>
+</stage>
+
+<!-- Detector variation wire mod dEdx run 3b-->
+<stage name="overlays_DetVar_WireModdEdx_run3b">
+    <!-- Settings -->
+    <fcl>analysis_file_writer_driver_noEventWeights_runCCInclusive.fcl</fcl>
+    <numjobs>193</numjobs>
+    <maxfilesperjob>10</maxfilesperjob>
+    <numevents>&numEvents;</numevents>
+
+    <!-- Input files -->
+    <inputdef>prodgenie_bnb_nu_overlay_DetVar_wiremod_ScaledEdX_v08_00_00_39_run3b_reco2_reco2</inputdef>
+
+    <!-- Output directories -->
+    <outdir>/pnfs/uboone/scratch/users/&username;/&projectName;/overlays_DetVar_WireModdEdx_run3b/</outdir>
+    <logdir>/pnfs/uboone/scratch/users/&username;/&projectName;/overlays_DetVar_WireModdEdx_run3b/</logdir>
+    <workdir>/pnfs/uboone/resilient/users/&username;/work/&projectName;/overlays_DetVar_WireModdEdx_run3b/</workdir>
+
+    <!-- Options -->
+    <datatier>&dataTier;</datatier>
+    <schema>&schema;</schema>
+    <jobsub>&jobsub;</jobsub>
+</stage>
+
+<!-- Detector variation space-charge effect run 3b-->
+<stage name="overlays_DetVar_SCE_run3b">
+    <!-- Settings -->
+    <fcl>analysis_file_writer_driver_noEventWeights.fcl</fcl>
+    <numjobs>188</numjobs>
+    <maxfilesperjob>10</maxfilesperjob>
+    <numevents>&numEvents;</numevents>
+
+    <!-- Input files -->
+    <inputdef>prodgenie_bnb_nu_overlay_DetVar_SCE_reco2_v08_00_00_38_run3b_reco2_reco2</inputdef>
+
+    <!-- Output directories -->
+    <outdir>/pnfs/uboone/scratch/users/&username;/&projectName;/overlays_DetVar_SCE_run3b/</outdir>
+    <logdir>/pnfs/uboone/scratch/users/&username;/&projectName;/overlays_DetVar_SCE_run3b/</logdir>
+    <workdir>/pnfs/uboone/resilient/users/&username;/work/&projectName;/overlays_DetVar_SCE_run3b/</workdir>
+
+    <!-- Options -->
+    <datatier>&dataTier;</datatier>
+    <schema>&schema;</schema>
+    <jobsub>&jobsub;</jobsub>
+</stage>
+
+<!-- Detector variation recombination run 3b-->
+<stage name="overlays_DetVar_Recomb2_run3b">
+    <!-- Settings -->
+    <fcl>analysis_file_writer_driver_noEventWeights.fcl</fcl>
+    <numjobs>195</numjobs>
+    <maxfilesperjob>10</maxfilesperjob>
+    <numevents>&numEvents;</numevents>
+
+    <!-- Input files -->
+    <inputdef>prodgenie_bnb_nu_overlay_DetVar_Recomb2_reco2_v08_00_00_39_run3b_reco2_reco2</inputdef>
+
+    <!-- Output directories -->
+    <outdir>/pnfs/uboone/scratch/users/&username;/&projectName;/overlays_DetVar_Recomb2_run3b/</outdir>
+    <logdir>/pnfs/uboone/scratch/users/&username;/&projectName;/overlays_DetVar_Recomb2_run3b/</logdir>
+    <workdir>/pnfs/uboone/resilient/users/&username;/work/&projectName;/overlays_DetVar_Recomb2_run3b/</workdir>
+
+    <!-- Options -->
+    <datatier>&dataTier;</datatier>
+    <schema>&schema;</schema>
+    <jobsub>&jobsub;</jobsub>
+</stage>
+
 </project>

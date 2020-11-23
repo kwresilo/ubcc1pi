@@ -93,7 +93,7 @@ HitsToBool BacktrackHelper::GetHitsToIsNuInducedMap(const art::Event &event, con
     const auto hits = CollectionHelper::GetCollection<recob::Hit>(event, hitLabel);
     const auto mcpToHitMap = CollectionHelper::GetAssociation<simb::MCParticle, recob::Hit>(event, mcParticleLabel, backtrackerLabel);
     const auto hitToMcpMap = CollectionHelper::GetReversedAssociation(mcpToHitMap);
-    
+
     HitsToBool outputMap;
 
     for (const auto &hit : hits)
@@ -279,7 +279,7 @@ BacktrackHelper::BacktrackerData::BacktrackerData(const PFParticleVector &pfPart
     {
         art::Ptr<recob::PFParticle> pfParticle;
         const bool hasPFParticle = this->CollectPFParticle(hit, hitsToPfps, pfParticle);
-        
+
         CollectionData<simb::MCParticle, float> mcParticleWeights;
         const bool hasMCParticles = this->CollectMCParticleWeights(hit, hitsToMcps, mcParticleWeights);
 
@@ -292,7 +292,7 @@ BacktrackHelper::BacktrackerData::BacktrackerData(const PFParticleVector &pfPart
 
             m_pfParticleWeightMap.at(pfParticle) += 1.f;
         }
-        
+
         // Fill the MCParticle weight map
         if (hasMCParticles)
         {
@@ -300,13 +300,13 @@ BacktrackHelper::BacktrackerData::BacktrackerData(const PFParticleVector &pfPart
             {
                 const auto mcParticle = entry.first;
                 const auto weight = entry.second;
-            
+
                 // Check if we already have an entry for this particle
                 if (m_mcParticleWeightMap.find(mcParticle) == m_mcParticleWeightMap.end())
                     m_mcParticleWeightMap.emplace(mcParticle, 0.f);
-    
+
                 m_mcParticleWeightMap.at(mcParticle) += weight;
-                
+
                 // Fill the PFParticle -> MCParticle matched weight map
                 if (hasPFParticle)
                 {
@@ -361,13 +361,13 @@ void BacktrackHelper::BacktrackerData::CheckConsistency(const PFParticleVector &
 HitVector BacktrackHelper::BacktrackerData::CollectHits(const HitsToPFParticles &hitsToPfps, const HitsToMCParticleWeights &hitsToMcps) const
 {
     HitVector hits;
-    
+
     for (const auto &entry : hitsToPfps)
     {
         if (std::find(hits.begin(), hits.end(), entry.first) == hits.end())
             hits.push_back(entry.first);
     }
-    
+
     for (const auto &entry : hitsToMcps)
     {
         if (std::find(hits.begin(), hits.end(), entry.first) == hits.end())
@@ -411,7 +411,7 @@ bool BacktrackHelper::BacktrackerData::CollectMCParticleWeights(const art::Ptr<r
 }
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
-                
+
 MCParticleVector BacktrackHelper::BacktrackerData::GetMCParticles() const
 {
     return m_mcParticles;
@@ -420,7 +420,7 @@ MCParticleVector BacktrackHelper::BacktrackerData::GetMCParticles() const
 // -----------------------------------------------------------------------------------------------------------------------------------------
 
 PFParticleVector BacktrackHelper::BacktrackerData::GetPFParticles() const
-{    
+{
     return m_pfParticles;
 }
 
@@ -522,7 +522,7 @@ float BacktrackHelper::BacktrackerData::GetMatchWeight(const art::Ptr<recob::PFP
 }
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
-                
+
 float BacktrackHelper::BacktrackerData::GetMatchPurity(const art::Ptr<recob::PFParticle> &pfParticle, const art::Ptr<simb::MCParticle> &mcParticle) const
 {
     const auto pfWeight = this->GetWeight(pfParticle);
@@ -597,7 +597,7 @@ PFParticleVector BacktrackHelper::BacktrackerData::GetBestMatchedPFParticles(con
 }
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
-                
+
 float BacktrackHelper::BacktrackerData::GetWeight(const art::Ptr<recob::Hit> &hit, const art::Ptr<simb::MCParticle> &mcParticle) const
 {
     CollectionData<simb::MCParticle, float> mcParticleWeights;
@@ -617,7 +617,7 @@ float BacktrackHelper::BacktrackerData::GetWeight(const art::Ptr<recob::Hit> &hi
 }
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
-                
+
 float BacktrackHelper::BacktrackerData::GetWeight(const HitVector &hits, const art::Ptr<simb::MCParticle> &mcParticle) const
 {
     float weight = 0.f;
@@ -631,7 +631,7 @@ float BacktrackHelper::BacktrackerData::GetWeight(const HitVector &hits, const a
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
 // -----------------------------------------------------------------------------------------------------------------------------------------
-                
+
 BacktrackHelper::SliceMetadata::SliceMetadata(const SliceVector &slices, const SlicesToBool &sliceToIsSelectedAsNu, const SlicesToHits &slicesToHits, const HitsToBool &hitsToIsNuInduced) :
     m_slices(slices),
     m_sliceToIsSelectedAsNu(sliceToIsSelectedAsNu),
@@ -678,7 +678,7 @@ float BacktrackHelper::SliceMetadata::GetPurity(const art::Ptr<recob::Slice> &sl
 }
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
-                
+
 float BacktrackHelper::SliceMetadata::GetCompleteness(const art::Ptr<recob::Slice> &slice) const
 {
     const auto nNuHits = this->GetTotalNumberOfNuInducedHits();
@@ -711,7 +711,7 @@ unsigned int BacktrackHelper::SliceMetadata::GetNumberOfNuInducedHits(const art:
 }
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
-                
+
 unsigned int BacktrackHelper::SliceMetadata::GetTotalNumberOfNuInducedHits() const
 {
     return this->CountNuInducedHits(this->GetAllHits());
@@ -749,7 +749,7 @@ art::Ptr<recob::Slice> BacktrackHelper::SliceMetadata::GetMostCompleteSlice() co
 }
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
-                
+
 bool BacktrackHelper::SliceMetadata::IsMostCompleteSliceSelected() const
 {
     const auto iter = m_sliceToIsSelectedAsNu.find(this->GetMostCompleteSlice());
@@ -760,7 +760,7 @@ bool BacktrackHelper::SliceMetadata::IsMostCompleteSliceSelected() const
 }
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
-                
+
 HitVector BacktrackHelper::SliceMetadata::GetAllHits() const
 {
     HitVector outputHits;

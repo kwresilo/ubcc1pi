@@ -28,10 +28,11 @@ void TruthStudy(const Config &config)
     FileReader reader(config.files.overlaysFileName);
     auto pEvent = reader.GetBoundEventAddress();
     const auto nEvents = reader.GetNumberOfEvents();
-     
+
     // Setup the counters
     std::vector<std::pair< std::string, float > > interactionToEventCountVect;
-    float totalEventCount = 0.f;
+    float totalCC1PiEventCount = 0.f;
+    float totalCCInclusiveEventCount = 0.f;
 
     // Setup the plots
     TH1F *hPionMomentum = new TH1F("hPionMomentum", "", 100, 0.f, 1.2f);
@@ -44,20 +45,25 @@ void TruthStudy(const Config &config)
         AnalysisHelper::PrintLoadingBar(i, nEvents);
         reader.LoadEvent(i);
 
+        // Ge the event weight
+        const auto weight = AnalysisHelper::GetNominalEventWeight(pEvent);
+
+        if (AnalysisHelper::IsTrueCCInclusive(pEvent, config.global.useAbsPdg))
+            totalCCInclusiveEventCount += weight;
+
         // Only consider true CC1pi events
         if (!AnalysisHelper::IsTrueCC1Pi(pEvent, config.global.useAbsPdg))
             continue;
 
         const auto interactionString = pEvent->truth.interactionString();
-        const auto weight = AnalysisHelper::GetNominalEventWeight(pEvent);
         const auto nuEnergy = pEvent->truth.nuEnergy();
 
         // Count up the total weight
-        totalEventCount += weight;
+        totalCC1PiEventCount += weight;
 
         // Find the vector entry for this interaction string (if it exists)
         auto iter = std::find_if(interactionToEventCountVect.begin(), interactionToEventCountVect.end(), [&](const auto &x) {
-            return x.first == interactionString;        
+            return x.first == interactionString;
         });
 
         // If we haven't seen this interaction before, then add it to the vetor
@@ -73,7 +79,7 @@ void TruthStudy(const Config &config)
 
         const auto analysisData = AnalysisHelper::GetTruthAnalysisData(pEvent->truth, config.global.useAbsPdg, config.global.protonMomentumThreshold);
         hPionMomentum->Fill(analysisData.pionMomentum, weight);
-        
+
         if (analysisData.hasGoldenPion)
         {
             hGoldenPionMomentum->Fill(analysisData.pionMomentum, weight);
@@ -100,7 +106,7 @@ void TruthStudy(const Config &config)
         table.AddEmptyRow();
         table.SetEntry("Interaction", interactionString);
         table.SetEntry("Events", nEvents);
-        table.SetEntry("Fraction", nEvents / totalEventCount);
+        table.SetEntry("Fraction", nEvents / totalCC1PiEventCount);
     }
 
     table.WriteToFile("truthStudy_interactionBreakdown.md");
@@ -120,6 +126,9 @@ void TruthStudy(const Config &config)
     hGoldenPionMomentum->Draw("hist same");
     hNonGoldenPionMomentum->Draw("hist same");
     PlottingHelper::SaveCanvas(pCanvas, "truthStudy_pionMomentum");
+
+    std::cout << "Total CC inclusive events: " << totalCCInclusiveEventCount << std::endl;
+    std::cout << "Total CC1Pi events: " << totalCC1PiEventCount << std::endl;
 }
 
 } // namespace ubcc1pi_macros

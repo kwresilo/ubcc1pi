@@ -10,7 +10,7 @@
  *  defined in one place and will automatically:
  *      - Be added as a member variable of the ubcc1pi::Event class
  *      - Be bound to a branch if an analysis file is to be written or read using a consistent branch naming convention
- *      - Be assigned a default value and be checked such that you can't accidentally use a default variable at the analysis level 
+ *      - Be assigned a default value and be checked such that you can't accidentally use a default variable at the analysis level
  *      - Show up as a compiler error if used in C++ but not defined here
  *
  *  The Event class has three categories
@@ -61,6 +61,9 @@
 #define UBCC1PI_MACRO_EVENT_TRUTH_MEMBERS(p, q, f)                                                                                         \
     f(p, q, false, float,                      splineEventWeight)                                                                          \
     f(p, q, false, float,                      genieTuneEventWeight)                                                                       \
+    f(p, q, true,  std::vector<std::string>,   systParamNames)                                                                             \
+    f(p, q, true,  std::vector<int>,           systParamFirstValueIndex)                                                                   \
+    f(p, q, true,  std::vector<float>,         systParamValues)                                                                            \
     f(p, q, false, bool,                       isCC)                                                                                       \
     f(p, q, false, int,                        interactionMode)                                                                            \
     f(p, q, true,  std::string,                interactionString)                                                                          \
@@ -69,7 +72,7 @@
     f(p, q, true,  TVector3,                   nuVertex)                                                                                   \
     f(p, q, false, int,                        nFinalStates)                                                                               \
     f(p, q, true,  std::vector<float>,         slicePurities)                                                                              \
-    f(p, q, true,  std::vector<float>,         sliceCompletenesses)                                                                               
+    f(p, q, true,  std::vector<float>,         sliceCompletenesses)
 
 
 /** The event truth particle information members */
@@ -101,8 +104,8 @@
     f(p, q, false, int,                 endState)                                                                                          \
     f(p, q, false, float,               endStateProductsHitWeightU)                                                                        \
     f(p, q, false, float,               endStateProductsHitWeightV)                                                                        \
-    f(p, q, false, float,               endStateProductsHitWeightW)                                                                        
-    
+    f(p, q, false, float,               endStateProductsHitWeightW)
+
 /** The event reco information members */
 #define UBCC1PI_MACRO_EVENT_RECO_MEMBERS(p, q, f)                                                                                          \
     f(p, q, false, bool,                passesCCInclusive)                                                                                 \
@@ -114,7 +117,7 @@
     f(p, q, false, bool,                hasNeutrino)                                                                                       \
     f(p, q, false, int,                 nuPdgCode)                                                                                         \
     f(p, q, true,  TVector3,            nuVertex)                                                                                          \
-    f(p, q, false, int,                 nFinalStates)                                                                                                
+    f(p, q, false, int,                 nFinalStates)
 
 /** The event reco particle information members */
 #define UBCC1PI_MACRO_EVENT_RECO_PARTICLE_MEMBERS(p, q, f)                                                                                 \
@@ -189,6 +192,6 @@
     f(p, q, false, std::vector<float>,  truthMatchPurities)                                                                                \
     f(p, q, false, std::vector<float>,  truthMatchCompletenesses)                                                                          \
     f(p, q, false, bool,                hasMatchedMCParticle)                                                                              \
-    f(p, q, false, int,                 bestMatchedMCParticleIndex)                                                                         
+    f(p, q, false, int,                 bestMatchedMCParticleIndex)
 
 #endif

@@ -103,7 +103,7 @@ std::string DebugHelper::GetInteractionString(const TruthHelper::Interaction &in
         default:
             throw cet::exception("Interaction::PrintInfo") << " - Interaction is not CC or NC!" << std::endl;
     }
-    
+
     std::string mode;
     switch (interaction.GetInteractionMode())
     {
@@ -158,7 +158,7 @@ std::string DebugHelper::GetInteractionString(const TruthHelper::Interaction &in
 
     if (brief)
         return (nuType + "_" + ccnc + "_" + mode);
-        
+
     return (nuType + ", " + ccnc + ", " + mode);
 }
 
@@ -173,7 +173,7 @@ void DebugHelper::Print(const art::Ptr<recob::PFParticle> &particle, const unsig
 }
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
-        
+
 void DebugHelper::Print(const PFParticleVector &particles, const unsigned int depth)
 {
     for (const auto &particle : particles)
@@ -202,9 +202,9 @@ void DebugHelper::Print(const BacktrackHelper::BacktrackerData &data, const unsi
         }
         catch (const cet::exception &)
         {
-        } 
+        }
     }
-    
+
     DebugHelper::PrintHeader("MCParticles", depth);
     for (const auto &mcParticle : data.GetMCParticles())
     {
@@ -213,7 +213,7 @@ void DebugHelper::Print(const BacktrackHelper::BacktrackerData &data, const unsi
 
         const auto pfParticles = data.GetBestMatchedPFParticles(mcParticle);
         DebugHelper::PrintProperty("Best matched PFParticles", pfParticles.size(), depth + 1);
-            
+
         for (const auto &pfParticle : pfParticles)
         {
             DebugHelper::Print(pfParticle, depth + 2);

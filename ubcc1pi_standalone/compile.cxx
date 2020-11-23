@@ -2,7 +2,13 @@
 #include <stdexcept>
 #include <string>
 
+#include <vector>
+#include <map>
+
 {
+    // Generate any required dictionaries
+    gInterpreter->GenerateDictionary("std::map<std::string, std::vector<float> >", "map;string;vector");
+
     // Add ubcc1pi_standalone to the include path
     const auto ubcc1piStandaloneDir = std::getenv("UBCC1PI_STANDALONE_DIR");
     if (!ubcc1piStandaloneDir)
@@ -28,6 +34,7 @@
         "Helpers/PlottingHelper.cxx",
         "Helpers/SelectionHelper.cxx",
         "Helpers/NormalisationHelper.cxx",
+        "Helpers/CrossSectionHelper.cxx",
 
         // Macros
         "Macros/PrintConfig.cxx",
@@ -53,6 +60,8 @@
         "Macros/PlotReconstructedVariables.cxx",
         "Macros/SaveSelectedEventInfo.cxx",
         "Macros/MakeBinningPlots.cxx",
+        "Macros/PlotSystematicWeights.cxx",
+        "Macros/ExtractCCInclusiveXSecs.cxx",
         "Macros/ExtractXSecs.cxx",
 
         "Macros/RunFullAnalysis.cxx"

@@ -4,7 +4,7 @@ subrun_factory_config:
 {
     # Truth labels
     POTSummaryLabel:   "generator"
-    
+
     # Configuration
     HasTruthInfo:      true
 }

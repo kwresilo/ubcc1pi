@@ -50,14 +50,14 @@ class BDTHelper
                  *  @param  featureNames the vector of feature variable names
                  */
                 BDTBase(const std::string &bdtName, const std::vector<std::string> &featureNames);
-                
+
                 /**
                  *  @brief  Get the name
                  *
                  *  @return BDT name
                  */
                 std::string GetName() const;
-                
+
             protected:
 
                 std::string               m_bdtName;      ///< The BDT name
@@ -127,7 +127,7 @@ class BDTHelper
                  *  @param  weight the weight of the entry
                  */
                 void AddSignalTrainingEntry(const std::vector<float> &features, const float weight = 1.f);
-                
+
                 /**
                  *  @brief  Add a background training entry
                  *
@@ -135,7 +135,7 @@ class BDTHelper
                  *  @param  weight the weight of the entry
                  */
                 void AddBackgroundTrainingEntry(const std::vector<float> &features, const float weight = 1.f);
-                
+
                 /**
                  *  @brief  Add a signal test entry
                  *
@@ -143,7 +143,7 @@ class BDTHelper
                  *  @param  weight the weight of the entry
                  */
                 void AddSignalTestEntry(const std::vector<float> &features, const float weight = 1.f);
-                
+
                 /**
                  *  @brief  Add a background test entry
                  *
@@ -163,7 +163,7 @@ class BDTHelper
                 void TrainAndTest();
 
             private:
-                
+
                 /**
                  *  @brief  Book the BDT method
                  */
@@ -210,20 +210,20 @@ class BDTHelper
         };
 
         /**
-         *  @brief  The particle BDT feature names 
+         *  @brief  The particle BDT feature names
          */
         static const std::vector<std::string> ParticleBDTFeatureNames;
-        
+
         /**
          *  @brief  The particle BDT feature names for the muon BDT
          */
         static const std::vector<std::string> MuonBDTFeatureNames;
-        
+
         /**
          *  @brief  The particle BDT feature names for the proton BDT
          */
         static const std::vector<std::string> ProtonBDTFeatureNames;
-        
+
         /**
          *  @brief  The particle BDT feature names for the golden pion BDT
          */
@@ -232,7 +232,7 @@ class BDTHelper
         /**
          *  @brief  Get the features corresponding to the given names for the input reco particle
          *
-         *  @param  recoParticle the input reco particle 
+         *  @param  recoParticle the input reco particle
          *  @param  featureNames the feature names to calculate
          *  @param  features the output features
          *  @param  shouldDebug if we should print debug statements
@@ -240,7 +240,7 @@ class BDTHelper
          *  @return boolean, true if all features are available
          */
         static bool GetBDTFeatures(const Event::Reco::Particle &recoParticle, const std::vector<std::string> &featureNames, std::vector<float> &features, const bool shouldDebug = false);
-                
+
         /**
          *  @brief  Get the ROC curve for a set of BDT responses for signal and background
          *
@@ -281,9 +281,9 @@ class BDTHelper
          *  @param  backgroundRejectionRates the input background rejection rates
          *  @param  signalPassingRateErrs the uncertainty on the input signal passing rates
          *  @param  backgroundRejectionRateErrs the uncertainty on the input background rejection rates
-         *  @param  nUniverses the number of universes to use when calculating the uncertainty 
+         *  @param  nUniverses the number of universes to use when calculating the uncertainty
          *
-         *  @return The uncertainty on the ROC curve integral 
+         *  @return The uncertainty on the ROC curve integral
          */
         static float GetROCIntegralError(const std::vector<float> &signalPassingRates, const std::vector<float> &backgroundRejectionRates, const std::vector<float> &signalPassingRateErrs, const std::vector<float> &backgroundRejectionRateErrs, const unsigned int nUniverses = 1000u);
 

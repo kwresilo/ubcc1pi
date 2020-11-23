@@ -30,10 +30,10 @@ void MuonPIDStudy(const Config &config)
     FileReader reader(config.files.overlaysFileName);
     auto pEvent = reader.GetBoundEventAddress();
     const auto nEvents = reader.GetNumberOfEvents();
-    
+
     // Setup the muon BDT
     const auto featureNames = BDTHelper::MuonBDTFeatureNames;
-    BDTHelper::BDT muonBDT("muon", featureNames); 
+    BDTHelper::BDT muonBDT("muon", featureNames);
 
     // Setup the counters
     float nEventsTotal = 0.f;
@@ -45,18 +45,18 @@ void MuonPIDStudy(const Config &config)
     float nEventsUsedCCInclusiveCandidate = 0.f;
     float nEventsUsedEscapingCandidate = 0.f;
     float nEventsUsedBDTCandidate = 0.f;
-    
+
     float nEventsUsedCCInclusiveCandidate_ccincCorrect = 0.f;
     float nEventsUsedEscapingCandidate_ccincCorrect = 0.f;
     float nEventsUsedBDTCandidate_ccincCorrect = 0.f;
     float nEventsUsedCCInclusiveCandidate_correct = 0.f;
     float nEventsUsedEscapingCandidate_correct = 0.f;
     float nEventsUsedBDTCandidate_correct = 0.f;
-    
+
 
     std::map<PlottingHelper::PlotStyle, float> trueParticleTypeToCountMap_ccinc;
     std::map<PlottingHelper::PlotStyle, float> trueParticleTypeToCountMap_ours;
-    
+
     std::map<PlottingHelper::PlotStyle, float> trueParticleTypeToCountMap_usedCCInc_ccinc;
     std::map<PlottingHelper::PlotStyle, float> trueParticleTypeToCountMap_usedEscaping_ccinc;
     std::map<PlottingHelper::PlotStyle, float> trueParticleTypeToCountMap_usedBDT_ccinc;
@@ -86,7 +86,7 @@ void MuonPIDStudy(const Config &config)
 
         const auto weight = AnalysisHelper::GetNominalEventWeight(pEvent);
         nEventsTotal += weight;
-        
+
         const auto recoParticles = pEvent->reco.particles;
 
         // Start of by assuming that the CC inclusive muon candidate is correct
@@ -97,7 +97,7 @@ void MuonPIDStudy(const Config &config)
             const auto &particle = recoParticles.at(index);
             if (!particle.isCCInclusiveMuonCandidate())
                 continue;
-            
+
             if (foundCCInclusiveMuon)
                 throw std::logic_error("MuonPIDStudy - found multiple CC inclusive muon candidates");
 
@@ -121,7 +121,7 @@ void MuonPIDStudy(const Config &config)
             if (AnalysisHelper::HasTrackFit(particle))
                 trackFitParticleIndices.push_back(index);
         }
-        
+
         // Insist at least one has a fitted track
         if (!trackFitParticleIndices.empty())
         {
@@ -165,7 +165,7 @@ void MuonPIDStudy(const Config &config)
 
                         if (!hasFeatures)
                             continue;
-                    
+
                         const auto muonBDTResponse = muonBDT.GetResponse(features);
                         if (muonBDTResponse < maxMuonBDTResponse)
                             continue;
@@ -210,14 +210,14 @@ void MuonPIDStudy(const Config &config)
         const auto checkIndex = SelectionHelper::GetMuonCandidateIndex(recoParticles, featureNames, muonBDT);
         if (checkIndex != muonIndex)
             throw std::logic_error("MuonPIDStudy - logic reproduced to find muon doesn't match the selection!");
-    
+
         // Now determine if true origin of the muon candidate is correct
         const auto truthParticles = pEvent->truth.particles;
 
         const auto ccInclusiveMuon = recoParticles.at(ccInclusiveMuonIndex);
         const auto ccInclusiveMuonStyle = PlottingHelper::GetPlotStyle(ccInclusiveMuon, AnalysisHelper::Overlay, truthParticles, false, config.global.useAbsPdg);
         const auto ccInclusiveMuonCorrect = (ccInclusiveMuonStyle == PlottingHelper::Muon);
-            
+
         auto iter_ccinc = trueParticleTypeToCountMap_ccinc.find(ccInclusiveMuonStyle);
         if (iter_ccinc == trueParticleTypeToCountMap_ccinc.end())
         {
@@ -227,11 +227,11 @@ void MuonPIDStudy(const Config &config)
         {
             iter_ccinc->second += weight;
         }
-        
+
         const auto ourMuon = recoParticles.at(muonIndex);
         const auto ourMuonStyle = PlottingHelper::GetPlotStyle(ourMuon, AnalysisHelper::Overlay, truthParticles, false, config.global.useAbsPdg);
         const auto ourMuonCorrect = (ourMuonStyle == PlottingHelper::Muon);
-        
+
         auto iter_ours = trueParticleTypeToCountMap_ours.find(ourMuonStyle);
         if (iter_ours == trueParticleTypeToCountMap_ours.end())
         {
@@ -242,14 +242,14 @@ void MuonPIDStudy(const Config &config)
             iter_ours->second += weight;
         }
 
-    
+
         if (usedCCInclusiveCandidate)
         {
             nEventsUsedCCInclusiveCandidate += weight;
 
             nEventsUsedCCInclusiveCandidate_ccincCorrect += (ccInclusiveMuonCorrect ? weight : 0.f);
             nEventsUsedCCInclusiveCandidate_correct += (ourMuonCorrect ? weight : 0.f);
-        
+
             auto iter_usedCCInc_ours = trueParticleTypeToCountMap_usedCCInc_ours.find(ourMuonStyle);
             if (iter_usedCCInc_ours == trueParticleTypeToCountMap_usedCCInc_ours.end())
             {
@@ -259,7 +259,7 @@ void MuonPIDStudy(const Config &config)
             {
                 iter_usedCCInc_ours->second += weight;
             }
-            
+
             auto iter_usedCCInc_ccinc = trueParticleTypeToCountMap_usedCCInc_ccinc.find(ccInclusiveMuonStyle);
             if (iter_usedCCInc_ccinc == trueParticleTypeToCountMap_usedCCInc_ccinc.end())
             {
@@ -274,10 +274,10 @@ void MuonPIDStudy(const Config &config)
         if (usedEscapingCandidate)
         {
             nEventsUsedEscapingCandidate += weight;
-            
+
             nEventsUsedEscapingCandidate_ccincCorrect += (ccInclusiveMuonCorrect ? weight : 0.f);
             nEventsUsedEscapingCandidate_correct += (ourMuonCorrect ? weight : 0.f);
-            
+
             auto iter_usedEscaping_ours = trueParticleTypeToCountMap_usedEscaping_ours.find(ourMuonStyle);
             if (iter_usedEscaping_ours == trueParticleTypeToCountMap_usedEscaping_ours.end())
             {
@@ -287,7 +287,7 @@ void MuonPIDStudy(const Config &config)
             {
                 iter_usedEscaping_ours->second += weight;
             }
-            
+
             auto iter_usedEscaping_ccinc = trueParticleTypeToCountMap_usedEscaping_ccinc.find(ccInclusiveMuonStyle);
             if (iter_usedEscaping_ccinc == trueParticleTypeToCountMap_usedEscaping_ccinc.end())
             {
@@ -302,10 +302,10 @@ void MuonPIDStudy(const Config &config)
         if (usedBDTCandidate)
         {
             nEventsUsedBDTCandidate += weight;
-            
+
             nEventsUsedBDTCandidate_ccincCorrect += (ccInclusiveMuonCorrect ? weight : 0.f);
             nEventsUsedBDTCandidate_correct += (ourMuonCorrect ? weight : 0.f);
-            
+
             auto iter_usedBDT_ours = trueParticleTypeToCountMap_usedBDT_ours.find(ourMuonStyle);
             if (iter_usedBDT_ours == trueParticleTypeToCountMap_usedBDT_ours.end())
             {
@@ -315,7 +315,7 @@ void MuonPIDStudy(const Config &config)
             {
                 iter_usedBDT_ours->second += weight;
             }
-            
+
             auto iter_usedBDT_ccinc = trueParticleTypeToCountMap_usedBDT_ccinc.find(ccInclusiveMuonStyle);
             if (iter_usedBDT_ccinc == trueParticleTypeToCountMap_usedBDT_ccinc.end())
             {
@@ -350,7 +350,7 @@ void MuonPIDStudy(const Config &config)
         {
             nEventsTotalInMap += entry.second;
         }
-        
+
         for (const auto &entry : map)
         {
             const auto style = entry.first;
@@ -396,56 +396,56 @@ void MuonPIDStudy(const Config &config)
     table.AddEmptyRow();
     table.SetEntry("Label", "All CC1Pi events passing CC inclusive");
     table.SetEntry("Events", nEventsTotal);
-    
+
     table.AddEmptyRow();
     table.SetEntry("Label", "... with at least one fitted track");
     table.SetEntry("Events", nEventsHasTrack);
-    
+
     table.AddEmptyRow();
     table.SetEntry("Label", "... and <= 1 escaping particle");
     table.SetEntry("Events", nEventsMax1Escaping);
-    
+
     table.AddEmptyRow();
     table.SetEntry("Label", "... and 0 escaping particles");
     table.SetEntry("Events", nEvents0Escaping);
-    
+
     table.AddEmptyRow();
     table.SetEntry("Label", "... and has BDT response");
     table.SetEntry("Events", nEvents0EscapingHasBDT);
-    
+
     table.AddEmptyRow();
     table.AddEmptyRow();
     table.SetEntry("Label", "Events using CC inclusive candidate");
     table.SetEntry("Events", nEventsUsedCCInclusiveCandidate);
-    
+
     table.AddEmptyRow();
     table.SetEntry("Label", "... CC inclusive candidate is correct");
     table.SetEntry("Events", nEventsUsedCCInclusiveCandidate_ccincCorrect);
-    
+
     table.AddEmptyRow();
     table.SetEntry("Label", "... our candidate is correct");
     table.SetEntry("Events", nEventsUsedCCInclusiveCandidate_correct);
-    
+
     table.AddEmptyRow();
     table.SetEntry("Label", "Events using escaping candidate");
     table.SetEntry("Events", nEventsUsedEscapingCandidate);
-    
+
     table.AddEmptyRow();
     table.SetEntry("Label", "... CC inclusive candidate is correct");
     table.SetEntry("Events", nEventsUsedEscapingCandidate_ccincCorrect);
-    
+
     table.AddEmptyRow();
     table.SetEntry("Label", "... our candidate is correct");
     table.SetEntry("Events", nEventsUsedEscapingCandidate_correct);
-    
+
     table.AddEmptyRow();
     table.SetEntry("Label", "Events using BDT candidate");
     table.SetEntry("Events", nEventsUsedBDTCandidate);
-    
+
     table.AddEmptyRow();
     table.SetEntry("Label", "... CC inclusive candidate is correct");
     table.SetEntry("Events", nEventsUsedBDTCandidate_ccincCorrect);
-    
+
     table.AddEmptyRow();
     table.SetEntry("Label", "... our candidate is correct");
     table.SetEntry("Events", nEventsUsedBDTCandidate_correct);

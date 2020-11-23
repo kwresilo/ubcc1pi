@@ -26,13 +26,13 @@ void MultiPlanePIDDemo(const Config &config)
 {
     //
     // Setup the input files
-    // 
+    //
     std::vector< std::tuple<AnalysisHelper::SampleType, std::string, float> > inputData;
-    
-    inputData.emplace_back(AnalysisHelper::Overlay, config.files.overlaysFileName, NormalisationHelper::GetOverlaysNormalisation(config)); 
-    inputData.emplace_back(AnalysisHelper::Dirt,    config.files.dirtFileName,     NormalisationHelper::GetDirtNormalisation(config)); 
-    inputData.emplace_back(AnalysisHelper::DataEXT, config.files.dataEXTFileName,  NormalisationHelper::GetDataEXTNormalisation(config)); 
-    
+
+    inputData.emplace_back(AnalysisHelper::Overlay, config.files.overlaysFileName, NormalisationHelper::GetOverlaysNormalisation(config));
+    inputData.emplace_back(AnalysisHelper::Dirt,    config.files.dirtFileName,     NormalisationHelper::GetDirtNormalisation(config));
+    inputData.emplace_back(AnalysisHelper::DataEXT, config.files.dataEXTFileName,  NormalisationHelper::GetDataEXTNormalisation(config));
+
     const auto angleThreshold = std::asin(std::pow(config.multiPlanePIDDemo.sin2AngleThreshold, 0.5f));
     std::cout << "Angle threshold = " << angleThreshold << std::endl;
 
@@ -58,7 +58,7 @@ void MultiPlanePIDDemo(const Config &config)
     float nWAngleCut = 0.f;
     float nUV = 0.f;
     float nUVW = 0.f;
-    
+
     // Define the special angles
     const auto uAngle = pi / 3.f;
     const auto vAngle = -pi / 3.f;
@@ -72,7 +72,7 @@ void MultiPlanePIDDemo(const Config &config)
         FileReader reader(fileName);
         auto pEvent = reader.GetBoundEventAddress();
         const auto nEvents = reader.GetNumberOfEvents();
-    
+
         for (unsigned int i = 0; i < nEvents; ++i)
         {
             AnalysisHelper::PrintLoadingBar(i, nEvents);
@@ -89,12 +89,12 @@ void MultiPlanePIDDemo(const Config &config)
             {
                 if (!AnalysisHelper::HasTrackFit(particle))
                     continue;
-                
-                // Get the plot style 
+
+                // Get the plot style
                 const auto particleStyle = PlottingHelper::GetPlotStyle(particle, sampleType, truthParticles, false, config.global.useAbsPdg);
 
                 // Fold the angle so that antiparallel angles have the same value, and the range is 0-pi
-                //const auto yzAngle = particle.yzAngle() - std::floor(particle.yzAngle() / pi) * pi; 
+                //const auto yzAngle = particle.yzAngle() - std::floor(particle.yzAngle() / pi) * pi;
                 const auto yzAngle = particle.yzAngle();
 
                 float ratioU = std::numeric_limits<float>::max();
@@ -218,7 +218,7 @@ void MultiPlanePIDDemo(const Config &config)
     aU2->SetLineWidth(2);
     aU3->SetLineColor(kWhite);
     aU3->SetLineWidth(2);
-    
+
     // V lines
     TLine *lV1 = new TLine(vAngle + pi, minVal, vAngle + pi, maxVal);
     TLine *lV1Plus = new TLine(vAngle + pi + angleThreshold, minVal, vAngle + pi + angleThreshold, maxVal);
@@ -226,7 +226,7 @@ void MultiPlanePIDDemo(const Config &config)
     TLine *lV2 = new TLine(vAngle, minVal, vAngle, maxVal);
     TLine *lV2Plus = new TLine(vAngle + angleThreshold, minVal, vAngle + angleThreshold, maxVal);
     TLine *lV2Minus = new TLine(vAngle - angleThreshold, minVal, vAngle - angleThreshold, maxVal);
-    
+
     TArrow *aV1 = new TArrow(-pi, yArrow, vAngle - angleThreshold, yArrow, arrowSize, ">");
     TArrow *aV2 = new TArrow(vAngle + angleThreshold, yArrow, vAngle + pi - angleThreshold, yArrow, arrowSize, "<>");
     TArrow *aV3 = new TArrow(vAngle + pi + angleThreshold, yArrow, pi, yArrow, arrowSize, "<");
@@ -247,21 +247,21 @@ void MultiPlanePIDDemo(const Config &config)
     lV2Minus->SetLineWidth(2);
     lV2Plus->SetLineStyle(2);
     lV2Minus->SetLineStyle(2);
-    
+
     aV1->SetLineColor(kWhite);
     aV1->SetLineWidth(2);
     aV2->SetLineColor(kWhite);
     aV2->SetLineWidth(2);
     aV3->SetLineColor(kWhite);
     aV3->SetLineWidth(2);
-    
+
     // W lines
     TLine *lW1 = new TLine(wAngle, minVal, wAngle, maxVal);
     TLine *lW1Plus = new TLine(wAngle + angleThreshold, minVal, wAngle + angleThreshold, maxVal);
     TLine *lW1Minus = new TLine(wAngle - angleThreshold, minVal, wAngle - angleThreshold, maxVal);
     TLine *lW2Plus = new TLine(wAngle - pi + angleThreshold, minVal, wAngle - pi + angleThreshold, maxVal);
     TLine *lW2Minus = new TLine(wAngle + pi - angleThreshold, minVal, wAngle + pi - angleThreshold, maxVal);
-    
+
     TArrow *aW1 = new TArrow(-pi + angleThreshold, yArrow, wAngle - angleThreshold, yArrow, arrowSize, "<>");
     TArrow *aW2 = new TArrow(wAngle + angleThreshold, yArrow, pi - angleThreshold, yArrow, arrowSize, "<>");
     TArrow *aUVW = new TArrow(-pi, yArrow, pi, yArrow, arrowSize, "<>");
@@ -280,7 +280,7 @@ void MultiPlanePIDDemo(const Config &config)
     lW2Minus->SetLineWidth(2);
     lW2Plus->SetLineStyle(2);
     lW2Minus->SetLineStyle(2);
-    
+
     aW1->SetLineColor(kWhite);
     aW1->SetLineWidth(2);
     aW2->SetLineColor(kWhite);
@@ -302,7 +302,7 @@ void MultiPlanePIDDemo(const Config &config)
     aU2->Draw();
     aU3->Draw();
     PlottingHelper::SaveCanvas(pCanvas, "multiPlanePIDDemo_logLikelihood_p_MIP_U");
-    
+
     hV->Draw("colz");
 //    lV1->Draw();
     lV1Plus->Draw();
@@ -314,7 +314,7 @@ void MultiPlanePIDDemo(const Config &config)
     aV2->Draw();
     aV3->Draw();
     PlottingHelper::SaveCanvas(pCanvas, "multiPlanePIDDemo_logLikelihood_p_MIP_V");
-    
+
     hW->Draw("colz");
 //    lW1->Draw();
     lW1Plus->Draw();
@@ -324,11 +324,11 @@ void MultiPlanePIDDemo(const Config &config)
     aW1->Draw();
     aW2->Draw();
     PlottingHelper::SaveCanvas(pCanvas, "multiPlanePIDDemo_logLikelihood_p_MIP_W");
-    
+
     hUV->Draw("colz");
     aUVW->Draw();
     PlottingHelper::SaveCanvas(pCanvas, "multiPlanePIDDemo_logLikelihood_p_MIP_UV");
-    
+
     hUVW->Draw("colz");
 //    lW1->Draw();
 //    lW1Plus->Draw();
@@ -343,31 +343,31 @@ void MultiPlanePIDDemo(const Config &config)
     table.AddEmptyRow();
     table.SetEntry("Plane", "U");
     table.SetEntry("Acceptance", nU / nTotal);
-    
+
     table.AddEmptyRow();
     table.SetEntry("Plane", "U (good angle)");
     table.SetEntry("Acceptance", nUAngleCut / nTotal);
-    
+
     table.AddEmptyRow();
     table.SetEntry("Plane", "V");
     table.SetEntry("Acceptance", nV / nTotal);
-    
+
     table.AddEmptyRow();
     table.SetEntry("Plane", "V (good angle)");
     table.SetEntry("Acceptance", nVAngleCut / nTotal);
-    
+
     table.AddEmptyRow();
     table.SetEntry("Plane", "W");
     table.SetEntry("Acceptance", nW / nTotal);
-    
+
     table.AddEmptyRow();
     table.SetEntry("Plane", "W (good angle)");
     table.SetEntry("Acceptance", nWAngleCut / nTotal);
-    
+
     table.AddEmptyRow();
     table.SetEntry("Plane", "UV");
     table.SetEntry("Acceptance", nUV / nTotal);
-    
+
     table.AddEmptyRow();
     table.SetEntry("Plane", "UVW");
     table.SetEntry("Acceptance", nUVW / nTotal);

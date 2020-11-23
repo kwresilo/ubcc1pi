@@ -36,7 +36,7 @@ class HitSlicer : public art::EDProducer
                 fhicl::Name("SliceLabel"),
                 fhicl::Comment("The label for the slice producer")
             };
-            
+
             /**
              *  @brief  The slice to hits label
              */
@@ -45,7 +45,7 @@ class HitSlicer : public art::EDProducer
                 fhicl::Name("SliceToHitsLabel"),
                 fhicl::Comment("The label for the slice to hits association producer")
             };
-            
+
             /**
              *  @brief  The slice to PFParticles label
              */
@@ -54,7 +54,7 @@ class HitSlicer : public art::EDProducer
                 fhicl::Name("SliceToPFParticlesLabel"),
                 fhicl::Comment("The label for the slice to pfparticle association producer")
             };
-            
+
             /**
              *  @brief  If the input sample has MC information
              */
@@ -63,7 +63,7 @@ class HitSlicer : public art::EDProducer
                 fhicl::Name("HasMC"),
                 fhicl::Comment("If the input sample has MC information")
             };
-            
+
             /**
              *  @brief  The MCParticle label
              */
@@ -72,7 +72,7 @@ class HitSlicer : public art::EDProducer
                 fhicl::Name("MCParticleLabel"),
                 fhicl::Comment("The label for the MCParticle producer label")
             };
-            
+
             /**
              *  @brief  The backtracker label
              */
@@ -82,7 +82,7 @@ class HitSlicer : public art::EDProducer
                 fhicl::Comment("The label for the MCParticle to hits producer label")
             };
         };
-        
+
         /**
          *  @brief  Constructor
          *
@@ -98,7 +98,7 @@ class HitSlicer : public art::EDProducer
         void produce(art::Event &event);
 
     private:
-        
+
         art::EDProducer::Table<Config>  m_config;          ///< The FHiCL configuration options
 };
 

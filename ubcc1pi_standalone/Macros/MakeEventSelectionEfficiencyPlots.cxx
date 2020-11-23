@@ -23,7 +23,7 @@ void MakeEventSelectionEfficiencyPlots(const Config &config)
     // Get the selection
     auto selection = SelectionHelper::GetDefaultSelection();
     const auto allCuts = selection.GetCuts();
-    
+
     std::cout << "Making plots for cuts:" << std::endl;
     for (const auto &cut : allCuts)
         std::cout << " - " << cut << std::endl;
@@ -48,7 +48,7 @@ void MakeEventSelectionEfficiencyPlots(const Config &config)
     auto plot_piMomentumGolden = PlottingHelper::EfficiencyPlot("True golden pion momentum / GeV", 40u, 0.f, 0.4f, allCuts, drawErrors);
     auto plot_piCosThetaGolden = PlottingHelper::EfficiencyPlot("True golden pion cos(theta)", 40u, -1.f, 1.0f, allCuts, drawErrors);
     auto plot_piPhiGolden = PlottingHelper::EfficiencyPlot("True golden pion phi / rad", 40u, -3.142, 3.142f, allCuts, drawErrors);
-    
+
     // Efficiencies wrt CC inclusive
     auto plot_ccinc_nuEnergy = PlottingHelper::EfficiencyPlot("Neutrino energy / GeV", 30u, 0, 2.5f, allCuts, drawErrors);
     auto plot_ccinc_nProtons = PlottingHelper::EfficiencyPlot("Proton multiplicity", 5u, 0, 5, allCuts, drawErrors);
@@ -73,7 +73,7 @@ void MakeEventSelectionEfficiencyPlots(const Config &config)
         // Only care about signal events
         if (!AnalysisHelper::IsTrueCC1Pi(pEvent, config.global.useAbsPdg))
             continue;
-        
+
         // Check which event selection cuts are passed by this event
         std::vector<std::string> cutsPassed;
         std::vector<int> assignedPdgCodes;
@@ -84,7 +84,7 @@ void MakeEventSelectionEfficiencyPlots(const Config &config)
 
         // Get the features we want to plot
         const auto analysisData = AnalysisHelper::GetTruthAnalysisData(pEvent->truth, config.global.useAbsPdg, config.global.protonMomentumThreshold);
-        
+
         // Fill the plots at each step
         for (unsigned int i = 0; i < allCuts.size(); ++i)
         {
@@ -142,7 +142,7 @@ void MakeEventSelectionEfficiencyPlots(const Config &config)
     plot_piMomentumGolden.SaveAs("efficiency_piMomentumGolden");
     plot_piCosThetaGolden.SaveAs("efficiency_piCosThetaGolden");
     plot_piPhiGolden.SaveAs("efficiency_piPhiGolden");
-    
+
     plot_ccinc_nuEnergy.SaveAs("efficiency_ccinc_nuEnergy");
     plot_ccinc_nProtons.SaveAs("efficiency_ccinc_nProtons");
     plot_ccinc_muMomentum.SaveAs("efficiency_ccinc_muMomentum");
@@ -155,7 +155,7 @@ void MakeEventSelectionEfficiencyPlots(const Config &config)
     plot_ccinc_piMomentumGolden.SaveAs("efficiency_ccinc_piMomentumGolden");
     plot_ccinc_piCosThetaGolden.SaveAs("efficiency_ccinc_piCosThetaGolden");
     plot_ccinc_piPhiGolden.SaveAs("efficiency_ccinc_piPhiGolden");
-    
+
     // Save the bottom line selections
     std::vector<PlottingHelper::PlotStyle> styles({PlottingHelper::Primary, PlottingHelper::Secondary});
     std::vector<std::string> cuts({config.global.lastCutGeneric, allCuts.back()});

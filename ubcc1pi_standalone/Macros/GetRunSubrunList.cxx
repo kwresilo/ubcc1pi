@@ -23,10 +23,10 @@ void GetRunSubrunList(const Config &config)
 
     if (config.getRunSubrunList.useDataEXT)
         fileNames.emplace_back(config.files.dataEXTFileName, "runSubrunList_dataEXT.txt");
-    
+
     if (config.getRunSubrunList.useDataBNB)
         fileNames.emplace_back(config.files.dataBNBFileName, "runSubrunList_dataBNB.txt");
-    
+
     // For each of the input files
     for (const auto &ioFileName : fileNames)
     {
@@ -61,4 +61,4 @@ void GetRunSubrunList(const Config &config)
     }
 }
 
-} // namespace ubcc1pi_macros 
+} // namespace ubcc1pi_macros

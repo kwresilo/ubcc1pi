@@ -1,0 +1,24 @@
+#include "file_location_database.fcl"
+
+process_name: UBCC1PiFileLocationDatabase
+
+source:
+{
+    module_type:                RootInput
+    maxEvents:                 -1
+    saveMemoryObjectThreshold:  0
+}
+
+services.TFileService: { fileName: "dummy.root" }
+
+physics:
+{
+    analyzers:
+    {
+        fileLocationDatabase: @local::fileLocationDatabase
+    }
+
+    ana: [ fileLocationDatabase ]
+
+    end_paths: [ ana ]
+}

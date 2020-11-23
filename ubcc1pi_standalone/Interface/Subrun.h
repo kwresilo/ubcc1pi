@@ -30,9 +30,9 @@ class Subrun
          *  @brief  Print the member variables to the terminal
          */
         void Print() const;
-            
+
         UBCC1PI_MACRO_SUBRUN_MEMBERS("", "", UBCC1PI_MACRO_DECLARE_MEMBER)
-    
+
     private:
 
         friend FileWriter;      ///< The file writer class is a friend
@@ -45,7 +45,7 @@ class Subrun
          *  @param  pTree the tree with which to bind
          */
         void BindToOutputTree(TTree * pTree);
-        
+
         /**
          *  @brief  Bind this event to an input tree
          *
