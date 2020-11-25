@@ -70,9 +70,7 @@ void PlotMuonRecoVariables(const Config &config)
             const auto recoParticles = pEvent->reco.particles;
 
             // Run the event selection and store which cuts are passed
-            std::vector<std::string> cutsPassed;
-            std::vector<int> assignedPdgCodes;
-            const auto isSelected = selection.Execute(pEvent, cutsPassed, assignedPdgCodes);
+            const auto &[isSelected, cutsPassed, assignedPdgCodes] = selection.Execute(pEvent);
 
             // Get the truth and reco analysis data
             const auto weight = AnalysisHelper::GetNominalEventWeight(pEvent) * normalisation;

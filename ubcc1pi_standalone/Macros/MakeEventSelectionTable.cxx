@@ -20,6 +20,8 @@ namespace ubcc1pi_macros
 
 void MakeEventSelectionTable(const Config &config)
 {
+    // TODO Finish refactor
+    /*
     // Set up the selection
     auto selection = SelectionHelper::GetDefaultSelection();
 
@@ -44,6 +46,7 @@ void MakeEventSelectionTable(const Config &config)
 
     // Run the selection
     selection.Execute(config.files.dataBNBFileName, config.files.overlaysFileName, overlayWeight, config.files.dataEXTFileName, dataEXTWeight, config.files.dirtFileName, dirtWeight, true, 1.f, 10u);
+    */
 }
 
 } // namespace ubcc1pi_macros

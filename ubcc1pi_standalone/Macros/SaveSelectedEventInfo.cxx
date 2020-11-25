@@ -111,9 +111,7 @@ void SaveSelectedEventInfo(const Config &config)
             reader.LoadEvent(i);
 
             // Run the event selection and store which cuts are passed
-            std::vector<std::string> cutsPassed;
-            std::vector<int> assignedPdgCodes;
-            const auto passesGoldenPionSelection = selection.Execute(pEvent, cutsPassed, assignedPdgCodes);
+            const auto &[passesGoldenPionSelection, cutsPassed, assignedPdgCodes] = selection.Execute(pEvent);
             const auto passesGenericSelection = (std::find(cutsPassed.begin(), cutsPassed.end(), config.global.lastCutGeneric) != cutsPassed.end());
 
             // Only care about selected events

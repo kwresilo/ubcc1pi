@@ -96,9 +96,7 @@ void PlotReconstructedVariables(const Config &config)
             reader.LoadEvent(i);
 
             // Run the event selection and store which cuts are passed
-            std::vector<std::string> cutsPassed;
-            std::vector<int> assignedPdgCodes;
-            const auto isSelectedGolden = selection.Execute(pEvent, cutsPassed, assignedPdgCodes);
+            const auto &[isSelectedGolden, cutsPassed, assignedPdgCodes] = selection.Execute(pEvent);
             const auto isSelectedGeneric = (std::find(cutsPassed.begin(), cutsPassed.end(), config.global.lastCutGeneric) != cutsPassed.end());
 
             // Only use events that at least pass the generic selection

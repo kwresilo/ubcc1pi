@@ -38,7 +38,7 @@ void PlotEventSelectionCuts(const Config &config)
     auto selection = SelectionHelper::GetDefaultSelection();
     const auto allCuts = selection.GetCuts();
 
-    const auto protonBDTCut = selection.GetCutNominalValue("2NonProtons");
+    const auto protonBDTCut = selection.GetCutValue("2NonProtons");
 
     //
     // Setup the plots
@@ -74,12 +74,12 @@ void PlotEventSelectionCuts(const Config &config)
     protonBDTResponsePlot.AddCutLine(protonBDTCut);
     nNonProtonsPlot.AddCutLine(2);
     nNonProtonsPlot.AddCutLine(3);
-    openingAnglePlot.AddCutLine(selection.GetCutNominalValue("openingAngle"));
-    topologicalScorePlot.AddCutLine(selection.GetCutNominalValue("topologicalScore"));
-    startNearVertexParticlePlot.AddCutLine(selection.GetCutNominalValue("startNearVertex"));
-    startNearVertexEventPlot.AddCutLine(selection.GetCutNominalValue("startNearVertex"));
-    likelyGoldenPionParticlePlot.AddCutLine(selection.GetCutNominalValue("likelyGoldenPion"));
-    likelyGoldenPionEventPlot.AddCutLine(selection.GetCutNominalValue("likelyGoldenPion"));
+    openingAnglePlot.AddCutLine(selection.GetCutValue("openingAngle"));
+    topologicalScorePlot.AddCutLine(selection.GetCutValue("topologicalScore"));
+    startNearVertexParticlePlot.AddCutLine(selection.GetCutValue("startNearVertex"));
+    startNearVertexEventPlot.AddCutLine(selection.GetCutValue("startNearVertex"));
+    likelyGoldenPionParticlePlot.AddCutLine(selection.GetCutValue("likelyGoldenPion"));
+    likelyGoldenPionEventPlot.AddCutLine(selection.GetCutValue("likelyGoldenPion"));
 
     //
     // Setup the BDTs
@@ -132,9 +132,7 @@ void PlotEventSelectionCuts(const Config &config)
             const auto &recoParticles = pEvent->reco.particles;
 
             // Run the event selection and store which cuts are passed
-            std::vector<std::string> cutsPassed;
-            std::vector<int> assignedPdgCodes;
-            const auto passesGoldenPionSelection = selection.Execute(pEvent, cutsPassed, assignedPdgCodes);
+            const auto &[passesGoldenPionSelection, cutsPassed, assignedPdgCodes] = selection.Execute(pEvent);
 
             // Get the plot style of the event
             const auto weight = AnalysisHelper::GetNominalEventWeight(pEvent) * normalisation;

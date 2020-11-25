@@ -87,9 +87,7 @@ void MakeSelectedPIDTable(const Config &config)
             //// END TEST
 
             // Run the event selection and store which cuts are passed
-            std::vector<std::string> cutsPassed;
-            std::vector<int> assignedPdgCodes;
-            selection.Execute(pEvent, cutsPassed, assignedPdgCodes);
+            const auto &[isSelectedTotal, cutsPassed, assignedPdgCodes] = selection.Execute(pEvent);
             const auto isSelectedAtChosenCut = (std::find(cutsPassed.begin(), cutsPassed.end(), lastCut) != cutsPassed.end());
 
             // Don't bother with events that weren't selected

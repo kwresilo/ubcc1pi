@@ -37,8 +37,6 @@
         "Helpers/CrossSectionHelper.cxx",
 
         // Macros
-        /*
-         * DEBUG DISABLING ALL MACROS WHILE REFACTORING SELECTION HELPER
         "Macros/PrintConfig.cxx",
         "Macros/CountPOT.cxx",
         "Macros/GetRunSubrunList.cxx",
@@ -67,8 +65,6 @@
         "Macros/ExtractXSecs.cxx",
 
         "Macros/RunFullAnalysis.cxx"
-        */
-
     }))
     {
         std::cout << "Compiling " << file << std::endl;

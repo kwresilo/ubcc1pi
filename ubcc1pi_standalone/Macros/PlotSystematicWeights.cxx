@@ -155,10 +155,8 @@ void PlotSystematicWeights(const Config &config)
         const auto style = PlottingHelper::GetPlotStyle(AnalysisHelper::Overlay, pEvent, config.global.useAbsPdg);
 
         // Run the event selection and store which cuts are passed
-        std::vector<std::string> cutsPassed;
-        std::vector<int> assignedPdgCodes;
-        auto passedGoldenSelection = selection.Execute(pEvent, cutsPassed, assignedPdgCodes);
-        auto passedGenericSelection = (std::find(cutsPassed.begin(), cutsPassed.end(), config.global.lastCutGeneric) != cutsPassed.end());
+        const auto &[passedGoldenSelection, cutsPassed, assignedPdgCodes] = selection.Execute(pEvent);
+        const auto passedGenericSelection = (std::find(cutsPassed.begin(), cutsPassed.end(), config.global.lastCutGeneric) != cutsPassed.end());
 
         // Get the nominal event weight
         const auto weight = AnalysisHelper::GetNominalEventWeight(pEvent);
