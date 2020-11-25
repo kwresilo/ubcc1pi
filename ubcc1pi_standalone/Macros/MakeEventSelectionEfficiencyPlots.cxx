@@ -75,9 +75,7 @@ void MakeEventSelectionEfficiencyPlots(const Config &config)
             continue;
 
         // Check which event selection cuts are passed by this event
-        std::vector<std::string> cutsPassed;
-        std::vector<int> assignedPdgCodes;
-        const auto isSelected = selection.Execute(pEvent, cutsPassed, assignedPdgCodes);
+        const auto &[isSelected, cutsPassed, assignedPdgCodes] = selection.Execute(pEvent);
 
         // Get the event weight
         const auto weight = AnalysisHelper::GetNominalEventWeight(pEvent);

@@ -197,10 +197,8 @@ void ExtractXSecs(const Config &config)
 
 
             // Run the event selection and store which cuts are passed
-            std::vector<std::string> cutsPassed;
-            std::vector<int> assignedPdgCodes;
-            auto passedGoldenSelection = selection.Execute(pEvent, cutsPassed, assignedPdgCodes);
-            auto passedGenericSelection = (std::find(cutsPassed.begin(), cutsPassed.end(), config.global.lastCutGeneric) != cutsPassed.end());
+            const auto &[passedGoldenSelection, cutsPassed, assignedPdgCodes] = selection.Execute(pEvent);
+            const auto passedGenericSelection = (std::find(cutsPassed.begin(), cutsPassed.end(), config.global.lastCutGeneric) != cutsPassed.end());
 
             // Determine if the phase-space restrictions are met in reco
             auto recoData = AnalysisHelper::GetDummyAnalysisData();

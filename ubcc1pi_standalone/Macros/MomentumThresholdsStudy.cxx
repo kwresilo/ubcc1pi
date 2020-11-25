@@ -51,10 +51,8 @@ void MomentumThresholdsStudy(const Config &config)
             continue;
 
         // Insist we pass the generic selection
-        std::vector<std::string> cutsPassed;
-        std::vector<int> assignedPdgCodes;
-        const auto passedGoldenSelection = selection.Execute(pEvent, cutsPassed, assignedPdgCodes);
-        const auto passedGenericSelection = (std::find(cutsPassed.begin(), cutsPassed.end(), config.global.lastCutGeneric) != cutsPassed.end());
+        const auto &[passedGoldenSelection, cutsPassed, assignedPdgCodes] = selection.Execute(pEvent);
+        const auto passedGenericSelection = SelectionHelper::IsCutPassed(cutsPassed, config.global.lastCutGeneric);
 
         if (!passedGenericSelection)
             continue;

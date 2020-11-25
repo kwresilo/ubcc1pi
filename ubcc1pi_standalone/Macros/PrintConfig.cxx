@@ -181,23 +181,6 @@ void PrintConfig(const Config &config)
     table.SetEntry("Value", config.trainBDTs.shouldMakePlots);
 
     //
-    // MakeEventSelectionTable
-    //
-    table.AddEmptyRow();
-
-    table.AddEmptyRow();
-    table.SetEntry("Variable", "makeEventSelectionTable.shouldOptimize");
-    table.SetEntry("Value", config.makeEventSelectionTable.shouldOptimize);
-
-    table.AddEmptyRow();
-    table.SetEntry("Variable", "makeEventSelectionTable.nScanPoints");
-    table.SetEntry("Value", config.makeEventSelectionTable.nScanPoints);
-
-    table.AddEmptyRow();
-    table.SetEntry("Variable", "makeEventSelectionTable.processFraction");
-    table.SetEntry("Value", config.makeEventSelectionTable.processFraction);
-
-    //
     // MakeSelectedPIDTable
     //
     table.AddEmptyRow();

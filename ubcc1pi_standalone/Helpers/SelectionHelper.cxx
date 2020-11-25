@@ -5,293 +5,157 @@
  */
 
 #include "ubcc1pi_standalone/Helpers/SelectionHelper.h"
-#include "ubcc1pi_standalone/Helpers/FormattingHelper.h"
-#include "ubcc1pi_standalone/Objects/FileReader.h"
 
-#include <stdexcept>
-#include <algorithm>
+#include "ubcc1pi_standalone/Helpers/AnalysisHelper.h"
 
 namespace ubcc1pi
 {
 
-SelectionHelper::EventSelection::CutManager::CutManager() :
-    m_nScanPoints(2u)
+SelectionHelper::EventSelection::Cut::Cut() :
+    m_name(""),
+    m_hasValue(false),
+    m_value(-std::numeric_limits<float>::max())
 {
 }
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
 
-bool SelectionHelper::EventSelection::CutManager::HasCut(const std::string &name) const
+SelectionHelper::EventSelection::Cut::Cut(const std::string &name) :
+    m_name(name),
+    m_hasValue(false),
+    m_value(-std::numeric_limits<float>::max())
 {
-    return (std::find_if(m_cuts.begin(), m_cuts.end(), [&](const Cut &cut) {return cut.m_name == name;}) != m_cuts.end());
 }
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
 
-SelectionHelper::EventSelection::CutManager::Cut& SelectionHelper::EventSelection::CutManager::GetCut(const std::string &name)
+SelectionHelper::EventSelection::Cut::Cut(const std::string &name, const float value) :
+    m_name(name),
+    m_hasValue(true),
+    m_value(value)
 {
-    auto iter = std::find_if(m_cuts.begin(), m_cuts.end(), [&](const Cut &cut) {return cut.m_name == name;});
+}
+
+// -----------------------------------------------------------------------------------------------------------------------------------------
+
+std::string SelectionHelper::EventSelection::Cut::GetName() const
+{
+    if (m_name.empty())
+        throw std::logic_error("Cut::GetName - Name has not been set");
+
+    return m_name;
+}
+
+// -----------------------------------------------------------------------------------------------------------------------------------------
+
+bool SelectionHelper::EventSelection::Cut::HasValue() const
+{
+    return m_hasValue;
+}
+
+// -----------------------------------------------------------------------------------------------------------------------------------------
+
+float SelectionHelper::EventSelection::Cut::GetValue() const
+{
+    if (!m_hasValue)
+        throw std::logic_error("Cut::GetValue - Can't get value of cut: \"" + m_name + "\" - it has no value");
+
+    return m_value;
+}
+
+// -----------------------------------------------------------------------------------------------------------------------------------------
+
+void SelectionHelper::EventSelection::Cut::SetValue(const float value)
+{
+    if (!m_hasValue)
+        throw std::logic_error("Cut::SetValue - Can't set value of cut: \"" + m_name + "\" - it has no value");
+
+    m_value = value;
+}
+
+// -----------------------------------------------------------------------------------------------------------------------------------------
+// -----------------------------------------------------------------------------------------------------------------------------------------
+
+SelectionHelper::EventSelection::CutTracker::CutTracker(const std::vector<Cut> &cuts, const unsigned int nRecoParticles) :
+    m_cuts(cuts),
+    m_assignedPdgs(nRecoParticles, 0) // ATTN here we use a PDG code of zero to mean "unassigned"
+{
+}
+
+// -----------------------------------------------------------------------------------------------------------------------------------------
+
+float SelectionHelper::EventSelection::CutTracker::GetCutValue(const std::string &name) const
+{
+    // Find the cut by name
+    const auto iter = std::find_if(m_cuts.begin(), m_cuts.end(), [&](const auto &x) {
+        return x.GetName() == name;
+    });
+
     if (iter == m_cuts.end())
-        throw std::invalid_argument("CutManager::GetCut - Unknown cut: \"" + name + "\"");
+        throw std::invalid_argument("CutTracker::GetCutValue - Unknown cut: \"" + name + "\"");
 
-    return *iter;
+    return iter->GetValue();
 }
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
 
-const SelectionHelper::EventSelection::CutManager::Cut& SelectionHelper::EventSelection::CutManager::GetCut(const std::string &name) const
+std::vector<std::string> SelectionHelper::EventSelection::CutTracker::GetCutsPassed() const
 {
-    const auto iter = std::find_if(m_cuts.begin(), m_cuts.end(), [&](const Cut &cut) {return cut.m_name == name;});
-    if (iter == m_cuts.end())
-        throw std::invalid_argument("CutManager::GetCut - Unknown cut: \"" + name + "\"");
-
-    return *iter;
+    return m_cutsPassed;
 }
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
 
-bool SelectionHelper::EventSelection::CutManager::GetCutResult(const Cut &cut, const std::function<bool()> &method) const
+std::vector<int> SelectionHelper::EventSelection::CutTracker::GetAssignedPDGCodes() const
 {
-    if (cut.m_hasValue)
-        throw std::invalid_argument("CutManager::GetCutResult - The cut: \"" + cut.m_name + "\" takes a value, non supplied.");
-
-    // Automatically pass disabled cuts
-    if (!cut.m_isEnabled)
-        return true;
-
-    // Get the result of the cut
-    return method();
+    return m_assignedPdgs;
 }
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
 
-bool SelectionHelper::EventSelection::CutManager::GetCutResult(const Cut &cut, const std::function<bool(const float &)> &method) const
+void SelectionHelper::EventSelection::CutTracker::MarkCutAsPassed(const std::string &name)
 {
-    if (!cut.m_hasValue)
-        throw std::invalid_argument("CutManager::GetCutResult - The cut: \"" + cut.m_name + "\" doesn't take a value");
+    // Count the number of cuts that have already passed
+    const auto nCutsPassed = m_cutsPassed.size();
 
-    // Automatically pass disabled cuts
-    if (!cut.m_isEnabled)
-        return true;
+    // Check we haven't passed all cuts already
+    if (nCutsPassed == m_cuts.size())
+        throw std::logic_error("CutTracker::MarkCutAsPassed - All cuts are already marked as passed");
 
-    // Get the result of the cut
-    return method(cut.m_value);
+    // Check that the cut we are marking as "passed" matches up with the next cut in the vector
+    if (name != m_cuts.at(nCutsPassed).GetName())
+        throw std::logic_error("CutTracker::MarkCutAsPassed - The cut \"" + name + "\" is not the next cut in the sequence");
+
+    m_cutsPassed.push_back(name);
 }
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
 
-bool SelectionHelper::EventSelection::CutManager::GetCutResult(const std::string &name, const std::function<bool()> &method)
+void SelectionHelper::EventSelection::CutTracker::AssignPDGCode(const unsigned int recoParticleIndex, const int pdg)
 {
-    // Make a copy of the cut to be modified
-    const auto cutRef = this->GetCut(name);
-    auto cut = cutRef;
+    if (recoParticleIndex >= m_assignedPdgs.size())
+        throw std::out_of_range("CutTracker::AssignPDGCode - The input recoParticleIndex is out of range");
 
-    // If we aren't optimizing, then just run the cut
-    if (cut.m_name != m_cutOptimizing)
+    // Set the PDG code
+    m_assignedPdgs.at(recoParticleIndex) = pdg;
+}
+
+// -----------------------------------------------------------------------------------------------------------------------------------------
+// -----------------------------------------------------------------------------------------------------------------------------------------
+
+SelectionHelper::EventSelection::EventSelection(const std::vector<Cut> &cuts, BDTMap &bdtMap, const SelectionLogic &logic) :
+    m_cuts(cuts),
+    m_bdtMap(bdtMap),
+    m_logic(logic)
+{
+    // Make sure none of the input cut names are not repeated
+    for (const auto &cut : m_cuts)
     {
-        const auto passes = this->GetCutResult(cut, method);
+        const auto cutName = cut.GetName();
 
-        if (passes)
-        {
-            m_defaultEventCounter.CountEvent(name, m_sampleType, m_pEvent, m_weight);
-        }
-
-        return passes;
+        if (std::count_if(m_cuts.begin(), m_cuts.end(), [&](const auto &x) { return x.GetName() == cutName; }) != 1)
+            throw std::invalid_argument("EventSelection::EventSelection - Repeated cut name: \"" + cutName + "\"");
     }
-
-    // Store the event counts with the cut disabled
-    m_disabledEventCounter.CountEvent(name, m_sampleType, m_pEvent, m_weight);
-
-    // Store the event counts with cut enabled
-    cut.m_isEnabled = true;
-    if (this->GetCutResult(cut, method))
-        m_enabledEventCounters.front().CountEvent(name, m_sampleType, m_pEvent, m_weight);
-
-    // Always stop at the cut we are currently optimizing
-    return false;
-}
-
-// -----------------------------------------------------------------------------------------------------------------------------------------
-
-bool SelectionHelper::EventSelection::CutManager::GetCutResult(const std::string &name, const std::function<bool(const float &)> &method)
-{
-    // Make a copy of the cut to be modified
-    const auto cutRef = this->GetCut(name);
-    auto cut = cutRef;
-
-    // If we aren't optimizing, then just run the cut
-    if (name != m_cutOptimizing)
-    {
-        const auto passes = this->GetCutResult(cut, method);
-
-        if (passes)
-        {
-            m_defaultEventCounter.CountEvent(name, m_sampleType, m_pEvent, m_weight);
-        }
-
-        return passes;
-    }
-
-    // Store the event counts with the cut disabled
-    m_disabledEventCounter.CountEvent(name, m_sampleType, m_pEvent, m_weight);
-
-    // Store the event counts with the cut enabled for various cut values
-    cut.m_isEnabled = true;
-    for (unsigned int i = 0; i < m_enabledEventCounters.size(); ++i)
-    {
-        cut.m_value = m_values.at(i);
-
-        if (this->GetCutResult(cut, method))
-            m_enabledEventCounters.at(i).CountEvent(name, m_sampleType, m_pEvent, m_weight);
-    }
-
-    // Always stop at the cut we are currently optimizing
-    // This is important to ensure that any changes made to variables captured by `method` are always at the correct cut value
-    return false;
-}
-
-// -----------------------------------------------------------------------------------------------------------------------------------------
-
-void SelectionHelper::EventSelection::CutManager::SetParticlePdg(const unsigned int recoParticleIndex, const int pdgCode)
-{
-    if (!m_pEvent)
-        throw std::logic_error("CutManager::SetParticlePdg - No event currently assigned");
-
-    const auto nRecoParticles = m_pEvent->reco.particles.size();
-    if (m_assignedPdgCodes.size() != nRecoParticles)
-        throw std::invalid_argument("CutManager::SetParticlePdg - The stored reco particle PDGs are out of sync with the loaded event");
-
-    if (recoParticleIndex > nRecoParticles)
-        throw std::invalid_argument("CutManager::SetParticlePdg - reco particle index is out of bounds");
-
-    m_assignedPdgCodes.at(recoParticleIndex) = pdgCode;
-}
-
-// -----------------------------------------------------------------------------------------------------------------------------------------
-// -----------------------------------------------------------------------------------------------------------------------------------------
-
-void SelectionHelper::EventSelection::BDTManager::Add(const std::string &name, const std::vector<std::string> &featureNames)
-{
-    for (const auto &pBdt : m_bdts)
-    {
-        if (pBdt->GetName() == name)
-            throw std::invalid_argument("BDTManager::Add - repeated BDT name: \"" + name + "\"");
-    }
-
-    m_bdts.emplace_back(std::make_shared<BDTHelper::BDT>(name, featureNames));
-}
-
-// -----------------------------------------------------------------------------------------------------------------------------------------
-
-BDTHelper::BDT & SelectionHelper::EventSelection::BDTManager::Get(const std::string &name)
-{
-    for (auto &pBdt : m_bdts)
-    {
-        if (pBdt->GetName() == name)
-            return *pBdt;
-    }
-
-    throw std::invalid_argument("BDTManager::Get - no BDT found with name: \"" + name + "\"");
-}
-
-// -----------------------------------------------------------------------------------------------------------------------------------------
-// -----------------------------------------------------------------------------------------------------------------------------------------
-
-void SelectionHelper::EventSelection::DeclareCut(const std::string &name)
-{
-    if (m_cutManager.HasCut(name))
-        throw std::invalid_argument("EventSelection::DeclareCut - repeated cut name: \"" + name + "\"");
-
-    if (name.empty())
-        throw std::invalid_argument("EventSelection::DeclareCut - empty cut name");
-
-    CutManager::Cut cut;
-    cut.m_name = name;
-    cut.m_canDisable = false;
-    cut.m_hasValue = false;
-    cut.m_nominal = -std::numeric_limits<float>::max();
-    cut.m_min = -std::numeric_limits<float>::max();
-    cut.m_max = -std::numeric_limits<float>::max();
-    cut.m_shouldOptimize = false;
-    cut.m_searchQuery = "";
-    cut.m_isEnabled = true;
-    cut.m_value = -std::numeric_limits<float>::max();
-
-    m_cutManager.m_cuts.push_back(cut);
-}
-
-// -----------------------------------------------------------------------------------------------------------------------------------------
-
-void SelectionHelper::EventSelection::DeclareCut(const std::string &name, const float &nominal)
-{
-    if (m_cutManager.HasCut(name))
-        throw std::invalid_argument("EventSelection::DeclareCut - repeated cut name: \"" + name + "\"");
-
-    if (name.empty())
-        throw std::invalid_argument("EventSelection::DeclareCut - empty cut name");
-
-    CutManager::Cut cut;
-    cut.m_name = name;
-    cut.m_canDisable = false;
-    cut.m_hasValue = true;
-    cut.m_nominal = nominal;
-    cut.m_min = -std::numeric_limits<float>::max();
-    cut.m_max = -std::numeric_limits<float>::max();
-    cut.m_shouldOptimize = false;
-    cut.m_searchQuery = "";
-    cut.m_isEnabled = true;
-    cut.m_value = nominal;
-
-    m_cutManager.m_cuts.push_back(cut);
-}
-
-// -----------------------------------------------------------------------------------------------------------------------------------------
-
-void SelectionHelper::EventSelection::SetCutNominalValue(const std::string &name, const float &nominal)
-{
-    if (!m_cutManager.HasCut(name))
-        throw std::invalid_argument("EventSelection::SetCutNominalValue - unknown cut name: \"" + name + "\"");
-
-    auto &cut = m_cutManager.GetCut(name);
-    cut.m_nominal = nominal;
-    cut.m_value = nominal;
-}
-
-// -----------------------------------------------------------------------------------------------------------------------------------------
-
-void SelectionHelper::EventSelection::EnableOptimization(const std::string &name, const std::string &searchQuery)
-{
-    auto &cut = m_cutManager.GetCut(name);
-
-    if (cut.m_hasValue)
-        throw std::invalid_argument("EventSelection::EnableOptimization - no min or max supplied for optimization");
-
-    cut.m_canDisable = true;
-    cut.m_shouldOptimize = true;
-    cut.m_searchQuery = searchQuery;
-}
-
-// -----------------------------------------------------------------------------------------------------------------------------------------
-
-void SelectionHelper::EventSelection::EnableOptimization(const std::string &name, const bool canDisable, const float &min, const float &max, const std::string &searchQuery)
-{
-    auto &cut = m_cutManager.GetCut(name);
-
-    if (!cut.m_hasValue)
-        throw std::invalid_argument("EventSelection::EnableOptimization - can set min and max of cut without no value");
-
-    cut.m_canDisable = canDisable;
-    cut.m_min = min;
-    cut.m_max = max;
-    cut.m_shouldOptimize = true;
-    cut.m_searchQuery = searchQuery;
-}
-
-// -----------------------------------------------------------------------------------------------------------------------------------------
-
-void SelectionHelper::EventSelection::AssignBDT(const std::string &bdtName, const std::vector<std::string> &featureNames)
-{
-    m_bdtManager.Add(bdtName, featureNames);
 }
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
@@ -299,317 +163,73 @@ void SelectionHelper::EventSelection::AssignBDT(const std::string &bdtName, cons
 std::vector<std::string> SelectionHelper::EventSelection::GetCuts() const
 {
     std::vector<std::string> cutNames;
-    for (const auto &cut : m_cutManager.m_cuts)
-        cutNames.push_back(cut.m_name);
+    for (const auto &cut : m_cuts)
+        cutNames.push_back(cut.GetName());
 
     return cutNames;
 }
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
 
-float SelectionHelper::EventSelection::GetCutNominalValue(const std::string &name) const
+bool SelectionHelper::EventSelection::CutHasValue(const std::string &name) const
 {
-    if (!m_cutManager.HasCut(name))
-        throw std::invalid_argument("EventSelection::GetCutNominalValue - unknown cut name: \"" + name + "\"");
+    // Find the cut by name
+    const auto iter = std::find_if(m_cuts.begin(), m_cuts.end(), [&](const auto &x) {
+        return x.GetName() == name;
+    });
 
-    const auto cut = m_cutManager.GetCut(name);
-    return cut.m_nominal;
+    if (iter == m_cuts.end())
+        throw std::invalid_argument("EventSelection::CutHasValue - Unknown cut: \"" + name + "\"");
+
+    return iter->HasValue();
 }
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
 
-void SelectionHelper::EventSelection::DefineSelectionMethod(const SelectionMethod &method)
+float SelectionHelper::EventSelection::GetCutValue(const std::string &name) const
 {
-    m_selectionMethod = method;
+    // Find the cut by name
+    const auto iter = std::find_if(m_cuts.begin(), m_cuts.end(), [&](const auto &x) {
+        return x.GetName() == name;
+    });
+
+    if (iter == m_cuts.end())
+        throw std::invalid_argument("EventSelection::GetCutValue - Unknown cut: \"" + name + "\"");
+
+    return iter->GetValue();
 }
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
 
-void SelectionHelper::EventSelection::Optimize(const std::string &dataBNBFileName, const std::string &overlayFileName,
-    const float overlayWeight, const std::string &dataEXTFileName, const float dataEXTWeight, const std::string &dirtFileName,
-    const float dirtWeight, const unsigned int nScanPoints, const float processFraction)
+void SelectionHelper::EventSelection::SetCutValue(const std::string &name, const float value)
 {
-    if (nScanPoints <= 1)
-        throw std::invalid_argument("EventSelection::Optimize - Need more than 1 scanning point");
+    // Find the cut by name
+    const auto iter = std::find_if(m_cuts.begin(), m_cuts.end(), [&](const auto &x) {
+        return x.GetName() == name;
+    });
 
-    m_cutManager.m_nScanPoints = nScanPoints;
+    if (iter == m_cuts.end())
+        throw std::invalid_argument("EventSelection::GetCutValue - Unknown cut: \"" + name + "\"");
 
-    // Optimize each cut separately
-    for (auto &cut : m_cutManager.m_cuts)
-    {
-        if (!cut.m_shouldOptimize)
-            continue;
-
-        m_cutManager.m_cutOptimizing = cut.m_name;
-        FormattingHelper::PrintLine();
-        std::cout << "Optimizing cut: " << m_cutManager.m_cutOptimizing << " for signal events with query: " << cut.m_searchQuery << std::endl;
-        FormattingHelper::PrintLine();
-
-        // Reset the event counters and set the values to scan if required
-        cut.m_isEnabled = true;
-        m_cutManager.m_disabledEventCounter = AnalysisHelper::EventCounter();
-        m_cutManager.m_enabledEventCounters.clear();
-        m_cutManager.m_values.clear();
-
-        if (cut.m_hasValue)
-        {
-            // Add the nominal value
-            m_cutManager.m_enabledEventCounters.push_back(AnalysisHelper::EventCounter());
-            m_cutManager.m_values.push_back(cut.m_nominal);
-
-            for (unsigned int i = 0; i < m_cutManager.m_nScanPoints; ++i)
-            {
-                m_cutManager.m_enabledEventCounters.push_back(AnalysisHelper::EventCounter());
-
-                const float value = cut.m_min + (cut.m_max - cut.m_min) * (static_cast<float>(i) / static_cast<float>(m_cutManager.m_nScanPoints - 1));
-                m_cutManager.m_values.push_back(value);
-            }
-        }
-        else
-        {
-            // For simple on-off cuts we only need one counter
-            m_cutManager.m_enabledEventCounters.push_back(AnalysisHelper::EventCounter());
-        }
-
-        // Run the event selection and store the results
-        this->Execute(dataBNBFileName, overlayFileName, overlayWeight, dataEXTFileName, dataEXTWeight, dirtFileName, dirtWeight, false, processFraction);
-
-        // Print the classifications we are optimizing for
-        const auto signalClassifications = m_cutManager.m_disabledEventCounter.GetSignalClassifications(cut.m_searchQuery);
-        std::cout << "Optimizing for signal classifications:";
-        for (const auto &classification : signalClassifications)
-            std::cout << "  " << classification;
-        std::cout << std::endl;
-
-        // Find the best cut value
-        FormattingHelper::Table table({"Is Enabled", "Value", "", "Efficiency", "Purity", "E*P"});
-
-        float bestScore = -std::numeric_limits<float>::max();
-        for (unsigned int iCounter = 0; iCounter < m_cutManager.m_enabledEventCounters.size(); ++ iCounter)
-        {
-            const auto &counter = m_cutManager.m_enabledEventCounters.at(iCounter);
-
-            const auto efficiency = counter.GetSignalEfficiency(cut.m_name, cut.m_searchQuery);
-            const auto purity = counter.GetSignalPurity(cut.m_name, cut.m_searchQuery);
-            const auto score = (purity < 0 || efficiency < 0) ? -std::numeric_limits<float>::max() : (efficiency * purity);
-
-            table.AddEmptyRow();
-            table.SetEntry("Is Enabled", true);
-
-            if (cut.m_hasValue)
-                table.SetEntry("Value", m_cutManager.m_values.at(iCounter));
-
-            table.SetEntry("Efficiency", efficiency);
-            table.SetEntry("Purity", purity);
-            table.SetEntry("E*P", score);
-
-            // If this is the best yet then save it
-            if (score > bestScore)
-            {
-                cut.m_isEnabled = true;
-                bestScore = score;
-
-                if (cut.m_hasValue)
-                    cut.m_value = m_cutManager.m_values.at(iCounter);
-            }
-        }
-
-        // If we can disable, then check if that's better
-        if (cut.m_canDisable)
-        {
-            const auto disabledEfficiency = m_cutManager.m_disabledEventCounter.GetSignalEfficiency(cut.m_name, cut.m_searchQuery);
-            const auto disabledPurity = m_cutManager.m_disabledEventCounter.GetSignalPurity(cut.m_name, cut.m_searchQuery);
-            const auto disabledScore = disabledEfficiency * disabledPurity;
-
-            table.AddEmptyRow();
-            table.SetEntry("Is Enabled", false);
-            table.SetEntry("Efficiency", disabledEfficiency);
-            table.SetEntry("Purity", disabledPurity);
-            table.SetEntry("E*P", disabledScore);
-
-            if (disabledScore > bestScore)
-            {
-                cut.m_isEnabled = false;
-                cut.m_value = -std::numeric_limits<float>::max();
-                bestScore = disabledScore;
-            }
-        }
-
-        table.Print();
-
-        FormattingHelper::PrintLine();
-        std::cout << "Optimization result:" << std::endl;
-        std::cout << "  - Best E*P:   " << bestScore << std::endl;
-        std::cout << "  - Enable cut: " << cut.m_isEnabled << std::endl;
-        if (cut.m_isEnabled && cut.m_hasValue)
-            std::cout << "  - Cut value:  " << cut.m_value << std::endl;
-        FormattingHelper::PrintLine();
-    }
-
-    // Done optimizing
-    m_cutManager.m_cutOptimizing.clear();
-    m_cutManager.m_enabledEventCounters.clear();
-    m_cutManager.m_values.clear();
+    return iter->SetValue(value);
 }
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
 
-bool SelectionHelper::EventSelection::Execute(const std::shared_ptr<Event> &pEvent, std::vector<std::string> &cutsPassed, std::vector<int> &assignedPdgCodes)
+SelectionHelper::EventSelection::SelectionResult SelectionHelper::EventSelection::Execute(const std::shared_ptr<Event> &pEvent)
 {
-    if (!m_selectionMethod)
-        throw std::logic_error("EventSelection::Execute - Selection method hasn't been set");
+    // Setup the cut tracker
+    CutTracker cutTracker(m_cuts, pEvent->reco.particles.size());
 
-    if (!cutsPassed.empty())
-        throw std::invalid_argument("EventSelection::Execute - Input vector of cut names isn't empty");
+    // Pass the event, BDTs and cut tracker through to the selection logic and run the selection
+    const auto passed = m_logic(pEvent, m_bdtMap, cutTracker);
 
-    if (!assignedPdgCodes.empty())
-        throw std::invalid_argument("EventSelection::Execute - Input vector of assigned PDG codes isn't empty");
-
-    m_cutManager.m_pEvent = pEvent;
-
-    // Here we use the event counter machinary to see if the event passed, it's not very pretty but it works. The sample type and weight
-    // don't actually matter as we check to see if *any* weight passes each cut... Could be done better!
-    m_cutManager.m_defaultEventCounter = AnalysisHelper::EventCounter(); // This is probably super slow... consider a better way
-    m_cutManager.m_sampleType = AnalysisHelper::Overlay;
-    m_cutManager.m_weight = 1.f;
-
-    m_cutManager.m_assignedPdgCodes = std::vector<int>(m_cutManager.m_pEvent->reco.particles.size(), -std::numeric_limits<int>::max());
-
-    const auto passed = m_selectionMethod(m_cutManager.m_pEvent, m_bdtManager, m_cutManager);
-
-    for (const auto &tag : m_cutManager.m_defaultEventCounter.GetTags())
-    {
-        const auto mcWeight = m_cutManager.m_defaultEventCounter.GetTotalMCWeight(tag);
-        const auto bnbDataWeight = m_cutManager.m_defaultEventCounter.GetBNBDataWeight(tag);
-
-        // ATTN this is not a nice way of doing this!!
-        // Here we check if any weight has been added to the counter for this tag
-        const auto hasMCWeight = std::abs(m_cutManager.m_defaultEventCounter.GetTotalMCWeight(tag)) > std::numeric_limits<float>::epsilon();
-        const auto hasBNBDataWeight = std::abs(m_cutManager.m_defaultEventCounter.GetBNBDataWeight(tag)) > std::numeric_limits<float>::epsilon();
-
-        if (hasMCWeight && hasBNBDataWeight)
-            throw std::logic_error("EventSelection::Execute - Input event was counted as BNB data and MC!");
-
-        if (hasMCWeight || hasBNBDataWeight)
-            cutsPassed.push_back(tag);
-    }
-
-    assignedPdgCodes = m_cutManager.m_assignedPdgCodes;
-
-    return passed;
-}
-
-// -----------------------------------------------------------------------------------------------------------------------------------------
-
-void SelectionHelper::EventSelection::Execute(const std::string &dataBNBFileName, const std::string &overlayFileName,
-    const float overlayWeight, const std::string &dataEXTFileName, const float dataEXTWeight, const std::string &dirtFileName,
-    const float dirtWeight, const bool shouldPrint, const float processFraction, const unsigned int nEntriesToPrint)
-{
-    if (!m_selectionMethod)
-        throw std::logic_error("EventSelection::Execute - Selection method hasn't been set");
-
-    // Reset the default event counter
-    m_cutManager.m_defaultEventCounter = AnalysisHelper::EventCounter();
-
-    for (const auto sampleType : AnalysisHelper::AllSampleTypes)
-    {
-        // Store the current sample type
-        m_cutManager.m_sampleType = sampleType;
-
-        // Get the appropriate file name and normalisation
-        std::string fileName = "";
-        float normalisation = 0.f;
-        switch (sampleType)
-        {
-            case AnalysisHelper::DataBNB:
-                fileName = dataBNBFileName;
-                normalisation = 1.f;
-                break;
-            case AnalysisHelper::Overlay:
-                fileName = overlayFileName;
-                normalisation = overlayWeight;
-                break;
-            case AnalysisHelper::DataEXT:
-                fileName = dataEXTFileName;
-                normalisation = dataEXTWeight;
-                break;
-            case AnalysisHelper::Dirt:
-                fileName = dirtFileName;
-                normalisation = dirtWeight;
-                break;
-            default:
-                throw std::logic_error("EventSelection::Execute - Unknown sample type");
-        }
-
-        // Don't attempt to process files that aren't set
-        if (fileName.empty())
-            continue;
-
-        // Read the file
-        std::cout << "Processing file - " << fileName << std::endl;
-        FileReader reader(fileName);
-
-        // Store the current event
-        m_cutManager.m_pEvent = reader.GetBoundEventAddress();
-
-        // Run the selection
-        const auto nEvents = reader.GetNumberOfEvents();
-        const auto nEventsToProcess = std::min(nEvents, static_cast<unsigned int>(std::ceil(static_cast<float>(nEvents) * std::max(0.f, processFraction))));
-        for (unsigned int i = 0; i < nEventsToProcess; ++i)
-        {
-            AnalysisHelper::PrintLoadingBar(i, nEventsToProcess);
-
-            reader.LoadEvent(i);
-
-            // Set the event weight
-            m_cutManager.m_weight = normalisation * AnalysisHelper::GetNominalEventWeight(m_cutManager.m_pEvent);
-
-            // Mark the special "all" cut for overlays
-            if (sampleType == AnalysisHelper::Overlay)
-            {
-                m_cutManager.m_defaultEventCounter.CountEvent("all", m_cutManager.m_sampleType, m_cutManager.m_pEvent, m_cutManager.m_weight);
-                m_cutManager.m_disabledEventCounter.CountEvent("all", m_cutManager.m_sampleType, m_cutManager.m_pEvent, m_cutManager.m_weight);
-
-                for (auto &counter : m_cutManager.m_enabledEventCounters)
-                    counter.CountEvent("all", m_cutManager.m_sampleType, m_cutManager.m_pEvent, m_cutManager.m_weight);
-            }
-
-            m_cutManager.m_assignedPdgCodes = std::vector<int>(m_cutManager.m_pEvent->reco.particles.size(), -std::numeric_limits<int>::max());
-            m_selectionMethod(m_cutManager.m_pEvent, m_bdtManager, m_cutManager);
-        }
-    }
-
-    // Print the result
-    if (!shouldPrint)
-        return;
-
-    FormattingHelper::PrintLine();
-    std::cout << "Cuts" << std::endl;
-    FormattingHelper::PrintLine();
-    FormattingHelper::Table table({"Cut", "", "Is Enabled", "Optimized value", "Nominal value"});
-    for (const auto &cut : m_cutManager.m_cuts)
-    {
-        table.AddEmptyRow();
-        table.SetEntry("Cut", cut.m_name);
-        table.SetEntry("Is Enabled", cut.m_isEnabled);
-
-        if (cut.m_hasValue)
-        {
-            table.SetEntry("Optimized value", cut.m_value);
-            table.SetEntry("Nominal value", cut.m_nominal);
-        }
-    }
-    table.WriteToFile("eventSelection_cuts.md");
-
-    FormattingHelper::PrintLine();
-    std::cout << "Summary" << std::endl;
-    FormattingHelper::PrintLine();
-    m_cutManager.m_defaultEventCounter.PrintBreakdownSummary("eventSelection_summary.md");
-
-    FormattingHelper::PrintLine();
-    std::cout << "Details" << std::endl;
-    FormattingHelper::PrintLine();
-    m_cutManager.m_defaultEventCounter.PrintBreakdownDetails("eventSelection_details.md", nEntriesToPrint);
+    // Return the selection result
+    return {
+        passed,
+        cutTracker.GetCutsPassed(),
+        cutTracker.GetAssignedPDGCodes()
+    };
 }
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
@@ -617,359 +237,335 @@ void SelectionHelper::EventSelection::Execute(const std::string &dataBNBFileName
 
 SelectionHelper::EventSelection SelectionHelper::GetCCInclusiveSelection()
 {
-    EventSelection selection;
+    // Define the cuts
+    const std::vector<EventSelection::Cut> cuts = {
+        {"passesCCInclusive"}
+    };
 
-    // Set up the cuts
-    selection.DeclareCut("passesCCInclusive");
+    // We don't need any BDTs so just use an empty map
+    EventSelection::BDTMap bdtMap;
 
-    // Define the selection
-    selection.DefineSelectionMethod([](const std::shared_ptr<Event> &pEvent, EventSelection::BDTManager &bdtManager, EventSelection::CutManager &cuts) {
+    // Define the actual selection logic
+    const auto logic = [](const auto &pEvent, auto &bdtMap, auto &cutTracker)
+    {
+        // We must pass the CC inclusive selection
+        if (!pEvent->reco.passesCCInclusive())
+            return false;
 
-        // Insist the event passes the CC inclusive selection
-        if (!cuts.GetCutResult("passesCCInclusive", [&](){
-            return pEvent->reco.passesCCInclusive();
+        // Mark the cut "passesCCInclusive" as passed
+        cutTracker.MarkCutAsPassed("passesCCInclusive");
 
-        })) return false;
-
-        // Identify the muon
+        // Identify the muon candidate
         const auto &recoParticles = pEvent->reco.particles;
-        for (unsigned int index = 0; index < recoParticles.size(); ++index)
+        for (unsigned int i = 0; i < recoParticles.size(); ++i)
         {
-            const auto &particle = recoParticles.at(index);
+            const auto &particle = recoParticles.at(i);
 
             if (particle.isCCInclusiveMuonCandidate())
             {
-                cuts.SetParticlePdg(index, 13);
+                // Assign the muon candidate a PDG code of 13
+                cutTracker.AssignPDGCode(i, 13);
             }
         }
 
         return true;
-    });
+    };
 
-    return selection;
+    return EventSelection(cuts, bdtMap, logic);
 }
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
 
 SelectionHelper::EventSelection SelectionHelper::GetDefaultSelection()
 {
-    // Set up the selection
-    EventSelection selection;
+    // Define the cuts
+    const std::vector<EventSelection::Cut> cuts = {
+        {"passesCCInclusive"},
+        {"min2Tracks"},
+        {"max1Uncontained"},
+        {"2NonProtons", -0.06f},
+        {"pionNotInGap"},
+        {"muonNotInGap"},
+        {"openingAngle", 2.65f},
+        {"topologicalScore", 0.67f},
+        {"startNearVertex", 9.5f},
+        {"likelyGoldenPion", -0.03f}
+    };
 
-    // Set up the cuts
-    selection.DeclareCut("passesCCInclusive");
-    selection.DeclareCut("min2Tracks");
-    selection.DeclareCut("max1Uncontained");
-    selection.DeclareCut("2NonProtons", -0.06f);
-    selection.DeclareCut("pionNotInGap");
-    selection.DeclareCut("muonNotInGap");
-    selection.DeclareCut("openingAngle", 2.65f);
-    selection.DeclareCut("topologicalScore", 0.67f);
-    selection.DeclareCut("startNearVertex", 9.5f);
-    selection.DeclareCut("likelyGoldenPion", -0.03f);
+    // Load up the BDTs and store them in a map
+    EventSelection::BDTMap bdtMap = {
+        {"muon",       std::make_shared<BDTHelper::BDT>("muon", BDTHelper::MuonBDTFeatureNames)},
+        {"proton",     std::make_shared<BDTHelper::BDT>("proton", BDTHelper::ProtonBDTFeatureNames)},
+        {"goldenPion", std::make_shared<BDTHelper::BDT>("goldenPion", BDTHelper::GoldenPionBDTFeatureNames)}
+    };
 
-    // Get the BDT feature names
-    const auto muonFeatureNames = BDTHelper::MuonBDTFeatureNames;
-    const auto protonFeatureNames = BDTHelper::ProtonBDTFeatureNames;
-    const auto goldenPionFeatureNames = BDTHelper::GoldenPionBDTFeatureNames;
-    selection.AssignBDT("muon", muonFeatureNames);
-    selection.AssignBDT("proton", protonFeatureNames);
-    selection.AssignBDT("goldenPion", goldenPionFeatureNames);
+    // Define the actual selection logic
+    const auto logic = [](const auto &pEvent, auto &bdtMap, auto &cutTracker)
+    {
+        // ----------------------------------------------------------------------------------
+        // passesCCInclusive
+        // ----------------------------------------------------------------------------------
 
-    // Define the selection
-    selection.DefineSelectionMethod([](const std::shared_ptr<Event> &pEvent, EventSelection::BDTManager &bdtManager, EventSelection::CutManager &cuts) {
+        // Insist the event passes the CC inclusive preselection
+        if (!pEvent->reco.passesCCInclusive())
+            return false;
 
-        // Get the BDTs owned by the event selection object
-        const auto muonFeatureNames = BDTHelper::MuonBDTFeatureNames;
-        const auto protonFeatureNames = BDTHelper::ProtonBDTFeatureNames;
-        const auto goldenPionFeatureNames = BDTHelper::GoldenPionBDTFeatureNames;
+        // Mark the cut "passesCCInclusive" as passed
+        cutTracker.MarkCutAsPassed("passesCCInclusive");
 
-        auto &muonBDT = bdtManager.Get("muon");
-        auto &protonBDT = bdtManager.Get("proton");
-        auto &goldenPionBDT = bdtManager.Get("goldenPion");
+        // ----------------------------------------------------------------------------------
+        // min2Tracks
+        // ----------------------------------------------------------------------------------
 
-        // Make a map from reconstructed particle index to the assigned PDG code
-        std::unordered_map<unsigned int, int> pdgCodeMap;
-
-        // -------------------------------------------------------------
-        // Insist the event passes the CC inclusive selection
-        // -------------------------------------------------------------
-        if (!cuts.GetCutResult("passesCCInclusive", [&](){
-            return pEvent->reco.passesCCInclusive();
-
-        })) return false;
-
-        // -------------------------------------------------------------
-        // Find the particles with a track fit and check if they are contained
-        // -------------------------------------------------------------
-        const auto &recoParticles = pEvent->reco.particles;
+        // Count the particles with a track fit and check if they are contained
         unsigned int nTrackParticles = 0u;
         unsigned int nUncontainedParticles = 0u;
-        for (unsigned int index = 0; index < recoParticles.size(); ++index)
+
+        const auto &recoParticles = pEvent->reco.particles;
+        for (unsigned int i = 0; i < recoParticles.size(); ++i)
         {
-            const auto &particle = recoParticles.at(index);
+            const auto &particle = recoParticles.at(i);
 
-            if (AnalysisHelper::HasTrackFit(particle))
-            {
-                // Here we use a PDG code of 0 to mean "as yet unknown"
-                pdgCodeMap[index] = 0;
-
-                nTrackParticles++;
-
-                if (!AnalysisHelper::IsContained(particle))
-                    nUncontainedParticles++;
-            }
-            else
-            {
-                // Assume particles without tracks are just small protons
-                pdgCodeMap[index] = 2212;
-            }
-        }
-
-        // -------------------------------------------------------------
-        // Insist at least 2 particles have a track fit
-        // -------------------------------------------------------------
-        if (!cuts.GetCutResult("min2Tracks", [&](){
-            return (nTrackParticles >= 2);
-
-        })) return false;
-
-        // -------------------------------------------------------------
-        // Insist at most one particle is uncontained
-        // -------------------------------------------------------------
-        if (!cuts.GetCutResult("max1Uncontained", [&](){
-            return (nUncontainedParticles <= 1);
-        })) return false;
-
-        // -------------------------------------------------------------
-        // Find the muon candidate
-        // -------------------------------------------------------------
-        const auto muonIndex = SelectionHelper::GetMuonCandidateIndex(recoParticles, muonFeatureNames, muonBDT);
-        pdgCodeMap.at(muonIndex) = 13;
-
-        // -------------------------------------------------------------
-        // Cache the proton BDT responses of the remaining particles
-        // -------------------------------------------------------------
-        std::unordered_map<unsigned int, bool> protonBDTHasResponseCache;
-        std::unordered_map<unsigned int, float> protonBDTResponseCache;
-        for (unsigned int index = 0; index < recoParticles.size(); ++index)
-        {
-            // Skip particles we have already identified
-            if (pdgCodeMap.at(index) != 0)
+            if (!AnalysisHelper::HasTrackFit(particle))
                 continue;
 
-            const auto &particle = recoParticles.at(index);
+            nTrackParticles++;
 
             if (!AnalysisHelper::IsContained(particle))
-                throw std::logic_error("EventSelection - Found an uncontained particle that hasn't been identified already!");
+                nUncontainedParticles++;
+        }
 
+        // Insist that we have at least two tracks
+        if (nTrackParticles < 2)
+            return false;
+
+        // Mark the cut "min2Tracks" as passed
+        cutTracker.MarkCutAsPassed("min2Tracks");
+
+        // ----------------------------------------------------------------------------------
+        // max1Uncontained
+        // ----------------------------------------------------------------------------------
+
+        // Insist that at most one particle is uncontained
+        if (nUncontainedParticles > 1)
+            return false;
+
+        // Mark the cut "max1Uncontained" as passed
+        cutTracker.MarkCutAsPassed("max1Uncontained");
+
+        // Identify the muon candidate
+        auto &pMuonBDT = bdtMap.at("muon");
+        const auto muonIndex = SelectionHelper::GetMuonCandidateIndex(recoParticles, BDTHelper::MuonBDTFeatureNames, *pMuonBDT);
+
+        // Assign the muon candidate a muon PDG code
+        cutTracker.AssignPDGCode(muonIndex, 13);
+
+        // ----------------------------------------------------------------------------------
+        // 2NonProtons
+        // ----------------------------------------------------------------------------------
+
+        // Identify the rest of the particles using the proton BDT
+        const auto protonBDTThreshold = cutTracker.GetCutValue("2NonProtons");
+
+        // Get the proton BDT from the map
+        auto &pProtonBDT = bdtMap.at("proton");
+
+        // Keep track of the number of protons and pions we have identifies
+        unsigned int nProtons = 0;
+        std::vector<unsigned int> pionIndices;
+
+        for (unsigned int i = 0; i < recoParticles.size(); ++i)
+        {
+            const auto &particle = recoParticles.at(i);
+
+            // Skip the muon candidate as we've already identified it
+            if (i == muonIndex)
+                continue;
+
+            // Assume particles without a track fit are just small protons
+            if (!AnalysisHelper::HasTrackFit(particle))
+            {
+                nProtons++;
+                cutTracker.AssignPDGCode(i, 2212);
+
+                continue;
+            }
+
+            // The particle should be contained (as only the muon candidate is allowed to escape). But for sanity, let's check
+            if (!AnalysisHelper::IsContained(particle))
+                throw std::logic_error("DefaultSelection - Found an uncontained particle that isn't the muon. This shouldn't happen!");
+
+            // Get run the proton BDT
             std::vector<float> features;
-            const auto hasFeatures = BDTHelper::GetBDTFeatures(particle, protonFeatureNames, features);
-            protonBDTHasResponseCache[index] = hasFeatures;
+            const auto hasFeatures = BDTHelper::GetBDTFeatures(particle, BDTHelper::ProtonBDTFeatureNames, features);
 
+            // If one or more of the BDT features are missing, then assume the particle is a proton
             if (!hasFeatures)
-                continue;
-
-            const auto protonBDTResponse = protonBDT.GetResponse(features);
-            protonBDTResponseCache[index] = protonBDTResponse;
-        }
-
-        // -------------------------------------------------------------
-        // Identify the protons, and insist there are exactly 2 non-protons
-        // -------------------------------------------------------------
-        std::vector<unsigned int> protonIndices;
-
-        if (!cuts.GetCutResult("2NonProtons", [&](const float &cut) {
-            protonIndices.clear(); // Important! This lambda can be evaluated multiple times during optimization, and variable is captured by reference - need to reset
-
-            unsigned int nonProtons = 0u;
-
-            for (unsigned int index = 0; index < recoParticles.size(); ++index)
             {
-                // Count the protons we have found already
-                if (pdgCodeMap.at(index) == 2212)
-                    protonIndices.push_back(index);
+                nProtons++;
+                cutTracker.AssignPDGCode(i, 2212);
 
-                // Skip particles we have already identified
-                if (pdgCodeMap.at(index) != 0)
-                    continue;
-
-                const auto &particle = recoParticles.at(index);
-
-                // Assume the particles without a BDT response are protons
-                if (!protonBDTHasResponseCache.at(index))
-                {
-                    protonIndices.push_back(index);
-                    continue;
-                }
-
-                // Apply the cut on the proton BDT response
-                if (protonBDTResponseCache.at(index) >= cut)
-                    protonIndices.push_back(index);
-            }
-
-            // Insist we have exactly 2 non-protons
-            const auto nNonProtons = static_cast<int>(recoParticles.size()) - static_cast<int>(protonIndices.size());
-            return (nNonProtons == 2);
-
-        })) return false;
-
-
-        // -------------------------------------------------------------
-        // Set the remaining particle types
-        // -------------------------------------------------------------
-        bool foundPion = false;
-        unsigned int pionIndex = -std::numeric_limits<unsigned int>::max();
-
-        for (unsigned int index = 0; index < recoParticles.size(); ++index)
-        {
-            // Skip particles we have already identified
-            if (pdgCodeMap.at(index) != 0)
-                continue;
-
-            const auto isProton = (std::find(protonIndices.begin(), protonIndices.end(), index) != protonIndices.end());
-            if (isProton)
-            {
-                pdgCodeMap.at(index) = 2212;
                 continue;
             }
 
-            // Anything left is our pion
-            if (foundPion)
-                throw std::logic_error("EventSelection - Found multiple pion candidates!");
-
-            pdgCodeMap.at(index) = 211;
-            pionIndex = index;
-            foundPion = true;
-        }
-
-        if (!foundPion)
-            throw std::logic_error("EventSelection - Couldn't find pion candidate!");
-
-        // Set the particle types so they are available outside of this function
-        for (unsigned int index = 0; index < recoParticles.size(); ++index)
-            cuts.SetParticlePdg(index, pdgCodeMap.at(index));
-
-        // -------------------------------------------------------------
-        // Sanity check the PID
-        // -------------------------------------------------------------
-        unsigned int nMuonsIdentified = 0u;
-        unsigned int nPionsIdentified = 0u;
-        unsigned int nProtonsIdentified = 0u;
-
-        for (unsigned int index = 0; index < recoParticles.size(); ++index)
-        {
-            switch (pdgCodeMap.at(index))
+            // Insist that the BDT response is greater than the cut value to identify the particle as a proton
+            const auto bdtResponse = pProtonBDT->GetResponse(features);
+            if (bdtResponse >= protonBDTThreshold)
             {
-                case 13:
-                    nMuonsIdentified++;
-                    break;
-                case 211:
-                    nPionsIdentified++;
-                    break;
-                case 2212:
-                    nProtonsIdentified++;
-                    break;
-                default:
-                    throw std::logic_error("EventSelection - Sanity check failed, found reco particle assigned a PDG of: " + std::to_string(pdgCodeMap.at(index)));
+                nProtons++;
+                cutTracker.AssignPDGCode(i, 2212);
+
+                continue;
             }
+
+            // If we've got to this point then we haven't identified the particle as a muon or a proton.
+            // Instead let's identify the particle as a pion
+            pionIndices.push_back(i);
+            cutTracker.AssignPDGCode(i, 211);
         }
 
-        if (nMuonsIdentified != 1)
-            throw std::logic_error("EventSelection - Found " + std::to_string(nMuonsIdentified) + " muon candidates!");
+        // Sanity check that we have identified every particle
+        const auto nMuons = 1u;
+        const auto nPions = pionIndices.size();
+        if (nProtons + nPions + nMuons != recoParticles.size())
+            throw std::logic_error("DefaultSelection - Identified the wrong number of particles. This shouldn't happen!");
 
-        if (nPionsIdentified != 1)
-            throw std::logic_error("EventSelection - Found " + std::to_string(nPionsIdentified) + " pion candidates!");
+        // Insist that we exacly one pion (i.e we have have 2 non-protons)
+        if (nPions != 1)
+            return false;
 
-        if (nMuonsIdentified + nPionsIdentified + nProtonsIdentified != recoParticles.size())
-            throw std::logic_error("EventSelection - Not all particles have been identified");
+        // Mark the cut "2NonProtons" as passed
+        cutTracker.MarkCutAsPassed("2NonProtons");
 
-        const auto &muon = recoParticles.at(muonIndex);
+        // ----------------------------------------------------------------------------------
+        // pionNotInGap
+        // ----------------------------------------------------------------------------------
+
+        // Get the pion reco particle
+        const auto pionIndex = pionIndices.front();
         const auto &pion = recoParticles.at(pionIndex);
 
-        // -------------------------------------------------------------
-        // Insist the pion isn't in a gap
-        // -------------------------------------------------------------
-        if (!cuts.GetCutResult("pionNotInGap", [&](){
-            return (pion.nHitsU() > 0 && pion.nHitsV() > 0 && pion.nHitsW() > 0);
+        // Sanity check that our muon and pion are not the same particle
+        if (muonIndex == pionIndex)
+            throw std::logic_error("DefaultSelection - The muon and the pion candidates are the same particle. This shouldn't happen!");
 
-        })) return false;
+        // Insist that the pion has at least one hit in each view (i.e. not in a gap)
+        if (pion.nHitsU() == 0 || pion.nHitsV() == 0 || pion.nHitsW() == 0)
+            return false;
 
-        // -------------------------------------------------------------
-        // Insist the muon isn't in a gap
-        // -------------------------------------------------------------
-        if (!cuts.GetCutResult("muonNotInGap", [&](){
-            return (muon.nHitsU() > 0 && muon.nHitsV() > 0 && muon.nHitsW() > 0);
+        // Mark the cut "pionNotInGap" as passed
+        cutTracker.MarkCutAsPassed("pionNotInGap");
 
-        })) return false;
+        // ----------------------------------------------------------------------------------
+        // muonNotInGap
+        // ----------------------------------------------------------------------------------
 
-        // -------------------------------------------------------------
-        // Insist the muon-pion opening angle isn't too wide
-        // -------------------------------------------------------------
+        // Get the muon reco particle
+        const auto &muon = recoParticles.at(muonIndex);
+
+        // Insist that the muon has at least one hit in each view (i.e. not in a gap)
+        if (muon.nHitsU() == 0 || muon.nHitsV() == 0 || muon.nHitsW() == 0)
+            return false;
+
+        // Mark the cut "muonNotInGap" as passed
+        cutTracker.MarkCutAsPassed("muonNotInGap");
+
+        // ----------------------------------------------------------------------------------
+        // openingAngle
+        // ----------------------------------------------------------------------------------
+
+        // Get the opening angle cut value
+        const auto maxOpeningAngle = cutTracker.GetCutValue("openingAngle");
+
+        // Get the opening angle between the muon and pion
         const auto muonDir = TVector3(muon.directionX(), muon.directionY(), muon.directionZ()).Unit();
         const auto pionDir = TVector3(pion.directionX(), pion.directionY(), pion.directionZ()).Unit();
         const auto openingAngle = muonDir.Angle(pionDir);
 
-        if (!cuts.GetCutResult("openingAngle", [&](const float &cut){
-            return (openingAngle < cut);
+        // Insist that the opening angle isn't too wide
+        if (openingAngle >= maxOpeningAngle)
+            return false;
 
-        })) return false;
+        // Mark the cut "openingAngle" as passed
+        cutTracker.MarkCutAsPassed("openingAngle");
 
-        // -------------------------------------------------------------
-        // Cut on the topological score to reduce cosmic backgrounds
-        // -------------------------------------------------------------
-        const auto topologicalScore = pEvent->reco.selectedTopologicalScore();
-        if (!cuts.GetCutResult("topologicalScore", [&](const float &cut){
-            return (topologicalScore > cut);
+        // ----------------------------------------------------------------------------------
+        // topologicalScore
+        // ----------------------------------------------------------------------------------
 
-        })) return false;
+        // Get the topological score cut value
+        const auto minTopologicalScore = cutTracker.GetCutValue("topologicalScore");
 
-        // -------------------------------------------------------------
-        // Insist all particles start near the vertex
-        // -------------------------------------------------------------
+        // Insist that the topological score is above the cut value
+        if (pEvent->reco.selectedTopologicalScore() <= minTopologicalScore)
+            return false;
+
+        // Mark the cut "topologicalScore" as passed
+        cutTracker.MarkCutAsPassed("topologicalScore");
+
+        // ----------------------------------------------------------------------------------
+        // startNearVertex
+        // ----------------------------------------------------------------------------------
+
+        // Get the start near vertex cut value
+        const auto maxVertexDist = cutTracker.GetCutValue("startNearVertex");
+        const auto maxVertexDist2 = maxVertexDist*maxVertexDist;
+
+        // Insist that all particles with a fitted track start near the vertex
         const auto recoVertex = pEvent->reco.nuVertex();
-        if (!cuts.GetCutResult("startNearVertex", [&](const float &cut){
+        for (const auto &particle : recoParticles)
+        {
+            // Skip particles without a track fit
+            if (!AnalysisHelper::HasTrackFit(particle))
+                continue;
 
-            const auto cut2 = cut * cut;
-            for (unsigned int index = 0; index < recoParticles.size(); ++index)
-            {
-                const auto &particle = recoParticles.at(index);
+            // Get the distance between the particle's start position and the vertex
+            const TVector3 start(particle.startX(), particle.startY(), particle.startZ());
+            const auto vertexDist2 = (start - recoVertex).Mag2();
 
-                if (!AnalysisHelper::HasTrackFit(particle))
-                    continue;
+            // Insist that this isn't too large
+            if (vertexDist2 > maxVertexDist2)
+                return false;
+        }
 
-                const TVector3 start(particle.startX(), particle.startY(), particle.startZ());
-                const auto vertexDist2 = (start - recoVertex).Mag2();
+        // Mark the cut "startNearVertex" as passed
+        cutTracker.MarkCutAsPassed("startNearVertex");
 
-                if (vertexDist2 > cut2)
-                    return false;
-            }
+        // ----------------------------------------------------------------------------------
+        // likelyGoldenPion
+        // ----------------------------------------------------------------------------------
 
-            return true;
+        // Get the likely golden pion cut value
+        const auto goldenPionBDTThreshold = cutTracker.GetCutValue("likelyGoldenPion");
 
-        })) return false;
+        // Get the golden pion BDT
+        auto &pGoldenPionBDT = bdtMap.at("goldenPion");
 
-        // -------------------------------------------------------------
-        // Get the golden pion BDT response of the pion candidate
-        // -------------------------------------------------------------
+        // Get the features of the pion
         std::vector<float> features;
-        if (!BDTHelper::GetBDTFeatures(pion, goldenPionFeatureNames, features))
-            throw std::logic_error("EventSelection - can't get golden pion BDT features for pion candidate");
+        if (!BDTHelper::GetBDTFeatures(pion, BDTHelper::GoldenPionBDTFeatureNames, features))
+            throw std::logic_error("DefaultSelection - Can't get golden pion BDT features of pion candidate");
 
-        const auto goldenPionBDTResponse = goldenPionBDT.GetResponse(features);
+        // Insist that the BDT response is greater than the cut value to identify the pion as a golden pion
+        const auto bdtResponse = pGoldenPionBDT->GetResponse(features);
+        if (bdtResponse <= goldenPionBDTThreshold)
+            return false;
 
-        // -------------------------------------------------------------
-        // Insist this is a likely golden pion
-        // -------------------------------------------------------------
-        if (!cuts.GetCutResult("likelyGoldenPion", [&](const float &cut){
-            return (goldenPionBDTResponse > cut);
+        // Mark the cut "likelyGoldenPion" as passed
+        cutTracker.MarkCutAsPassed("likelyGoldenPion");
 
-        })) return false;
-
+        // We passed all cuts!
         return true;
-    });
+    };
 
-    return selection;
+    return EventSelection(cuts, bdtMap, logic);
+}
+
+// -----------------------------------------------------------------------------------------------------------------------------------------
+
+bool SelectionHelper::IsCutPassed(const std::vector<string> &cutsPassed, const std::string &cut)
+{
+    return std::find(cutsPassed.begin(), cutsPassed.end(), cut) != cutsPassed.end();
 }
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
@@ -1047,9 +643,9 @@ unsigned int SelectionHelper::GetMuonCandidateIndex(const std::vector<Event::Rec
         foundMuon = true;
     }
 
+    // If no muon can be found, then default to the CC inclusive candidate
     if (!foundMuon)
         return ccInclusiveMuonIndex;
-//        throw std::logic_error("SelectionHelper::GetMuonCandidateIndex - all particles are contained, but couldn't find a muon candidate using the BDT");
 
     return muonIndex;
 }

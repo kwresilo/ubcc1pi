@@ -321,19 +321,6 @@ struct Config
     // -------------------------------------------------------------------------------------------------------------------------------------
 
     /**
-     *  @brief  Configuration for the MakeEventSelectionTable macro
-     */
-    struct MakeEventSelectionTable
-    {
-        bool         shouldOptimize  = false; ///< If we should optimize the cuts
-        unsigned int nScanPoints     = 20u;   ///< The number of scan points to use while optimizing
-        float        processFraction = 0.2f;  ///< The fraction of events to process while optimizing
-    };
-    MakeEventSelectionTable makeEventSelectionTable; ///< The configuration options for the MakeEventSelectionTable macro
-
-    // -------------------------------------------------------------------------------------------------------------------------------------
-
-    /**
      *  @brief  Configuration for the MakeSelectedPIDTable macro
      */
     struct MakeSelectedPIDTable

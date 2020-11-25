@@ -58,9 +58,7 @@ void PrintRunSubruns(const Config &config)
             const auto weight = AnalysisHelper::GetNominalEventWeight(pEvent);
 
             // Run the event selection and store which cuts are passed
-            std::vector<std::string> cutsPassed;
-            std::vector<int> assignedPdgCodes;
-            selection.Execute(pEvent, cutsPassed, assignedPdgCodes);
+            const auto &[passedSelectionTotal, cutsPassed, assignedPdgCodes] = selection.Execute(pEvent);
             const auto passedChosenCut = (std::find(cutsPassed.begin(), cutsPassed.end(), chosenCut) != cutsPassed.end());
 
             // Insist we pass the selection up to this point
