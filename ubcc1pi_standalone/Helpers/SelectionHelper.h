@@ -176,6 +176,13 @@ class SelectionHelper
                 EventSelection(const std::vector<Cut> &cuts, BDTMap &bdtMap, const SelectionLogic &logic);
 
                 /**
+                *  @brief  Get the names of the event selection cuts
+                *
+                *  @return the cut names
+                */
+                std::vector<std::string> GetCuts() const;
+
+                /**
                  *  @brief  Get the value of one of the cuts by name
                  *
                  *  @param  name the name of the cut
@@ -213,14 +220,14 @@ class SelectionHelper
          *
          *  @return the event selection
          */
-        //static EventSelection GetCCInclusiveSelection();
+        static EventSelection GetCCInclusiveSelection();
 
         /**
-         *  @brief  Get the default event selection
+         *  @brief  Get the default CC1Pi event selection
          *
          *  @return the event selection
          */
-        //static EventSelection GetDefaultSelection();
+        static EventSelection GetDefaultSelection();
 
         /**
         *  @brief  Check if a given cut is listed in the input vector of cuts passed
