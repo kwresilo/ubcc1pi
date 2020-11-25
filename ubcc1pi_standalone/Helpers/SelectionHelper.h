@@ -64,6 +64,13 @@ class SelectionHelper
                         std::string GetName() const;
 
                         /**
+                        *  @brief  Get if this cut has a value
+                        *
+                        *  @return boolean, true if the cut has a value
+                        */
+                        bool HasValue() const;
+
+                        /**
                         *  @brief  Get the cut value (if available)
                         *
                         *  @return the cut value
@@ -181,6 +188,15 @@ class SelectionHelper
                 *  @return the cut names
                 */
                 std::vector<std::string> GetCuts() const;
+
+                /**
+                *  @brief  Get if a cut has a value
+                *
+                *  @param  name the name of the cut
+                *
+                *  @return boolean, true if the cut has a value
+                */
+                bool CutHasValue(const std::string &name) const;
 
                 /**
                  *  @brief  Get the value of one of the cuts by name

@@ -48,6 +48,13 @@ std::string SelectionHelper::EventSelection::Cut::GetName() const
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
 
+bool SelectionHelper::EventSelection::Cut::HasValue() const
+{
+    return m_hasValue;
+}
+
+// -----------------------------------------------------------------------------------------------------------------------------------------
+
 float SelectionHelper::EventSelection::Cut::GetValue() const
 {
     if (!m_hasValue)
@@ -129,7 +136,6 @@ void SelectionHelper::EventSelection::CutTracker::AssignPDGCode(const unsigned i
     if (recoParticleIndex >= m_assignedPdgs.size())
         throw std::out_of_range("CutTracker::AssignPDGCode - The input recoParticleIndex is out of range");
 
-
     // Set the PDG code
     m_assignedPdgs.at(recoParticleIndex) = pdg;
 }
@@ -161,6 +167,21 @@ std::vector<std::string> SelectionHelper::EventSelection::GetCuts() const
         cutNames.push_back(cut.GetName());
 
     return cutNames;
+}
+
+// -----------------------------------------------------------------------------------------------------------------------------------------
+
+bool SelectionHelper::EventSelection::CutHasValue(const std::string &name) const
+{
+    // Find the cut by name
+    const auto iter = std::find_if(m_cuts.begin(), m_cuts.end(), [&](const auto &x) {
+        return x.GetName() == name;
+    });
+
+    if (iter == m_cuts.end())
+        throw std::invalid_argument("EventSelection::CutHasValue - Unknown cut: \"" + name + "\"");
+
+    return iter->HasValue();
 }
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
@@ -310,7 +331,7 @@ SelectionHelper::EventSelection SelectionHelper::GetDefaultSelection()
 
             nTrackParticles++;
 
-            if (AnalysisHelper::IsContained(particle))
+            if (!AnalysisHelper::IsContained(particle))
                 nUncontainedParticles++;
         }
 
@@ -409,8 +430,8 @@ SelectionHelper::EventSelection SelectionHelper::GetDefaultSelection()
         if (nProtons + nPions + nMuons != recoParticles.size())
             throw std::logic_error("DefaultSelection - Identified the wrong number of particles. This shouldn't happen!");
 
-        // Insist that we have 2 non-protons (i.e. a muon and a single pion)
-        if (nPions == 1)
+        // Insist that we exacly one pion (i.e we have have 2 non-protons)
+        if (nPions != 1)
             return false;
 
         // Mark the cut "2NonProtons" as passed
