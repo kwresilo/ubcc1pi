@@ -66,10 +66,9 @@ void MakeEventSelectionTable(const Config &config)
             // Check which of the cuts the event passed
             for (const auto &cutName : selection.GetCuts())
             {
-                // If the event didn't pass this cut, then skip it
-                // TODO probably better to break here instead of continue - check this
+                // If the event didn't pass this cut, then move on
                 if (!SelectionHelper::IsCutPassed(cutsPassed, cutName))
-                    continue;
+                    break;
 
                 // Count the event, and use the cut name as the "tag"
                 counter.CountEvent(cutName, sampleType, pEvent, weight);
