@@ -12,8 +12,9 @@ Setup your uBooNE suite LArSoft development area using `mrb` as usual (see
 
 ```
 # Clone this package in your sources directory
+# Note that we here use the recurse-submodules option because we also want to pick up the ubsmear submodule
 cd $MRB_SOURCE
-git clone https://github.com/a-d-smith/ubcc1pi.git
+git clone --recurse-submodules https://github.com/a-d-smith/ubcc1pi.git
 
 # Update your CMakeLists.txt so that mrb knows to build this package
 mrb updateDepsCM
