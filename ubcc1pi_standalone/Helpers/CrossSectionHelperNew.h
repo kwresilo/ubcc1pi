@@ -245,6 +245,17 @@ class CrossSectionHelperNew
         */
         static SystFloatMap GetWeightsMap(const Event::Truth &truth, const SystDimensionsMap &dimensions);
 
+        /**
+        *  @brief  Get the combined weights from a set of mutually exclusive parameters (i.e. only one parameter at a time has a weight other than 1.f)
+        *
+        *  @param  truth the input truth information
+        *  @param  parameters the mutually exclusive parameter names
+        *  @param  nUniverses the number of universes (must be the same for all parameters)
+        *
+        *  @return the weights in each universe from the parameter that was not 1.f
+        */
+        static std::vector<float> GetMutuallyExclusiveWeights(const Event::Truth &truth, const std::vector<std::string> &parameters, const unsigned int nUniverses);
+
     private:
 
         static unsigned int m_histCount; ///< A counter to keep track of the number of histograms produced

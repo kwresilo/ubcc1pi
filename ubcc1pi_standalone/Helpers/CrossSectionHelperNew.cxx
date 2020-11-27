@@ -232,4 +232,48 @@ CrossSectionHelperNew::SystFloatMap CrossSectionHelperNew::GetWeightsMap(const E
     return map;
 }
 
+// -----------------------------------------------------------------------------------------------------------------------------------------
+
+std::vector<float> CrossSectionHelperNew::GetMutuallyExclusiveWeights(const Event::Truth &truth, const std::vector<std::string> &parameters, const unsigned int nUniverses)
+{
+    // Build a dimensions map using the same number of universes for each parameter
+    SystDimensionsMap dimensions;
+    for (const auto &paramName : parameters)
+        dimensions.emplace(paramName, nUniverses);
+
+    // Get the weights map for these parameters individually
+    const auto weightsMap = CrossSectionHelperNew::GetWeightsMap(truth, dimensions);
+
+    // Extract the mutually exclusive weights
+    std::vector<float> weights;
+    for (unsigned int iUni = 0; iUni < nUniverses; ++iUni)
+    {
+        // Find the parameter name for which the weight is not exactly one
+        float weight = 1.f;
+        bool foundNonUnitWeight = false;
+
+        for (const auto &paramName : parameters)
+        {
+            const auto universeWeight = weightsMap.at(paramName).at(iUni);
+            if (std::abs(universeWeight - 1.f) > std::numeric_limits<float>::epsilon())
+            {
+                // This weight is something other than one!
+
+                // If we find more than one weight that's not exactly one - then the parameters aren't mutually exclusive!
+                if (foundNonUnitWeight)
+                    throw std::logic_error("CrossSectionHelperNew::GetMutuallyExclusiveWeights - Input weights aren't mutually exclusive");
+
+                // Store this weight
+                weight = universeWeight;
+                foundNonUnitWeight = true;
+            }
+        }
+
+        // ATTN it's still posible that all universe weights are exactly one. This is okay - just use 1.f as the weight
+        weights.push_back(weight);
+    }
+
+    return weights;
+}
+
 } // namespace ubcc1pi
