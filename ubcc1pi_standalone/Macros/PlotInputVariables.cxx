@@ -167,33 +167,28 @@ void PlotInputVariables(const Config &config)
                 // Get the plot style
                 const auto particleStyle = PlottingHelper::GetPlotStyle(particle, sampleType, truthParticles, false, config.global.useAbsPdg);
 
+                // Insist the particle has a fitted track
+                if (!AnalysisHelper::HasTrackFit(particle))
+                    continue;
+
                 // Fill the angle plots
-                if (AnalysisHelper::HasTrackFit(particle))
-                {
-                    const auto dir = TVector3(particle.directionX(), particle.directionY(), particle.directionZ()).Unit();
-                    const auto phi = std::atan2(dir.Y(), dir.X());
-                    const auto cosTheta = dir.Z();
-                    phiPlot.Fill(phi, particleStyle, weight);
-                    cosThetaPlot.Fill(cosTheta, particleStyle, weight);
+                const auto dir = TVector3(particle.directionX(), particle.directionY(), particle.directionZ()).Unit();
+                const auto phi = std::atan2(dir.Y(), dir.X());
+                const auto cosTheta = dir.Z();
+                phiPlot.Fill(phi, particleStyle, weight);
+                cosThetaPlot.Fill(cosTheta, particleStyle, weight);
 
-                    if (sampleType == AnalysisHelper::DataBNB)
-                    {
-                        hPhiCosThetaData->Fill(phi, cosTheta, weight);
-                    }
-                    else
-                    {
-                        hPhiCosThetaSim->Fill(phi, cosTheta, weight);
-                    }
+                if (sampleType == AnalysisHelper::DataBNB)
+                {
+                    hPhiCosThetaData->Fill(phi, cosTheta, weight);
+                }
+                else
+                {
+                    hPhiCosThetaSim->Fill(phi, cosTheta, weight);
                 }
 
-                bool isContained = false;
-                try
-                {
-                    isContained = AnalysisHelper::IsContained(particle);
-                }
-                catch (const std::invalid_argument &) {}
-
-                if (!isContained)
+                // Insist the particle is contained
+                if (!AnalysisHelper::IsContained(particle))
                     continue;
 
                 // Get the BDT features

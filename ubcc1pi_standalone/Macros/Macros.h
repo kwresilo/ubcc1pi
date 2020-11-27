@@ -155,13 +155,6 @@ namespace ubcc1pi_macros
     void PlotReconstructedVariables(const Config &config = Config());
 
     /**
-     *  @brief  Save the truth and reco physics info for selected events in output root file
-     *
-     *  @param  config the input configuration
-     */
-    void SaveSelectedEventInfo(const Config &config = Config());
-
-    /**
      *  @brief  Make the plots to motivate the binning choice
      *
      *  @param  config the input configuration
@@ -181,20 +174,6 @@ namespace ubcc1pi_macros
      *  @param  config the input configuration
      */
     void ExtractXSecs(const Config &config = Config());
-
-    /**
-     *  @brief  Extract the cross-sections for CC inclusive
-     *
-     *  @param  config the input configuration
-     */
-    void ExtractCCInclusiveXSecs(const Config &config = Config());
-
-    /**
-     *  @brief  Print run and subruns for specific events - chosen in the config
-     *
-     *  @param  config the input configuration
-     */
-    void PrintRunSubruns(const Config &config = Config());
 
     /**
      *  @brief  Top-level macro that runs the full analysis chain

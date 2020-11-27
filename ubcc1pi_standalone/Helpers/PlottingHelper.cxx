@@ -758,7 +758,13 @@ PlottingHelper::PlotStyle PlottingHelper::GetPlotStyle(const Event::Reco::Partic
             return usePoints ? PiMinusPoints : PiMinus;
         case 11:
             return usePoints ? ElectronPoints : Electron;
-        case 111: // TODO Deal with pi0s properly when re-producing files
+        // ATTN Pi0s are included as primary particles in the truth information, even though they aren't "reconstruction targets" i.e. we
+        // actually reconstruct the photons from their decay. So the backtracker will match a reconstructed particle that really represents
+        // a photon (from a pi0 decay) to the pi0 itself. Here we choose to plot these reco particles as photons instead of pi0s because
+        // it's a better representation of what they actually represent. This is a (good) approximation, because it's possible that the pi0
+        // decays via another mode (pi0 -> 2 gamma has a branching ratio of 98.8%). In the case of a Dalitz decay (pi0 -> gamma e+ e-) then
+        // then we might reconstruct the elecron/positron and here label it as a photon.
+        case 111:
         case 22:
             return usePoints ? PhotonPoints : Photon;
         default:

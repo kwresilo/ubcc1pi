@@ -56,12 +56,9 @@
         "Macros/PlotEventSelectionCuts.cxx",
         "Macros/MakeSelectedPIDTable.cxx",
         "Macros/PlotMuonRecoVariables.cxx",
-        "Macros/PrintRunSubruns.cxx",
         "Macros/PlotReconstructedVariables.cxx",
-        "Macros/SaveSelectedEventInfo.cxx",
         "Macros/MakeBinningPlots.cxx",
         "Macros/PlotSystematicWeights.cxx",
-        "Macros/ExtractCCInclusiveXSecs.cxx",
         "Macros/ExtractXSecs.cxx",
 
         "Macros/RunFullAnalysis.cxx"

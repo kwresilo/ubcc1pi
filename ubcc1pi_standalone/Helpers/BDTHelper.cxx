@@ -239,6 +239,7 @@ bool BDTHelper::GetBDTFeatures(const Event::Reco::Particle &recoParticle, const 
                 if (shouldDebug)
                     std::cout << "DEBUG - Can't calculate: " << name << std::endl;
 
+                features.clear();
                 return false;
             }
 
@@ -254,6 +255,7 @@ bool BDTHelper::GetBDTFeatures(const Event::Reco::Particle &recoParticle, const 
                 if (shouldDebug)
                     std::cout << "DEBUG - Can't calculate: " << name << std::endl;
 
+                features.clear();
                 return false;
             }
 
@@ -268,6 +270,7 @@ bool BDTHelper::GetBDTFeatures(const Event::Reco::Particle &recoParticle, const 
                 if (shouldDebug)
                     std::cout << "DEBUG - Can't calculate: " << name << std::endl;
 
+                features.clear();
                 return false;
             }
 
@@ -283,6 +286,7 @@ bool BDTHelper::GetBDTFeatures(const Event::Reco::Particle &recoParticle, const 
                 if (shouldDebug)
                     std::cout << "DEBUG - Can't calculate: " << name << std::endl;
 
+                features.clear();
                 return false;
             }
 
@@ -298,6 +302,7 @@ bool BDTHelper::GetBDTFeatures(const Event::Reco::Particle &recoParticle, const 
                 if (shouldDebug)
                     std::cout << "DEBUG - Can't calculate: " << name << std::endl;
 
+                features.clear();
                 return false;
             }
 
@@ -312,6 +317,7 @@ bool BDTHelper::GetBDTFeatures(const Event::Reco::Particle &recoParticle, const 
                 if (shouldDebug)
                     std::cout << "DEBUG - Can't calculate: " << name << std::endl;
 
+                features.clear();
                 return false;
             }
 
@@ -326,6 +332,7 @@ bool BDTHelper::GetBDTFeatures(const Event::Reco::Particle &recoParticle, const 
                 if (shouldDebug)
                     std::cout << "DEBUG - Can't calculate: " << name << std::endl;
 
+                features.clear();
                 return false;
             }
 
@@ -340,6 +347,7 @@ bool BDTHelper::GetBDTFeatures(const Event::Reco::Particle &recoParticle, const 
                 if (shouldDebug)
                     std::cout << "DEBUG - Can't calculate: " << name << std::endl;
 
+                features.clear();
                 return false;
             }
 
@@ -354,6 +362,7 @@ bool BDTHelper::GetBDTFeatures(const Event::Reco::Particle &recoParticle, const 
                 if (shouldDebug)
                     std::cout << "DEBUG - Can't calculate: " << name << std::endl;
 
+                features.clear();
                 return false;
             }
 
