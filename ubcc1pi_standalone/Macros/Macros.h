@@ -176,6 +176,13 @@ namespace ubcc1pi_macros
     void ExtractXSecs(const Config &config = Config());
 
     /**
+     *  @brief  Extract the cross-sections
+     *
+     *  @param  config the input configuration
+     */
+    void ExtractXSecsNew(const Config &config = Config());
+
+    /**
      *  @brief  Top-level macro that runs the full analysis chain
      *
      *  @param  config the input config
