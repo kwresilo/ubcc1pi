@@ -17,6 +17,9 @@
     std::cout << "Adding " << ubcc1piStandaloneDir << " to include path" << std::endl;
     gSystem->AddIncludePath(("  -I" + std::string(ubcc1piStandaloneDir) + "/../").c_str());
 
+    std::cout << "Adding " << ubcc1piStandaloneDir << "/ubsmear/inc/ to include path" << std::endl;
+    gSystem->AddIncludePath(("  -I" + std::string(ubcc1piStandaloneDir) + "/ubsmear/inc/").c_str());
+
 
     // Compile the code using root
     for (const auto &file : std::vector<std::string>({
@@ -60,6 +63,7 @@
         "Macros/MakeBinningPlots.cxx",
         "Macros/PlotSystematicWeights.cxx",
         "Macros/ExtractXSecs.cxx",
+        "Macros/ExtractXSecsNew.cxx",
 
         "Macros/RunFullAnalysis.cxx"
     }))
