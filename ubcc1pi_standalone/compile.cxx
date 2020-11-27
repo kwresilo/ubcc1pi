@@ -38,6 +38,7 @@
         "Helpers/SelectionHelper.cxx",
         "Helpers/NormalisationHelper.cxx",
         "Helpers/CrossSectionHelper.cxx",
+        "Helpers/CrossSectionHelperNew.cxx",
 
         // Macros
         "Macros/PrintConfig.cxx",
