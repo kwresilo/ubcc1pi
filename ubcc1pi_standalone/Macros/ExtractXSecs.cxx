@@ -158,8 +158,8 @@ void ExtractXSecs(const Config &config)
                     // event. But, the systematic weights relating to GENIE are calculated using the MCC9 tune - so if we apply those
                     // weights AND genieTuneEventWeight we will "double count". To account for this, here we scale down the GENIE systematic
                     // weights by genieTuneEventWeight so they can behave like all other weights.
-                    const auto genieTuneEventWeight = pEvent->truth.genieTuneWeight.IsSet() ? pEvent->truth.genieTuneEventWeight() : 0.f;
-                    if (pEvent->truth.splineEventWeight.IsSet() && pEvent->truth.genieTuneWeight.IsSet() && std::abs(genieTuneEventWeight) > std::numeric_limits<float>::epsilon())
+                    const auto genieTuneEventWeight = pEvent->truth.genieTuneEventWeight.IsSet() ? pEvent->truth.genieTuneEventWeight() : 0.f;
+                    if (pEvent->truth.splineEventWeight.IsSet() && pEvent->truth.genieTuneEventWeight.IsSet() && std::abs(genieTuneEventWeight) > std::numeric_limits<float>::epsilon())
                     {
                         for (const auto &genieParam : config.extractXSecs.genieParams)
                         {
