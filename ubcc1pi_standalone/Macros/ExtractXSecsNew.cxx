@@ -67,9 +67,6 @@ void ExtractXSecsNew(const Config &config)
             fluxReweightor.AddEvent(pEvent->truth.nuEnergy(), weight, fluxWeights);
         }
     }
-
-    // Get the integrated fluxes in each universe
-    (void) fluxReweightor.GetIntegratedFluxVariations();
 }
 
 } // namespace ubcc1pi_macros
