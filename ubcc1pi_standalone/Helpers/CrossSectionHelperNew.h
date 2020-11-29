@@ -34,7 +34,7 @@ class CrossSectionHelperNew
         using SystMap = std::unordered_map< std::string, std::vector<T> >;
 
         /**
-        *  @brief  Like a SystMap but using a map instead of a vector as the mapped type.
+        *  @brief  Like a SystMap but using an unordered_map instead of a vector as the mapped type.
         *          In this way it's possible for the map to have empty entries for a given universe index
         *
         *  @tparam T the mapped value type
@@ -43,9 +43,31 @@ class CrossSectionHelperNew
         using SystPartialMap = std::unordered_map< std::string, std::unordered_map<unsigned int, T> >;
 
         /**
+        *  @brief  A mapping from a systematic parameter name, to a quantity of arbitrary type T.
+        *
+        *  @tparam T the mapped value type
+        */
+        template <typename T>
+        using SystUnisimMap = std::unordered_map< std::string, T >;
+
+        /**
         *  @brief  A mapping from a systematic parameter name to the number of universes
         */
         typedef std::unordered_map< std::string, unsigned int > SystDimensionsMap;
+
+        /**
+        *  @brief  A mapping from a systematic parameter name, to a vector of mutually exclusive systematic parameter names and the number
+        *          universes. For example, if parameters {"a", "b", "c"} were all mutually exclusive (i.e. can not simultaneously vary),
+        *          then this map might contain a new parameter "abc" as the key which maps to those individual parameter names. The new
+        *          parameter is then treated like any other systematic parameter, with the number of universes specified. See the flux
+        *          hadron production parameter as an example.
+        */
+        typedef std::unordered_map<std::string, std::pair< std::vector<std::string>, unsigned int> > SystMutuallyExclusiveDimensionsMap;
+
+        /**
+        *  @brief  A mapping from a unisim systematic parameter name, to the name of the central-value sample to which it should be compared
+        */
+        typedef std::unordered_map<std::string, std::string> SystUnisimDimensionsMap;
 
         /**
         *  @brief  A mapping from a systematic paramter name to a vector of floats, one per universe
@@ -58,10 +80,25 @@ class CrossSectionHelperNew
         typedef SystMap< std::shared_ptr<TH1F> > SystTH1FMap;
 
         /**
+        *  @brief  A mapping from a systematic parameter name to a vector of 2D histograms, one per universe
+        */
+        typedef SystMap< std::shared_ptr<TH2F> > SystTH2FMap;
+
+        /**
+        *  @brief  A mapping from a systematic parameter name to a 1D histogram
+        */
+        typedef SystUnisimMap< std::shared_ptr<TH1F> > SystUnisimTH1FMap;
+
+        /**
+        *  @brief  A mapping from a systematic parameter name to a 2D histogram
+        */
+        typedef SystUnisimMap< std::shared_ptr<TH2F> > SystUnisimTH2FMap;
+
+        /**
         *  @brief  A wrapper around an arbitrary function that caches the result of the function in a SystPartialMap.
         *          If the function has already been executed for a given systematic parameter / universe then the a call to the function
         *          will return the cached value instead. This is provides a helful way of storing the result of a function that we might
-        *          want to use in multiple places.
+        *          want to use in multiple places. This is done for performance reasons, so please excuse the added complexity!
         *
         *  @tparam R the return type of the function
         *  @tparam Args the argument types of the function
@@ -146,13 +183,6 @@ class CrossSectionHelperNew
                 std::shared_ptr<TH1F> GetNominalFlux() const;
 
                 /**
-                *  @brief  Get the flux distribution in each systematic universe
-                *
-                *  @return the varied fluxes
-                */
-                SystTH1FMap GetFluxVariations() const;
-
-                /**
                 *  @brief  Get the integrated flux in the nominal universe
                 *
                 *  @return the integrated nominal flux
@@ -160,11 +190,16 @@ class CrossSectionHelperNew
                 float GetIntegratedNominalFlux() const;
 
                 /**
-                *  @brief  Get the integrated flux in each systematic universe
+                *  @brief  Get the integrated flux in a given universe
+                *          This function will try to retrieve the return value from a cache. If that's not possible, it will calculated the
+                *          return value and store it in the cache for later
                 *
-                *  @return the varied integrated fluxes
+                *  @param  paramName the flux parameter name
+                *  @param  universeIndex the universe index
+                *
+                *  @return the integrated flux in the requested univese
                 */
-                SystFloatMap GetIntegratedFluxVariations() const;
+                float GetIntegratedFluxVariation(const std::string &paramName, const unsigned int universeIndex);
 
             private:
 
@@ -177,11 +212,12 @@ class CrossSectionHelperNew
                 */
                 float GetIntegratedFlux(const std::shared_ptr<TH1F> &pFlux) const;
 
-                std::vector<float>    m_binEdges;               ///< The bin edges
                 SystDimensionsMap     m_dimensions;             ///< The systematic paramter dimensions
                 std::shared_ptr<TH1F> m_pFluxNominal;           ///< The nominal flux distribution
                 std::shared_ptr<TH1F> m_pSpectrumNominal;       ///< The event rate spectrum in the nominal universe
                 SystTH1FMap           m_spectrumVariations;     ///< The event rate spectrum in each systematic universe
+
+                SystCacheFunction<float> m_getIntegratedFluxVariationFunction;  ///< The cache function for getting the integrated flux in a given universe
         };
 
         /**
@@ -191,18 +227,141 @@ class CrossSectionHelperNew
         {
             public:
                 /**
+                *  @brief  A structure storing the dimensions of the systematic parameters that are to be considered
+                */
+                struct SystParams
+                {
+                    unsigned int             nBootstrapUniverses; ///< The number of bootstrap universes to use for the MC stat uncertainty
+                    SystDimensionsMap        fluxDimensions;      ///< The dimensions of the flux systematic parameters
+                    SystDimensionsMap        xsecDimensions;      ///< The dimensions of the cross-section systematic parameters
+                    SystUnisimDimensionsMap  detVarDimensions;    ///< The detector variation systematic parameters (and their central-value sample identifiers)
+                };
+
+                /**
                 *  @brief  Constructor
                 *
-                *  @param  binEdges the bin edges for the kinematic quantity
+                *  @param  systParams the systematic parameters that will be applied
+                *  @param  binEdges the bin edges for the kinematic quantity including any underflow and overflow bins
                 *  @param  hasUnderflow if there is an underflow bin
                 *  @param  hasOverflow if there is an overflow bin
                 */
-                CrossSection(const std::vector<float> &binEdges, const bool hasUnderflow, const bool hasOverflow);
+                CrossSection(const SystParams &systParams, const std::vector<float> &binEdges, const bool hasUnderflow, const bool hasOverflow);
+
+                /**
+                *  @brief  Add a simulated signal event with flux and cross-section universe weights
+                *          The events added using this function are used to produce:
+                *            - The prediction for the forward-folded cross-section in reco-space
+                *            - The nominal smearing matrix - which maps truth-space to reco-space (including the selection efficiency)
+                *            - The smearing matrix in each systematic universe
+                *            - The covariance matrix for the smearing matrix variations due to flux & cross-section uncertainties
+                *
+                *  @param  trueValue the true value of the kinematic quantity
+                *  @param  recoValue the reconstructed value of the kinematic quantity
+                *  @param  isSelected if the event is selected
+                *  @param  nominalWeight the nominal event weight
+                *  @param  fluxWeights the flux systematic event weights
+                *  @param  xsecWeights the cross-section systematic event weights
+                */
+                void AddSignalEvent(const float trueValue, const float recoValue, const bool isSelected, const float nominalWeight, const SystFloatMap &fluxWeights, const SystFloatMap &xsecWeights);
+
+                /**
+                *  @brief  Add a simulated signal event from a detector variation sample
+                *          The events added using this function are used to produce:
+                *            - The fractional difference in the smearing matrix with each detector variation applied (the corresponding central-value sample is used to get the fraction)
+                *
+                *  @param  trueValue the true value of the kinematic quantity
+                *  @param  recoValue the reconstructed value of the kinematic quantity
+                *  @param  isSelected if the event is selected
+                *  @param  nominalWeight the nominal event weight
+                *  @param  paramName the name of the detector variation parameter
+                */
+                void AddSignalEventDetVar(const float trueValue, const float recoValue, const bool isSelected, const float nominalWeight, const std::string &paramName);
+
+                /**
+                *  @brief  Add a simulated signal event from a detector variation central-value sample (i.e with no parameters varied)
+                *
+                *  @param  trueValue the true value of the kinematic quantity
+                *  @param  recoValue the reconstructed value of the kinematic quantity
+                *  @param  isSelected if the event is selected
+                *  @param  nominalWeight the nominal event weight
+                *  @param  name the name of the central value sample
+                */
+                void AddSignalEventDetVarCV(const float trueValue, const float recoValue, const bool isSelected, const float nominalWeight, const std::string &name);
+
+                /**
+                *  @brief  Add a simulated selected backgound event with flux and cross-section universe weights
+                *          The events added using this function are used to produce:
+                *            - The nominal background prediction (that get's subtracted away from the data)
+                *            - The background prediction in each systematic universe
+                *            - The covariance matrix for the background-subtracted data due to flux & cross-secion uncertainties
+                *
+                *  @param  recoValue the reconstructed value of the kinematic quantity
+                *  @param  nominalWeight the nominal event weight
+                *  @param  fluxWeights the flux systematic event weights
+                *  @param  xsecWeights the cross-section systematic event weights
+                */
+                void AddSelectedBackgroundEvent(const float recoValue, const float nominalWeight, const SystFloatMap &fluxWeights, const SystFloatMap &xsecWeights);
+
+                /**
+                *  @brief  Add a simulated selected background event from a detector variation sample
+                *          The events added using this function are used to produce:
+                *            - The fractional difference in the background prediction with each detector variation applied (using the corresponding central-value sample)
+                *
+                *  @param  recoValue the reconstructed value of the kinematic quantity
+                *  @param  nominalWeight the nominal event weight
+                *  @param  paramName the name of the detector variation parameter
+                */
+                void AddSelectedBackgroundEventDetVar(const float recoValue, const float nominalWeight, const std::string &paramName);
+
+                /**
+                *  @brief  Add a simulated selected background event from a detector variation central-value sample
+                *
+                *  @param  recoValue the reconstructed value of the kinematic quantity
+                *  @param  nominalWeight the nominal event weight
+                *  @param  name the name of the central value sample
+                */
+                void AddSelectedBackgroundEventDetVarCV(const float recoValue, const float nominalWeight, const std::string &name);
+
+                /**
+                *  @brief  Add a selected event from real BNB data
+                *          The events added using this function are used to produce:
+                *            - The measured "forward-folded cross-section" (= background-substracted & flux normalised event rate)
+                *
+                *  @param  recoValue the reconstructed value of the kinematic quantity
+                */
+                void AddSelectedBNBDataEvent(const float recoValue);
+
+                // TODO add getter functions for the desired quantities (e.g. smearing matrices etc.)
+                // Consider using SystCacheFunction objects if something will be needed multiple times
 
             private:
 
-                std::vector<float>  m_binEdges; ///< The bin edges
-                ubsmear::UBXSecMeta m_metadata; ///< The cross-section metadata
+                SystParams          m_systParams;                    ///< The systematic parameters
+                std::vector<float>  m_binEdges;                      ///< The bin edges
+                ubsmear::UBXSecMeta m_metadata;                      ///< The cross-section metadata
+
+                // Signal event distributions in truth space (all signal events before any selection)
+                std::shared_ptr<TH1F> m_pSignal_true_nom;    ///< The signal event distribution in truth space in the nominal universe
+                SystTH1FMap           m_signal_true_fluxes;  ///< The signal event distribution in truth space for each flux universe
+                SystTH1FMap           m_signal_true_xsecs;   ///< The signal event distribution in truth space for each cross-section universe
+                SystUnisimTH1FMap     m_signal_true_detVars; ///< The signal event distribution in truth space for each detector variation sample
+                SystUnisimTH1FMap     m_signal_true_detCVs;  ///< The signal event distribution in truth space for each detector variation central-value sample
+
+                // Selected signal event distributions in reco-vs-truth space
+                std::shared_ptr<TH2F> m_pSignal_selected_recoTrue_nom;    ///< The selected signal event distribution in reco-vs-truth space in the nominal universe
+                SystTH2FMap           m_signal_selected_recoTrue_fluxes;  ///< The selected signal event distribution in reco-vs-truth space for each flux universe
+                SystTH2FMap           m_signal_selected_recoTrue_xsecs;   ///< The selected signal event distribution in reco-vs-truth space for each cross-section universe
+                SystUnisimTH2FMap     m_signal_selected_recoTrue_detVars; ///< The selected signal event distribution in reco-vs-truth space for each detector variation sample
+                SystUnisimTH2FMap     m_signal_selected_recoTrue_detCVs;  ///< The selected signal event distribution in reco-vs-truth space for each detector variation central-value sample
+
+                // Selected background event distributions in reco space
+                std::shared_ptr<TH1F> m_pBackground_selected_reco_nom;    ///< The selected background event distribution in reco space in the nominal universe
+                SystTH1FMap           m_background_selected_reco_fluxes;  ///< The selected background event distribution in reco space for each flux universe
+                SystTH1FMap           m_background_selected_reco_xsecs;   ///< The selected background event distribution in reco space for each cross-section universe
+                SystUnisimTH1FMap     m_background_selected_reco_detVars; ///< The selected background event distribution in reco space for each detector variation sample
+                SystUnisimTH1FMap     m_background_selected_reco_detCVs;  ///< The selected background event distribution in reco space for each detector variation central-value sample
+
+                std::shared_ptr<TH1F> m_pBNBData_selected_reco; ///< The selected BNB data event distribution in reco space
         };
 
         /**
@@ -226,6 +385,15 @@ class CrossSectionHelperNew
         static std::shared_ptr<TH1F> GetTH1F(const std::vector<float> &binEdges);
 
         /**
+        *  @brief  Get a shared pointer to a new TH2F and give it a unique name
+        *
+        *  @param  binEdges the bin edges
+        *
+        *  @return the TH2F
+        */
+        static std::shared_ptr<TH2F> GetTH2F(const std::vector<float> &binEdges);
+
+        /**
         *  @brief  Get a SystTH1FMap with the supplied dimensions containing new TH1F objects with the supplied binning
         *
         *  @param  binEdges the bin edges
@@ -236,7 +404,58 @@ class CrossSectionHelperNew
         static SystTH1FMap GetSystTH1FMap(const std::vector<float> &binEdges, const SystDimensionsMap &dimensions);
 
         /**
-        *  @brief  Get the weights corresponding to the systematic parameters in the input dimensions object
+        *  @brief  Get a SystUnisimTH1FMap with the supplied dimensions containing new TH1F objects with the supplied binning
+        *
+        *  @param  binEdges the bin edges
+        *  @param  dimensions the systematic dimensions map
+        *
+        *  @return the SystUnisimTH1FMap
+        */
+        static SystUnisimTH1FMap GetSystUnisimTH1FMap(const std::vector<float> &binEdges, const SystUnisimDimensionsMap &dimensions);
+
+        /**
+        *  @brief  Get a SystUnisimTH1FMap with the CV samples of the supplied dimensions containing new TH1F objects with the supplied binning
+        *
+        *  @param  binEdges the bin edges
+        *  @param  dimensions the systematic dimensions map
+        *
+        *  @return the SystUnisimTH1FMap
+        */
+        static SystUnisimTH1FMap GetCVSystUnisimTH1FMap(const std::vector<float> &binEdges, const SystUnisimDimensionsMap &dimensions);
+
+        /**
+        *  @brief  Get a SystTH2FMap with the supplied dimensions containing new TH2F objects with the supplied binning
+        *
+        *  @param  binEdges the bin edges
+        *  @param  dimensions the systematic dimensions map
+        *
+        *  @return the SystTH2FMap
+        */
+        static SystTH2FMap GetSystTH2FMap(const std::vector<float> &binEdges, const SystDimensionsMap &dimensions);
+
+        /**
+        *  @brief  Get a SystUnisimTH2FMap with the supplied dimensions containing new TH2F objects with the supplied binning
+        *
+        *  @param  binEdges the bin edges
+        *  @param  dimensions the systematic dimensions map
+        *
+        *  @return the SystUnisimTH2FMap
+        */
+        static SystUnisimTH2FMap GetSystUnisimTH2FMap(const std::vector<float> &binEdges, const SystUnisimDimensionsMap &dimensions);
+
+        /**
+        *  @brief  Get a SystUnisimTH2FMap with the CV samples of the supplied dimensions containing new TH2F objects with the supplied binning
+        *
+        *  @param  binEdges the bin edges
+        *  @param  dimensions the systematic dimensions map
+        *
+        *  @return the SystUnisimTH2FMap
+        */
+        static SystUnisimTH2FMap GetCVSystUnisimTH2FMap(const std::vector<float> &binEdges, const SystUnisimDimensionsMap &dimensions);
+
+        /**
+        *  @brief  Get the weights corresponding to the systematic parameters in the input dimensions object. The parameter names must
+        *          correspond to those in the input truth information with matching number of universes.
         *
         *  @param  truth the input truth information
         *  @param  dimensions the dimensions of the weights map to obtain
@@ -244,6 +463,19 @@ class CrossSectionHelperNew
         *  @return the weights map
         */
         static SystFloatMap GetWeightsMap(const Event::Truth &truth, const SystDimensionsMap &dimensions);
+
+        /**
+        *  @brief  Get the weights corresponding to the input systematic paramters in the input dimensions object. The parameters must
+        *          either correspon to those in the input truth information, or be one of the mutually exclusive parameters supplied. In
+        *          every case the number of universes must match the input truth information.
+        *
+        *  @param  truth the input truth information
+        *  @param  dimensions the dimensions of the weights map to obtain (can include musually exclusive parameters)
+        *  @param  mutuallyExclusiveDimensions the mutualy exclusive parameter dimensions
+        *
+        *  @return the weights map
+        */
+        static SystFloatMap GetWeightsMap(const Event::Truth &truth, const SystDimensionsMap &dimensions, const SystMutuallyExclusiveDimensionsMap &mutuallyExclusiveDimensions);
 
         /**
         *  @brief  Get the combined weights from a set of mutually exclusive parameters (i.e. only one parameter at a time has a weight other than 1.f)
