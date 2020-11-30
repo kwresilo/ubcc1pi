@@ -6,6 +6,8 @@
 
 #include "ubcc1pi_standalone/Helpers/CrossSectionHelperNew.h"
 
+#include "ubcc1pi_standalone/Helpers/AnalysisHelper.h"
+
 #include <stdexcept>
 
 namespace ubcc1pi
@@ -133,76 +135,542 @@ float CrossSectionHelperNew::FluxReweightor::GetIntegratedFluxVariation(const st
 // -----------------------------------------------------------------------------------------------------------------------------------------
 // -----------------------------------------------------------------------------------------------------------------------------------------
 
-CrossSectionHelperNew::CrossSection::CrossSection(const SystParams &systParams, const std::vector<float> &binEdges, const bool hasUnderflow, const bool hasOverflow) :
+CrossSectionHelperNew::CrossSection::CrossSection(const SystParams &systParams, const std::vector<float> &binEdges, const bool hasUnderflow, const bool hasOverflow, const bool scaleByBinWidth) :
     m_systParams(systParams),
     m_binEdges(binEdges),
     m_metadata(binEdges.size() - 1, hasUnderflow, hasOverflow),
+    m_scaleByBinWidth(scaleByBinWidth),
     m_pSignal_true_nom(CrossSectionHelperNew::GetTH1F(binEdges)),
-    m_signal_true_fluxes(CrossSectionHelperNew::GetSystTH1FMap(binEdges, systParams.fluxDimensions)),
-    m_signal_true_xsecs(CrossSectionHelperNew::GetSystTH1FMap(binEdges, systParams.xsecDimensions)),
-    m_signal_true_detVars(CrossSectionHelperNew::GetSystUnisimTH1FMap(binEdges, systParams.detVarDimensions)),
-    m_signal_true_detCVs(CrossSectionHelperNew::GetCVSystUnisimTH1FMap(binEdges, systParams.detVarDimensions)),
     m_pSignal_selected_recoTrue_nom(CrossSectionHelperNew::GetTH2F(binEdges)),
-    m_signal_selected_recoTrue_fluxes(CrossSectionHelperNew::GetSystTH2FMap(binEdges, systParams.fluxDimensions)),
-    m_signal_selected_recoTrue_xsecs(CrossSectionHelperNew::GetSystTH2FMap(binEdges, systParams.xsecDimensions)),
-    m_signal_selected_recoTrue_detVars(CrossSectionHelperNew::GetSystUnisimTH2FMap(binEdges, systParams.detVarDimensions)),
-    m_signal_selected_recoTrue_detCVs(CrossSectionHelperNew::GetCVSystUnisimTH2FMap(binEdges, systParams.detVarDimensions)),
     m_pBackground_selected_reco_nom(CrossSectionHelperNew::GetTH1F(binEdges)),
-    m_background_selected_reco_fluxes(CrossSectionHelperNew::GetSystTH1FMap(binEdges, systParams.fluxDimensions)),
-    m_background_selected_reco_xsecs(CrossSectionHelperNew::GetSystTH1FMap(binEdges, systParams.xsecDimensions)),
-    m_background_selected_reco_detVars(CrossSectionHelperNew::GetSystUnisimTH1FMap(binEdges, systParams.detVarDimensions)),
-    m_background_selected_reco_detCVs(CrossSectionHelperNew::GetCVSystUnisimTH1FMap(binEdges, systParams.detVarDimensions)),
     m_pBNBData_selected_reco(CrossSectionHelperNew::GetTH1F(binEdges))
 {
+    // Make sure the bin edges are valid
+    const int nAnalysisBins = (binEdges.size() - 1) - (hasUnderflow ? 1 : 0) - (hasOverflow ? 1 : 0);
+    if (nAnalysisBins <= 0)
+        throw std::invalid_argument("CrossSection::CrossSection - Insufficient bin edges provided!");
+
+    // Setup a dimensions map for the miscellaneous ("misc") multisim parameters.
+    // These are added in ad-hoc (i.e. they don't come from the weights stored in the truth information)
+    const SystDimensionsMap miscDimensions = {
+
+        // Here we apply a weight to each event using the Poisson bootstrap method to estimate the MC stats uncertainty
+        { "bootstrap", systParams.nBootstrapUniverses },
+
+        // Here we apply a 2-universe multisim in which we weight the dirt up and down by 100%
+        { "dirt", 2 }
+    };
+
+    // Setup the maps to hold the histograms for the multisim parameters
+    m_signal_true_multisims.emplace("flux", CrossSectionHelperNew::GetSystTH1FMap(binEdges, systParams.fluxDimensions));
+    m_signal_true_multisims.emplace("xsec", CrossSectionHelperNew::GetSystTH1FMap(binEdges, systParams.xsecDimensions));
+    m_signal_true_multisims.emplace("misc", CrossSectionHelperNew::GetSystTH1FMap(binEdges, miscDimensions));
+
+    m_signal_selected_recoTrue_multisims.emplace("flux", CrossSectionHelperNew::GetSystTH2FMap(binEdges, systParams.fluxDimensions));
+    m_signal_selected_recoTrue_multisims.emplace("xsec", CrossSectionHelperNew::GetSystTH2FMap(binEdges, systParams.xsecDimensions));
+    m_signal_selected_recoTrue_multisims.emplace("misc", CrossSectionHelperNew::GetSystTH2FMap(binEdges, miscDimensions));
+
+    m_background_selected_reco_multisims.emplace("flux", CrossSectionHelperNew::GetSystTH1FMap(binEdges, systParams.fluxDimensions));
+    m_background_selected_reco_multisims.emplace("xsec", CrossSectionHelperNew::GetSystTH1FMap(binEdges, systParams.xsecDimensions));
+    m_background_selected_reco_multisims.emplace("misc", CrossSectionHelperNew::GetSystTH1FMap(binEdges, miscDimensions));
+
+    // Setup the maps to hold the histograms for the unisim parameters
+    m_signal_true_unisims.emplace("detector", CrossSectionHelperNew::GetSystUnisimTH1FMap(binEdges, systParams.detVarDimensions));
+    m_signal_selected_recoTrue_unisims.emplace("detector", CrossSectionHelperNew::GetSystUnisimTH2FMap(binEdges, systParams.detVarDimensions));
+    m_background_selected_reco_unisims.emplace("detector", CrossSectionHelperNew::GetSystUnisimTH1FMap(binEdges, systParams.detVarDimensions));
+
+    // ATTN we could in theory include other unisim parameters here using a different name. At the moment we only use "detector".
 }
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
 
-void CrossSectionHelperNew::CrossSection::AddSignalEvent(const float trueValue, const float recoValue, const bool isSelected, const float nominalWeight, const SystFloatMap &fluxWeights, const SystFloatMap &xsecWeights)
+void CrossSectionHelperNew::CrossSection::AddSignalEvent(const float recoValue, const float trueValue, const bool isSelected, const float nominalWeight, const SystFloatMap &fluxWeights, const SystFloatMap &xsecWeights)
 {
-    // TODO
+    // Get the miscellaneous weights
+    const SystFloatMap miscWeights = {
+
+        // Generate the bootstrap weights
+        { "bootstrap", CrossSectionHelperNew::GenerateBootstrapWeights(m_systParams.nBootstrapUniverses) },
+
+        // A signal event is never dirt - so just use a unit weight
+        { "dirt", {1.f, 1.f} }
+    };
+
+    m_pSignal_true_nom->Fill(trueValue, nominalWeight);
+    CrossSectionHelperNew::FillSystTH1FMap(trueValue, nominalWeight, fluxWeights, m_signal_true_multisims.at("flux"));
+    CrossSectionHelperNew::FillSystTH1FMap(trueValue, nominalWeight, xsecWeights, m_signal_true_multisims.at("xsec"));
+    CrossSectionHelperNew::FillSystTH1FMap(trueValue, nominalWeight, miscWeights, m_signal_true_multisims.at("misc"));
+
+    if (!isSelected)
+        return;
+
+    m_pSignal_selected_recoTrue_nom->Fill(recoValue, trueValue, nominalWeight);
+    CrossSectionHelperNew::FillSystTH2FMap(recoValue, trueValue, nominalWeight, fluxWeights, m_signal_selected_recoTrue_multisims.at("flux"));
+    CrossSectionHelperNew::FillSystTH2FMap(recoValue, trueValue, nominalWeight, xsecWeights, m_signal_selected_recoTrue_multisims.at("xsec"));
+    CrossSectionHelperNew::FillSystTH2FMap(recoValue, trueValue, nominalWeight, miscWeights, m_signal_selected_recoTrue_multisims.at("misc"));
 }
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
 
-void CrossSectionHelperNew::CrossSection::AddSignalEventDetVar(const float trueValue, const float recoValue, const bool isSelected, const float nominalWeight, const std::string &paramName)
+void CrossSectionHelperNew::CrossSection::AddSignalEventDetVar(const float recoValue, const float trueValue, const bool isSelected, const float nominalWeight, const std::string &paramName)
 {
-    // TODO
+    if (!static_cast<bool>(m_signal_true_unisims.at("detector").count(paramName)))
+        throw std::invalid_argument("CrossSection::AddSignalEventDetVar - Unknown parameter or CV sample name \"" + paramName + "\"");
+
+    m_signal_true_unisims.at("detector").at(paramName)->Fill(trueValue, nominalWeight);
+
+    if (!isSelected)
+        return;
+
+    m_signal_selected_recoTrue_unisims.at("detector").at(paramName)->Fill(recoValue, trueValue, nominalWeight);
 }
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
 
-void CrossSectionHelperNew::CrossSection::AddSignalEventDetVarCV(const float trueValue, const float recoValue, const bool isSelected, const float nominalWeight, const std::string &name)
+void CrossSectionHelperNew::CrossSection::AddSelectedBackgroundEvent(const float recoValue, const bool isDirt, const float nominalWeight, const SystFloatMap &fluxWeights, const SystFloatMap &xsecWeights)
 {
-    // TODO
-}
+    // The weight to apply as a result of dirt
+    //   - For non-dirt events, just use zero (i.e. no change from the nominal simulation)
+    //   - For dirt event we here use +-100%
+    const auto dirtWeightDelta = isDirt ? 1.f : 0.f;
 
-// -----------------------------------------------------------------------------------------------------------------------------------------
+    // Get the miscellaneous weights
+    const SystFloatMap miscWeights = {
 
-void CrossSectionHelperNew::CrossSection::AddSelectedBackgroundEvent(const float recoValue, const float nominalWeight, const SystFloatMap &fluxWeights, const SystFloatMap &xsecWeights)
-{
-    // TODO
+        // Generate the bootstrap weights
+        { "bootstrap", CrossSectionHelperNew::GenerateBootstrapWeights(m_systParams.nBootstrapUniverses) },
+
+        // Apply the dirt weight
+        { "dirt", {1.f - dirtWeightDelta, 1.f + dirtWeightDelta} }
+    };
+
+    m_pBackground_selected_reco_nom->Fill(recoValue, nominalWeight);
+    CrossSectionHelperNew::FillSystTH1FMap(recoValue, nominalWeight, fluxWeights, m_background_selected_reco_multisims.at("flux"));
+    CrossSectionHelperNew::FillSystTH1FMap(recoValue, nominalWeight, xsecWeights, m_background_selected_reco_multisims.at("xsec"));
+    CrossSectionHelperNew::FillSystTH1FMap(recoValue, nominalWeight, miscWeights, m_background_selected_reco_multisims.at("misc"));
 }
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
 
 void CrossSectionHelperNew::CrossSection::AddSelectedBackgroundEventDetVar(const float recoValue, const float nominalWeight, const std::string &paramName)
 {
-    // TODO
-}
+    if (!static_cast<bool>(m_background_selected_reco_unisims.at("detector").count(paramName)))
+        throw std::invalid_argument("CrossSection::AddSelectedBackgroundEventDetVar - Unknown parameter or CV sample name \"" + paramName + "\"");
 
-// -----------------------------------------------------------------------------------------------------------------------------------------
-
-void CrossSectionHelperNew::CrossSection::AddSelectedBackgroundEventDetVarCV(const float recoValue, const float nominalWeight, const std::string &name)
-{
-    // TODO
+    m_background_selected_reco_unisims.at("detector").at(paramName)->Fill(recoValue, nominalWeight);
 }
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
 
 void CrossSectionHelperNew::CrossSection::AddSelectedBNBDataEvent(const float recoValue)
 {
-    // TODO
+    m_pBNBData_selected_reco->Fill(recoValue);
+}
+
+// -----------------------------------------------------------------------------------------------------------------------------------------
+
+ubsmear::UBMatrix CrossSectionHelperNew::CrossSection::GetBinWidths() const
+{
+    if (!m_scaleByBinWidth)
+    {
+        // If we shouldn't scale by bin width, then just return 1.f for the width of each bin
+        return ubsmear::UBMatrix(std::vector<float>(m_metadata.GetNBins(), 1.f), m_metadata.GetNBins(), 1);
+    }
+
+    std::vector<float> elements;
+    for (unsigned int iBin = 1; iBin < m_binEdges.size(); ++iBin)
+    {
+        const auto lowerEdge = m_binEdges.at(iBin - 1);
+        const auto upperEdge = m_binEdges.at(iBin);
+        const auto width = upperEdge - lowerEdge;
+
+        if (width <= std::numeric_limits<float>::epsilon())
+            throw std::logic_error("CrossSection::GetBinWidthVector - Found a bin with zero or negative width");
+
+        elements.push_back(width);
+    }
+
+    return ubsmear::UBMatrix(elements, m_metadata.GetNBins(), 1);
+}
+
+// -----------------------------------------------------------------------------------------------------------------------------------------
+
+ubsmear::UBMatrix CrossSectionHelperNew::CrossSection::GetCrossSection(const ubsmear::UBMatrix &selected, const ubsmear::UBMatrix &backgrounds, const float integratedFlux, const float exposurePOT, const float nTargets) const
+{
+    // Check the input event rate has the right dimensions
+    if (selected.GetColumns() != 1)
+        throw std::invalid_argument("CrossSection::GetCrossSection - Input event rate isn't a column vector");
+
+    if (selected.GetRows() != m_metadata.GetNBins())
+        throw std::invalid_argument("CrossSection::GetCrossSection - Input event rate has the wrong number of bins");
+
+    // Check the input backgrounds have the right dimensions
+    if (backgrounds.GetColumns() != 1)
+        throw std::invalid_argument("CrossSection::GetCrossSection - Input background rate isn't a column vector");
+
+    if (backgrounds.GetRows() != m_metadata.GetNBins())
+        throw std::invalid_argument("CrossSection::GetCrossSection - Input background rate has the wrong number of bins");
+
+    // Get the normalisation factor
+    const auto norm = integratedFlux * exposurePOT * nTargets;
+    if (norm <= std::numeric_limits<float>::epsilon())
+        throw std::invalid_argument("CrossSection::GetCrossSection - Product of flux, exposure and targets non-positive");
+
+    // Get the column vector of bin widths
+    const auto binWidths = this->GetBinWidths();
+
+    // Now get the flux-integrated, forward-folded cross-section by
+    //   - Subtracting the backgrounds
+    //   - Scaling by the normalisation factor
+    //   - Scaling (element wise) by the bin-widths
+    return ubsmear::ElementWiseOperation(
+        (selected - backgrounds),
+        binWidths * norm,
+        [](const float numerator, const float denominator) { return numerator / denominator; }
+    );
+}
+
+// -----------------------------------------------------------------------------------------------------------------------------------------
+
+std::shared_ptr<ubsmear::UBMatrix> CrossSectionHelperNew::CrossSection::GetSmearingMatrix(const std::shared_ptr<TH1F> &pSignal_true, const std::shared_ptr<TH2F> &pSignal_selected_recoTrue) const
+{
+    // Get the input histograms as a matrix
+    const auto allTrue = CrossSectionHelperNew::GetMatrixFromHist(pSignal_true);
+    const auto selectedRecoTrue = CrossSectionHelperNew::GetMatrixFromHist(pSignal_selected_recoTrue);
+
+    // Check theh matrices have the expected sizes
+    if (!ubsmear::UBMatrixHelper::IsSquare(selectedRecoTrue))
+        throw std::invalid_argument("CrossSection::GetSmearingMatrix - input reco-true matrix isn't square");
+
+    const auto nBins = allTrue.GetRows();
+    if (selectedRecoTrue.GetRows() != nBins)
+        throw std::invalid_argument("CrossSection::GetSmearingMatrix - the input objects differ in number of bins");
+
+    // Get the elements of the smearing matrix
+    std::vector<float> elements;
+    for (unsigned int iReco = 0; iReco < nBins; ++iReco)
+    {
+        for (unsigned int iTrue = 0; iTrue < nBins; ++iTrue)
+        {
+            // Get the total number of signal events in this true bin
+            const auto denominator = allTrue.At(iTrue, 0);
+
+            // ATTN. If we find a bin in which there are no signal events, then there's no sensible value for the smearing matrix element
+            // Here we return null to indicate that the smearing matrix can't be found
+            if (denominator <= std::numeric_limits<float>::epsilon())
+                return std::shared_ptr<ubsmear::UBMatrix>(nullptr);
+
+            elements.push_back(selectedRecoTrue.At(iReco, iTrue) / denominator);
+        }
+    }
+
+    return std::make_shared<ubsmear::UBMatrix>(elements, nBins, nBins);
+}
+
+// -----------------------------------------------------------------------------------------------------------------------------------------
+
+ubsmear::UBMatrix CrossSectionHelperNew::CrossSection::GetSignalSelectedTrue(const std::shared_ptr<TH2F> &pSignal_selected_recoTrue) const
+{
+    // Get the input histogram as a matrix
+    const auto recoTrueMatrix = CrossSectionHelperNew::GetMatrixFromHist(pSignal_selected_recoTrue);
+
+    // Integrate over the reco bins
+    std::vector<float> elements;
+    for (unsigned int iTrue = 0; iTrue < recoTrueMatrix.GetColumns(); ++iTrue)
+    {
+        float sum = 0.f;
+        for (unsigned int iReco = 0; iReco < recoTrueMatrix.GetRows(); ++iReco)
+        {
+            sum += recoTrueMatrix.At(iReco, iTrue);
+        }
+
+        elements.push_back(sum);
+    }
+
+    // Return the result as a column vector
+    return ubsmear::UBMatrix(elements, recoTrueMatrix.GetColumns(), 1);
+}
+
+// -----------------------------------------------------------------------------------------------------------------------------------------
+
+ubsmear::UBMatrix CrossSectionHelperNew::CrossSection::GetBNBDataCrossSection(const ScalingData &scalingData) const
+{
+    // Get the number of selected events in BNB data
+    const auto selected = CrossSectionHelperNew::GetMatrixFromHist(m_pBNBData_selected_reco);
+
+    // Get the number of predicted backgrounds in the nominal universe
+    const auto backgrounds = CrossSectionHelperNew::GetMatrixFromHist(m_pBackground_selected_reco_nom);
+
+    // Get the integrated flux in the nominal universe
+    const auto integratedFlux = scalingData.fluxReweightor->GetIntegratedNominalFlux();
+
+    // Get the cross-section
+    return this->GetCrossSection(selected, backgrounds, integratedFlux, scalingData.exposurePOT, scalingData.nTargets);
+}
+
+// -----------------------------------------------------------------------------------------------------------------------------------------
+
+ubsmear::UBMatrix CrossSectionHelperNew::CrossSection::GetPredictedCrossSection(const ScalingData &scalingData) const
+{
+    // Get the number of signal events in the nominal simulation in true bins
+    const auto signal = CrossSectionHelperNew::GetMatrixFromHist(m_pSignal_true_nom);
+
+    // Get the number of backgrounds is zero as we are effectively applying a "perfect" selection
+    const auto zeroVector = ubsmear::UBMatrixHelper::GetZeroMatrix(signal.GetRows(), 1);
+
+    // Get the integrated flux in the nominal universe
+    const auto integratedFlux = scalingData.fluxReweightor->GetIntegratedNominalFlux();
+
+    // Get the cross-section
+    return this->GetCrossSection(signal, zeroVector, integratedFlux, scalingData.exposurePOT, scalingData.nTargets);
+}
+
+// -----------------------------------------------------------------------------------------------------------------------------------------
+
+ubsmear::UBMatrix CrossSectionHelperNew::CrossSection::GetSmearingMatrix() const
+{
+    // Get the smearing matrix in the nominal universe
+    const auto pSmearingMatrix = this->GetSmearingMatrix(m_pSignal_true_nom, m_pSignal_selected_recoTrue_nom);
+
+    // Check we were able to find the smearing matrix
+    if (!pSmearingMatrix)
+        throw std::logic_error("CrossSection::GetSmearingMatrix - There's a bin with no signal events! Can't get the smearing matrix");
+
+    return *pSmearingMatrix;
+}
+
+// -----------------------------------------------------------------------------------------------------------------------------------------
+
+ubsmear::UBMatrix CrossSectionHelperNew::CrossSection::GetBNBDataCrossSectionStatUncertainty(const ScalingData &scalingData) const
+{
+    // Get the number of selected events in BNB data
+    const auto selected = CrossSectionHelperNew::GetMatrixFromHist(m_pBNBData_selected_reco);
+
+    // Get a vector containing the count uncertainties (Poisson) on each bin
+    std::vector<float> elements;
+    const auto nBins = selected.GetRows();
+    for (unsigned int iBin = 0; iBin < nBins; ++iBin)
+    {
+        elements.push_back(AnalysisHelper::GetCountUncertainty(selected.At(iBin, 0)));
+    }
+
+    const ubsmear::UBMatrix selectedUncertainty(elements, nBins, 1);
+
+    // Get the integrated flux in the nominal universe
+    const auto integratedFlux = scalingData.fluxReweightor->GetIntegratedNominalFlux();
+
+    // Scale the uncertainty on the number of selected events by same factor as the cross-section.
+    // ATTN to apply the scaling we reuse the GetCrossSection function but intead pass it the count uncertainties as "selected" a zero
+    // vector as the "backgrounds"
+    const auto zeroVector = ubsmear::UBMatrixHelper::GetZeroMatrix(nBins, 1);
+    return this->GetCrossSection(selectedUncertainty, zeroVector, integratedFlux, scalingData.exposurePOT, scalingData.nTargets);
+}
+
+// -----------------------------------------------------------------------------------------------------------------------------------------
+
+CrossSectionHelperNew::SystBiasCovarianceMap CrossSectionHelperNew::CrossSection::GetBNBDataCrossSectionSystUncertainties(const ScalingData &scalingData) const
+{
+    // Setup the output map
+    SystBiasCovarianceMap outputMap;
+
+    // Add the multisim parameters
+    // ATTN the use of m_signal_true_multisims is arbitrary, we could use any multisims map
+    for (const auto &[group, map] : m_signal_true_multisims)
+    {
+        for (const auto &entry : map)
+        {
+            const auto &paramName = entry.first;
+            outputMap[group].emplace(paramName, this->GetBNBDataCrossSectionDistributionParams(group, paramName, scalingData));
+        }
+    }
+
+    // Add the unisim parameters
+    // ATTN again the use of m_signal_true_unisims is arbitrary, we could use any unisims map
+    for (const auto &[group, map] : m_signal_true_unisims)
+    {
+        // ATTN for now we only have detector parameters that are unisims, if others are added later then we would need to add a clause here
+        // to get the relevent dimensions.
+        if (group != "detector")
+            throw std::logic_error("CrossSection::GetBNBDataCrossSectionSystUncertainties - Don't know dimensions of group: \"" + group + "\"");
+
+        const auto dimensions = m_systParams.detVarDimensions;
+
+        for (const auto &entry : map)
+        {
+            const auto &paramName = entry.first;
+            const auto &cvName = dimensions.at(paramName);
+
+            outputMap[group].emplace(paramName, this->GetBNBDataCrossSectionDistributionParamsUnisim(group, paramName, cvName, scalingData));
+        }
+    }
+
+    return outputMap;
+}
+
+// -----------------------------------------------------------------------------------------------------------------------------------------
+
+ubsmear::UBMatrix CrossSectionHelperNew::CrossSection::GetBNBDataCrossSectionInUniverse(const std::string &group, const std::string &paramName, const unsigned int universeIndex, const ScalingData &scalingData) const
+{
+    // ATTN for speed, this function (and other similar functions) doesn't explicitly check if the input group, paramName, universeIndex is
+    // valid. Instead we rely on the internal range checking of the .at() method for STL containers. This is for peformance reasons as this
+    // function gets called once per universe!
+
+    // Get the number of selected signal events in the supplied universe
+    const auto signalSelected = this->GetSignalSelectedTrue(m_signal_selected_recoTrue_multisims.at(group).at(paramName).at(universeIndex));
+
+    // Get the number of predicted backgrounds in the supplied universe
+    const auto backgrounds = CrossSectionHelperNew::GetMatrixFromHist(m_background_selected_reco_multisims.at(group).at(paramName).at(universeIndex));
+
+    // Get the total number of selected events
+    const auto selected = signalSelected + backgrounds;
+
+    // Get the integrated flux in the supplied universe (if it's not a flux parameter, then use the nominal universe)
+    const auto integratedFlux = (
+        group == "flux"
+            ? scalingData.fluxReweightor->GetIntegratedFluxVariation(paramName, universeIndex)
+            : scalingData.fluxReweightor->GetIntegratedNominalFlux()
+    );
+
+    // Get the cross-section
+    return this->GetCrossSection(selected, backgrounds, integratedFlux, scalingData.exposurePOT, scalingData.nTargets);
+}
+
+// -----------------------------------------------------------------------------------------------------------------------------------------
+
+ubsmear::UBMatrix CrossSectionHelperNew::CrossSection::GetBNBDataCrossSectionForUnisim(const std::string &group, const std::string &paramName, const ScalingData &scalingData) const
+{
+    // Get the number of selected signal events in the supplied universe
+    const auto signalSelected = this->GetSignalSelectedTrue(m_signal_selected_recoTrue_unisims.at(group).at(paramName));
+
+    // Get the number of predicted backgrounds in the supplied universe
+    const auto backgrounds = CrossSectionHelperNew::GetMatrixFromHist(m_background_selected_reco_unisims.at(group).at(paramName));
+
+    // Get the total number of selected events
+    const auto selected = signalSelected + backgrounds;
+
+    // Get the integrated flux in the nominal universe
+    const auto integratedFlux = scalingData.fluxReweightor->GetIntegratedNominalFlux();
+
+    // Get the cross-section
+    return this->GetCrossSection(selected, backgrounds, integratedFlux, scalingData.exposurePOT, scalingData.nTargets);
+}
+
+// -----------------------------------------------------------------------------------------------------------------------------------------
+
+CrossSectionHelperNew::SystBiasCovariancePair CrossSectionHelperNew::CrossSection::GetBNBDataCrossSectionDistributionParams(const std::string &group, const std::string &paramName, const ScalingData &scalingData) const
+{
+    // Get the number of universes for this systematic parameter
+    // ATTN this choice of m_signal_true_multisims here is arbitrary, any of the mutlisims maps would do
+    const auto nUniverses = m_signal_true_multisims.at(group).at(paramName).size();
+
+    if (nUniverses == 0)
+        throw std::logic_error("CrossSection::GetBNBDataCrossSectionDisribution - Parameter: \"" + paramName + "\" has no universes!");
+
+    // Get the nominal cross-section
+    const auto xSecNom = this->GetBNBDataCrossSection(scalingData);
+    const auto nBins = xSecNom.GetRows();
+
+    // Setup some empty matrices to hold the mean vector and error matrices
+    auto meanSum = ubsmear::UBMatrixHelper::GetZeroMatrix(nBins, 1);
+    auto errorMatrixSum = ubsmear::UBMatrixHelper::GetZeroMatrix(nBins, nBins);
+
+    // Loop over the universes
+    for (unsigned int iUni = 0; iUni < nUniverses; ++iUni)
+    {
+        // Get the cross-section in this universe
+        const auto xSec = this->GetBNBDataCrossSectionInUniverse(group, paramName, iUni, scalingData);
+
+        // Loop over the bins
+        for (unsigned int iBin = 0; iBin < nBins; ++iBin)
+        {
+            // Add up the cross-sections
+            meanSum.SetElement(iBin, 0, meanSum.At(iBin, 0) + xSec.At(iBin, 0));
+
+            // Loop over the bins again
+            // ATTN the matrix is symmetic so here we only set one half of the off-diagonals within the universe loop and then copy them
+            // over to the other half afterwards. This is done for performance reasons as it halves the number of inserts
+            const auto diffI = xSec.At(iBin, 0) - xSecNom.At(iBin, 0);
+            for (unsigned int jBin = 0; jBin <= iBin; ++jBin)
+            {
+                const auto diffJ = xSec.At(jBin, 0) - xSecNom.At(jBin, 0);
+
+                // Add up the error matrix elements
+                errorMatrixSum.SetElement(iBin, jBin, errorMatrixSum.At(iBin, jBin) + diffI*diffJ);
+            }
+        }
+    }
+
+    // Scale the sums by the number of universes
+    const auto scaleFactor = 1.f / static_cast<float>(nUniverses);
+    const auto mean = meanSum * scaleFactor;
+    const auto errorMatrix = errorMatrixSum * scaleFactor;
+
+    // Get the bias vector
+    const auto pBias = std::make_shared<ubsmear::UBMatrix>(mean - xSecNom);
+
+    // Get the covariance matrix
+    auto pCovarianceMatrix = std::make_shared<ubsmear::UBMatrix>(ubsmear::UBMatrixHelper::GetZeroMatrix(nBins, nBins));
+    for (unsigned int iBin = 0; iBin < nBins; ++iBin)
+    {
+        for (unsigned int jBin = 0; jBin <= iBin; ++jBin)
+        {
+            // ATTN here we use the fact that V_ij = E_ij - b_i*b_j
+            //   - E_ij = error matrix element
+            //   - V_ij = covariance matrix element
+            //   - b_i = bias vector element
+            //
+            // This is done instead of calculating the covariance directly as this only requires one pass through the universe loop.
+            const auto covariance = errorMatrix.At(iBin, jBin) - pBias->At(iBin, 0)*pBias->At(jBin, 0);
+
+            pCovarianceMatrix->SetElement(iBin, jBin, covariance);
+            pCovarianceMatrix->SetElement(jBin, iBin, covariance);
+        }
+    }
+
+    return { pBias, pCovarianceMatrix };
+}
+
+// -----------------------------------------------------------------------------------------------------------------------------------------
+
+CrossSectionHelperNew::SystBiasCovariancePair CrossSectionHelperNew::CrossSection::GetBNBDataCrossSectionDistributionParamsUnisim(const std::string &group, const std::string &paramName, const std::string &cvName, const ScalingData &scalingData) const
+{
+    // Get the cross-section using the unisim sample, in the central value sample and in the nominal universe
+    const auto xSec = this->GetBNBDataCrossSectionForUnisim(group, paramName, scalingData);
+    const auto xSecCV = this->GetBNBDataCrossSectionForUnisim(group, cvName, scalingData);
+    const auto xSecNom = this->GetBNBDataCrossSection(scalingData);
+
+    // Get the fractional bias of the cross-section away from the central value
+    const auto fracBias = ubsmear::ElementWiseOperation(
+        (xSec - xSecCV), xSecCV,
+        [](const float numerator, const float denominator) { return numerator / denominator; }
+    );
+
+    // Apply the fractional bias to the nominal cross-section
+    const auto bias = ubsmear::ElementWiseOperation(
+        fracBias, xSecNom,
+        [](const float lhs, const float rhs) { return lhs * rhs; }
+    );
+
+    // Return the result (use a zero matrix for the covariance)
+    const auto nBins = bias.GetRows();
+    return {
+        std::make_shared<ubsmear::UBMatrix>(bias),
+        std::make_shared<ubsmear::UBMatrix>(ubsmear::UBMatrixHelper::GetZeroMatrix(nBins, nBins))
+    };
+}
+
+// -----------------------------------------------------------------------------------------------------------------------------------------
+
+std::shared_ptr<ubsmear::UBMatrix> CrossSectionHelperNew::CrossSection::GetSmearingMatrixInUniverse(const std::string &group, const std::string &paramName, const unsigned int universeIndex) const
+{
+    return this->GetSmearingMatrix(m_signal_true_multisims.at(group).at(paramName).at(universeIndex), m_signal_selected_recoTrue_multisims.at(group).at(paramName).at(universeIndex));
+}
+
+// -----------------------------------------------------------------------------------------------------------------------------------------
+
+std::shared_ptr<ubsmear::UBMatrix> CrossSectionHelperNew::CrossSection::GetSmearingMatrixForUnisim(const std::string &group, const std::string &paramName) const
+{
+    return this->GetSmearingMatrix(m_signal_true_unisims.at(group).at(paramName), m_signal_selected_recoTrue_unisims.at(group).at(paramName));
 }
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
@@ -246,28 +714,22 @@ CrossSectionHelperNew::SystUnisimTH1FMap CrossSectionHelperNew::GetSystUnisimTH1
 {
     SystUnisimTH1FMap map;
 
+    // Setup a vector to keep track of the used central-values sample names
+    std::vector<std::string> allCVNames;
+
     for (const auto &[paramName, cvName] : dimensions)
     {
+        // Include all parameter names
         map.emplace(paramName, CrossSectionHelperNew::GetTH1F(binEdges));
-        (void) cvName; // Not required
-    }
 
-    return map;
-}
+        // If we haven't seen this central value sample name before, then add it too!
+        if (std::find(allCVNames.begin(), allCVNames.end(), cvName) == allCVNames.end())
+        {
+            if (map.find(cvName) != map.end())
+                throw std::invalid_argument("CrossSectionHelperNew::GetSystUnisimTH1FMap - Name \"" + cvName + "\" is describes a parameter and a central-value sample");
 
-// -----------------------------------------------------------------------------------------------------------------------------------------
-
-CrossSectionHelperNew::SystUnisimTH1FMap CrossSectionHelperNew::GetCVSystUnisimTH1FMap(const std::vector<float> &binEdges, const SystUnisimDimensionsMap &dimensions)
-{
-    SystUnisimTH1FMap map;
-
-    for (const auto &[paramName, cvName] : dimensions)
-    {
-        if (map.find(cvName) != map.end())
-            continue;
-
-        map.emplace(cvName, CrossSectionHelperNew::GetTH1F(binEdges));
-        (void) paramName; // Not required
+            map.emplace(cvName, CrossSectionHelperNew::GetTH1F(binEdges));
+        }
     }
 
     return map;
@@ -299,28 +761,22 @@ CrossSectionHelperNew::SystUnisimTH2FMap CrossSectionHelperNew::GetSystUnisimTH2
 {
     SystUnisimTH2FMap map;
 
+    // Setup a vector to keep track of the used central-values sample names
+    std::vector<std::string> allCVNames;
+
     for (const auto &[paramName, cvName] : dimensions)
     {
+        // Include all parameter names
         map.emplace(paramName, CrossSectionHelperNew::GetTH2F(binEdges));
-        (void) cvName; // Not required
-    }
 
-    return map;
-}
+        // If we haven't seen this central value sample name before, then add it too!
+        if (std::find(allCVNames.begin(), allCVNames.end(), cvName) == allCVNames.end())
+        {
+            if (map.find(cvName) != map.end())
+                throw std::invalid_argument("CrossSectionHelperNew::GetSystUnisimTH2FMap - Name \"" + cvName + "\" is describes a parameter and a central-value sample");
 
-// -----------------------------------------------------------------------------------------------------------------------------------------
-
-CrossSectionHelperNew::SystUnisimTH2FMap CrossSectionHelperNew::GetCVSystUnisimTH2FMap(const std::vector<float> &binEdges, const SystUnisimDimensionsMap &dimensions)
-{
-    SystUnisimTH2FMap map;
-
-    for (const auto &[paramName, cvName] : dimensions)
-    {
-        if (map.find(cvName) != map.end())
-            continue;
-
-        map.emplace(cvName, CrossSectionHelperNew::GetTH2F(binEdges));
-        (void) paramName; // Not required
+            map.emplace(cvName, CrossSectionHelperNew::GetTH2F(binEdges));
+        }
     }
 
     return map;
@@ -475,6 +931,114 @@ std::vector<float> CrossSectionHelperNew::GetMutuallyExclusiveWeights(const Even
     }
 
     return weights;
+}
+
+// -----------------------------------------------------------------------------------------------------------------------------------------
+
+std::vector<float> CrossSectionHelperNew::GenerateBootstrapWeights(const unsigned int nUniverses)
+{
+    std::poisson_distribution<int> poisson(1.f);
+
+    std::vector<float> weights;
+    for (unsigned int iUni = 0; iUni < nUniverses; ++iUni)
+    {
+        weights.push_back(static_cast<float>(poisson(m_generator)));
+    }
+
+    return weights;
+}
+
+// -----------------------------------------------------------------------------------------------------------------------------------------
+
+void CrossSectionHelperNew::FillSystTH1FMap(const float value, const float nominalWeight, const SystFloatMap &weights, SystTH1FMap &map)
+{
+    // Validate the dimensions of the input SystMaps
+    CrossSectionHelperNew::ValidateSystMap(weights, CrossSectionHelperNew::GetSystMapDimensions(map));
+
+    // Fill the histograms in each systematic universe
+    for (const auto &[paramName, universeWeights] : weights)
+    {
+        const auto nUniverses = universeWeights.size();
+        auto &histVector = map.at(paramName);
+
+        // ATTN this should never happen because of the above ValidateSystMap check, but including here for sanity
+        if (histVector.size() != nUniverses)
+            throw std::logic_error("CrossSectionHelperNew::FillSystTH1FMap - Input weights map and SystTH1FMap have different dimensions");
+
+        for (unsigned int iUni = 0; iUni < nUniverses; ++iUni)
+        {
+            // ATTN we use the product of the nominal weight and the universe weight
+            const auto weight = nominalWeight * universeWeights.at(iUni);
+
+            histVector.at(iUni)->Fill(value, weight);
+        }
+    }
+}
+
+// -----------------------------------------------------------------------------------------------------------------------------------------
+
+void CrossSectionHelperNew::FillSystTH2FMap(const float xValue, const float yValue, const float nominalWeight, const SystFloatMap &weights, SystTH2FMap &map)
+{
+    // Validate the dimensions of the input SystMaps
+    CrossSectionHelperNew::ValidateSystMap(weights, CrossSectionHelperNew::GetSystMapDimensions(map));
+
+    // Fill the histograms in each systematic universe
+    for (const auto &[paramName, universeWeights] : weights)
+    {
+        const auto nUniverses = universeWeights.size();
+        auto &histVector = map.at(paramName);
+
+        // ATTN this should never happen because of the above ValidateSystMap check, but including here for sanity
+        if (histVector.size() != nUniverses)
+            throw std::logic_error("CrossSectionHelperNew::FillSystTH1FMap - Input weights map and SystTH1FMap have different dimensions");
+
+        for (unsigned int iUni = 0; iUni < nUniverses; ++iUni)
+        {
+            // ATTN we use the product of the nominal weight and the universe weight
+            const auto weight = nominalWeight * universeWeights.at(iUni);
+
+            histVector.at(iUni)->Fill(xValue, yValue, weight);
+        }
+    }
+}
+
+// -----------------------------------------------------------------------------------------------------------------------------------------
+
+ubsmear::UBMatrix CrossSectionHelperNew::GetMatrixFromHist(const std::shared_ptr<TH1F> &pHist)
+{
+    std::vector<float> elements;
+
+    const unsigned int nBins = pHist->GetNbinsX();
+    for (unsigned int iBin = 1; iBin <= nBins; ++iBin)
+    {
+        elements.push_back(pHist->GetBinContent(iBin));
+    }
+
+    return ubsmear::UBMatrix(elements, nBins, 1);
+}
+
+// -----------------------------------------------------------------------------------------------------------------------------------------
+
+ubsmear::UBMatrix CrossSectionHelperNew::GetMatrixFromHist(const std::shared_ptr<TH2F> &pHist)
+{
+    std::vector< std::vector<float> > elements;
+
+    const unsigned int nBinsX = pHist->GetNbinsX();
+    const unsigned int nBinsY = pHist->GetNbinsY();
+
+    for (unsigned int iBinX = 1; iBinX <= nBinsX; ++iBinX)
+    {
+        // Make a new row
+        elements.emplace_back();
+        auto &row = elements.back();
+
+        for (unsigned int iBinY = 1; iBinY <= nBinsY; ++iBinY)
+        {
+            row.push_back(pHist->GetBinContent(iBinX, iBinY));
+        }
+    }
+
+    return ubsmear::UBMatrix(elements);
 }
 
 } // namespace ubcc1pi
