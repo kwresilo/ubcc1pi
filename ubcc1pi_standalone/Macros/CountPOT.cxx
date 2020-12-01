@@ -28,7 +28,7 @@ void CountPOT(const Config &config)
 
     if (config.countPOT.useDetectorVariations)
     {
-        for (const auto &[run, name, fileName] : config.files.detVarFiles)
+        for (const auto &[name, fileName] : config.files.detVarFiles)
         {
             fileNames.push_back(fileName);
         }
