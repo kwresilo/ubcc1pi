@@ -11,6 +11,7 @@
 #include <unordered_map>
 
 #include "ubcc1pi_standalone/Helpers/PlottingHelper.h"
+#include "ubcc1pi_standalone/Helpers/CrossSectionHelper.h"
 
 namespace ubcc1pi
 {
@@ -361,49 +362,78 @@ struct Config
      */
     struct ExtractXSecs
     {
+        /**
+        *  @brief  If we should scale the GENIE weights so not to double count the genieTuneEventWeight
+        *          By default we apply (splineEventWeight * genieTuneEventWeight) as the "nominal weight" to all events. Then we apply the
+        *          multisim universe weights on top of the nominal weight. For the GENIE systematic parameters, the universe weights already
+        *          include the genieTuneEventWeight, and so require special treatment to avoid double counting this weight. If this option
+        *          is set to true, then we scale the GENIE universe weights down by genieTuneEventWeight to put them on the same footing as
+        *          all other parameters. If this option is false then the GENIE weights recieve no special treatment.
+        */
+        bool scaleByXSecWeights = true;
+
         unsigned int nBootstrapUniverses = 1000u; ///< The number of bootrap universes to generate for the MC stat uncertainty
 
-        std::vector< std::pair<std::string, unsigned int> > systematicParams = {
-            {"All_Genie", 100u},
-            {"expskin_FluxUnisim", 1000u},
-            {"horncurrent_FluxUnisim", 1000u},
+        CrossSectionHelper::SystDimensionsMap fluxDimensions = {
+            {"hadronProduction",          1000u},
+            {"expskin_FluxUnisim",        1000u},
+            {"horncurrent_FluxUnisim",    1000u},
             {"nucleoninexsec_FluxUnisim", 1000u},
-            {"nucleonqexsec_FluxUnisim", 1000u},
+            {"nucleonqexsec_FluxUnisim",  1000u},
             {"nucleontotxsec_FluxUnisim", 1000u},
-            {"pioninexsec_FluxUnisim", 1000u},
-            {"pionqexsec_FluxUnisim", 1000u},
-            {"piontotxsec_FluxUnisim", 1000u}
-        }; ///< The systematic parameters to apply & the number of universes
+            {"pioninexsec_FluxUnisim",    1000u},
+            {"pionqexsec_FluxUnisim",     1000u},
+            {"piontotxsec_FluxUnisim",    1000u}
+        }; ///< A mapping from the flux parameter names to the number of universes
 
-        std::vector< std::tuple<std::string, unsigned int, std::vector<std::string> > > mutuallyExclusiveSystematicParams = {
+        CrossSectionHelper::SystDimensionsMap xsecDimensions = {
+            {"All_Genie",             100u},
+            {"AxFFCCQEshape_Genie",   2u},
+            {"DecayAngMEC_Genie",     2u},
+            {"MaNCRES_Genie",         2u},
+            {"Theta_Delta2Npi_Genie", 2u},
+            {"VecFFCCQEshape_Genie",  2u}
+        }; ///< A mapping from the cross-section parameter names to the number of universes
+
+        CrossSectionHelper::SystUnisimDimensionsMap detVarDimensions = {
+            {"LYDown",         "CVRun1"},
+            {"LYRayleigh",     "CVRun1"},
+            {"SCE",            "CVRun3b"},
+            {"Recomb2",        "CVRun3b"},
+            {"WireModX",       "CVRun3b"},
+            {"WireModYZ",      "CVRun3b"},
+            {"WireModThetaXZ", "CVRun3b"},
+            {"WireModThetaYZ", "CVRun3b"},
+        }; ///< A mapping from the detector variation sample identifiers, to the identifiers for their relevant central-value sample
+
+        /**
+        *  @brief  A mapping from a user-defined parameter name, to corresponding set of mutually exclusive parameter names and the number of universes
+        *
+        *          A set of parameters is mutually exclusive if for any given universe at most one parameter has a weight that's not equal
+        *          to one. In this case, the set of parameters can be "combined" into one parameter (with the user-defined name). The value
+        *          of the combined parameter is taken from whichever parameter in the set has been varied(or equivalently just the product
+        *          of the weights in the input parameter set).
+        *
+        *          For example, the flux hadron production channel can be any one of kminus, kplus, kzero, piminus, piplus, but never more
+        *          than one channel at once. As a result, a given event will have a (possibly) non-unit weight for the relevant channel, and
+        *          a weight of one for all other channels. In this sense, there is a "correlation" between the weights for each channel.
+        *          Instead of applying each channel as a separate systematic parameter, we apply their product as a combined parameter which
+        *          accounts for their "correlations"
+        */
+        CrossSectionHelper::SystMutuallyExclusiveDimensionsMap mutuallyExclusiveDimensions = {
             {
-                {"fluxHadronProduction", 1000u,
+                "hadronProduction",
+                {
                     {
                         "kminus_PrimaryHadronNormalization",
                         "kplus_PrimaryHadronFeynmanScaling",
                         "kzero_PrimaryHadronSanfordWang",
                         "piminus_PrimaryHadronSWCentralSplineVariation",
                         "piplus_PrimaryHadronSWCentralSplineVariation"
-                    }
+                    }, 1000u
                 }
             }
-        }; ///< The systematic parameters that should be applied together as a mutually exclusive set
-
-        std::vector<std::string> fluxParams = {
-            "expskin_FluxUnisim",
-            "horncurrent_FluxUnisim",
-            "nucleoninexsec_FluxUnisim",
-            "nucleonqexsec_FluxUnisim",
-            "nucleontotxsec_FluxUnisim",
-            "pioninexsec_FluxUnisim",
-            "pionqexsec_FluxUnisim",
-            "piontotxsec_FluxUnisim",
-            "fluxHadronProduction"
-        }; ///< The parameters that modify the overall flux
-
-        std::vector<std::string> genieParams = {
-            "All_Genie"
-        }; ///< The GENIE parameters, these will be scaled down by genieTuneEventWeight - see the ExtractXSecs macro for more details
+        };
 
     };
     ExtractXSecs extractXSecs; ///< The configuration options for the ExtractXSecs macro

@@ -162,25 +162,11 @@ namespace ubcc1pi_macros
     void MakeBinningPlots(const Config &config = Config());
 
     /**
-     *  @brief  Plot the systematic weights
-     *
-     *  @param  config the input configuration
-     */
-    void PlotSystematicWeights(const Config &config = Config());
-
-    /**
      *  @brief  Extract the cross-sections
      *
      *  @param  config the input configuration
      */
     void ExtractXSecs(const Config &config = Config());
-
-    /**
-     *  @brief  Extract the cross-sections
-     *
-     *  @param  config the input configuration
-     */
-    void ExtractXSecsNew(const Config &config = Config());
 
     /**
      *  @brief  Top-level macro that runs the full analysis chain

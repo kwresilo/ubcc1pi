@@ -38,7 +38,6 @@
         "Helpers/SelectionHelper.cxx",
         "Helpers/NormalisationHelper.cxx",
         "Helpers/CrossSectionHelper.cxx",
-        "Helpers/CrossSectionHelperNew.cxx",
 
         // Macros
         "Macros/PrintConfig.cxx",
@@ -62,9 +61,7 @@
         "Macros/PlotMuonRecoVariables.cxx",
         "Macros/PlotReconstructedVariables.cxx",
         "Macros/MakeBinningPlots.cxx",
-        "Macros/PlotSystematicWeights.cxx",
         "Macros/ExtractXSecs.cxx",
-        "Macros/ExtractXSecsNew.cxx",
 
         "Macros/RunFullAnalysis.cxx"
     }))
