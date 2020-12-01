@@ -24,16 +24,63 @@ void ExtractXSecsNew(const Config &config)
     std::vector< std::tuple<AnalysisHelper::SampleType, std::string, float> > inputData;
     inputData.emplace_back(AnalysisHelper::Overlay, config.files.overlaysFileName, NormalisationHelper::GetOverlaysNormalisation(config));
 
-    // TODO make this configurable
-    CrossSectionHelperNew::SystDimensionsMap fluxDimensions = {
-        {"expskin_FluxUnisim", 1000u},
-        {"horncurrent_FluxUnisim", 1000u},
+
+    // TODO make these configurable
+    // Setup an object that holds the details of the systematic parameters to apply
+    CrossSectionHelperNew::CrossSection::SystParams systParams;
+
+    // The number of "bootstrap" universes, used to find the MC statistical uncertainty
+    systParams.nBootstrapUniverses = 1000u;
+
+    // The flux parameters
+    systParams.fluxDimensions = {
+        {"hadronProduction",          1000u},
+        {"expskin_FluxUnisim",        1000u},
+        {"horncurrent_FluxUnisim",    1000u},
         {"nucleoninexsec_FluxUnisim", 1000u},
-        {"nucleonqexsec_FluxUnisim", 1000u},
+        {"nucleonqexsec_FluxUnisim",  1000u},
         {"nucleontotxsec_FluxUnisim", 1000u},
-        {"pioninexsec_FluxUnisim", 1000u},
-        {"pionqexsec_FluxUnisim", 1000u},
-        {"piontotxsec_FluxUnisim", 1000u}
+        {"pioninexsec_FluxUnisim",    1000u},
+        {"pionqexsec_FluxUnisim",     1000u},
+        {"piontotxsec_FluxUnisim",    1000u}
+    };
+
+    // The cross-section parameters
+    systParams.xsecDimensions = {
+        {"All_Genie",             100u},
+        {"AxFFCCQEshape_Genie",   2u},
+        {"DecayAngMEC_Genie",     2u},
+        {"MaNCRES_Genie",         2u},
+        {"Theta_Delta2Npi_Genie", 2u},
+        {"VecFFCCQEshape_Genie",  2u}
+    };
+
+    // The detector variation parameters
+    systParams.detVarDimensions = {
+        {"LYDown",         "CVRun1"},
+        {"LYRayleigh",     "CVRun1"},
+        {"SCE",            "CVRun3b"},
+        {"Recomb2",        "CVRun3b"},
+        {"WireModX",       "CVRun3b"},
+        {"WireModYZ",      "CVRun3b"},
+        {"WireModThetaXZ", "CVRun3b"},
+        {"WireModThetaYZ", "CVRun3b"},
+    };
+
+    // Defined the dimensions of any mutually exclusive parameters
+    CrossSectionHelperNew::SystMutuallyExclusiveDimensionsMap mutuallyExclusiveDimensions = {
+        {
+            "hadronProduction",
+            {
+                {
+                    "kminus_PrimaryHadronNormalization",
+                    "kplus_PrimaryHadronFeynmanScaling",
+                    "kzero_PrimaryHadronSanfordWang",
+                    "piminus_PrimaryHadronSWCentralSplineVariation",
+                    "piplus_PrimaryHadronSWCentralSplineVariation"
+                }, 1000u
+            }
+        }
     };
 
     // Setup the flux reweightor

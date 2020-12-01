@@ -427,10 +427,18 @@ ubsmear::UBMatrix CrossSectionHelperNew::CrossSection::GetPredictedCrossSection(
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
 
+std::shared_ptr<ubsmear::UBMatrix> CrossSectionHelperNew::CrossSection::GetSmearingMatrixNominal() const
+{
+    // Get the smearing matrix in the nominal universe
+    return this->GetSmearingMatrix(m_pSignal_true_nom, m_pSignal_selected_recoTrue_nom);
+}
+
+// -----------------------------------------------------------------------------------------------------------------------------------------
+
 ubsmear::UBMatrix CrossSectionHelperNew::CrossSection::GetSmearingMatrix() const
 {
     // Get the smearing matrix in the nominal universe
-    const auto pSmearingMatrix = this->GetSmearingMatrix(m_pSignal_true_nom, m_pSignal_selected_recoTrue_nom);
+    const auto pSmearingMatrix = this->GetSmearingMatrixNominal();
 
     // Check we were able to find the smearing matrix
     if (!pSmearingMatrix)
@@ -487,6 +495,7 @@ CrossSectionHelperNew::SystBiasCovarianceMap CrossSectionHelperNew::CrossSection
     // Add the unisim parameters
     // ATTN again the use of m_signal_true_unisims is arbitrary, we could use any unisims map
     for (const auto &[group, map] : m_signal_true_unisims)
+    
     {
         // ATTN for now we only have detector parameters that are unisims, if others are added later then we would need to add a clause here
         // to get the relevent dimensions.
@@ -505,6 +514,81 @@ CrossSectionHelperNew::SystBiasCovarianceMap CrossSectionHelperNew::CrossSection
     }
 
     return outputMap;
+}
+
+// -----------------------------------------------------------------------------------------------------------------------------------------
+
+CrossSectionHelperNew::SystBiasCovarianceMap CrossSectionHelperNew::CrossSection::GetSmearingMatrixSystUncertainties() const
+{
+    // Setup the output map
+    SystBiasCovarianceMap outputMap;
+
+    // Add the multisim parameters
+    // ATTN the use of m_signal_true_multisims is arbitrary, we could use any multisims map
+    for (const auto &[group, map] : m_signal_true_multisims)
+    {
+        for (const auto &entry : map)
+        {
+            const auto &paramName = entry.first;
+            outputMap[group].emplace(paramName, this->GetSmearingMatrixDistributionParams(group, paramName));
+        }
+    }
+
+    // Add the unisim parameters
+    // ATTN again the use of m_signal_true_unisims is arbitrary, we could use any unisims map
+    for (const auto &[group, map] : m_signal_true_unisims)
+    {
+        // ATTN for now we only have detector parameters that are unisims, if others are added later then we would need to add a clause here
+        // to get the relevent dimensions.
+        if (group != "detector")
+            throw std::logic_error("CrossSection::GetSmearingMatrixSystUncertainties - Don't know dimensions of group: \"" + group + "\"");
+
+        const auto dimensions = m_systParams.detVarDimensions;
+
+        for (const auto &entry : map)
+        {
+            const auto &paramName = entry.first;
+            const auto &cvName = dimensions.at(paramName);
+
+            outputMap[group].emplace(paramName, this->GetSmearingMatrixDistributionParamsUnisim(group, paramName, cvName));
+        }
+    }
+
+    return outputMap;
+}
+
+// -----------------------------------------------------------------------------------------------------------------------------------------
+
+CrossSectionHelperNew::SystBiasCovariancePair CrossSectionHelperNew::CrossSection::GetPredictedCrossSectionStatUncertainty(const ScalingData &scalingData) const
+{
+    // Get the number of universes for this systematic parameter
+    // ATTN this choice of m_signal_true_multisims here is arbitrary, any of the mutlisims maps would do
+    const auto nUniverses = m_systParams.nBootstrapUniverses;
+
+    // Get the nominal cross-section
+    const auto pXSecNom = std::make_shared<ubsmear::UBMatrix>(this->GetPredictedCrossSection(scalingData));
+
+    // Get the number of backgrounds is zero as we are effectively applying a "perfect" selection
+    const auto zeroVector = ubsmear::UBMatrixHelper::GetZeroMatrix(pXSecNom->GetRows(), 1);
+
+    // Get the integrated flux in the nominal universe
+    const auto integratedFlux = scalingData.fluxReweightor->GetIntegratedNominalFlux();
+
+    // The bootstrap universes
+    const auto universes = m_signal_true_multisims.at("misc").at("bootstrap");
+
+    // Get the distirbution parameters
+    return this->GetDistributionParams([&](const unsigned int &iUni)
+    {
+        // This is the function we call to get the value in each universe
+
+        // Get the number of signal events in the nominal simulation in true bins
+        const auto signal = CrossSectionHelperNew::GetMatrixFromHist(universes.at(iUni));
+
+        // Get the cross-section
+        return std::make_shared<ubsmear::UBMatrix> ( this->GetCrossSection(signal, zeroVector, integratedFlux, scalingData.exposurePOT, scalingData.nTargets) );
+
+    }, nUniverses, pXSecNom);
 }
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
@@ -557,42 +641,51 @@ ubsmear::UBMatrix CrossSectionHelperNew::CrossSection::GetBNBDataCrossSectionFor
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
 
-CrossSectionHelperNew::SystBiasCovariancePair CrossSectionHelperNew::CrossSection::GetBNBDataCrossSectionDistributionParams(const std::string &group, const std::string &paramName, const ScalingData &scalingData) const
+CrossSectionHelperNew::SystBiasCovariancePair CrossSectionHelperNew::CrossSection::GetDistributionParams(const std::function<std::shared_ptr<ubsmear::UBMatrix>(const unsigned int)> &func, const unsigned int nUniverses, const std::shared_ptr<ubsmear::UBMatrix> &pNominal) const
 {
-    // Get the number of universes for this systematic parameter
-    // ATTN this choice of m_signal_true_multisims here is arbitrary, any of the mutlisims maps would do
-    const auto nUniverses = m_signal_true_multisims.at(group).at(paramName).size();
-
     if (nUniverses == 0)
-        throw std::logic_error("CrossSection::GetBNBDataCrossSectionDisribution - Parameter: \"" + paramName + "\" has no universes!");
+        throw std::logic_error("CrossSection::GetDisributionParams - No universes supplied");
 
-    // Get the nominal cross-section
-    const auto xSecNom = this->GetBNBDataCrossSection(scalingData);
-    const auto nBins = xSecNom.GetRows();
+    // Insist the nominal input is a column vector
+    if (pNominal->GetColumns() != 1)
+        throw std::logic_error("CrossSection::GetDisributionParams - Input nominal is not a column vector");
+
+    // Get the number of bins
+    const auto nBins = pNominal->GetRows();
 
     // Setup some empty matrices to hold the mean vector and error matrices
     auto meanSum = ubsmear::UBMatrixHelper::GetZeroMatrix(nBins, 1);
     auto errorMatrixSum = ubsmear::UBMatrixHelper::GetZeroMatrix(nBins, nBins);
 
     // Loop over the universes
+    unsigned int nValidUniverses = 0u;
     for (unsigned int iUni = 0; iUni < nUniverses; ++iUni)
     {
-        // Get the cross-section in this universe
-        const auto xSec = this->GetBNBDataCrossSectionInUniverse(group, paramName, iUni, scalingData);
+        // Get the value in this universe
+        const auto pUniverse = func(iUni);
+
+        // Insist that we get a valid quanitiy in this universes
+        if (!pUniverse)
+            continue;
+
+        // Count the number of valid universes
+        nValidUniverses++;
 
         // Loop over the bins
+        // ATTN for speed we don't expcitly check here if the universe has the same number of bins as the nominal. Instead we rely on the
+        // internal range checking of the ubsmear::UBMatrix class
         for (unsigned int iBin = 0; iBin < nBins; ++iBin)
         {
             // Add up the cross-sections
-            meanSum.SetElement(iBin, 0, meanSum.At(iBin, 0) + xSec.At(iBin, 0));
+            meanSum.SetElement(iBin, 0, meanSum.At(iBin, 0) + pUniverse->At(iBin, 0));
 
             // Loop over the bins again
-            // ATTN the matrix is symmetic so here we only set one half of the off-diagonals within the universe loop and then copy them
-            // over to the other half afterwards. This is done for performance reasons as it halves the number of inserts
-            const auto diffI = xSec.At(iBin, 0) - xSecNom.At(iBin, 0);
+            // ATTN the error matrix is symmetic so here we only set one half of the off-diagonals within the universe loop and then copy
+            // them over to the other half afterwards. This is done for performance reasons as it halves the number of inserts required
+            const auto diffI = pUniverse->At(iBin, 0) - pNominal->At(iBin, 0);
             for (unsigned int jBin = 0; jBin <= iBin; ++jBin)
             {
-                const auto diffJ = xSec.At(jBin, 0) - xSecNom.At(jBin, 0);
+                const auto diffJ = pUniverse->At(jBin, 0) - pNominal->At(jBin, 0);
 
                 // Add up the error matrix elements
                 errorMatrixSum.SetElement(iBin, jBin, errorMatrixSum.At(iBin, jBin) + diffI*diffJ);
@@ -601,12 +694,15 @@ CrossSectionHelperNew::SystBiasCovariancePair CrossSectionHelperNew::CrossSectio
     }
 
     // Scale the sums by the number of universes
-    const auto scaleFactor = 1.f / static_cast<float>(nUniverses);
+    if (nValidUniverses == 0)
+        throw std::logic_error("CrossSection::GetDisributionParams - Desired quantity was invalid in all universes");
+
+    const auto scaleFactor = 1.f / static_cast<float>(nValidUniverses);
     const auto mean = meanSum * scaleFactor;
     const auto errorMatrix = errorMatrixSum * scaleFactor;
 
     // Get the bias vector
-    const auto pBias = std::make_shared<ubsmear::UBMatrix>(mean - xSecNom);
+    const auto pBias = std::make_shared<ubsmear::UBMatrix>(mean - *pNominal);
 
     // Get the covariance matrix
     auto pCovarianceMatrix = std::make_shared<ubsmear::UBMatrix>(ubsmear::UBMatrixHelper::GetZeroMatrix(nBins, nBins));
@@ -632,31 +728,76 @@ CrossSectionHelperNew::SystBiasCovariancePair CrossSectionHelperNew::CrossSectio
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
 
-CrossSectionHelperNew::SystBiasCovariancePair CrossSectionHelperNew::CrossSection::GetBNBDataCrossSectionDistributionParamsUnisim(const std::string &group, const std::string &paramName, const std::string &cvName, const ScalingData &scalingData) const
+CrossSectionHelperNew::SystBiasCovariancePair CrossSectionHelperNew::CrossSection::GetDistributionParamsUnisim(const std::shared_ptr<ubsmear::UBMatrix> &pVaried, const std::shared_ptr<ubsmear::UBMatrix> &pCentralValue, const std::shared_ptr<ubsmear::UBMatrix> &pNominal) const
 {
-    // Get the cross-section using the unisim sample, in the central value sample and in the nominal universe
-    const auto xSec = this->GetBNBDataCrossSectionForUnisim(group, paramName, scalingData);
-    const auto xSecCV = this->GetBNBDataCrossSectionForUnisim(group, cvName, scalingData);
-    const auto xSecNom = this->GetBNBDataCrossSection(scalingData);
+    // Check the input matrices are valid
+    if (!pVaried || !pCentralValue || !pNominal)
+        throw std::invalid_argument("CrossSection::GetDistributionParamsUnisim - One or more of the inputs are not valid");
+
+    // Check ths input matrices have the desired dimensions
+    if (pVaried->GetColumns() != 1 || pCentralValue->GetColumns() != 1 || pNominal->GetColumns() != 1)
+        throw std::invalid_argument("CrossSection::GetDistributionParamsUnisim - One or more of the inputs are not a column vector");
+
+    const auto nBins = pVaried->GetRows();
+    if (pCentralValue->GetRows() != nBins || pNominal->GetRows() != nBins)
+        throw std::invalid_argument("CrossSection::GetDistributionParamsUnisim - Input column vectors have different sizes");
 
     // Get the fractional bias of the cross-section away from the central value
     const auto fracBias = ubsmear::ElementWiseOperation(
-        (xSec - xSecCV), xSecCV,
-        [](const float numerator, const float denominator) { return numerator / denominator; }
+        (*pVaried - *pCentralValue), *pCentralValue,
+        [](const float numerator, const float denominator)
+        {
+            if (std::abs(denominator) <= std::numeric_limits<float>::epsilon())
+                throw std::logic_error("CrossSection::GetDistributionParamsUnisim - Input nominal cross-section has a zero bin");
+
+            return numerator / denominator;
+        }
     );
 
     // Apply the fractional bias to the nominal cross-section
     const auto bias = ubsmear::ElementWiseOperation(
-        fracBias, xSecNom,
+        fracBias, *pNominal,
         [](const float lhs, const float rhs) { return lhs * rhs; }
     );
 
     // Return the result (use a zero matrix for the covariance)
-    const auto nBins = bias.GetRows();
     return {
         std::make_shared<ubsmear::UBMatrix>(bias),
         std::make_shared<ubsmear::UBMatrix>(ubsmear::UBMatrixHelper::GetZeroMatrix(nBins, nBins))
     };
+}
+
+// -----------------------------------------------------------------------------------------------------------------------------------------
+
+CrossSectionHelperNew::SystBiasCovariancePair CrossSectionHelperNew::CrossSection::GetBNBDataCrossSectionDistributionParams(const std::string &group, const std::string &paramName, const ScalingData &scalingData) const
+{
+    // Get the number of universes for this systematic parameter
+    // ATTN this choice of m_signal_true_multisims here is arbitrary, any of the mutlisims maps would do
+    const auto nUniverses = m_signal_true_multisims.at(group).at(paramName).size();
+
+    // Get the nominal cross-section
+    const auto pXSecNom = std::make_shared<ubsmear::UBMatrix>(this->GetBNBDataCrossSection(scalingData));
+
+    // Get the distirbution parameters
+    return this->GetDistributionParams([&](const unsigned int &iUni)
+    {
+        // This is the function we call to get the value in each universe
+        return std::make_shared<ubsmear::UBMatrix>( this->GetBNBDataCrossSectionInUniverse(group, paramName, iUni, scalingData) );
+
+    }, nUniverses, pXSecNom);
+}
+
+// -----------------------------------------------------------------------------------------------------------------------------------------
+
+CrossSectionHelperNew::SystBiasCovariancePair CrossSectionHelperNew::CrossSection::GetBNBDataCrossSectionDistributionParamsUnisim(const std::string &group, const std::string &paramName, const std::string &cvName, const ScalingData &scalingData) const
+{
+    // Get the cross-section using the unisim sample, in the central value sample and in the nominal universe
+    const auto pXSec = std::make_shared<ubsmear::UBMatrix>( this->GetBNBDataCrossSectionForUnisim(group, paramName, scalingData) );
+    const auto pXSecCV = std::make_shared<ubsmear::UBMatrix>( this->GetBNBDataCrossSectionForUnisim(group, cvName, scalingData) );
+    const auto pXSecNom = std::make_shared<ubsmear::UBMatrix>( this->GetBNBDataCrossSection(scalingData) );
+
+    // Get the parameters
+    return this->GetDistributionParamsUnisim(pXSec, pXSecCV, pXSecNom);
 }
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
@@ -671,6 +812,41 @@ std::shared_ptr<ubsmear::UBMatrix> CrossSectionHelperNew::CrossSection::GetSmear
 std::shared_ptr<ubsmear::UBMatrix> CrossSectionHelperNew::CrossSection::GetSmearingMatrixForUnisim(const std::string &group, const std::string &paramName) const
 {
     return this->GetSmearingMatrix(m_signal_true_unisims.at(group).at(paramName), m_signal_selected_recoTrue_unisims.at(group).at(paramName));
+}
+
+// -----------------------------------------------------------------------------------------------------------------------------------------
+
+CrossSectionHelperNew::SystBiasCovariancePair CrossSectionHelperNew::CrossSection::GetSmearingMatrixDistributionParams(const std::string &group, const std::string &paramName) const
+{
+    // Get the number of universes for this systematic parameter
+    // ATTN this choice of m_signal_true_multisims here is arbitrary, any of the mutlisims maps would do
+    const auto nUniverses = m_signal_true_multisims.at(group).at(paramName).size();
+
+    // Get the nominal smearing matrix
+    const auto pSmearingNom = CrossSectionHelperNew::FlattenMatrix(this->GetSmearingMatrixNominal());
+    if (!pSmearingNom)
+        throw std::logic_error("CrossSection::GetSmearingMatrixDistributionParams - The nominal smearing matrix can't be calculated");
+
+    // Get the distirbution parameters
+    return this->GetDistributionParams([&](const unsigned int &iUni)
+    {
+        // This is the function we call to get the value in each universe
+        return CrossSectionHelperNew::FlattenMatrix(this->GetSmearingMatrixInUniverse(group, paramName, iUni));
+
+    }, nUniverses, pSmearingNom);
+}
+
+// -----------------------------------------------------------------------------------------------------------------------------------------
+
+CrossSectionHelperNew::SystBiasCovariancePair CrossSectionHelperNew::CrossSection::GetSmearingMatrixDistributionParamsUnisim(const std::string &group, const std::string &paramName, const std::string &cvName) const
+{
+    // Get the smearing matrix using the unisim sample, in the central value sample and in the nominal universe
+    const auto pSmearing = CrossSectionHelperNew::FlattenMatrix(this->GetSmearingMatrixForUnisim(group, paramName));
+    const auto pSmearingCV = CrossSectionHelperNew::FlattenMatrix(this->GetSmearingMatrixForUnisim(group, cvName));
+    const auto pSmearingNom = CrossSectionHelperNew::FlattenMatrix(this->GetSmearingMatrixNominal());
+
+    // Get the parameters
+    return this->GetDistributionParamsUnisim(pSmearing, pSmearingCV, pSmearingNom);
 }
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
@@ -1039,6 +1215,16 @@ ubsmear::UBMatrix CrossSectionHelperNew::GetMatrixFromHist(const std::shared_ptr
     }
 
     return ubsmear::UBMatrix(elements);
+}
+
+// -----------------------------------------------------------------------------------------------------------------------------------------
+
+std::shared_ptr<ubsmear::UBMatrix> CrossSectionHelperNew::FlattenMatrix(const std::shared_ptr<ubsmear::UBMatrix> &pMatrix)
+{
+    if (!pMatrix)
+        throw std::invalid_argument("CrossSectionHelperNew::FlattenMatrix - Input matrix pointer is null");
+
+    return std::make_shared<ubsmear::UBMatrix>(ubsmear::UBSmearingHelper::Flatten(*pMatrix));
 }
 
 } // namespace ubcc1pi
