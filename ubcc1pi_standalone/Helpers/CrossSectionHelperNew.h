@@ -407,9 +407,21 @@ class CrossSectionHelperNew
                 */
                 SystBiasCovarianceMap GetBNBDataCrossSectionSystUncertainties(const ScalingData &scalingData) const;
 
-                // TODO Add functinality to get
-                //   - Bias/Covariance matrix for smearing matrix
-                //   - Covariance matrix for the prediction (taking into account the MC stat uncertainty only)
+                /**
+                *  @brief  Get the systematic uncertainties on the smearing matrix
+                *
+                *  @return the bias vectors and covariance matricies the flattened smearing matrix for each systematic parameter
+                */
+                SystBiasCovarianceMap GetSmearingMatrixSystUncertainties() const;
+
+                /**
+                *  @brief  Get the statistical uncertainty due to limited MC statistics on the predicted cross-section
+                *
+                *  @param  scalingData the information about how we should scale the event rate to get the cross-section
+                *
+                *  @return the bias vector and covariance matrix for the MC stat uncertainty
+                */
+                SystBiasCovariancePair GetPredictedCrossSectionStatUncertainty(const ScalingData &scalingData) const;
 
             private:
 
@@ -506,6 +518,58 @@ class CrossSectionHelperNew
                 *  @return a shared pointer to the smearing matrix or a nullptr if the smearing matrix is incalculable
                 */
                 std::shared_ptr<ubsmear::UBMatrix> GetSmearingMatrixForUnisim(const std::string &group, const std::string &paramName) const;
+
+                /**
+                *  @brief  Get the smearing matrix in the nominal universe
+                *          This is the matrix that transforms a distribution in truth-space to one in reco-space, and includes the
+                *          efficiency of the selection
+                *
+                *  @return smearing matrix
+                */
+                std::shared_ptr<ubsmear::UBMatrix> GetSmearingMatrixNominal() const;
+
+                /**
+                *  @brief  Get the distribution parameters (bias vector and covariance matrix) of the smearing matrix variations for a given multisim parameter
+                *
+                *  @param  group the group of parameters (e.g. flux, xsec, misc)
+                *  @param  paramName the systematic parameter name
+                *
+                *  @return the distribution parameters
+                */
+                SystBiasCovariancePair GetSmearingMatrixDistributionParams(const std::string &group, const std::string &paramName) const;
+
+                /**
+                *  @brief  Get the distribution parameters (bias vector and covariance matrix) of the smearing matrix variations for a given unisim parameter
+                *
+                *  @param  group the group of unisims (e.g. detector)
+                *  @param  paramName the name of the unisim parameter
+                *  @param  cvName the name of the central-value sample
+                *
+                *  @return the distribution parameters
+                */
+                SystBiasCovariancePair GetSmearingMatrixDistributionParamsUnisim(const std::string &group, const std::string &paramName, const std::string &cvName) const;
+
+                /**
+                *  @brief  Get the distribution parameters (bias vector and covariance matrix) that describes the distribution of multisim universes
+                *
+                *  @param  func the function that returns the value of the desired quantity in a given universe (the parameter is the universe index)
+                *  @param  nUniverses the number of universes
+                *  @param  pNominal the nominal value of the desired quantity
+                *
+                *  @return the distribution parameters
+                */
+                SystBiasCovariancePair GetDistributionParams(const std::function<std::shared_ptr<ubsmear::UBMatrix>(const unsigned int)> &func, const unsigned int nUniverses, const std::shared_ptr<ubsmear::UBMatrix> &pNominal) const;
+
+                /**
+                *  @brief  Get the distribution parameters (bias vector and covariance matrix) that describes a unisim variation
+                *
+                *  @param  pVaried the value of the desired quantity under a unisim variation
+                *  @param  pCentralValue the value of the desired quantity in the corresponding central-value sample
+                *  @param  pNominal the value of the desired quanitity in the nominal universe
+                *
+                *  @return the distribuion parameters
+                */
+                SystBiasCovariancePair GetDistributionParamsUnisim(const std::shared_ptr<ubsmear::UBMatrix> &pVaried, const std::shared_ptr<ubsmear::UBMatrix> &pCentralValue, const std::shared_ptr<ubsmear::UBMatrix> &pNominal) const;
 
                 /**
                 *  @brief  Flatten an input 2D histogram in reco-truth space, by integrating the reco-indices
@@ -702,6 +766,15 @@ class CrossSectionHelperNew
         *  @return the matrix
         */
         static ubsmear::UBMatrix GetMatrixFromHist(const std::shared_ptr<TH2F> &pHist);
+
+        /**
+        *  @brief  Flatten an input (N x N) matrix into and (N^2 x 1) column vector
+        *
+        *  @param  pMatrix the input matrix
+        *
+        *  @return the flattened matrix
+        */
+        static std::shared_ptr<ubsmear::UBMatrix> FlattenMatrix(const std::shared_ptr<ubsmear::UBMatrix> &pMatrix);
 
     private:
 
