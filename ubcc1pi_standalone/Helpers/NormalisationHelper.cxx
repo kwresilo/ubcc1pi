@@ -41,19 +41,17 @@ float NormalisationHelper::GetDataEXTNormalisation(const Config &config)
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
 
-float NormalisationHelper::GetDetectorVariationNormalisation(const Config &config, const std::string &runId, const std::string &paramName)
+float NormalisationHelper::GetDetectorVariationNormalisation(const Config &config, const std::string &paramName)
 {
-    const auto iter = std::find_if(config.norms.detVarPOTs.begin(), config.norms.detVarPOTs.end(), [&](const auto &x) {
-        return std::get<0>(x) == runId && std::get<1>(x) == paramName;
-    });
-
+    // Check we have an entry for this param name
+    const auto iter = config.norms.detVarPOTs.find(paramName);
     if (iter == config.norms.detVarPOTs.end())
-        throw std::invalid_argument("NormalisationHelper::GetDetectorVariationNormalisation - Unknown paramter: " + paramName + " for run: " + runId);
+        throw std::invalid_argument("NormalisationHelper::GetDetectorVariationNormalisation - Unknown paramter: " + paramName);
 
-    // Get the POT from the tuple
-    const auto pot = std::get<2>(*iter);
+    // Get the POT from the map
+    const auto pot = iter->second;
     if (pot <= std::numeric_limits<float>::epsilon())
-        throw std::invalid_argument("NormalisationHelper::GetDetectorVariationNormalisation - POT is invalid for detector parameter: " + paramName + " in run: " + runId);
+        throw std::invalid_argument("NormalisationHelper::GetDetectorVariationNormalisation - POT is invalid for detector parameter: " + paramName);
 
     return config.norms.dataBNBTor875WCut / pot;
 }

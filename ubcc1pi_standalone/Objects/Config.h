@@ -45,17 +45,20 @@ struct Config
          *          available for run 1. Instead we use run3b, for which the varaitions are available. In every case the variation is
          *          considered wrt to the relevant "CV" file, and the fractional difference is quantity we care about.
          */
-        std::vector< std::tuple<std::string, std::string, std::string> > detVarFiles = {
-            {"run1",  "CV",            "/uboone/data/users/asmith/ubcc1pi/samples/oct2020/samples/ubcc1piAnalysis_overlays_DetVar_CV_run1.root"},
-            {"run1",  "LYDown",        "/uboone/data/users/asmith/ubcc1pi/samples/oct2020/samples/ubcc1piAnalysis_overlays_DetVar_LYDown_run1.root"},
-            {"run1",  "LYRayleigh",    "/uboone/data/users/asmith/ubcc1pi/samples/oct2020/samples/ubcc1piAnalysis_overlays_DetVar_LYRayleigh_run1.root"},
-            {"run3b", "CV",            "/uboone/data/users/asmith/ubcc1pi/samples/oct2020/samples/ubcc1piAnalysis_overlays_DetVar_CV_run3b.root"},
-            {"run3b", "SCE",           "/uboone/data/users/asmith/ubcc1pi/samples/oct2020/samples/ubcc1piAnalysis_overlays_DetVar_SCE_run3b.root"},
-            {"run3b", "Recomb2",       "/uboone/data/users/asmith/ubcc1pi/samples/oct2020/samples/ubcc1piAnalysis_overlays_DetVar_Recomb2_run3b.root"},
-            {"run3b", "WireModX",       "/uboone/data/users/asmith/ubcc1pi/samples/oct2020/samples/ubcc1piAnalysis_overlays_DetVar_WireModX_run3b.root"},
-            {"run3b", "WireModYZ",       "/uboone/data/users/asmith/ubcc1pi/samples/oct2020/samples/ubcc1piAnalysis_overlays_DetVar_WireModYZ_run3b.root"},
-            {"run3b", "WireModThetaXZ",       "/uboone/data/users/asmith/ubcc1pi/samples/oct2020/samples/ubcc1piAnalysis_overlays_DetVar_WireModThetaXZ_run3b.root"},
-            {"run3b", "WireModThetaYZ",       "/uboone/data/users/asmith/ubcc1pi/samples/oct2020/samples/ubcc1piAnalysis_overlays_DetVar_WireModThetaYZ_run3b.root"}
+        std::vector< std::pair<std::string, std::string> > detVarFiles = {
+            // Run-1 files
+            {"CVRun1",         "/uboone/data/users/asmith/ubcc1pi/samples/oct2020/samples/ubcc1piAnalysis_overlays_DetVar_CV_run1.root"},
+            {"LYDown",         "/uboone/data/users/asmith/ubcc1pi/samples/oct2020/samples/ubcc1piAnalysis_overlays_DetVar_LYDown_run1.root"},
+            {"LYRayleigh",     "/uboone/data/users/asmith/ubcc1pi/samples/oct2020/samples/ubcc1piAnalysis_overlays_DetVar_LYRayleigh_run1.root"},
+
+            // Run-3b files
+            {"CVRun3b",        "/uboone/data/users/asmith/ubcc1pi/samples/oct2020/samples/ubcc1piAnalysis_overlays_DetVar_CV_run3b.root"},
+            {"SCE",            "/uboone/data/users/asmith/ubcc1pi/samples/oct2020/samples/ubcc1piAnalysis_overlays_DetVar_SCE_run3b.root"},
+            {"Recomb2",        "/uboone/data/users/asmith/ubcc1pi/samples/oct2020/samples/ubcc1piAnalysis_overlays_DetVar_Recomb2_run3b.root"},
+            {"WireModX",       "/uboone/data/users/asmith/ubcc1pi/samples/oct2020/samples/ubcc1piAnalysis_overlays_DetVar_WireModX_run3b.root"},
+            {"WireModYZ",      "/uboone/data/users/asmith/ubcc1pi/samples/oct2020/samples/ubcc1piAnalysis_overlays_DetVar_WireModYZ_run3b.root"},
+            {"WireModThetaXZ", "/uboone/data/users/asmith/ubcc1pi/samples/oct2020/samples/ubcc1piAnalysis_overlays_DetVar_WireModThetaXZ_run3b.root"},
+            {"WireModThetaYZ", "/uboone/data/users/asmith/ubcc1pi/samples/oct2020/samples/ubcc1piAnalysis_overlays_DetVar_WireModThetaYZ_run3b.root"}
         };
     };
     Files files; ///< The input files
@@ -79,19 +82,19 @@ struct Config
         float  dataBNBE1DCNTWCut  = 32339256.0;    ///< The BNB spills sent by the accelerator division (with quality cuts)
 
         /**
-         *  @brief  The detector variation POTs - First parameter is the run, second is the variation name, third is the number of POT
+         *  @brief  The detector variation POTs
          */
-        std::vector< std::tuple<std::string, std::string, float> > detVarPOTs = {
-            {"run1", "CV", 1.14339e+20},
-            {"run1", "LYDown", 1.05031e+20},
-            {"run1", "LYRayleigh", 1.06661e+20},
-            {"run3b", "CV", 9.82298e+19},
-            {"run3b", "SCE", 1.02517e+20},
-            {"run3b", "Recomb2", 1.00832e+20},
-            {"run3b", "WireModX", 1.09739e+20},
-            {"run3b", "WireModYZ", 1.10877e+20},
-            {"run3b", "WireModThetaXZ", 1.12906e+20},
-            {"run3b", "WireModThetaYZ", 1.09244e+20},
+        std::unordered_map<std::string, float> detVarPOTs = {
+            {"CVRun1",         1.14339e+20},
+            {"LYDown",         1.05031e+20},
+            {"LYRayleigh",     1.06661e+20},
+            {"CVRun3b",        9.82298e+19},
+            {"SCE",            1.02517e+20},
+            {"Recomb2",        1.00832e+20},
+            {"WireModX",       1.09739e+20},
+            {"WireModYZ",      1.10877e+20},
+            {"WireModThetaXZ", 1.12906e+20},
+            {"WireModThetaYZ", 1.09244e+20}
         };
     };
     Norms norms; ///< The sample normalisations
@@ -139,7 +142,7 @@ struct Config
         bool        countProtonsInclusively = true;               ///< If we should count protons inclusively (as Xp), or exclusively as (0p, 1p, 2p, ...)
         std::string lastCutGeneric          = "startNearVertex";  ///< The last cut of the generic selection (remaining cuts are part of the golden selection)
         float       protonMomentumThreshold = 0.3f;               ///< The minimum proton momentum to be counted [GeV]
-        float       targetDensity           = 8.44191f;           ///< The number of target nuclei per unit volume - units e23 / cm^3
+        float       targetDensity           = 8.44191f;           ///< The number of target nuclei per unit volume - units [10^23 nucleons / cm^3]
 
         /**
          *  @brief  The muonCosTheta plot limits structure
@@ -370,7 +373,7 @@ struct Config
         *          is set to true, then we scale the GENIE universe weights down by genieTuneEventWeight to put them on the same footing as
         *          all other parameters. If this option is false then the GENIE weights recieve no special treatment.
         */
-        bool scaleByXSecWeights = true;
+        bool scaleXSecWeights = true;
 
         unsigned int nBootstrapUniverses = 1000u; ///< The number of bootrap universes to generate for the MC stat uncertainty
 

@@ -204,6 +204,7 @@ void CrossSectionHelper::CrossSection::AddSignalEvent(const float recoValue, con
     if (!isSelected)
         return;
 
+    // ATTN the reco value is only used if the event is selected
     m_pSignal_selected_recoTrue_nom->Fill(recoValue, trueValue, nominalWeight);
     CrossSectionHelper::FillSystTH2FMap(recoValue, trueValue, nominalWeight, fluxWeights, m_signal_selected_recoTrue_multisims.at("flux"));
     CrossSectionHelper::FillSystTH2FMap(recoValue, trueValue, nominalWeight, xsecWeights, m_signal_selected_recoTrue_multisims.at("xsec"));
@@ -265,6 +266,13 @@ void CrossSectionHelper::CrossSection::AddSelectedBackgroundEventDetVar(const fl
 void CrossSectionHelper::CrossSection::AddSelectedBNBDataEvent(const float recoValue)
 {
     m_pBNBData_selected_reco->Fill(recoValue);
+}
+
+// -----------------------------------------------------------------------------------------------------------------------------------------
+
+ubsmear::UBXSecMeta CrossSectionHelper::CrossSection::GetMetadata() const
+{
+    return m_metadata;
 }
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
@@ -402,7 +410,7 @@ ubsmear::UBMatrix CrossSectionHelper::CrossSection::GetBNBDataCrossSection(const
     const auto backgrounds = CrossSectionHelper::GetMatrixFromHist(m_pBackground_selected_reco_nom);
 
     // Get the integrated flux in the nominal universe
-    const auto integratedFlux = scalingData.fluxReweightor->GetIntegratedNominalFlux();
+    const auto integratedFlux = scalingData.pFluxReweightor->GetIntegratedNominalFlux();
 
     // Get the cross-section
     return this->GetCrossSection(selected, backgrounds, integratedFlux, scalingData.exposurePOT, scalingData.nTargets);
@@ -419,7 +427,7 @@ ubsmear::UBMatrix CrossSectionHelper::CrossSection::GetPredictedCrossSection(con
     const auto zeroVector = ubsmear::UBMatrixHelper::GetZeroMatrix(signal.GetRows(), 1);
 
     // Get the integrated flux in the nominal universe
-    const auto integratedFlux = scalingData.fluxReweightor->GetIntegratedNominalFlux();
+    const auto integratedFlux = scalingData.pFluxReweightor->GetIntegratedNominalFlux();
 
     // Get the cross-section
     return this->GetCrossSection(signal, zeroVector, integratedFlux, scalingData.exposurePOT, scalingData.nTargets);
@@ -465,7 +473,7 @@ ubsmear::UBMatrix CrossSectionHelper::CrossSection::GetBNBDataCrossSectionStatUn
     const ubsmear::UBMatrix selectedUncertainty(elements, nBins, 1);
 
     // Get the integrated flux in the nominal universe
-    const auto integratedFlux = scalingData.fluxReweightor->GetIntegratedNominalFlux();
+    const auto integratedFlux = scalingData.pFluxReweightor->GetIntegratedNominalFlux();
 
     // Scale the uncertainty on the number of selected events by same factor as the cross-section.
     // ATTN to apply the scaling we reuse the GetCrossSection function but intead pass it the count uncertainties as "selected" a zero
@@ -572,7 +580,7 @@ CrossSectionHelper::SystBiasCovariancePair CrossSectionHelper::CrossSection::Get
     const auto zeroVector = ubsmear::UBMatrixHelper::GetZeroMatrix(pXSecNom->GetRows(), 1);
 
     // Get the integrated flux in the nominal universe
-    const auto integratedFlux = scalingData.fluxReweightor->GetIntegratedNominalFlux();
+    const auto integratedFlux = scalingData.pFluxReweightor->GetIntegratedNominalFlux();
 
     // The bootstrap universes
     const auto universes = m_signal_true_multisims.at("misc").at("bootstrap");
@@ -611,8 +619,8 @@ ubsmear::UBMatrix CrossSectionHelper::CrossSection::GetBNBDataCrossSectionInUniv
     // Get the integrated flux in the supplied universe (if it's not a flux parameter, then use the nominal universe)
     const auto integratedFlux = (
         group == "flux"
-            ? scalingData.fluxReweightor->GetIntegratedFluxVariation(paramName, universeIndex)
-            : scalingData.fluxReweightor->GetIntegratedNominalFlux()
+            ? scalingData.pFluxReweightor->GetIntegratedFluxVariation(paramName, universeIndex)
+            : scalingData.pFluxReweightor->GetIntegratedNominalFlux()
     );
 
     // Get the cross-section
@@ -633,7 +641,7 @@ ubsmear::UBMatrix CrossSectionHelper::CrossSection::GetBNBDataCrossSectionForUni
     const auto selected = signalSelected + backgrounds;
 
     // Get the integrated flux in the nominal universe
-    const auto integratedFlux = scalingData.fluxReweightor->GetIntegratedNominalFlux();
+    const auto integratedFlux = scalingData.pFluxReweightor->GetIntegratedNominalFlux();
 
     // Get the cross-section
     return this->GetCrossSection(selected, backgrounds, integratedFlux, scalingData.exposurePOT, scalingData.nTargets);
@@ -952,6 +960,43 @@ CrossSectionHelper::SystUnisimTH2FMap CrossSectionHelper::GetSystUnisimTH2FMap(c
                 throw std::invalid_argument("CrossSectionHelper::GetSystUnisimTH2FMap - Name \"" + cvName + "\" is describes a parameter and a central-value sample");
 
             map.emplace(cvName, CrossSectionHelper::GetTH2F(binEdges));
+        }
+    }
+
+    return map;
+}
+
+// -----------------------------------------------------------------------------------------------------------------------------------------
+
+CrossSectionHelper::SystFloatMap CrossSectionHelper::GetUnitWeightsMap(const SystDimensionsMap &dimensions)
+{
+    // Make a new map for the output
+    SystFloatMap map;
+
+    // Loop over all parameters in the input dimensions map
+    for (const auto &[paramName, nUniverses] : dimensions)
+    {
+        // Add a weight of 1.f for each universe
+        map.emplace(paramName, std::vector<float>(nUniverses, 1.f));
+    }
+
+    return map;
+}
+
+// -----------------------------------------------------------------------------------------------------------------------------------------
+
+CrossSectionHelper::SystFloatMap CrossSectionHelper::ScaleWeightsMap(const SystFloatMap &weightsMap, const float &divisor)
+{
+    // Check the input divisor isn't zero
+    if (std::abs(divisor) <= std::numeric_limits<float>::epsilon())
+        throw std::invalid_argument("CrossSectionHelper::ScaleWeightsMap - The input divisor is zero");
+
+    auto map = weightsMap;
+    for (auto &[paramName, weights] : map)
+    {
+        for (auto &weight : weights)
+        {
+            weight /= divisor;
         }
     }
 

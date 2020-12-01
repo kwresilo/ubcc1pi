@@ -274,9 +274,9 @@ class CrossSectionHelper
                 */
                 struct ScalingData
                 {
-                    std::shared_ptr<FluxReweightor>  fluxReweightor; ///< Means of getting the integrated flux in each systematic universe
-                    float                            exposurePOT;    ///< The total POT for the BNB data sample (units of e+20 POT)
-                    float                            nTargets;       ///< The number of target nucleons (units e+31 nucleons)
+                    std::shared_ptr<FluxReweightor>  pFluxReweightor; ///< Means of getting the integrated flux in each systematic universe
+                    float                            exposurePOT;     ///< The total POT for the BNB data sample
+                    float                            nTargets;        ///< The number of target nucleons
                 };
 
                 /**
@@ -298,7 +298,7 @@ class CrossSectionHelper
                 *            - The smearing matrix in each systematic universe
                 *            - The covariance matrix for the smearing matrix variations due to flux & cross-section uncertainties
                 *
-                *  @param  recoValue the reconstructed value of the kinematic quantity
+                *  @param  recoValue the reconstructed value of the kinematic quantity (only used if the event is selected)
                 *  @param  trueValue the true value of the kinematic quantity
                 *  @param  isSelected if the event is selected
                 *  @param  nominalWeight the nominal event weight
@@ -354,6 +354,13 @@ class CrossSectionHelper
                 *  @param  recoValue the reconstructed value of the kinematic quantity
                 */
                 void AddSelectedBNBDataEvent(const float recoValue);
+
+                /**
+                *  @brief  Get the metadata about the cross-section binning
+                *
+                *  @return the metadata
+                */
+                ubsmear::UBXSecMeta GetMetadata() const;
 
                 /**
                 *  @brief  Get a column vector containing the bin widths used in the cross-section calculation.
@@ -682,6 +689,24 @@ class CrossSectionHelper
         *  @return the SystUnisimTH2FMap
         */
         static SystUnisimTH2FMap GetSystUnisimTH2FMap(const std::vector<float> &binEdges, const SystUnisimDimensionsMap &dimensions);
+
+        /**
+        *  @brief  Get a weights map with the supplied dimensions containing unit weights for every universe
+        *
+        *  @param  dimensions the dimensions of the weights map to obtain
+        *
+        *  @return the unit weights map
+        */
+        static SystFloatMap GetUnitWeightsMap(const SystDimensionsMap &dimensions);
+
+        /**
+        *  @brief  Scale the input weights map by the supplied factor
+        *
+        *  @param  divisor the factor by which we should divide the weights in the map
+        *
+        *  @return the scaled weights map
+        */
+        static SystFloatMap ScaleWeightsMap(const SystFloatMap &weightsMap, const float &divisor);
 
         /**
         *  @brief  Get the weights corresponding to the systematic parameters in the input dimensions object. The parameter names must

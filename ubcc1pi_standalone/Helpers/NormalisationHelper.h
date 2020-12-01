@@ -48,12 +48,11 @@ namespace ubcc1pi
              *  @brief  Get the normalisation factor for a detector variation file
              *
              *  @param  config the input configuration
-             *  @param  runId the identifier for the run of the detector variation file
-             *  @param  paramName the varied detector parmater
+             *  @param  paramName the varied detector parmater or central value sample name
              *
              *  @return the normalisation factor
              */
-            static float GetDetectorVariationNormalisation(const Config &config, const std::string &runId, const std::string &paramName);
+            static float GetDetectorVariationNormalisation(const Config &config, const std::string &paramName);
     };
 
 } // namespace ubcc1pi
