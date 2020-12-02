@@ -145,6 +145,8 @@ CrossSectionHelper::CrossSection::CrossSection(const SystParams &systParams, con
     m_pBackground_selected_reco_nom(CrossSectionHelper::GetTH1F(binEdges)),
     m_pBNBData_selected_reco(CrossSectionHelper::GetTH1F(binEdges))
 {
+    std::cout << "DEBUG - Constructing cross-section" << std::endl;
+
     // Make sure the bin edges are valid
     const int nAnalysisBins = (binEdges.size() - 1) - (hasUnderflow ? 1 : 0) - (hasOverflow ? 1 : 0);
     if (nAnalysisBins <= 0)
@@ -162,24 +164,29 @@ CrossSectionHelper::CrossSection::CrossSection(const SystParams &systParams, con
     };
 
     // Setup the maps to hold the histograms for the multisim parameters
+    std::cout << "DEBUG - Adding multisims for signal_true" << std::endl;
     m_signal_true_multisims.emplace("flux", CrossSectionHelper::GetSystTH1FMap(binEdges, systParams.fluxDimensions));
     m_signal_true_multisims.emplace("xsec", CrossSectionHelper::GetSystTH1FMap(binEdges, systParams.xsecDimensions));
     m_signal_true_multisims.emplace("misc", CrossSectionHelper::GetSystTH1FMap(binEdges, miscDimensions));
 
+    std::cout << "DEBUG - Adding multisims for signal_selected_recoTrue" << std::endl;
     m_signal_selected_recoTrue_multisims.emplace("flux", CrossSectionHelper::GetSystTH2FMap(binEdges, systParams.fluxDimensions));
     m_signal_selected_recoTrue_multisims.emplace("xsec", CrossSectionHelper::GetSystTH2FMap(binEdges, systParams.xsecDimensions));
     m_signal_selected_recoTrue_multisims.emplace("misc", CrossSectionHelper::GetSystTH2FMap(binEdges, miscDimensions));
 
+    std::cout << "DEBUG - Adding multisims for background_selected_reco" << std::endl;
     m_background_selected_reco_multisims.emplace("flux", CrossSectionHelper::GetSystTH1FMap(binEdges, systParams.fluxDimensions));
     m_background_selected_reco_multisims.emplace("xsec", CrossSectionHelper::GetSystTH1FMap(binEdges, systParams.xsecDimensions));
     m_background_selected_reco_multisims.emplace("misc", CrossSectionHelper::GetSystTH1FMap(binEdges, miscDimensions));
 
     // Setup the maps to hold the histograms for the unisim parameters
+    std::cout << "DEBUG - Adding unisims" << std::endl;
     m_signal_true_unisims.emplace("detector", CrossSectionHelper::GetSystUnisimTH1FMap(binEdges, systParams.detVarDimensions));
     m_signal_selected_recoTrue_unisims.emplace("detector", CrossSectionHelper::GetSystUnisimTH2FMap(binEdges, systParams.detVarDimensions));
     m_background_selected_reco_unisims.emplace("detector", CrossSectionHelper::GetSystUnisimTH1FMap(binEdges, systParams.detVarDimensions));
 
     // ATTN we could in theory include other unisim parameters here using a different name. At the moment we only use "detector".
+    std::cout << "DEBUG - Done constructing" << std::endl;
 }
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
@@ -497,13 +504,13 @@ CrossSectionHelper::SystBiasCovarianceMap CrossSectionHelper::CrossSection::GetB
         {
             const auto &paramName = entry.first;
             outputMap[group].emplace(paramName, this->GetBNBDataCrossSectionDistributionParams(group, paramName, scalingData));
+            std::cout << "DEBUG - DONE " << group << ", " << paramName << std::endl;
         }
     }
 
     // Add the unisim parameters
     // ATTN again the use of m_signal_true_unisims is arbitrary, we could use any unisims map
     for (const auto &[group, map] : m_signal_true_unisims)
-    
     {
         // ATTN for now we only have detector parameters that are unisims, if others are added later then we would need to add a clause here
         // to get the relevent dimensions.
@@ -512,12 +519,26 @@ CrossSectionHelper::SystBiasCovarianceMap CrossSectionHelper::CrossSection::GetB
 
         const auto dimensions = m_systParams.detVarDimensions;
 
+        // Extract the central-value names from the dimensions object
+        std::vector<std::string> cvNames;
+        for (const auto &[paramName, cvName] : dimensions)
+            cvNames.push_back(cvName);
+
         for (const auto &entry : map)
         {
             const auto &paramName = entry.first;
+
+            // ATTN The paramName could either be a detector variation sample of the name of a CV sample.
+            // Here we check if the paramName is for a CV sample and if so, we can skip it.
+            const auto isCVName = (std::find(cvNames.begin(), cvNames.end(), paramName) != cvNames.end());
+            if (isCVName)
+                continue;
+
+            // Get the central-value name that corresponds to this parameter
             const auto &cvName = dimensions.at(paramName);
 
             outputMap[group].emplace(paramName, this->GetBNBDataCrossSectionDistributionParamsUnisim(group, paramName, cvName, scalingData));
+            std::cout << "DEBUG - DONE " << group << ", " << paramName << std::endl;
         }
     }
 
@@ -553,9 +574,22 @@ CrossSectionHelper::SystBiasCovarianceMap CrossSectionHelper::CrossSection::GetS
 
         const auto dimensions = m_systParams.detVarDimensions;
 
+        // Extract the central-value names from the dimensions object
+        std::vector<std::string> cvNames;
+        for (const auto &[paramName, cvName] : dimensions)
+            cvNames.push_back(cvName);
+
         for (const auto &entry : map)
         {
             const auto &paramName = entry.first;
+
+            // ATTN The paramName could either be a detector variation sample of the name of a CV sample.
+            // Here we check if the paramName is for a CV sample and if so, we can skip it.
+            const auto isCVName = (std::find(cvNames.begin(), cvNames.end(), paramName) != cvNames.end());
+            if (isCVName)
+                continue;
+
+            // Get the central-value name that corresponds to this parameter
             const auto &cvName = dimensions.at(paramName);
 
             outputMap[group].emplace(paramName, this->GetSmearingMatrixDistributionParamsUnisim(group, paramName, cvName));
@@ -738,17 +772,26 @@ CrossSectionHelper::SystBiasCovariancePair CrossSectionHelper::CrossSection::Get
 
 CrossSectionHelper::SystBiasCovariancePair CrossSectionHelper::CrossSection::GetDistributionParamsUnisim(const std::shared_ptr<ubsmear::UBMatrix> &pVaried, const std::shared_ptr<ubsmear::UBMatrix> &pCentralValue, const std::shared_ptr<ubsmear::UBMatrix> &pNominal) const
 {
+    std::cout << "DEBUG - Checking that inputs are valid" << std::endl;
+
     // Check the input matrices are valid
     if (!pVaried || !pCentralValue || !pNominal)
         throw std::invalid_argument("CrossSection::GetDistributionParamsUnisim - One or more of the inputs are not valid");
+
+    std::cout << "DEBUG - Checking we have column vectors" << std::endl;
 
     // Check ths input matrices have the desired dimensions
     if (pVaried->GetColumns() != 1 || pCentralValue->GetColumns() != 1 || pNominal->GetColumns() != 1)
         throw std::invalid_argument("CrossSection::GetDistributionParamsUnisim - One or more of the inputs are not a column vector");
 
+    std::cout << "DEBUG - Checking we the same sized column vectors" << std::endl;
     const auto nBins = pVaried->GetRows();
     if (pCentralValue->GetRows() != nBins || pNominal->GetRows() != nBins)
         throw std::invalid_argument("CrossSection::GetDistributionParamsUnisim - Input column vectors have different sizes");
+
+    std::cout << "      - nBins = " << nBins << std::endl;
+
+    std::cout << "DEBUG - Getting fractional bias vector" << std::endl;
 
     // Get the fractional bias of the cross-section away from the central value
     const auto fracBias = ubsmear::ElementWiseOperation(
@@ -762,11 +805,15 @@ CrossSectionHelper::SystBiasCovariancePair CrossSectionHelper::CrossSection::Get
         }
     );
 
+    std::cout << "DEBUG - Getting bias vector" << std::endl;
+
     // Apply the fractional bias to the nominal cross-section
     const auto bias = ubsmear::ElementWiseOperation(
         fracBias, *pNominal,
         [](const float lhs, const float rhs) { return lhs * rhs; }
     );
+
+    std::cout << "DEBUG - Returning result" << std::endl;
 
     // Return the result (use a zero matrix for the covariance)
     return {
@@ -779,9 +826,13 @@ CrossSectionHelper::SystBiasCovariancePair CrossSectionHelper::CrossSection::Get
 
 CrossSectionHelper::SystBiasCovariancePair CrossSectionHelper::CrossSection::GetBNBDataCrossSectionDistributionParams(const std::string &group, const std::string &paramName, const ScalingData &scalingData) const
 {
+    std::cout << "DEBUG - Getting distribution params for multisim: " << group << ", " << paramName << std::endl;
+
     // Get the number of universes for this systematic parameter
     // ATTN this choice of m_signal_true_multisims here is arbitrary, any of the mutlisims maps would do
     const auto nUniverses = m_signal_true_multisims.at(group).at(paramName).size();
+
+    std::cout << "      - nUniverses = " << nUniverses << std::endl;
 
     // Get the nominal cross-section
     const auto pXSecNom = std::make_shared<ubsmear::UBMatrix>(this->GetBNBDataCrossSection(scalingData));
@@ -799,9 +850,14 @@ CrossSectionHelper::SystBiasCovariancePair CrossSectionHelper::CrossSection::Get
 
 CrossSectionHelper::SystBiasCovariancePair CrossSectionHelper::CrossSection::GetBNBDataCrossSectionDistributionParamsUnisim(const std::string &group, const std::string &paramName, const std::string &cvName, const ScalingData &scalingData) const
 {
+    std::cout << "DEBUG - Getting distribution params for unisim: " << group << ", " << paramName << std::endl;
+
     // Get the cross-section using the unisim sample, in the central value sample and in the nominal universe
+    std::cout << "      - Getting xsec in variation sample: " << paramName << std::endl;
     const auto pXSec = std::make_shared<ubsmear::UBMatrix>( this->GetBNBDataCrossSectionForUnisim(group, paramName, scalingData) );
+    std::cout << "      - Getting xsec in CV sample: " << cvName << std::endl;
     const auto pXSecCV = std::make_shared<ubsmear::UBMatrix>( this->GetBNBDataCrossSectionForUnisim(group, cvName, scalingData) );
+    std::cout << "      - Getting xsec in nominal universe" << std::endl;
     const auto pXSecNom = std::make_shared<ubsmear::UBMatrix>( this->GetBNBDataCrossSection(scalingData) );
 
     // Get the parameters
@@ -903,16 +959,23 @@ CrossSectionHelper::SystUnisimTH1FMap CrossSectionHelper::GetSystUnisimTH1FMap(c
 
     for (const auto &[paramName, cvName] : dimensions)
     {
+        std::cout << "DEBUG - TH1F Unisim = " << paramName << ", " << cvName << std::endl;
+
         // Include all parameter names
         map.emplace(paramName, CrossSectionHelper::GetTH1F(binEdges));
+        std::cout << "      - Emplaced: " << paramName << std::endl;
 
         // If we haven't seen this central value sample name before, then add it too!
         if (std::find(allCVNames.begin(), allCVNames.end(), cvName) == allCVNames.end())
         {
+            std::cout << "      - Not seen CV: " << cvName << std::endl;
+
             if (map.find(cvName) != map.end())
                 throw std::invalid_argument("CrossSectionHelper::GetSystUnisimTH1FMap - Name \"" + cvName + "\" is describes a parameter and a central-value sample");
 
             map.emplace(cvName, CrossSectionHelper::GetTH1F(binEdges));
+            allCVNames.push_back(cvName);
+            std::cout << "      - Emplaced: " << cvName << std::endl;
         }
     }
 
@@ -950,16 +1013,23 @@ CrossSectionHelper::SystUnisimTH2FMap CrossSectionHelper::GetSystUnisimTH2FMap(c
 
     for (const auto &[paramName, cvName] : dimensions)
     {
+        std::cout << "DEBUG - TH2F Unisim = " << paramName << ", " << cvName << std::endl;
+
         // Include all parameter names
         map.emplace(paramName, CrossSectionHelper::GetTH2F(binEdges));
+        std::cout << "      - Emplaced: " << paramName << std::endl;
 
         // If we haven't seen this central value sample name before, then add it too!
         if (std::find(allCVNames.begin(), allCVNames.end(), cvName) == allCVNames.end())
         {
+            std::cout << "      - Not seen CV: " << cvName << std::endl;
+
             if (map.find(cvName) != map.end())
                 throw std::invalid_argument("CrossSectionHelper::GetSystUnisimTH2FMap - Name \"" + cvName + "\" is describes a parameter and a central-value sample");
 
             map.emplace(cvName, CrossSectionHelper::GetTH2F(binEdges));
+            allCVNames.push_back(cvName);
+            std::cout << "      - Emplaced: " << cvName << std::endl;
         }
     }
 
