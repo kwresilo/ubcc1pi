@@ -18,6 +18,8 @@
 #include <TH1F.h>
 #include <TH2F.h>
 
+#include "ubsmear/Objects/UBMatrix.h"
+
 namespace ubcc1pi
 {
 
@@ -53,12 +55,30 @@ class FormattingHelper
                 void Print() const;
 
                 /**
+                *  @brief  Print the table using custom syntax
+                *
+                *  @param  printHeader if we should print the header
+                *  @param  columnDelimiter the character to use identify a column
+                */
+                void PrintCustom(const bool printHeader, const char columnDelimiter) const;
+
+                /**
                  *  @brief  Write the table in markdown syntax to an output file
                  *
                  *  @param  fileName the output file name
                  *  @param  alsoPrint if we should also print the table to the terminal
                  */
                 void WriteToFile(const std::string &fileName, const bool alsoPrint = true) const;
+
+                /**
+                 *  @brief  Write the table using a custom syntax to an output file
+                 *
+                 *  @param  fileName the output file name
+                 *  @param  alsoPrint if we should also print the table to the terminal
+                 *  @param  printHeader if we should print the header
+                 *  @param  columnDelimiter the character to use identify a column
+                 */
+                void WriteToFileCustom(const std::string &fileName, const bool alsoPrint, const bool printHeader, const char columnDelimiter) const;
 
                 /**
                  *  @brief  Set the entry for the given header and row number
@@ -112,22 +132,13 @@ class FormattingHelper
         static std::string GetValueWithError(const float &value, const float &uncertainty);
 
         /**
-         *  @brief  Save a 1D histogram as a table
-         *
-         *  @param  pHist the input histogram
-         *  @param  fileName the output file name
-         *  @param  alsoPrint if we should also print the table to the terminal
-         */
-        static void SaveHistAsTable(const std::shared_ptr<TH1F> &pHist, const std::string &fileName, const bool alsoPrint = true);
-
-        /**
-         *  @brief  Save a 2D histogram as a table
-         *
-         *  @param  pHist the input histogram
-         *  @param  fileName the output file name
-         *  @param  alsoPrint if we should also print the table to the terminal
-         */
-        static void SaveHistAsTable(const std::shared_ptr<TH2F> &pHist, const std::string &fileName, const bool alsoPrint = true);
+        *  @brief  Save an input matrix to an output file
+        *
+        *  @param  matrix the input matrix
+        *  @param  fileName the file name
+        *  @param  alsoPrint if we should also print the table to the terminal
+        */
+        static void SaveMatrix(const ubsmear::UBMatrix &matrix, const std::string &fileName, const bool alsoPrint = true);
 
         /**
          *  @brief  Print a line of '-' characters
@@ -180,38 +191,55 @@ unsigned int FormattingHelper::Table::GetColumnWidth(const std::string &header) 
 
 void FormattingHelper::Table::Print() const
 {
-    std::vector<unsigned int> widths;
+    this->PrintCustom(true, '|');
+}
 
-    // Print the header row
+// -----------------------------------------------------------------------------------------------------------------------------------------
+
+void FormattingHelper::Table::PrintCustom(const bool printHeader, const char columnDelimiter) const
+{
+    // Get the column widths
+    std::vector<unsigned int> widths;
     for (const auto &header : m_headers)
     {
         const auto width = this->GetColumnWidth(header);
         widths.push_back(width);
-
-        std::cout << "|";
-
-        if (header.empty())
-            continue;
-
-        std::cout << " " << std::setw(width) << std::left << header << " ";
     }
-    std::cout << "|" << std::endl;
 
-    // Print the horizontal line
-    for (unsigned int iHeader = 0; iHeader < m_headers.size(); ++iHeader)
+    if (printHeader)
     {
-        const auto &header = m_headers.at(iHeader);
+        // Print the header row
+        for (unsigned int iHeader = 0; iHeader < m_headers.size(); ++iHeader)
+        {
+            const auto &header = m_headers.at(iHeader);
 
-        std::cout << "|";
+            std::cout << columnDelimiter;
 
-        if (header.empty())
-            continue;
+            if (header.empty())
+                continue;
 
-        const auto width = widths.at(iHeader);
+            const auto width = widths.at(iHeader);
 
-        std::cout << std::string(width + 2, '-');
+            std::cout << " " << std::setw(width) << std::left << header << " ";
+        }
+        std::cout << columnDelimiter << std::endl;
+
+        // Print the horizontal line
+        for (unsigned int iHeader = 0; iHeader < m_headers.size(); ++iHeader)
+        {
+            const auto &header = m_headers.at(iHeader);
+
+            std::cout << columnDelimiter;
+
+            if (header.empty())
+                continue;
+
+            const auto width = widths.at(iHeader);
+
+            std::cout << std::string(width + 2, '-');
+        }
+        std::cout << columnDelimiter << std::endl;
     }
-    std::cout << "|" << std::endl;
 
     // Print the entries
     for (const auto &entriesInRow : m_entries)
@@ -220,7 +248,7 @@ void FormattingHelper::Table::Print() const
         {
             const auto &header = m_headers.at(iHeader);
 
-            std::cout << "|";
+            std::cout << columnDelimiter;
 
             if (header.empty())
                 continue;
@@ -230,13 +258,20 @@ void FormattingHelper::Table::Print() const
 
             std::cout << " " << std::setw(width) << std::left << entry << " ";
         }
-        std::cout << "|" << std::endl;
+        std::cout << columnDelimiter << std::endl;
     }
 }
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
 
 void FormattingHelper::Table::WriteToFile(const std::string &fileName, const bool alsoPrint) const
+{
+    this->WriteToFileCustom(fileName, alsoPrint, true, '|');
+}
+
+// -----------------------------------------------------------------------------------------------------------------------------------------
+
+void FormattingHelper::Table::WriteToFileCustom(const std::string &fileName, const bool alsoPrint, const bool printHeader, const char columnDelimiter) const
 {
     fstream file;
     file.open(fileName, ios::out);
@@ -247,7 +282,7 @@ void FormattingHelper::Table::WriteToFile(const std::string &fileName, const boo
 
     // Redirect cout to the file
     cout.rdbuf(stream_buffer_file);
-    this->Print();
+    this->PrintCustom(printHeader, columnDelimiter);
 
     // Redirect cout back to the terminal
     cout.rdbuf(stream_buffer_cout);
@@ -255,7 +290,7 @@ void FormattingHelper::Table::WriteToFile(const std::string &fileName, const boo
 
     // Also print to the terminal if requested
     if (alsoPrint)
-        this->Print();
+        this->PrintCustom(printHeader, columnDelimiter);
 }
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
@@ -349,72 +384,28 @@ void FormattingHelper::PrintLine()
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
 
-void FormattingHelper::SaveHistAsTable(const std::shared_ptr<TH1F> &pHist, const std::string &fileName, const bool alsoPrint)
+void FormattingHelper::SaveMatrix(const ubsmear::UBMatrix &matrix, const std::string &fileName, const bool alsoPrint)
 {
-    FormattingHelper::Table table({"Bin", "Lower", "Upper", "Width", "", "Value"});
-    for (unsigned int iBin = 1; iBin <= static_cast<unsigned int>(pHist->GetNbinsX()); ++iBin)
+    // Setup the table headers
+    std::vector<std::string> headers;
+    for (unsigned int iCol = 0; iCol < matrix.GetColumns(); ++iCol)
+        headers.push_back(std::to_string(iCol));
+
+    FormattingHelper::Table table(headers);
+
+    // Loop over the rows
+    for (unsigned int iRow = 0; iRow < matrix.GetRows(); ++iRow)
     {
         table.AddEmptyRow();
-        table.SetEntry("Bin", iBin);
 
-        const auto lower = pHist->GetBinLowEdge(iBin);
-        table.SetEntry("Lower", lower);
-
-        const auto width = pHist->GetBinWidth(iBin);
-        table.SetEntry("Width", width);
-
-        const auto upper = lower + width;
-        table.SetEntry("Upper", upper);
-
-        const auto value = pHist->GetBinContent(iBin);
-        table.SetEntry("Value", value);
-    }
-
-    table.WriteToFile(fileName, alsoPrint);
-}
-
-// -----------------------------------------------------------------------------------------------------------------------------------------
-
-void FormattingHelper::SaveHistAsTable(const std::shared_ptr<TH2F> &pHist, const std::string &fileName, const bool alsoPrint)
-{
-    FormattingHelper::Table table({"Bin X", "Bin Y", "Lower", "Upper", "Width", "", "Value"});
-
-    for (unsigned int iBin = 1; iBin <= static_cast<unsigned int>(pHist->GetNbinsX()); ++iBin)
-    {
-        table.AddEmptyRow();
-        table.SetEntry("Bin X", iBin);
-
-        const auto xAxis = pHist->GetXaxis();
-        const auto xLower = xAxis->GetBinLowEdge(iBin);
-        table.SetEntry("Lower", xLower);
-
-        const auto xWidth = xAxis->GetBinWidth(iBin);
-        table.SetEntry("Width", xWidth);
-
-        const auto xUpper = xLower + xWidth;
-        table.SetEntry("Upper", xUpper);
-
-        for (unsigned int jBin = 1; jBin <= static_cast<unsigned int>(pHist->GetNbinsY()); ++jBin)
+        // Add the value at each column
+        for (unsigned int iCol = 0; iCol < matrix.GetColumns(); ++iCol)
         {
-            table.AddEmptyRow();
-            table.SetEntry("Bin Y", jBin);
-
-            const auto yAxis = pHist->GetYaxis();
-            const auto yLower = yAxis->GetBinLowEdge(jBin);
-            table.SetEntry("Lower", yLower);
-
-            const auto yWidth = yAxis->GetBinWidth(jBin);
-            table.SetEntry("Width", yWidth);
-
-            const auto yUpper = yLower + yWidth;
-            table.SetEntry("Upper", yUpper);
-
-            const auto value = pHist->GetBinContent(iBin, jBin);
-            table.SetEntry("Value", value);
+            table.SetEntry(std::to_string(iCol), matrix.At(iRow, iCol));
         }
     }
 
-    table.WriteToFile(fileName, alsoPrint);
+    table.WriteToFileCustom(fileName, alsoPrint, false, ' ');
 }
 
 } // namespace ubcc1pi

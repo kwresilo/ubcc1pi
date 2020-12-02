@@ -11,6 +11,7 @@
 #include "ubcc1pi_standalone/Helpers/NormalisationHelper.h"
 #include "ubcc1pi_standalone/Helpers/SelectionHelper.h"
 #include "ubcc1pi_standalone/Helpers/CrossSectionHelper.h"
+#include "ubcc1pi_standalone/Helpers/FormattingHelper.h"
 
 using namespace ubcc1pi;
 
@@ -22,6 +23,8 @@ void ExtractXSecs(const Config &config)
     // -------------------------------------------------------------------------------------------------------------------------------------
     // Setup the input files
     // -------------------------------------------------------------------------------------------------------------------------------------
+    std::cout << "Setting up input files" << std::endl;
+
     std::vector< std::tuple<AnalysisHelper::SampleType, std::string, std::string, float> > inputData;
     inputData.emplace_back(AnalysisHelper::Overlay, "", config.files.overlaysFileName, NormalisationHelper::GetOverlaysNormalisation(config));
     inputData.emplace_back(AnalysisHelper::Dirt,    "", config.files.dirtFileName, NormalisationHelper::GetDirtNormalisation(config));
@@ -35,6 +38,8 @@ void ExtractXSecs(const Config &config)
     // -------------------------------------------------------------------------------------------------------------------------------------
     // Setup an object that holds the details of the systematic parameters to apply
     // -------------------------------------------------------------------------------------------------------------------------------------
+    std::cout << "Setting up systematic parameters" << std::endl;
+
     CrossSectionHelper::CrossSection::SystParams systParams;
     systParams.nBootstrapUniverses = config.extractXSecs.nBootstrapUniverses;
     systParams.fluxDimensions = config.extractXSecs.fluxDimensions;
@@ -52,6 +57,8 @@ void ExtractXSecs(const Config &config)
     // - Cross-section    [Flux * Exposure * Target density * Fiducial volume]^-1 = [10^-41 cm^2 / nucleon]
     //
     // ATTN here we use a FluxReweightor to specify the flux. This is used to get the reweighted flux in each systematic universe.
+    std::cout << "Setting up scaling data" << std::endl;
+
     CrossSectionHelper::CrossSection::ScalingData scalingData;
     scalingData.pFluxReweightor = std::make_shared<CrossSectionHelper::FluxReweightor>(config.flux.binEdges, config.flux.energyBins, systParams.fluxDimensions);
     scalingData.exposurePOT = config.norms.dataBNBTor875WCut / (1e20);
@@ -65,6 +72,7 @@ void ExtractXSecs(const Config &config)
     // -------------------------------------------------------------------------------------------------------------------------------------
     // Setup the cross-section objects
     // -------------------------------------------------------------------------------------------------------------------------------------
+    std::cout << "Setting up cross-section objects" << std::endl;
 
     // ATTN here we use the machinary for a differential cross-section, and treat the total cross-section as a single-bin measurement.
     // The "kinematic quantity" in this case is just a dummy parameter. Here we define a single bin with edges arbitrarily chosen to be
@@ -81,6 +89,8 @@ void ExtractXSecs(const Config &config)
     // -------------------------------------------------------------------------------------------------------------------------------------
     // Count the events
     // -------------------------------------------------------------------------------------------------------------------------------------
+    std::cout << "Counting events" << std::endl;
+
     // Loop over the files
     for (const auto &[sampleType, sampleName, fileName, normalisation] : inputData)
     {
@@ -217,25 +227,59 @@ void ExtractXSecs(const Config &config)
 
         // Get the cross-section as measured with BNB data along with it's uncertainties
         const auto data = xsec.GetBNBDataCrossSection(scalingData);
+        std::cout << "BNB data cross-section (reco-space)" << std::endl;
+        FormattingHelper::SaveMatrix(data, "xsec_" + name + "_data.txt");
+
         const auto dataStatUncertainties = xsec.GetBNBDataCrossSectionStatUncertainty(scalingData);
+        std::cout << "BNB data stat uncertainty" << std::endl;
+        FormattingHelper::SaveMatrix(dataStatUncertainties, "xsec_" + name + "_data_stat.txt");
+
         const auto dataSystBiasCovariances = xsec.GetBNBDataCrossSectionSystUncertainties(scalingData);
+        for (const auto &[group, map] : dataSystBiasCovariances)
+        {
+            for (const auto &[paramName, biasCovariance] : map)
+            {
+                const auto &[pBias, pCovariance] = biasCovariance;
+
+                std::cout << "BNB data syst uncertainty: " << group << " " << paramName << std::endl;
+                std::cout << "Bias vector" << std::endl;
+                FormattingHelper::SaveMatrix(*pBias, "xsec_" + name + "_data_" + group + "_" + paramName + "_bias.txt");
+                std::cout << "Covariance matrix" << std::endl;
+                FormattingHelper::SaveMatrix(*pCovariance, "xsec_" + name + "_data_" + group + "_" + paramName + "_covariance.txt");
+            }
+        }
 
         // Get the predicted cross-section along with it's MC stat uncertainty
         const auto prediction = xsec.GetPredictedCrossSection(scalingData);
-        const auto predictionStatBiasCovariance = xsec.GetPredictedCrossSectionStatUncertainty(scalingData);
+        std::cout << "Predicted cross-section (truth-space)" << std::endl;
+        FormattingHelper::SaveMatrix(prediction, "xsec_" + name + "_prediction.txt");
 
-        // TODO write this information out
-
-        // Work out if this is a differential cross-section or a total cross-section. For the total cross-sections, we are done.
-        const auto isDifferential = (xsec.GetMetadata().GetNBins() > 1);
-        if (!isDifferential)
-            continue;
+        const auto &[pPredictionStatBias, pPredictionStatCovariance] = xsec.GetPredictedCrossSectionStatUncertainty(scalingData);
+        std::cout << "Predicted cross-section stat uncertainty" << std::endl;
+        std::cout << "Bias vector" << std::endl;
+        FormattingHelper::SaveMatrix(*pPredictionStatBias, "xsec_" + name + "_prediction_stat_bias.txt");
+        std::cout << "Covariance matrix" << std::endl;
+        FormattingHelper::SaveMatrix(*pPredictionStatCovariance, "xsec_" + name + "_prediction_stat_covariance.txt");
 
         // Get the smearing matrix and along with it's uncertainties
         const auto smearingMatrix = xsec.GetSmearingMatrix();
-        const auto smearingMatrixStatyBiasCovariances = xsec.GetSmearingMatrixSystUncertainties();
+        std::cout << "Smearing matrix (reco-space rows, truth-space columns)" << std::endl;
+        FormattingHelper::SaveMatrix(smearingMatrix, "xsec_" + name + "_smearingMatrix.txt");
 
-        // TODO write this information out
+        const auto smearingMatrixSystBiasCovariances = xsec.GetSmearingMatrixSystUncertainties();
+        for (const auto &[group, map] : smearingMatrixSystBiasCovariances)
+        {
+            for (const auto &[paramName, biasCovariance] : map)
+            {
+                const auto &[pBias, pCovariance] = biasCovariance;
+
+                std::cout << "Smearing matrix syst uncertainty: " << group << " " << paramName << std::endl;
+                std::cout << "Bias vector" << std::endl;
+                FormattingHelper::SaveMatrix(*pBias, "xsec_" + name + "_smearingMatrix_" + group + "_" + paramName + "_bias.txt");
+                std::cout << "Covariance matrix" << std::endl;
+                FormattingHelper::SaveMatrix(*pCovariance, "xsec_" + name + "_smearingMatrix_" + group + "_" + paramName + "_covariance.txt");
+            }
+        }
     }
 }
 
