@@ -286,6 +286,13 @@ ubsmear::UBXSecMeta CrossSectionHelper::CrossSection::GetMetadata() const
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
 
+std::vector<float> CrossSectionHelper::CrossSection::GetBinEdges() const
+{
+    return m_binEdges;
+}
+
+// -----------------------------------------------------------------------------------------------------------------------------------------
+
 ubsmear::UBMatrix CrossSectionHelper::CrossSection::GetBinWidths() const
 {
     if (!m_scaleByBinWidth)
@@ -1342,6 +1349,54 @@ std::shared_ptr<ubsmear::UBMatrix> CrossSectionHelper::FlattenMatrix(const std::
         throw std::invalid_argument("CrossSectionHelper::FlattenMatrix - Input matrix pointer is null");
 
     return std::make_shared<ubsmear::UBMatrix>(ubsmear::UBSmearingHelper::Flatten(*pMatrix));
+}
+
+// -----------------------------------------------------------------------------------------------------------------------------------------
+
+std::tuple< std::vector<float>, bool, bool > CrossSectionHelper::GetExtendedBinEdges(const float min, const float max, const std::vector<float> &binEdges)
+{
+    // Ensure that we have at least one input bin
+    if (binEdges.size() < 2)
+        throw std::invalid_argument("CrossSectionHelper::GetExtendedBinEdges - Fewer than two input bin edges were supplied");
+
+    // Ensure that the input bin edges are sorted
+    if (!std::is_sorted(binEdges.begin(), binEdges.end()))
+        throw std::invalid_argument("CrossSectionHelper::GetExtendedBinEdges - Input bin edges are not sorted into ascending order");
+
+    // Get the first and last bin edges supplied
+    const auto firstEdge = binEdges.front();
+    const auto lastEdge = binEdges.back();
+
+    // Check if the first/last edge is already at the min/max
+    const auto isFirstEdgeAtMin = (std::abs(firstEdge - min) <= std::numeric_limits<float>::epsilon());
+    const auto isLastEdgeAtMax = (std::abs(lastEdge - max) <= std::numeric_limits<float>::epsilon());
+
+    // If the first/last edge isn't at min/max, then make sure that it's not below/above
+    if (!isFirstEdgeAtMin && firstEdge < min)
+        throw std::invalid_argument("CrossSectionHelper::GetExtendedBinEdges - Lowest input bin edge is smaller than the supplied minimum value");
+
+    if (!isLastEdgeAtMax && lastEdge > max)
+        throw std::invalid_argument("CrossSectionHelper::GetExtendedBinEdges - Uppermost input bin edge is larget than the supplied maximum value");
+
+    // Determine if we need to extend to an extra underflow/overflow bin edge
+    const auto hasUnderflow = !isFirstEdgeAtMin;
+    const auto hasOverflow = !isLastEdgeAtMax;
+
+    // Setup the output bin edges
+    std::vector<float> extendedBinEdges;
+
+    // Add the underflow bin if required
+    if (hasUnderflow)
+        extendedBinEdges.push_back(min);
+
+    // Add the supplied bins
+    extendedBinEdges.insert(extendedBinEdges.end(), binEdges.begin(), binEdges.end());
+
+    // Add the overflow bin if required
+    if (hasOverflow)
+        extendedBinEdges.push_back(max);
+
+    return {extendedBinEdges, hasUnderflow, hasOverflow};
 }
 
 } // namespace ubcc1pi

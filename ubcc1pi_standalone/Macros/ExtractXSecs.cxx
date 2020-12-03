@@ -74,17 +74,50 @@ void ExtractXSecs(const Config &config)
     // -------------------------------------------------------------------------------------------------------------------------------------
     std::cout << "Setting up cross-section objects" << std::endl;
 
-    // ATTN here we use the machinary for a differential cross-section, and treat the total cross-section as a single-bin measurement.
-    // The "kinematic quantity" in this case is just a dummy parameter. Here we define a single bin with edges arbitrarily chosen to be
-    // (-1 -> +1), and we request that the cross-section object does not apply bin-width scaling. When we fill this object, we will use the
-    // dummy kinematic quantity with a value of 0 for all events. Again this is arbitraty, as long as it's within the bin edges we chose.
-    // In this way the single bin contains all events. It's just a trick to avoid implementing extra logic for the total cross-section.
+    // Here we make a map from a name of the cross-section to the cross-section object itself.
+    // This way we can iterate through the cross-section objects and reduce code-bloat.
+    // The first index is an identifier for the selection that's applied (generic or goldlen), the second index is an identifier for the
+    // kinematic quantity that's relevant for the cross-section (e.g. muonMomentum), and the mapped type is the cross-section object
+    std::map<std::string, std::map<std::string, CrossSectionHelper::CrossSection> > xsecMap;
+
+    for (const auto &selectionName : {"generic", "golden"})
+    {
+        // Add the differential cross-sections
+        for (const auto &[name, binning, scaleByBinWidth] : std::vector< std::tuple<std::string, Config::Global::Binning, bool> > {
+
+            // The names of the cross-section kinematic parameters, and their binning information. The third (boolean) parameter indicates
+            // if the cross-section bins should be scaled by their width
+            { "muonMomentum", config.global.muonMomentum, true }
+
+        }){
+            // Add the cross-section object to the map using the binning from the input configuration
+            const auto &[extendedBinEdges, hasUnderflow, hasOverflow] = CrossSectionHelper::GetExtendedBinEdges(binning.min, binning.max, binning.binEdges);
+            xsecMap[selectionName].emplace(name, CrossSectionHelper::CrossSection(systParams, extendedBinEdges, hasUnderflow, hasOverflow, scaleByBinWidth));
+        }
+
+        // ATTN here we use the machinary for a differential cross-section, and treat the total cross-section as a single-bin measurement.
+        // The "kinematic quantity" in this case is just a dummy parameter. Here we define a single bin with edges arbitrarily chosen to be
+        // (-1 -> +1), and we request that the cross-section object does not apply bin-width scaling. When we fill this object, we will use
+        // the dummy kinematic quantity with a value of 0 for all events. This is arbitrary, as long as it's within the bin edges we chose.
+        // In this way the single bin contains all events. It's just a trick to avoid implementing extra logic for the total cross-section.
+        xsecMap[selectionName].emplace("total", CrossSectionHelper::CrossSection(systParams, {-1.f, 1.f}, false, false, false));
+    }
+
+    // The dummy value that will be used as the "kinematic quantity" for the total cross-section
     const auto dummyValue = 0.f;
 
-    // Here we make a map from a name of the cross-section to the cross-section object itself. This way we can iterate through the
-    // cross-section objects as desired.
-    std::map<std::string, CrossSectionHelper::CrossSection> xsecMap;
-    xsecMap.emplace("total", CrossSectionHelper::CrossSection(systParams, {-1.f, 1.f}, false, false, false));
+    // -------------------------------------------------------------------------------------------------------------------------------------
+    // Setup the relevent "getters" for each cross-section
+    // -------------------------------------------------------------------------------------------------------------------------------------
+    // Here we define a map from the name of each cross-section to a function which pulls out the relevant kinematic quanitity from an input
+    // analysis data object. Again this is done up-front to reduce code-bloat below.
+    std::unordered_map< std::string, std::function<float(const AnalysisHelper::AnalysisData &)> > getValue;
+
+    // Differential cross-section kinematic parameters
+    getValue.emplace("muonMomentum", [](const auto &data) { return data.muonMomentum; });
+
+    // ATTN as described above, for the total cross-section we don't have an associated kinematic quantity so we just return a dummy value
+    getValue.emplace("total", [=](const auto &) { return dummyValue; });
 
     // -------------------------------------------------------------------------------------------------------------------------------------
     // Count the events
@@ -116,9 +149,13 @@ void ExtractXSecs(const Config &config)
             AnalysisHelper::PrintLoadingBar(i, nEvents);
             reader.LoadEvent(i);
 
+            // -----------------------------------------------------------------------------------------------------------------------------
+            // Work out if this event passed the selection and apply any additional phase-space cuts based on the input binning
+            // -----------------------------------------------------------------------------------------------------------------------------
+
             // Run the selection
             const auto &[passedGoldenSelection, cutsPassed, assignedPdgCodes] = selection.Execute(pEvent);
-            const bool passedGenericSelection = SelectionHelper::IsCutPassed(cutsPassed, config.global.lastCutGeneric);
+            const auto passedGenericSelection = SelectionHelper::IsCutPassed(cutsPassed, config.global.lastCutGeneric);
 
             // Get the reco analysis data (if available, otherwise set to dummy values)
             const auto recoData = (
@@ -127,23 +164,65 @@ void ExtractXSecs(const Config &config)
                     : AnalysisHelper::GetDummyAnalysisData()
             );
 
-            // TODO apply reco-level phase-space restrictions
-            const bool passesPhaseSpaceReco = true;
-            const bool isSelectedGolden = passedGoldenSelection && passesPhaseSpaceReco;
-            const bool isSelectedGeneric = passedGenericSelection && passesPhaseSpaceReco;
+            // Here we apply reco-level phase-space restrictions
+            // For any event that passes the generic selection, get the value of the kinematic quantity and check if it is outside of the
+            // min/max values supplied in the binning. If so, then reject the event.
+            bool passesPhaseSpaceReco = false;
+            if (passedGenericSelection)
+            {
+                // Start by assuming the event passes the phase-space cuts
+                passesPhaseSpaceReco = true;
 
+                // Check the value of the kinematic quantity for each cross-section is within the supplied bin limits
+                // Note that these bin limits include the underflow & overflow
+                for (const auto &[selectionName, xsecs] : xsecMap)
+                {
+                    for (const auto &[name, xsec] : xsecs)
+                    {
+                        const auto &binEdges = xsec.GetBinEdges();
+                        const auto value = getValue.at(name)(recoData);
+                        if (value < binEdges.front() || value > binEdges.back())
+                        {
+                            passesPhaseSpaceReco = false;
+                            break;
+                        }
+                    }
+
+                    if (!passesPhaseSpaceReco)
+                        break;
+                }
+            }
+
+            const auto isSelectedGolden = passedGoldenSelection && passesPhaseSpaceReco;
+            const auto isSelectedGeneric = passedGenericSelection && passesPhaseSpaceReco;
+
+            // -----------------------------------------------------------------------------------------------------------------------------
             // Handle BNB data
+            // -----------------------------------------------------------------------------------------------------------------------------
             if (isDataBNB)
             {
-                // Count the events that are selected
-                if (isSelectedGeneric)
+                for (auto &[selectionName, xsecs] : xsecMap)
                 {
-                    xsecMap.at("total").AddSelectedBNBDataEvent(dummyValue);
+                    // Determine if we passed the relevant selection
+                    const auto isSelected = (selectionName == "golden" ? isSelectedGolden : isSelectedGeneric);
+
+                    // Only count events passing the selection
+                    if (!isSelected)
+                        continue;
+
+                    for (auto &[name, xsec] : xsecs)
+                    {
+                        xsec.AddSelectedBNBDataEvent(getValue.at(name)(recoData));
+                    }
                 }
 
                 // For BNB data that's all we need to do!
                 continue;
             }
+
+            // -----------------------------------------------------------------------------------------------------------------------------
+            // Work out if this event is signal, and apply any phase-space restrictions based on the input binning
+            // -----------------------------------------------------------------------------------------------------------------------------
 
             // Get the nominal event weight, scaled by the sample normalisation
             const auto weight = AnalysisHelper::GetNominalEventWeight(pEvent) * normalisation;
@@ -158,27 +237,84 @@ void ExtractXSecs(const Config &config)
                     : AnalysisHelper::GetDummyAnalysisData()
             );
 
-            // TODO apply truth-level phase-space restrictions
-            const bool passesPhaseSpaceTruth = true;
-            const bool isSignal = isTrueCC1Pi && passesPhaseSpaceTruth;
+            // Here we apply truth-level phase-space restrictions
+            // For all true CC1Pi events, we check if the values of each kinematic variable are within the supplied limits. If not then the
+            // event is not classed as "signal"
+            bool passesPhaseSpaceTruth = false;
+            if (isTrueCC1Pi)
+            {
+                // Start by assuming the event passes the phase-space cuts
+                passesPhaseSpaceTruth = true;
 
+                // Check the value of the kinematic quantity for each cross-section is within the supplied bin limits
+                // Note that these bin limits include the underflow & overflow
+                for (const auto &[selectionName, xsecs] : xsecMap)
+                {
+                    for (const auto &[name, xsec] : xsecs)
+                    {
+                        const auto &binEdges = xsec.GetBinEdges();
+                        const auto value = getValue.at(name)(truthData);
+                        if (value < binEdges.front() || value > binEdges.back())
+                        {
+                            passesPhaseSpaceTruth = false;
+                            break;
+                        }
+                    }
+
+                    if (!passesPhaseSpaceTruth)
+                        break;
+                }
+            }
+
+            const auto isSignal = isTrueCC1Pi && passesPhaseSpaceTruth;
+
+            // -----------------------------------------------------------------------------------------------------------------------------
             // Handle the detector variation samples (unisims)
+            // -----------------------------------------------------------------------------------------------------------------------------
             if (isDetVar)
             {
                 // Handle signal events
                 if (isSignal)
                 {
-                    xsecMap.at("total").AddSignalEventDetVar(dummyValue, dummyValue, isSelectedGeneric, weight, sampleName);
+                    for (auto &[selectionName, xsecs] : xsecMap)
+                    {
+                        // Determine if we passed the relevant selection
+                        const auto isSelected = (selectionName == "golden" ? isSelectedGolden : isSelectedGeneric);
+
+                        for (auto &[name, xsec] : xsecs)
+                        {
+                            const auto recoValue = getValue.at(name)(recoData);
+                            const auto trueValue = getValue.at(name)(truthData);
+
+                            xsec.AddSignalEventDetVar(recoValue, trueValue, isSelected, weight, sampleName);
+                        }
+                    }
                 }
                 // Handle selected background events
-                else if (isSelectedGeneric)
+                else
                 {
-                    xsecMap.at("total").AddSelectedBackgroundEventDetVar(dummyValue, weight, sampleName);
+                    for (auto &[selectionName, xsecs] : xsecMap)
+                    {
+                        // Only use selected background events
+                        const auto isSelected = (selectionName == "golden" ? isSelectedGolden : isSelectedGeneric);
+                        if (!isSelected)
+                            continue;
+
+                        for (auto &[name, xsec] : xsecs)
+                        {
+                            const auto recoValue = getValue.at(name)(recoData);
+                            xsec.AddSelectedBackgroundEventDetVar(recoValue, weight, sampleName);
+                        }
+                    }
                 }
 
                 // For detector variation samples, that's all we need to do!
                 continue;
             }
+
+            // -----------------------------------------------------------------------------------------------------------------------------
+            // Handle all other events (i.e those from the nominal simulation): Overlays, dirt, EXT data
+            // -----------------------------------------------------------------------------------------------------------------------------
 
             // Get the flux weights
             const auto fluxWeights = (
@@ -195,7 +331,7 @@ void ExtractXSecs(const Config &config)
 
             // Get the cross-section weights
             // ATTN here we optionally scale the cross-section weights down by the genieTuneEventWeight - this is done so we don't
-            // double count this weight (once one in the nominal event weight, and once in the xsec systematic event weights)
+            // double count this weight (once in the nominal event weight, and once in the xsec systematic event weights)
             const auto xsecWeightsScaleFactor = (isOverlay && config.extractXSecs.scaleXSecWeights) ? pEvent->truth.genieTuneEventWeight() : 1.f;
             const auto xsecWeights = (
                 isOverlay
@@ -206,78 +342,111 @@ void ExtractXSecs(const Config &config)
             // Handle signal events
             if (isSignal)
             {
-                xsecMap.at("total").AddSignalEvent(dummyValue, dummyValue, isSelectedGeneric, weight, fluxWeights, xsecWeights);
+                for (auto &[selectionName, xsecs] : xsecMap)
+                {
+                    // Determine if we passed the relevant selection
+                    const auto isSelected = (selectionName == "golden" ? isSelectedGolden : isSelectedGeneric);
+
+                    for (auto &[name, xsec] : xsecs)
+                    {
+                        const auto recoValue = getValue.at(name)(recoData);
+                        const auto trueValue = getValue.at(name)(truthData);
+
+                        xsec.AddSignalEvent(recoValue, trueValue, isSelected, weight, fluxWeights, xsecWeights);
+                    }
+                }
             }
             // Handle selected background events
-            else if (isSelectedGeneric)
+            else
             {
-                xsecMap.at("total").AddSelectedBackgroundEvent(dummyValue, isDirt, weight, fluxWeights, xsecWeights);
+                for (auto &[selectionName, xsecs] : xsecMap)
+                {
+                    // Only use selected background events
+                    const auto isSelected = (selectionName == "golden" ? isSelectedGolden : isSelectedGeneric);
+                    if (!isSelected)
+                        continue;
+
+                    for (auto &[name, xsec] : xsecs)
+                    {
+                        const auto recoValue = getValue.at(name)(recoData);
+                        xsec.AddSelectedBackgroundEvent(recoValue, isDirt, weight, fluxWeights, xsecWeights);
+                    }
+                }
             }
         }
     }
 
     // -------------------------------------------------------------------------------------------------------------------------------------
-    // Calculate the cross-section
+    // Calculate the cross-sections
     // -------------------------------------------------------------------------------------------------------------------------------------
 
     // Loop over all cross-section objects
-    for (const auto &[name, xsec] : xsecMap)
+    for (const auto &[selectionName, xsecs] : xsecMap)
     {
-        std::cout << "Processing cross-section: " << name << std::endl;
-
-        // Get the cross-section as measured with BNB data along with it's uncertainties
-        const auto data = xsec.GetBNBDataCrossSection(scalingData);
-        std::cout << "BNB data cross-section (reco-space)" << std::endl;
-        FormattingHelper::SaveMatrix(data, "xsec_" + name + "_data.txt");
-
-        const auto dataStatUncertainties = xsec.GetBNBDataCrossSectionStatUncertainty(scalingData);
-        std::cout << "BNB data stat uncertainty" << std::endl;
-        FormattingHelper::SaveMatrix(dataStatUncertainties, "xsec_" + name + "_data_stat.txt");
-
-        const auto dataSystBiasCovariances = xsec.GetBNBDataCrossSectionSystUncertainties(scalingData);
-        for (const auto &[group, map] : dataSystBiasCovariances)
+        for (const auto &[name, xsec] : xsecs)
         {
-            for (const auto &[paramName, biasCovariance] : map)
-            {
-                const auto &[pBias, pCovariance] = biasCovariance;
+            std::cout << "Processing cross-section: " << name << std::endl;
 
-                std::cout << "BNB data syst uncertainty: " << group << " " << paramName << std::endl;
-                std::cout << "Bias vector" << std::endl;
-                FormattingHelper::SaveMatrix(*pBias, "xsec_" + name + "_data_" + group + "_" + paramName + "_bias.txt");
-                std::cout << "Covariance matrix" << std::endl;
-                FormattingHelper::SaveMatrix(*pCovariance, "xsec_" + name + "_data_" + group + "_" + paramName + "_covariance.txt");
+            // -----------------------------------------------------------------------------------------------------------------------------
+            // Get the cross-section as measured with BNB data along with it's uncertainties
+            // -----------------------------------------------------------------------------------------------------------------------------
+            const auto data = xsec.GetBNBDataCrossSection(scalingData);
+            std::cout << "BNB data cross-section (reco-space)" << std::endl;
+            FormattingHelper::SaveMatrix(data, "xsec_" + selectionName + "_" + name + "_data.txt");
+
+            const auto dataStatUncertainties = xsec.GetBNBDataCrossSectionStatUncertainty(scalingData);
+            std::cout << "BNB data stat uncertainty" << std::endl;
+            FormattingHelper::SaveMatrix(dataStatUncertainties, "xsec_" + selectionName + "_" + name + "_data_stat.txt");
+
+            const auto dataSystBiasCovariances = xsec.GetBNBDataCrossSectionSystUncertainties(scalingData);
+            for (const auto &[group, map] : dataSystBiasCovariances)
+            {
+                for (const auto &[paramName, biasCovariance] : map)
+                {
+                    const auto &[pBias, pCovariance] = biasCovariance;
+
+                    std::cout << "BNB data syst uncertainty: " << group << " " << paramName << std::endl;
+                    std::cout << "Bias vector" << std::endl;
+                    FormattingHelper::SaveMatrix(*pBias, "xsec_" + selectionName + "_" + name + "_data_" + group + "_" + paramName + "_bias.txt");
+                    std::cout << "Covariance matrix" << std::endl;
+                    FormattingHelper::SaveMatrix(*pCovariance, "xsec_" + selectionName + "_" + name + "_data_" + group + "_" + paramName + "_covariance.txt");
+                }
             }
-        }
 
-        // Get the predicted cross-section along with it's MC stat uncertainty
-        const auto prediction = xsec.GetPredictedCrossSection(scalingData);
-        std::cout << "Predicted cross-section (truth-space)" << std::endl;
-        FormattingHelper::SaveMatrix(prediction, "xsec_" + name + "_prediction.txt");
+            // -----------------------------------------------------------------------------------------------------------------------------
+            // Get the predicted cross-section along with it's MC stat uncertainty
+            // -----------------------------------------------------------------------------------------------------------------------------
+            const auto prediction = xsec.GetPredictedCrossSection(scalingData);
+            std::cout << "Predicted cross-section (truth-space)" << std::endl;
+            FormattingHelper::SaveMatrix(prediction, "xsec_" + selectionName + "_" + name + "_prediction.txt");
 
-        const auto &[pPredictionStatBias, pPredictionStatCovariance] = xsec.GetPredictedCrossSectionStatUncertainty(scalingData);
-        std::cout << "Predicted cross-section stat uncertainty" << std::endl;
-        std::cout << "Bias vector" << std::endl;
-        FormattingHelper::SaveMatrix(*pPredictionStatBias, "xsec_" + name + "_prediction_stat_bias.txt");
-        std::cout << "Covariance matrix" << std::endl;
-        FormattingHelper::SaveMatrix(*pPredictionStatCovariance, "xsec_" + name + "_prediction_stat_covariance.txt");
+            const auto &[pPredictionStatBias, pPredictionStatCovariance] = xsec.GetPredictedCrossSectionStatUncertainty(scalingData);
+            std::cout << "Predicted cross-section stat uncertainty" << std::endl;
+            std::cout << "Bias vector" << std::endl;
+            FormattingHelper::SaveMatrix(*pPredictionStatBias, "xsec_" + selectionName + "_" + name + "_prediction_stat_bias.txt");
+            std::cout << "Covariance matrix" << std::endl;
+            FormattingHelper::SaveMatrix(*pPredictionStatCovariance, "xsec_" + selectionName + "_" + name + "_prediction_stat_covariance.txt");
 
-        // Get the smearing matrix and along with it's uncertainties
-        const auto smearingMatrix = xsec.GetSmearingMatrix();
-        std::cout << "Smearing matrix (reco-space rows, truth-space columns)" << std::endl;
-        FormattingHelper::SaveMatrix(smearingMatrix, "xsec_" + name + "_smearingMatrix.txt");
+            // -----------------------------------------------------------------------------------------------------------------------------
+            // Get the smearing matrix and along with it's uncertainties
+            // -----------------------------------------------------------------------------------------------------------------------------
+            const auto smearingMatrix = xsec.GetSmearingMatrix();
+            std::cout << "Smearing matrix (reco-space rows, truth-space columns)" << std::endl;
+            FormattingHelper::SaveMatrix(smearingMatrix, "xsec_" + selectionName + "_" + name + "_smearingMatrix.txt");
 
-        const auto smearingMatrixSystBiasCovariances = xsec.GetSmearingMatrixSystUncertainties();
-        for (const auto &[group, map] : smearingMatrixSystBiasCovariances)
-        {
-            for (const auto &[paramName, biasCovariance] : map)
+            const auto smearingMatrixSystBiasCovariances = xsec.GetSmearingMatrixSystUncertainties();
+            for (const auto &[group, map] : smearingMatrixSystBiasCovariances)
             {
-                const auto &[pBias, pCovariance] = biasCovariance;
+                for (const auto &[paramName, biasCovariance] : map)
+                {
+                    const auto &[pBias, pCovariance] = biasCovariance;
 
-                std::cout << "Smearing matrix syst uncertainty: " << group << " " << paramName << std::endl;
-                std::cout << "Bias vector" << std::endl;
-                FormattingHelper::SaveMatrix(*pBias, "xsec_" + name + "_smearingMatrix_" + group + "_" + paramName + "_bias.txt");
-                std::cout << "Covariance matrix" << std::endl;
-                FormattingHelper::SaveMatrix(*pCovariance, "xsec_" + name + "_smearingMatrix_" + group + "_" + paramName + "_covariance.txt");
+                    std::cout << "Smearing matrix syst uncertainty: " << group << " " << paramName << std::endl;
+                    std::cout << "Bias vector" << std::endl;
+                    FormattingHelper::SaveMatrix(*pBias, "xsec_" + selectionName + "_" + name + "_smearingMatrix_" + group + "_" + paramName + "_bias.txt");
+                    std::cout << "Covariance matrix" << std::endl;
+                    FormattingHelper::SaveMatrix(*pCovariance, "xsec_" + selectionName + "_" + name + "_smearingMatrix_" + group + "_" + paramName + "_covariance.txt");
+                }
             }
         }
     }
