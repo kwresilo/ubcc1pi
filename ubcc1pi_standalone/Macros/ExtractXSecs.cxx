@@ -23,8 +23,11 @@ void ExtractXSecs(const Config &config)
     // -------------------------------------------------------------------------------------------------------------------------------------
     // Setup the input files
     // -------------------------------------------------------------------------------------------------------------------------------------
-    std::cout << "Setting up input files" << std::endl;
-
+    // Here we define a vector of tuples with 4 entries
+    //   - First, the sample type (e.g. overlay)
+    //   - Second, a string which is used to identify a given detector variation sample (for other sample type, this is unused)
+    //   - Third, the path to the input file
+    //   - Fourth, the normalisation factor to apply to all events in that file
     std::vector< std::tuple<AnalysisHelper::SampleType, std::string, std::string, float> > inputData;
     inputData.emplace_back(AnalysisHelper::Overlay, "", config.files.overlaysFileName, NormalisationHelper::GetOverlaysNormalisation(config));
     inputData.emplace_back(AnalysisHelper::Dirt,    "", config.files.dirtFileName, NormalisationHelper::GetDirtNormalisation(config));
@@ -38,8 +41,10 @@ void ExtractXSecs(const Config &config)
     // -------------------------------------------------------------------------------------------------------------------------------------
     // Setup an object that holds the details of the systematic parameters to apply
     // -------------------------------------------------------------------------------------------------------------------------------------
-    std::cout << "Setting up systematic parameters" << std::endl;
-
+    // Here we read in the "dimensions" of the systematic parameters to apply. For multisim parameters (flux & xsec), this is a map from
+    // each parameter name to the expected number of universes. For unisim parameters (detector variations), this is a map from the
+    // identidier (i.e. name) of the detector variation sample, to the identifier of the corresponding central-value sample. Additionally
+    // we set the number of bootstrap universes (for the MC stat uncertainty), the corresponding weights are generated for each event.
     CrossSectionHelper::CrossSection::SystParams systParams;
     systParams.nBootstrapUniverses = config.extractXSecs.nBootstrapUniverses;
     systParams.fluxDimensions = config.extractXSecs.fluxDimensions;
@@ -49,16 +54,19 @@ void ExtractXSecs(const Config &config)
     // -------------------------------------------------------------------------------------------------------------------------------------
     // Setup an object that holds the information about how we should scale an event rate to obtain a cross-section
     // -------------------------------------------------------------------------------------------------------------------------------------
+    // Here we specify the:
     // - Flux             [10^-10 cm^-2 POT^-1]
     // - Exposure POT     [10^20 POT]               (stored in config as [POT])
     // - Target density   [10^31 nucleons/cm^3]     (stored in config as [10^23 nucleons/cm^3])
     // - Fiducial volume  [cm^3]
     //
+    // Hence the units of the eventual cross-seciton are:
     // - Cross-section    [Flux * Exposure * Target density * Fiducial volume]^-1 = [10^-41 cm^2 / nucleon]
     //
-    // ATTN here we use a FluxReweightor to specify the flux. This is used to get the reweighted flux in each systematic universe.
-    std::cout << "Setting up scaling data" << std::endl;
-
+    // Here we use a FluxReweightor to specify the flux. For each universe of each flux systematic paramter, this is uses the ratio of the
+    // total neutrino event rate (as a function of the true neutrino energy) to the same rate in the nominal simulation to reweight the
+    // input neutrino flux distribution. The integrated flux is each universe is used to scale the selected event rate when calculating the
+    // cross-section in that universe. For all non-flux parameters, the nominal integrated flux is used.
     CrossSectionHelper::CrossSection::ScalingData scalingData;
     scalingData.pFluxReweightor = std::make_shared<CrossSectionHelper::FluxReweightor>(config.flux.binEdges, config.flux.energyBins, systParams.fluxDimensions);
     scalingData.exposurePOT = config.norms.dataBNBTor875WCut / (1e20);
@@ -67,44 +75,101 @@ void ExtractXSecs(const Config &config)
     // -------------------------------------------------------------------------------------------------------------------------------------
     // Setup the event selection
     // -------------------------------------------------------------------------------------------------------------------------------------
+    // Here we are using the default CC1pi selection. The final cut of this selection (named "likelyGoldenPion") is used to identify events
+    // in which the reconstructed & selected pion candidate is "golden". Here a golden pion is one that is: contained within the TPC,
+    // doesn't undergo any scatters on the argon, and comes to rest (before any secondary interaction). If an event passes all the cuts of
+    // this selection, it's said to pass the "golden" selection. If an event passes the penultimate cut, it is said to have passed the
+    // "generic" selection. Events passing the generic selection are likely to be CC1pi, but may or may not have a golden pion. All events
+    // that pass the golden selection also pass the generic selection - but not all events that pass the generic selection also pass the
+    // golden selection.
     auto selection = SelectionHelper::GetDefaultSelection();
 
     // -------------------------------------------------------------------------------------------------------------------------------------
     // Setup the cross-section objects
     // -------------------------------------------------------------------------------------------------------------------------------------
-    std::cout << "Setting up cross-section objects" << std::endl;
-
-    // Here we make a map from a name of the cross-section to the cross-section object itself.
-    // This way we can iterate through the cross-section objects and reduce code-bloat.
-    // The first index is an identifier for the selection that's applied (generic or goldlen), the second index is an identifier for the
-    // kinematic quantity that's relevant for the cross-section (e.g. muonMomentum), and the mapped type is the cross-section object
+    // Here we make a map from a name of the cross-section to the cross-section object itself. In this way, we can iterate through the
+    // cross-section objects and reduce code-bloat. The first index is an identifier for the selection that's applied (generic or goldlen),
+    // the second index is an identifier for the kinematic quantity that's relevant for the cross-section (e.g. muonMomentum), and the
+    // mapped type is the cross-section object.
     std::map<std::string, std::map<std::string, CrossSectionHelper::CrossSection> > xsecMap;
 
-    for (const auto &selectionName : {"generic", "golden"})
+    // We additionally make a map from each cross-section to the limits of the phase-space that we should consider. The key is the
+    // identifier for the kinematic quantity and the mapped value is a pair containing the limits [min, max]
+    std::map< std::string, std::pair<float, float> > phaseSpaceMap;
+
+    // ATTN the configuration allows the user to enable or disable each cross-section. If a cross-section has been disabled, then it won't
+    // be added the xSecMap. However, the phaseSpaceMap always includes all kinematic paramters!
+
+    // Add the differential cross-sections
+    for (const auto &[name, binning, scaleByBinWidth] : std::vector< std::tuple<std::string, Config::Global::Binning, bool> > {
+
+        // The names of the cross-section kinematic parameters, and their binning information.
+        // The third (boolean) parameter indicates if the cross-section bins should be scaled by their width
+        { "muonCosTheta",  config.global.muonCosTheta,  true  },
+        { "muonPhi",       config.global.muonPhi,       true  },
+        { "muonMomentum",  config.global.muonMomentum,  true  },
+
+        { "pionCosTheta",  config.global.pionCosTheta,  true  },
+        { "pionPhi",       config.global.pionPhi,       true  },
+        { "pionMomentum",  config.global.pionMomentum,  true  },
+
+        { "muonPionAngle", config.global.muonPionAngle, true  },
+        { "nProtons",      config.global.nProtons,      false }
+
+    })
     {
-        // Add the differential cross-sections
-        for (const auto &[name, binning, scaleByBinWidth] : std::vector< std::tuple<std::string, Config::Global::Binning, bool> > {
+        // Add to the phase-space map
+        phaseSpaceMap.emplace(name, std::pair<float, float>({binning.min, binning.max}));
 
-            // The names of the cross-section kinematic parameters, and their binning information. The third (boolean) parameter indicates
-            // if the cross-section bins should be scaled by their width
-            { "muonMomentum", config.global.muonMomentum, true }
+        // Here we calculate every cross-section using both the generic and golden selection. In the end we only use the golden selection for
+        // the pion momentum, but we additionally apply it to other cross-sections as a cross-check.
+        for (const auto &selectionName : {"generic", "golden"})
+        {
+            // Don't setup a cross-section object if it's been disabled in the configuration
+            if (!config.extractXSecs.crossSectionIsEnabled.at(selectionName).at(name))
+                continue;
 
-        }){
             // Add the cross-section object to the map using the binning from the input configuration
             const auto &[extendedBinEdges, hasUnderflow, hasOverflow] = CrossSectionHelper::GetExtendedBinEdges(binning.min, binning.max, binning.binEdges);
             xsecMap[selectionName].emplace(name, CrossSectionHelper::CrossSection(systParams, extendedBinEdges, hasUnderflow, hasOverflow, scaleByBinWidth));
         }
+    }
 
-        // ATTN here we use the machinary for a differential cross-section, and treat the total cross-section as a single-bin measurement.
-        // The "kinematic quantity" in this case is just a dummy parameter. Here we define a single bin with edges arbitrarily chosen to be
-        // (-1 -> +1), and we request that the cross-section object does not apply bin-width scaling. When we fill this object, we will use
-        // the dummy kinematic quantity with a value of 0 for all events. This is arbitrary, as long as it's within the bin edges we chose.
-        // In this way the single bin contains all events. It's just a trick to avoid implementing extra logic for the total cross-section.
+    // ATTN here we use the machinary for a differential cross-section, and treat the total cross-section as a single-bin measurement.
+    // The "kinematic quantity" in this case is just a dummy parameter. Here we define a single bin with edges arbitrarily chosen to be
+    // (-1 -> +1), and we request that the cross-section object does not apply bin-width scaling. When we fill this object, we will use
+    // the dummy kinematic quantity with a value of 0 for all events. This is arbitrary, as long as it's within the bin edges we chose.
+    // In this way the single bin contains all events. It's just a trick to avoid implementing extra logic for the total cross-section.
+    for (const auto &selectionName : {"generic", "golden"})
+    {
+        // Don't setup a cross-section object if it's been disabled in the configuration
+        if (!config.extractXSecs.crossSectionIsEnabled.at(selectionName).at("total"))
+            continue;
+
         xsecMap[selectionName].emplace("total", CrossSectionHelper::CrossSection(systParams, {-1.f, 1.f}, false, false, false));
     }
 
     // The dummy value that will be used as the "kinematic quantity" for the total cross-section
     const auto dummyValue = 0.f;
+
+    // Check to see if we have any cross-sections enabled
+    if (xsecMap.empty())
+    {
+        std::cout << "All cross-sections have been disabled in the configuration! Nothing more to do" << std::endl;
+        return;
+    }
+
+    // Print the names of the cross-sections we are going to extract
+    std::cout << "The following cross-sections are enabled:" << std::endl;
+    for (const auto &[selectionName, xsecs] : xsecMap)
+    {
+        std::cout << "  - Selection: " << selectionName << std::endl;
+        for (const auto &entry : xsecs)
+        {
+            const auto &name = entry.first;
+            std::cout << "    - " << name << std::endl;
+        }
+    }
 
     // -------------------------------------------------------------------------------------------------------------------------------------
     // Setup the relevent "getters" for each cross-section
@@ -114,7 +179,16 @@ void ExtractXSecs(const Config &config)
     std::unordered_map< std::string, std::function<float(const AnalysisHelper::AnalysisData &)> > getValue;
 
     // Differential cross-section kinematic parameters
-    getValue.emplace("muonMomentum", [](const auto &data) { return data.muonMomentum; });
+    getValue.emplace("muonCosTheta",  [](const auto &data) { return data.muonCosTheta;  });
+    getValue.emplace("muonPhi",       [](const auto &data) { return data.muonPhi;       });
+    getValue.emplace("muonMomentum",  [](const auto &data) { return data.muonMomentum;  });
+
+    getValue.emplace("pionCosTheta",  [](const auto &data) { return data.pionCosTheta;  });
+    getValue.emplace("pionPhi",       [](const auto &data) { return data.pionPhi;       });
+    getValue.emplace("pionMomentum",  [](const auto &data) { return data.pionMomentum;  });
+
+    getValue.emplace("muonPionAngle", [](const auto &data) { return data.muonPionAngle; });
+    getValue.emplace("nProtons",      [](const auto &data) { return data.nProtons;      });
 
     // ATTN as described above, for the total cross-section we don't have an associated kinematic quantity so we just return a dummy value
     getValue.emplace("total", [=](const auto &) { return dummyValue; });
@@ -122,8 +196,6 @@ void ExtractXSecs(const Config &config)
     // -------------------------------------------------------------------------------------------------------------------------------------
     // Count the events
     // -------------------------------------------------------------------------------------------------------------------------------------
-    std::cout << "Counting events" << std::endl;
-
     // Loop over the files
     for (const auto &[sampleType, sampleName, fileName, normalisation] : inputData)
     {
@@ -173,23 +245,17 @@ void ExtractXSecs(const Config &config)
                 // Start by assuming the event passes the phase-space cuts
                 passesPhaseSpaceReco = true;
 
-                // Check the value of the kinematic quantity for each cross-section is within the supplied bin limits
-                // Note that these bin limits include the underflow & overflow
-                for (const auto &[selectionName, xsecs] : xsecMap)
+                // Check the value of the kinematic quantities are within the phase-space limits
+                for (const auto &[name, minMax] : phaseSpaceMap)
                 {
-                    for (const auto &[name, xsec] : xsecs)
-                    {
-                        const auto &binEdges = xsec.GetBinEdges();
-                        const auto value = getValue.at(name)(recoData);
-                        if (value < binEdges.front() || value > binEdges.back())
-                        {
-                            passesPhaseSpaceReco = false;
-                            break;
-                        }
-                    }
+                    const auto &[min, max] = minMax;
+                    const auto value = getValue.at(name)(recoData);
 
-                    if (!passesPhaseSpaceReco)
+                    if (value < min || value > max)
+                    {
+                        passesPhaseSpaceReco = false;
                         break;
+                    }
                 }
             }
 
@@ -246,23 +312,17 @@ void ExtractXSecs(const Config &config)
                 // Start by assuming the event passes the phase-space cuts
                 passesPhaseSpaceTruth = true;
 
-                // Check the value of the kinematic quantity for each cross-section is within the supplied bin limits
-                // Note that these bin limits include the underflow & overflow
-                for (const auto &[selectionName, xsecs] : xsecMap)
+                // Check the value of the kinematic quantities are within the phase-space limits
+                for (const auto &[name, minMax] : phaseSpaceMap)
                 {
-                    for (const auto &[name, xsec] : xsecs)
-                    {
-                        const auto &binEdges = xsec.GetBinEdges();
-                        const auto value = getValue.at(name)(truthData);
-                        if (value < binEdges.front() || value > binEdges.back())
-                        {
-                            passesPhaseSpaceTruth = false;
-                            break;
-                        }
-                    }
+                    const auto &[min, max] = minMax;
+                    const auto value = getValue.at(name)(truthData);
 
-                    if (!passesPhaseSpaceTruth)
+                    if (value < max || value > max)
+                    {
+                        passesPhaseSpaceTruth = false;
                         break;
+                    }
                 }
             }
 
