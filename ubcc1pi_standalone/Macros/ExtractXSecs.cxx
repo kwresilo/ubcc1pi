@@ -318,7 +318,7 @@ void ExtractXSecs(const Config &config)
                     const auto &[min, max] = minMax;
                     const auto value = getValue.at(name)(truthData);
 
-                    if (value < max || value > max)
+                    if (value < min || value > max)
                     {
                         passesPhaseSpaceTruth = false;
                         break;
