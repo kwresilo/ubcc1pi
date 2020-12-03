@@ -363,6 +363,13 @@ class CrossSectionHelper
                 ubsmear::UBXSecMeta GetMetadata() const;
 
                 /**
+                *  @brief  Get the bin edges (including any underflow or overflow bins)
+                *
+                *  @return the bin edges
+                */
+                std::vector<float> GetBinEdges() const;
+
+                /**
                 *  @brief  Get a column vector containing the bin widths used in the cross-section calculation.
                 *          Note that if the option scaleByBinWidth is false, then this will return unit bin widths
                 *
@@ -803,6 +810,17 @@ class CrossSectionHelper
         *  @return the flattened matrix
         */
         static std::shared_ptr<ubsmear::UBMatrix> FlattenMatrix(const std::shared_ptr<ubsmear::UBMatrix> &pMatrix);
+
+        /**
+        *  @brief  Extend the input bin edges to the supplied minimum and maximum value (where required)
+        *
+        *  @param  min the low edge of the first bin to return
+        *  @param  max the upper edge of the last bin to return
+        *  @param  binEdges the input bin edges to be extended
+        *
+        *  @return the a tuple containing: 0. extended bin edges. 1. if a lower (underflow) bin was added. 2. if an upper (overflow) bin was added
+        */
+        static std::tuple< std::vector<float>, bool, bool > GetExtendedBinEdges(const float min, const float max, const std::vector<float> &binEdges);
 
     private:
 

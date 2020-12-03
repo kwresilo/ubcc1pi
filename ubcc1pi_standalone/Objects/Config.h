@@ -145,93 +145,68 @@ struct Config
         float       targetDensity           = 8.44191f;           ///< The number of target nuclei per unit volume - units [10^23 nucleons / cm^3]
 
         /**
-         *  @brief  The muonCosTheta plot limits structure
+         *  @brief  The Binning structure
+         *          The supplied binEdges define the "analysis bins" in which the data will be presented. The min/max values give the limits
+         *          of the phase-space that's includede in the measurment. If min/max extend beyond the bin edges, then an
+         *          underflow/overflow bin will be added.
          */
-        struct MuonCosTheta
+        struct Binning
         {
-            float               min = -1.f;                                                                                     ///< Minimum possible value
-            float               max =  1.f;                                                                                     ///< Maximum possible value
-            std::vector<float>  binEdges = {-1.f, -0.27f, 0.29f, 0.46f, 0.58f, 0.67f, 0.77f, 0.82f, 0.88f, 0.93f, 0.97f, 1.f};  ///< The bin edges
+            float               min;      ///< Minimum possible value
+            float               max;      ///< Maximum possible value
+            std::vector<float>  binEdges; ///< The analysis bin edges
         };
-        MuonCosTheta muonCosTheta; ///< The muonCosTheta plot limits
 
-        /**
-         *  @brief  The muonPhi plot limits structure
-         */
-        struct MuonPhi
-        {
-            float               min = -3.142f;                                                           ///< Minimum possible value
-            float               max =  3.142f;                                                           ///< Maximum possible value
-            std::vector<float>  binEdges = PlottingHelper::GenerateUniformBinEdges(15, -3.142f, 3.142f); ///< The bin edges
-        };
-        MuonPhi muonPhi; ///< The muonPhi plot limits
+        // Here we define the binning for each kinematic variable. We're initializing each Binning object using member initialization lists.
+        // I.e. we supply the member variable of the Binning struct, in the order they are deined (min, max, binEdges).
 
-        /**
-         *  @brief  The muonMomentum plot limits structure
-         */
-        struct MuonMomentum
-        {
-            float               min = 0.15f;                                           ///< Minimum possible value
-            float               max = std::numeric_limits<float>::max();               ///< Maximum possible value
-            std::vector<float>  binEdges = {0.15f, 0.23f, 0.32f, 0.45f, 0.66f, 1.5f};  ///< The bin edges
-        };
-        MuonMomentum muonMomentum; ///< The muonMomentum plot limits
+        Binning muonCosTheta {
+            -1.f,                                                                              // min
+             1.f,                                                                              // max
+            {-1.f, -0.27f, 0.29f, 0.46f, 0.58f, 0.67f, 0.77f, 0.82f, 0.88f, 0.93f, 0.97f, 1.f} // binEdges
+        }; ///< The muonCosTheta binning
 
-        /**
-         *  @brief  The pionCosTheta plot limits structure
-         */
-        struct PionCosTheta
-        {
-            float               min = -1.f;                                                       ///< Minimum possible value
-            float               max =  1.f;                                                       ///< Maximum possible value
-            std::vector<float>  binEdges = {-1.f, -0.47f, 0.f, 0.39f, 0.65f, 0.84f, 0.93f, 1.f};  ///< The bin edges
-        };
-        PionCosTheta pionCosTheta; ///< The pionCosTheta plot limits
+        Binning muonPhi {
+            -3.142f,                                                     // min
+             3.142f,                                                     // max
+            PlottingHelper::GenerateUniformBinEdges(15, -3.142f, 3.142f) // binEdges
+        }; ///< The muonPhi binning
 
-        /**
-         *  @brief  The pionPhi plot limits structure
-         */
-        struct PionPhi
-        {
-            float               min = -3.142f;                                                           ///< Minimum possible value
-            float               max =  3.142f;                                                           ///< Maximum possible value
-            std::vector<float>  binEdges = PlottingHelper::GenerateUniformBinEdges(10, -3.142f, 3.142f); ///< The bin edges
-        };
-        PionPhi pionPhi; ///< The pionPhi plot limits
+        Binning muonMomentum {
+            0.15f,                                    // min
+            std::numeric_limits<float>::max(),        // max
+            {0.15f, 0.23f, 0.32f, 0.45f, 0.66f, 1.5f} // binEdges
+        }; ///< The muonMomentum binning
 
-        /**
-         *  @brief  The pionMomentum plot limits structure
-         */
-        struct PionMomentum
-        {
-            float               min = 0.f;                                            ///< Minimum possible value
-            float               max = std::numeric_limits<float>::max();              ///< Maximum possible value
-            std::vector<float>  binEdges = {0.1f, 0.16f, 0.19f, 0.22f, 0.6f};  ///< The bin edges
-        };
-        PionMomentum pionMomentum; ///< The pionMomentum plot limits
+        Binning pionCosTheta {
+            -1.f,                                                // min
+             1.f,                                                // max
+            {-1.f, -0.47f, 0.f, 0.39f, 0.65f, 0.84f, 0.93f, 1.f} // binEdges
+        }; ///< The pionCosTheta binning
 
-        /**
-         *  @brief  The muonPionAngle plot limits structure
-         */
-        struct MuonPionAngle
-        {
-            float               min = 0.f;                                                         ///< Minimum possible value
-            float               max = 2.65f;                                                      ///< Maximum possible value
-            //std::vector<float>  binEdges = {0.f, 0.7f, 0.9f, 1.1f, 1.4f, 1.5f, 1.7f, 2.f, 2.65f};  ///< The bin edges
-            std::vector<float>  binEdges = {0.f, 0.49f, 0.93f, 1.26f, 1.57f, 1.88f, 2.21f, 2.65f};  ///< The bin edges
-        };
-        MuonPionAngle muonPionAngle; ///< The muonPionAngle plot limits
+        Binning pionPhi {
+            -3.142f,                                                     // min
+             3.142f,                                                     // max
+            PlottingHelper::GenerateUniformBinEdges(10, -3.142f, 3.142f) // binEdges
+        }; ///< The pionPhi binning
 
-        /**
-         *  @brief  The nProtons plot limits structure
-         */
-        struct NProtons
-        {
-            float               min = 0;                                                 ///< Minimum possible value
-            float               max = std::numeric_limits<float>::max();                 ///< Maximum possible value
-            std::vector<float>  binEdges = {0, 1, 2, std::numeric_limits<float>::max()}; ///< The bin edges
-        };
-        NProtons nProtons; ///< The nProtons plot limits
+        Binning pionMomentum {
+            0.f,                               // min
+            std::numeric_limits<float>::max(), // max
+            {0.1f, 0.16f, 0.19f, 0.22f, 0.6f}  // binEdges
+        }; ///< The pionMomentum binning
+
+        Binning muonPionAngle {
+            0.f,                                                   // min
+            2.65f,                                                 // max
+            {0.f, 0.49f, 0.93f, 1.26f, 1.57f, 1.88f, 2.21f, 2.65f} // binEdges
+        }; ///< The muonPionAngle binning
+
+        Binning nProtons {
+            0,                                           // min
+            std::numeric_limits<float>::max(),           // max
+            {0, 1, 2, std::numeric_limits<float>::max()} // binEdges
+        }; ///< The nProtons binning
 
     };
     Global global; ///< The global configuration options
