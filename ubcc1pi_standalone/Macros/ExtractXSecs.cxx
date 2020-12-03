@@ -448,6 +448,25 @@ void ExtractXSecs(const Config &config)
             std::cout << "Processing cross-section: " << name << std::endl;
 
             // -----------------------------------------------------------------------------------------------------------------------------
+            // Get the event rates for BNB data, backgrounds, and signal
+            // -----------------------------------------------------------------------------------------------------------------------------
+            const auto selectedEventsData = xsec.GetSelectedBNBDataEvents();
+            std::cout << "Selected BNB data events" << std::endl;
+            FormattingHelper::SaveMatrix(selectedEventsData, "xsec_" + selectionName + "_" + name + "_data_selected_eventRate.txt");
+
+            const auto selectedEventsBackground = xsec.GetSelectedBackgroundEvents();
+            std::cout << "Selected background events" << std::endl;
+            FormattingHelper::SaveMatrix(selectedEventsBackground, "xsec_" + selectionName + "_" + name + "_background_selected_eventRate.txt");
+
+            const auto selectedEventsSignal = xsec.GetSelectedSignalEvents();
+            std::cout << "Selected signal events" << std::endl;
+            FormattingHelper::SaveMatrix(selectedEventsSignal, "xsec_" + selectionName + "_" + name + "_signal_selected_eventRate.txt");
+
+            const auto allEventsSignal = xsec.GetSignalEvents();
+            std::cout << "All signal events" << std::endl;
+            FormattingHelper::SaveMatrix(allEventsSignal, "xsec_" + selectionName + "_" + name + "_signal_all_eventRate.txt");
+
+            // -----------------------------------------------------------------------------------------------------------------------------
             // Get the cross-section as measured with BNB data along with it's uncertainties
             // -----------------------------------------------------------------------------------------------------------------------------
             const auto data = xsec.GetBNBDataCrossSection(scalingData);

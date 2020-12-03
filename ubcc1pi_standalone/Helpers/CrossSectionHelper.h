@@ -378,6 +378,34 @@ class CrossSectionHelper
                 ubsmear::UBMatrix GetBinWidths() const;
 
                 /**
+                *  @brief  Get the number of BNB data event selected in each bin
+                *
+                *  @return the number of selected BNB data events as a column vector
+                */
+                ubsmear::UBMatrix GetSelectedBNBDataEvents() const;
+
+                /**
+                *  @brief  Get the number of predicted background events selected in each bin (scaled to the POT of the BNB data)
+                *
+                *  @return the number of selected background events as a column vector
+                */
+                ubsmear::UBMatrix GetSelectedBackgroundEvents() const;
+
+                /**
+                *  @brief  Get the number of predicted signal events selected in each bin (scaled to the POT of the BNB data)
+                *
+                *  @return the number of selected signal events as a column vector
+                */
+                ubsmear::UBMatrix GetSelectedSignalEvents() const;
+
+                /**
+                *  @brief  Get the number of predicted signal events in each bin (scaled to the POT of the BNB data)
+                *
+                *  @return the number of signal events as a column vector
+                */
+                ubsmear::UBMatrix GetSignalEvents() const;
+
+                /**
                 *  @brief  Get the flux-integrated forward-folded cross-section using BNB data
                 *
                 *  @param  scalingData the information about how we should scale the event rate to get the cross-section
