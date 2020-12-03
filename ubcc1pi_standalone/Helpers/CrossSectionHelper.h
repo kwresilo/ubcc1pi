@@ -499,7 +499,7 @@ class CrossSectionHelper
                 *          In some cases the smearing matrix is not defined (i.e. if there is a bin containin no signal events). If these
                 *          cases this function return null
                 *
-                *  @param  pSignalTrue the input signal event distribution in truth space (before any selection)
+                *  @param  pSignal_true the input signal event distribution in truth space (before any selection)
                 *  @param  pSignal_selected_recoTrue the input histogram of the selected signal events in reco-vs-truth space
                 *
                 *  @return a shared pointer to the smearing matrix or a nullptr if the smearing matrix is incalculable
@@ -627,7 +627,8 @@ class CrossSectionHelper
         *
         *  @tparam T the mapped type
         *  @param  systMap the input SystMap
-        *  @param  dimensions the dimensions of the SystMap
+        *
+        *  @return dimensions the dimensions of the SystMap
         */
         template <typename T>
         static SystDimensionsMap GetSystMapDimensions(const SystMap<T> &systMap);
@@ -702,6 +703,7 @@ class CrossSectionHelper
         /**
         *  @brief  Scale the input weights map by the supplied factor
         *
+        *  @param  weightsMap the input weights map to scale
         *  @param  divisor the factor by which we should divide the weights in the map
         *
         *  @return the scaled weights map
