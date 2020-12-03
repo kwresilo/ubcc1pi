@@ -341,7 +341,42 @@ struct Config
     struct ExtractXSecs
     {
         /**
-        *  @brief  If we should scale the GENIE weights so not to double count the genieTuneEventWeight
+        *  @brief  A mapping to identify which cross-section should be extracted. The first index is an identifier for the selection that's
+        *          used (either "generic" or "golden"). The second index is an identifier for the cross-section itself (either "total" for
+        *          the total cross-section, or the name of the kinematic parameter, e.g. "muonMomentum"). The mapped type is a boolean,
+        *          which is true if the cross-section should be extracted, and false otherwise.
+        */
+        std::unordered_map<std::string, std::unordered_map<std::string, bool> > crossSectionIsEnabled = {
+            {
+                "generic", {
+                    {"total",         true },
+                    {"muonCosTheta",  true },
+                    {"muonPhi",       false},
+                    {"muonMomentum",  false},
+                    {"pionCosTheta",  false},
+                    {"pionPhi",       false},
+                    {"pionMomentum",  false},
+                    {"muonPionAngle", false},
+                    {"nProtons",      false}
+                }
+            },
+            {
+                "golden", {
+                    {"total",         false},
+                    {"muonCosTheta",  false},
+                    {"muonPhi",       false},
+                    {"muonMomentum",  false},
+                    {"pionCosTheta",  false},
+                    {"pionPhi",       false},
+                    {"pionMomentum",  false},
+                    {"muonPionAngle", false},
+                    {"nProtons",      false}
+                }
+            }
+        };
+
+        /**
+        *  @brief  Boolean indicating if we should scale the GENIE weights so not to double count the genieTuneEventWeight
         *          By default we apply (splineEventWeight * genieTuneEventWeight) as the "nominal weight" to all events. Then we apply the
         *          multisim universe weights on top of the nominal weight. For the GENIE systematic parameters, the universe weights already
         *          include the genieTuneEventWeight, and so require special treatment to avoid double counting this weight. If this option
