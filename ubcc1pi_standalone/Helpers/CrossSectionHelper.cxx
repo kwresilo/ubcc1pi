@@ -14,6 +14,7 @@ namespace ubcc1pi
 {
 
 CrossSectionHelper::FluxReweightor::FluxReweightor(const std::vector<float> &binEdges, const std::vector<float> &binValuesNominal, const SystDimensionsMap &fluxWeightsDimensions) :
+    /// @cond Doxygen can't handle this initilizer list
     m_dimensions(fluxWeightsDimensions),
     m_pFluxNominal(CrossSectionHelper::GetTH1F(binEdges)),
     m_pSpectrumNominal(CrossSectionHelper::GetTH1F(binEdges)),
@@ -56,6 +57,7 @@ CrossSectionHelper::FluxReweightor::FluxReweightor(const std::vector<float> &bin
         return this->GetIntegratedFlux(pReweightedFlux);
 
     }, m_dimensions)
+    /// @endcond
 {
     // There should be one more bin edge than the number of bins
     if (binEdges.size() != binValuesNominal.size() + 1)
