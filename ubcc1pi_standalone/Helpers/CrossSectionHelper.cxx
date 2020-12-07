@@ -7,6 +7,9 @@
 #include "ubcc1pi_standalone/Helpers/CrossSectionHelper.h"
 
 #include "ubcc1pi_standalone/Helpers/AnalysisHelper.h"
+#include "ubcc1pi_standalone/Helpers/GeometryHelper.h"
+
+#include <TFile.h>
 
 #include <stdexcept>
 
@@ -674,14 +677,11 @@ ubsmear::UBMatrix CrossSectionHelper::CrossSection::GetBNBDataCrossSectionInUniv
     // valid. Instead we rely on the internal range checking of the .at() method for STL containers. This is for peformance reasons as this
     // function gets called once per universe!
 
-    // Get the number of selected signal events in the supplied universe
-    const auto signalSelected = this->GetSignalSelectedTrue(m_signal_selected_recoTrue_multisims.at(group).at(paramName).at(universeIndex));
+    // Get the number of selected events in BNB data
+    const auto selected = CrossSectionHelper::GetMatrixFromHist(m_pBNBData_selected_reco);
 
     // Get the number of predicted backgrounds in the supplied universe
     const auto backgrounds = CrossSectionHelper::GetMatrixFromHist(m_background_selected_reco_multisims.at(group).at(paramName).at(universeIndex));
-
-    // Get the total number of selected events
-    const auto selected = signalSelected + backgrounds;
 
     // Get the integrated flux in the supplied universe (if it's not a flux parameter, then use the nominal universe)
     const auto integratedFlux = (
@@ -698,14 +698,11 @@ ubsmear::UBMatrix CrossSectionHelper::CrossSection::GetBNBDataCrossSectionInUniv
 
 ubsmear::UBMatrix CrossSectionHelper::CrossSection::GetBNBDataCrossSectionForUnisim(const std::string &group, const std::string &paramName, const ScalingData &scalingData) const
 {
-    // Get the number of selected signal events in the supplied universe
-    const auto signalSelected = this->GetSignalSelectedTrue(m_signal_selected_recoTrue_unisims.at(group).at(paramName));
+    // Get the number of selected events in BNB data
+    const auto selected = CrossSectionHelper::GetMatrixFromHist(m_pBNBData_selected_reco);
 
     // Get the number of predicted backgrounds in the supplied universe
     const auto backgrounds = CrossSectionHelper::GetMatrixFromHist(m_background_selected_reco_unisims.at(group).at(paramName));
-
-    // Get the total number of selected events
-    const auto selected = signalSelected + backgrounds;
 
     // Get the integrated flux in the nominal universe
     const auto integratedFlux = scalingData.pFluxReweightor->GetIntegratedNominalFlux();
@@ -755,7 +752,7 @@ CrossSectionHelper::SystBiasCovariancePair CrossSectionHelper::CrossSection::Get
         // internal range checking of the ubsmear::UBMatrix class
         for (unsigned int iBin = 0; iBin < nBins; ++iBin)
         {
-            // Add up the cross-sections
+            // Add up the universes
             meanSum.SetElement(iBin, 0, meanSum.At(iBin, 0) + pUniverse->At(iBin, 0));
 
             // Loop over the bins again
@@ -771,6 +768,8 @@ CrossSectionHelper::SystBiasCovariancePair CrossSectionHelper::CrossSection::Get
             }
         }
     }
+
+    std::cout << "DEBUG - Valid universes: " << nValidUniverses << " / " << nUniverses << std::endl;
 
     // Scale the sums by the number of universes
     if (nValidUniverses == 0)
@@ -1440,7 +1439,7 @@ std::pair< std::vector<float>, std::vector<float> > CrossSectionHelper::ReadNomi
         fluxBinValuesNominal.push_back(nNeutrinos * fluxScaleFactor);
     }
 
-    return {fluxBinEdges, fluxBinValuesNominal}
+    return {fluxBinEdges, fluxBinValuesNominal};
 }
 
 } // namespace ubcc1pi
