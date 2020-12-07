@@ -162,6 +162,13 @@ namespace ubcc1pi_macros
     void MakeBinningPlots(const Config &config = Config());
 
     /**
+     *  @brief  Plot the variations of the flux for each systematic parameter
+     *
+     *  @param  config the input configuration
+     */
+    void PlotFluxVariations(const Config &config = Config());
+
+    /**
      *  @brief  Extract the cross-sections
      *
      *  @param  config the input configuration

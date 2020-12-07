@@ -393,6 +393,15 @@ class AnalysisHelper
         static bool IsFiducial(const TVector3 &point);
 
         /**
+         *  @brief  Determine if a given point is within the active volume
+         *
+         *  @param  point the point
+         *
+         *  @return boolean, true if contained
+         */
+        static bool IsInActiveVolume(const TVector3 &point);
+
+        /**
          *  @brief  Determine if a given point is contained within the detector
          *
          *  @param  point the point

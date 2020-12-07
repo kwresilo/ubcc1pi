@@ -61,6 +61,7 @@
         "Macros/PlotMuonRecoVariables.cxx",
         "Macros/PlotReconstructedVariables.cxx",
         "Macros/MakeBinningPlots.cxx",
+        "Macros/PlotFluxVariations.cxx",
         "Macros/ExtractXSecs.cxx",
 
         "Macros/RunFullAnalysis.cxx"
