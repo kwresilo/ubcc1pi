@@ -68,7 +68,10 @@ void ExtractXSecs(const Config &config)
     // input neutrino flux distribution. The integrated flux is each universe is used to scale the selected event rate when calculating the
     // cross-section in that universe. For all non-flux parameters, the nominal integrated flux is used.
     CrossSectionHelper::CrossSection::ScalingData scalingData;
-    scalingData.pFluxReweightor = std::make_shared<CrossSectionHelper::FluxReweightor>(config.flux.binEdges, config.flux.energyBins, systParams.fluxDimensions);
+
+    const auto &[fluxBinEdges, fluxValues] = CrossSectionHelper::ReadNominalFlux(config.flux.fileName, config.flux.nomHistName, config.flux.pot);
+    scalingData.pFluxReweightor = std::make_shared<CrossSectionHelper::FluxReweightor>(fluxBinEdges, fluxValues, systParams.fluxDimensions);
+
     scalingData.exposurePOT = config.norms.dataBNBTor875WCut / (1e20);
     scalingData.nTargets = config.global.targetDensity * (1e-8) * AnalysisHelper::GetFiducialVolume();
 
@@ -383,8 +386,8 @@ void ExtractXSecs(const Config &config)
                     : CrossSectionHelper::GetUnitWeightsMap(systParams.fluxDimensions)
             );
 
-            // Fill the flux-reweightor with all overlay events in the fiducial volume
-            if (isOverlay && AnalysisHelper::IsFiducial(pEvent->truth.nuVertex()))
+            // Fill the flux-reweightor with all overlay events in the active volume
+            if (isOverlay && AnalysisHelper::IsInActiveVolume(pEvent->truth.nuVertex()))
             {
                 scalingData.pFluxReweightor->AddEvent(pEvent->truth.nuEnergy(), weight, fluxWeights);
             }

@@ -112,7 +112,6 @@ float CrossSectionHelper::FluxReweightor::GetIntegratedFlux(const std::shared_pt
 
     for (unsigned int iBin = 1; iBin <= static_cast<unsigned int>(pFlux->GetNbinsX()); ++iBin)
     {
-        // ATTN the input flux has already been scaled by bin width
         total += pFlux->GetBinContent(iBin);
     }
 
@@ -1402,6 +1401,46 @@ std::tuple< std::vector<float>, bool, bool > CrossSectionHelper::GetExtendedBinE
         extendedBinEdges.push_back(max);
 
     return {extendedBinEdges, hasUnderflow, hasOverflow};
+}
+
+// -----------------------------------------------------------------------------------------------------------------------------------------
+
+std::pair< std::vector<float>, std::vector<float> > CrossSectionHelper::ReadNominalFlux(const std::string &fileName, const std::string &histName, const float pot)
+{
+    // Open the flux file for reading
+    TFile *pFluxFile = new TFile(fileName.c_str(), "READ");
+    if (!pFluxFile->IsOpen())
+        throw std::invalid_argument("CrossSectionHelper::ReadNominalFlux - Can't open flux file: " + fileName);
+
+    // Get the nominal flux
+    const auto pFluxHist = static_cast<TH1F *>(pFluxFile->Get(histName.c_str()));
+
+    // Get the scaling factor to go from the event rate in the flux file, to the flux itself
+    // Here we get the flux in neutrinos/POT/bin/cm2 by scaling the event rate (in the samples) down by POT and the cross-sectional area of the active volume
+    // Here we also scale up the fluxes by 1e10 for the sake of comparison just so we are working with reasonable numbers
+    const float unitsScaling = 1e10;
+    const auto fluxScaleFactor = unitsScaling / (pot * (GeometryHelper::highX - GeometryHelper::lowX) * (GeometryHelper::highY - GeometryHelper::lowY));
+
+    // Get the flux bin edges and content
+    std::vector<float> fluxBinEdges, fluxBinValuesNominal;
+    const unsigned int nFluxBins = pFluxHist->GetNbinsX();
+    for (unsigned int iBin = 1; iBin <= nFluxBins; ++iBin)
+    {
+        const auto lowEdge = pFluxHist->GetBinLowEdge(iBin);
+        fluxBinEdges.push_back(lowEdge);
+
+        // Add the upper edge of the last bin
+        if (iBin == nFluxBins)
+        {
+            const auto binWidth = pFluxHist->GetBinWidth(iBin);
+            fluxBinEdges.push_back(lowEdge + binWidth);
+        }
+
+        const auto nNeutrinos = pFluxHist->GetBinContent(iBin);
+        fluxBinValuesNominal.push_back(nNeutrinos * fluxScaleFactor);
+    }
+
+    return {fluxBinEdges, fluxBinValuesNominal}
 }
 
 } // namespace ubcc1pi

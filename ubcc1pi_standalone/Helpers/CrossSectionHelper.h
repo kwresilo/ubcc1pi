@@ -850,6 +850,20 @@ class CrossSectionHelper
         */
         static std::tuple< std::vector<float>, bool, bool > GetExtendedBinEdges(const float min, const float max, const std::vector<float> &binEdges);
 
+        /**
+        *  @brief  Read the nominal flux distribution from the supplied event-rate histogram in the supplied file. This function scales the
+        *          event rate by the supplied POT and the cross-sectional area of the active volume in the X-Y plane. The flux returned by
+        *          this function isn't scaled by bin width, and so the sum over all bins returned gives the integrated flux. The flux is
+        *          return in units of [ 10^-10 neutrinos / bin / POT / cm^2 ]
+        *
+        *  @param  fileName the input flux file
+        *  @param  histName the name of the histogram to read
+        *  @param  pot the number of protons on target simulated
+        *
+        *  @return a pair containing - the neutrino energy bin edges (first), the flux in each bin (second)
+        */
+        static std::pair< std::vector<float>, std::vector<float> > ReadNominalFlux(const std::string &fileName, const std::string &histName, const float pot);
+
     private:
 
         static unsigned int                m_histCount; ///< A counter to keep track of the number of histograms produced

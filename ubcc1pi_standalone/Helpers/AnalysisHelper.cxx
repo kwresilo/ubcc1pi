@@ -789,6 +789,13 @@ bool AnalysisHelper::IsContained(const Event::Reco::Particle &particle)
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
 
+bool AnalysisHelper::IsInActiveVolume(const TVector3 &point)
+{
+    return AnalysisHelper::IsPointWithinMargins(point, 0.f, 0.f, 0.f, 0.f, 0.f, 0.f);
+}
+
+// -----------------------------------------------------------------------------------------------------------------------------------------
+
 unsigned int AnalysisHelper::GetBestMatchedTruthParticleIndex(const Event::Reco::Particle &recoParticle, const std::vector<Event::Truth::Particle> &truthParticles, const bool applyVisibilityThreshold)
 {
     if (!recoParticle.hasMatchedMCParticle.IsSet())
