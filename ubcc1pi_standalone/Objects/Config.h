@@ -334,26 +334,26 @@ struct Config
                 "generic", {
                     {"total",         true },
                     {"muonCosTheta",  true },
-                    {"muonPhi",       false},
-                    {"muonMomentum",  false},
-                    {"pionCosTheta",  false},
-                    {"pionPhi",       false},
-                    {"pionMomentum",  false},
-                    {"muonPionAngle", false},
-                    {"nProtons",      false}
+                    {"muonPhi",       true },
+                    {"muonMomentum",  true },
+                    {"pionCosTheta",  true },
+                    {"pionPhi",       true },
+                    {"pionMomentum",  true },
+                    {"muonPionAngle", true },
+                    {"nProtons",      true }
                 }
             },
             {
                 "golden", {
-                    {"total",         false},
-                    {"muonCosTheta",  false},
-                    {"muonPhi",       false},
-                    {"muonMomentum",  false},
-                    {"pionCosTheta",  false},
-                    {"pionPhi",       false},
-                    {"pionMomentum",  false},
-                    {"muonPionAngle", false},
-                    {"nProtons",      false}
+                    {"total",         true },
+                    {"muonCosTheta",  true },
+                    {"muonPhi",       true },
+                    {"muonMomentum",  true },
+                    {"pionCosTheta",  true },
+                    {"pionPhi",       true },
+                    {"pionMomentum",  true },
+                    {"muonPionAngle", true },
+                    {"nProtons",      true }
                 }
             }
         };
@@ -433,6 +433,17 @@ struct Config
 
     };
     ExtractXSecs extractXSecs; ///< The configuration options for the ExtractXSecs macro
+
+    // -------------------------------------------------------------------------------------------------------------------------------------
+
+    /**
+     *  @brief  Configuration for the PrintUncertaintiesSummary macro
+     */
+    struct PrintUncertaintiesSummary
+    {
+        bool  useGenericSelection = true;  ///< If we should use the generic selection (if false, we use golden selection)
+    };
+    PrintUncertaintiesSummary printUncertaintiesSummary; ///< The configuration options for the PrintUncertaintiesSummary macro
 };
 
 } // namespace ubcc1pi

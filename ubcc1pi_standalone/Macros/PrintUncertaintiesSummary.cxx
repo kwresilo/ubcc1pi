@@ -19,9 +19,12 @@ namespace ubcc1pi_macros
 
 void PrintUncertaintiesSummary(const Config &config)
 {
+    // Get the desired selection name
+    const std::string selectionName = config.printUncertaintiesSummary.useGenericSelection ? "generic" : "golden";
+
     // Define a lambda function to get a single value from file
     const auto getValue = [&](const std::string &identifier) -> float {
-        const auto vect = ubsmear::UBFileHelper::ReadColumnVector("xsec_generic_total_" + identifier + ".txt");
+        const auto vect = ubsmear::UBFileHelper::ReadColumnVector("xsec_" + selectionName + "_total_" + identifier + ".txt");
         if (vect.GetRows() != 1)
             throw std::logic_error("PrintUncertaintiesSummary - Input file contains more than one value");
 
@@ -36,6 +39,19 @@ void PrintUncertaintiesSummary(const Config &config)
 
     // Keep track of the grand-total uncertainty
     float grandTotalSqr = 0.f;
+
+    // Get the stat uncertainty
+    const auto statTotal = getValue("data_stat");
+    const auto statTotalFrac = statTotal / xsecData;
+
+    table.AddEmptyRow();
+    table.SetEntry("Group", "stat");
+    table.SetEntry("Total", statTotal);
+    table.SetEntry("Frac", statTotalFrac);
+    table.AddEmptyRow();
+
+    // Add the stat uncertainty to the grand total
+    grandTotalSqr += statTotal*statTotal;
 
     // Get the uncertainties for the multisims
     for (const auto &[group, dimensions] : std::map<std::string, CrossSectionHelper::SystDimensionsMap>({
@@ -60,7 +76,7 @@ void PrintUncertaintiesSummary(const Config &config)
             const auto frac = total / xsecData;
 
             table.AddEmptyRow();
-            table.SetEntry("Group", group);
+            table.SetEntry("Group", "syst " + group);
             table.SetEntry("Parameter", paramName);
             table.SetEntry("Universes", nUniverses);
             table.SetEntry("Bias", bias);
@@ -75,7 +91,8 @@ void PrintUncertaintiesSummary(const Config &config)
         const auto groupTotalFrac = groupTotal / xsecData;
 
         table.AddEmptyRow();
-        table.SetEntry("Group", group);
+        table.SetEntry("Group", "syst " + group);
+        table.SetEntry("Parameter", "total");
         table.SetEntry("Total", groupTotal);
         table.SetEntry("Frac", groupTotalFrac);
         table.AddEmptyRow();
@@ -99,7 +116,7 @@ void PrintUncertaintiesSummary(const Config &config)
             const auto frac = total / xsecData;
 
             table.AddEmptyRow();
-            table.SetEntry("Group", group);
+            table.SetEntry("Group", "syst " + group);
             table.SetEntry("Parameter", paramName);
             table.SetEntry("Bias", bias);
             table.SetEntry("Total", total);
@@ -112,7 +129,8 @@ void PrintUncertaintiesSummary(const Config &config)
         const auto groupTotalFrac = groupTotal / xsecData;
 
         table.AddEmptyRow();
-        table.SetEntry("Group", group);
+        table.SetEntry("Group", "syst " + group);
+        table.SetEntry("Parameter", "total");
         table.SetEntry("Total", groupTotal);
         table.SetEntry("Frac", groupTotalFrac);
         table.AddEmptyRow();
@@ -125,11 +143,12 @@ void PrintUncertaintiesSummary(const Config &config)
     const auto grandTotalFrac = grandTotal / xsecData;
 
     table.AddEmptyRow();
-    table.SetEntry("Group", "all");
+    table.SetEntry("Group", "stat + syst");
+    table.SetEntry("Parameter", "total");
     table.SetEntry("Total", grandTotal);
     table.SetEntry("Frac", grandTotalFrac);
 
-    table.WriteToFile("xsec_uncertaintiesSummary.md");
+    table.WriteToFile("xsecSummary_" + selectionName + ".md");
 }
 
 } // namespace ubcc1pi_macros
