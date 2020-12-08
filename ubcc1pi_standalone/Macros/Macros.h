@@ -176,6 +176,13 @@ namespace ubcc1pi_macros
     void ExtractXSecs(const Config &config = Config());
 
     /**
+     *  @brief  Print a summary of the uncertainties for the total cross-section
+     *
+     *  @param  config the input configuration
+     */
+    void PrintUncertaintiesSummary(const Config &config = Config());
+
+    /**
      *  @brief  Top-level macro that runs the full analysis chain
      *
      *  @param  config the input config

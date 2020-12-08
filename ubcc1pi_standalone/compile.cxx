@@ -63,6 +63,7 @@
         "Macros/MakeBinningPlots.cxx",
         "Macros/PlotFluxVariations.cxx",
         "Macros/ExtractXSecs.cxx",
+        "Macros/PrintUncertaintiesSummary.cxx",
 
         "Macros/RunFullAnalysis.cxx"
     }))
