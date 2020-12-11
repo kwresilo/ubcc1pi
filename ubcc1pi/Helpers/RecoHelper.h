@@ -93,7 +93,7 @@ class RecoHelper
          *
          *  @return the chi2 from the flash-slice match
          */
-        static float GetRecoFlashChi2(const art::Event &event, const PFParticleVector &allPFParticles, const art::InputTag &flashmatchLabel);
+        static float GetRecoFlashChi2(const art::Event &event, const PFParticleVector &allPFParticles, const art::InputTag &PFParticleLabel, const art::InputTag &flashmatchLabel);
 
         /**
          *  @brief  Get the parent of the input PFParticle
