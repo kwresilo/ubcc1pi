@@ -257,8 +257,11 @@ void EventFactory::PopulateEventRecoInfo(const art::Event &event, const Config &
     const auto nuVertex = RecoHelper::GetRecoNeutrinoVertex(event, neutrinos, config.VertexLabel());
     const auto nuVertexSCC = RecoHelper::CorrectForSpaceCharge(nuVertex, pSpaceChargeService);
 
+    const auto flashChi2 = RecoHelper::GetRecoFlashChi2(event, neutrinos, config.FlashMatchLabel());
+
     reco.nuVertex.Set(nuVertexSCC);
     reco.nuPdgCode.Set(neutrinos.front()->PdgCode());
+    reco.flashChi2.Set(flashChi2);
 
     const auto finalStatePFParticles = RecoHelper::GetNeutrinoFinalStates(allPFParticles);
     reco.nFinalStates.Set(finalStatePFParticles.size());

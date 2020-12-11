@@ -85,6 +85,17 @@ class RecoHelper
         static TVector3 GetRecoNeutrinoVertex(const art::Event &event, const PFParticleVector &allPFParticles, const art::InputTag &vertexLabel);
 
         /**
+         *  @brief  Get the flash-matching chi2 between the reconstructed neutrino and the measured flash
+         *
+         *  @param  event the art event record
+         *  @param  allPFParticles the input vector of all PFParticles
+         *  @param  flashmatchLabel the label for the flash matching producer module
+         *
+         *  @return the chi2 from the flash-slice match
+         */
+        static float RecoHelper::GetRecoFlashChi2(const art::Event &event, const PFParticleVector &allPFParticles, const art::InputTag &flashmatchLabel);
+
+        /**
          *  @brief  Get the parent of the input PFParticle
          *
          *  @param  particle the child PFParticle
