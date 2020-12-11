@@ -103,6 +103,26 @@ TVector3 RecoHelper::GetRecoNeutrinoVertex(const art::Event &event, const PFPart
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
 
+TVector3 RecoHelper::GetRecoFlashChi2(const art::Event &event, const PFParticleVector &allPFParticles, const art::InputTag &flashmatchLabel)
+{
+    consst auto nuFlashScoreAssoc = CollectionHelper::GetAssociation<recob::PFParticle, anab::T0>(event, flashmatchLabel);
+
+    try
+    {
+        const auto neutrino = RecoHelper::GetNeutrino(allPFParticles);
+
+        const auto T0_flashchi = CollectionHelper::GetSingleAssociated(neutrino, nuFlashScoreAssoc);
+
+        return (float)T0_flashchi_v.at(0)->TriggerConfidence();
+    }
+    catch (const cet::exception &)
+    {
+        return -std::numeric_limits<float>::max();
+    }
+}
+
+// -----------------------------------------------------------------------------------------------------------------------------------------
+
 art::Ptr<recob::PFParticle> RecoHelper::GetParent(const art::Ptr<recob::PFParticle> &particle, const PFParticleMap &pfParticleMap)
 {
     if (particle->IsPrimary())
