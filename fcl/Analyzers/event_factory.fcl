@@ -19,6 +19,7 @@ event_factory_config:
     CalorimetryLabel:   "pandoracaliSCE"
     PIDLabel:           "pandoracalipidSCE"
     CCInclusiveLabel:   "NuCCproducer"
+    FlashMatchLabel:    "flashmatch"
 
     # Configuration
     HasTruthInfo:               true
