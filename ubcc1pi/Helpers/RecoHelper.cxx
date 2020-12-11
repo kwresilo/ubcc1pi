@@ -103,9 +103,9 @@ TVector3 RecoHelper::GetRecoNeutrinoVertex(const art::Event &event, const PFPart
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
 
-float RecoHelper::GetRecoFlashChi2(const art::Event &event, const PFParticleVector &allPFParticles, const art::InputTag &flashmatchLabel)
+float RecoHelper::GetRecoFlashChi2(const art::Event &event, const PFParticleVector &allPFParticles, const art::InputTag &pfparticleLabel, const art::InputTag &flashmatchLabel)
 {
-    const auto nuFlashScoreAssoc = CollectionHelper::GetAssociation<recob::PFParticle, anab::T0>(event, flashmatchLabel);
+    const auto nuFlashScoreAssoc = CollectionHelper::GetAssociation<recob::PFParticle, anab::T0>(event, pfparticleLabel, flashmatchLabel);
 
     try
     {
