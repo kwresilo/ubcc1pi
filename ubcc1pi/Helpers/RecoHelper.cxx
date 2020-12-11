@@ -113,7 +113,7 @@ float RecoHelper::GetRecoFlashChi2(const art::Event &event, const PFParticleVect
 
         const auto T0_flashchi = CollectionHelper::GetSingleAssociated(neutrino, nuFlashScoreAssoc);
 
-        return (float)T0_flashchi.at(0)->TriggerConfidence();
+        return (float)T0_flashchi->TriggerConfidence();
     }
     catch (const cet::exception &)
     {
