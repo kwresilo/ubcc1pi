@@ -266,6 +266,9 @@ void EventFactory::PopulateEventRecoInfo(const art::Event &event, const Config &
     const auto flashChi2 = RecoHelper::GetRecoFlashChi2(event, neutrinos, config.PFParticleLabel(), config.FlashMatchLabel());
     reco.flashChi2.Set(flashChi2);
 
+    const auto flashTime = RecoHelper::GetRecoFlashTime(event, neutrinos, config.PFParticleLabel(), config.FlashMatchLabel());
+    reco.flashTime.Set(flashTime);
+
     // Find the largest flash and save information. This is making an assumption that the largest flash is the one associated to the neutrino event but that's generally true
     const auto largestFlash = RecoHelper::GetLargestFlash(event, config.FlashLabel());
 

@@ -119,6 +119,7 @@
     f(p, q, true,  TVector3,            nuVertex)                                                                                          \
     f(p, q, false, int,                 nFinalStates)                                                                                          \
     f(p, q, false, float,                 flashChi2)                                                                                          \
+    f(p, q, false, float,                 flashTime)                                                                                          \
     f(p, q, false, float,                 largestFlashPE)                                                                                          \
     f(p, q, false, float,                 largestFlashTime)                                                                                          \
     f(p, q, false, float,                 largestFlashTimeWidth)                                                                                          \

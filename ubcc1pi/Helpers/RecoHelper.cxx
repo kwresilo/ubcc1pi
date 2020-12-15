@@ -123,6 +123,26 @@ float RecoHelper::GetRecoFlashChi2(const art::Event &event, const PFParticleVect
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
 
+float RecoHelper::GetRecoFlashTime(const art::Event &event, const PFParticleVector &allPFParticles, const art::InputTag &pfparticleLabel, const art::InputTag &flashmatchLabel)
+{
+    const auto nuFlashScoreAssoc = CollectionHelper::GetAssociation<recob::PFParticle, anab::T0>(event, pfparticleLabel, flashmatchLabel);
+
+    try
+    {
+        const auto neutrino = RecoHelper::GetNeutrino(allPFParticles);
+
+        const auto T0_flashchi = CollectionHelper::GetSingleAssociated(neutrino, nuFlashScoreAssoc);
+
+        return (float)T0_flashchi->Time();
+    }
+    catch (const cet::exception &)
+    {
+        return -std::numeric_limits<float>::max();
+    }
+}
+
+// -----------------------------------------------------------------------------------------------------------------------------------------
+
 art::Ptr<recob::OpFlash> RecoHelper::GetLargestFlash(const art::Event &event, const art::InputTag &flashLabel)
 {
     float flash_pe = -std::numeric_limits<float>::max();
