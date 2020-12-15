@@ -96,6 +96,16 @@ class RecoHelper
         static float GetRecoFlashChi2(const art::Event &event, const PFParticleVector &allPFParticles, const art::InputTag &PFParticleLabel, const art::InputTag &flashmatchLabel);
 
         /**
+         *  @brief  Get the largest flash in the event ( we will assume this is the one associated to the neutrino interaction if there is one)
+         *
+         *  @param  event the art event record
+         *  @param  flashLabel the label for the flash producer module
+         *
+         *  @return an art::Ptr to the recob::OpFlash with the largest PE in the event
+         */
+        static art::Ptr<recob::OpFlash> RecoHelper::GetLargestFlash(const art::Event &event, const art::InputTag &flashLabel)
+
+        /**
          *  @brief  Get the parent of the input PFParticle
          *
          *  @param  particle the child PFParticle

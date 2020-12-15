@@ -222,6 +222,15 @@ class EventFactory
                 fhicl::Name("FlashMatchLabel"),
                 fhicl::Comment("The label for the Flash Matching producer")
             };
+
+            /**
+             *  @brief  The flash label (OpFlash data product)
+             */
+            fhicl::Atom<art::InputTag> FlashLabel
+            {
+                fhicl::Name("FlashLabel"),
+                fhicl::Comment("The label for the Flash producer (OpFlash)")
+            };
         };
 
         /**

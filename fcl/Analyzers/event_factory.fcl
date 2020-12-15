@@ -20,6 +20,7 @@ event_factory_config:
     PIDLabel:           "pandoracalipidSCE"
     CCInclusiveLabel:   "NuCCproducer"
     FlashMatchLabel:    "flashmatch"
+    FlashLabel:         "simpleFlashBeam"
 
     # Configuration
     HasTruthInfo:               true
