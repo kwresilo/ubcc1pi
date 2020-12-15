@@ -103,7 +103,7 @@ class RecoHelper
          *
          *  @return an art::Ptr to the recob::OpFlash with the largest PE in the event
          */
-        static art::Ptr<recob::OpFlash> GetLargestFlash(const art::Event &event, const art::InputTag &flashLabel)
+        static art::Ptr<recob::OpFlash> GetLargestFlash(const art::Event &event, const art::InputTag &flashLabel);
 
         /**
          *  @brief  Get the parent of the input PFParticle
