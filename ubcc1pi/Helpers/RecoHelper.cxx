@@ -130,7 +130,7 @@ art::Ptr<recob::OpFlash> RecoHelper::GetLargestFlash(const art::Event &event, co
 
     try
     {
-        const auto flashes == CollectionHelper::GetCollection(event, flashLabel);
+        const auto flashes = CollectionHelper::GetCollection(event, flashLabel);
 
         for (size_t f=0; f< flashes.size(); f++){
             auto flash = flashes->at(f);
