@@ -269,13 +269,13 @@ void EventFactory::PopulateEventRecoInfo(const art::Event &event, const Config &
     // Find the largest flash and save information. This is making an assumption that the largest flash is the one associated to the neutrino event but that's generally true
     const auto largestFlash = RecoHelper::GetLargestFlash(event, config.FlashLabel());
 
-    reco.largestFlashPE = largestFlash->TotalPE();
-    reco.largestFlashTime = largestFlash->Time();
-    reco.largestFlashTimeWidth = largestFlash->TimeWidth();
-    reco.largestFlashYCtr = largestFlash->YCenter();
-    reco.largestFlashYWidth = largestFlash->YWidth();
-    reco.largestFlashZCtr = largestFlash->ZCenter();
-    reco.largestFlashZWidth = largestFlash->ZWidth();
+    reco.largestFlashPE.Set((float)largestFlash->TotalPE());
+    reco.largestFlashTime.Set((float)largestFlash->Time());
+    reco.largestFlashTimeWidth.Set((float)largestFlash->TimeWidth());
+    reco.largestFlashYCtr.Set((float)largestFlash->YCenter());
+    reco.largestFlashYWidth.Set((float)largestFlash->YWidth());
+    reco.largestFlashZCtr.Set((float)largestFlash->ZCenter());
+    reco.largestFlashZWidth.Set((float)largestFlash->ZWidth());
 
     // If we have truth info, then run the reco-true-matching
     std::shared_ptr<BacktrackHelper::BacktrackerData> pBacktrackerData;
