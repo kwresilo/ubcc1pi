@@ -3,10 +3,10 @@
 <!DOCTYPE project [
 
 <!-- Names -->
-<!ENTITY username        "asmith">
+<!ENTITY username        "kduffy">
 
 <!-- LArSoft version -->
-<!ENTITY tag             "v08_00_00_25">
+<!ENTITY tag             "v08_00_00_51">
 <!ENTITY qual            "e17:prof">
 
 <!-- Job settings -->
