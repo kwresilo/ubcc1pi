@@ -70,6 +70,8 @@
     <datatier>&dataTier;</datatier>
     <schema>&schema;</schema>
     <jobsub>&jobsub;</jobsub>
+    <memory>2000</memory>
+    <disk>20GB</disk>
 </stage>
 
 <!-- CC1pi tree writer -->
