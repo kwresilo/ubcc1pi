@@ -133,10 +133,10 @@ art::Ptr<recob::OpFlash> RecoHelper::GetLargestFlash(const art::Event &event, co
         const auto flashes = CollectionHelper::GetCollection<recob::OpFlash>(event, flashLabel);
 
         for (size_t f=0; f< flashes.size(); f++){
-            auto flash = flashes->at(f);
+            auto flash = flashes.at(f);
 
-            if (flash.TotalPE() > flash_pe){
-                flash_pe = flash.TotalPE();
+            if (flash->TotalPE() > flash_pe){
+                flash_pe = flash->TotalPE();
                 f_largest = (int)f;
             }
         } // end loop over f in flashes
