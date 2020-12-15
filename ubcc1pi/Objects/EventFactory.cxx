@@ -257,14 +257,25 @@ void EventFactory::PopulateEventRecoInfo(const art::Event &event, const Config &
     const auto nuVertex = RecoHelper::GetRecoNeutrinoVertex(event, neutrinos, config.VertexLabel());
     const auto nuVertexSCC = RecoHelper::CorrectForSpaceCharge(nuVertex, pSpaceChargeService);
 
-    const auto flashChi2 = RecoHelper::GetRecoFlashChi2(event, neutrinos, config.PFParticleLabel(), config.FlashMatchLabel());
-
     reco.nuVertex.Set(nuVertexSCC);
     reco.nuPdgCode.Set(neutrinos.front()->PdgCode());
-    reco.flashChi2.Set(flashChi2);
 
     const auto finalStatePFParticles = RecoHelper::GetNeutrinoFinalStates(allPFParticles);
     reco.nFinalStates.Set(finalStatePFParticles.size());
+
+    const auto flashChi2 = RecoHelper::GetRecoFlashChi2(event, neutrinos, config.PFParticleLabel(), config.FlashMatchLabel());
+    reco.flashChi2.Set(flashChi2);
+
+    // Find the largest flash and save information. This is making an assumption that the largest flash is the one associated to the neutrino event but that's generally true
+    const auto largestFlash = RecoHelper::GetLargestFlash(event, config.FlashLabel());
+
+    reco.largestFlashPE = largestFlash->TotalPE();
+    reco.largestFlashTime = largestFlash->Time();
+    reco.largestFlashTimeWidth = largestFlash->TimeWidth();
+    reco.largestFlashYCtr = largestFlash->YCenter();
+    reco.largestFlashYWidth = largestFlash->YWidth();
+    reco.largestFlashZCtr = largestFlash->ZCenter();
+    reco.largestFlashZWidth = largestFlash->ZWidth();
 
     // If we have truth info, then run the reco-true-matching
     std::shared_ptr<BacktrackHelper::BacktrackerData> pBacktrackerData;

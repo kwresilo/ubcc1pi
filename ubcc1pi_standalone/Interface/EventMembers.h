@@ -118,7 +118,14 @@
     f(p, q, false, int,                 nuPdgCode)                                                                                         \
     f(p, q, true,  TVector3,            nuVertex)                                                                                          \
     f(p, q, false, int,                 nFinalStates)                                                                                          \
-    f(p, q, false, float,                 flashChi2)
+    f(p, q, false, float,                 flashChi2)                                                                                          \
+    f(p, q, false, float,                 largestFlashPE)                                                                                          \
+    f(p, q, false, float,                 largestFlashTime)                                                                                          \
+    f(p, q, false, float,                 largestFlashTimeWidth)                                                                                          \
+    f(p, q, false, float,                 largestFlashYCtr)                                                                                           \
+    f(p, q, false, float,                 largestFlashYWidth)                                                                                         \
+    f(p, q, false, float,                 largestFlashZCtr)                                                                                          \
+    f(p, q, false, float,                 largestFlashZWidth)
 
 /** The event reco particle information members */
 #define UBCC1PI_MACRO_EVENT_RECO_PARTICLE_MEMBERS(p, q, f)                                                                                 \
