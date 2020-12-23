@@ -444,6 +444,18 @@ struct Config
         bool  useGenericSelection = true;  ///< If we should use the generic selection (if false, we use golden selection)
     };
     PrintUncertaintiesSummary printUncertaintiesSummary; ///< The configuration options for the PrintUncertaintiesSummary macro
+
+    // -------------------------------------------------------------------------------------------------------------------------------------
+
+    /**
+     *  @brief  Configuration for the MakeXSecPlots macro
+     */
+    struct MakeXSecPlots
+    {
+        unsigned int nUniverses = 10000u;                                 ///< The number of universes to use when propagating the smearing matrix uncertainties to the smeared prediction
+        float        precision  = std::numeric_limits<float>::epsilon();  ///< The precision to use when finding eigenvalues & eigenvectors
+    };
+    MakeXSecPlots makeXSecPlots; ///< The configuration options for the MakeXSecPlots macro
 };
 
 } // namespace ubcc1pi

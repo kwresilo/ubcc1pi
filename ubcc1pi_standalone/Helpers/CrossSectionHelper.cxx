@@ -142,7 +142,7 @@ float CrossSectionHelper::FluxReweightor::GetIntegratedFluxVariation(const std::
 CrossSectionHelper::CrossSection::CrossSection(const SystParams &systParams, const std::vector<float> &binEdges, const bool hasUnderflow, const bool hasOverflow, const bool scaleByBinWidth) :
     m_systParams(systParams),
     m_binEdges(binEdges),
-    m_metadata(binEdges.size() - 1, hasUnderflow, hasOverflow),
+    m_metadata(binEdges, hasUnderflow, hasOverflow, scaleByBinWidth),
     m_scaleByBinWidth(scaleByBinWidth),
     m_pSignal_true_nom(CrossSectionHelper::GetTH1F(binEdges)),
     m_pSignal_selected_recoTrue_nom(CrossSectionHelper::GetTH2F(binEdges)),
@@ -290,26 +290,7 @@ std::vector<float> CrossSectionHelper::CrossSection::GetBinEdges() const
 
 ubsmear::UBMatrix CrossSectionHelper::CrossSection::GetBinWidths() const
 {
-    if (!m_scaleByBinWidth)
-    {
-        // If we shouldn't scale by bin width, then just return 1.f for the width of each bin
-        return ubsmear::UBMatrix(std::vector<float>(m_metadata.GetNBins(), 1.f), m_metadata.GetNBins(), 1);
-    }
-
-    std::vector<float> elements;
-    for (unsigned int iBin = 1; iBin < m_binEdges.size(); ++iBin)
-    {
-        const auto lowerEdge = m_binEdges.at(iBin - 1);
-        const auto upperEdge = m_binEdges.at(iBin);
-        const auto width = upperEdge - lowerEdge;
-
-        if (width <= std::numeric_limits<float>::epsilon())
-            throw std::logic_error("CrossSection::GetBinWidthVector - Found a bin with zero or negative width");
-
-        elements.push_back(width);
-    }
-
-    return ubsmear::UBMatrix(elements, m_metadata.GetNBins(), 1);
+    return m_metadata.GetBinWidths();
 }
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
@@ -1440,6 +1421,34 @@ std::pair< std::vector<float>, std::vector<float> > CrossSectionHelper::ReadNomi
     }
 
     return {fluxBinEdges, fluxBinValuesNominal};
+}
+
+// -----------------------------------------------------------------------------------------------------------------------------------------
+
+ubsmear::UBMatrix CrossSectionHelper::GetErrorMatrix(const ubsmear::UBMatrix &biasVector, const ubsmear::UBMatrix &covarianceMatrix)
+{
+    // Make sure the dimensions of the input are valid
+    if (biasVector.GetColumns() != 1)
+        throw std::invalid_argument("CrossSectionHelper::GetErrorMatrix - Input bias vector isn't a column vector");
+
+    if (!ubsmear::UBMatrixHelper::IsSquare(covarianceMatrix))
+        throw std::invalid_argument("CrossSectionHelper::GetErrorMatrix - Input covariance matrix isn't square");
+
+    const auto nBins = covarianceMatrix.GetRows();
+    if (biasVector.GetRows() != nBins)
+        throw std::invalid_argument("CrossSectionHelper::GetErrorMatrix - Input bias vector and covariance matrix have incompatible dimensions");
+
+    // Make a new matrix for the output
+    auto errorMatrix = ubsmear::UBMatrixHelper::GetZeroMatrix(nBins, nBins);
+    for (unsigned int iRow = 0; iRow < nBins; ++iRow)
+    {
+        for (unsigned int iCol = 0; iCol < nBins; ++iCol)
+        {
+            errorMatrix.SetElement(iRow, iCol, (biasVector.At(iRow, 0) * biasVector.At(iCol, 0)) + covarianceMatrix.At(iRow, iCol));
+        }
+    }
+
+    return errorMatrix;
 }
 
 } // namespace ubcc1pi

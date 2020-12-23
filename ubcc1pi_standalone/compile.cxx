@@ -64,6 +64,7 @@
         "Macros/PlotFluxVariations.cxx",
         "Macros/ExtractXSecs.cxx",
         "Macros/PrintUncertaintiesSummary.cxx",
+        "Macros/MakeXSecPlots.cxx",
 
         "Macros/RunFullAnalysis.cxx"
     }))

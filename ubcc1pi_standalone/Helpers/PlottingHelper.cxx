@@ -897,7 +897,7 @@ std::vector<float> PlottingHelper::GenerateLogBinEdges(const unsigned int nBins,
 }
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
-
+/*
 void PlottingHelper::SaveBiasVector(const std::shared_ptr<TH1F> &vector, const std::shared_ptr<TH1F> &crossSection, const bool hasUnderflow, const bool hasOverflow, const std::string &namePrefix)
 {
     // Check we have sensible binning
@@ -1369,6 +1369,101 @@ void PlottingHelper::SaveSmearingMatrix(const std::shared_ptr<TH2F> &matrix, con
     smearingMatrix->Draw("colz text");
 
     PlottingHelper::SaveCanvas(pCanvas, namePrefix + "_smearing");
+}
+*/
+// -----------------------------------------------------------------------------------------------------------------------------------------
+
+void PlottingHelper::PlotErrorMatrix(const ubsmear::UBMatrix &errorMatrix, const std::string &fileName, const bool showNumbers)
+{
+    if (!ubsmear::UBMatrixHelper::IsSquare(errorMatrix))
+        throw std::invalid_argument("PlottingHelper::PlotErrorMatrix - Input error matrix isn't square");
+
+    const auto nBins = errorMatrix.GetRows();
+
+    // Define which bin labels we should print. Here we set at size, and only print a bin label if it's divisible by that size
+    // We arbitrarily choose a threshold number of bins below which we just print every bin label
+    // Above this threshold we start to print in larget and larger group sizes such that we never have more groups than nBinsThreshold
+    const auto nBinsThreshold = 20u;
+    const unsigned int binLabelGroupSize = std::ceil(static_cast<float>(nBins) / static_cast<float>(nBinsThreshold));
+
+    // Make the histogram for this matrix
+    auto pHist = std::make_shared<TH2F>(("errorMatrix_" + std::to_string(m_lastPlotId++)).c_str(), "", nBins, 0, nBins, nBins, 0, nBins);
+
+    for (unsigned int iRow = 0; iRow < nBins; ++iRow)
+    {
+        // Set the bin labels
+        // ATTN we +1 to the indices as ROOT enumerates from 1
+        const std::string binLabel = (iRow % binLabelGroupSize == 0) ? std::to_string(iRow) : "";
+        pHist->GetXaxis()->SetBinLabel(iRow + 1, binLabel.c_str());
+        pHist->GetYaxis()->SetBinLabel(iRow + 1, binLabel.c_str());
+
+        for (unsigned int iCol = 0; iCol < nBins; ++iCol)
+        {
+            pHist->SetBinContent(iCol + 1, iRow + 1, errorMatrix.At(iRow, iCol));
+        }
+    }
+
+    // Plot the histogram
+    auto pCanvas = PlottingHelper::GetCanvas(960, 960);
+
+    // Remove the ticks
+    pHist->GetXaxis()->SetTickLength(0);
+    pHist->GetYaxis()->SetTickLength(0);
+
+    if (showNumbers)
+    {
+        gStyle->SetPaintTextFormat("2.2f");
+        pHist->SetMarkerSize(1.f);
+        pHist->Draw("colz text");
+    }
+    else
+    {
+        pHist->Draw("colz");
+    }
+
+    PlottingHelper::SaveCanvas(pCanvas, fileName);
+}
+
+// -----------------------------------------------------------------------------------------------------------------------------------------
+
+void PlottingHelper::PlotFractionalErrorMatrix(const ubsmear::UBMatrix &errorMatrix, const ubsmear::UBMatrix &quantityVector, const std::string &fileName, const bool showNumbers)
+{
+    // Check that the dimensions of the inputs are compatible
+    if (quantityVector.GetColumns() != 1)
+        throw std::invalid_argument("PlottingHelper::PlotErrorMatrix - Input quantity vector isn't a column vector");
+
+    if (!ubsmear::UBMatrixHelper::IsSquare(errorMatrix))
+        throw std::invalid_argument("PlottingHelper::PlotErrorMatrix - Input error matrix isn't square");
+
+    const auto nBins = errorMatrix.GetRows();
+    if (quantityVector.GetRows() != nBins)
+        throw std::invalid_argument("PlottingHelper::PlotErrorMatrix - Input error matrix and quantity vetor have incompatible dimensions");
+
+    // Scale down the error matrix to get the fractional error matrix
+    auto fracErrorMatrix = ubsmear::UBMatrixHelper::GetZeroMatrix(nBins, nBins);
+    for (unsigned int iRow = 0; iRow < nBins; ++iRow)
+    {
+        const auto quantityRow = quantityVector.At(iRow, 0);
+
+        // Check if the quantity is zero
+        if (std::abs(quantityRow) <= std::numeric_limits<float>::epsilon())
+            continue;
+
+        for (unsigned int iCol = 0; iCol < nBins; ++iCol)
+        {
+            const auto quantityCol = quantityVector.At(iCol, 0);
+
+            // Check if the quantity is zero
+            if (std::abs(quantityCol) <= std::numeric_limits<float>::epsilon())
+                continue;
+
+            const auto fracError = errorMatrix.At(iRow, iCol) / (quantityRow * quantityCol);
+            fracErrorMatrix.SetElement(iRow, iCol, fracError);
+        }
+    }
+
+    // Plot the fractional error matrix
+    PlottingHelper::PlotErrorMatrix(fracErrorMatrix, fileName, showNumbers);
 }
 
 } // namespace ubcc1pi
