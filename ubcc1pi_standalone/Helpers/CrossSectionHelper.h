@@ -864,6 +864,16 @@ class CrossSectionHelper
         */
         static std::pair< std::vector<float>, std::vector<float> > ReadNominalFlux(const std::string &fileName, const std::string &histName, const float pot);
 
+        /**
+        *  @brief  Get a total error matrix by combining an input bias vector and covariance matrix
+        *
+        *  @param  biasVector the bias vector
+        *  @param  covarianceMatrix the covariance matrix
+        *
+        *  @return the error matrix
+        */
+        static ubsmear::UBMatrix GetErrorMatrix(const ubsmear::UBMatrix &biasVector, const ubsmear::UBMatrix &covarianceMatrix);
+
     private:
 
         static unsigned int                m_histCount; ///< A counter to keep track of the number of histograms produced

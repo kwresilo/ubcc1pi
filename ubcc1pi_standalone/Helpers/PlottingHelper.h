@@ -15,6 +15,8 @@
 #include <TH2F.h>
 #include <TCanvas.h>
 
+#include "ubsmear.h"
+
 #include "ubcc1pi_standalone/Interface/Event.h"
 #include "ubcc1pi_standalone/Helpers/AnalysisHelper.h"
 
@@ -416,68 +418,23 @@ class PlottingHelper
         static std::vector<float> GenerateLogBinEdges(const unsigned int nBins, const float min, const float max);
 
         /**
-         *  @brief  Draw and save an input bias vector and the corresponding fractional bias vector
-         *
-         *  @param  vector the input N-bin bias vector (N = number of analysis bins)
-         *  @param  crossSection the input M-bin cross-section including possible under/overflow bins (M = N + hasOverflow + hasUnderflow)
-         *  @param  hasUnderflow if the input cross section has an underflow bin
-         *  @param  hasOverflow if the input cross section has an overflow bin
-         *  @param  namePrefix a prefix for the name for the plots to make
-         */
-        static void SaveBiasVector(const std::shared_ptr<TH1F> &vector, const std::shared_ptr<TH1F> &crossSection, const bool hasUnderflow, const bool hasOverflow, const std::string &namePrefix);
+        *  @brief  Plot an input error matrix
+        *
+        *  @param  errorMatrix the input error matrix
+        *  @param  fileName the name of the file to save
+        *  @param  showNumbers if we should print the bin contents in each bin
+        */
+        static void PlotErrorMatrix(const ubsmear::UBMatrix &errorMatrix, const std::string &fileName, const bool showNumbers = true);
 
         /**
-         *  @brief  Draw and save the input bias vector for the smearing matrix
-         *
-         *  @param  vector the input bias vector
-         *  @param  hasUnderflow if the input cross section has an underflow bin
-         *  @param  hasOverflow if the input cross section has an overflow bin
-         *  @param  namePrefix a prefix for the name of the plot to make
-         */
-        static void SaveSmearingMatrixBiasVector(const std::shared_ptr<TH1F> &vector, const bool hasUnderflow, const bool hasOverflow, const std::string &namePrefix);
-
-        /**
-         *  @brief  Draw and save an input covariance matrix and the corresponding fractional covariance matrix and linear correlation matrix
-         *
-         *  @param  matrix the input NxN covaraince matrix (N = number of analysis bins)
-         *  @param  crossSection the input cross-section with M bins including possible under/overflow bins (M = N + hasOverflow + hasUnderflow)
-         *  @param  hasUnderflow if the input cross section has an underflow bin
-         *  @param  hasOverflow if the input cross section has an overflow bin
-         *  @param  namePrefix a prefix for the name for the plots to make
-         */
-        static void SaveCovarianceMatrix(const std::shared_ptr<TH2F> &matrix, const std::shared_ptr<TH1F> &crossSection, const bool hasUnderflow, const bool hasOverflow, const std::string &namePrefix);
-
-        /**
-         *  @brief  Draw and save the input covaraince matrix for the smearing matrix
-         *
-         *  @param  matrix the input smearing matrix
-         *  @param  hasUnderflow if the input cross section has an underflow bin
-         *  @param  hasOverflow if the input cross section has an overflow bin
-         *  @param  namePrefix a prefix for the name of the plot to make
-         */
-        static void SaveSmearingMatrixCovarianceMatrix(const std::shared_ptr<TH2F> &matrix, const bool hasUnderflow, const bool hasOverflow, const std::string &namePrefix);
-
-        /**
-         *  @brief  Save the cross-section plot including the stat and (diagonal) systematic uncertainties
-         *
-         *  @param  crossSection the input cross-section with M bins including possible under/overflow bins
-         *  @param  statUncertainty the input N-bin stat uncertainty (N = number of analysis bins = M - hasUnderflow - hasOverflow)
-         *  @param  totalSystCovarianceMatrix the input NxN covarianc matrix for all systematic parameters combined
-         *  @param  hasUnderflow if the input cross section has an underflow bin
-         *  @param  hasOverflow if the input cross section has an overflow bin
-         *  @param  namePrefix a prefix for the name for the plots to make
-         */
-        static void SaveCrossSection(const std::shared_ptr<TH1F> &crossSection, const std::shared_ptr<TH1F> &statUncertainty, const std::shared_ptr<TH2F> &totalSystCovarianceMatrix, const bool hasUnderflow, const bool hasOverflow, const std::string &namePrefix);
-
-        /**
-         *  @brief  Draw and save the input smearing matrix
-         *
-         *  @param  matrix the input smearing matrix
-         *  @param  hasUnderflow it the input cross section has an underflow bin
-         *  @param  hasOverflow if the input cross section has an overflow bin
-         *  @param  namePrefix a prefix for the name for the plots to make
-         */
-        static void SaveSmearingMatrix(const std::shared_ptr<TH2F> &matrix, const bool hasUnderflow, const bool hasOverflow, const std::string &namePrefix);
+        *  @brief  Plot an input fractional error matrix
+        *
+        *  @param  errorMatrix the input error matrix
+        *  @param  quantityVector the input quantity to which the error matrix applied
+        *  @param  fileName the name of the file to save
+        *  @param  showNumbers if we should print the bin contents in each bin
+        */
+        static void PlotFractionalErrorMatrix(const ubsmear::UBMatrix &errorMatrix, const ubsmear::UBMatrix &quantityVector, const std::string &fileName, const bool showNumbers = true);
 
     private:
 

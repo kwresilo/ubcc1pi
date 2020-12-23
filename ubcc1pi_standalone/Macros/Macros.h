@@ -183,6 +183,13 @@ namespace ubcc1pi_macros
     void PrintUncertaintiesSummary(const Config &config = Config());
 
     /**
+    *  @brief  Produce the plots for the previously extracted cross-section data
+    *
+    *  @param  config the input configuration
+    */
+    void MakeXSecPlots(const Config &config = Config());
+
+    /**
      *  @brief  Top-level macro that runs the full analysis chain
      *
      *  @param  config the input config
