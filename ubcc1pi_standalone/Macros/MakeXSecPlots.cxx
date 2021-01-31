@@ -99,7 +99,6 @@ void MakeXSecPlots(const Config &config)
             // Read the matrices from disk
             // -----------------------------------------------------------------------------------------------------------------------------
             // Loop over the two quantities that have systematic uncertainties
-            // TODO modify the plotting helper functions to accept the metadata so the know when a bin is underflow or overflow
             for (const std::string &quantity : {"data", "smearingMatrix"})
             {
                 // Get the number of bins (for the smearing matrix there are N^2 bins when flattened)
@@ -135,7 +134,8 @@ void MakeXSecPlots(const Config &config)
                         {"xsec", config.extractXSecs.xsecDimensions},
                         {"misc", {
                             {"bootstrap", config.extractXSecs.nBootstrapUniverses},
-                            {"dirt", 2}
+                            {"dirt", 2},
+                            {"POT", 0}
                         }}
                     }))
                 {
@@ -205,32 +205,28 @@ void MakeXSecPlots(const Config &config)
             // -----------------------------------------------------------------------------------------------------------------------------
             for (const auto &[quantity, groupToMatrixMap] : errorMatrixMap)
             {
-                // Set a boolean to choose if we should plot the error matrices with or without numbers in each bin
-                const auto showNumbers = (quantity == "data");
-
                 // Get the quantity in question as a vector
                 // ATTN here we flatten the smearing matrix to a column vector
                 const auto quantityVector = (quantity == "data" ? data : ubsmear::UBSmearingHelper::Flatten(smearingMatrix));
 
                 // Plot the total error matrix (summed over all groups)
                 const auto totalErrorMatrix = totalErrorMatrixMap.at(quantity);
-                PlottingHelper::PlotErrorMatrix(totalErrorMatrix, prefix + "_" + quantity + "_totalErrorMatrix", showNumbers);
-                PlottingHelper::PlotFractionalErrorMatrix(totalErrorMatrix, quantityVector, prefix + "_" + quantity + "_totalFracErrorMatrix", showNumbers);
+                PlottingHelper::PlotErrorMatrix(totalErrorMatrix, prefix + "_" + quantity + "_totalErrorMatrix", metadata);
+                PlottingHelper::PlotFractionalErrorMatrix(totalErrorMatrix, quantityVector, prefix + "_" + quantity + "_totalFracErrorMatrix", metadata);
 
                 // Plot the total error matrix for each group individually
                 for (const auto &[group, errorMatrix] : groupToMatrixMap)
                 {
-                    PlottingHelper::PlotErrorMatrix(errorMatrix, prefix + "_" + quantity + "_" + group + "_totalErrorMatrix", showNumbers);
-                    PlottingHelper::PlotFractionalErrorMatrix(errorMatrix, quantityVector, prefix + "_" + quantity + "_" + group + "_totalFracErrorMatrix", showNumbers);
+                    PlottingHelper::PlotErrorMatrix(errorMatrix, prefix + "_" + quantity + "_" + group + "_totalErrorMatrix", metadata);
+                    PlottingHelper::PlotFractionalErrorMatrix(errorMatrix, quantityVector, prefix + "_" + quantity + "_" + group + "_totalFracErrorMatrix", metadata);
                 }
             }
 
             // -----------------------------------------------------------------------------------------------------------------------------
             // Forward-fold the prediction and plot it
             // -----------------------------------------------------------------------------------------------------------------------------
-            // TODO should probably write special function for printing the smearing matrix to use labels that indicate truth & reco
-            // for now we just re-use the error matrix function
-            PlottingHelper::PlotErrorMatrix(smearingMatrix, prefix + "_smearingMatrix");
+            // for now we just re-use the error matrix function (and use the default palette)
+            PlottingHelper::PlotErrorMatrix(smearingMatrix, prefix + "_smearingMatrix", metadata, true, false);
 
             // Now get the predicted cross-section and it's error matrix
             const auto prediction = getMatrix("prediction");
@@ -239,8 +235,8 @@ void MakeXSecPlots(const Config &config)
             const auto predictionErrorMatrix = CrossSectionHelper::GetErrorMatrix(predictionBiasVector, predictionCovarianceMatrix);
 
             // Plot the error matrix on the prediction
-            PlottingHelper::PlotErrorMatrix(predictionErrorMatrix, prefix + "_prediction_stat_totalErrorMatrix");
-            PlottingHelper::PlotFractionalErrorMatrix(predictionErrorMatrix, prediction, prefix + "_prediction_stat_totalFracErrorMatrix");
+            PlottingHelper::PlotErrorMatrix(predictionErrorMatrix, prefix + "_prediction_stat_totalErrorMatrix", metadata);
+            PlottingHelper::PlotFractionalErrorMatrix(predictionErrorMatrix, prediction, prefix + "_prediction_stat_totalFracErrorMatrix", metadata);
 
             // Now smear the prediction so it can be compared to the data
             std::cout << "Forward folding prediction" << std::endl;
@@ -252,8 +248,12 @@ void MakeXSecPlots(const Config &config)
                 config.makeXSecPlots.precision);                           // The precision to use when finding eigenvalues and eigenvectors
 
             // Plot the error matrix on the smeared prediction
-            PlottingHelper::PlotErrorMatrix(smearedPredictionErrorMatrix, prefix + "_smearedPrediction_totalErrorMatrix");
-            PlottingHelper::PlotFractionalErrorMatrix(smearedPredictionErrorMatrix, smearedPrediction, prefix + "_smearedPrediction_totalFracErrorMatrix");
+            PlottingHelper::PlotErrorMatrix(smearedPredictionErrorMatrix, prefix + "_smearedPrediction_totalErrorMatrix", metadata);
+            PlottingHelper::PlotFractionalErrorMatrix(smearedPredictionErrorMatrix, smearedPrediction, prefix + "_smearedPrediction_totalFracErrorMatrix", metadata);
+
+            // Save the forward-folded prediction
+            FormattingHelper::SaveMatrix(smearedPrediction, "xsec_" + selectionName + "_" + xsecName + "_forwardFoldedPrediction.txt");
+            FormattingHelper::SaveMatrix(smearedPredictionErrorMatrix, "xsec_" + selectionName + "_" + xsecName + "_forwardFoldedPrediction_error.txt");
 
             // -----------------------------------------------------------------------------------------------------------------------------
             // Get the chi2 for the data-prediction comparison and add it to the table
@@ -342,6 +342,17 @@ void MakeXSecPlots(const Config &config)
 
                 pPredictionHist->SetBinContent(iBin, predictionValue);
                 pPredictionHist->SetBinError(iBin, predictionError);
+
+                // For the proton multiplicity plot, use explicit bin labels
+                if (xsecName == "nProtons")
+                {
+                    for (auto &pHist : {pDataHist, pDataStatOnlyHist, pPredictionHist})
+                    {
+                        pHist->GetXaxis()->SetBinLabel(1, "0");
+                        pHist->GetXaxis()->SetBinLabel(2, "1");
+                        pHist->GetXaxis()->SetBinLabel(3, ">1");
+                    }
+                }
 
                 // Get the limiting values
                 minY = std::min(minY, dataValue - dataError);

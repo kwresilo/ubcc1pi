@@ -50,6 +50,7 @@ void ExtractXSecs(const Config &config)
     systParams.fluxDimensions = config.extractXSecs.fluxDimensions;
     systParams.xsecDimensions = config.extractXSecs.xsecDimensions;
     systParams.detVarDimensions = config.extractXSecs.detVarDimensions;
+    systParams.potFracUncertainty = config.extractXSecs.potFracUncertainty;
 
     // -------------------------------------------------------------------------------------------------------------------------------------
     // Setup an object that holds the information about how we should scale an event rate to obtain a cross-section
@@ -69,11 +70,19 @@ void ExtractXSecs(const Config &config)
     // cross-section in that universe. For all non-flux parameters, the nominal integrated flux is used.
     CrossSectionHelper::CrossSection::ScalingData scalingData;
 
-    const auto &[fluxBinEdges, fluxValues] = CrossSectionHelper::ReadNominalFlux(config.flux.fileName, config.flux.nomHistName, config.flux.pot);
+    // Read in the flux
+    const auto fluxHistNames = CrossSectionHelper::GetNominalFluxHistNames(config.flux.nuPdgsSignal, config.flux.nuPdgToHistName, config.flux.nomHistPattern);
+    const auto &[fluxBinEdges, fluxValues] = CrossSectionHelper::ReadNominalFlux(config.flux.fileName, fluxHistNames, config.flux.pot);
     scalingData.pFluxReweightor = std::make_shared<CrossSectionHelper::FluxReweightor>(fluxBinEdges, fluxValues, systParams.fluxDimensions);
 
     scalingData.exposurePOT = config.norms.dataBNBTor875WCut / (1e20);
     scalingData.nTargets = config.global.targetDensity * (1e-8) * AnalysisHelper::GetFiducialVolume();
+
+    std::cout << "- Flux:            " << scalingData.pFluxReweightor->GetIntegratedNominalFlux() << " * 10^-10 cm^-2 POT^-1" << std::endl;
+    std::cout << "- Exposure:        " << scalingData.exposurePOT << " * 10^20 POT" << std::endl;
+    std::cout << "- Target density:  " << config.global.targetDensity << " * 10^31 nucleons/cm^3" << std::endl;
+    std::cout << "- Fiducial volume: " << AnalysisHelper::GetFiducialVolume() << " * cm^3" << std::endl;
+    std::cout << "- nTargets:        " << scalingData.nTargets << " * 10^31 nucleons" << std::endl;
 
     // -------------------------------------------------------------------------------------------------------------------------------------
     // Setup the event selection
@@ -386,8 +395,9 @@ void ExtractXSecs(const Config &config)
                     : CrossSectionHelper::GetUnitWeightsMap(systParams.fluxDimensions)
             );
 
-            // Fill the flux-reweightor with all overlay events in the active volume
-            if (isOverlay && AnalysisHelper::IsInActiveVolume(pEvent->truth.nuVertex()))
+            // Fill the flux-reweightor with all overlay events from a neutrinos of the desired flavour in the active volume
+            if (isOverlay && AnalysisHelper::IsInActiveVolume(pEvent->truth.nuVertex()) &&
+                std::find(config.flux.nuPdgsSignal.begin(), config.flux.nuPdgsSignal.end(), pEvent->truth.nuPdgCode()) != config.flux.nuPdgsSignal.end())
             {
                 scalingData.pFluxReweightor->AddEvent(pEvent->truth.nuEnergy(), weight, fluxWeights);
             }

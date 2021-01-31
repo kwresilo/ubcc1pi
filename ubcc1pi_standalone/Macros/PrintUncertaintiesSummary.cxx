@@ -60,13 +60,14 @@ void PrintUncertaintiesSummary(const Config &config)
 
         // Get the uncertainties for the multisims
         for (const auto &[group, dimensions] : std::map<std::string, CrossSectionHelper::SystDimensionsMap>({
-                    {"flux", config.extractXSecs.fluxDimensions},
-                    {"xsec", config.extractXSecs.xsecDimensions},
-                    {"misc", {
-                    {"bootstrap", config.extractXSecs.nBootstrapUniverses},
-                    {"dirt", 2}
-                    }}
-                    }))
+            {"flux", config.extractXSecs.fluxDimensions},
+            {"xsec", config.extractXSecs.xsecDimensions},
+            {"misc", {
+                {"bootstrap", config.extractXSecs.nBootstrapUniverses},
+                {"dirt", 2},
+                {"POT", 0}
+            }}
+        }))
         {
             float groupTotalSqr = 0.f;
             for (const auto &[paramName, nUniverses] : dimensions)
@@ -107,8 +108,8 @@ void PrintUncertaintiesSummary(const Config &config)
 
         // Get the uncertainties for the unisims
         for (const auto &[group, dimensions] : std::map<std::string, CrossSectionHelper::SystUnisimDimensionsMap>({
-                    {"detector", config.extractXSecs.detVarDimensions}
-                    }))
+            {"detector", config.extractXSecs.detVarDimensions}
+        }))
         {
             float groupTotalSqr = 0.f;
             for (const auto &[paramName, cvName] : dimensions)

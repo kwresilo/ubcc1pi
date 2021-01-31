@@ -12,6 +12,7 @@
 #include <TFile.h>
 
 #include <stdexcept>
+#include <regex>
 
 namespace ubcc1pi
 {
@@ -559,6 +560,10 @@ CrossSectionHelper::SystBiasCovarianceMap CrossSectionHelper::CrossSection::GetB
         }
     }
 
+    // Get the special POT normalisation uncertainty
+    const auto pXSecNom = std::make_shared<ubsmear::UBMatrix>( this->GetBNBDataCrossSection(scalingData) );
+    outputMap["misc"].emplace("POT", this->GetDistributionParamsNormalisation(pXSecNom, m_systParams.potFracUncertainty));
+
     return outputMap;
 }
 
@@ -612,6 +617,11 @@ CrossSectionHelper::SystBiasCovarianceMap CrossSectionHelper::CrossSection::GetS
             outputMap[group].emplace(paramName, this->GetSmearingMatrixDistributionParamsUnisim(group, paramName, cvName));
         }
     }
+
+    // Get the special POT normalisation uncertainty
+    // ATTN no uncertainty is assigned to the smearing matrix due to POT normalisation (use a factor of 0.f)
+    const auto pSmearingNom = CrossSectionHelper::FlattenMatrix(this->GetSmearingMatrixNominal());
+    outputMap["misc"].emplace("POT", this->GetDistributionParamsNormalisation(pSmearingNom, 0.f));
 
     return outputMap;
 }
@@ -824,6 +834,27 @@ CrossSectionHelper::SystBiasCovariancePair CrossSectionHelper::CrossSection::Get
     // Return the result (use a zero matrix for the covariance)
     return {
         std::make_shared<ubsmear::UBMatrix>(bias),
+        std::make_shared<ubsmear::UBMatrix>(ubsmear::UBMatrixHelper::GetZeroMatrix(nBins, nBins))
+    };
+}
+
+// -----------------------------------------------------------------------------------------------------------------------------------------
+
+CrossSectionHelper::SystBiasCovariancePair CrossSectionHelper::CrossSection::GetDistributionParamsNormalisation(const std::shared_ptr<ubsmear::UBMatrix> &pNominal, const float fracUncertainty) const
+{
+    // Check the input matrix are valid
+    if (!pNominal)
+        throw std::invalid_argument("CrossSection::GetDistributionParamsNormalisation - The input nominal is not valid");
+
+    // Check ths input matrix has the desired dimensions
+    if (pNominal->GetColumns() != 1)
+        throw std::invalid_argument("CrossSection::GetDistributionParamsNormalisation - The input is not a column vector");
+
+    const auto nBins = pNominal->GetRows();
+
+    // Scale the nominal value by the fractional uncertainty to get the bias, and use a zero matrix for the covariance
+    return {
+        std::make_shared<ubsmear::UBMatrix>((*pNominal) * fracUncertainty),
         std::make_shared<ubsmear::UBMatrix>(ubsmear::UBMatrixHelper::GetZeroMatrix(nBins, nBins))
     };
 }
@@ -1385,15 +1416,35 @@ std::tuple< std::vector<float>, bool, bool > CrossSectionHelper::GetExtendedBinE
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
 
-std::pair< std::vector<float>, std::vector<float> > CrossSectionHelper::ReadNominalFlux(const std::string &fileName, const std::string &histName, const float pot)
+std::vector<std::string> CrossSectionHelper::GetNominalFluxHistNames(const std::vector<int> &nuPdgsSignal, const std::map<int, std::string> &nuPdgToHistName, const std::string &nomHistPattern)
 {
+    std::vector<std::string> histNames;
+
+    for (const auto &nuPdg : nuPdgsSignal)
+    {
+        const auto iter = nuPdgToHistName.find(nuPdg);
+        if (iter == nuPdgToHistName.end())
+            throw std::logic_error("CrossSectionHelper::GetNominalFluxHistNames - Can't find name corresponding to PDG code " + std::to_string(nuPdg));
+
+        const auto &nuName = iter->second;
+        const auto histName = std::regex_replace(nomHistPattern, std::regex("NEUTRINO"), nuName);
+        histNames.push_back(histName);
+    }
+
+    return histNames;
+}
+
+// -----------------------------------------------------------------------------------------------------------------------------------------
+
+std::pair< std::vector<float>, std::vector<float> > CrossSectionHelper::ReadNominalFlux(const std::string &fileName, const std::vector<std::string> &histNames, const float pot)
+{
+    if (histNames.empty())
+        throw std::invalid_argument("CrossSectionHelper::ReadNominalFlux - No histogram names supplied");
+
     // Open the flux file for reading
     TFile *pFluxFile = new TFile(fileName.c_str(), "READ");
     if (!pFluxFile->IsOpen())
         throw std::invalid_argument("CrossSectionHelper::ReadNominalFlux - Can't open flux file: " + fileName);
-
-    // Get the nominal flux
-    const auto pFluxHist = static_cast<TH1F *>(pFluxFile->Get(histName.c_str()));
 
     // Get the scaling factor to go from the event rate in the flux file, to the flux itself
     // Here we get the flux in neutrinos/POT/bin/cm2 by scaling the event rate (in the samples) down by POT and the cross-sectional area of the active volume
@@ -1401,23 +1452,52 @@ std::pair< std::vector<float>, std::vector<float> > CrossSectionHelper::ReadNomi
     const float unitsScaling = 1e10;
     const auto fluxScaleFactor = unitsScaling / (pot * (GeometryHelper::highX - GeometryHelper::lowX) * (GeometryHelper::highY - GeometryHelper::lowY));
 
-    // Get the flux bin edges and content
+    bool isFirstHist = true;
     std::vector<float> fluxBinEdges, fluxBinValuesNominal;
-    const unsigned int nFluxBins = pFluxHist->GetNbinsX();
-    for (unsigned int iBin = 1; iBin <= nFluxBins; ++iBin)
-    {
-        const auto lowEdge = pFluxHist->GetBinLowEdge(iBin);
-        fluxBinEdges.push_back(lowEdge);
 
-        // Add the upper edge of the last bin
-        if (iBin == nFluxBins)
+    for (const auto &histName : histNames)
+    {
+        // Get the nominal flux
+        const auto pFluxHist = static_cast<TH1F *>(pFluxFile->Get(histName.c_str()));
+        if (!pFluxHist)
+            throw std::logic_error("CrossSectionHelper::ReadNominalFlux - Input file doesn't contain histogram with name: " + histName);
+
+        // Get the number of bins
+        const unsigned int nFluxBins = pFluxHist->GetNbinsX();
+        if (!isFirstHist && nFluxBins != (fluxBinEdges.size() - 1))
+            throw std::logic_error("CrossSectionHelper::ReadNominalFlux - Supplied flux histograms have an inconsistent number of bins");
+
+        // Get the flux bin edges and content
+        for (unsigned int iBin = 1; iBin <= nFluxBins; ++iBin)
         {
-            const auto binWidth = pFluxHist->GetBinWidth(iBin);
-            fluxBinEdges.push_back(lowEdge + binWidth);
+            const auto flux = pFluxHist->GetBinContent(iBin) * fluxScaleFactor;
+            const float lowEdge = pFluxHist->GetBinLowEdge(iBin);
+            const float binWidth = pFluxHist->GetBinWidth(iBin);
+
+            if (isFirstHist)
+            {
+                fluxBinEdges.push_back(lowEdge);
+
+                // Add the upper edge of the last bin
+                if (iBin == nFluxBins)
+                {
+                    fluxBinEdges.push_back(lowEdge + binWidth);
+                }
+
+                fluxBinValuesNominal.push_back(flux);
+            }
+            else
+            {
+                // If this isn't the first flux histogram, then add to the existing flux
+                fluxBinValuesNominal.at(iBin - 1) += flux;
+
+                // Check that the bin edges are consistent
+                if (std::abs(fluxBinEdges.at(iBin - 1) - lowEdge) > std::numeric_limits<float>::epsilon())
+                    throw std::logic_error("CrossSectionHelper::ReadNominalFlux - Supplied flux histograms have an inconsistent binning (low edge)");
+            }
         }
 
-        const auto nNeutrinos = pFluxHist->GetBinContent(iBin);
-        fluxBinValuesNominal.push_back(nNeutrinos * fluxScaleFactor);
+        isFirstHist = false;
     }
 
     return {fluxBinEdges, fluxBinValuesNominal};

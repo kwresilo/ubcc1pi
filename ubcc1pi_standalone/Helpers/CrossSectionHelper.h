@@ -267,6 +267,7 @@ class CrossSectionHelper
                     SystDimensionsMap        fluxDimensions;      ///< The dimensions of the flux systematic parameters
                     SystDimensionsMap        xsecDimensions;      ///< The dimensions of the cross-section systematic parameters
                     SystUnisimDimensionsMap  detVarDimensions;    ///< The detector variation systematic parameters (and their central-value sample identifiers)
+                    float                    potFracUncertainty;  ///< The fractional uncertainty on the POT counting
                 };
 
                 /**
@@ -615,6 +616,16 @@ class CrossSectionHelper
                 SystBiasCovariancePair GetDistributionParamsUnisim(const std::shared_ptr<ubsmear::UBMatrix> &pVaried, const std::shared_ptr<ubsmear::UBMatrix> &pCentralValue, const std::shared_ptr<ubsmear::UBMatrix> &pNominal) const;
 
                 /**
+                *  @brief  Get the distribution parameter (bias vector and covariance matrix) for a normalisation uncertainty
+                *
+                *  @param  pNominal the value of the desired quanity in the nominal universe
+                *  @param  fracUncertainty the fractional normalisation uncertainty
+                *
+                *  @return the distribution parameters
+                */
+                SystBiasCovariancePair GetDistributionParamsNormalisation(const std::shared_ptr<ubsmear::UBMatrix> &pNominal, const float fracUncertainty) const;
+
+                /**
                 *  @brief  Flatten an input 2D histogram in reco-truth space, by integrating the reco-indices
                 *
                 *  @param  pSignal_selected_recoTrue the input histogram of the selected signal events in reco-vs-truth space
@@ -851,18 +862,29 @@ class CrossSectionHelper
         static std::tuple< std::vector<float>, bool, bool > GetExtendedBinEdges(const float min, const float max, const std::vector<float> &binEdges);
 
         /**
+        *  @brief  Get the names of the nominal flux histograms (in the flux file) corresponding to a given set of neutrino PDG codes
+        *
+        *  @param  nuPdgsSignal the signal neutrino PDG codes
+        *  @param  nuPdgToHistName the mapping from neutrino PDG code to the name used in the flux file
+        *  @param  nomHistPattern the pattern that the nominal flux histograms follow (NEUTRINO will be replaced)
+        *
+        *  @return the names of the nominal flux histograms
+        */
+        static std::vector<std::string> GetNominalFluxHistNames(const std::vector<int> &nuPdgsSignal, const std::map<int, std::string> &nuPdgToHistName, const std::string &nomHistPattern);
+
+        /**
         *  @brief  Read the nominal flux distribution from the supplied event-rate histogram in the supplied file. This function scales the
         *          event rate by the supplied POT and the cross-sectional area of the active volume in the X-Y plane. The flux returned by
         *          this function isn't scaled by bin width, and so the sum over all bins returned gives the integrated flux. The flux is
         *          return in units of [ 10^-10 neutrinos / bin / POT / cm^2 ]
         *
         *  @param  fileName the input flux file
-        *  @param  histName the name of the histogram to read
+        *  @param  histNames the name of the histograms to read
         *  @param  pot the number of protons on target simulated
         *
         *  @return a pair containing - the neutrino energy bin edges (first), the flux in each bin (second)
         */
-        static std::pair< std::vector<float>, std::vector<float> > ReadNominalFlux(const std::string &fileName, const std::string &histName, const float pot);
+        static std::pair< std::vector<float>, std::vector<float> > ReadNominalFlux(const std::string &fileName, const std::vector<std::string> &histNames, const float pot);
 
         /**
         *  @brief  Get a total error matrix by combining an input bias vector and covariance matrix

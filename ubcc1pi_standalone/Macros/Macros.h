@@ -106,6 +106,13 @@ namespace ubcc1pi_macros
     void NMinusOneBDTStudy(const Config &config = Config());
 
     /**
+    *  @brief  Run multiple iterations of the N-1 BDT study following a hard-coded ordering
+    *
+    *  @param  config the input configuration
+    */
+    void NMinusOneBDTStudyFull(const Config &config = Config());
+
+    /**
      *  @brief  Study the impact of the muon PID
      *
      *  @param  config the input configuration
@@ -160,6 +167,13 @@ namespace ubcc1pi_macros
      *  @param  config the input configuration
      */
     void MakeBinningPlots(const Config &config = Config());
+
+    /**
+     *  @brief  Plot the flux distribution
+     *
+     *  @param  config the input configuration
+     */
+    void PlotFlux(const Config &config = Config());
 
     /**
      *  @brief  Plot the variations of the flux for each systematic parameter
