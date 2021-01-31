@@ -101,8 +101,8 @@ void PlotInputVariables(const Config &config)
 
         if (featureName == "trackScore")
         {
-            plotVector.emplace_back("Track score", yLabel, 60, 0, 1);
-            plotVectorSignal.emplace_back("Track score", yLabel, 60, 0, 1);
+            plotVector.emplace_back("Track score", yLabel, 30, 0, 1);
+            plotVectorSignal.emplace_back("Track score", yLabel, 30, 0, 1);
             continue;
         }
 
@@ -258,8 +258,10 @@ void PlotInputVariables(const Config &config)
     {
         const auto &featureName = featureNames.at(iFeature);
 
-        plotVector.at(iFeature).SaveAsStacked("inputVariables_" + featureName);
-        plotVectorSignal.at(iFeature).SaveAs("inputVariables_signal_" + featureName);
+        const bool useLogY = (featureName == "trackScore" || featureName == "wiggliness");
+
+        plotVector.at(iFeature).SaveAsStacked("inputVariables_" + featureName, false, false, useLogY);
+        plotVectorSignal.at(iFeature).SaveAs("inputVariables_signal_" + featureName, false, false, 0, useLogY);
     }
 
     goldenPionBDTPlot.SaveAsStacked("inputVariables_goldenPionBDTResponse");

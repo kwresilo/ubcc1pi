@@ -154,8 +154,9 @@ class PlottingHelper
                  *  @param  useLogX if we should use a log scale on the X-axis
                  *  @param  scaleByBinWidth if we should scale by bin width
                  *  @param  minEntriesToDraw the minimum number of entries required before we will draw a given histogram
+                 *  @param  useLogY if we should use a log scale on the Y-axis
                  */
-                void SaveAs(const std::string &fileName, const bool useLogX = false, const bool scaleByBinWidth = false, const unsigned int minEntriesToDraw = 0u);
+                void SaveAs(const std::string &fileName, const bool useLogX = false, const bool scaleByBinWidth = false, const unsigned int minEntriesToDraw = 0u, const bool useLogY = false);
 
                 /**
                  *  @brief  Draw and save the plot as a stacked histogram
@@ -163,8 +164,9 @@ class PlottingHelper
                  *  @param  fileName the output file name (don't include an extension)
                  *  @param  useLogX if we should use a log scale on the X-axis
                  *  @param  scaleByBinWidth if we should scale by bin width
+                 *  @param  useLogY if we should use a log scale on the Y-axis
                  */
-                void SaveAsStacked(const std::string &fileName, const bool useLogX = false, const bool scaleByBinWidth = false);
+                void SaveAsStacked(const std::string &fileName, const bool useLogX = false, const bool scaleByBinWidth = false, const bool useLogY = false);
 
             private:
                 /**
@@ -422,9 +424,12 @@ class PlottingHelper
         *
         *  @param  errorMatrix the input error matrix
         *  @param  fileName the name of the file to save
-        *  @param  showNumbers if we should print the bin contents in each bin
+        *  @param  metadata the metadata describing the binning
+        *  @param  useDefaultPalette if the default palette should be used for the z-scale, if not then a temperature palette is used instead
+        *  @param  useSymmetricZRange if the z-range should be symmetric around zero
+        *  @param  zRangeMax the maximum z-value to use on the scale (only used if useSymmetricZRange is true and zRangeMax is non-negative)
         */
-        static void PlotErrorMatrix(const ubsmear::UBMatrix &errorMatrix, const std::string &fileName, const bool showNumbers = true);
+        static void PlotErrorMatrix(const ubsmear::UBMatrix &errorMatrix, const std::string &fileName, const ubsmear::UBXSecMeta &metadata, const bool useDefaultPalette = false, const bool useSymmetricZRange = true, const float zRangeMax = -1.f);
 
         /**
         *  @brief  Plot an input fractional error matrix
@@ -432,9 +437,11 @@ class PlottingHelper
         *  @param  errorMatrix the input error matrix
         *  @param  quantityVector the input quantity to which the error matrix applied
         *  @param  fileName the name of the file to save
-        *  @param  showNumbers if we should print the bin contents in each bin
+        *  @param  metadata the metadata describing the binning
+        *  @param  useDefaultPalette if the default palette should be used for the z-scale, if not then a temperature palette is used instead
+        *  @param  useSymmetricZRange if the z-range should be symmetric around zero
         */
-        static void PlotFractionalErrorMatrix(const ubsmear::UBMatrix &errorMatrix, const ubsmear::UBMatrix &quantityVector, const std::string &fileName, const bool showNumbers = true);
+        static void PlotFractionalErrorMatrix(const ubsmear::UBMatrix &errorMatrix, const ubsmear::UBMatrix &quantityVector, const std::string &fileName, const ubsmear::UBXSecMeta &metadata, const bool useDefaultPalette = false, const bool useSymmetricZRange = true);
 
     private:
 

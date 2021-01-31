@@ -53,6 +53,7 @@
         "Macros/GetCorrelationPlots.cxx",
         "Macros/TrainBDTs.cxx",
         "Macros/NMinusOneBDTStudy.cxx",
+        "Macros/NMinusOneBDTStudyFull.cxx",
         "Macros/MuonPIDStudy.cxx",
         "Macros/MakeEventSelectionTable.cxx",
         "Macros/MakeEventSelectionEfficiencyPlots.cxx",
@@ -61,6 +62,7 @@
         "Macros/PlotMuonRecoVariables.cxx",
         "Macros/PlotReconstructedVariables.cxx",
         "Macros/MakeBinningPlots.cxx",
+        "Macros/PlotFlux.cxx",
         "Macros/PlotFluxVariations.cxx",
         "Macros/ExtractXSecs.cxx",
         "Macros/PrintUncertaintiesSummary.cxx",
@@ -82,7 +84,9 @@
     gStyle->SetTitleFontSize(18);
 
     gStyle->SetLabelFont(133, "XYZ");
-    gStyle->SetLabelSize(16, "XYZ");
+    gStyle->SetLabelSize(28, "XYZ");
+
+    TGaxis::SetMaxDigits(3);
 
     gROOT->ForceStyle();
 }

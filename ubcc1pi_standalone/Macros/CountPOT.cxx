@@ -42,6 +42,9 @@ void CountPOT(const Config &config)
         auto pSubrun = reader.GetBoundSubrunAddress();
         const auto nSubruns = reader.GetNumberOfSubruns();
 
+        auto pEvent = reader.GetBoundEventAddress();
+        const auto nEvents = reader.GetNumberOfEvents();
+
         // Count the total POT
         std::cout << "Processing file: " << inputFileName << std::endl;
         std::cout << "  - Getting total POT over " << nSubruns << " sub-runs." << std::endl;
@@ -50,10 +53,35 @@ void CountPOT(const Config &config)
         for (unsigned int i = 0; i < nSubruns; ++i)
         {
             reader.LoadSubrun(i);
-            totalPOT += pSubrun->totalPOT();
+
+            if (pSubrun->totalPOT.IsSet())
+                totalPOT += pSubrun->totalPOT();
         }
 
         std::cout << "  - POT = " << totalPOT << std::endl;
+
+        // Count the total number of events
+        std::cout << "  - Getting event counts over " << nEvents << " events." << std::endl;
+        float nEventsPassingCCInc = 0.f;
+        float nEventsWeighted = 0.f;
+        float nEventsPassingCCIncWeighted = 0.f;
+
+        for (unsigned int i = 0; i < nEvents; ++i)
+        {
+            reader.LoadEvent(i);
+
+            const auto weight = AnalysisHelper::GetNominalEventWeight(pEvent);
+            const auto passesCCInc = pEvent->reco.passesCCInclusive.IsSet() && pEvent->reco.passesCCInclusive();
+
+            nEventsPassingCCInc += (passesCCInc ? 1 : 0);
+            nEventsWeighted += weight;
+            nEventsPassingCCIncWeighted += (passesCCInc ? weight : 0);
+        }
+
+        std::cout << "  - nEvents (unweighted) = " << nEvents << std::endl;
+        std::cout << "  - nEvents passing CCInc. (unweighted) = " << nEventsPassingCCInc << std::endl;
+        std::cout << "  - nEvents (nominal weight) = " << nEventsWeighted << std::endl;
+        std::cout << "  - nEvents passing CCInc. (nominal weight) = " << nEventsPassingCCIncWeighted << std::endl;
     }
 }
 

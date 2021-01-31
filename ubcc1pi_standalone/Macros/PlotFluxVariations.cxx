@@ -45,13 +45,6 @@ void PlotFluxVariations(const Config &config)
     }
 
     // Open the flux file for reading
-    TFile *pFluxFile = new TFile(config.flux.fileName.c_str(), "READ");
-    if (!pFluxFile->IsOpen())
-        throw std::invalid_argument("PlotFluxVariations - Can't open flux file: " + config.flux.fileName);
-
-    // Get the nominal flux
-    const auto pFluxHist = static_cast<TH1F *>(pFluxFile->Get(config.flux.nomHistName.c_str()));
-
     // Get the scaling factor to go from the event rate in the flux file, to the flux itself
     // Here we get the flux in neutrinos/POT/bin/cm2 by scaling the event rate (in the samples) down by POT and the cross-sectional area of the active volume
     // Here we also scale up the fluxes by 1e10 for the sake of comparison just so we are working with reasonable numbers
@@ -59,27 +52,23 @@ void PlotFluxVariations(const Config &config)
     const auto fluxScaleFactor = unitsScaling / (config.flux.pot * (GeometryHelper::highX - GeometryHelper::lowX) * (GeometryHelper::highY - GeometryHelper::lowY));
 
     // Get the flux bin edges and content
-    std::vector<float> fluxBinEdges, fluxBinValuesNominal;
-    const unsigned int nFluxBins = pFluxHist->GetNbinsX();
-    for (unsigned int iBin = 1; iBin <= nFluxBins; ++iBin)
-    {
-        const auto lowEdge = pFluxHist->GetBinLowEdge(iBin);
-        fluxBinEdges.push_back(lowEdge);
-
-        // Add the upper edge of the last bin
-        if (iBin == nFluxBins)
-        {
-            const auto binWidth = pFluxHist->GetBinWidth(iBin);
-            fluxBinEdges.push_back(lowEdge + binWidth);
-        }
-
-        const auto nNeutrinos = pFluxHist->GetBinContent(iBin);
-        fluxBinValuesNominal.push_back(nNeutrinos * fluxScaleFactor);
-    }
+    const auto fluxHistNames = CrossSectionHelper::GetNominalFluxHistNames(config.flux.nuPdgsSignal, config.flux.nuPdgToHistName, config.flux.nomHistPattern);
+    const auto &[fluxBinEdges, fluxBinValuesNominal] = CrossSectionHelper::ReadNominalFlux(config.flux.fileName, fluxHistNames, config.flux.pot);
 
     // Setup the flux reweightor
     CrossSectionHelper::FluxReweightor fluxReweightor(fluxBinEdges, fluxBinValuesNominal, fluxDimensions);
     std::cout << "Integrated nominal flux: " << fluxReweightor.GetIntegratedNominalFlux() << std::endl;
+
+    std::cout << "Flux includes:" << std::endl;
+    for (const auto &fluxHistName : fluxHistNames)
+    {
+        std::cout << "  - " << fluxHistName << std::endl;
+    }
+
+    // Open the flux file
+    TFile *pFluxFile = new TFile(config.flux.fileName.c_str(), "READ");
+    if (!pFluxFile->IsOpen())
+        throw std::invalid_argument("PlotFluxVariations - Can't open flux file: " + config.flux.fileName);
 
     // Open the input file for reading and enable the branches with systematic event weights
     FileReader reader(config.files.overlaysFileName);
@@ -95,8 +84,8 @@ void PlotFluxVariations(const Config &config)
         AnalysisHelper::PrintLoadingBar(i, nEvents);
         reader.LoadEvent(i);
 
-        // Only use numu events
-        if (pEvent->truth.nuPdgCode() != 14)
+        // Only use the desired neutrino flavours
+        if (std::find(config.flux.nuPdgsSignal.begin(), config.flux.nuPdgsSignal.end(), pEvent->truth.nuPdgCode()) == config.flux.nuPdgsSignal.end())
             continue;
 
         // Skip events that aren't in the active volume
@@ -121,9 +110,22 @@ void PlotFluxVariations(const Config &config)
     {
         std::cout << "Parameter name: " << paramName << std::endl;
 
-        // Get the directory correponding to this parameter
-        const auto dirName = std::regex_replace(config.flux.variationDirPattern, std::regex("PARAMNAME"), paramName);
-        const auto pDir = static_cast<TDirectoryFile *>(pFluxFile->Get(dirName.c_str()));
+        // Get the directories correponding to this parameter
+        std::unordered_map<int, TDirectoryFile *> nuPdgToDirMap;
+        for (const auto &nuPdg : config.flux.nuPdgsSignal)
+        {
+            const auto nuNameIter = config.flux.nuPdgToHistName.find(nuPdg);
+            if (nuNameIter == config.flux.nuPdgToHistName.end())
+                throw std::logic_error("PlotFluxVariations - Can't find name for PDG code: " + std::to_string(nuPdg));
+
+            const auto &nuName = nuNameIter->second;
+            const auto dirName = std::regex_replace(std::regex_replace(config.flux.variationDirPattern, std::regex("NEUTRINO"), nuName), std::regex("PARAMNAME"), paramName);
+            const auto pDir = static_cast<TDirectoryFile *>(pFluxFile->Get(dirName.c_str()));
+            if (!pDir)
+                throw std::logic_error("PlotFluxVariations - Can't get TDirectoryFile: " + dirName);
+
+            nuPdgToDirMap.emplace(nuPdg, pDir);
+        }
 
         // Store the true fluxes, and the fractional difference when using reweighting
         std::vector<float> trueFluxes, fractionalDiffs;
@@ -139,11 +141,19 @@ void PlotFluxVariations(const Config &config)
             // Get the reweighted flux
             const auto fluxReweighted = fluxReweightor.GetIntegratedFluxVariation(paramName, iUni);
 
-            // Get the flux from the input file
-            const auto fluxName = std::regex_replace(std::regex_replace(config.flux.variationHistPattern, std::regex("PARAMNAME"), paramName), std::regex("UNIVERSEINDEX"), std::to_string(iUni));
+            // Get the flux from the file for this universe
+            float fluxUni = 0.f;
+            for (const auto &nuPdg : config.flux.nuPdgsSignal)
+            {
+                // Get the name of the flux histogram
+                const auto nuName = config.flux.nuPdgToHistName.at(nuPdg);
+                const auto fluxName = std::regex_replace(std::regex_replace(std::regex_replace(config.flux.variationHistPattern, std::regex("PARAMNAME"), paramName), std::regex("UNIVERSEINDEX"), std::to_string(iUni)), std::regex("NEUTRINO"), nuName);
+                const auto pFluxUni = static_cast<TH1F *>(nuPdgToDirMap.at(nuPdg)->Get(fluxName.c_str()));
+                if (!pFluxUni)
+                    throw std::logic_error("PlotFluxVariations - Can't get TH1F: " + fluxName);
 
-            const auto pFluxUni = static_cast<TH1F *>(pDir->Get(fluxName.c_str()));
-            const float fluxUni = pFluxUni->Integral() * fluxScaleFactor;
+                fluxUni += pFluxUni->Integral() * fluxScaleFactor;
+            }
 
             float fracDiff = 0.f;
             if (std::abs(fluxUni) > std::numeric_limits<float>::epsilon())
@@ -158,11 +168,6 @@ void PlotFluxVariations(const Config &config)
             // Store the result
             trueFluxes.push_back(fluxUni);
             fractionalDiffs.push_back(fracDiff);
-
-            //// BEGIN DEBUG
-            // Print the result
-            std::cout << iUni << ": " << fluxUni << ", " << fluxReweighted << ", " << fracDiff << std::endl;
-            //// END DEBUG
         }
 
         // Make a histogram for the frational differences

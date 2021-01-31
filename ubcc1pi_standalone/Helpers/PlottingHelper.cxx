@@ -202,13 +202,18 @@ void PlottingHelper::MultiPlot::SetHistogramYRanges(const unsigned int minEntrie
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
 
-void PlottingHelper::MultiPlot::SaveAs(const std::string &fileName, const bool useLogX, const bool scaleByBinWidth, const unsigned int minEntriesToDraw)
+void PlottingHelper::MultiPlot::SaveAs(const std::string &fileName, const bool useLogX, const bool scaleByBinWidth, const unsigned int minEntriesToDraw, const bool useLogY)
 {
     auto pCanvas = PlottingHelper::GetCanvas();
 
     if (useLogX)
     {
         pCanvas->SetLogx();
+    }
+
+    if (useLogY)
+    {
+        pCanvas->SetLogy();
     }
 
     // Clone the histogtams and scale them (we clone to the original hisograms can be subsequently filled)
@@ -272,7 +277,7 @@ void PlottingHelper::MultiPlot::SaveAs(const std::string &fileName, const bool u
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
 
-void PlottingHelper::MultiPlot::SaveAsStacked(const std::string &fileName, const bool useLogX, const bool scaleByBinWidth)
+void PlottingHelper::MultiPlot::SaveAsStacked(const std::string &fileName, const bool useLogX, const bool scaleByBinWidth, const bool useLogY)
 {
     auto pCanvas = PlottingHelper::GetCanvas();
 
@@ -362,7 +367,19 @@ void PlottingHelper::MultiPlot::SaveAsStacked(const std::string &fileName, const
         pHistStack->Add(pHist);
     }
 
-    pHistStack->SetMinimum(0.f);
+
+    if (useLogY)
+    {
+        // Here we set the yMin to be something reasonable but this number is pretty arbitrary
+        yMin = std::max(yMin, yMax / 1000.f);
+        pHistStack->SetMinimum(yMin);
+        pCanvas->SetLogy();
+    }
+    else
+    {
+        pHistStack->SetMinimum(0.f);
+    }
+
     pHistStack->SetMaximum(yMax / (1+gStyle->GetHistTopMargin()));
     pHistStack->Draw("hist");
 
@@ -396,10 +413,27 @@ void PlottingHelper::MultiPlot::SaveAsStacked(const std::string &fileName, const
         return;
 
     // Now make the ratio plot
+    const auto ratioPlotHeightDefault = 270u;
     auto pCanvasRatio = PlottingHelper::GetCanvas(960, 270);
 
     if (useLogX)
     {
+        // ATTN the 10^N labels for a log-x plot are shifted downwards so we need a bit more space to fit them in
+        // Get the length of the top and bottom margins
+        const float topMarginLength = pCanvasRatio->GetTopMargin() * ratioPlotHeightDefault;
+        const float bottomMarginLength = pCanvasRatio->GetBottomMargin() * ratioPlotHeightDefault;
+        const auto remainingLength = ratioPlotHeightDefault - topMarginLength - bottomMarginLength;
+
+        // Set the new desired bottom margin length
+        const float newBottomMarginLength = bottomMarginLength * 1.5f;
+
+        // Work out how tall we need to make the canvas to account for this
+        const unsigned int newRatioPlotHeight = std::round(topMarginLength + remainingLength + newBottomMarginLength);
+        const float newBottomMarginFrac = newBottomMarginLength / static_cast<float>(newRatioPlotHeight);
+
+        // Setup a new canvas with this height
+        pCanvasRatio = PlottingHelper::GetCanvas(960, newRatioPlotHeight);
+        pCanvasRatio->SetBottomMargin(newBottomMarginFrac);
         pCanvasRatio->SetLogx();
     }
 
@@ -419,6 +453,7 @@ void PlottingHelper::MultiPlot::SaveAsStacked(const std::string &fileName, const
     const auto ratioYMin = std::max(0.f, minRatio - padding);
     const auto ratioYMax = maxRatio + padding;
     pHistBNBData->GetYaxis()->SetRangeUser(ratioYMin, ratioYMax);
+    pHistBNBData->GetYaxis()->SetNdivisions(7, 4, 0, true);
 
     // Draw
     pHistBNBData->Draw("e1");
@@ -1373,47 +1408,165 @@ void PlottingHelper::SaveSmearingMatrix(const std::shared_ptr<TH2F> &matrix, con
 */
 // -----------------------------------------------------------------------------------------------------------------------------------------
 
-void PlottingHelper::PlotErrorMatrix(const ubsmear::UBMatrix &errorMatrix, const std::string &fileName, const bool showNumbers)
+void PlottingHelper::PlotErrorMatrix(const ubsmear::UBMatrix &errorMatrix, const std::string &fileName, const ubsmear::UBXSecMeta &metadata, const bool useDefaultPalette, const bool useSymmetricZRange, const float zRangeMax)
 {
     if (!ubsmear::UBMatrixHelper::IsSquare(errorMatrix))
         throw std::invalid_argument("PlottingHelper::PlotErrorMatrix - Input error matrix isn't square");
 
     const auto nBins = errorMatrix.GetRows();
 
-    // Define which bin labels we should print. Here we set at size, and only print a bin label if it's divisible by that size
-    // We arbitrarily choose a threshold number of bins below which we just print every bin label
-    // Above this threshold we start to print in larget and larger group sizes such that we never have more groups than nBinsThreshold
-    const auto nBinsThreshold = 20u;
-    const unsigned int binLabelGroupSize = std::ceil(static_cast<float>(nBins) / static_cast<float>(nBinsThreshold));
+    // Check we have a valid number of bins
+    const auto nAnalysisBins = metadata.GetNBins() - (metadata.HasUnderflow() ? 1 : 0) - (metadata.HasOverflow() ? 1 : 0);
+    const auto nSmearingBins = metadata.GetNBins()*metadata.GetNBins();
+    if (nBins != metadata.GetNBins() && nBins != nAnalysisBins && nBins != nSmearingBins)
+        throw std::invalid_argument("PlottingHelper::PlotErrorMatrix - Number of bins of error matrix doesn't match input metadata");
+
+    const auto isSmearingMatrix = (nBins == nSmearingBins);
+    const auto showNumbers = !isSmearingMatrix;
+    const auto nBinsSqrt = static_cast<unsigned int>(std::round(std::pow(nBins, 0.5)));
+
+    // When we have lots of bin labels it can be hard to read, here we set the maximum number of labels to print
+    const auto maxLabels = 30u;
+
+    // If we have less than the maximum number of labels to print, then just print them all (bin size 1)
+    // Otherwise, set the largest possible group size so we don't exceed max labels
+    const unsigned int labelGroupSize = std::ceil(static_cast<float>(nBins) / static_cast<float>(maxLabels));
+
+    // Setup a vector of lines to add if this is a smearing matrix error matrix
+    std::vector< shared_ptr<TLine> > lines;
+    if (isSmearingMatrix)
+    {
+        for (unsigned int iGroup = 1; iGroup < nBinsSqrt; ++iGroup)
+        {
+            const auto linePos = iGroup * nBinsSqrt;
+
+            // Add the horizontal line for this group
+            lines.emplace_back(new TLine(0, linePos, nBins, linePos));
+
+            // Add the vertical line for this group
+            lines.emplace_back(new TLine(linePos, 0, linePos, nBins));
+        }
+    }
 
     // Make the histogram for this matrix
+    float maxBinContent = 0.f;
     auto pHist = std::make_shared<TH2F>(("errorMatrix_" + std::to_string(m_lastPlotId++)).c_str(), "", nBins, 0, nBins, nBins, 0, nBins);
-
     for (unsigned int iRow = 0; iRow < nBins; ++iRow)
     {
         // Set the bin labels
+        std::string binLabel = "";
+        if (iRow % labelGroupSize == 0)
+        {
+            if (isSmearingMatrix)
+            {
+                const unsigned int iReco = iRow / nBinsSqrt;
+                const unsigned int iTrue = iRow % nBinsSqrt;
+
+                const auto isUnderflowReco = metadata.HasUnderflow() && (iReco == 0);
+                const auto isOverflowReco = metadata.HasOverflow() && (iReco == metadata.GetNBins() - 1);
+                const auto recoBinName = isUnderflowReco ? "UF" : (isOverflowReco ? "OF" : std::to_string(iReco - (metadata.HasUnderflow() ? 1 : 0)));
+
+                const auto isUnderflowTrue = metadata.HasUnderflow() && (iTrue == 0);
+                const auto isOverflowTrue = metadata.HasOverflow() && (iTrue == metadata.GetNBins() - 1);
+                const auto trueBinName = isUnderflowTrue ? "UF" : (isOverflowTrue ? "OF" : std::to_string(iTrue - (metadata.HasUnderflow() ? 1 : 0)));
+
+                binLabel = "R-" + recoBinName + " / T-" + trueBinName;
+            }
+            else
+            {
+                const auto isUnderflow = metadata.HasUnderflow() && (iRow == 0);
+                const auto isOverflow = metadata.HasOverflow() && (iRow == metadata.GetNBins() - 1);
+                binLabel = isUnderflow ? "UF" : (isOverflow ? "OF" : std::to_string(iRow - (metadata.HasUnderflow() ? 1 : 0)));
+            }
+        }
+
         // ATTN we +1 to the indices as ROOT enumerates from 1
-        const std::string binLabel = (iRow % binLabelGroupSize == 0) ? std::to_string(iRow) : "";
         pHist->GetXaxis()->SetBinLabel(iRow + 1, binLabel.c_str());
         pHist->GetYaxis()->SetBinLabel(iRow + 1, binLabel.c_str());
 
         for (unsigned int iCol = 0; iCol < nBins; ++iCol)
         {
-            pHist->SetBinContent(iCol + 1, iRow + 1, errorMatrix.At(iRow, iCol));
+            float binContent = errorMatrix.At(iRow, iCol);
+
+            // If the bin is empty then it will be drawn as as a blank square, here we set it to small value to force ROOT to fill the square
+            if (std::abs(binContent) < std::numeric_limits<float>::epsilon())
+                binContent = std::numeric_limits<float>::epsilon();
+
+            pHist->SetBinContent(iCol + 1, iRow + 1, binContent);
+
+            maxBinContent = std::max(maxBinContent, std::abs(binContent));
         }
+    }
+
+    // If desired, used the supplied maximum bin range
+    if (zRangeMax > 0.f && useSymmetricZRange)
+    {
+        maxBinContent = zRangeMax;
     }
 
     // Plot the histogram
     auto pCanvas = PlottingHelper::GetCanvas(960, 960);
+    pCanvas->SetTopMargin(0.10f);
+    pCanvas->SetBottomMargin(0.20f);
+    pCanvas->SetLeftMargin(0.17f);
+    pCanvas->SetRightMargin(0.12f);
+
+    // To make the zero-point clear, we choose an alternate colour mapping
+    // Make some vectors that store the R, G and B values at different "stops" between 0 -> 1
+    if (!useDefaultPalette)
+    {
+        std::vector<double> reds =   {  22./255., 255./255., 255./255. };
+        std::vector<double> greens = { 103./255., 255./255., 149./255. };
+        std::vector<double> blues =  { 255./255., 255./255.,   0./255. };
+        std::vector<double> stops =  { 0.       , 0.5      , 1.        };
+        const unsigned int nColourPoints = 50u;
+
+        // Get the colour palette
+        auto firstIndex = TColor::CreateGradientColorTable(stops.size(), stops.data(), reds.data(), greens.data(), blues.data(), nColourPoints);
+        std::vector<int> palette;
+        for (unsigned int i = 0; i < nColourPoints; ++i)
+        {
+            palette.push_back(firstIndex + i);
+        }
+
+        // Use this new palette
+        gStyle->SetPalette(nColourPoints, palette.data());
+    }
+
+    // Set the range so its equal in the positive and negative directions
+    if (useSymmetricZRange)
+    {
+        pHist->GetZaxis()->SetRangeUser(-maxBinContent, +maxBinContent);
+    }
 
     // Remove the ticks
-    pHist->GetXaxis()->SetTickLength(0);
-    pHist->GetYaxis()->SetTickLength(0);
+    pHist->GetXaxis()->SetTickLength(0.f);
+    pHist->GetYaxis()->SetTickLength(0.f);
+
+    // Rotate the labels on the x-axis
+    if (isSmearingMatrix)
+    {
+        pHist->GetXaxis()->LabelsOption("v");
+    }
 
     if (showNumbers)
     {
+        // Decide on the marker size
+        const float markerSizeMin = 1.f;
+        const float markerSizeMax = 2.5f;
+        const unsigned int nBinsMarkerMin = 1u;
+        const unsigned int nBinsMarkerMax = 15u;
+
+        //   - At nBins <= nBinsMarkerMin we want to be at markerSizeMax
+        //   - At nBins >= nBinsMarkerMax we want to be at markerSizeMin
+        //   - Between nBinsMarkerMin <= nBins <= nBinsMarkerThreshold, marker size should scale with 1/nBins
+        //   - Choose form: markerSize = A / nBins + B
+        const auto markerA = (markerSizeMax - markerSizeMin) * (nBinsMarkerMin * nBinsMarkerMax) / static_cast<float>(nBinsMarkerMax - nBinsMarkerMin);
+        const auto markerB = markerSizeMax - (markerA / static_cast<float>(nBinsMarkerMin));
+        const auto markerSize = (markerA / static_cast<float>(nBins)) + markerB;
+
         gStyle->SetPaintTextFormat("2.2f");
-        pHist->SetMarkerSize(1.f);
+        pHist->SetMarkerSize(markerSize);
         pHist->Draw("colz text");
     }
     else
@@ -1421,12 +1574,22 @@ void PlottingHelper::PlotErrorMatrix(const ubsmear::UBMatrix &errorMatrix, const
         pHist->Draw("colz");
     }
 
+    // Draw the lines
+    for (const auto &pLine : lines)
+    {
+        pLine->Draw();
+    }
+
+    // Save the canvas
     PlottingHelper::SaveCanvas(pCanvas, fileName);
+
+    // Set the palette back to default
+    gStyle->SetPalette();
 }
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
 
-void PlottingHelper::PlotFractionalErrorMatrix(const ubsmear::UBMatrix &errorMatrix, const ubsmear::UBMatrix &quantityVector, const std::string &fileName, const bool showNumbers)
+void PlottingHelper::PlotFractionalErrorMatrix(const ubsmear::UBMatrix &errorMatrix, const ubsmear::UBMatrix &quantityVector, const std::string &fileName, const ubsmear::UBXSecMeta &metadata, const bool useDefaultPalette, const bool useSymmetricZRange)
 {
     // Check that the dimensions of the inputs are compatible
     if (quantityVector.GetColumns() != 1)
@@ -1463,7 +1626,10 @@ void PlottingHelper::PlotFractionalErrorMatrix(const ubsmear::UBMatrix &errorMat
     }
 
     // Plot the fractional error matrix
-    PlottingHelper::PlotErrorMatrix(fracErrorMatrix, fileName, showNumbers);
+    PlottingHelper::PlotErrorMatrix(fracErrorMatrix, fileName, metadata, useDefaultPalette, useSymmetricZRange);
+
+    // Plot the fractional error matrix with a fixed scale
+    PlottingHelper::PlotErrorMatrix(fracErrorMatrix, fileName + "_fixed", metadata, useDefaultPalette, useSymmetricZRange, 1.f);
 }
 
 } // namespace ubcc1pi

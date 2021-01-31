@@ -69,7 +69,7 @@ struct Config
      *  @brief  The sample normalisations structure
      *
      * These values can be found by:
-     *      - Running the ubcc1pi::CountPOT macro (for overlays and dirt)
+     *      - Running the ubcc1pi::CountPOT macro (for overlays, dirt and detector variation files)
      *      - Running the ubcc1pi::GetRunSubrunList macro (for data), and then running Zarko's tool:
      *          /uboone/app/users/zarko/getDataInfo.py -v2 --run-subrun-list runSubrunList.txt
      */
@@ -108,9 +108,22 @@ struct Config
     {
         std::string  fileName             = "/uboone/data/users/asmith/ubcc1pi/samples/flux/MCC9_FluxHist_volTPCActive.root";  ///< The path to the file containing the flux in each systematic universe
         float        pot                  = 4997 * 5e8;                                                                        ///< The total number of protons-on-target simulated in the input flux file
-        std::string  nomHistName          = "hEnumu_cv";                                                                       ///< The name of the nominal flux histogram in the file
-        std::string  variationDirPattern  = "numu_ms_PARAMNAME";                                                               ///< The pattern for the directory corresponding to each systematic paramter (PARAMNAME is replaced)
-        std::string  variationHistPattern = "hEnumu_PARAMNAME_ms_UNIVERSEINDEX";                                               ///< The pattern for the flux histogram corresponding to each universe in a given directory (PARAMNAME and UNIVERSEINDEX are replace)
+
+        /**
+        *  @brief  A mapping from neutrino PDG codes, to the names used in the flux file
+        */
+        std::map<int, std::string> nuPdgToHistName = {
+            {+12, "nue"},
+            {-12, "nuebar"},
+            {+14, "numu"},
+            {-14, "numubar"},
+        };
+
+        std::vector<int> nuPdgsSignal = {-14, +14}; ///< The neutrino PDG codes for the fluxes to use in the cross-section calculation
+
+        std::string  nomHistPattern       = "hENEUTRINO_cv";                         ///< The pattern for the nominal flux historam names (NEUTRINO is replaced by one of the names in nuPdgToHistMap)
+        std::string  variationDirPattern  = "NEUTRINO_ms_PARAMNAME";                 ///< The pattern for the directory corresponding to each systematic paramter (NEUTRINO and PARAMNAME are replaced)
+        std::string  variationHistPattern = "hENEUTRINO_PARAMNAME_ms_UNIVERSEINDEX"; ///< The pattern for the flux histogram corresponding to each universe in a given directory (NEUTRINO, PARAMNAME and UNIVERSEINDEX are replace)
     };
     Flux flux; ///< The flux
 
@@ -369,6 +382,8 @@ struct Config
         bool scaleXSecWeights = true;
 
         unsigned int nBootstrapUniverses = 1000u; ///< The number of bootrap universes to generate for the MC stat uncertainty
+
+        float potFracUncertainty = 0.02f; ///< The fractional uncertainty on the POT normalisation
 
         CrossSectionHelper::SystDimensionsMap fluxDimensions = {
             {"hadronProduction",          1000u},

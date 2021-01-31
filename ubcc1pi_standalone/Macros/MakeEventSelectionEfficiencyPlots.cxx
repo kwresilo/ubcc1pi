@@ -36,7 +36,7 @@ void MakeEventSelectionEfficiencyPlots(const Config &config)
     const auto drawErrors = config.efficiencyPlots.drawErrors;
 
     // True efficiencies
-    auto plot_nuEnergy = PlottingHelper::EfficiencyPlot("Neutrino energy / GeV", 40u, 0, 2.5f, allCuts, drawErrors);
+    auto plot_nuEnergy = PlottingHelper::EfficiencyPlot("Neutrino energy / GeV", 40u, 0.4f, 2.5f, allCuts, drawErrors);
     auto plot_nProtons = PlottingHelper::EfficiencyPlot("Proton multiplicity", 5u, 0, 5, allCuts, drawErrors);
     auto plot_muMomentum = PlottingHelper::EfficiencyPlot("True muon momentum / GeV", 40u, 0.f, 1.5f, allCuts, drawErrors);
     auto plot_muCosTheta = PlottingHelper::EfficiencyPlot("True muon cos(theta)", 40u, -1.f, 1.0f, allCuts, drawErrors);
@@ -50,7 +50,7 @@ void MakeEventSelectionEfficiencyPlots(const Config &config)
     auto plot_piPhiGolden = PlottingHelper::EfficiencyPlot("True golden pion phi / rad", 40u, -3.142, 3.142f, allCuts, drawErrors);
 
     // Efficiencies wrt CC inclusive
-    auto plot_ccinc_nuEnergy = PlottingHelper::EfficiencyPlot("Neutrino energy / GeV", 30u, 0, 2.5f, allCuts, drawErrors);
+    auto plot_ccinc_nuEnergy = PlottingHelper::EfficiencyPlot("Neutrino energy / GeV", 30u, 0.4, 2.5f, allCuts, drawErrors);
     auto plot_ccinc_nProtons = PlottingHelper::EfficiencyPlot("Proton multiplicity", 5u, 0, 5, allCuts, drawErrors);
     auto plot_ccinc_muMomentum = PlottingHelper::EfficiencyPlot("True muon momentum / GeV", 30u, 0.f, 1.5f, allCuts, drawErrors);
     auto plot_ccinc_muCosTheta = PlottingHelper::EfficiencyPlot("True muon cos(theta)", 30u, -1.f, 1.0f, allCuts, drawErrors);
