@@ -367,6 +367,7 @@ void MakeXSecPlots(const Config &config)
             maxY += padding;
             minY -= padding;
             minY = std::max(minY, 0.f);
+            minY = 0.f; // Remove this line to get a dynamic lower y-range
             pDataHist->GetYaxis()->SetRangeUser(minY, maxY);
             pDataStatOnlyHist->GetYaxis()->SetRangeUser(minY, maxY);
             pPredictionHist->GetYaxis()->SetRangeUser(minY, maxY);

@@ -169,7 +169,7 @@ void PlottingHelper::MultiPlot::ScaleHistograms(std::unordered_map<PlotStyle, TH
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
 
-void PlottingHelper::MultiPlot::SetHistogramYRanges(const unsigned int minEntriesToDraw, std::unordered_map<PlotStyle, TH1F*> &plotToHistCloneMap) const
+void PlottingHelper::MultiPlot::SetHistogramYRanges(const bool useLogY, const unsigned int minEntriesToDraw, std::unordered_map<PlotStyle, TH1F*> &plotToHistCloneMap) const
 {
     float yMin = std::numeric_limits<float>::max();
     float yMax = -std::numeric_limits<float>::max();
@@ -182,9 +182,17 @@ void PlottingHelper::MultiPlot::SetHistogramYRanges(const unsigned int minEntrie
         if (pHist->GetEntries() < minEntriesToDraw || pHist->GetEntries() == 0u)
             continue;
 
-        yMin = std::min(yMin, static_cast<float>(pHist->GetMinimum()));
         yMax = std::max(yMax, static_cast<float>(pHist->GetMaximum()));
         shouldScale = true;
+
+        for (unsigned int iBin = 1; iBin <= static_cast<unsigned int>(pHist->GetNbinsX()); ++iBin)
+        {
+            const float binContent = pHist->GetBinContent(iBin);
+            if (useLogY && binContent < std::numeric_limits<float>::epsilon())
+                continue;
+
+            yMin = std::min(yMin, binContent);
+        }
     }
 
     if (!shouldScale)
@@ -220,7 +228,7 @@ void PlottingHelper::MultiPlot::SaveAs(const std::string &fileName, const bool u
     std::unordered_map<PlotStyle, TH1F* > plotToHistCloneMap;
     this->GetHistogramClones(plotToHistCloneMap);
     this->ScaleHistograms(plotToHistCloneMap, scaleByBinWidth);
-    this->SetHistogramYRanges(minEntriesToDraw, plotToHistCloneMap);
+    this->SetHistogramYRanges(useLogY, minEntriesToDraw, plotToHistCloneMap);
 
     // Draw the error bands if required
     bool isFirst = true;
@@ -301,8 +309,10 @@ void PlottingHelper::MultiPlot::SaveAsStacked(const std::string &fileName, const
     auto bnbDataHistIter = plotToHistCloneMap.find(BNBData);
     const bool hasBNBData = bnbDataHistIter != plotToHistCloneMap.end();
 
-    auto yMin = hasBNBData ? static_cast<float>(bnbDataHistIter->second->GetMinimum()) : std::numeric_limits<float>::max();
     auto yMax = hasBNBData ? static_cast<float>(bnbDataHistIter->second->GetMaximum()) : -std::numeric_limits<float>::max();
+
+    // For log-y plots we also want to know the smallest non-zero bin entry
+    float yMinNonZero = std::numeric_limits<float>::max();
 
     // Sum the non BNB data histograms to get the "MC" total
     const auto nameTotalStr = "ubcc1pi_multiPlot_" + std::to_string(m_id) + "_total";
@@ -336,12 +346,22 @@ void PlottingHelper::MultiPlot::SaveAsStacked(const std::string &fileName, const
         }
 
         pHistTotal->Add(pHist);
+        yMax = std::max(yMax, static_cast<float>(pHist->GetMaximum()));
+
+        // For log-y plots we also want to know the smallest non-zero bin entry
+        for (unsigned int iBin = 1; iBin <= static_cast<unsigned int>(pHist->GetNbinsX()); ++iBin)
+        {
+            const float content = pHistTotal->GetBinContent(iBin);
+            if (content <= std::numeric_limits<float>::epsilon())
+                continue;
+
+            yMinNonZero = std::min(yMinNonZero, content);
+        }
     }
 
     // Get the maximum and minimum Y coordinates
-    yMin = std::min(yMin, static_cast<float>(pHistTotal->GetMinimum()));
     yMax = std::max(yMax, static_cast<float>(pHistTotal->GetMaximum()));
-    yMax += (yMax - yMin) * 0.05;
+    yMax *= 1.05;
 
     // Draw the stacked histogram
     const auto nameStackStr = "ubcc1pi_plotPlot_" + std::to_string(m_id) + "_stack";
@@ -370,9 +390,8 @@ void PlottingHelper::MultiPlot::SaveAsStacked(const std::string &fileName, const
 
     if (useLogY)
     {
-        // Here we set the yMin to be something reasonable but this number is pretty arbitrary
-        yMin = std::max(yMin, yMax / 1000.f);
-        pHistStack->SetMinimum(yMin);
+        // Add some padding at the bottom
+        pHistStack->SetMinimum(yMinNonZero * 0.9);
         pCanvas->SetLogy();
     }
     else

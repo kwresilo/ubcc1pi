@@ -93,9 +93,10 @@ void PlotInputVariables(const Config &config)
 
         if (featureName == "wiggliness")
         {
-            // ATTN here we exclude zero to better show the distribution, but zero is used by the BDT
-            plotVector.emplace_back("Wiggliness", yLabel, 30, 0, 0.004);
-            plotVectorSignal.emplace_back("Wiggliness", yLabel, 30, 0, 0.004);
+            // ATTN we use log-x for clarity, so use non-linear binning
+            const auto binEdges = PlottingHelper::GenerateLogBinEdges(50, 1e-4, 0.08);
+            plotVector.emplace_back("Wiggliness", yLabel, binEdges);
+            plotVectorSignal.emplace_back("Wiggliness", yLabel, binEdges);
             continue;
         }
 
@@ -127,11 +128,18 @@ void PlotInputVariables(const Config &config)
         pMuonBDT = std::make_shared<BDTHelper::BDT>("muon", muonFeatureNames);
     }
 
+    // Pion angle plots
     PlottingHelper::MultiPlot phiPlot("Phi / rad", yLabel, 50u, -3.142f, 3.142f);
     PlottingHelper::MultiPlot cosThetaPlot("cos(theta)", yLabel, 50u, -1.f, 1.f);
 
     TH2F *hPhiCosThetaData = new TH2F("hPhiCosThetaData", "", 100u, -3.142f, 3.142f, 100u, -1.f, 1.f);
     TH2F *hPhiCosThetaSim = new TH2F("hPhiCosThetaSim", "", 100u, -3.142f, 3.142f, 100u, -1.f, 1.f);
+
+    // Special plot for trackScore for particles with and without descendents
+    PlottingHelper::MultiPlot trackScoreWithDescendents("Track score", yLabel, 30, 0, 1);
+    PlottingHelper::MultiPlot trackScoreWithoutDescendents("Track score", yLabel, 30, 0, 1);
+    PlottingHelper::MultiPlot trackScoreWithDescendentsSignal("Track score", yLabel, 30, 0, 1);
+    PlottingHelper::MultiPlot trackScoreWithoutDescendentsSignal("Track score", yLabel, 30, 0, 1);
 
     //
     // Fill the plots
@@ -196,27 +204,46 @@ void PlotInputVariables(const Config &config)
                 if (!BDTHelper::GetBDTFeatures(particle, featureNames, features))
                     continue;
 
+                // ATTN there can be particles that are in a signal event (i.e. neutrons) but we don't want to plot, so here we check
+                // for the "Other" category to avoid including them
+                bool shouldPlotSignal = false;
+                if (isSignal && particleStyle != PlottingHelper::Other)
+                {
+                    if (particleStyle != PlottingHelper::Muon &&
+                        particleStyle != PlottingHelper::Proton &&
+                        particleStyle != PlottingHelper::NonGoldenPion &&
+                        particleStyle != PlottingHelper::GoldenPion &&
+                        particleStyle != PlottingHelper::External)
+                    {
+                        throw std::logic_error("Found signal event with reco particle matching to unexpected truth particle");
+                    }
+
+                    shouldPlotSignal = true;
+                }
+
+                // Fill the special plots for track-score with and without descendents
+                if (particle.nDescendents() != 0)
+                {
+                    trackScoreWithDescendents.Fill(particle.trackScore(), particleStyle, weight);
+
+                    if (shouldPlotSignal)
+                        trackScoreWithDescendentsSignal.Fill(particle.trackScore(), particleStyle, weight);
+                }
+                else
+                {
+                    trackScoreWithoutDescendents.Fill(particle.trackScore(), particleStyle, weight);
+
+                    if (shouldPlotSignal)
+                        trackScoreWithoutDescendentsSignal.Fill(particle.trackScore(), particleStyle, weight);
+                }
+
                 // Fill the feature plots
                 for (unsigned int iFeature = 0; iFeature < featureNames.size(); ++iFeature)
                 {
                     plotVector.at(iFeature).Fill(features.at(iFeature), particleStyle, weight);
 
-                    // ATTN there can be particles that are in a signal event (i.e. neutrons) but we don't want to plot, so here we check
-                    // for the "Other" category to avoid including them
-                    if (isSignal && particleStyle != PlottingHelper::Other)
-                    {
-                        if (particleStyle != PlottingHelper::Muon &&
-                            particleStyle != PlottingHelper::Proton &&
-                            particleStyle != PlottingHelper::NonGoldenPion &&
-                            particleStyle != PlottingHelper::GoldenPion &&
-                            particleStyle != PlottingHelper::External)
-                        {
-                            throw std::logic_error("Found signal event with reco particle matching to unexpected truth particle");
-                        }
-
-
+                    if (shouldPlotSignal)
                         plotVectorSignal.at(iFeature).Fill(features.at(iFeature), particleStyle, weight);
-                    }
                 }
 
                 // Fill the BDT plots
@@ -258,15 +285,21 @@ void PlotInputVariables(const Config &config)
     {
         const auto &featureName = featureNames.at(iFeature);
 
-        const bool useLogY = (featureName == "trackScore" || featureName == "wiggliness");
+        const bool useLogY = (featureName == "trackScore");
+        const bool useLogX = (featureName == "wiggliness");
 
-        plotVector.at(iFeature).SaveAsStacked("inputVariables_" + featureName, false, false, useLogY);
-        plotVectorSignal.at(iFeature).SaveAs("inputVariables_signal_" + featureName, false, false, 0, useLogY);
+        plotVector.at(iFeature).SaveAsStacked("inputVariables_" + featureName, useLogX, false, useLogY);
+        plotVectorSignal.at(iFeature).SaveAs("inputVariables_signal_" + featureName, useLogX, false, 0, useLogY);
     }
 
     goldenPionBDTPlot.SaveAsStacked("inputVariables_goldenPionBDTResponse");
     protonBDTPlot.SaveAsStacked("inputVariables_protonBDTResponse");
     muonBDTPlot.SaveAsStacked("inputVariables_muonBDTResponse");
+
+    trackScoreWithDescendents.SaveAsStacked("inputVariables_trackScore-withDescendents", false, false, true);
+    trackScoreWithDescendentsSignal.SaveAs("inputVariables_trackScore-withDescendents_signal", false, false, 0, true);
+    trackScoreWithoutDescendents.SaveAsStacked("inputVariables_trackScore-withoutDescendents", false, false, true);
+    trackScoreWithoutDescendentsSignal.SaveAs("inputVariables_trackScore-withoutDescendents_signal", false, false, 0, true);
 
     phiPlot.SaveAsStacked("inputVariables_phi");
     cosThetaPlot.SaveAsStacked("inputVariables_cosTheta");
