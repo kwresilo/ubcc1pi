@@ -289,7 +289,8 @@ SelectionHelper::EventSelection SelectionHelper::GetDefaultSelection()
         {"openingAngle", 2.65f},
         {"topologicalScore", 0.67f},
         {"startNearVertex", 9.5f},
-        {"likelyGoldenPion", -0.03f}
+        {"likelyGoldenPion", -0.03f},
+        {"michelVeto", 0.007f}
     };
 
     // Load up the BDTs and store them in a map
@@ -553,6 +554,20 @@ SelectionHelper::EventSelection SelectionHelper::GetDefaultSelection()
 
         // Mark the cut "likelyGoldenPion" as passed
         cutTracker.MarkCutAsPassed("likelyGoldenPion");
+
+        // ----------------------------------------------------------------------------------
+        // michelVeto
+        // ----------------------------------------------------------------------------------
+
+        // Get the michel veto cut value
+        const auto wigglinessThreshold = cutTracker.GetCutValue("michelVeto");
+
+        // Insist that the pion wiggliness is less than the cut value to veto short pions + mainly michel
+        if (pion.wiggliness() > wigglinessThreshold)
+            return false;
+
+        // Mark the cut "michelVeto" as passed
+        cutTracker.MarkCutAsPassed("michelVeto");
 
         // We passed all cuts!
         return true;

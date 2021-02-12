@@ -85,6 +85,13 @@ namespace ubcc1pi_macros
     void PlotInputVariables(const Config &config = Config());
 
     /**
+     *  @brief  Plot the variables that form the input to the particle ID BDTs after the CC inclusive selection broken down for pions
+     *
+     *  @param  config the input configuration
+     */
+    void PlotPionInputVariables(const Config &config = Config());
+
+    /**
      *  @brief  Get the correlation plots between the input variables to the BDT
      *
      *  @param  config the input configuration
@@ -104,6 +111,13 @@ namespace ubcc1pi_macros
      *  @param  config the input configuration
      */
     void NMinusOneBDTStudy(const Config &config = Config());
+
+    /**
+     *  @brief  Make data/MC plots for one iteration of the N-1 BDT study
+     *
+     *  @param  config the input configuration
+     */
+    void NMinusOneBDTDataMCStudy(const Config &config = Config());
 
     /**
     *  @brief  Run multiple iterations of the N-1 BDT study following a hard-coded ordering
@@ -160,6 +174,13 @@ namespace ubcc1pi_macros
      *  @param  config the input configuration
      */
     void PlotReconstructedVariables(const Config &config = Config());
+
+    /**
+    *  @brief  Dump the truth and reconstructed information about selected events to a ROOT file
+    *
+    *  @param  config the input configuration
+    */
+    void DumpSelectedEventInfo(const Config &config = Config());
 
     /**
      *  @brief  Make the plots to motivate the binning choice

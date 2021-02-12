@@ -39,6 +39,10 @@ class PlottingHelper
             Secondary,
             Tertiary,
             Quaternary,
+            Quinary,
+            Senary,
+            Septenary,
+            Octonary,
 
             // Particle types
             Muon,
@@ -187,10 +191,11 @@ class PlottingHelper
                 /**
                  *  @brief  Set the Y-range of the histograms so all fit on the canvas
                  *
+                 *  @param  useLogY if we are going to use log Y-scale
                  *  @param  minEntriesToDraw the minimum number of entries required to draw a histogram (won't be considered when finding the ranges)
                  *  @param  plotToHistCloneMap the histograms to modify
                  */
-                void SetHistogramYRanges(const unsigned int minEntriesToDraw, std::unordered_map<PlotStyle, TH1F*> &plotToHistCloneMap) const;
+                void SetHistogramYRanges(const bool useLogY, const unsigned int minEntriesToDraw, std::unordered_map<PlotStyle, TH1F*> &plotToHistCloneMap) const;
 
                 std::string        m_xLabel;     ///< The x-label of the histogram
                 unsigned int       m_nBins;      ///< The number of bins
@@ -457,6 +462,10 @@ const std::vector<PlottingHelper::PlotStyle> PlottingHelper::AllPlotStyles = {
     Secondary,
     Tertiary,
     Quaternary,
+    Quinary,
+    Senary,
+    Septenary,
+    Octonary,
     External,
     ExternalPoints,
     Dirt,
@@ -556,24 +565,28 @@ int PlottingHelper::GetColor(const PlotStyle plotStyle)
             col = kGreen + 1;
             break;
 
+        case Quinary:
         case NonGoldenPion:
         case NonGoldenPionPoints:
         case NumuCC1PiChargedNonGolden:
             col = kMagenta + 1;
             break;
 
+        case Senary:
         case PiMinus:
         case PiMinusPoints:
         case NonFiducial:
             col = kRed - 4;
             break;
 
+        case Septenary:
         case Electron:
         case ElectronPoints:
         case NumuCCOther:
             col = kCyan + 1;
             break;
 
+        case Octonary:
         case Photon:
         case PhotonPoints:
         case Nue:
@@ -616,6 +629,10 @@ std::vector<int> PlottingHelper::GetColorVector()
     colors.push_back(PlottingHelper::GetColor(Secondary));
     colors.push_back(PlottingHelper::GetColor(Tertiary));
     colors.push_back(PlottingHelper::GetColor(Quaternary));
+    colors.push_back(PlottingHelper::GetColor(Quinary));
+    colors.push_back(PlottingHelper::GetColor(Senary));
+    colors.push_back(PlottingHelper::GetColor(Septenary));
+    colors.push_back(PlottingHelper::GetColor(Octonary));
 
     // Then add the rest
     for (const auto &style : PlottingHelper::AllPlotStyles)
