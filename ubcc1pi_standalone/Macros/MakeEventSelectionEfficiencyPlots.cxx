@@ -21,7 +21,7 @@ namespace ubcc1pi_macros
 void MakeEventSelectionEfficiencyPlots(const Config &config)
 {
     // Get the selection
-    auto selection = SelectionHelper::GetDefaultSelection();
+    auto selection = SelectionHelper::GetSelection(config.global.selection);
     const auto allCuts = selection.GetCuts();
 
     std::cout << "Making plots for cuts:" << std::endl;

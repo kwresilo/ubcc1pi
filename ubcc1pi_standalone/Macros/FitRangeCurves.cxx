@@ -33,8 +33,9 @@ void FitRangeCurves(const Config &config)
     std::map<int, std::vector<float> > rangeMap, momentumMap;
     std::map<int, std::shared_ptr<TH2F> > histMap;
 
-    histMap.emplace(13, new TH2F("rangeCurve_muon", "", 60, 0.f, 300.f, 60, 0.f, 0.8f));
-    histMap.emplace(211, new TH2F("rangeCurve_pion", "", 60, 0.f, 100.f, 60, 0.f, 0.4f));
+    histMap.emplace(13, new TH2F("rangeCurve_muon", ";Range (cm); Momentum (GeV)", 60, 0.f, 300.f, 60, 0.f, 0.8f));
+    histMap.emplace(211, new TH2F("rangeCurve_pion", ";Range (cm); Momentum (GeV)", 60, 0.f, 100.f, 60, 0.f, 0.4f));
+    histMap.emplace(2212, new TH2F("rangeCurve_proton", ";Range (cm); Momentum (GeV)", 60, 0.f, 100.f, 60, 0.f, 1.2f));
 
     // Loop over the events
     for (unsigned int i = 0; i < nEvents; ++i)
@@ -110,7 +111,12 @@ void FitRangeCurves(const Config &config)
         const auto &momenta = momentumMap.at(pdgCode);
 
         AnalysisHelper::RangeToMomentumFitParameters params;
-        AnalysisHelper::GetRangeToMomentumFitParameters(ranges, momenta, params);
+        if (pdgCode ==2212){
+            AnalysisHelper::GetRangeToMomentumFitParameters(ranges, momenta, params);
+        }
+        else{
+            AnalysisHelper::GetRangeToMomentumFitParameters(ranges, momenta, params);
+        }
 
         FormattingHelper::Table table({"Parameter", "Value"});
 

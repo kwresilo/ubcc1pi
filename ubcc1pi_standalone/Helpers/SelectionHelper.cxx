@@ -233,6 +233,25 @@ SelectionHelper::EventSelection::SelectionResult SelectionHelper::EventSelection
 }
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
+
+SelectionHelper::EventSelection SelectionHelper::GetSelection(const std::string &name)
+{
+  if (name == "CCInclusive"){
+    return SelectionHelper::GetCCInclusiveSelection();
+  }
+  else if (name == "Default"){
+    return SelectionHelper::GetDefaultSelection();
+  }
+  else if (name == "CC0pi"){
+    return SelectionHelper::GetCC0piSelection();
+  }
+  // If anything else, throw an error
+  else{
+    throw std::invalid_argument("Cannot find selection: \"" + name + "\"");
+  }
+};
+
+
 // -----------------------------------------------------------------------------------------------------------------------------------------
 
 SelectionHelper::EventSelection SelectionHelper::GetCCInclusiveSelection()
@@ -563,6 +582,213 @@ SelectionHelper::EventSelection SelectionHelper::GetDefaultSelection()
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
 
+SelectionHelper::EventSelection SelectionHelper::GetCC0piSelection()
+{
+    // Define the cuts
+    const std::vector<EventSelection::Cut> cuts = {
+        {"passesCCInclusive"},
+        {"max1Uncontained"},
+        {"1NonProton", -0.06f},
+        {"muonNotInGap"},
+        {"topologicalScore", 0.67f},
+        {"startNearVertex", 9.5f}
+    };
+
+    // Load up the BDTs and store them in a map
+    EventSelection::BDTMap bdtMap = {
+        {"muon",       std::make_shared<BDTHelper::BDT>("muon", BDTHelper::MuonBDTFeatureNames)},
+        {"proton",     std::make_shared<BDTHelper::BDT>("proton", BDTHelper::ProtonBDTFeatureNames)}
+    };
+
+    // Define the actual selection logic
+    const auto logic = [](const auto &pEvent, auto &bdtMap, auto &cutTracker)
+    {
+        // ----------------------------------------------------------------------------------
+        // passesCCInclusive
+        // ----------------------------------------------------------------------------------
+
+        // Insist the event passes the CC inclusive preselection
+        if (!pEvent->reco.passesCCInclusive())
+            return false;
+
+        // Mark the cut "passesCCInclusive" as passed
+        cutTracker.MarkCutAsPassed("passesCCInclusive");
+
+        // ----------------------------------------------------------------------------------
+        // max1Uncontained
+        // ----------------------------------------------------------------------------------
+
+        // Count the particles with a track fit and check if they are contained
+        unsigned int nUncontainedParticles = 0u;
+
+        const auto &recoParticles = pEvent->reco.particles;
+        for (unsigned int i = 0; i < recoParticles.size(); ++i)
+        {
+            const auto &particle = recoParticles.at(i);
+
+            if (!AnalysisHelper::HasTrackFit(particle))
+                continue;
+
+            if (!AnalysisHelper::IsContained(particle))
+                nUncontainedParticles++;
+        }
+
+        // Insist that at most one particle is uncontained
+        if (nUncontainedParticles > 1)
+            return false;
+
+        // Mark the cut "max1Uncontained" as passed
+        cutTracker.MarkCutAsPassed("max1Uncontained");
+
+        // Identify the muon candidate
+        auto &pMuonBDT = bdtMap.at("muon");
+        const auto muonIndex = SelectionHelper::GetMuonCandidateIndex(recoParticles, BDTHelper::MuonBDTFeatureNames, *pMuonBDT);
+
+        // Assign the muon candidate a muon PDG code
+        cutTracker.AssignPDGCode(muonIndex, 13);
+
+        // ----------------------------------------------------------------------------------
+        // 1NonProton
+        // ----------------------------------------------------------------------------------
+
+        // Identify the rest of the particles using the proton BDT
+        const auto protonBDTThreshold = cutTracker.GetCutValue("1NonProton");
+
+        // Get the proton BDT from the map
+        auto &pProtonBDT = bdtMap.at("proton");
+
+        // Keep track of the number of protons and pions we have identifies
+        unsigned int nProtons = 0;
+        std::vector<unsigned int> pionIndices;
+
+        for (unsigned int i = 0; i < recoParticles.size(); ++i)
+        {
+            const auto &particle = recoParticles.at(i);
+
+            // Skip the muon candidate as we've already identified it
+            if (i == muonIndex)
+                continue;
+
+            // Assume particles without a track fit are just small protons
+            if (!AnalysisHelper::HasTrackFit(particle))
+            {
+                nProtons++;
+                cutTracker.AssignPDGCode(i, 2212);
+
+                continue;
+            }
+
+            // The particle should be contained (as only the muon candidate is allowed to escape). But for sanity, let's check
+            if (!AnalysisHelper::IsContained(particle))
+                throw std::logic_error("DefaultSelection - Found an uncontained particle that isn't the muon. This shouldn't happen!");
+
+            // Get run the proton BDT
+            std::vector<float> features;
+            const auto hasFeatures = BDTHelper::GetBDTFeatures(particle, BDTHelper::ProtonBDTFeatureNames, features);
+
+            // If one or more of the BDT features are missing, then assume the particle is a proton
+            if (!hasFeatures)
+            {
+                nProtons++;
+                cutTracker.AssignPDGCode(i, 2212);
+
+                continue;
+            }
+
+            // Insist that the BDT response is greater than the cut value to identify the particle as a proton
+            const auto bdtResponse = pProtonBDT->GetResponse(features);
+            if (bdtResponse >= protonBDTThreshold)
+            {
+                nProtons++;
+                cutTracker.AssignPDGCode(i, 2212);
+
+                continue;
+            }
+
+            // If we've got to this point then we haven't identified the particle as a muon or a proton.
+            // Instead let's identify the particle as a pion
+            pionIndices.push_back(i);
+            cutTracker.AssignPDGCode(i, 211);
+        }
+
+        // Sanity check that we have identified every particle
+        const auto nMuons = 1u;
+        const auto nPions = pionIndices.size();
+        if (nProtons + nPions + nMuons != recoParticles.size())
+            throw std::logic_error("DefaultSelection - Identified the wrong number of particles. This shouldn't happen!");
+
+        // Insist that we exacly zero pions (i.e we have only 1 non-proton, the muon)
+        if (nPions != 0)
+            return false;
+
+        // Mark the cut "1NonProton" as passed
+        cutTracker.MarkCutAsPassed("1NonProton");
+
+        // ----------------------------------------------------------------------------------
+        // muonNotInGap
+        // ----------------------------------------------------------------------------------
+
+        // Get the muon reco particle
+        const auto &muon = recoParticles.at(muonIndex);
+
+        // Insist that the muon has at least one hit in each view (i.e. not in a gap)
+        if (muon.nHitsU() == 0 || muon.nHitsV() == 0 || muon.nHitsW() == 0)
+            return false;
+
+        // Mark the cut "muonNotInGap" as passed
+        cutTracker.MarkCutAsPassed("muonNotInGap");
+
+        // ----------------------------------------------------------------------------------
+        // topologicalScore
+        // ----------------------------------------------------------------------------------
+
+        // Get the topological score cut value
+        const auto minTopologicalScore = cutTracker.GetCutValue("topologicalScore");
+
+        // Insist that the topological score is above the cut value
+        if (pEvent->reco.selectedTopologicalScore() <= minTopologicalScore)
+            return false;
+
+        // Mark the cut "topologicalScore" as passed
+        cutTracker.MarkCutAsPassed("topologicalScore");
+
+        // ----------------------------------------------------------------------------------
+        // startNearVertex
+        // ----------------------------------------------------------------------------------
+
+        // Get the start near vertex cut value
+        const auto maxVertexDist = cutTracker.GetCutValue("startNearVertex");
+        const auto maxVertexDist2 = maxVertexDist*maxVertexDist;
+
+        // Insist that all particles with a fitted track start near the vertex
+        const auto recoVertex = pEvent->reco.nuVertex();
+        for (const auto &particle : recoParticles)
+        {
+            // Skip particles without a track fit
+            if (!AnalysisHelper::HasTrackFit(particle))
+                continue;
+
+            // Get the distance between the particle's start position and the vertex
+            const TVector3 start(particle.startX(), particle.startY(), particle.startZ());
+            const auto vertexDist2 = (start - recoVertex).Mag2();
+
+            // Insist that this isn't too large
+            if (vertexDist2 > maxVertexDist2)
+                return false;
+        }
+
+        // Mark the cut "startNearVertex" as passed
+        cutTracker.MarkCutAsPassed("startNearVertex");
+
+        // We passed all cuts!
+        return true;
+    };
+
+    return EventSelection(cuts, bdtMap, logic);
+}
+
+// -----------------------------------------------------------------------------------------------------------------------------------------
+
 bool SelectionHelper::IsCutPassed(const std::vector<string> &cutsPassed, const std::string &cut)
 {
     return std::find(cutsPassed.begin(), cutsPassed.end(), cut) != cutsPassed.end();
@@ -648,6 +874,31 @@ unsigned int SelectionHelper::GetMuonCandidateIndex(const std::vector<Event::Rec
         return ccInclusiveMuonIndex;
 
     return muonIndex;
+}
+// -----------------------------------------------------------------------------------------------------------------------------------------
+
+unsigned int SelectionHelper::GetLeadingProtonCandidateIndex(const std::vector<Event::Reco::Particle> &particles, std::vector<int> &assignedPdgCodes)
+{
+  // Default value in case no proton can be found
+  unsigned int protonIndex = std::numeric_limits<unsigned int>::max();
+
+  float leadingProtonMom = 0;
+
+  for (unsigned int i = 0; i < assignedPdgCodes.size(); ++i)
+  {
+      if (assignedPdgCodes.at(i) != 2212)
+          continue;
+
+      // Now check if this is the leading proton (i.e. the highest-reconstructed-momentum proton in the event)
+      const auto proton = particles.at(i);
+      float protonmom = AnalysisHelper::GetProtonMomentumFromRange(proton.range());
+      if (protonmom > leadingProtonMom){
+        leadingProtonMom = protonmom;
+        protonIndex = i;
+      }
+  }
+
+  return protonIndex;
 }
 
 } // namespace ubcc1pi

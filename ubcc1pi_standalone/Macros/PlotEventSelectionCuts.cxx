@@ -35,7 +35,7 @@ void PlotEventSelectionCuts(const Config &config)
     //
     // Get the selection
     //
-    auto selection = SelectionHelper::GetDefaultSelection();
+    auto selection = SelectionHelper::GetSelection(config.global.selection);
     const auto allCuts = selection.GetCuts();
 
     const auto protonBDTCut = selection.GetCutValue("2NonProtons");

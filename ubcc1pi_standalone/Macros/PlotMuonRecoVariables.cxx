@@ -31,7 +31,7 @@ void PlotMuonRecoVariables(const Config &config)
     inputData.emplace_back(AnalysisHelper::DataBNB, config.files.dataBNBFileName,  1.f);
 
     // Get the selection
-    auto selection = SelectionHelper::GetDefaultSelection();
+    auto selection = SelectionHelper::GetSelection(config.global.selection);
     const auto cuts = selection.GetCuts();
 
     // Get the muon BDT
@@ -45,9 +45,9 @@ void PlotMuonRecoVariables(const Config &config)
     std::vector<PlottingHelper::MultiPlot> muonMomentumPlots, muonCosThetaPlots, muonPhiPlots;
     for (const auto &cut : cuts)
     {
-        muonMomentumPlots.emplace_back("Muon momentum / GeV", yLabel, config.global.muonMomentum.binEdges);
-        muonCosThetaPlots.emplace_back("Muon cos(theta)", yLabel, config.global.muonCosTheta.binEdges);
-        muonPhiPlots.emplace_back("Muon phi / rad", yLabel, config.global.muonPhi.binEdges);
+        muonMomentumPlots.emplace_back("Muon momentum / GeV", yLabel, config.global.muonMomentum.binEdges, true, config.global.axisTitles);
+        muonCosThetaPlots.emplace_back("Muon cos(theta)", yLabel, config.global.muonCosTheta.binEdges, true, config.global.axisTitles);
+        muonPhiPlots.emplace_back("Muon phi / rad", yLabel, config.global.muonPhi.binEdges, true, config.global.axisTitles);
     }
 
     // Loop over the events
@@ -103,9 +103,9 @@ void PlotMuonRecoVariables(const Config &config)
         const auto &cut = cuts.at(iCut);
 
         const std::string suffix = std::to_string(iCut) + "_" + cut;
-        muonMomentumPlots.at(iCut).SaveAsStacked("reco_cc1pi_muonMomentum_" + suffix);
-        muonCosThetaPlots.at(iCut).SaveAsStacked("reco_cc1pi_muonCosTheta_" + suffix);
-        muonPhiPlots.at(iCut).SaveAsStacked("reco_cc1pi_muonPhi_" + suffix);
+        muonMomentumPlots.at(iCut).SaveAsStacked("reco_cc1pi_muonMomentum_" + suffix, false, config.global.scaleByBinWidth, config.global.axisTitles);
+        muonCosThetaPlots.at(iCut).SaveAsStacked("reco_cc1pi_muonCosTheta_" + suffix, false, config.global.scaleByBinWidth, config.global.axisTitles);
+        muonPhiPlots.at(iCut).SaveAsStacked("reco_cc1pi_muonPhi_" + suffix, false, config.global.scaleByBinWidth, config.global.axisTitles);
     }
 }
 

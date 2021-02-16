@@ -30,10 +30,10 @@ struct Config
     struct Files
     {
         // September overlays files contain systematic weights
-        std::string  overlaysFileName = "/uboone/data/users/asmith/ubcc1pi/samples/sep2020/samples/ubcc1piAnalysis_overlays.root"; ///< Overlays file name input
-        std::string  dirtFileName     = "/uboone/data/users/asmith/ubcc1pi/samples/may2020/samples/ubcc1piAnalysis_dirt.root";     ///< Dirt file name input
-        std::string  dataEXTFileName  = "/uboone/data/users/asmith/ubcc1pi/samples/may2020/samples/ubcc1piAnalysis_dataEXT.root";  ///< EXT data file name input
-        std::string  dataBNBFileName  = "/uboone/data/users/asmith/ubcc1pi/samples/may2020/samples/ubcc1piAnalysis_dataBNB.root";  ///< BNB data file name input
+        std::string  overlaysFileName = "/Users/kduffy/Documents/uBooNE/Work/CC1pi_MCC9/Data/KDuffy_data_Jan2021/ubcc1pi_overlay_run1_5Jan2021.root"; ///< Overlays file name input
+        std::string  dirtFileName     = "/Users/kduffy/Documents/uBooNE/Work/CC1pi_MCC9/Data/KDuffy_data_Jan2021/ubcc1pi_dirt_5Jan2021.root";     ///< Dirt file name input
+        std::string  dataEXTFileName  = "/Users/kduffy/Documents/uBooNE/Work/CC1pi_MCC9/Data/KDuffy_data_Jan2021/ubcc1pi_extbnb_run1_combined_5Jan2021.root";  ///< EXT data file name input
+        std::string  dataBNBFileName  = "/Users/kduffy/Documents/uBooNE/Work/CC1pi_MCC9/Data/KDuffy_data_Jan2021/ubcc1pi_bnb_run1-C1_5Jan2021.root";  ///< BNB data file name input
 
         /**
          *  @brief  The detector variation files
@@ -45,16 +45,16 @@ struct Config
          *          considered wrt to the relevant "CV" file, and the fractional difference is quantity we care about.
          */
         std::vector< std::tuple<std::string, std::string, std::string> > detVarFiles = {
-            {"run1",  "CV",            "/uboone/data/users/asmith/ubcc1pi/samples/oct2020/samples/ubcc1piAnalysis_overlays_DetVar_CV_run1.root"},
-            {"run1",  "LYDown",        "/uboone/data/users/asmith/ubcc1pi/samples/oct2020/samples/ubcc1piAnalysis_overlays_DetVar_LYDown_run1.root"},
-            {"run1",  "LYRayleigh",    "/uboone/data/users/asmith/ubcc1pi/samples/oct2020/samples/ubcc1piAnalysis_overlays_DetVar_LYRayleigh_run1.root"},
-            {"run3b", "CV",            "/uboone/data/users/asmith/ubcc1pi/samples/oct2020/samples/ubcc1piAnalysis_overlays_DetVar_CV_run3b.root"},
-            {"run3b", "SCE",           "/uboone/data/users/asmith/ubcc1pi/samples/oct2020/samples/ubcc1piAnalysis_overlays_DetVar_SCE_run3b.root"},
-            {"run3b", "Recomb2",       "/uboone/data/users/asmith/ubcc1pi/samples/oct2020/samples/ubcc1piAnalysis_overlays_DetVar_Recomb2_run3b.root"},
-            {"run3b", "WireModX",       "/uboone/data/users/asmith/ubcc1pi/samples/oct2020/samples/ubcc1piAnalysis_overlays_DetVar_WireModX_run3b.root"},
-            {"run3b", "WireModYZ",       "/uboone/data/users/asmith/ubcc1pi/samples/oct2020/samples/ubcc1piAnalysis_overlays_DetVar_WireModYZ_run3b.root"},
-            {"run3b", "WireModThetaXZ",       "/uboone/data/users/asmith/ubcc1pi/samples/oct2020/samples/ubcc1piAnalysis_overlays_DetVar_WireModThetaXZ_run3b.root"},
-            {"run3b", "WireModThetaYZ",       "/uboone/data/users/asmith/ubcc1pi/samples/oct2020/samples/ubcc1piAnalysis_overlays_DetVar_WireModThetaYZ_run3b.root"}
+            // {"run1",  "CV",            "/uboone/data/users/asmith/ubcc1pi/samples/oct2020/samples/ubcc1piAnalysis_overlays_DetVar_CV_run1.root"},
+            // {"run1",  "LYDown",        "/uboone/data/users/asmith/ubcc1pi/samples/oct2020/samples/ubcc1piAnalysis_overlays_DetVar_LYDown_run1.root"},
+            // {"run1",  "LYRayleigh",    "/uboone/data/users/asmith/ubcc1pi/samples/oct2020/samples/ubcc1piAnalysis_overlays_DetVar_LYRayleigh_run1.root"},
+            // {"run3b", "CV",            "/uboone/data/users/asmith/ubcc1pi/samples/oct2020/samples/ubcc1piAnalysis_overlays_DetVar_CV_run3b.root"},
+            // {"run3b", "SCE",           "/uboone/data/users/asmith/ubcc1pi/samples/oct2020/samples/ubcc1piAnalysis_overlays_DetVar_SCE_run3b.root"},
+            // {"run3b", "Recomb2",       "/uboone/data/users/asmith/ubcc1pi/samples/oct2020/samples/ubcc1piAnalysis_overlays_DetVar_Recomb2_run3b.root"},
+            // {"run3b", "WireModX",       "/uboone/data/users/asmith/ubcc1pi/samples/oct2020/samples/ubcc1piAnalysis_overlays_DetVar_WireModX_run3b.root"},
+            // {"run3b", "WireModYZ",       "/uboone/data/users/asmith/ubcc1pi/samples/oct2020/samples/ubcc1piAnalysis_overlays_DetVar_WireModYZ_run3b.root"},
+            // {"run3b", "WireModThetaXZ",       "/uboone/data/users/asmith/ubcc1pi/samples/oct2020/samples/ubcc1piAnalysis_overlays_DetVar_WireModThetaXZ_run3b.root"},
+            // {"run3b", "WireModThetaYZ",       "/uboone/data/users/asmith/ubcc1pi/samples/oct2020/samples/ubcc1piAnalysis_overlays_DetVar_WireModThetaYZ_run3b.root"}
         };
     };
     Files files; ///< The input files
@@ -71,11 +71,16 @@ struct Config
      */
     struct Norms
     {
-        float  overlaysPOT        = 1.22447e+21;   ///< The total POT for the overlays MC
-        float  dirtPOT            = 2.85049e+20;   ///< The total POT for the dirt MC
-        float  dataEXTTriggers    = 62540367.0;    ///< The EXT triggers for the EXT data
-        float  dataBNBTor875WCut  = 1.455e+20;     ///< The POT measured by the 875m toroid (with quality cuts)
-        float  dataBNBE1DCNTWCut  = 32339256.0;    ///< The BNB spills sent by the accelerator division (with quality cuts)
+        float  overlaysPOT        =  1.18578e+21;   ///< The total POT for the overlays MC
+        // Andy S files: 1.22447e+21. Kirsty D files (Jan 21):  1.18578e+21
+        float  dirtPOT            = 2.91414e+20;   ///< The total POT for the dirt MC
+        // Andy S files: 2.85049e+20, Kirsty D files (Jan 21): 2.91414e+20
+        float  dataEXTTriggers    = 64322029.0;    ///< The EXT triggers for the EXT data
+        // Andy S files: 62540367.0, Kirsty D files (Jan 21): 64322029.0
+        float  dataBNBTor875WCut  = 1.532e+20;     ///< The POT measured by the 875m toroid (with quality cuts)
+        // Andy S files: 1.455e+20, Kirsty D files (Jan 21): 1.532e+20
+        float  dataBNBE1DCNTWCut  = 34076199.0;    ///< The BNB spills sent by the accelerator division (with quality cuts)
+        // Andy S files: 32339256.0, Kirsty D files (Jan 21): 34076199.0
 
         /**
          *  @brief  The detector variation POTs - First parameter is the run, second is the variation name, third is the number of POT
@@ -139,6 +144,9 @@ struct Config
         std::string lastCutGeneric          = "startNearVertex";  ///< The last cut of the generic selection (remaining cuts are part of the golden selection)
         float       protonMomentumThreshold = 0.3f;               ///< The minimum proton momentum to be counted [GeV]
         float       targetDensity           = 8.44191f;           ///< The number of target nuclei per unit volume - units e23 / cm^3
+        std::string selection               = "CC0pi"; ///< Which selection to use (can be "CCInclusive","Default", or "CC0pi")
+        bool        axisTitles              = true;               ///< If we want to draw axis lables and titles on the plots (if false, they are not drawn so you can add your own later)
+        bool        scaleByBinWidth         = true;
 
         /**
          *  @brief  The muonCosTheta plot limits structure
@@ -241,7 +249,7 @@ struct Config
     {
         bool  useOverlays           = true; ///< If we should count the POT for the overlays
         bool  useDirt               = true; ///< If we should count the POT for the dirt
-        bool  useDetectorVariations = true; ///< If we should count the POT for the detector variations
+        bool  useDetectorVariations = false; ///< If we should count the POT for the detector variations
     };
     CountPOT countPOT; ///< The configuration options for the CountPOT macro
 
