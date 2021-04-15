@@ -1330,10 +1330,10 @@ float AnalysisHelper::GetEfficiencyUncertainty(const float &numerator, const flo
 
     const auto n1 = numerator + 1;
     const auto n2 = numerator + 2;
-    const auto d2 = numerator + 2;
-    const auto d3 = numerator + 3;
+    const auto d2 = denominator + 2;
+    const auto d3 = denominator + 3;
 
-    return (n1*n2)/(d2*d3) - (n1*n1)/(d2*d2);
+    return std::pow((n1*n2)/(d2*d3) - (n1*n1)/(d2*d2), 0.5f);
 }
 
 // -----------------------------------------------------------------------------------------------------------------------------------------

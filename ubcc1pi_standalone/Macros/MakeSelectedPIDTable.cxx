@@ -44,6 +44,9 @@ void MakeSelectedPIDTable(const Config &config)
     //  Counter with index [recoPdgCode][truePdgCode][isSignalOnly]
     std::unordered_map< int, std::unordered_map< int, std::unordered_map<bool, float > > > recoToTruePdgMap;
 
+    // Counter with index [recoPdgCode][truePdgCode] for dirt events
+    std::unordered_map< int, std::unordered_map< int, float > > recoToTruePdgMapDirt;
+
     for (const auto [sampleType, fileName, normalisation] : inputData)
     {
         std::cout << "Reading input file: " << fileName << std::endl;
@@ -139,13 +142,28 @@ void MakeSelectedPIDTable(const Config &config)
 
                     iter->second.at(false) += weight;
                 }
+
+                // Do the same for dirt events only
+                if (sampleType == AnalysisHelper::Dirt)
+                {
+                    auto &truePdgToCountMapDirt = recoToTruePdgMapDirt[recoPdgCode];
+                    auto iterDirt = truePdgToCountMapDirt.find(truePdgCode);
+                    if (iterDirt == truePdgToCountMapDirt.end())
+                    {
+                        truePdgToCountMapDirt.emplace(truePdgCode, weight);
+                    }
+                    else
+                    {
+                        iterDirt->second += weight;
+                    }
+                }
             }
         }
     }
 
     // Extract the PDG codes we want to print
     std::vector<int> recoPdgs, truePdgs;
-    std::unordered_map<int, float> recoPdgToTotalWeightMap, recoPdgToTotalWeightMapSignal;
+    std::unordered_map<int, float> recoPdgToTotalWeightMap, recoPdgToTotalWeightMapSignal, recoPdgToTotalWeightMapDirt;
 
     for (const auto &recoEntry : recoToTruePdgMap)
     {
@@ -157,6 +175,7 @@ void MakeSelectedPIDTable(const Config &config)
             recoPdgs.push_back(recoPdgCode);
             recoPdgToTotalWeightMap.emplace(recoPdgCode, 0.f);
             recoPdgToTotalWeightMapSignal.emplace(recoPdgCode, 0.f);
+            recoPdgToTotalWeightMapDirt.emplace(recoPdgCode, 0.f);
         }
 
         for (const auto &trueEntry : recoEntry.second)
@@ -165,6 +184,32 @@ void MakeSelectedPIDTable(const Config &config)
 
             recoPdgToTotalWeightMap.at(recoPdgCode) += trueEntry.second.at(false);
             recoPdgToTotalWeightMapSignal.at(recoPdgCode) += trueEntry.second.at(true);
+
+            // Store this PDG code if not yet seen
+            if (std::find(truePdgs.begin(), truePdgs.end(), truePdgCode) == truePdgs.end())
+                truePdgs.push_back(truePdgCode);
+        }
+    }
+
+    for (const auto &recoEntry : recoToTruePdgMapDirt)
+    {
+        const auto &recoPdgCode = recoEntry.first;
+
+        // Store this PDG code if not yet seen
+        if (std::find(recoPdgs.begin(), recoPdgs.end(), recoPdgCode) == recoPdgs.end())
+        {
+            recoPdgs.push_back(recoPdgCode);
+            recoPdgToTotalWeightMap.emplace(recoPdgCode, 0.f);
+            recoPdgToTotalWeightMapSignal.emplace(recoPdgCode, 0.f);
+            recoPdgToTotalWeightMapDirt.emplace(recoPdgCode, 0.f);
+        }
+
+        for (const auto &trueEntry : recoEntry.second)
+        {
+            const auto &truePdgCode = trueEntry.first;
+            const auto weight = trueEntry.second;
+
+            recoPdgToTotalWeightMapDirt.at(recoPdgCode) += weight;
 
             // Store this PDG code if not yet seen
             if (std::find(truePdgs.begin(), truePdgs.end(), truePdgCode) == truePdgs.end())
@@ -182,38 +227,47 @@ void MakeSelectedPIDTable(const Config &config)
 
     FormattingHelper::Table table(tableHeaders);
     FormattingHelper::Table signalTable(tableHeaders);
+    FormattingHelper::Table dirtTable(tableHeaders);
 
     // Add the sum row
     table.AddEmptyRow();
     signalTable.AddEmptyRow();
+    dirtTable.AddEmptyRow();
 
     table.SetEntry("True PDG", "all");
     signalTable.SetEntry("True PDG", "all");
+    dirtTable.SetEntry("True PDG", "all");
 
     for (const auto &recoPdg : recoPdgs)
     {
         const auto count = recoPdgToTotalWeightMap.at(recoPdg);
         const auto signalCount = recoPdgToTotalWeightMapSignal.at(recoPdg);
+        const auto dirtCount = recoPdgToTotalWeightMapDirt.at(recoPdg);
 
         table.SetEntry(std::to_string(recoPdg), count);
         signalTable.SetEntry(std::to_string(recoPdg), signalCount);
+        dirtTable.SetEntry(std::to_string(recoPdg), dirtCount);
     }
 
     for (const auto &truePdg : truePdgs)
     {
         table.AddEmptyRow();
         signalTable.AddEmptyRow();
+        dirtTable.AddEmptyRow();
 
         table.SetEntry("True PDG", truePdg);
         signalTable.SetEntry("True PDG", truePdg);
+        dirtTable.SetEntry("True PDG", truePdg);
 
         for (const auto &recoPdg : recoPdgs)
         {
             const auto countTotal = recoPdgToTotalWeightMap.at(recoPdg);
             const auto signalCountTotal = recoPdgToTotalWeightMapSignal.at(recoPdg);
+            const auto dirtCountTotal = recoPdgToTotalWeightMapDirt.at(recoPdg);
 
             float count = 0.f;
             float signalCount = 0.f;
+            float dirtCount = 0.f;
 
             const auto &entry = recoToTruePdgMap.at(recoPdg);
             const auto iter = entry.find(truePdg);
@@ -226,6 +280,16 @@ void MakeSelectedPIDTable(const Config &config)
 
             table.SetEntry(std::to_string(recoPdg), count / countTotal);
             signalTable.SetEntry(std::to_string(recoPdg), signalCount / signalCountTotal);
+
+            const auto &entryDirt = recoToTruePdgMapDirt.at(recoPdg);
+            const auto iterDirt = entryDirt.find(truePdg);
+
+            if (iterDirt != entryDirt.end())
+            {
+                dirtCount = iterDirt->second;
+            }
+
+            dirtTable.SetEntry(std::to_string(recoPdg), dirtCount / dirtCountTotal);
         }
     }
 
@@ -242,6 +306,12 @@ void MakeSelectedPIDTable(const Config &config)
     std::cout << "Signal events" << std::endl;
     FormattingHelper::PrintLine();
     signalTable.WriteToFile(prefix + "_signalEvents.md");
+
+    std::cout << std::endl;
+    FormattingHelper::PrintLine();
+    std::cout << "Dirt events" << std::endl;
+    FormattingHelper::PrintLine();
+    dirtTable.WriteToFile(prefix + "_dirtEvents.md");
 }
 
 } // namespace ubcc1pi_macros
