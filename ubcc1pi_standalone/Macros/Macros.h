@@ -176,6 +176,13 @@ namespace ubcc1pi_macros
     void ExtractXSecs(const Config &config = Config());
 
     /**
+     *  @brief  Make plots for the CC0pi1p sideband sample
+     *
+     *  @param  config the input configuration
+     */
+    void MakeSidebandSamplePlots(const Config &config = Config());
+
+    /**
      *  @brief  Top-level macro that runs the full analysis chain
      *
      *  @param  config the input config
@@ -186,4 +193,3 @@ namespace ubcc1pi_macros
 } // namespace ubcc1pi_macros
 
 #endif
-
