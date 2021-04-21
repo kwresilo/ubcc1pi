@@ -60,6 +60,7 @@
         "Macros/MakeBinningPlots.cxx",
         "Macros/PlotSystematicWeights.cxx",
         "Macros/ExtractXSecs.cxx",
+        "Macros/MakeSidebandSamplePlots.cxx",
 
         "Macros/RunFullAnalysis.cxx"
     }))
