@@ -303,7 +303,7 @@ SelectionHelper::EventSelection SelectionHelper::GetDefaultSelection()
         {"min2Tracks"},
         {"max1Uncontained"},
         {"2NonProtons", -0.06f},
-        // {"pionHasValiddEdx", 1.0f},
+        {"pionHasValiddEdx", 1.0f},
         {"pionNotInGap"},
         {"muonNotInGap"},
         {"openingAngle", 2.65f},
@@ -461,18 +461,18 @@ SelectionHelper::EventSelection SelectionHelper::GetDefaultSelection()
         // pionHasValiddEdx
         // ----------------------------------------------------------------------------------
 
-        // const auto piondEdxThreshold = cutTracker.GetCutValue("pionHasValiddEdx");
+        const auto piondEdxThreshold = cutTracker.GetCutValue("pionHasValiddEdx");
 
         // Get the pion reco particle
         const auto pionIndex = pionIndices.front();
         const auto &pion = recoParticles.at(pionIndex);
 
-        // Insist that the pion has at least one hit in each view (i.e. not in a gap)
-        // if (pion.truncatedMeandEdx() < piondEdxThreshold)
-        //     return false;
-        //
-        // // Mark the cut "pionHasValiddEdx" as passed
-        // cutTracker.MarkCutAsPassed("pionHasValiddEdx");
+        // Insist that the pion has a valid deEdx measurement (i.e. truncated mean dE/dx is above threshold)
+        if (pion.truncatedMeandEdx() < piondEdxThreshold)
+            return false;
+
+        // Mark the cut "pionHasValiddEdx" as passed
+        cutTracker.MarkCutAsPassed("pionHasValiddEdx");
 
         // ----------------------------------------------------------------------------------
         // pionNotInGap
@@ -606,6 +606,7 @@ SelectionHelper::EventSelection SelectionHelper::GetCC0piSelection()
         {"1NonProton", -0.06f},
         {"AtLeast1Proton", 0.1f},
         {"MuonLikeProton", -0.4f},
+        {"protonHasValiddEdx", 1.0f},
         {"muonNotInGap"},
         {"protonNotInGap"},
         {"openingAngle", 2.65f},
@@ -805,6 +806,19 @@ SelectionHelper::EventSelection SelectionHelper::GetCC0piSelection()
 
         // Mark the cut "MuonLikeProton" as passed
         cutTracker.MarkCutAsPassed("MuonLikeProton");
+
+        // ----------------------------------------------------------------------------------
+        // protonHasValiddEdx
+        // ----------------------------------------------------------------------------------
+
+        const auto protondEdxThreshold = cutTracker.GetCutValue("protonHasValiddEdx");
+
+        // Insist that the leading proton has a valid deEdx measurement (i.e. truncated mean dE/dx is above threshold)
+        if (leadingproton.truncatedMeandEdx() < protondEdxThreshold)
+            return false;
+
+        // Mark the cut "protonHasValiddEdx" as passed
+        cutTracker.MarkCutAsPassed("protonHasValiddEdx");
 
         // ----------------------------------------------------------------------------------
         // muonNotInGap
