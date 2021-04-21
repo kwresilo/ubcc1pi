@@ -557,16 +557,6 @@ class AnalysisHelper
          */
         static float GetMuonMomentum(const Event::Reco::Particle &muon);
 
-        /**
-         *  @brief  Get the truth analysis data
-         *
-         *  @param  truth the input truth information of the event
-         *  @param  useAbsPdg if we should use absolute pdg code values
-         *  @param  protonMomentumThreshold the visibility threshold for protons
-         *
-         *  @return the truth analysis data
-         */
-
          /**
           *  @brief  Get the momentum of a proton from range
           *
@@ -584,6 +574,16 @@ class AnalysisHelper
           *  @return the momentum
           */
          static float GetProtonMomentumFromRangeLarsoft(const float &range);
+
+         /**
+          *  @brief  Get the truth analysis data
+          *
+          *  @param  truth the input truth information of the event
+          *  @param  useAbsPdg if we should use absolute pdg code values
+          *  @param  protonMomentumThreshold the visibility threshold for protons
+          *
+          *  @return the truth analysis data
+          */
 
         static AnalysisData GetTruthAnalysisData(const Event::Truth &truth, const bool useAbsPdg, const float protonMomentumThreshold);
 
@@ -665,6 +665,27 @@ class AnalysisHelper
          *  @param  denominator the denominator
          */
         static void PrintLoadingBar(const unsigned int numerator, const unsigned int denominator);
+
+        /**
+         *  @brief  Get the index of the true leading (i.e. highest-momentum) proton
+         *
+         *  @param  truth the input truth information of the event
+         *  @param  useAbsPdg if we should use absolute pdg code values
+         *  @param  protonMomentumThreshold the visibility threshold for protons
+         *
+         *  @return the index of the true leading proton
+         */
+        static unsigned int GetTrueLeadingProtonIndex(const Event::Truth &truth, const bool useAbsPdg, const float protonMomentumThreshold);
+
+        /**
+         *  @brief  Get the index of the true muon
+         *
+         *  @param  truth the input truth information of the event
+         *  @param  useAbsPdg if we should use absolute pdg code values
+         *
+         *  @return the index of the true muon
+         */
+        static unsigned int GetTrueMuonIndex(const Event::Truth &truth, const bool useAbsPdg);
 
     private:
 
