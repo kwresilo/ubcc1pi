@@ -289,7 +289,7 @@ class SelectionHelper
          *
          *  @return the index of the muon candidate in the input list
          */
-        static unsigned int GetLeadingProtonCandidateIndex(const std::vector<Event::Reco::Particle> &particles, std::vector<int> &assignedPdgCodes);
+        static unsigned int GetLeadingProtonCandidateIndex(const std::vector<Event::Reco::Particle> &particles, std::vector<int> const &assignedPdgCodes);
 };
 
 } // namespace ubcc1pi
