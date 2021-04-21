@@ -430,13 +430,13 @@ void MakeSidebandSamplePlots(const Config &config)
         const auto &cut = cuts.at(iCut);
 
         const std::string suffix = std::to_string(iCut) + "_" + cut;
-        muonMomentumPlots.at(iCut).SaveAsStacked("reco_cc1pi_muonMomentum_" + suffix, false, config.global.scaleByBinWidth, config.global.axisTitles);
-        muonCosThetaPlots.at(iCut).SaveAsStacked("reco_cc1pi_muonCosTheta_" + suffix, false, config.global.scaleByBinWidth, config.global.axisTitles);
-        muonPhiPlots.at(iCut).SaveAsStacked("reco_cc1pi_muonPhi_" + suffix, false, config.global.scaleByBinWidth, config.global.axisTitles);
+        muonMomentumPlots.at(iCut).SaveAsStacked("reco_cc1pi_muonMomentum_" + suffix, false, config.global.scaleByBinWidth, false, config.global.axisTitles);
+        muonCosThetaPlots.at(iCut).SaveAsStacked("reco_cc1pi_muonCosTheta_" + suffix, false, config.global.scaleByBinWidth, false, config.global.axisTitles);
+        muonPhiPlots.at(iCut).SaveAsStacked("reco_cc1pi_muonPhi_" + suffix, false, config.global.scaleByBinWidth, false, config.global.axisTitles);
 
-        protonMomentumPlots.at(iCut).SaveAsStacked("reco_cc1pi_protonMomentum_" + suffix, false, config.global.scaleByBinWidth, config.global.axisTitles);
-        protonCosThetaPlots.at(iCut).SaveAsStacked("reco_cc1pi_protonCosTheta_" + suffix, false, config.global.scaleByBinWidth, config.global.axisTitles);
-        protonPhiPlots.at(iCut).SaveAsStacked("reco_cc1pi_protonPhi_" + suffix, false, config.global.scaleByBinWidth, config.global.axisTitles);
+        protonMomentumPlots.at(iCut).SaveAsStacked("reco_cc1pi_protonMomentum_" + suffix, false, config.global.scaleByBinWidth, false, config.global.axisTitles);
+        protonCosThetaPlots.at(iCut).SaveAsStacked("reco_cc1pi_protonCosTheta_" + suffix, false, config.global.scaleByBinWidth, false, config.global.axisTitles);
+        protonPhiPlots.at(iCut).SaveAsStacked("reco_cc1pi_protonPhi_" + suffix, false, config.global.scaleByBinWidth, false, config.global.axisTitles);
     }
 
     // Save kinematic comparison plots for true CC0pi
