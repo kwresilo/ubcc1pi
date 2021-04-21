@@ -18,7 +18,7 @@ namespace ubcc1pi
 {
 
 PlottingHelper::MultiPlot::MultiPlot(const std::string &xLabel, const std::string &yLabel, unsigned int nBins, float min, float max, bool drawErrors, const bool useAxisTitles) :
-    MultiPlot(xLabel, yLabel, PlottingHelper::GenerateUniformBinEdges(nBins, min, max), drawErrors)
+    MultiPlot(xLabel, yLabel, PlottingHelper::GenerateUniformBinEdges(nBins, min, max), drawErrors, useAxisTitles)
 {
 }
 
