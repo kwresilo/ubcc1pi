@@ -144,7 +144,7 @@ struct Config
         std::string lastCutGeneric          = "startNearVertex";  ///< The last cut of the generic selection (remaining cuts are part of the golden selection)
         float       protonMomentumThreshold = 0.3f;               ///< The minimum proton momentum to be counted [GeV]
         float       targetDensity           = 8.44191f;           ///< The number of target nuclei per unit volume - units e23 / cm^3
-        std::string selection               = "CC0pi"; ///< Which selection to use (can be "CCInclusive","Default", or "CC0pi")
+        std::string selection               = "Default"; ///< Which selection to use (can be "CCInclusive","Default", or "CC0pi")
         bool        axisTitles              = true;               ///< If we want to draw axis lables and titles on the plots (if false, they are not drawn so you can add your own later)
         bool        scaleByBinWidth         = true;
 
