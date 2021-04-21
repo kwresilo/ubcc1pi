@@ -303,6 +303,7 @@ SelectionHelper::EventSelection SelectionHelper::GetDefaultSelection()
         {"min2Tracks"},
         {"max1Uncontained"},
         {"2NonProtons", -0.06f},
+        // {"pionHasValiddEdx", 1.0f},
         {"pionNotInGap"},
         {"muonNotInGap"},
         {"openingAngle", 2.65f},
@@ -457,12 +458,25 @@ SelectionHelper::EventSelection SelectionHelper::GetDefaultSelection()
         cutTracker.MarkCutAsPassed("2NonProtons");
 
         // ----------------------------------------------------------------------------------
-        // pionNotInGap
+        // pionHasValiddEdx
         // ----------------------------------------------------------------------------------
+
+        // const auto piondEdxThreshold = cutTracker.GetCutValue("pionHasValiddEdx");
 
         // Get the pion reco particle
         const auto pionIndex = pionIndices.front();
         const auto &pion = recoParticles.at(pionIndex);
+
+        // Insist that the pion has at least one hit in each view (i.e. not in a gap)
+        // if (pion.truncatedMeandEdx() < piondEdxThreshold)
+        //     return false;
+        //
+        // // Mark the cut "pionHasValiddEdx" as passed
+        // cutTracker.MarkCutAsPassed("pionHasValiddEdx");
+
+        // ----------------------------------------------------------------------------------
+        // pionNotInGap
+        // ----------------------------------------------------------------------------------
 
         // Sanity check that our muon and pion are not the same particle
         if (muonIndex == pionIndex)
@@ -587,9 +601,14 @@ SelectionHelper::EventSelection SelectionHelper::GetCC0piSelection()
     // Define the cuts
     const std::vector<EventSelection::Cut> cuts = {
         {"passesCCInclusive"},
+        {"min2Tracks"},
         {"max1Uncontained"},
         {"1NonProton", -0.06f},
+        {"AtLeast1Proton", 0.1f},
+        {"MuonLikeProton", -0.4f},
         {"muonNotInGap"},
+        {"protonNotInGap"},
+        {"openingAngle", 2.65f},
         {"topologicalScore", 0.67f},
         {"startNearVertex", 9.5f}
     };
@@ -606,7 +625,6 @@ SelectionHelper::EventSelection SelectionHelper::GetCC0piSelection()
         // ----------------------------------------------------------------------------------
         // passesCCInclusive
         // ----------------------------------------------------------------------------------
-
         // Insist the event passes the CC inclusive preselection
         if (!pEvent->reco.passesCCInclusive())
             return false;
@@ -614,11 +632,13 @@ SelectionHelper::EventSelection SelectionHelper::GetCC0piSelection()
         // Mark the cut "passesCCInclusive" as passed
         cutTracker.MarkCutAsPassed("passesCCInclusive");
 
+
         // ----------------------------------------------------------------------------------
-        // max1Uncontained
+        // min2Tracks
         // ----------------------------------------------------------------------------------
 
         // Count the particles with a track fit and check if they are contained
+        unsigned int nTrackParticles = 0u;
         unsigned int nUncontainedParticles = 0u;
 
         const auto &recoParticles = pEvent->reco.particles;
@@ -629,9 +649,22 @@ SelectionHelper::EventSelection SelectionHelper::GetCC0piSelection()
             if (!AnalysisHelper::HasTrackFit(particle))
                 continue;
 
+            nTrackParticles++;
+
             if (!AnalysisHelper::IsContained(particle))
                 nUncontainedParticles++;
         }
+
+        // Insist that we have at least two tracks
+        if (nTrackParticles < 2)
+            return false;
+
+        // Mark the cut "min2Tracks" as passed
+        cutTracker.MarkCutAsPassed("min2Tracks");
+
+        // ----------------------------------------------------------------------------------
+        // max1Uncontained
+        // ----------------------------------------------------------------------------------
 
         // Insist that at most one particle is uncontained
         if (nUncontainedParticles > 1)
@@ -650,15 +683,19 @@ SelectionHelper::EventSelection SelectionHelper::GetCC0piSelection()
         // ----------------------------------------------------------------------------------
         // 1NonProton
         // ----------------------------------------------------------------------------------
-
         // Identify the rest of the particles using the proton BDT
-        const auto protonBDTThreshold = cutTracker.GetCutValue("1NonProton");
+        const auto protonBDTThresholdLow = cutTracker.GetCutValue("1NonProton");
+        const auto protonBDTThresholdHigh = cutTracker.GetCutValue("AtLeast1Proton");
 
         // Get the proton BDT from the map
         auto &pProtonBDT = bdtMap.at("proton");
 
         // Keep track of the number of protons and pions we have identifies
         unsigned int nProtons = 0;
+        unsigned int nBadProtons = 0;
+        unsigned int leadingProtonIndex = std::numeric_limits<unsigned int>::max();
+        float leadingProtonMom = 0;
+        std::vector<unsigned int> protonIndices;
         std::vector<unsigned int> pionIndices;
 
         for (unsigned int i = 0; i < recoParticles.size(); ++i)
@@ -670,9 +707,12 @@ SelectionHelper::EventSelection SelectionHelper::GetCC0piSelection()
                 continue;
 
             // Assume particles without a track fit are just small protons
+            // Don't check for leading proton because without a track fit we can't get momentum
+            // Don't "count" them as protons because we need at least one good proton for this selection
             if (!AnalysisHelper::HasTrackFit(particle))
             {
-                nProtons++;
+                nBadProtons ++;
+                protonIndices.push_back(i);
                 cutTracker.AssignPDGCode(i, 2212);
 
                 continue;
@@ -687,9 +727,11 @@ SelectionHelper::EventSelection SelectionHelper::GetCC0piSelection()
             const auto hasFeatures = BDTHelper::GetBDTFeatures(particle, BDTHelper::ProtonBDTFeatureNames, features);
 
             // If one or more of the BDT features are missing, then assume the particle is a proton
+            // Don't "count" it as a proton or check if it's a leading proton because we need at least one good proton for this selection
             if (!hasFeatures)
             {
-                nProtons++;
+                nBadProtons++;
+                protonIndices.push_back(i);
                 cutTracker.AssignPDGCode(i, 2212);
 
                 continue;
@@ -697,10 +739,17 @@ SelectionHelper::EventSelection SelectionHelper::GetCC0piSelection()
 
             // Insist that the BDT response is greater than the cut value to identify the particle as a proton
             const auto bdtResponse = pProtonBDT->GetResponse(features);
-            if (bdtResponse >= protonBDTThreshold)
+            if (bdtResponse >= protonBDTThresholdLow && bdtResponse <= protonBDTThresholdHigh)
             {
                 nProtons++;
+                protonIndices.push_back(i);
                 cutTracker.AssignPDGCode(i, 2212);
+
+                float protonmom = AnalysisHelper::GetProtonMomentumFromRange(particle.range());
+                if (protonmom > leadingProtonMom){
+                    leadingProtonMom = protonmom;
+                    leadingProtonIndex = i;
+                }
 
                 continue;
             }
@@ -714,7 +763,7 @@ SelectionHelper::EventSelection SelectionHelper::GetCC0piSelection()
         // Sanity check that we have identified every particle
         const auto nMuons = 1u;
         const auto nPions = pionIndices.size();
-        if (nProtons + nPions + nMuons != recoParticles.size())
+        if (nProtons + nBadProtons + nPions + nMuons != recoParticles.size())
             throw std::logic_error("DefaultSelection - Identified the wrong number of particles. This shouldn't happen!");
 
         // Insist that we exacly zero pions (i.e we have only 1 non-proton, the muon)
@@ -723,6 +772,39 @@ SelectionHelper::EventSelection SelectionHelper::GetCC0piSelection()
 
         // Mark the cut "1NonProton" as passed
         cutTracker.MarkCutAsPassed("1NonProton");
+
+        // Also require that there is at least 1 identified proton
+        if (nProtons == 0)
+            return false;
+        cutTracker.MarkCutAsPassed("AtLeast1Proton");
+
+        // ----------------------------------------------------------------------------------
+        // MuonLikeProton
+        // ----------------------------------------------------------------------------------
+        const auto muonBDTThreshold = cutTracker.GetCutValue("MuonLikeProton");
+
+        // Leading proton must have a muon-like muon BDT score
+        // Get the leading proton reco particle
+        const auto &leadingproton = recoParticles.at(leadingProtonIndex);
+
+        // Get run the muon BDT
+        std::vector<float> features;
+        const auto hasFeatures = BDTHelper::GetBDTFeatures(leadingproton, BDTHelper::MuonBDTFeatureNames, features);
+        if (!hasFeatures)
+        {
+            return false;
+        }
+
+        // Insist that the BDT response is greater than the cut value
+        const auto bdtResponsemu = pMuonBDT->GetResponse(features);
+
+        if (bdtResponsemu < muonBDTThreshold)
+        {
+            return false;
+        }
+
+        // Mark the cut "MuonLikeProton" as passed
+        cutTracker.MarkCutAsPassed("MuonLikeProton");
 
         // ----------------------------------------------------------------------------------
         // muonNotInGap
@@ -739,9 +821,45 @@ SelectionHelper::EventSelection SelectionHelper::GetCC0piSelection()
         cutTracker.MarkCutAsPassed("muonNotInGap");
 
         // ----------------------------------------------------------------------------------
-        // topologicalScore
+        // protonNotInGap
         // ----------------------------------------------------------------------------------
 
+        // Sanity check that our muon and leading proton are not the same particle
+        if (muonIndex == leadingProtonIndex){
+            throw std::logic_error("CC0piSelection - The muon and the proton candidates are the same particle. This shouldn't happen!");
+        }
+
+        // Sanity check that we have a lehading proton
+        if (leadingProtonIndex == std::numeric_limits<unsigned int>::max()){
+            throw std::logic_error("CC0piSelection - No leading proton candidate found. This shouldn't happen!");
+        }
+
+        // Insist that the leading proton has at least one hit in each view (i.e. not in a gap)
+        if (leadingproton.nHitsU() == 0 || leadingproton.nHitsV() == 0 || leadingproton.nHitsW() == 0)
+            return false;
+
+        // Mark the cut "protonNotInGap" as passed
+        cutTracker.MarkCutAsPassed("protonNotInGap");
+        // ----------------------------------------------------------------------------------
+        // openingAngle
+        // ----------------------------------------------------------------------------------
+        // Get the opening angle cut value
+        const auto maxOpeningAngle = cutTracker.GetCutValue("openingAngle");
+
+        // Get the opening angle between the muon and pion
+        const auto muonDir = TVector3(muon.directionX(), muon.directionY(), muon.directionZ()).Unit();
+        const auto protonDir = TVector3(leadingproton.directionX(), leadingproton.directionY(), leadingproton.directionZ()).Unit();
+        const auto openingAngle = muonDir.Angle(protonDir);
+
+        // Insist that the opening angle isn't too wide
+        if (openingAngle >= maxOpeningAngle)
+            return false;
+
+        // Mark the cut "openingAngle" as passed
+        cutTracker.MarkCutAsPassed("openingAngle");
+        // ----------------------------------------------------------------------------------
+        // topologicalScore
+        // ----------------------------------------------------------------------------------
         // Get the topological score cut value
         const auto minTopologicalScore = cutTracker.GetCutValue("topologicalScore");
 
@@ -755,7 +873,6 @@ SelectionHelper::EventSelection SelectionHelper::GetCC0piSelection()
         // ----------------------------------------------------------------------------------
         // startNearVertex
         // ----------------------------------------------------------------------------------
-
         // Get the start near vertex cut value
         const auto maxVertexDist = cutTracker.GetCutValue("startNearVertex");
         const auto maxVertexDist2 = maxVertexDist*maxVertexDist;
@@ -877,7 +994,7 @@ unsigned int SelectionHelper::GetMuonCandidateIndex(const std::vector<Event::Rec
 }
 // -----------------------------------------------------------------------------------------------------------------------------------------
 
-unsigned int SelectionHelper::GetLeadingProtonCandidateIndex(const std::vector<Event::Reco::Particle> &particles, std::vector<int> &assignedPdgCodes)
+unsigned int SelectionHelper::GetLeadingProtonCandidateIndex(const std::vector<Event::Reco::Particle> &particles, std::vector<int> const &assignedPdgCodes)
 {
   // Default value in case no proton can be found
   unsigned int protonIndex = std::numeric_limits<unsigned int>::max();
@@ -891,6 +1008,8 @@ unsigned int SelectionHelper::GetLeadingProtonCandidateIndex(const std::vector<E
 
       // Now check if this is the leading proton (i.e. the highest-reconstructed-momentum proton in the event)
       const auto proton = particles.at(i);
+      if (!AnalysisHelper::HasTrackFit(proton))
+          continue;
       float protonmom = AnalysisHelper::GetProtonMomentumFromRange(proton.range());
       if (protonmom > leadingProtonMom){
         leadingProtonMom = protonmom;
