@@ -904,10 +904,10 @@ std::shared_ptr<TF1> AnalysisHelper::GetRangeToMomentumFunctionPion()
 std::shared_ptr<TF1> AnalysisHelper::GetRangeToMomentumFunctionProton()
 {
     RangeToMomentumFitParameters params;
-    params.a = 5.7364; // Fit full range: 14.96, Fit 0-30cm: 5.7364
-    params.b = 0.0074425; // Fit full range: 0.0043489, Fit 0-30cm: 0.0074425
-    params.c = 5.4472; // Fit full range: 14.688, Fit 0-30cm: 5.4472
-    params.d = 0.0097336; // Fit full range: 0.0053518, Fit 0-30cm: 0.0097336
+    params.a = 14.96; // Fit full range: 14.96, Fit 0-30cm: 5.7364
+    params.b = 0.0043489; // Fit full range: 0.0043489, Fit 0-30cm: 0.0074425
+    params.c = 14.688; // Fit full range: 14.688, Fit 0-30cm: 5.4472
+    params.d = 0.0053518; // Fit full range: 0.0053518, Fit 0-30cm: 0.0097336
 
     auto pFunc = AnalysisHelper::GetRangeToMomentumFunction();
     AnalysisHelper::SetRangeToMomentumFunctionParameters(params, pFunc);
@@ -1339,7 +1339,6 @@ AnalysisHelper::AnalysisData AnalysisHelper::GetTruthAnalysisData(const Event::T
     if (!foundPion || !foundMuon)
         throw std::logic_error("AnalysisHelper::GetTruthAnalysisData - Input event doesn't contain both a muon and a pion!");
 
-
     data.muonPionAngle = std::acos(muonDir.Dot(pionDir));
 
     return data;
@@ -1461,6 +1460,61 @@ void AnalysisHelper::PrintLoadingBar(const unsigned int numerator, const unsigne
     // Print the fraction and loading bar
     std::cout << numerator << " / " << denominator << std::endl;
     std::cout << "|" << std::string(loadedWidth, '=') << tenth << std::string(unloadedWidth, ' ') << "|" << std::endl;
+}
+
+// -----------------------------------------------------------------------------------------------------------------------------------------
+
+unsigned int AnalysisHelper::GetTrueLeadingProtonIndex(const Event::Truth &truth, const bool useAbsPdg, const float protonMomentumThreshold)
+{
+    float leadingProtonMom = -std::numeric_limits<float>::max();
+    unsigned int leadingProtonIndex = std::numeric_limits<unsigned int>::max();
+
+    for (unsigned int i = 0; i < truth.particles.size(); ++i){
+        auto particle = truth.particles.at(i);
+
+        const auto pdg = useAbsPdg ? std::abs(particle.pdgCode()) : particle.pdgCode();
+
+        if (pdg == 2212){
+            const auto passesMomentumThreshold = (particle.momentum() > protonMomentumThreshold);
+            if (!passesMomentumThreshold)
+                continue;
+
+            const auto momentum = particle.momentum();
+            if (momentum > leadingProtonMom){
+                leadingProtonMom = momentum;
+                leadingProtonIndex = i;
+            }
+        }
+    }
+    return leadingProtonIndex;
+}
+
+// -----------------------------------------------------------------------------------------------------------------------------------------
+
+unsigned int AnalysisHelper::GetTrueMuonIndex(const Event::Truth &truth, const bool useAbsPdg)
+{
+    bool foundMuon = false;
+    unsigned int muonidx = std::numeric_limits<unsigned int>::max();
+
+    for (unsigned int i = 0; i < truth.particles.size(); ++i){
+        auto particle = truth.particles.at(i);
+
+        const auto pdg = useAbsPdg ? std::abs(particle.pdgCode()) : particle.pdgCode();
+
+        if (pdg == 13)
+        {
+            if (foundMuon)
+                throw std::logic_error("AnalysisHelper::GetTruthAnalysisData - Found multiple muons! Are you sure this is a signal event?");
+
+            foundMuon = true;
+
+            muonidx = i;
+
+            continue;
+        }
+    }
+
+    return muonidx;
 }
 
 } // namespace ubcc1pi
