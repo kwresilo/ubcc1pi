@@ -16,6 +16,7 @@
 
 #include <functional>
 #include <random>
+#include <unordered_map>
 
 namespace ubcc1pi
 {
