@@ -490,6 +490,13 @@ class AnalysisHelper
         static std::shared_ptr<TF1> GetRangeToMomentumFunctionPion();
 
         /**
+         *  @brief  Get a function which maps range to momentum for contained protons
+         *
+         *  @return the function
+         */
+        static std::shared_ptr<TF1> GetRangeToMomentumFunctionProton();
+
+        /**
          *  @brief  Set the parameters of the input function
          *
          *  @param  params the parameters to use
@@ -512,7 +519,7 @@ class AnalysisHelper
          *  @param  momenta the input momenta (one per range in the same order)
          *  @param  params the output fit parameters
          */
-        static void GetRangeToMomentumFitParameters(const std::vector<float> &ranges, const std::vector<float> &momenta, RangeToMomentumFitParameters &params);
+        static void GetRangeToMomentumFitParameters(const std::vector<float> &ranges, const std::vector<float> &momenta, RangeToMomentumFitParameters &params, const float limitLow=-std::numeric_limits<float>::max(), const float limitHigh=-std::numeric_limits<float>::max());
 
         /**
          *  @brief  Get the momentum of a pion from range
@@ -559,6 +566,25 @@ class AnalysisHelper
          *
          *  @return the truth analysis data
          */
+
+         /**
+          *  @brief  Get the momentum of a proton from range
+          *
+          *  @param  range the input range
+          *
+          *  @return the momentum
+          */
+         static float GetProtonMomentumFromRange(const float &range);
+
+         /**
+          *  @brief  Get the momentum of a proton from range (reimplementation of TrackMomentumCalculator function from Larsoft)
+          *
+          *  @param  range the input range
+          *
+          *  @return the momentum
+          */
+         static float GetProtonMomentumFromRangeLarsoft(const float &range);
+
         static AnalysisData GetTruthAnalysisData(const Event::Truth &truth, const bool useAbsPdg, const float protonMomentumThreshold);
 
         /**

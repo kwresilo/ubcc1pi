@@ -17,14 +17,14 @@
 namespace ubcc1pi
 {
 
-PlottingHelper::MultiPlot::MultiPlot(const std::string &xLabel, const std::string &yLabel, unsigned int nBins, float min, float max, bool drawErrors) :
+PlottingHelper::MultiPlot::MultiPlot(const std::string &xLabel, const std::string &yLabel, unsigned int nBins, float min, float max, bool drawErrors, const bool useAxisTitles) :
     MultiPlot(xLabel, yLabel, PlottingHelper::GenerateUniformBinEdges(nBins, min, max), drawErrors)
 {
 }
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
 
-PlottingHelper::MultiPlot::MultiPlot(const std::string &xLabel, const std::string &yLabel, const std::vector<float> &binEdges, bool drawErrors) :
+PlottingHelper::MultiPlot::MultiPlot(const std::string &xLabel, const std::string &yLabel, const std::vector<float> &binEdges, bool drawErrors, const bool useAxisTitles) :
     /// @cond Doxygen can't handle this initilizer list
     m_xLabel(xLabel),
     m_nBins(binEdges.size() - 1),
@@ -36,7 +36,6 @@ PlottingHelper::MultiPlot::MultiPlot(const std::string &xLabel, const std::strin
     m_drawErrors(drawErrors)
     /// @endcond
 {
-
     for (const auto &style : PlottingHelper::AllPlotStyles)
     {
         // Make a unique name for this plot to avoid collisionsi
@@ -47,9 +46,10 @@ PlottingHelper::MultiPlot::MultiPlot(const std::string &xLabel, const std::strin
 
         pHist->Sumw2();
         PlottingHelper::SetLineStyle(pHist.get(), style);
-        //pHist->GetXaxis()->SetTitle(xLabel.c_str());
-        //pHist->GetYaxis()->SetTitle(yLabel.c_str());
-
+        if (useAxisTitles){
+            pHist->GetXaxis()->SetTitle(xLabel.c_str());
+            pHist->GetYaxis()->SetTitle(yLabel.c_str());
+        }
         m_plotToHistMap.emplace(style, pHist);
     }
 }
@@ -147,6 +147,9 @@ void PlottingHelper::MultiPlot::GetHistogramClones(std::unordered_map<PlotStyle,
         const auto cloneNameStr = std::string(pHist->GetName()) + "_clone_" + std::to_string(m_cloneCount);
         const auto cloneName = cloneNameStr.c_str();
         pHistClone->SetName(cloneName);
+
+        pHistClone->GetXaxis()->SetTitle(pHist->GetXaxis()->GetTitle());
+        pHistClone->GetYaxis()->SetTitle(pHist->GetYaxis()->GetTitle());
 
         plotToHistCloneMap.emplace(style, pHistClone);
     }
@@ -285,7 +288,7 @@ void PlottingHelper::MultiPlot::SaveAs(const std::string &fileName, const bool u
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
 
-void PlottingHelper::MultiPlot::SaveAsStacked(const std::string &fileName, const bool useLogX, const bool scaleByBinWidth, const bool useLogY)
+void PlottingHelper::MultiPlot::SaveAsStacked(const std::string &fileName, const bool useLogX, const bool scaleByBinWidth, const bool useLogY, const bool useAxisTitles)
 {
     auto pCanvas = PlottingHelper::GetCanvas();
 
@@ -343,6 +346,11 @@ void PlottingHelper::MultiPlot::SaveAsStacked(const std::string &fileName, const
             }
 
             isFirst = false;
+
+            if (useAxisTitles){
+                pHistTotal->GetXaxis()->SetTitle(pHist->GetXaxis()->GetTitle());
+                pHistTotal->GetYaxis()->SetTitle(pHist->GetYaxis()->GetTitle());
+            }
         }
 
         pHistTotal->Add(pHist);
@@ -366,7 +374,9 @@ void PlottingHelper::MultiPlot::SaveAsStacked(const std::string &fileName, const
     // Draw the stacked histogram
     const auto nameStackStr = "ubcc1pi_plotPlot_" + std::to_string(m_id) + "_stack";
     const auto nameStack = nameStackStr.c_str();
-    auto pHistStack = std::make_shared<THStack>(nameStack, "");
+    std::string histTitle = string(";")+pHistTotal->GetXaxis()->GetTitle()+string(";")+pHistTotal->GetYaxis()->GetTitle();
+    if (!useAxisTitles) histTitle = std::string("");
+    auto pHistStack = std::make_shared<THStack>(nameStack, histTitle.c_str());
 
     for (const auto &style : PlottingHelper::AllPlotStyles)
     {
@@ -383,6 +393,9 @@ void PlottingHelper::MultiPlot::SaveAsStacked(const std::string &fileName, const
         pHist->SetLineColorAlpha(col, 0.f);
         pHist->SetFillStyle(1001);
         pHist->SetFillColor(col);
+        pHist->SetMarkerSize(0);
+        pHist->SetMarkerStyle(0);
+
 
         pHistStack->Add(pHist);
     }
@@ -408,6 +421,8 @@ void PlottingHelper::MultiPlot::SaveAsStacked(const std::string &fileName, const
         pHistTotal->SetFillStyle(1001);
         pHistTotal->SetLineColorAlpha(kBlack, 0.f);
         pHistTotal->SetFillColorAlpha(kBlack, 0.3f);
+        pHistTotal->SetMarkerSize(0);
+        pHistTotal->SetMarkerStyle(0);
         pHistTotal->Draw("e2 same");
     }
 
@@ -457,7 +472,7 @@ void PlottingHelper::MultiPlot::SaveAsStacked(const std::string &fileName, const
     }
 
     auto pHistBNBData = static_cast<TH1F *>(bnbDataHistIter->second->Clone());
-    //pHistBNBData->GetYaxis()->SetTitle("Beam on / (Overlay + Beam off)");
+    if (useAxisTitles) pHistBNBData->GetYaxis()->SetTitle("Beam on / (Overlay + Beam off)");
     pHistBNBData->Divide(pHistTotal.get());
 
     // Set the y-axis range
@@ -507,14 +522,14 @@ void PlottingHelper::MultiPlot::SaveAsStacked(const std::string &fileName, const
 // -----------------------------------------------------------------------------------------------------------------------------------------
 // -----------------------------------------------------------------------------------------------------------------------------------------
 
-PlottingHelper::EfficiencyPlot::EfficiencyPlot(const std::string &xLabel, unsigned int nBins, float min, float max, const std::vector<string> &cuts, bool drawErrors) :
+PlottingHelper::EfficiencyPlot::EfficiencyPlot(const std::string &xLabel, unsigned int nBins, float min, float max, const std::vector<string> &cuts, bool drawErrors, const bool useAxisTitles) :
     EfficiencyPlot(xLabel, PlottingHelper::GenerateUniformBinEdges(nBins, min, max), cuts, drawErrors)
 {
 }
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
 
-PlottingHelper::EfficiencyPlot::EfficiencyPlot(const std::string &xLabel, const std::vector<float> &binEdges, const std::vector<string> &cuts, bool drawErrors) :
+PlottingHelper::EfficiencyPlot::EfficiencyPlot(const std::string &xLabel, const std::vector<float> &binEdges, const std::vector<string> &cuts, bool drawErrors, const bool useAxisTitles) :
     /// @cond Doxygen can't handle this initilizer list
     m_xLabel(xLabel),
     m_binEdges(binEdges),
@@ -551,8 +566,10 @@ PlottingHelper::EfficiencyPlot::EfficiencyPlot(const std::string &xLabel, const 
         for (auto &pHist : {plotPair.first, plotPair.second})
         {
             pHist->Sumw2();
-            //pHist->GetXaxis()->SetTitle(xLabel.c_str());
-            //pHist->GetYaxis()->SetTitle("Efficiency");
+            if (useAxisTitles){
+                pHist->GetXaxis()->SetTitle(xLabel.c_str());
+                pHist->GetYaxis()->SetTitle("Efficiency");
+            }
         }
 
         m_cutToPlotsMap.emplace(cut, plotPair);
@@ -589,7 +606,7 @@ void PlottingHelper::EfficiencyPlot::AddEvent(const float value, const float wei
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
 
-void PlottingHelper::EfficiencyPlot::SaveAs(const std::vector<std::string> &cuts, const std::vector<int> &colors, const std::string &fileName)
+void PlottingHelper::EfficiencyPlot::SaveAs(const std::vector<std::string> &cuts, const std::vector<int> &colors, const std::string &fileName, const bool useAxisTitles)
 {
     if (cuts.size() != colors.size())
         throw std::invalid_argument("EfficiencyPlot::SaveAs - number of cuts and colors doesn't match");
@@ -604,7 +621,7 @@ void PlottingHelper::EfficiencyPlot::SaveAs(const std::vector<std::string> &cuts
 
     // Save the raw histogram - just use the denominator of the first cut
     auto pHistRaw = static_cast<TH1F *>(m_cutToPlotsMap.at(m_cuts.front()).second->Clone());
-    //pHistRaw->GetYaxis()->SetTitle("Number of events");
+    if (useAxisTitles) pHistRaw->GetYaxis()->SetTitle("Number of events");
     PlottingHelper::SetLineStyle(pHistRaw, Default);
 
     if (m_drawErrors)
@@ -737,7 +754,7 @@ void PlottingHelper::EfficiencyPlot::SaveAs(const std::vector<std::string> &cuts
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
 
-void PlottingHelper::EfficiencyPlot::SaveAs(const std::vector<std::string> &cuts, const std::vector<PlotStyle> &styles, const std::string &fileName)
+void PlottingHelper::EfficiencyPlot::SaveAs(const std::vector<std::string> &cuts, const std::vector<PlotStyle> &styles, const std::string &fileName, const bool useAxisTitles)
 {
     // Convert the styles to colors
     std::vector<int> colors;

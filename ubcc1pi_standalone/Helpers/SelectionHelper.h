@@ -232,6 +232,13 @@ class SelectionHelper
         };
 
         /**
+         *  @brief  Get a selection based on an input string. String can be "CCInclusive" for the CCInclusive selection, "Default" for the default selection, or "CC0pi" for the CC0pi selection
+         *
+         *  @return the event selection
+         */
+        static EventSelection GetSelection(const std::string &name);
+
+        /**
          *  @brief  Get the CC inclusive selection
          *
          *  @return the event selection
@@ -244,6 +251,13 @@ class SelectionHelper
          *  @return the event selection
          */
         static EventSelection GetDefaultSelection();
+
+        /**
+         *  @brief  Get the CC0pi event selection
+         *
+         *  @return the event selection
+         */
+        static EventSelection GetCC0piSelection();
 
         /**
         *  @brief  Check if a given cut is listed in the input vector of cuts passed
@@ -265,6 +279,17 @@ class SelectionHelper
          *  @return the index of the muon candidate in the input list
          */
         static unsigned int GetMuonCandidateIndex(const std::vector<Event::Reco::Particle> &particles, const std::vector<std::string> &featureNames, BDTHelper::BDT &muonBDT);
+
+        /**
+         *  @brief  Get the leading proton candidate index (works for the CC0pi1p sideband selection only)
+         *
+         *  @param  particles the input list of all reco particles
+         *  @param  featureNames the input list of proton BDT feature names
+         *  @param  protonBDT the proton BDT
+         *
+         *  @return the index of the muon candidate in the input list
+         */
+        static unsigned int GetLeadingProtonCandidateIndex(const std::vector<Event::Reco::Particle> &particles, std::vector<int> &assignedPdgCodes);
 };
 
 } // namespace ubcc1pi

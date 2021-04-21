@@ -110,8 +110,9 @@ class PlottingHelper
                  *  @param  min the minimum value
                  *  @param  max the maximum value
                  *  @param  drawErrors whether to draw the error bands
+                 *  @param  useAxisTitles whether to draw axis lables and titles
                  */
-                MultiPlot(const std::string &xLabel, const std::string &yLabel, unsigned int nBins, float min, float max, bool drawErrors = true);
+                MultiPlot(const std::string &xLabel, const std::string &yLabel, unsigned int nBins, float min, float max, bool drawErrors = true, const bool useAxisTitles = false);
 
                 /**
                  *  @brief  Constructor
@@ -120,8 +121,9 @@ class PlottingHelper
                  *  @param  yLabel the y-label of the histogram
                  *  @param  binEdges the bin edges (for variable binning)
                  *  @param  drawErrors whether to draw the error bands
+                 *  @param  useAxisTitles whether to draw axis lables and titles
                  */
-                MultiPlot(const std::string &xLabel, const std::string &yLabel, const std::vector<float> &binEdges, bool drawErrors = true);
+                MultiPlot(const std::string &xLabel, const std::string &yLabel, const std::vector<float> &binEdges, bool drawErrors = true, const bool useAxisTitles = false);
 
                 /**
                  *  @brief  If the plot is to be filled with integer values - label each bin with the integer that lands in that bin
@@ -168,9 +170,9 @@ class PlottingHelper
                  *  @param  fileName the output file name (don't include an extension)
                  *  @param  useLogX if we should use a log scale on the X-axis
                  *  @param  scaleByBinWidth if we should scale by bin width
-                 *  @param  useLogY if we should use a log scale on the Y-axis
+                 *  @param  useAxisTitles whether to draw axis lables and titles
                  */
-                void SaveAsStacked(const std::string &fileName, const bool useLogX = false, const bool scaleByBinWidth = false, const bool useLogY = false);
+                void SaveAsStacked(const std::string &fileName, const bool useLogX = false, const bool scaleByBinWidth = false, const bool useLogY = false, const bool useAxisTitles = false);
 
             private:
                 /**
@@ -227,8 +229,9 @@ class PlottingHelper
                  *  @param  max the maximum value
                  *  @param  cuts the names of all possible cuts in order
                  *  @param  drawErrors whether to draw the error bands
+                 *  @param  useAxisTitles whether to draw axis lables and titles
                  */
-                EfficiencyPlot(const std::string &xLabel, unsigned int nBins, float min, float max, const std::vector<string> &cuts, bool drawErrors = true);
+                EfficiencyPlot(const std::string &xLabel, unsigned int nBins, float min, float max, const std::vector<string> &cuts, bool drawErrors = true, const bool useAxisTitles = false);
 
                 /**
                  *  @brief  Constructor
@@ -237,8 +240,9 @@ class PlottingHelper
                  *  @param  binEdges the bin edges
                  *  @param  cuts the names of all possible cuts in order
                  *  @param  drawErrors whether to draw the error bands
+                 *  @param  useAxisTitles whether to draw axis lables and titles
                  */
-                EfficiencyPlot(const std::string &xLabel, const std::vector<float> &binEdges, const std::vector<string> &cuts, bool drawErrors = true);
+                EfficiencyPlot(const std::string &xLabel, const std::vector<float> &binEdges, const std::vector<string> &cuts, bool drawErrors = true, const bool useAxisTitles = false);
 
                 /**
                  *  @brief  Add an event to the plot for the given cut
@@ -263,8 +267,9 @@ class PlottingHelper
                  *  @param  cuts the cuts to plots
                  *  @param  styles the styles to uses per cut
                  *  @param  fileName the output file name without an extension
+                 *  @param  useAxisTitles whether to draw axis lables and titles
                  */
-                void SaveAs(const std::vector<std::string> &cuts, const std::vector<PlotStyle> &styles, const std::string &fileName);
+                void SaveAs(const std::vector<std::string> &cuts, const std::vector<PlotStyle> &styles, const std::string &fileName, const bool useAxisTitles = false);
 
                 /**
                  *  @brief  Draw and save the plots for the specified cuts, and styles
@@ -272,8 +277,9 @@ class PlottingHelper
                  *  @param  cuts the cuts to plots
                  *  @param  colors the colors to uses per cut
                  *  @param  fileName the output file name without an extension
+                 *  @param  useAxisTitles whether to draw axis lables and titles
                  */
-                void SaveAs(const std::vector<std::string> &cuts, const std::vector<int> &colors, const std::string &fileName);
+                void SaveAs(const std::vector<std::string> &cuts, const std::vector<int> &colors, const std::string &fileName, const bool useAxisTitles = false);
 
                 /**
                  *  @brief  Draw and save the plots for all cuts
