@@ -33,7 +33,7 @@ mrbslp
 
 ```
 # Clone this repository in your desired area
-git clone https://github.com/a-d-smith/ubcc1pi.git
+git clone --recurse-submodules https://github.com/a-d-smith/ubcc1pi.git
 
 # See instructions in ubcc1pi_standalone for compilation
 ```
