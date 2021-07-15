@@ -901,6 +901,22 @@ std::shared_ptr<TF1> AnalysisHelper::GetRangeToMomentumFunctionPion()
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
 
+std::shared_ptr<TF1> AnalysisHelper::GetRangeToMomentumFunctionProton()
+{
+    RangeToMomentumFitParameters params;
+    params.a = 14.96; // Fit full range: 14.96, Fit 0-30cm: 5.7364
+    params.b = 0.0043489; // Fit full range: 0.0043489, Fit 0-30cm: 0.0074425
+    params.c = 14.688; // Fit full range: 14.688, Fit 0-30cm: 5.4472
+    params.d = 0.0053518; // Fit full range: 0.0053518, Fit 0-30cm: 0.0097336
+
+    auto pFunc = AnalysisHelper::GetRangeToMomentumFunction();
+    AnalysisHelper::SetRangeToMomentumFunctionParameters(params, pFunc);
+
+    return pFunc;
+}
+
+// -----------------------------------------------------------------------------------------------------------------------------------------
+
 void AnalysisHelper::SetRangeToMomentumFunctionParameters(const RangeToMomentumFitParameters &params, std::shared_ptr<TF1> &pFunc)
 {
     pFunc->SetParameter(0, params.a);
@@ -921,7 +937,7 @@ void AnalysisHelper::GetRangeToMomentumFunctionParameters(const std::shared_ptr<
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
 
-void AnalysisHelper::GetRangeToMomentumFitParameters(const std::vector<float> &ranges, const std::vector<float> &momenta, RangeToMomentumFitParameters &params)
+void AnalysisHelper::GetRangeToMomentumFitParameters(const std::vector<float> &ranges, const std::vector<float> &momenta, RangeToMomentumFitParameters &params, const float limitLow, const float limitHigh)
 {
     if (ranges.size() != momenta.size())
         throw std::invalid_argument("AnalysisHelper::GetRangeToMomentumFitParameters - input ranges and momenta are of different size");
@@ -1017,8 +1033,14 @@ void AnalysisHelper::GetRangeToMomentumFitParameters(const std::vector<float> &r
     }
 
     // Determine the range over which to fit
-    const auto minRange = *std::min_element(fitRanges.begin(), fitRanges.end());
-    const auto maxRange = *std::max_element(fitRanges.begin(), fitRanges.end());
+    auto minRange = *std::min_element(fitRanges.begin(), fitRanges.end());
+    if (limitLow != -std::numeric_limits<float>::max()){
+        minRange = limitLow;
+    }
+    auto maxRange = *std::max_element(fitRanges.begin(), fitRanges.end());
+    if (limitHigh != -std::numeric_limits<float>::max()){
+        maxRange = limitHigh;
+    }
 
 
     // Make a TGraph to fit
@@ -1086,6 +1108,76 @@ float AnalysisHelper::GetMuonMomentum(const Event::Reco::Particle &muon)
         return AnalysisHelper::GetMuonMomentumFromRange(muon.range());
 
     return AnalysisHelper::GetMuonMomentumFromMCS(muon);
+}
+
+// -----------------------------------------------------------------------------------------------------------------------------------------
+
+float AnalysisHelper::GetProtonMomentumFromRange(const float &range)
+{
+    auto pFunc = AnalysisHelper::GetRangeToMomentumFunctionProton();
+    return pFunc->Eval(range);
+}
+
+// -----------------------------------------------------------------------------------------------------------------------------------------
+
+float AnalysisHelper::GetProtonMomentumFromRangeLarsoft(const float &range)
+{
+    // Reimplemented from larsoft: https://nusoft.fnal.gov/larsoft/doxsvn/html/TrackMomentumCalculator_8cxx_source.html
+
+     /*Proton range-momentum tables from CSDA (Argon density = 1.4 g/cm^3):
+     website: https://physics.nist.gov/PhysRefData/Star/Text/PSTAR.html
+
+     CSDA values:
+     double KE_MeV_P_Nist[31]={10, 15, 20, 30, 40, 80, 100, 150, 200, 250, 300,
+     350, 400, 450, 500, 550, 600, 650, 700, 750, 800, 850, 900, 950, 1000,
+     1500, 2000, 2500, 3000, 4000, 5000};
+
+     double Range_gpercm_P_Nist[31]={1.887E-1,3.823E-1, 6.335E-1, 1.296,
+     2.159, 7.375, 1.092E1, 2.215E1, 3.627E1, 5.282E1, 7.144E1,
+     9.184E1, 1.138E2, 1.370E2, 1.614E2, 1.869E2, 2.132E2, 2.403E2,
+     2.681E2, 2.965E2, 3.254E2, 3.548E2, 3.846E2, 4.148E2, 4.454E2,
+     7.626E2, 1.090E3, 1.418E3, 1.745E3, 2.391E3, 3.022E3};
+
+     Functions below are obtained by fitting power and polynomial fits to
+     KE_MeV vs Range (cm) graph. A better fit was obtained by splitting the
+     graph into two: Below range<=80cm,a a*(x^b) was a good fit; above 80cm, a
+     polynomial of power 6 was a good fit
+
+     Fit errors for future purposes:
+     For power function fit: a=0.388873; and b=0.00347075
+     Forpoly6 fit: p0 err=3.49729;p1 err=0.0487859; p2 err=0.000225834; p3
+     err=4.45542E-7; p4 err=4.16428E-10; p5 err=1.81679E-13;p6
+     err=2.96958E-17;*/
+
+     //*********For proton, the calculations are valid up to 3.022E3 cm range
+     //corresponding to a Muon KE of 5 GeV**********//
+
+     if (range < 0 || std::isnan(range)) {
+         throw std::logic_error("AnalysisHelper::GetProtonMomentumFromRangeLarsoft - Invalid track range " + std::to_string(range));
+         return -std::numeric_limits<float>::max();
+     }
+
+     float KE = -999;
+     float Momentum = -std::numeric_limits<float>::max();
+     float M = 938.272;
+     if (range > 0 && range <= 80){
+         KE = 29.9317 * std::pow(range, 0.586304);
+     }
+     else if (range > 80 && range <= 3.022E3){
+         KE = 149.904 + (3.34146 * range)
+         + (-0.00318856 * range * range)
+         + (4.34587E-6 * range * range * range)
+         + (-3.18146E-9 * range * range * range * range)
+         + (1.17854E-12 * range * range * range * range * range)
+         + (-1.71763E-16 * range * range * range * range * range * range);
+     }
+
+    if (KE >= 0)
+    Momentum = std::sqrt((KE * KE) + (2 * M * KE));
+
+    Momentum = Momentum / 1000;
+
+    return Momentum;
 }
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
@@ -1247,7 +1339,6 @@ AnalysisHelper::AnalysisData AnalysisHelper::GetTruthAnalysisData(const Event::T
     if (!foundPion || !foundMuon)
         throw std::logic_error("AnalysisHelper::GetTruthAnalysisData - Input event doesn't contain both a muon and a pion!");
 
-
     data.muonPionAngle = std::acos(muonDir.Dot(pionDir));
 
     return data;
@@ -1369,6 +1460,61 @@ void AnalysisHelper::PrintLoadingBar(const unsigned int numerator, const unsigne
     // Print the fraction and loading bar
     std::cout << numerator << " / " << denominator << std::endl;
     std::cout << "|" << std::string(loadedWidth, '=') << tenth << std::string(unloadedWidth, ' ') << "|" << std::endl;
+}
+
+// -----------------------------------------------------------------------------------------------------------------------------------------
+
+unsigned int AnalysisHelper::GetTrueLeadingProtonIndex(const Event::Truth &truth, const bool useAbsPdg, const float protonMomentumThreshold)
+{
+    float leadingProtonMom = -std::numeric_limits<float>::max();
+    unsigned int leadingProtonIndex = std::numeric_limits<unsigned int>::max();
+
+    for (unsigned int i = 0; i < truth.particles.size(); ++i){
+        auto particle = truth.particles.at(i);
+
+        const auto pdg = useAbsPdg ? std::abs(particle.pdgCode()) : particle.pdgCode();
+
+        if (pdg == 2212){
+            const auto passesMomentumThreshold = (particle.momentum() > protonMomentumThreshold);
+            if (!passesMomentumThreshold)
+                continue;
+
+            const auto momentum = particle.momentum();
+            if (momentum > leadingProtonMom){
+                leadingProtonMom = momentum;
+                leadingProtonIndex = i;
+            }
+        }
+    }
+    return leadingProtonIndex;
+}
+
+// -----------------------------------------------------------------------------------------------------------------------------------------
+
+unsigned int AnalysisHelper::GetTrueMuonIndex(const Event::Truth &truth, const bool useAbsPdg)
+{
+    bool foundMuon = false;
+    unsigned int muonidx = std::numeric_limits<unsigned int>::max();
+
+    for (unsigned int i = 0; i < truth.particles.size(); ++i){
+        auto particle = truth.particles.at(i);
+
+        const auto pdg = useAbsPdg ? std::abs(particle.pdgCode()) : particle.pdgCode();
+
+        if (pdg == 13)
+        {
+            if (foundMuon)
+                throw std::logic_error("AnalysisHelper::GetTruthAnalysisData - Found multiple muons! Are you sure this is a signal event?");
+
+            foundMuon = true;
+
+            muonidx = i;
+
+            continue;
+        }
+    }
+
+    return muonidx;
 }
 
 } // namespace ubcc1pi

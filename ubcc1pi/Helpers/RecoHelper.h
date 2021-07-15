@@ -85,6 +85,38 @@ class RecoHelper
         static TVector3 GetRecoNeutrinoVertex(const art::Event &event, const PFParticleVector &allPFParticles, const art::InputTag &vertexLabel);
 
         /**
+         *  @brief  Get the flash-matching chi2 between the reconstructed neutrino and the measured flash
+         *
+         *  @param  event the art event record
+         *  @param  allPFParticles the input vector of all PFParticles
+         *  @param  flashmatchLabel the label for the flash matching producer module
+         *
+         *  @return the chi2 from the flash-slice match
+         */
+        static float GetRecoFlashChi2(const art::Event &event, const PFParticleVector &allPFParticles, const art::InputTag &PFParticleLabel, const art::InputTag &flashmatchLabel);
+
+        /**
+         *  @brief  Get the time from the flash-matching between the reconstructed neutrino and the measured flash
+         *
+         *  @param  event the art event record
+         *  @param  allPFParticles the input vector of all PFParticles
+         *  @param  flashmatchLabel the label for the flash matching producer module
+         *
+         *  @return the time from the flash-slice match
+         */
+        static float GetRecoFlashTime(const art::Event &event, const PFParticleVector &allPFParticles, const art::InputTag &PFParticleLabel, const art::InputTag &flashmatchLabel);
+
+        /**
+         *  @brief  Get the largest flash in the event ( we will assume this is the one associated to the neutrino interaction if there is one)
+         *
+         *  @param  event the art event record
+         *  @param  flashLabel the label for the flash producer module
+         *
+         *  @return an art::Ptr to the recob::OpFlash with the largest PE in the event
+         */
+        static art::Ptr<recob::OpFlash> GetLargestFlash(const art::Event &event, const art::InputTag &flashLabel);
+
+        /**
          *  @brief  Get the parent of the input PFParticle
          *
          *  @param  particle the child PFParticle

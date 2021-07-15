@@ -20,6 +20,7 @@
 #include <TH1F.h>
 #include <TH2F.h>
 #include <TStyle.h>
+#include <TGraph.h>
 
 using namespace ubcc1pi;
 
@@ -56,7 +57,7 @@ void SecondaryInteractionsStudy(const Config &config)
     std::shared_ptr<TH1F> pMomLostInelastic(new TH1F("momLostInelastic", "", 50, 0.f, 1.f));
 
     // Reco-true momentum resolution plots (index of map is a descriptor, eg. "contained")
-    std::map<std::string, std::shared_ptr<TH1F> > pionMomentumResolutionPlots, muonMomentumResolutionPlots;
+    std::map<std::string, std::shared_ptr<TH1F> > pionMomentumResolutionPlots, muonMomentumResolutionPlots, protonMomentumResolutionPlots;
 
     pionMomentumResolutionPlots.emplace("all", new TH1F("pionRes_all", "", 50, -1.f, 1.5f));
     pionMomentumResolutionPlots.emplace("contained", new TH1F("pionRes_contained", "", 50, -1.f, 1.5f));
@@ -68,12 +69,21 @@ void SecondaryInteractionsStudy(const Config &config)
     muonMomentumResolutionPlots.emplace("all_MCS", new TH1F("muonRes_all_MCS", "", 50, -1.f, 0.7f));
     muonMomentumResolutionPlots.emplace("contained_MCS", new TH1F("muonRes_contained_MCS", "", 50, -1.f, 0.7f));
 
+    protonMomentumResolutionPlots.emplace("all_range", new TH1F("protonRes_all_range", ";(Reco-True)/True Momentum;Number of Particles", 50, -1.f, 0.7f));
+    protonMomentumResolutionPlots.emplace("contained_range", new TH1F("protonRes_contained_range", ";(Reco-True)/True Momentum;Number of Particles", 50, -1.f, 0.7f));
+    protonMomentumResolutionPlots.emplace("all_range_larsoft", new TH1F("protonRes_all_range_larsoft", ";(Reco-True)/True Momentum;Number of Particles", 50, -1.f, 0.7f));
+    protonMomentumResolutionPlots.emplace("contained_range_larsoft", new TH1F("protonRes_contained_range_larsoft", ";(Reco-True)/True Momentum;Number of Particles", 50, -1.f, 0.7f));
+
     // Reco-true momentum resolution vs. reco range
     std::shared_ptr<TH2F> pPionMomVsRange(new TH2F("pionMomVsRange", "", 60, 0.f, 100.f, 60, 0.f, 0.4f));
     std::shared_ptr<TH2F> pPionResVsRange(new TH2F("pionResVsRange", "", 60, 0.f, 100.f, 60, -1.f, 0.7f));
 
     std::shared_ptr<TH2F> pMuonMomVsRange(new TH2F("muonMomVsRange", "", 60, 0.f, 300.f, 60, 0.f, 0.8f));
     std::shared_ptr<TH2F> pMuonResVsRange(new TH2F("muonResVsRange", "", 60, 0.f, 300.f, 60, -1.f, 0.7f));
+
+    std::shared_ptr<TH2F> pProtonMomVsRange(new TH2F("protonMomVsRange", ";Range (cm);Momentum (GeV)", 60, 0.f, 100.f, 60, 0.f, 1.2f));
+    std::shared_ptr<TH2F> pProtonResVsRange(new TH2F("protonResVsRange", ";Range (cm);(Reco-True)/True Momentum", 60, 0.f, 100.f, 60, -1.f, 0.7f));
+    std::shared_ptr<TH2F> pProtonResVsRangeLarsoft(new TH2F("protonResVsRangeLarsoft", ";Range (cm);(Reco-True)/True Momentum", 60, 0.f, 100.f, 60, -1.f, 0.7f));
 
     // Loop over the events
     for (unsigned int i = 0; i < nEvents; ++i)
@@ -189,6 +199,36 @@ void SecondaryInteractionsStudy(const Config &config)
 
                     pMuonMomVsRange->Fill(recoParticle.range(), muonMomentum, weight);
                     pMuonResVsRange->Fill(recoParticle.range(), muonResolutionRange, weight);
+                }
+            }
+            else if (style == PlottingHelper::Proton)
+            {
+                // Check for a truth-matched true proton.
+                // If not matched to a true proton, skip this particle
+                const auto &proton = AnalysisHelper::GetBestMatchedTruthParticle(recoParticle, truthParticles);
+                if (proton.pdgCode()!=2212) continue;
+                const auto protonMomentum = proton.momentum();
+
+                const auto protonRecoMomentumRange = AnalysisHelper::GetProtonMomentumFromRange(recoParticle.range());
+                const auto protonResolutionRange = (protonRecoMomentumRange - protonMomentum) / protonMomentum;
+
+                const auto protonRecoMomentumRangeLarsoft = AnalysisHelper::GetProtonMomentumFromRangeLarsoft(recoParticle.range());
+                const auto protonResolutionRangeLarsoft = (protonRecoMomentumRangeLarsoft - protonMomentum) / protonMomentum;
+
+                // Fill the muon momentum resolution plots
+                protonMomentumResolutionPlots.at("all_range")->Fill(protonResolutionRange, weight);
+
+                protonMomentumResolutionPlots.at("all_range_larsoft")->Fill(protonResolutionRangeLarsoft, weight);
+
+                if (AnalysisHelper::IsContained(proton))
+                {
+                    protonMomentumResolutionPlots.at("contained_range")->Fill(protonResolutionRange, weight);
+                    protonMomentumResolutionPlots.at("contained_range_larsoft")->Fill(protonResolutionRangeLarsoft, weight);
+
+                    pProtonMomVsRange->Fill(recoParticle.range(), protonMomentum, weight);
+                    pProtonResVsRange->Fill(recoParticle.range(), protonResolutionRange, weight);
+
+                    pProtonResVsRangeLarsoft->Fill(recoParticle.range(), protonResolutionRangeLarsoft, weight);
                 }
             }
         }
@@ -308,6 +348,18 @@ void SecondaryInteractionsStudy(const Config &config)
     muonMomentumResolutionPlots.at("contained_MCS")->Draw("hist same");
     PlottingHelper::SaveCanvas(pCanvas, "secondaryInteractions_muonMomentumResolution_MCS");
 
+    PlottingHelper::SetLineStyle(protonMomentumResolutionPlots.at("all_range"), PlottingHelper::Primary);
+    PlottingHelper::SetLineStyle(protonMomentumResolutionPlots.at("contained_range"), PlottingHelper::Secondary);
+    protonMomentumResolutionPlots.at("all_range")->Draw("hist");
+    protonMomentumResolutionPlots.at("contained_range")->Draw("hist same");
+    PlottingHelper::SaveCanvas(pCanvas, "secondaryInteractions_protonMomentumResolution_range");
+
+    PlottingHelper::SetLineStyle(protonMomentumResolutionPlots.at("all_range_larsoft"), PlottingHelper::Primary);
+    PlottingHelper::SetLineStyle(protonMomentumResolutionPlots.at("contained_range_larsoft"), PlottingHelper::Secondary);
+    protonMomentumResolutionPlots.at("all_range_larsoft")->Draw("hist");
+    protonMomentumResolutionPlots.at("contained_range_larsoft")->Draw("hist same");
+    PlottingHelper::SaveCanvas(pCanvas, "secondaryInteractions_protonMomentumResolution_range_larsoft");
+
     // Save the 2D resolution plots
     pPionMomVsRange->Draw("colz");
     auto pFuncPion = AnalysisHelper::GetRangeToMomentumFunctionPion();
@@ -322,6 +374,27 @@ void SecondaryInteractionsStudy(const Config &config)
     PlottingHelper::SaveCanvas(pCanvas, "secondaryInteractions_muonMomentumVsRange_contained");
     pMuonResVsRange->Draw("colz");
     PlottingHelper::SaveCanvas(pCanvas, "secondaryInteractions_muonMomentumResolutionVsRange_contained");
+
+    pProtonMomVsRange->Draw("colz");
+    auto pFuncProton = AnalysisHelper::GetRangeToMomentumFunctionProton();
+    pFuncProton->Draw("same");
+    PlottingHelper::SaveCanvas(pCanvas, "secondaryInteractions_protonMomentumVsRange_contained");
+    pProtonResVsRange->Draw("colz");
+    PlottingHelper::SaveCanvas(pCanvas, "secondaryInteractions_protonMomentumResolutionVsRange_contained");
+
+    // LArsoft momentum function is hard to convert into a single function in momentum, so instead just make a TGraph with the value in each bin
+    pProtonMomVsRange->Draw("colz");
+    TGraph *pFuncProtonLarsoft = new TGraph(pProtonMomVsRange->GetXaxis()->GetNbins());
+    for (auto i_x=0; i_x<pProtonMomVsRange->GetXaxis()->GetNbins(); i_x++){
+        auto range_val = pProtonMomVsRange->GetXaxis()->GetBinCenter(i_x+1);
+        auto mom_val = AnalysisHelper::GetProtonMomentumFromRangeLarsoft(range_val);
+        pFuncProtonLarsoft->SetPoint(i_x,range_val,mom_val);
+    }
+    pFuncProtonLarsoft->SetLineWidth(2);
+    pFuncProtonLarsoft->Draw("same L");
+    PlottingHelper::SaveCanvas(pCanvas, "secondaryInteractions_protonMomentumVsRange_contained_larsoft");
+    pProtonResVsRangeLarsoft->Draw("colz");
+    PlottingHelper::SaveCanvas(pCanvas, "secondaryInteractions_protonMomentumResolutionVsRange_contained_larsoft");
 
     // Make the scatters plot
     pNScattersHist->Scale(100.f / pNScattersHist->GetEntries());

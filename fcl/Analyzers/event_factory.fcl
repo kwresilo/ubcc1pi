@@ -3,7 +3,7 @@ BEGIN_PROLOG
 event_factory_config:
 {
     # Truth labels
-    MCEventWeightLabel: "eventweight"
+    MCEventWeightLabel: "eventweightSep24"
     MCTruthLabel:       "generator"
     MCParticleLabel:    "largeant"
     BacktrackerLabel:   "gaushitTruthMatch"
@@ -19,6 +19,8 @@ event_factory_config:
     CalorimetryLabel:   "pandoracaliSCE"
     PIDLabel:           "pandoracalipidSCE"
     CCInclusiveLabel:   "NuCCproducer"
+    FlashMatchLabel:    "flashmatch"
+    FlashLabel:         "simpleFlashBeam"
 
     # Configuration
     HasTruthInfo:               true

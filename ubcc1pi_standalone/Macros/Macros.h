@@ -223,6 +223,13 @@ namespace ubcc1pi_macros
     *  @param  config the input configuration
     */
     void MakeXSecPlots(const Config &config = Config());
+    /*
+     *  @brief  Make plots for the CC0pi1p sideband sample
+     *
+     *  @param  config the input configuration
+     */
+    void MakeSidebandSamplePlots(const Config &config = Config());
+
 
     /**
      *  @brief  Top-level macro that runs the full analysis chain
@@ -235,4 +242,3 @@ namespace ubcc1pi_macros
 } // namespace ubcc1pi_macros
 
 #endif
-

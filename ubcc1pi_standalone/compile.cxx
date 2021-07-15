@@ -70,6 +70,7 @@
         "Macros/ExtractXSecs.cxx",
         "Macros/PrintUncertaintiesSummary.cxx",
         "Macros/MakeXSecPlots.cxx",
+        "Macros/MakeSidebandSamplePlots.cxx",
 
         "Macros/RunFullAnalysis.cxx"
     }))

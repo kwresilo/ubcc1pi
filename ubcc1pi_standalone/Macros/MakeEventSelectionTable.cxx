@@ -29,7 +29,7 @@ void MakeEventSelectionTable(const Config &config)
     inputData.emplace_back(AnalysisHelper::DataBNB, config.files.dataBNBFileName,  1.f);
 
     // Set up the selection
-    auto selection = SelectionHelper::GetDefaultSelection();
+    auto selection = SelectionHelper::GetSelection(config.global.selection);
 
     // Setup the event counter
     AnalysisHelper::EventCounter counter;

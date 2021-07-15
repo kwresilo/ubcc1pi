@@ -32,9 +32,9 @@ void MakeSelectedPIDTable(const Config &config)
     //
     // Get the selection
     //
-    auto selection = SelectionHelper::GetDefaultSelection();
+    auto selection = SelectionHelper::GetSelection(config.global.selection);
     const auto allCuts = selection.GetCuts();
-    const auto lastCut = config.makeSelectedPIDTable.useGenericSelection ? config.global.lastCutGeneric : allCuts.back();
+    const auto lastCut = config.global.selection=="Default"&&config.makeSelectedPIDTable.useGenericSelection ? config.global.lastCutGeneric : allCuts.back();
 
     std::cout << "Getting PID table after cut: " << lastCut << std::endl;
 

@@ -103,6 +103,74 @@ TVector3 RecoHelper::GetRecoNeutrinoVertex(const art::Event &event, const PFPart
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
 
+float RecoHelper::GetRecoFlashChi2(const art::Event &event, const PFParticleVector &allPFParticles, const art::InputTag &pfparticleLabel, const art::InputTag &flashmatchLabel)
+{
+    const auto nuFlashScoreAssoc = CollectionHelper::GetAssociation<recob::PFParticle, anab::T0>(event, pfparticleLabel, flashmatchLabel);
+
+    try
+    {
+        const auto neutrino = RecoHelper::GetNeutrino(allPFParticles);
+
+        const auto T0_flashchi = CollectionHelper::GetSingleAssociated(neutrino, nuFlashScoreAssoc);
+
+        return (float)T0_flashchi->TriggerConfidence();
+    }
+    catch (const cet::exception &)
+    {
+        return -std::numeric_limits<float>::max();
+    }
+}
+
+// -----------------------------------------------------------------------------------------------------------------------------------------
+
+float RecoHelper::GetRecoFlashTime(const art::Event &event, const PFParticleVector &allPFParticles, const art::InputTag &pfparticleLabel, const art::InputTag &flashmatchLabel)
+{
+    const auto nuFlashScoreAssoc = CollectionHelper::GetAssociation<recob::PFParticle, anab::T0>(event, pfparticleLabel, flashmatchLabel);
+
+    try
+    {
+        const auto neutrino = RecoHelper::GetNeutrino(allPFParticles);
+
+        const auto T0_flashchi = CollectionHelper::GetSingleAssociated(neutrino, nuFlashScoreAssoc);
+
+        return (float)T0_flashchi->Time();
+    }
+    catch (const cet::exception &)
+    {
+        return -std::numeric_limits<float>::max();
+    }
+}
+
+// -----------------------------------------------------------------------------------------------------------------------------------------
+
+art::Ptr<recob::OpFlash> RecoHelper::GetLargestFlash(const art::Event &event, const art::InputTag &flashLabel)
+{
+    float flash_pe = -std::numeric_limits<float>::max();
+    int f_largest = -1;
+
+    try
+    {
+        const auto flashes = CollectionHelper::GetCollection<recob::OpFlash>(event, flashLabel);
+
+        for (size_t f=0; f< flashes.size(); f++){
+            auto flash = flashes.at(f);
+
+            if (flash->TotalPE() > flash_pe){
+                flash_pe = flash->TotalPE();
+                f_largest = (int)f;
+            }
+        } // end loop over f in flashes
+
+        return flashes.at(f_largest);
+    }
+    catch (const cet::exception &)
+    {
+        throw cet::exception("RecoHelper::GetLargestFlash") << " - Didn't find a largest flash." << std::endl;
+    }
+}
+
+// -----------------------------------------------------------------------------------------------------------------------------------------
+
 art::Ptr<recob::PFParticle> RecoHelper::GetParent(const art::Ptr<recob::PFParticle> &particle, const PFParticleMap &pfParticleMap)
 {
     if (particle->IsPrimary())

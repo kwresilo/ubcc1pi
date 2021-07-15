@@ -263,6 +263,23 @@ void EventFactory::PopulateEventRecoInfo(const art::Event &event, const Config &
     const auto finalStatePFParticles = RecoHelper::GetNeutrinoFinalStates(allPFParticles);
     reco.nFinalStates.Set(finalStatePFParticles.size());
 
+    const auto flashChi2 = RecoHelper::GetRecoFlashChi2(event, neutrinos, config.PFParticleLabel(), config.FlashMatchLabel());
+    reco.flashChi2.Set(flashChi2);
+
+    const auto flashTime = RecoHelper::GetRecoFlashTime(event, neutrinos, config.PFParticleLabel(), config.FlashMatchLabel());
+    reco.flashTime.Set(flashTime);
+
+    // Find the largest flash and save information. This is making an assumption that the largest flash is the one associated to the neutrino event but that's generally true
+    const auto largestFlash = RecoHelper::GetLargestFlash(event, config.FlashLabel());
+
+    reco.largestFlashPE.Set((float)largestFlash->TotalPE());
+    reco.largestFlashTime.Set((float)largestFlash->Time());
+    reco.largestFlashTimeWidth.Set((float)largestFlash->TimeWidth());
+    reco.largestFlashYCtr.Set((float)largestFlash->YCenter());
+    reco.largestFlashYWidth.Set((float)largestFlash->YWidth());
+    reco.largestFlashZCtr.Set((float)largestFlash->ZCenter());
+    reco.largestFlashZWidth.Set((float)largestFlash->ZWidth());
+
     // If we have truth info, then run the reco-true-matching
     std::shared_ptr<BacktrackHelper::BacktrackerData> pBacktrackerData;
     if (config.HasTruthInfo())

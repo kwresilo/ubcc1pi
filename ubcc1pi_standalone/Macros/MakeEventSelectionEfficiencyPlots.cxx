@@ -21,7 +21,7 @@ namespace ubcc1pi_macros
 void MakeEventSelectionEfficiencyPlots(const Config &config)
 {
     // Get the selection
-    auto selection = SelectionHelper::GetDefaultSelection();
+    auto selection = SelectionHelper::GetSelection(config.global.selection);
     const auto allCuts = selection.GetCuts();
 
     std::cout << "Making plots for cuts:" << std::endl;
@@ -62,6 +62,32 @@ void MakeEventSelectionEfficiencyPlots(const Config &config)
     auto plot_ccinc_piMomentumGolden = PlottingHelper::EfficiencyPlot("True golden pion momentum / GeV", 30u, 0.f, 0.4f, allCuts, drawErrors);
     auto plot_ccinc_piCosThetaGolden = PlottingHelper::EfficiencyPlot("True golden pion cos(theta)", 30u, -1.f, 1.0f, allCuts, drawErrors);
     auto plot_ccinc_piPhiGolden = PlottingHelper::EfficiencyPlot("True golden pion phi / rad", 30u, -3.142, 3.142f, allCuts, drawErrors);
+
+    // 2D efficiencies
+    // Only do these for true efficiency (i.e. not wrt CCinclusive), and final selection
+    TH2F *Generated_AllPionMomentumCosTheta = new TH2F("Generated_AllPionMomentumCosTheta",";True #pi^{+} Momentum / GeV;True #pi^{+} cos(theta) / rad", 30,0,1.5,20, -1, 1);
+    TH2F *Generated_AllPionCosThetaPhi = new TH2F("Generated_AllPionCosThetaPhi",";True #pi^{+} cos(theta);True #pi^{+} phi / rad",20,-1,1,15, -TMath::Pi(), TMath::Pi());
+    TH2F *Generated_AllPionMomentumPhi = new TH2F("Generated_AllPionMomentumPhi",";True #pi^{+} Momentum / GeV;True #pi^{+} phi / rad", 20,0,1.5,15, -TMath::Pi(), TMath::Pi());
+
+    TH2F *Generated_GoldenPionMomentumCosTheta = new TH2F("Generated_GoldenPionMomentumCosTheta",";True #pi^{+} Momentum / GeV;True #pi^{+} cos(theta) / rad", 30,0,1.5,20, -1, 1);
+    TH2F *Generated_GoldenPionCosThetaPhi = new TH2F("Generated_GoldenPionCosThetaPhi",";True #pi^{+} cos(theta);True #pi^{+} phi / rad",20,-1,1,15, -TMath::Pi(), TMath::Pi());
+    TH2F *Generated_GoldenPionMomentumPhi = new TH2F("Generated_GoldenPionMomentumPhi",";True #pi^{+} Momentum / GeV;True #pi^{+} phi / rad", 20,0,1.5,15, -TMath::Pi(), TMath::Pi());
+
+    TH2F *GenericSel_AllPionMomentumCosTheta = new TH2F("GenericSel_AllPionMomentumCosTheta",";True #pi^{+} Momentum / GeV;True #pi^{+} cos(theta) / rad", 30,0,1.5,20, -1, 1);
+    TH2F *GenericSel_AllPionCosThetaPhi = new TH2F("GenericSel_AllPionCosThetaPhi",";True #pi^{+} cos(theta);True #pi^{+} phi / rad",20,-1,1,15, -TMath::Pi(), TMath::Pi());
+    TH2F *GenericSel_AllPionMomentumPhi = new TH2F("GenericSel_AllPionMomentumPhi",";True #pi^{+} Momentum / GeV;True #pi^{+} phi / rad", 20,0,1.5,15, -TMath::Pi(), TMath::Pi());
+
+    TH2F *GenericSel_GoldenPionMomentumCosTheta = new TH2F("GenericSel_GoldenPionMomentumCosTheta",";True #pi^{+} Momentum / GeV;True #pi^{+} cos(theta) / rad", 30,0,1.5,20, -1, 1);
+    TH2F *GenericSel_GoldenPionCosThetaPhi = new TH2F("GenericSel_GoldenPionCosThetaPhi",";True #pi^{+} cos(theta);True #pi^{+} phi / rad",20,-1,1,15, -TMath::Pi(), TMath::Pi());
+    TH2F *GenericSel_GoldenPionMomentumPhi = new TH2F("GenericSel_GoldenPionMomentumPhi",";True #pi^{+} Momentum / GeV;True #pi^{+} phi / rad", 20,0,1.5,15, -TMath::Pi(), TMath::Pi());
+
+    TH2F *GoldenSel_AllPionMomentumCosTheta = new TH2F("GoldenSel_AllPionMomentumCosTheta",";True #pi^{+} Momentum / GeV;True #pi^{+} cos(theta) / rad", 30,0,1.5,20, -1, 1);
+    TH2F *GoldenSel_AllPionCosThetaPhi = new TH2F("GoldenSel_AllPionCosThetaPhi",";True #pi^{+} cos(theta);True #pi^{+} phi / rad",20,-1,1,15, -TMath::Pi(), TMath::Pi());
+    TH2F *GoldenSel_AllPionMomentumPhi = new TH2F("GoldenSel_AllPionMomentumPhi",";True #pi^{+} Momentum / GeV;True #pi^{+} phi / rad", 20,0,1.5,15, -TMath::Pi(), TMath::Pi());
+
+    TH2F *GoldenSel_GoldenPionMomentumCosTheta = new TH2F("GoldenSel_GoldenPionMomentumCosTheta",";True #pi^{+} Momentum / GeV;True #pi^{+} cos(theta) / rad", 30,0,1.5,20, -1, 1);
+    TH2F *GoldenSel_GoldenPionCosThetaPhi = new TH2F("GoldenSel_GoldenPionCosThetaPhi",";True #pi^{+} cos(theta);True #pi^{+} phi / rad",20,-1,1,15, -TMath::Pi(), TMath::Pi());
+    TH2F *GoldenSel_GoldenPionMomentumPhi = new TH2F("GoldenSel_GoldenPionMomentumPhi",";True #pi^{+} Momentum / GeV;True #pi^{+} phi / rad", 20,0,1.5,15, -TMath::Pi(), TMath::Pi());
 
     // Run the selection
     const auto nEvents = reader.GetNumberOfEvents();
@@ -126,6 +152,46 @@ void MakeEventSelectionEfficiencyPlots(const Config &config)
                 }
             }
         }
+
+        const auto passedGenericSelection = (std::find(cutsPassed.begin(), cutsPassed.end(), config.global.lastCutGeneric) != cutsPassed.end());
+
+        // Fill 2D plots
+        Generated_AllPionMomentumCosTheta->Fill(analysisData.pionMomentum, analysisData.pionCosTheta, weight);
+        Generated_AllPionCosThetaPhi->Fill(analysisData.pionCosTheta, analysisData.pionPhi, weight);
+        Generated_AllPionMomentumPhi->Fill(analysisData.pionMomentum, analysisData.pionPhi, weight);
+
+        if (passedGenericSelection){
+            GenericSel_AllPionMomentumCosTheta->Fill(analysisData.pionMomentum, analysisData.pionCosTheta, weight);
+            GenericSel_AllPionCosThetaPhi->Fill(analysisData.pionCosTheta, analysisData.pionPhi, weight);
+            GenericSel_AllPionMomentumPhi->Fill(analysisData.pionMomentum, analysisData.pionPhi, weight);
+        }
+
+        if (isSelected){
+            GoldenSel_AllPionMomentumCosTheta->Fill(analysisData.pionMomentum, analysisData.pionCosTheta, weight);
+            GoldenSel_AllPionCosThetaPhi->Fill(analysisData.pionCosTheta, analysisData.pionPhi, weight);
+            GoldenSel_AllPionMomentumPhi->Fill(analysisData.pionMomentum, analysisData.pionPhi, weight);
+        }
+
+
+        // Fill efficiency plots for the case that there is a true golden pion
+        if (analysisData.hasGoldenPion){
+            Generated_GoldenPionMomentumCosTheta->Fill(analysisData.pionMomentum, analysisData.pionCosTheta, weight);
+            Generated_GoldenPionCosThetaPhi->Fill(analysisData.pionCosTheta, analysisData.pionPhi, weight);
+            Generated_GoldenPionMomentumPhi->Fill(analysisData.pionMomentum, analysisData.pionPhi, weight);
+
+            if (passedGenericSelection){
+                GenericSel_GoldenPionMomentumCosTheta->Fill(analysisData.pionMomentum, analysisData.pionCosTheta, weight);
+                GenericSel_GoldenPionCosThetaPhi->Fill(analysisData.pionCosTheta, analysisData.pionPhi, weight);
+                GenericSel_GoldenPionMomentumPhi->Fill(analysisData.pionMomentum, analysisData.pionPhi, weight);
+            }
+
+            if (isSelected){
+                GoldenSel_GoldenPionMomentumCosTheta->Fill(analysisData.pionMomentum, analysisData.pionCosTheta, weight);
+                GoldenSel_GoldenPionCosThetaPhi->Fill(analysisData.pionCosTheta, analysisData.pionPhi, weight);
+                GoldenSel_GoldenPionMomentumPhi->Fill(analysisData.pionMomentum, analysisData.pionPhi, weight);
+            }
+        }
+
     }
 
     plot_nuEnergy.SaveAs("efficiency_nuEnergy");
@@ -169,6 +235,70 @@ void MakeEventSelectionEfficiencyPlots(const Config &config)
     plot_ccinc_piMomentumGolden.SaveAs(cuts, styles, "efficiency_ccinc_piMomentumGolden_bottomLine");
     plot_ccinc_piCosThetaGolden.SaveAs(cuts, styles, "efficiency_ccinc_piCosThetaGolden_bottomLine");
     plot_ccinc_piPhiGolden.SaveAs(cuts, styles, "efficiency_ccinc_piPhiGolden_bottomLine");
+
+    auto pCanvas = PlottingHelper::GetCanvas();
+
+    GenericSel_AllPionMomentumCosTheta->Sumw2();
+    GenericSel_AllPionMomentumCosTheta->Divide(Generated_AllPionMomentumCosTheta);
+    GenericSel_AllPionMomentumCosTheta->GetZaxis()->SetRangeUser(0,0.3);
+    GenericSel_AllPionMomentumCosTheta->Draw("colz");
+    PlottingHelper::SaveCanvas(pCanvas,"GenericSel_AllPionMomentumCosTheta");
+    GenericSel_AllPionCosThetaPhi->Sumw2();
+    GenericSel_AllPionCosThetaPhi->Divide(Generated_AllPionCosThetaPhi);
+    GenericSel_AllPionCosThetaPhi->GetZaxis()->SetRangeUser(0,0.3);
+    GenericSel_AllPionCosThetaPhi->Draw("colz");
+    PlottingHelper::SaveCanvas(pCanvas,"GenericSel_AllPionCosThetaPhi");
+    GenericSel_AllPionMomentumPhi->Sumw2();
+    GenericSel_AllPionMomentumPhi->Divide(Generated_AllPionMomentumPhi);
+    GenericSel_AllPionMomentumPhi->GetZaxis()->SetRangeUser(0,0.3);
+    GenericSel_AllPionMomentumPhi->Draw("colz");
+    PlottingHelper::SaveCanvas(pCanvas,"GenericSel_AllPionMomentumPhi");
+    GenericSel_GoldenPionMomentumCosTheta->Sumw2();
+    GenericSel_GoldenPionMomentumCosTheta->Divide(Generated_GoldenPionMomentumCosTheta);
+    GenericSel_GoldenPionMomentumCosTheta->GetZaxis()->SetRangeUser(0,0.3);
+    GenericSel_GoldenPionMomentumCosTheta->Draw("colz");
+    PlottingHelper::SaveCanvas(pCanvas,"GenericSel_GoldenPionMomentumCosTheta");
+    GenericSel_GoldenPionCosThetaPhi->Sumw2();
+    GenericSel_GoldenPionCosThetaPhi->Divide(Generated_GoldenPionCosThetaPhi);
+    GenericSel_GoldenPionCosThetaPhi->GetZaxis()->SetRangeUser(0,0.3);
+    GenericSel_GoldenPionCosThetaPhi->Draw("colz");
+    PlottingHelper::SaveCanvas(pCanvas,"GenericSel_GoldenPionCosThetaPhi");
+    GenericSel_GoldenPionMomentumPhi->Sumw2();
+    GenericSel_GoldenPionMomentumPhi->Divide(Generated_GoldenPionMomentumPhi);
+    GenericSel_GoldenPionMomentumPhi->GetZaxis()->SetRangeUser(0,0.3);
+    GenericSel_GoldenPionMomentumPhi->Draw("colz");
+    PlottingHelper::SaveCanvas(pCanvas,"GenericSel_GoldenPionMomentumPhi");
+
+    GoldenSel_AllPionMomentumCosTheta->Sumw2();
+    GoldenSel_AllPionMomentumCosTheta->Divide(Generated_AllPionMomentumCosTheta);
+    GoldenSel_AllPionMomentumCosTheta->GetZaxis()->SetRangeUser(0,0.3);
+    GoldenSel_AllPionMomentumCosTheta->Draw("colz");
+    GoldenSel_AllPionCosThetaPhi->Sumw2();
+    PlottingHelper::SaveCanvas(pCanvas,"GoldenSel_AllPionMomentumCosTheta");
+    GoldenSel_AllPionCosThetaPhi->Divide(Generated_AllPionCosThetaPhi);
+    GoldenSel_AllPionCosThetaPhi->GetZaxis()->SetRangeUser(0,0.3);
+    GoldenSel_AllPionCosThetaPhi->Draw("colz");
+    PlottingHelper::SaveCanvas(pCanvas,"GoldenSel_AllPionCosThetaPhi");
+    GoldenSel_AllPionMomentumPhi->Sumw2();
+    GoldenSel_AllPionMomentumPhi->Divide(Generated_AllPionMomentumPhi);
+    GoldenSel_AllPionMomentumPhi->GetZaxis()->SetRangeUser(0,0.3);
+    GoldenSel_AllPionMomentumPhi->Draw("colz");
+    PlottingHelper::SaveCanvas(pCanvas,"GoldenSel_AllPionMomentumPhi");
+    GoldenSel_GoldenPionMomentumCosTheta->Sumw2();
+    GoldenSel_GoldenPionMomentumCosTheta->Divide(Generated_GoldenPionMomentumCosTheta);
+    GoldenSel_GoldenPionMomentumCosTheta->GetZaxis()->SetRangeUser(0,0.3);
+    GoldenSel_GoldenPionMomentumCosTheta->Draw("colz");
+    PlottingHelper::SaveCanvas(pCanvas,"GoldenSel_GoldenPionMomentumCosTheta");
+    GoldenSel_GoldenPionCosThetaPhi->Sumw2();
+    GoldenSel_GoldenPionCosThetaPhi->Divide(Generated_GoldenPionCosThetaPhi);
+    GoldenSel_GoldenPionCosThetaPhi->GetZaxis()->SetRangeUser(0,0.3);
+    GoldenSel_GoldenPionCosThetaPhi->Draw("colz");
+    PlottingHelper::SaveCanvas(pCanvas,"GoldenSel_GoldenPionCosThetaPhi");
+    GoldenSel_GoldenPionMomentumPhi->Sumw2();
+    GoldenSel_GoldenPionMomentumPhi->Divide(Generated_GoldenPionMomentumPhi);
+    GoldenSel_GoldenPionMomentumPhi->GetZaxis()->SetRangeUser(0,0.3);
+    GoldenSel_GoldenPionMomentumPhi->Draw("colz");
+    PlottingHelper::SaveCanvas(pCanvas,"GoldenSel_GoldenPionMomentumPhi");
 }
 
 } // namespace ubcc1pi_macros

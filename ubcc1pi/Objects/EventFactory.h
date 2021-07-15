@@ -213,6 +213,24 @@ class EventFactory
                 fhicl::Name("LengthFraction"),
                 fhicl::Comment("The fration of the track range to consider at the start of the track when calculating the truncated mean dEdx")
             };
+
+            /**
+             *  @brief  The PFP-flash matching label
+             */
+            fhicl::Atom<art::InputTag> FlashMatchLabel
+            {
+                fhicl::Name("FlashMatchLabel"),
+                fhicl::Comment("The label for the Flash Matching producer")
+            };
+
+            /**
+             *  @brief  The flash label (OpFlash data product)
+             */
+            fhicl::Atom<art::InputTag> FlashLabel
+            {
+                fhicl::Name("FlashLabel"),
+                fhicl::Comment("The label for the Flash producer (OpFlash)")
+            };
         };
 
         /**
