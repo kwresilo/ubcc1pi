@@ -169,14 +169,17 @@ CrossSectionHelper::CrossSection::CrossSection(const SystParams &systParams, con
     // Setup the maps to hold the histograms for the multisim parameters
     m_signal_true_multisims.emplace("flux", CrossSectionHelper::GetSystTH1FMap(binEdges, systParams.fluxDimensions));
     m_signal_true_multisims.emplace("xsec", CrossSectionHelper::GetSystTH1FMap(binEdges, systParams.xsecDimensions));
+    m_signal_true_multisims.emplace("reint", CrossSectionHelper::GetSystTH1FMap(binEdges, systParams.reintDimensions));
     m_signal_true_multisims.emplace("misc", CrossSectionHelper::GetSystTH1FMap(binEdges, miscDimensions));
 
     m_signal_selected_recoTrue_multisims.emplace("flux", CrossSectionHelper::GetSystTH2FMap(binEdges, systParams.fluxDimensions));
     m_signal_selected_recoTrue_multisims.emplace("xsec", CrossSectionHelper::GetSystTH2FMap(binEdges, systParams.xsecDimensions));
+    m_signal_selected_recoTrue_multisims.emplace("reint", CrossSectionHelper::GetSystTH2FMap(binEdges, systParams.reintDimensions));
     m_signal_selected_recoTrue_multisims.emplace("misc", CrossSectionHelper::GetSystTH2FMap(binEdges, miscDimensions));
 
     m_background_selected_reco_multisims.emplace("flux", CrossSectionHelper::GetSystTH1FMap(binEdges, systParams.fluxDimensions));
     m_background_selected_reco_multisims.emplace("xsec", CrossSectionHelper::GetSystTH1FMap(binEdges, systParams.xsecDimensions));
+    m_background_selected_reco_multisims.emplace("reint", CrossSectionHelper::GetSystTH1FMap(binEdges, systParams.reintDimensions));
     m_background_selected_reco_multisims.emplace("misc", CrossSectionHelper::GetSystTH1FMap(binEdges, miscDimensions));
 
     // Setup the maps to hold the histograms for the unisim parameters
@@ -189,7 +192,8 @@ CrossSectionHelper::CrossSection::CrossSection(const SystParams &systParams, con
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
 
-void CrossSectionHelper::CrossSection::AddSignalEvent(const float recoValue, const float trueValue, const bool isSelected, const float nominalWeight, const SystFloatMap &fluxWeights, const SystFloatMap &xsecWeights)
+void CrossSectionHelper::CrossSection::AddSignalEvent(const float recoValue, const float trueValue, const bool isSelected, 
+    const float nominalWeight, const SystFloatMap &fluxWeights, const SystFloatMap &xsecWeights, const SystFloatMap &reintWeights)
 {
     // Get the miscellaneous weights
     const SystFloatMap miscWeights = {
@@ -204,6 +208,7 @@ void CrossSectionHelper::CrossSection::AddSignalEvent(const float recoValue, con
     m_pSignal_true_nom->Fill(trueValue, nominalWeight);
     CrossSectionHelper::FillSystTH1FMap(trueValue, nominalWeight, fluxWeights, m_signal_true_multisims.at("flux"));
     CrossSectionHelper::FillSystTH1FMap(trueValue, nominalWeight, xsecWeights, m_signal_true_multisims.at("xsec"));
+    CrossSectionHelper::FillSystTH1FMap(trueValue, nominalWeight, reintWeights, m_signal_true_multisims.at("reint"));
     CrossSectionHelper::FillSystTH1FMap(trueValue, nominalWeight, miscWeights, m_signal_true_multisims.at("misc"));
 
     if (!isSelected)
@@ -213,6 +218,7 @@ void CrossSectionHelper::CrossSection::AddSignalEvent(const float recoValue, con
     m_pSignal_selected_recoTrue_nom->Fill(recoValue, trueValue, nominalWeight);
     CrossSectionHelper::FillSystTH2FMap(recoValue, trueValue, nominalWeight, fluxWeights, m_signal_selected_recoTrue_multisims.at("flux"));
     CrossSectionHelper::FillSystTH2FMap(recoValue, trueValue, nominalWeight, xsecWeights, m_signal_selected_recoTrue_multisims.at("xsec"));
+    CrossSectionHelper::FillSystTH2FMap(recoValue, trueValue, nominalWeight, reintWeights, m_signal_selected_recoTrue_multisims.at("reint"));
     CrossSectionHelper::FillSystTH2FMap(recoValue, trueValue, nominalWeight, miscWeights, m_signal_selected_recoTrue_multisims.at("misc"));
 }
 
@@ -233,7 +239,8 @@ void CrossSectionHelper::CrossSection::AddSignalEventDetVar(const float recoValu
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
 
-void CrossSectionHelper::CrossSection::AddSelectedBackgroundEvent(const float recoValue, const bool isDirt, const float nominalWeight, const SystFloatMap &fluxWeights, const SystFloatMap &xsecWeights)
+void CrossSectionHelper::CrossSection::AddSelectedBackgroundEvent(const float recoValue, const bool isDirt, const float nominalWeight,
+    const SystFloatMap &fluxWeights, const SystFloatMap &xsecWeights, const SystFloatMap &reintWeights)
 {
     // The weight to apply as a result of dirt
     //   - For non-dirt events, just use zero (i.e. no change from the nominal simulation)
@@ -253,6 +260,7 @@ void CrossSectionHelper::CrossSection::AddSelectedBackgroundEvent(const float re
     m_pBackground_selected_reco_nom->Fill(recoValue, nominalWeight);
     CrossSectionHelper::FillSystTH1FMap(recoValue, nominalWeight, fluxWeights, m_background_selected_reco_multisims.at("flux"));
     CrossSectionHelper::FillSystTH1FMap(recoValue, nominalWeight, xsecWeights, m_background_selected_reco_multisims.at("xsec"));
+    CrossSectionHelper::FillSystTH1FMap(recoValue, nominalWeight, reintWeights, m_background_selected_reco_multisims.at("reint"));
     CrossSectionHelper::FillSystTH1FMap(recoValue, nominalWeight, miscWeights, m_background_selected_reco_multisims.at("misc"));
 }
 

@@ -267,6 +267,7 @@ class CrossSectionHelper
                     unsigned int             nBootstrapUniverses; ///< The number of bootstrap universes to use for the MC stat uncertainty
                     SystDimensionsMap        fluxDimensions;      ///< The dimensions of the flux systematic parameters
                     SystDimensionsMap        xsecDimensions;      ///< The dimensions of the cross-section systematic parameters
+                    SystDimensionsMap        reintDimensions;      ///< The dimensions of the reinteraction systematic parameters
                     SystUnisimDimensionsMap  detVarDimensions;    ///< The detector variation systematic parameters (and their central-value sample identifiers)
                     float                    potFracUncertainty;  ///< The fractional uncertainty on the POT counting
                 };
@@ -307,7 +308,7 @@ class CrossSectionHelper
                 *  @param  fluxWeights the flux systematic event weights
                 *  @param  xsecWeights the cross-section systematic event weights
                 */
-                void AddSignalEvent(const float recoValue, const float trueValue, const bool isSelected, const float nominalWeight, const SystFloatMap &fluxWeights, const SystFloatMap &xsecWeights);
+                void AddSignalEvent(const float recoValue, const float trueValue, const bool isSelected, const float nominalWeight, const SystFloatMap &fluxWeights, const SystFloatMap &xsecWeights, const SystFloatMap &reintWeights);
 
                 /**
                 *  @brief  Add a simulated signal event from a detector variation sample
@@ -335,7 +336,7 @@ class CrossSectionHelper
                 *  @param  fluxWeights the flux systematic event weights
                 *  @param  xsecWeights the cross-section systematic event weights
                 */
-                void AddSelectedBackgroundEvent(const float recoValue, const bool isDirt, const float nominalWeight, const SystFloatMap &fluxWeights, const SystFloatMap &xsecWeights);
+                void AddSelectedBackgroundEvent(const float recoValue, const bool isDirt, const float nominalWeight, const SystFloatMap &fluxWeights, const SystFloatMap &xsecWeights, const SystFloatMap &reintWeights);
 
                 /**
                 *  @brief  Add a simulated selected background event from a detector variation sample

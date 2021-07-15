@@ -395,6 +395,13 @@ void ExtractXSecs(const Config &config)
                     : CrossSectionHelper::GetUnitWeightsMap(systParams.fluxDimensions)
             );
 
+            // Get the reinteraction weights
+            const auto reintWeights = (
+                isOverlay
+                    ? CrossSectionHelper::GetWeightsMap(pEvent->truth, systParams.reintDimensions, config.extractXSecs.mutuallyExclusiveDimensions)
+                    : CrossSectionHelper::GetUnitWeightsMap(systParams.reintDimensions)
+            );
+
             // Fill the flux-reweightor with all overlay events from a neutrinos of the desired flavour in the active volume
             if (isOverlay && AnalysisHelper::IsInActiveVolume(pEvent->truth.nuVertex()) &&
                 std::find(config.flux.nuPdgsSignal.begin(), config.flux.nuPdgsSignal.end(), pEvent->truth.nuPdgCode()) != config.flux.nuPdgsSignal.end())
@@ -425,7 +432,7 @@ void ExtractXSecs(const Config &config)
                         const auto recoValue = getValue.at(name)(recoData);
                         const auto trueValue = getValue.at(name)(truthData);
 
-                        xsec.AddSignalEvent(recoValue, trueValue, isSelected, weight, fluxWeights, xsecWeights);
+                        xsec.AddSignalEvent(recoValue, trueValue, isSelected, weight, fluxWeights, xsecWeights, reintWeights);
                     }
                 }
             }
@@ -442,7 +449,7 @@ void ExtractXSecs(const Config &config)
                     for (auto &[name, xsec] : xsecs)
                     {
                         const auto recoValue = getValue.at(name)(recoData);
-                        xsec.AddSelectedBackgroundEvent(recoValue, isDirt, weight, fluxWeights, xsecWeights);
+                        xsec.AddSelectedBackgroundEvent(recoValue, isDirt, weight, fluxWeights, xsecWeights, reintWeights);
                     }
                 }
             }

@@ -406,23 +406,31 @@ struct Config
         }; ///< A mapping from the flux parameter names to the number of universes
 
         CrossSectionHelper::SystDimensionsMap xsecDimensions = {
-            {"All_Genie",             100u},
-            {"AxFFCCQEshape_Genie",   2u},
-            {"DecayAngMEC_Genie",     2u},
-            {"MaNCRES_Genie",         2u},
-            {"Theta_Delta2Npi_Genie", 2u},
-            {"VecFFCCQEshape_Genie",  2u}
+            {"All_UBGenie",             100u},
+            {"AxFFCCQEshape_UBGenie",   2u},
+            {"DecayAngMEC_UBGenie",     2u},
+            {"MaNCRES_UBGenie",         2u},
+            {"Theta_Delta2Npi_UBGenie", 2u},
+            {"VecFFCCQEshape_UBGenie",  2u},
+            {"xsr_scc_Fa3_SCC",         10u},
+            {"xsr_scc_Fv3_SCC",         10u}
         }; ///< A mapping from the cross-section parameter names to the number of universes
+
+        CrossSectionHelper::SystDimensionsMap reintDimensions = {
+            {"reinteractions_piminus_Geant4", 1000u},
+            {"reinteractions_piplus_Geant4",  1000u},
+            {"reinteractions_proton_Geant4",  1000u}
+        }; ///< A mapping from the reinteraction parameter names to the number of universes
 
         CrossSectionHelper::SystUnisimDimensionsMap detVarDimensions = {
             {"LYDown",         "CVRun1"},
             {"LYRayleigh",     "CVRun1"},
-            {"SCE",            "CVRun3b"},
-            {"Recomb2",        "CVRun3b"},
-            {"WireModX",       "CVRun3b"},
-            {"WireModYZ",      "CVRun3b"},
-            {"WireModThetaXZ", "CVRun3b"},
-            {"WireModThetaYZ", "CVRun3b"},
+            {"SCE",            "CVRun1"},
+            {"Recomb2",        "CVRun1"},
+            {"WireModX",       "CVRun1"},
+            {"WireModYZ",      "CVRun1"},
+            {"WireModThetaXZ", "CVRun1"},
+            {"WireModThetaYZ", "CVRun1"},
         }; ///< A mapping from the detector variation sample identifiers, to the identifiers for their relevant central-value sample
 
         /**
