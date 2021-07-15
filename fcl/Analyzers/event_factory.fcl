@@ -3,7 +3,7 @@ BEGIN_PROLOG
 event_factory_config:
 {
     # Truth labels
-    MCEventWeightLabel: "eventweight"
+    MCEventWeightLabel: "eventweightSep24"
     MCTruthLabel:       "generator"
     MCParticleLabel:    "largeant"
     BacktrackerLabel:   "gaushitTruthMatch"
