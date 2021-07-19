@@ -10,7 +10,7 @@ analysed within the LArSoft framework. The actual physics logic of the analysis 
 Setup your uBooNE suite LArSoft development area using `mrb` as usual (see
 [here](https://cdcvs.fnal.gov/redmine/projects/uboonecode/wiki/Uboone_guide) for more details). Then follow the steps below:
 
-```
+```shell
 # Clone this package in your sources directory
 # Note that we here use the recurse-submodules option because we also want to pick up the ubsmear submodule
 cd $MRB_SOURCE
@@ -29,9 +29,36 @@ mrb install -j4
 mrbslp
 ```
 
+### Additional steps
+A small number of overlay files produce an error. To avoid this, it is necessary to also add `ubana` to your local products
+and modify a few lines to catch an exception.
+
+```shell
+# Get a copy of ubana
+cd $MRB_SOURCE
+mrb g ubana
+cd ubana
+git checkout $UBANA_VERSION
+```
+
+In the file `/ubana/Calibrations/CalibrationdEdX_module.cc` add a try-catch block to the method `void ub::CalibrationdEdX::produce(art::Event & evt)`: 
+```cpp
+for (size_t j = 0; j<vdQdx.size(); ++j){
+  float yzcorrection{1.0};
+  float xcorrection{1.0};
+  try{yzcorrection = energyCalibProvider.YZdqdxCorrection(planeID.Plane, vXYZ[j].Y(), vXYZ[j].Z());}
+  catch(const lariov::IOVDataError &){std::cout << "Error - Unable to obtain yzcorrection in ubana/Calibrations/CalibrationdEdX_module.cc\n";}
+  try{ xcorrection  = energyCalibProvider.XdqdxCorrection(planeID.Plane, vXYZ[j].X());}
+  catch(const lariov::IOVDataError &){std::cout << "Error - Unable to obtain xcorrection in ubana/Calibrations/CalibrationdEdX_module.cc\n";}
+  float elifetime  = elifetimeCalibProvider.Lifetime(); // [ms]
+  float driftvelocity = detprop->DriftVelocity(); // [cm/us]
+```
+
+Finally, repeat the initial installation steps starting with `mrbsetenv`.
+
 ## Installation for standalone analysis
 
-```
+```shell
 # Clone this repository in your desired area
 git clone --recurse-submodules https://github.com/a-d-smith/ubcc1pi.git
 
