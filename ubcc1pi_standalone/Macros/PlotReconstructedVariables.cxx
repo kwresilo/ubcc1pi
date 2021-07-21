@@ -1,7 +1,7 @@
 /**
- *  @file  ubcc1pi_standalone/Macros/PlotReconstructedVariables.cxx
+ *  @file  ubcc1pi_standalone/Macros/PlotProtonVariables.cxx
  *
- *  @brief The implementation file of the PlotReconstructedVariables macro
+ *  @brief The implementation file of the PlotProtonVariables macro
  */
 
 #include "ubcc1pi_standalone/Macros/Macros.h"
@@ -19,7 +19,7 @@ using namespace ubcc1pi;
 namespace ubcc1pi_macros
 {
 
-void PlotReconstructedVariables(const Config &config)
+void PlotProtonVariables(const Config &config)
 {
     //
     // Setup the input files
@@ -40,19 +40,15 @@ void PlotReconstructedVariables(const Config &config)
     PlottingHelper::MultiPlot muonMomentumPlot("Muon momentum / GeV", yLabel, config.global.muonMomentum.binEdges);
     PlottingHelper::MultiPlot muonCosThetaPlot("Muon cos(theta)", yLabel, config.global.muonCosTheta.binEdges);
     PlottingHelper::MultiPlot muonPhiPlot("Muon phi / rad", yLabel, config.global.muonPhi.binEdges);
-
     PlottingHelper::MultiPlot muonMomentumParticlePlot("Muon momentum / GeV", yLabel, config.global.muonMomentum.binEdges);
     PlottingHelper::MultiPlot muonCosThetaParticlePlot("Muon cos(theta)", yLabel, config.global.muonCosTheta.binEdges);
     PlottingHelper::MultiPlot muonPhiParticlePlot("Muon phi / rad", yLabel, config.global.muonPhi.binEdges);
-
     PlottingHelper::MultiPlot pionMomentumPlot("Pion momentum / GeV", yLabel, config.global.pionMomentum.binEdges);
     PlottingHelper::MultiPlot pionCosThetaPlot("Pion cos(theta)", yLabel, config.global.pionCosTheta.binEdges);
     PlottingHelper::MultiPlot pionPhiPlot("Pion phi / rad", yLabel, config.global.pionPhi.binEdges);
-
     PlottingHelper::MultiPlot pionMomentumParticlePlot("Pion momentum / GeV", yLabel, config.global.pionMomentum.binEdges);
     PlottingHelper::MultiPlot pionCosThetaParticlePlot("Pion cos(theta)", yLabel, config.global.pionCosTheta.binEdges);
     PlottingHelper::MultiPlot pionPhiParticlePlot("Pion phi / rad", yLabel, config.global.pionPhi.binEdges);
-
     PlottingHelper::MultiPlot muonPionAnglePlot("Muon-pion opening angle / rad", yLabel, config.global.muonPionAngle.binEdges);
     PlottingHelper::MultiPlot nProtonsPlot("Proton multiplicity", yLabel, config.global.nProtons.binEdges);
     */

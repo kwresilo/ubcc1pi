@@ -212,6 +212,39 @@ struct Config
             {0, 1, 2, std::numeric_limits<float>::max()} // binEdges
         }; ///< The nProtons binning
 
+
+        // Additional plots requested by EB
+        // TODO: Values are only placeholders 
+        Binning protonCosTheta {
+            -1.f,                                                                              // min
+             1.f,                                                                              // max
+            {-1.f, -0.27f, 0.29f, 0.46f, 0.58f, 0.67f, 0.77f, 0.82f, 0.88f, 0.93f, 0.97f, 1.f} // binEdges
+        }; ///< The protonCosTheta binning
+
+        Binning protonPhi {
+            -3.142f,                                                     // min
+             3.142f,                                                     // max
+            PlottingHelper::GenerateUniformBinEdges(15, -3.142f, 3.142f) // binEdges
+        }; ///< The protonPhi binning
+
+        Binning protonMomentum {
+            0.15f,                                    // min
+            std::numeric_limits<float>::max(),        // max
+            {0.15f, 0.23f, 0.32f, 0.45f, 0.66f, 1.5f} // binEdges
+        }; ///< The protonMomentum binning
+
+        Binning protonPionAngle {
+            0.f,                                                   // min
+            2.65f,                                                 // max
+            {0.f, 0.49f, 0.93f, 1.26f, 1.57f, 1.88f, 2.21f, 2.65f} // binEdges
+        }; ///< The protonPionAngle binning
+
+        Binning protonMuonAngle {
+            0.f,                                                   // min
+            2.65f,                                                 // max
+            {0.f, 0.49f, 0.93f, 1.26f, 1.57f, 1.88f, 2.21f, 2.65f} // binEdges
+        }; ///< The protonMuonAngle binning
+
     };
     Global global; ///< The global configuration options
 
