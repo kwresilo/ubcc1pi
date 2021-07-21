@@ -169,6 +169,20 @@ namespace ubcc1pi_macros
     void PlotMuonRecoVariables(const Config &config = Config());
 
     /**
+     *  @brief  Plot the reconstructed variables for the highest-energy proton candidate
+     *
+     *  @param  config the input configuration
+     */
+    void PlotProtonVariables(const Config &config = Config());
+
+    /**
+     *  @brief  Plot stacked by interaction the true momentum for the highest-energy MC protons
+     *
+     *  @param  config the input configuration
+     */
+    void PlotProtonMomentumByInteraction(const Config &config = Config());
+
+    /**
      *  @brief  Plot the recontructed variables
      *
      *  @param  config the input configuration
@@ -229,7 +243,6 @@ namespace ubcc1pi_macros
      *  @param  config the input configuration
      */
     void MakeSidebandSamplePlots(const Config &config = Config());
-
 
     /**
      *  @brief  Top-level macro that runs the full analysis chain
