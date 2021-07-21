@@ -31,10 +31,10 @@ struct Config
     struct Files
     {
         // September overlays files contain systematic weights
-        std::string  overlaysFileName = "/Users/kduffy/Documents/uBooNE/Work/CC1pi_MCC9/Data/KDuffy_data_Jan2021/ubcc1pi_overlay_run1_5Jan2021.root"; ///< Overlays file name input
-        std::string  dirtFileName     = "/Users/kduffy/Documents/uBooNE/Work/CC1pi_MCC9/Data/KDuffy_data_Jan2021/ubcc1pi_dirt_5Jan2021.root";     ///< Dirt file name input
-        std::string  dataEXTFileName  = "/Users/kduffy/Documents/uBooNE/Work/CC1pi_MCC9/Data/KDuffy_data_Jan2021/ubcc1pi_extbnb_run1_combined_5Jan2021.root";  ///< EXT data file name input
-        std::string  dataBNBFileName  = "/Users/kduffy/Documents/uBooNE/Work/CC1pi_MCC9/Data/KDuffy_data_Jan2021/ubcc1pi_bnb_run1-C1_5Jan2021.root";  ///< BNB data file name input
+        std::string  overlaysFileName = "/uboone/data/users/jdetje/ubcc1pi/sep2020/ubcc1piAnalysis_overlays_19Jul21.root"; ///< Overlays file name input
+        std::string  dirtFileName     = "/uboone/data/users/jdetje/ubcc1pi/sep2020/ubcc1piAnalysis_dirt_19Jul21.root";     ///< Dirt file name input
+        std::string  dataEXTFileName  = "/pnfs/uboone/persistent/users/kduffy/ubcc1pi/ubcc1pi_extbnb_run1_combined_5Jan2021.root";  ///< EXT data file name input
+        std::string  dataBNBFileName  = "/pnfs/uboone/persistent/users/kduffy/ubcc1pi/ubcc1pi_bnb_run1-C1_5Jan2021.root";  ///< BNB data file name input
 
         /**
          *  @brief  The detector variation files
