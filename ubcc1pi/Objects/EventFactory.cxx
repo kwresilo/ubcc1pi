@@ -98,7 +98,7 @@ void EventFactory::PopulateEventTruthInfo(const art::Event &event, const Config 
                         truth.splineEventWeight.Set(weights.front());
                 }
 
-                if (label == "TunedCentralValue_Genie")
+                if (label == "TunedCentralValue_UBGenie")
                 {
                     if (truth.genieTuneEventWeight.IsSet())
                         throw cet::exception("EventFactory::PopulateEventTruthInfo") << " - Found multiple genie tune event weight entries." << std::endl;
