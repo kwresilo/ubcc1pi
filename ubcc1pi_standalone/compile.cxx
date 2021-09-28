@@ -63,6 +63,8 @@
         "Macros/MakeSelectedPIDTable.cxx",
         "Macros/PlotMuonRecoVariables.cxx",
         "Macros/PlotReconstructedVariables.cxx",
+        "Macros/PlotProtonVariables.cxx",
+        "Macros/PlotProtonMomentumByInteraction.cxx",
         "Macros/DumpSelectedEventInfo.cxx",
         "Macros/MakeBinningPlots.cxx",
         "Macros/PlotFlux.cxx",
@@ -71,6 +73,7 @@
         "Macros/PrintUncertaintiesSummary.cxx",
         "Macros/MakeXSecPlots.cxx",
         "Macros/MakeSidebandSamplePlots.cxx",
+        "Macros/PlotEBRequests.cxx",
 
         "Macros/RunFullAnalysis.cxx"
     }))

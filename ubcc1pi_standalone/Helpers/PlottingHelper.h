@@ -79,6 +79,14 @@ class PlottingHelper
             Other,
             OtherPoints,
             Default,
+
+            // Interaction Modes
+            Coh,
+            QE,
+            MEC,
+            DIS,
+            Res,
+            OtherInteraction,
         };
 
         /**
@@ -170,6 +178,7 @@ class PlottingHelper
                  *  @param  fileName the output file name (don't include an extension)
                  *  @param  useLogX if we should use a log scale on the X-axis
                  *  @param  scaleByBinWidth if we should scale by bin width
+                 *  @param  useLogY if we should use a log scale on the Y-axis
                  *  @param  useAxisTitles whether to draw axis lables and titles
                  */
                 void SaveAsStacked(const std::string &fileName, const bool useLogX = false, const bool scaleByBinWidth = false, const bool useLogY = false, const bool useAxisTitles = false);
@@ -351,6 +360,15 @@ class PlottingHelper
         static PlotStyle GetPlotStyle(const AnalysisHelper::SampleType &sampleType, const std::shared_ptr<Event> &pEvent, const bool useAbsPdg);
 
         /**
+         *  @brief  Get the plot style of an interaction
+         *
+         *  @param  interactionMode the interaction integer value 
+         *
+         *  @return the plot style
+         */
+        static PlotStyle GetPlotStyle(const int interactionMode);
+
+        /**
          *  @brief  Set the line style for a given plot type
          *
          *  @tparam T the ROOT object class
@@ -501,7 +519,13 @@ const std::vector<PlottingHelper::PlotStyle> PlottingHelper::AllPlotStyles = {
     NumuCC1PiChargedGolden,
     NumuCC1PiChargedNonGolden,
     BNBData,
-    Default
+    Default,
+    Coh,
+    QE,
+    MEC,
+    DIS,
+    Res,
+    OtherInteraction
 };
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
@@ -561,6 +585,7 @@ int PlottingHelper::GetColor(const PlotStyle plotStyle)
         case Proton:
         case ProtonPoints:
         case NumuCC1PiZero:
+        case Res:
             col = kOrange - 3;
             break;
 
@@ -568,6 +593,7 @@ int PlottingHelper::GetColor(const PlotStyle plotStyle)
         case GoldenPion:
         case GoldenPionPoints:
         case NumuCC1PiChargedGolden:
+        case DIS:
             col = kGreen + 1;
             break;
 
@@ -575,6 +601,7 @@ int PlottingHelper::GetColor(const PlotStyle plotStyle)
         case NonGoldenPion:
         case NonGoldenPionPoints:
         case NumuCC1PiChargedNonGolden:
+        case MEC:
             col = kMagenta + 1;
             break;
 
@@ -582,6 +609,7 @@ int PlottingHelper::GetColor(const PlotStyle plotStyle)
         case PiMinus:
         case PiMinusPoints:
         case NonFiducial:
+        case QE:
             col = kRed - 4;
             break;
 
@@ -589,6 +617,7 @@ int PlottingHelper::GetColor(const PlotStyle plotStyle)
         case Electron:
         case ElectronPoints:
         case NumuCCOther:
+        case Coh:
             col = kCyan + 1;
             break;
 
@@ -596,6 +625,7 @@ int PlottingHelper::GetColor(const PlotStyle plotStyle)
         case Photon:
         case PhotonPoints:
         case Nue:
+        case OtherInteraction:
             col = kYellow + 1;
             break;
 

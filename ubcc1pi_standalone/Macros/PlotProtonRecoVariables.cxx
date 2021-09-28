@@ -1,7 +1,7 @@
 /**
- *  @file  ubcc1pi_standalone/Macros/PlotProtonVariables.cxx
+ *  @file  ubcc1pi_standalone/Macros/PlotProtonRecoVariables.cxx
  *
- *  @brief The implementation file of the PlotProtonVariables macro
+ *  @brief The implementation file of the PlotProtonRecoVariables macro
  */
 
 #include "ubcc1pi_standalone/Macros/Macros.h"
@@ -19,12 +19,12 @@ using namespace ubcc1pi;
 namespace ubcc1pi_macros
 {
 
-void PlotProtonVariables(const Config &config)
+void PlotProtonRecoVariables(const Config &config)
 {
     //
     // Setup the input files
     //
-    std::cout<<"PlotProtonVariables Point -1"<<std::endl;
+    std::cout<<"PlotProtonRecoVariables Point -1"<<std::endl;
     std::vector< std::tuple<AnalysisHelper::SampleType, std::string, float> > inputData;
 
     inputData.emplace_back(AnalysisHelper::Overlay, config.files.overlaysFileName, NormalisationHelper::GetOverlaysNormalisation(config));
@@ -35,7 +35,7 @@ void PlotProtonVariables(const Config &config)
     //
     // Setup the plots
     //
-    std::cout<<"PlotProtonVariables Point 0"<<std::endl;
+    std::cout<<"PlotProtonRecoVariables Point 0"<<std::endl;
     const std::string yLabel = "Number of particles";
     /*
     PlottingHelper::MultiPlot muonMomentumPlot("Muon momentum / GeV", yLabel, config.global.muonMomentum.binEdges);
@@ -78,7 +78,7 @@ void PlotProtonVariables(const Config &config)
     // PlottingHelper::MultiPlot nProtonsPlot("Proton multiplicity", yLabel, 5u, 0, 5, true, config.global.axisTitles);
 
     // The highest energy proton variables are plotted with three different selections  
-    const std::vector<std::string> protonPlotNames{"nProtons>0", "nProtons==1", "nProtons>=2"};
+    const std::vector<std::string> protonSelectionNames{"nProtons>0", "nProtons==1", "nProtons>=2"};
     std::vector<PlottingHelper::MultiPlot> protonMomentumPlots, protonCosThetaPlots, protonPhiPlots;
     std::vector<PlottingHelper::MultiPlot> protonMomentumParticlePlots, protonCosThetaParticlePlots, protonPhiParticlePlots;
     std::vector<PlottingHelper::MultiPlot> protonPionAnglePlots, protonMuonAnglePlots;
@@ -90,21 +90,21 @@ void PlotProtonVariables(const Config &config)
     //     {"protons>=2", [](unsigned int n){return n>=2;}}
     // };
     
-    std::cout<<"PlotProtonVariables Point 1"<<std::endl;
+    std::cout<<"PlotProtonRecoVariables Point 1"<<std::endl;
 
-    for(auto const& plotName : protonPlotNames)
+    for(auto const& selectionName : protonSelectionNames)
     {
         //TODO: Some of the values here are placeholders - make sure they are sensible
-        protonMomentumPlots.emplace_back("Proton momentum / GeV (" + plotName + ")", yLabel, 50u, config.global.protonMomentum.min, config.global.protonMomentum.max, true, config.global.axisTitles);
-        protonCosThetaPlots.emplace_back("Proton cos(theta) (" + plotName + ")", yLabel, 50u, config.global.protonCosTheta.min, config.global.protonCosTheta.max, true, config.global.axisTitles);
-        protonPhiPlots.emplace_back("Proton phi / rad (" + plotName + ")", yLabel, 50u, config.global.protonPhi.min, config.global.protonPhi.max, true, config.global.axisTitles);
+        protonMomentumPlots.emplace_back("Proton momentum / GeV (#" + selectionName + ")", yLabel, 15u, 0.f, 1.5f, true, config.global.axisTitles);
+        protonCosThetaPlots.emplace_back("Proton cos(theta) (#" + selectionName + ")", yLabel, 50u, config.global.protonCosTheta.min, config.global.protonCosTheta.max, true, config.global.axisTitles);
+        protonPhiPlots.emplace_back("Proton phi / rad (#" + selectionName + ")", yLabel, 50u, config.global.protonPhi.min, config.global.protonPhi.max, true, config.global.axisTitles);
 
-        protonMomentumParticlePlots.emplace_back("Proton momentum / GeV (" + plotName + ")", yLabel, 50u, config.global.protonMomentum.min, config.global.protonMomentum.max, true, config.global.axisTitles);
-        protonCosThetaParticlePlots.emplace_back("Proton cos(theta) (" + plotName + ")", yLabel, 50u, config.global.protonCosTheta.min, config.global.protonCosTheta.max, true, config.global.axisTitles);
-        protonPhiParticlePlots.emplace_back("Proton phi / rad (" + plotName + ")", yLabel, 50u, config.global.protonPhi.min, config.global.protonPhi.max, true, config.global.axisTitles);
+        protonMomentumParticlePlots.emplace_back("Proton momentum / GeV (#" + selectionName + ")", yLabel, 15u, 0.f, 1.5f, true, config.global.axisTitles);
+        protonCosThetaParticlePlots.emplace_back("Proton cos(theta) (#" + selectionName + ")", yLabel, 50u, config.global.protonCosTheta.min, config.global.protonCosTheta.max, true, config.global.axisTitles);
+        protonPhiParticlePlots.emplace_back("Proton phi / rad (#" + selectionName + ")", yLabel, 50u, config.global.protonPhi.min, config.global.protonPhi.max, true, config.global.axisTitles);
 
-        protonPionAnglePlots.emplace_back("Proton-pion opening angle / rad (" + plotName + ")", yLabel, 50u, config.global.protonPionAngle.min, config.global.protonPionAngle.max, true, config.global.axisTitles);
-        protonMuonAnglePlots.emplace_back("Proton-muon opening angle / rad (" + plotName + ")", yLabel, 50u, config.global.protonMuonAngle.min, config.global.protonMuonAngle.max, true, config.global.axisTitles);
+        protonPionAnglePlots.emplace_back("Proton-pion opening angle / rad (#" + selectionName + ")", yLabel, 50u, config.global.protonPionAngle.min, config.global.protonPionAngle.max, true, config.global.axisTitles);
+        protonMuonAnglePlots.emplace_back("Proton-muon opening angle / rad (#" + selectionName + ")", yLabel, 50u, config.global.protonMuonAngle.min, config.global.protonMuonAngle.max, true, config.global.axisTitles);
     }
 
     //
@@ -193,23 +193,23 @@ void PlotProtonVariables(const Config &config)
                 const auto protonMuonAngle = std::acos(protonDir.Dot(muonDir));
 
                 const auto protonPlotStyle = PlottingHelper::GetPlotStyle(proton, sampleType, truthParticles, false, config.global.useAbsPdg);
-                for (unsigned int plot = 0; plot < protonPlotNames.size(); ++plot)
+                for (unsigned int selection = 0; selection < protonSelectionNames.size(); ++selection)
                 {
-                    // Check proton multiplicity to match conditions described in protonPlotNames
-                    // No need to to test for plot==0 due to: if (protonIndex!=std::numeric_limits<unsigned int>::max()) 
-                    if(plot==1 && recoData.nProtons!=1) continue;
-                    if(plot==2 && recoData.nProtons<2) continue;
+                    // Check proton multiplicity to match conditions described in protonSelectionNames
+                    // No need to to test for selection==0 due to: if (protonIndex!=std::numeric_limits<unsigned int>::max()) 
+                    if(selection==1 && recoData.nProtons!=1) continue;
+                    if(selection==2 && recoData.nProtons<2) continue;
 
-                    protonMomentumPlots.at(plot).Fill(protonMomentum, plotStyle, weight);
-                    protonCosThetaPlots.at(plot).Fill(protonCosTheta, plotStyle, weight);
-                    protonPhiPlots.at(plot).Fill(protonPhi, plotStyle, weight);
+                    protonMomentumPlots.at(selection).Fill(protonMomentum, plotStyle, weight);
+                    protonCosThetaPlots.at(selection).Fill(protonCosTheta, plotStyle, weight);
+                    protonPhiPlots.at(selection).Fill(protonPhi, plotStyle, weight);
 
-                    protonMomentumParticlePlots.at(plot).Fill(protonMomentum, protonPlotStyle, weight);
-                    protonCosThetaParticlePlots.at(plot).Fill(protonCosTheta, protonPlotStyle, weight);
-                    protonPhiParticlePlots.at(plot).Fill(protonPhi, protonPlotStyle, weight);
+                    protonMomentumParticlePlots.at(selection).Fill(protonMomentum, protonPlotStyle, weight);
+                    protonCosThetaParticlePlots.at(selection).Fill(protonCosTheta, protonPlotStyle, weight);
+                    protonPhiParticlePlots.at(selection).Fill(protonPhi, protonPlotStyle, weight);
 
-                    protonPionAnglePlots.at(plot).Fill(protonPionAngle, plotStyle, weight);
-                    protonMuonAnglePlots.at(plot).Fill(protonMuonAngle, plotStyle, weight);
+                    protonPionAnglePlots.at(selection).Fill(protonPionAngle, plotStyle, weight);
+                    protonMuonAnglePlots.at(selection).Fill(protonMuonAngle, plotStyle, weight);
                 }
             }
         }
@@ -234,20 +234,20 @@ void PlotProtonVariables(const Config &config)
     // muonPionAnglePlot.SaveAsStacked("reco_muonPionAngle",false,false,config.global.axisTitles);
     // nProtonsPlot.SaveAsStacked("reco_nProtons",false,false,config.global.axisTitles);
 
-    for (unsigned int plot = 0; plot < protonPlotNames.size(); ++plot)
+    for (unsigned int selection = 0; selection < protonSelectionNames.size(); ++selection)
     {
-        const auto plotName = protonPlotNames.at(plot);
+        const auto selectionName = protonSelectionNames.at(selection);
 
-        protonMomentumPlots.at(plot).SaveAsStacked("reco_protonMomentum_" + plotName,false,false,false,config.global.axisTitles);
-        protonCosThetaPlots.at(plot).SaveAsStacked("reco_protonCosTheta_" + plotName,false,false,false,config.global.axisTitles);
-        protonPhiPlots.at(plot).SaveAsStacked("reco_protonPhi_" + plotName,false,false,false,config.global.axisTitles);
+        protonMomentumPlots.at(selection).SaveAsStacked("reco_protonMomentum_" + selectionName,false,false,config.global.axisTitles);
+        protonCosThetaPlots.at(selection).SaveAsStacked("reco_protonCosTheta_" + selectionName,false,false,config.global.axisTitles);
+        protonPhiPlots.at(selection).SaveAsStacked("reco_protonPhi_" + selectionName,false,false,config.global.axisTitles);
 
-        protonMomentumParticlePlots.at(plot).SaveAsStacked("reco_protonMomentum_particle_" + plotName,false,false,false,config.global.axisTitles);
-        protonCosThetaParticlePlots.at(plot).SaveAsStacked("reco_protonCosTheta_particle_" + plotName,false,false,false,config.global.axisTitles);
-        protonPhiParticlePlots.at(plot).SaveAsStacked("reco_protonPhi_particle_" + plotName,false,false,false,config.global.axisTitles);
+        protonMomentumParticlePlots.at(selection).SaveAsStacked("reco_protonMomentum_particle_" + selectionName,false,false,config.global.axisTitles);
+        protonCosThetaParticlePlots.at(selection).SaveAsStacked("reco_protonCosTheta_particle_" + selectionName,false,false,config.global.axisTitles);
+        protonPhiParticlePlots.at(selection).SaveAsStacked("reco_protonPhi_particle_" + selectionName,false,false,config.global.axisTitles);
 
-        protonPionAnglePlots.at(plot).SaveAsStacked("reco_protonPionAngle_" + plotName,false,false,false,config.global.axisTitles);
-        protonMuonAnglePlots.at(plot).SaveAsStacked("reco_protonMuonAngle_" + plotName,false,false,false,config.global.axisTitles);
+        protonPionAnglePlots.at(selection).SaveAsStacked("reco_protonPionAngle_" + selectionName,false,false,config.global.axisTitles);
+        protonMuonAnglePlots.at(selection).SaveAsStacked("reco_protonMuonAngle_" + selectionName,false,false,config.global.axisTitles);
     }
 }
 

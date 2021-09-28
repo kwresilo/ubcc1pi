@@ -1,7 +1,7 @@
 /**
- *  @file  ubcc1pi_standalone/Macros/PlotProtonVariables.cxx
+ *  @file  ubcc1pi_standalone/Macros/PlotReconstructedVariables.cxx
  *
- *  @brief The implementation file of the PlotProtonVariables macro
+ *  @brief The implementation file of the PlotReconstructedVariables macro
  */
 
 #include "ubcc1pi_standalone/Macros/Macros.h"
@@ -19,11 +19,12 @@ using namespace ubcc1pi;
 namespace ubcc1pi_macros
 {
 
-void PlotProtonVariables(const Config &config)
+void PlotReconstructedVariables(const Config &config)
 {
     //
     // Setup the input files
     //
+
     std::vector< std::tuple<AnalysisHelper::SampleType, std::string, float> > inputData;
 
     inputData.emplace_back(AnalysisHelper::Overlay, config.files.overlaysFileName, NormalisationHelper::GetOverlaysNormalisation(config));

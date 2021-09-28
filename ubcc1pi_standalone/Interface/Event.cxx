@@ -5,6 +5,7 @@
  */
 
 #include "ubcc1pi_standalone/Interface/Event.h"
+#include <ctime> // DEBUG
 
 namespace ubcc1pi
 {
@@ -94,11 +95,13 @@ void Event::PrepareForTreeFill()
 {
     for (const auto &particle : truth.particles)
     {
+        std::cout << "DEBUG - Event::PrepareForTreeFill - Point 0 - Time: " << std::time(nullptr) << std::endl;
         UBCC1PI_MACRO_EVENT_TRUTH_PARTICLE_MEMBERS(truth_particle, particle, UBCC1PI_MACRO_FILL_MEMBER_VECTOR)
     }
 
     for (const auto &particle : reco.particles)
     {
+        std::cout << "DEBUG - Event::PrepareForTreeFill - Point 1 - Time: " << std::time(nullptr) << std::endl;
         UBCC1PI_MACRO_EVENT_RECO_PARTICLE_MEMBERS(reco_particle, particle, UBCC1PI_MACRO_FILL_MEMBER_VECTOR)
     }
 }

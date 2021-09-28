@@ -833,8 +833,8 @@ PlottingHelper::PlotStyle PlottingHelper::GetPlotStyle(const Event::Reco::Partic
         // actually reconstruct the photons from their decay. So the backtracker will match a reconstructed particle that really represents
         // a photon (from a pi0 decay) to the pi0 itself. Here we choose to plot these reco particles as photons instead of pi0s because
         // it's a better representation of what they actually represent. This is a (good) approximation, because it's possible that the pi0
-        // decays via another mode (pi0 -> 2 gamma has a branching ratio of 98.8%). In the case of a Dalitz decay (pi0 -> gamma e+ e-) then
-        // then we might reconstruct the elecron/positron and here label it as a photon.
+        // decays via another mode (pi0 -> 2 gamma has a branching ratio of 98.8%). In the case of a Dalitz decay (pi0 -> gamma e+ e-) we
+        // might reconstruct the elecron/positron and here label it as a photon.
         case 111:
         case 22:
             return usePoints ? PhotonPoints : Photon;
@@ -905,6 +905,27 @@ PlottingHelper::PlotStyle PlottingHelper::GetPlotStyle(const AnalysisHelper::Sam
     }
 
     return NumuCCOther;
+}
+
+// -----------------------------------------------------------------------------------------------------------------------------------------
+
+PlottingHelper::PlotStyle PlottingHelper::GetPlotStyle(const int interactionMode)
+{
+    switch (interactionMode)
+    {
+        case 0:
+            return QE;
+        case 1:
+            return Res;
+        case 2:
+            return DIS;
+        case 3:
+            return Coh;
+        case 10:
+            return MEC;
+        default:
+            return OtherInteraction;
+    }
 }
 
 // -----------------------------------------------------------------------------------------------------------------------------------------

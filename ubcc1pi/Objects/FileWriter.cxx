@@ -5,6 +5,7 @@
  */
 
 #include "ubcc1pi/Objects/FileWriter.h"
+#include <ctime> // DEBUG
 
 namespace ubcc1pi
 {
@@ -71,8 +72,11 @@ Subrun * FileWriter::GetBoundSubrunAddress()
 
 void FileWriter::FillEvent()
 {
+    std::cout << "DEBUG - FileWriter::FillEvent - Point 0 - Time: " << std::time(nullptr) << std::endl;
     m_pEvent->PrepareForTreeFill();
+    std::cout << "DEBUG - FileWriter::FillEvent - Point 1 - Time: " << std::time(nullptr) << std::endl;
     m_pEventTree->Fill();
+    std::cout << "DEBUG - FileWriter::FillEvent - Point 2 - Time: " << std::time(nullptr) << std::endl;
 }
 
 // -----------------------------------------------------------------------------------------------------------------------------------------

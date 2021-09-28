@@ -1171,6 +1171,7 @@ CrossSectionHelper::SystFloatMap CrossSectionHelper::GetWeightsMap(const Event::
 
 CrossSectionHelper::SystFloatMap CrossSectionHelper::GetWeightsMap(const Event::Truth &truth, const SystDimensionsMap &dimensions, const SystMutuallyExclusiveDimensionsMap &mutuallyExclusiveDimensions)
 {
+    std::cout<<"||||| CrossSectionHelper::SystFloatMap CrossSectionHelper::GetWeightsMap - Point 0"<<std::endl;
     // Make a new map for the output
     SystFloatMap map;
 
@@ -1182,6 +1183,7 @@ CrossSectionHelper::SystFloatMap CrossSectionHelper::GetWeightsMap(const Event::
     // Find which parameters (if any) are built from mutually exclusive parameters
     for (const auto &[paramName, nUniverses] : dimensions)
     {
+        std::cout<<"||||| CrossSectionHelper::SystFloatMap CrossSectionHelper::GetWeightsMap - Point 1"<<std::endl;
         // Check if this parameter name is available in the input truth information, if so just skip it for later
         if (std::find(systParamNames.begin(), systParamNames.end(), paramName) != systParamNames.end())
         {
@@ -1189,26 +1191,35 @@ CrossSectionHelper::SystFloatMap CrossSectionHelper::GetWeightsMap(const Event::
             continue;
         }
 
+        std::cout<<"||||| CrossSectionHelper::SystFloatMap CrossSectionHelper::GetWeightsMap - Point 1.1 - paramName:"<<paramName<<std::endl;
         // Insist that parameters not available in the input truth information are listed in the mutually exlusive dimensions
         if (mutuallyExclusiveDimensions.find(paramName) == mutuallyExclusiveDimensions.end())
             throw std::invalid_argument("CrossSectionHelper::GetWeightsMap - Parameter \"" + paramName + "\" isn't listed in the input truth information or in the supplied mutually exclusive parameter names");
 
+        std::cout<<"||||| CrossSectionHelper::SystFloatMap CrossSectionHelper::GetWeightsMap - Point 1.2"<<std::endl;
         // We have a mutually exclusive parameter, so get it's weights
         const auto &[parameters, nUniversesCheck] = mutuallyExclusiveDimensions.at(paramName);
+
+        std::cout<<"||||| CrossSectionHelper::SystFloatMap CrossSectionHelper::GetWeightsMap - Point 1.3"<<std::endl;
         if (nUniverses != nUniversesCheck)
             throw std::invalid_argument("CrossSectionHelper::GetWeightsMap - Inconsistent number of universes specified for parameter: \"" + paramName + "\"");
 
+        std::cout<<"||||| CrossSectionHelper::SystFloatMap CrossSectionHelper::GetWeightsMap - Point 1.4"<<std::endl;
         const auto weights = CrossSectionHelper::GetMutuallyExclusiveWeights(truth, parameters, nUniverses);
+        std::cout<<"||||| CrossSectionHelper::SystFloatMap CrossSectionHelper::GetWeightsMap - Point 1.5"<<std::endl;
 
         // Add the result to the output map
         map.emplace(paramName, weights);
     }
 
+    std::cout<<"||||| CrossSectionHelper::SystFloatMap CrossSectionHelper::GetWeightsMap - Point 2"<<std::endl;
     // Now get the weights from the rest of the parameters
     auto availableParamWeights = CrossSectionHelper::GetWeightsMap(truth, availableParamDimensions);
 
+    std::cout<<"||||| CrossSectionHelper::SystFloatMap CrossSectionHelper::GetWeightsMap - Point 3"<<std::endl;
     // Combine this together and return it!
     map.insert(availableParamWeights.begin(), availableParamWeights.end());
+    std::cout<<"||||| CrossSectionHelper::SystFloatMap CrossSectionHelper::GetWeightsMap - Point End"<<std::endl;
     return map;
 }
 

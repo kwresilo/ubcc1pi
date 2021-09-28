@@ -145,7 +145,7 @@ struct Config
         float       protonMomentumThreshold = 0.3f;               ///< The minimum proton momentum to be counted [GeV]
         float       targetDensity           = 8.44191f;           ///< The number of target nuclei per unit volume - units e23 / cm^3
         std::string selection               = "Default"; ///< Which selection to use (can be "CCInclusive","Default", or "CC0pi")
-        bool        axisTitles              = true;               ///< If we want to draw axis lables and titles on the plots (if false, they are not drawn so you can add your own later)
+        bool        axisTitles              = false;               ///< If we want to draw axis lables and titles on the plots (if false, they are not drawn so you can add your own later)
         bool        scaleByBinWidth         = true;
 
         /**
@@ -228,20 +228,20 @@ struct Config
         }; ///< The protonPhi binning
 
         Binning protonMomentum {
-            0.15f,                                    // min
-            std::numeric_limits<float>::max(),        // max
+            0.1f,                                    // min
+            1.8f,        // max
             {0.15f, 0.23f, 0.32f, 0.45f, 0.66f, 1.5f} // binEdges
         }; ///< The protonMomentum binning
 
         Binning protonPionAngle {
-            0.f,                                                   // min
-            2.65f,                                                 // max
+            -0.f,                                                   // min
+            3.142f,//2.65f,                                                 // max
             {0.f, 0.49f, 0.93f, 1.26f, 1.57f, 1.88f, 2.21f, 2.65f} // binEdges
         }; ///< The protonPionAngle binning
 
         Binning protonMuonAngle {
-            0.f,                                                   // min
-            2.65f,                                                 // max
+            -0.f,                                                   // min
+            3.142f,//2.65f,                                                 // max
             {0.f, 0.49f, 0.93f, 1.26f, 1.57f, 1.88f, 2.21f, 2.65f} // binEdges
         }; ///< The protonMuonAngle binning
 

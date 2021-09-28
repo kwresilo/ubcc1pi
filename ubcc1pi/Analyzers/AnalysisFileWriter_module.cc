@@ -5,6 +5,7 @@
  */
 
 #include "ubcc1pi/Analyzers/AnalysisFileWriter.h"
+#include <ctime> // DEBUG
 
 namespace ubcc1pi
 {
@@ -23,14 +24,15 @@ AnalysisFileWriter::AnalysisFileWriter(const art::EDAnalyzer::Table<Config> &con
 
 void AnalysisFileWriter::analyze(const art::Event &event)
 {
-    std::cout << "DEBUG - Populating event" << std::endl;
+    std::cout << "DEBUG - Populating event - Time: " << std::time(nullptr) << std::endl;
     EventFactory::PopulateEvent(event, m_eventConfig, m_pEvent);
 
-    std::cout << "DEBUG - Printing event" << std::endl;
-    m_pEvent->Print();
+    //std::cout << "DEBUG - Printing event - Time: " << std::time(nullptr) << std::endl;
+    //m_pEvent->Print();
 
-    std::cout << "DEBUG - Filling event" << std::endl;
+    std::cout << "DEBUG - Filling event before - Time: " << std::time(nullptr) << std::endl;
     m_writer.FillEvent();
+    std::cout << "DEBUG - Filling event after - Time: " << std::time(nullptr) << std::endl;
 }
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
@@ -38,13 +40,13 @@ void AnalysisFileWriter::analyze(const art::Event &event)
 
 void AnalysisFileWriter::endSubRun(const art::SubRun &subrun)
 {
-    std::cout << "DEBUG - Populating subrun" << std::endl;
+    std::cout << "DEBUG - Populating subrun - Time: " << std::time(nullptr) << std::endl;
     SubrunFactory::PopulateSubrun(subrun, m_subrunConfig, m_pSubrun);
 
-    std::cout << "DEBUG - Printing subrun" << std::endl;
-    m_pSubrun->Print();
+    //std::cout << "DEBUG - Printing subrun - Time: " << std::time(nullptr) << std::endl;
+    //m_pSubrun->Print();
 
-    std::cout << "DEBUG - Filling subrun" << std::endl;
+    std::cout << "DEBUG - Filling subrun - Time: " << std::time(nullptr) << std::endl;
     m_writer.FillSubrun();
 }
 

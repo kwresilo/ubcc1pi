@@ -17,6 +17,8 @@
 #include <memory>
 #include <TVector3.h>
 
+#include <ctime> // DEBUG
+
 namespace ubcc1pi
 {
 
@@ -128,6 +130,7 @@ inline bool Member<T>::IsSet() const
 template <typename T>
 inline void Member<T>::Set(const T &value)
 {
+    std::cout << "DEBUG - inline void Member<T>::Set(const T &value) - m_name: " << m_name << " - Time: " << std::time(nullptr) << std::endl;
     *m_pValue = value;
     m_isSet = true;
 }

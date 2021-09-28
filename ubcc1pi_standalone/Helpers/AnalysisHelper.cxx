@@ -1193,17 +1193,14 @@ AnalysisHelper::AnalysisData AnalysisHelper::GetRecoAnalysisData(const Event::Re
 
     auto muonIndex = std::numeric_limits<unsigned int>::max();
     auto pionIndex = std::numeric_limits<unsigned int>::max();
-    auto protonIndex = std::numeric_limits<unsigned int>::max();
     unsigned int nMuons = 0u;
     unsigned int nPions = 0u;
     unsigned int nProtons = 0u;
     unsigned int nOther = 0u;
-    float highestProtonMomentum = -std::numeric_limits<float>::max();
 
     for (unsigned int index = 0; index < assignedPdgCodes.size(); ++index)
     {
         const auto recoPdg = assignedPdgCodes.at(index);
-
         switch (recoPdg)
         {
             case 13:
@@ -1215,14 +1212,7 @@ AnalysisHelper::AnalysisData AnalysisHelper::GetRecoAnalysisData(const Event::Re
                 nPions++;
                 break;
             case 2212:
-            {    
-                const auto proton = recoParticles.at(index);
-                const auto protonMomentum = AnalysisHelper::GetProtonMomentumFromRange(proton.range()); // TODO: Use GetProtonMomentumFromRangeLarsoft ?
-                if(protonMomentum>highestProtonMomentum)
-                {
-                    protonIndex = index;
-                    highestProtonMomentum = protonMomentum;
-                }
+            {
                 nProtons++;
                 break;
             }
@@ -1231,7 +1221,7 @@ AnalysisHelper::AnalysisData AnalysisHelper::GetRecoAnalysisData(const Event::Re
                 break;
         }
     }
-
+    
     // Make sure the reco PDGs make sense
     if (nMuons != 1)
         throw std::logic_error("AnalysisHelper::GetRecoAnalysisData - Reconstructed " + std::to_string(nMuons) + " muons");
@@ -1248,7 +1238,7 @@ AnalysisHelper::AnalysisData AnalysisHelper::GetRecoAnalysisData(const Event::Re
     data.muonCosTheta = muonDir.Z();
     data.muonPhi = std::atan2(muonDir.Y(), muonDir.X());
     data.muonMomentum = AnalysisHelper::GetMuonMomentum(muon);
-
+    
     const auto pionDir = TVector3(pion.directionX(), pion.directionY(), pion.directionZ()).Unit();
     data.pionCosTheta = pionDir.Z();
     data.pionPhi = std::atan2(pionDir.Y(), pionDir.X());
@@ -1257,17 +1247,6 @@ AnalysisHelper::AnalysisData AnalysisHelper::GetRecoAnalysisData(const Event::Re
     data.muonPionAngle = std::acos(muonDir.Dot(pionDir));
     data.nProtons = nProtons;
     data.hasGoldenPion = passesGoldenPionSelection;
-
-    // Only get the reconstructed proton variables when a suitable candidate is present
-    if(nProtons>0){
-        const auto proton = recoParticles.at(protonIndex);
-        const auto protonDir = TVector3(proton.directionX(), proton.directionY(), proton.directionZ()).Unit();
-        data.protonMomentum = AnalysisHelper::GetProtonMomentumFromRange(proton.range()); // TODO: Use GetProtonMomentumFromRangeLarsoft ?
-        data.protonCosTheta = protonDir.Z();
-        data.protonPhi  = std::atan2(protonDir.Y(), protonDir.X());
-        data.protonPionAngle = std::acos(protonDir.Dot(pionDir));
-        data.protonMuonAngle = std::acos(protonDir.Dot(muonDir));
-    }
 
     return data;
 }
@@ -1290,39 +1269,6 @@ unsigned int AnalysisHelper::GetParticleIndexWithPdg(const std::vector<int> &ass
         throw std::logic_error("AnalysisHelper::GetParticleIndexWithPdg - Found " + std::to_string(indices.size()) + " particles with assigned PDG code: " + std::to_string(pdgCode) + ", expected 1");
 
     return indices.front();
-}
-
-// -----------------------------------------------------------------------------------------------------------------------------------------
-
-unsigned int AnalysisHelper::GetHighestMomentumParticleIndexWithPdg(const Event::Reco &reco, const std::vector<int> &assignedPdgCodes, const int pdgCode)
-{
-    // Sanity check
-    const auto recoParticles = reco.particles;
-    if (assignedPdgCodes.size() != recoParticles.size())
-        throw std::logic_error("AnalysisHelper::GetRecoAnalysisData - The assigned PDG codes is the wrong size");
-
-    unsigned int index;
-    auto highestMomentum = -std::numeric_limits<float>::max();
-    bool protonsPresent = false;
-    for (unsigned int i = 0; i < assignedPdgCodes.size(); ++i)
-    {
-        if (assignedPdgCodes.at(i) != pdgCode)
-            continue;
-
-        protonsPresent = true;
-        const auto proton = recoParticles.at(i);
-        const auto momentum = AnalysisHelper::GetProtonMomentumFromRange(proton.range()); // TODO: Use GetProtonMomentumFromRangeLarsoft ?
-        if(momentum>highestMomentum)
-        {
-            index = i;
-            highestMomentum = momentum;
-        }
-    }
-
-    if (!protonsPresent)
-    throw std::logic_error("AnalysisHelper::GetHighestMomentumParticleIndexWithPdg - Found zero particles with assigned PDG code: " + std::to_string(pdgCode) + ", expected at least one");
-
-    return index;
 }
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
@@ -1413,11 +1359,6 @@ AnalysisHelper::AnalysisData AnalysisHelper::GetDummyAnalysisData()
     data.pionPhi = -std::numeric_limits<float>::max();
     data.muonPionAngle = -std::numeric_limits<float>::max();
     data.nProtons = std::numeric_limits<unsigned int>::max();
-    data.protonMomentum = -std::numeric_limits<float>::max();
-    data.protonCosTheta = -std::numeric_limits<float>::max();
-    data.protonPhi = -std::numeric_limits<float>::max();
-    data.protonPionAngle = -std::numeric_limits<float>::max();
-    data.protonMuonAngle = -std::numeric_limits<float>::max();
     data.hasGoldenPion = false;
 
     return data;

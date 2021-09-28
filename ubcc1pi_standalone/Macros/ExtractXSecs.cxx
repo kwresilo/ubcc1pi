@@ -412,13 +412,17 @@ void ExtractXSecs(const Config &config)
             // Get the cross-section weights
             // ATTN here we optionally scale the cross-section weights down by the genieTuneEventWeight - this is done so we don't
             // double count this weight (once in the nominal event weight, and once in the xsec systematic event weights)
-            const auto xsecWeightsScaleFactor = (isOverlay && config.extractXSecs.scaleXSecWeights) ? pEvent->truth.genieTuneEventWeight() : 1.f;
+            
+            const auto xsecWeightsScaleFactor = 1.f;
+            // const auto xsecWeightsScaleFactor = (isOverlay && config.extractXSecs.scaleXSecWeights) ? pEvent->truth.genieTuneEventWeight() : 1.f;
+            std::cout<<"&&&&& Extracs   tXSecs - Point 5.4 - isOverlay: "<<isOverlay<<std::endl;
             const auto xsecWeights = (
                 isOverlay
                     ? CrossSectionHelper::ScaleWeightsMap(CrossSectionHelper::GetWeightsMap(pEvent->truth, systParams.xsecDimensions, config.extractXSecs.mutuallyExclusiveDimensions), xsecWeightsScaleFactor)
                     : CrossSectionHelper::GetUnitWeightsMap(systParams.xsecDimensions)
             );
-
+            
+            std::cout<<"&&&&& ExtractXSecs - Point 6"<<std::endl;
             // Handle signal events
             if (isSignal)
             {

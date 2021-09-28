@@ -183,6 +183,13 @@ namespace ubcc1pi_macros
     void PlotProtonMomentumByInteraction(const Config &config = Config());
 
     /**
+     *  @brief  Plot wiggliness vs recoonstructed momentum
+     *
+     *  @param  config the input configuration
+     */
+    void PlotEBRequests(const Config &config = Config());
+
+    /**
      *  @brief  Plot the recontructed variables
      *
      *  @param  config the input configuration

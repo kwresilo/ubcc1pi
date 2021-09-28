@@ -48,11 +48,6 @@ class AnalysisHelper
             float         pionCosTheta;    ///< The pion cos(theta) - angle to beam direciton
             float         pionPhi;         ///< The pion phi - angle in x-y plane
             float         muonPionAngle;   ///< The muon-pion opening angle
-            float         protonMomentum;  ///< The proton momentum
-            float         protonCosTheta;  ///< The proton cos(theta) - angle to beam direciton
-            float         protonPhi;       ///< The proton phi - angle in x-y plane
-            float         protonPionAngle; ///< The proton-pion opening angle
-            float         protonMuonAngle; ///< The proton-muon opening angle
             unsigned int  nProtons;        ///< The number of protons
             bool          hasGoldenPion;   ///< If the event has a golden pion
         };
@@ -611,17 +606,6 @@ class AnalysisHelper
          *  @return the index
          */
         static unsigned int GetParticleIndexWithPdg(const std::vector<int> &assignedPdgCodes, const int pdgCode);
-
-        /**
-         *  @brief  Get the highest energy index of the particle that's been assigned the supplied PDG code
-         *
-         *  @param  reco the input reco information of the event
-         *  @param  assignedPdgCodes the PDG codes assigned to each reco particle
-         *  @param  pdgCode the PDG code to search for
-         *
-         *  @return the reco analysis data
-         */
-        static unsigned int GetHighestMomentumParticleIndexWithPdg(const Event::Reco &reco, const std::vector<int> &assignedPdgCodes, const int pdgCode);
 
         /**
          *  @brief  Get an analysis data object with dummy values

@@ -16,7 +16,7 @@
 <!ENTITY projectName     "ubcc1pi">
 <!ENTITY dataTier        "ana">
 <!ENTITY schema          "root">    <!-- Can also use gsiftp which is less efficiency but usually more stable, you may need to request extra resources -->
-<!ENTITY jobsub           "--append_condor_requirements='(TARGET.HAS_CVMFS_uboone_osgstorage_org==true)' -e XRD_LOADBALANCERTTL=7200 -e XRD_CONNECTIONRETRY=32 -e XRD_REQUESTTIMEOUT=3600 -e XRD_REDIRECTLIMIT=255">
+<!ENTITY jobsub           "--expected-lifetime=1h --append_condor_requirements='(TARGET.HAS_CVMFS_uboone_osgstorage_org==true)' -e XRD_LOADBALANCERTTL=7200 -e XRD_CONNECTIONRETRY=32 -e XRD_REQUESTTIMEOUT=3600 -e XRD_STREAMTIMEOUT=7200 -e XRD_REDIRECTLIMIT=255">
 
 ]>
 
@@ -47,12 +47,12 @@
 <stage name="overlays">
     <!-- Settings -->
     <fcl>analysis_file_writer_driver.fcl</fcl>
-    <numjobs>385</numjobs>
+    <numjobs>373</numjobs>
     <maxfilesperjob>1</maxfilesperjob>
     <numevents>&numEvents;</numevents>
 
     <!-- Input files -->
-    <inputdef>prodgenie_bnb_nu_uboone_overlay_ccinc_reweight_mcc9.1_run1_joelam</inputdef>
+    <inputdef>prodgenie_bnb_nu_uboone_overlay_ccinc_reweightSept24_mcc9.1_run1_suprajab</inputdef>
 
     <!-- Output directories -->
     <outdir>/pnfs/uboone/scratch/users/&username;/&projectName;/overlays/</outdir>
@@ -90,12 +90,12 @@
 <stage name="dirt">
     <!-- Settings -->
     <fcl>analysis_file_writer_driver.fcl</fcl>
-    <numjobs>42</numjobs>
+    <numjobs>5</numjobs> <!-- 34 -->
     <maxfilesperjob>1</maxfilesperjob>
     <numevents>&numEvents;</numevents>
 
     <!-- Input files -->
-    <inputdef>prodgenie_bnb_dirt_overlay_ccinc_withWeights_joelam</inputdef>
+    <inputdef>prodgenie_dirt_overlay_ccinc_reweightSept24_mcc9.1_run1_suprajab</inputdef>
 
     <!-- Output directories -->
     <outdir>/pnfs/uboone/scratch/users/&username;/&projectName;/dirt/</outdir>
@@ -178,9 +178,8 @@
 <stage name="overlays_DetVar_CV_run1">
     <!-- Settings -->
     <fcl>analysis_file_writer_driver_noEventWeights.fcl</fcl>
-    <!-- <numjobs>116</numjobs>-->
-    <numjobs>5</numjobs>
-    <maxfilesperjob>100</maxfilesperjob>
+    <numjobs>231</numjobs>
+    <maxfilesperjob>50</maxfilesperjob>
     <numevents>&numEvents;</numevents>
 
     <!-- Input files -->
@@ -190,6 +189,7 @@
     <outdir>/pnfs/uboone/scratch/users/&username;/&projectName;/overlays_DetVar_CV_run1/</outdir>
     <logdir>/pnfs/uboone/scratch/users/&username;/&projectName;/overlays_DetVar_CV_run1/</logdir>
     <workdir>/pnfs/uboone/resilient/users/&username;/work/&projectName;/overlays_DetVar_CV_run1/</workdir>
+    <bookdir>/uboone/data/users/&username;/grid/&projectName;/overlays_DetVar_CV_run1/</bookdir>
 
     <!-- Options -->
     <datatier>&dataTier;</datatier>
@@ -224,8 +224,8 @@
 <stage name="overlays_DetVar_LYDown_run1">
     <!-- Settings -->
     <fcl>analysis_file_writer_driver_noEventWeights.fcl</fcl>
-    <numjobs>1142</numjobs>
-    <maxfilesperjob>10</maxfilesperjob>
+    <numjobs>571</numjobs>
+    <maxfilesperjob>20</maxfilesperjob>
     <numevents>&numEvents;</numevents>
 
     <!-- Input files -->
@@ -246,7 +246,7 @@
 <stage name="overlays_DetVar_LYRayleigh_run1">
     <!-- Settings -->
     <fcl>analysis_file_writer_driver_noEventWeights.fcl</fcl>
-    <numjobs>1154</numjobs>
+    <numjobs>10</numjobs> <!-- 1154 -->
     <maxfilesperjob>10</maxfilesperjob>
     <numevents>&numEvents;</numevents>
 
