@@ -54,7 +54,15 @@ for (size_t j = 0; j<vdQdx.size(); ++j){
   float driftvelocity = detprop->DriftVelocity(); // [cm/us]
 ```
 
-Finally, repeat the initial installation steps starting with `mrbsetenv`.
+Repeat the initial installation steps starting with `mrbsetenv`. It might be necessary to do `unsetup cetbuildtools` and `unsetup cmake` first.
+If there are incompatibilities with cetbuildtools between `ubcc1pi` and `ubana`, change `ubana/ups/product_deps` from this:
+```
+cetbuildtools           v7_xx_xx 	-       only_for_build
+```
+to this:
+```
+cetbuildtools           v7_04_00 	-       only_for_build
+```
 
 ## Installation for standalone analysis
 
