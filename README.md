@@ -22,6 +22,10 @@ mrb updateDepsCM
 # Set up your development environment and check for dependency issues
 mrbsetenv
 
+# For some reason setting up this version of uboonecode picks up cmake v3_10_1
+# But the default CMakeLists.txt that you get from an mrb newDev requires 3.14 or later!
+# Replace: cmake_minimum_required (VERSION 3.12...3.14 FATAL_ERROR) → cmake_minimum_required (VERSION 3.10 FATAL_ERROR)
+
 # Install the package
 mrb install -j4
 
