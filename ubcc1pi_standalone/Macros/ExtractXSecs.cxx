@@ -12,8 +12,49 @@
 #include "ubcc1pi_standalone/Helpers/SelectionHelper.h"
 #include "ubcc1pi_standalone/Helpers/CrossSectionHelper.h"
 #include "ubcc1pi_standalone/Helpers/FormattingHelper.h"
+#include "ubcc1pi_standalone/Helpers/FittingHelper.h"
+
+#include <fstream> // Todo: not use txt files
 
 using namespace ubcc1pi;
+
+std::vector<float> x, y, errorY, S;
+
+//______________________________________________________________________________
+
+void fcn(Int_t &npar, Double_t *gin, Double_t &f, Double_t *par, Int_t iflag)
+{
+    //calculate chi2
+    if(x.size()!=y.size() || y.size()!=errorY.size() || x.size()*x.size()!=S.size())
+        throw std::logic_error("Fitting function for ExtractXSecs - Incompatible input dimenstions.");
+
+    Double_t chisq = 0;
+    Double_t delta;
+    Int_t nBins = x.size();
+    
+    auto xScaled = x; 
+    for (Int_t i=0; i<nBins; i++)
+    {
+        xScaled[i]*=par[i];
+    }
+    
+    std::vector<float> xSmeared(nBins, 0);
+    for (Int_t i=0; i<nBins; i++)
+    {
+        for (Int_t j=0; j<nBins; j++)
+        {
+            xSmeared[i] +=  S[j+i*nBins]*xScaled[j];
+        }
+    }
+    // const auto xSmeared = S*xScaled;
+
+    for (Int_t i=0; i<nBins; i++) 
+    {
+        delta  = (y[i]-xSmeared[i])/errorY[i];
+        chisq += delta*delta;
+    }
+    f = chisq;
+}
 
 namespace ubcc1pi_macros
 {
@@ -49,6 +90,7 @@ void ExtractXSecs(const Config &config)
     systParams.nBootstrapUniverses = config.extractXSecs.nBootstrapUniverses;
     systParams.fluxDimensions = config.extractXSecs.fluxDimensions;
     systParams.xsecDimensions = config.extractXSecs.xsecDimensions;
+    systParams.reintDimensions = config.extractXSecs.reintDimensions;
     systParams.detVarDimensions = config.extractXSecs.detVarDimensions;
     systParams.potFracUncertainty = config.extractXSecs.potFracUncertainty;
 
@@ -95,6 +137,7 @@ void ExtractXSecs(const Config &config)
     // that pass the golden selection also pass the generic selection - but not all events that pass the generic selection also pass the
     // golden selection.
     auto selection = SelectionHelper::GetDefaultSelection();
+    auto sidebandSelection = SelectionHelper::GetSelection("CC0pi");
 
     // -------------------------------------------------------------------------------------------------------------------------------------
     // Setup the cross-section objects
@@ -104,6 +147,7 @@ void ExtractXSecs(const Config &config)
     // the second index is an identifier for the kinematic quantity that's relevant for the cross-section (e.g. muonMomentum), and the
     // mapped type is the cross-section object.
     std::map<std::string, std::map<std::string, CrossSectionHelper::CrossSection> > xsecMap;
+    std::map<std::string, std::map<std::string, CrossSectionHelper::CrossSection> > xsecMapSideband;
 
     // We additionally make a map from each cross-section to the limits of the phase-space that we should consider. The key is the
     // identifier for the kinematic quantity and the mapped value is a pair containing the limits [min, max]
@@ -135,16 +179,20 @@ void ExtractXSecs(const Config &config)
 
         // Here we calculate every cross-section using both the generic and golden selection. In the end we only use the golden selection for
         // the pion momentum, but we additionally apply it to other cross-sections as a cross-check.
+        // Add the cross-section object to the map using the binning from the input configuration
+        const auto &[extendedBinEdges, hasUnderflow, hasOverflow] = CrossSectionHelper::GetExtendedBinEdges(binning.min, binning.max, binning.binEdges);
         for (const auto &selectionName : {"generic", "golden"})
         {
             // Don't setup a cross-section object if it's been disabled in the configuration
-            if (!config.extractXSecs.crossSectionIsEnabled.at(selectionName).at(name))
-                continue;
-
-            // Add the cross-section object to the map using the binning from the input configuration
-            const auto &[extendedBinEdges, hasUnderflow, hasOverflow] = CrossSectionHelper::GetExtendedBinEdges(binning.min, binning.max, binning.binEdges);
-            xsecMap[selectionName].emplace(name, CrossSectionHelper::CrossSection(systParams, extendedBinEdges, hasUnderflow, hasOverflow, scaleByBinWidth));
+            if (config.extractXSecs.crossSectionIsEnabled.at(selectionName).at(name))
+            {
+                xsecMap[selectionName].emplace(name, CrossSectionHelper::CrossSection(systParams, extendedBinEdges, hasUnderflow, hasOverflow, scaleByBinWidth));
+                xsecMapSideband[selectionName].emplace(name, CrossSectionHelper::CrossSection(systParams, extendedBinEdges, hasUnderflow, hasOverflow, scaleByBinWidth));
+            }
         }
+        // if (config.extractXSecs.crossSectionIsEnabled.at("sideband").at(name))
+        //     xsecMapSideband["sideband"].emplace(name, CrossSectionHelper::CrossSection(systParams, extendedBinEdges, hasUnderflow, hasOverflow, scaleByBinWidth));
+
     }
 
     // ATTN here we use the machinary for a differential cross-section, and treat the total cross-section as a single-bin measurement.
@@ -155,11 +203,16 @@ void ExtractXSecs(const Config &config)
     for (const auto &selectionName : {"generic", "golden"})
     {
         // Don't setup a cross-section object if it's been disabled in the configuration
-        if (!config.extractXSecs.crossSectionIsEnabled.at(selectionName).at("total"))
-            continue;
+        if (config.extractXSecs.crossSectionIsEnabled.at(selectionName).at("total"))
+        {
 
-        xsecMap[selectionName].emplace("total", CrossSectionHelper::CrossSection(systParams, {-1.f, 1.f}, false, false, false));
+        }
+            xsecMap[selectionName].emplace("total", CrossSectionHelper::CrossSection(systParams, {-1.f, 1.f}, false, false, false));
+            xsecMapSideband[selectionName].emplace("total", CrossSectionHelper::CrossSection(systParams, {-1.f, 1.f}, false, false, false));
     }
+    // Don't setup a cross-section object if it's been disabled in the configuration
+    // if (config.extractXSecs.crossSectionIsEnabled.at("sideband").at("total"))
+    //     xsecMapSideband["sideband"].emplace("total", CrossSectionHelper::CrossSection(systParams, {-1.f, 1.f}, false, false, false));
 
     // The dummy value that will be used as the "kinematic quantity" for the total cross-section
     const auto dummyValue = 0.f;
@@ -184,6 +237,474 @@ void ExtractXSecs(const Config &config)
     }
 
     // -------------------------------------------------------------------------------------------------------------------------------------
+    // Setup the relevent "getters" for each the sideband
+    // -------------------------------------------------------------------------------------------------------------------------------------
+    // Here we define a map from the name of each cross-section to a function which pulls out the relevant kinematic quanitity from an input
+    // analysis data object. Again this is done up-front to reduce code-bloat below.
+    std::unordered_map< std::string, std::function<float(const AnalysisHelper::AnalysisData &)> > getSidebandValue;
+
+    // Differential cross-section kinematic parameters
+    getSidebandValue.emplace("muonCosTheta",  [](const auto &data) { return data.muonCosTheta;  });
+    getSidebandValue.emplace("muonPhi",       [](const auto &data) { return data.muonPhi;       });
+    getSidebandValue.emplace("muonMomentum",  [](const auto &data) { return data.muonMomentum;  });
+
+    getSidebandValue.emplace("pionCosTheta",  [](const auto &data) { return data.protonCosTheta;  }); // Getting proton instead of pion values
+    getSidebandValue.emplace("pionPhi",       [](const auto &data) { return data.protonPhi;       }); // Getting proton instead of pion values
+    getSidebandValue.emplace("pionMomentum",  [](const auto &data) { return data.protonMomentum;  }); // Getting proton instead of pion values
+
+    getSidebandValue.emplace("muonPionAngle", [](const auto &data) { return data.muonProtonAngle; }); // Getting proton instead of pion values
+    getSidebandValue.emplace("nProtons",      [](const auto &data) { return data.nProtons-1;      }); //Leading proton treated as pion in CC0pi analysis
+
+    // ATTN as described above, for the total cross-section we don't have an associated kinematic quantity so we just return a dummy value
+    getSidebandValue.emplace("total", [=](const auto &) { return dummyValue; });
+
+
+
+    // // -------------------------------------------------------------------------------------------------------------------------------------
+    // // Generate CC0pi bin weights
+    // // -------------------------------------------------------------------------------------------------------------------------------------
+    // // if(config.global.useCC0piConstraint)
+    // // {
+    // std::map<std::string,std::vector<float>> cc0piConstraintMap;
+    // for (auto &[selectionName, xsecs] : xsecMap)
+    // {
+    //     for (auto &[name, xsec] : xsecs)
+    //     {
+    //         std::vector<float> cc0piWeights;
+    //         std::ifstream signalSelected(("CC0pi_" + name + "_signal_selected_eventRate.txt").c_str());
+    //         std::ifstream dataSelected(("CC0pi_" + name + "_data_selected_eventRate.txt").c_str());
+    //         std::ifstream backgroundSelected(("CC0pi_" + name + "_background_selected_eventRate.txt").c_str());
+    //         std::string signalBinValue;
+    //         std::string dataBinValue;
+    //         std::string backgroundBinValue;
+    //         // Read the next line from File untill it reaches the end.
+    //         while (std::getline(signalSelected, signalBinValue) && std::getline(dataSelected, dataBinValue) && std::getline(backgroundSelected, backgroundBinValue))
+    //         {
+    //             cc0piWeights.push_back(std::stof(dataBinValue)/(std::stof(signalBinValue)+std::stof(backgroundBinValue)));
+    //         }
+    //         if(std::getline(signalSelected, signalBinValue) || std::getline(dataSelected, dataBinValue) || std::getline(backgroundSelected, backgroundBinValue))
+    //             throw std::logic_error("ExtractXSecs - CC0pi weight files have different numbers of entries.");
+    //         cc0piConstraintMap.emplace(name, cc0piWeights);
+    //     }
+    // }
+    // // }
+    // Loop over the files
+
+    // for (const auto &[sampleType, sampleName, fileName, normalisation] : inputData)
+    // {
+
+    //     const auto isOverlay = (sampleType == AnalysisHelper::Overlay);
+    //     const auto isDirt    = (sampleType == AnalysisHelper::Dirt);
+
+    //     // Open the input file for reading and enable the branches with systematic event weights (if required)
+    //     FileReader reader(fileName);
+
+    //     auto pEvent = reader.GetBoundEventAddress();
+
+    //     // Loop over the events in the file
+    //     const auto nEvents = reader.GetNumberOfEvents();
+    //     for (unsigned int i = 0; i < nEvents; ++i)
+    //     {
+    //                     if (isDataBNB)
+    //         {
+    //         for (auto &[selectionName, xsecs] : xsecMapSideband)
+    //         {
+    //             // Determine if we passed the relevant selection
+    //             const auto isSelected = isSelectedMap.at(selectionName);
+    //             // Only count events passing the selection
+    //             if (!isSelected)
+    //                 continue;
+
+    //             for (auto &[name, xsec] : xsecs)
+    //             {
+
+
+    // -------------------------------------------------------------------------------------------------------------------------------------
+    // -------------------------------------------------------------------------------------------------------------------------------------
+    // -------------------------------------------------------------------------------------------------------------------------------------
+    // -------------------------------------------------------------------------------------------------------------------------------------
+    // -------------------------------------------------------------------------------------------------------------------------------------
+    // -------------------------------------------------------------------------------------------------------------------------------------
+    // Count the events for CC0pi
+    // -------------------------------------------------------------------------------------------------------------------------------------
+    // Loop over the files
+    for (const auto &[sampleType, sampleName, fileName, normalisation] : inputData)
+    {
+        std::cout << "Reading input file: " << fileName << std::endl;
+
+        const auto isOverlay = (sampleType == AnalysisHelper::Overlay);
+        const auto isDirt    = (sampleType == AnalysisHelper::Dirt);
+        const auto isDataBNB = (sampleType == AnalysisHelper::DataBNB);
+        const auto isDetVar  = (sampleType == AnalysisHelper::DetectorVariation);
+
+        // Open the input file for reading and enable the branches with systematic event weights (if required)
+        FileReader reader(fileName);
+
+        if (isOverlay)
+            reader.EnableSystematicBranches();
+
+        auto pEvent = reader.GetBoundEventAddress();
+
+        // Loop over the events in the file
+        const auto nEvents = reader.GetNumberOfEvents();
+        for (unsigned int i = 0; i < nEvents; ++i)
+        {
+            AnalysisHelper::PrintLoadingBar(i, nEvents);
+            reader.LoadEvent(i);
+
+            // -----------------------------------------------------------------------------------------------------------------------------
+            // Work out if this event passed the selection and apply any additional phase-space cuts based on the input binning
+            // -----------------------------------------------------------------------------------------------------------------------------
+
+            // Run the selection
+            const auto &[passedSidebandSelection, sidebandCutsPassed, sidebandAssignedPdgCodes] = sidebandSelection.Execute(pEvent);
+
+            // Get the reco analysis data (if available, otherwise set to dummy values)
+            const auto recoData = (
+                passedSidebandSelection
+                    ? AnalysisHelper::GetRecoAnalysisDataCC0Pi(pEvent->reco, sidebandAssignedPdgCodes)
+                    : AnalysisHelper::GetDummyAnalysisData()
+            );
+
+            // Here we apply reco-level phase-space restrictions
+            // For any event that passes the generic selection, get the value of the kinematic quantity and check if it is outside of the
+            // min/max values supplied in the binning. If so, then reject the event.
+            bool passesPhaseSpaceReco = false;
+            if (passedSidebandSelection)
+            {
+                // Start by assuming the event passes the phase-space cuts
+                passesPhaseSpaceReco = true;
+
+                // Check the value of the kinematic quantities are within the phase-space limits
+                for (const auto &[name, minMax] : phaseSpaceMap)
+                {
+                    const auto &[min, max] = minMax;
+                    const auto value = getSidebandValue.at(name)(recoData);
+
+                    if (value < min || value > max)
+                    {
+                        passesPhaseSpaceReco = false;
+                        break;
+                    }
+                }
+            }
+
+            const auto isSelectedSideband = passedSidebandSelection  && passesPhaseSpaceReco;
+            // std::map<std::string, bool> isSelectedMap = {{"sideband",isSelectedSideband}};
+            std::map<std::string, bool> isSelectedMap = {{"generic",isSelectedSideband},{"golden",isSelectedSideband}};
+
+            // -----------------------------------------------------------------------------------------------------------------------------
+            // Handle BNB data
+            // -----------------------------------------------------------------------------------------------------------------------------
+            if (isDataBNB)
+            {
+                for (auto &[selectionName, xsecs] : xsecMapSideband)
+                {
+                    // Determine if we passed the relevant selection
+                    const auto isSelected = isSelectedMap.at(selectionName);
+                    // Only count events passing the selection
+                    if (!isSelected)
+                        continue;
+
+                    for (auto &[name, xsec] : xsecs)
+                    {
+                        xsec.AddSelectedBNBDataEvent(getSidebandValue.at(name)(recoData));
+                    }
+                }
+
+                // For BNB data that's all we need to do!
+                continue;
+            }
+
+            // -----------------------------------------------------------------------------------------------------------------------------
+            // Work out if this event is signal, and apply any phase-space restrictions based on the input binning
+            // -----------------------------------------------------------------------------------------------------------------------------
+
+            // Get the nominal event weight, scaled by the sample normalisation
+            auto weight = AnalysisHelper::GetNominalEventWeight(pEvent) * normalisation;
+
+            // Determine if this is truly a CC0Pi event
+            const auto isTrueCC0Pi = (isOverlay || isDetVar) && AnalysisHelper::IsTrueCC0Pi(pEvent, config.global.useAbsPdg, config.global.protonMomentumThreshold);            
+
+            // Get the truth analysis data (if available, otherwise set to dummy values)
+            const auto truthData = (
+                (isTrueCC0Pi)
+                    ? AnalysisHelper::GetTruthAnalysisDataCC0Pi(pEvent->truth, config.global.useAbsPdg, config.global.protonMomentumThreshold)
+                    : AnalysisHelper::GetDummyAnalysisData()
+            );
+
+            // Here we apply truth-level phase-space restrictions
+            // For all true CC1Pi events, we check if the values of each kinematic variable are within the supplied limits. If not then the
+            // event is not classed as "signal"
+            bool passesPhaseSpaceTruth = false;
+            if (isTrueCC0Pi)
+            {
+                // Start by assuming the event passes the phase-space cuts
+                passesPhaseSpaceTruth = true;
+
+                // Check the value of the kinematic quantities are within the phase-space limits
+                for (const auto &[name, minMax] : phaseSpaceMap)
+                {
+                    const auto &[min, max] = minMax;
+                    const auto value = getSidebandValue.at(name)(truthData);
+
+                    if (value < min || value > max)
+                    {
+                        passesPhaseSpaceTruth = false;
+                        break;
+                    }
+                }
+            }
+
+            const auto isCC0PiSignal = isTrueCC0Pi && passesPhaseSpaceTruth;
+            // std::map<std::string, bool> isSignalMap = {{"sideband",isCC0PiSignal}};
+            std::map<std::string, bool> isSignalMap = {{"generic",isCC0PiSignal},{"golden",isCC0PiSignal}};
+
+            // -----------------------------------------------------------------------------------------------------------------------------
+            // Handle the detector variation samples (unisims)
+            // -----------------------------------------------------------------------------------------------------------------------------
+            if (isDetVar)
+            {
+                for (auto &[selectionName, xsecs] : xsecMapSideband)
+                {
+                    const auto isSignal = isSignalMap.at(selectionName);
+                    // Handle signal events
+                    if (isSignal)
+                    {
+                        // Determine if we passed the relevant selection
+                        const auto isSelected = isSelectedMap.at(selectionName);
+
+                        for (auto &[name, xsec] : xsecs)
+                        {
+                            const auto recoValue = getSidebandValue.at(name)(recoData);
+                            const auto trueValue = getSidebandValue.at(name)(truthData);
+                            xsec.AddSignalEventDetVar(recoValue, trueValue, isSelected, weight, sampleName);
+                        }
+                    }
+                    // Handle selected background events
+                    else
+                    {
+                        for (auto &[selectionName, xsecs] : xsecMapSideband)
+                        {
+                            // Only use selected background events
+                            const auto isSelected = isSelectedMap.at(selectionName);
+                            if (!isSelected)
+                                continue;
+
+                            for (auto &[name, xsec] : xsecs)
+                            {
+                                const auto recoValue = getSidebandValue.at(name)(recoData);
+                                xsec.AddSelectedBackgroundEventDetVar(recoValue, weight, sampleName);
+                            }
+                        }
+                    }
+                }
+
+                // For detector variation samples, that's all we need to do!
+                continue;
+            }
+            // -----------------------------------------------------------------------------------------------------------------------------
+            // Handle all other events (i.e those from the nominal simulation): Overlays, dirt, EXT data
+            // -----------------------------------------------------------------------------------------------------------------------------
+
+            // Get the flux weights
+            const auto fluxWeights = (
+                isOverlay
+                    ? CrossSectionHelper::GetWeightsMap(pEvent->truth, systParams.fluxDimensions, config.extractXSecs.mutuallyExclusiveDimensions)
+                    : CrossSectionHelper::GetUnitWeightsMap(systParams.fluxDimensions)
+            );
+
+            // Fill the flux-reweightor with all overlay events from neutrinos of the desired flavour in the active volume
+            if (isOverlay && AnalysisHelper::IsInActiveVolume(pEvent->truth.nuVertex()) &&
+                std::find(config.flux.nuPdgsSignal.begin(), config.flux.nuPdgsSignal.end(), pEvent->truth.nuPdgCode()) != config.flux.nuPdgsSignal.end())
+            {
+                scalingData.pFluxReweightor->AddEvent(pEvent->truth.nuEnergy(), weight, fluxWeights);
+            }
+            // Get the cross-section weights
+            // ATTN here we optionally scale the cross-section weights down by the genieTuneEventWeight - this is done so we don't
+            // double count this weight (once in the nominal event weight, and once in the xsec systematic event weights)
+            const auto xsecWeightsScaleFactor = 1.f;
+            // const auto xsecWeightsScaleFactor = (isOverlay && config.extractXSecs.scaleXSecWeights) ? pEvent->truth.genieTuneEventWeight() : 1.f;
+
+            const auto xsecWeights = (
+                isOverlay
+                    ? CrossSectionHelper::ScaleWeightsMap(CrossSectionHelper::GetWeightsMap(pEvent->truth, systParams.xsecDimensions, config.extractXSecs.mutuallyExclusiveDimensions), xsecWeightsScaleFactor)
+                    : CrossSectionHelper::GetUnitWeightsMap(systParams.xsecDimensions)
+            );
+
+            // Get the reinteraction weights
+            const auto reintWeights = (
+                isOverlay
+                    ? CrossSectionHelper::GetWeightsMap(pEvent->truth, systParams.reintDimensions, config.extractXSecs.mutuallyExclusiveDimensions)
+                    : CrossSectionHelper::GetUnitWeightsMap(systParams.reintDimensions)
+            );
+            for (auto &[selectionName, xsecs] : xsecMapSideband)
+            {
+                const auto isSignal = isSignalMap.at(selectionName);
+                // Handle signal events
+                if (isSignal)
+                {
+                    for (auto &[selectionName, xsecs] : xsecMapSideband)
+                    {
+                        // Determine if we passed the relevant selection
+                        const auto isSelected = isSelectedMap.at(selectionName);
+
+                        for (auto &[name, xsec] : xsecs)
+                        {
+                            const auto recoValue = getSidebandValue.at(name)(recoData);
+                            const auto trueValue = getSidebandValue.at(name)(truthData);
+                            const auto seedString =  selectionName + name + std::to_string(i);
+                            xsec.AddSignalEvent(recoValue, trueValue, isSelected, weight, fluxWeights, xsecWeights, reintWeights, seedString);
+                        }
+                    }
+                }
+                // Handle selected background events
+                else
+                {
+                    for (auto &[selectionName, xsecs] : xsecMapSideband)
+                    {
+                        // Only use selected background events
+                        const auto isSelected = isSelectedMap.at(selectionName);
+                        if (!isSelected)
+                            continue;
+
+                        for (auto &[name, xsec] : xsecs)
+                        {
+                            const auto recoValue = getSidebandValue.at(name)(recoData);
+                            const auto seedString =  selectionName + name + std::to_string(i);
+                            std::vector<float> bootstrapWeights; // Parameter only needed for CC1pi
+                            xsec.AddSelectedBackgroundEvent(recoValue, isDirt, weight, fluxWeights, xsecWeights, reintWeights, bootstrapWeights, seedString);
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    // -------------------------------------------------------------------------------------------------------------------------------------
+    // Calculate the sideband weights
+    // -------------------------------------------------------------------------------------------------------------------------------------
+    // Loop over all cross-section objects
+    std::map<std::string, std::map<std::string, std::pair<std::vector<Double_t>,std::vector<Double_t>>>> cc0piNominalConstraintMap;
+    std::map<std::string, std::map<std::string, std::vector<std::pair<std::vector<Double_t>,std::vector<Double_t>>>>> cc0piUniverseConstraintMap;
+    
+    for (const auto &[selectionName, xsecs] : xsecMapSideband)
+    {
+        for (const auto &[name, xsec] : xsecs)
+        {
+
+            // -------------------------------------------------------------------------------------------------------------------------------------
+            // Fit nominal
+            // -------------------------------------------------------------------------------------------------------------------------------------
+
+            std::cout<<"_______________________Fitting: "<<selectionName<<" - "<<name<<"_______________________"<<std::endl;
+            // const auto sidebandCVFit = xsec.GetPredictedCrossSection(scalingData);
+
+            std::cout<<"_______________________Fitting Point 0.1"<<std::endl;
+            const auto selectedEventsData = xsec.GetSelectedBNBDataEvents();
+            std::cout<<"_______________________Fitting Point 0.2"<<std::endl;
+            const auto smearingMatrix = xsec.GetSmearingMatrix();
+            std::cout<<"_______________________Fitting Point 0.3"<<std::endl;
+            const auto selectedEventsBackgroundReco = xsec.GetSelectedBackgroundEvents();
+            std::cout<<"_______________________Fitting Point 0.4"<<std::endl;
+            const auto selectedEventsSignalTruth = xsec.GetSelectedSignalEvents();
+            std::cout<<"_______________________Fitting Point 0.5"<<std::endl;
+            const auto signalData = selectedEventsData - selectedEventsBackgroundReco;
+            std::cout<<"_______________________Fitting Point 1"<<std::endl;
+            // const auto &[pPredictionStatBias, pPredictionStatCovariance] = xsec.GetPredictedCrossSectionStatUncertainty(scalingData);
+            // const auto predictionErrorMatrix = CrossSectionHelper::GetErrorMatrix(*pPredictionBiasVector, *pPredictionCovarianceMatrix);\
+
+            std::vector<float> elements;
+            const auto nBins = signalData.GetRows();
+            std::cout<<"_______________________Fitting Point 1.1"<<std::endl;
+            for (unsigned int iBin = 0; iBin < nBins; ++iBin)
+            {
+                std::cout<<"_______________________Fitting Point 1.2"<<std::endl;
+                const auto value = signalData.At(iBin, 0);
+                if (value<0)
+                    std::cout<<"Value below zero: "<<value<<std::endl;
+                elements.push_back(AnalysisHelper::GetCountUncertainty(std::max(value,0.f)));
+                std::cout<<"_______________________Fitting Point 1.3"<<std::endl;
+            }
+            std::cout<<"_______________________Fitting Point 2"<<std::endl;
+            const ubsmear::UBMatrix signalDataUncertainty(elements, nBins, 1);
+
+            std::cout<<"_______________________Fitting Point 3"<<std::endl;
+            x = signalData.GetValues();
+            y = selectedEventsSignalTruth.GetValues();
+            errorY = signalDataUncertainty.GetValues();
+            S = smearingMatrix.GetValues();
+            std::cout<<"_______________________Fitting Point 4"<<std::endl;
+            // auto minimizer = FittingHelper(selectedEventsSignal, signalData, signalDataUncertainty, smearingMatrix);
+            auto minimizer = FittingHelper(nBins);
+            std::pair<std::vector<Double_t>, std::vector<Double_t>> result;
+            minimizer.Fit(fcn, result, 0);
+            std::cout<<"_______________________Fitting Point 5"<<std::endl;
+
+
+            cc0piNominalConstraintMap[selectionName].emplace(name, result);
+            // FittingHelper::Fit(selectedEventsSignal, signalData, signalDataUncertainty, smearingMatrix);
+
+            // const auto sidebandWeights = xsec.GetSidebandWeights(scalingData);
+
+            // -------------------------------------------------------------------------------------------------------------------------------------
+            // Fit each universe
+            // -------------------------------------------------------------------------------------------------------------------------------------
+
+            const auto nUniverses = config.extractXSecs.nBootstrapUniverses;
+
+            const auto selectedSignalTruthUniverses = xsec.GetSelectedSignalRecoTruthMap().at("misc").at("bootstrap");
+            const auto selectedBackgroundRecoUniverses = xsec.GetSelectedBackgroundRecoMap().at("misc").at("bootstrap");
+
+            std::vector<std::pair<std::vector<Double_t>,std::vector<Double_t>>> resultVector;
+            for (unsigned int iUni = 0; iUni < nUniverses; ++iUni)
+            {
+                // AnalysisHelper::PrintLoadingBar(iUni, nUniverses);
+                const auto selectedSignalTruth = xsec.GetSignalSelectedTrue(selectedSignalTruthUniverses.at(iUni));
+                const auto selectedBackgoundReco = CrossSectionHelper::GetMatrixFromHist(selectedBackgroundRecoUniverses.at(iUni));
+                const auto signalData = selectedEventsData - selectedBackgoundReco;
+
+                x = signalData.GetValues();
+                y = selectedSignalTruth.GetValues();
+                std::pair<std::vector<Double_t>, std::vector<Double_t>> result;
+                minimizer.Fit(fcn, result, -1);
+                
+
+                std::cout<<"\nParameter("<<iUni<<"):";
+                for (const auto &r : result.first)
+                    std::cout<<" "<<r;
+                    
+                std::cout<<"\nUncertainty:";
+                for (const auto &r : result.second)
+                    std::cout<<" "<<r;
+                
+                resultVector.push_back(result);
+            }
+            cc0piUniverseConstraintMap[selectionName].emplace(name, resultVector);
+        }
+    }
+
+    std::cout<<"\n\nDone with CC0pi constraint."<<std::endl;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    // -------------------------------------------------------------------------------------------------------------------------------------
     // Setup the relevent "getters" for each cross-section
     // -------------------------------------------------------------------------------------------------------------------------------------
     // Here we define a map from the name of each cross-section to a function which pulls out the relevant kinematic quanitity from an input
@@ -206,7 +727,7 @@ void ExtractXSecs(const Config &config)
     getValue.emplace("total", [=](const auto &) { return dummyValue; });
 
     // -------------------------------------------------------------------------------------------------------------------------------------
-    // Count the events
+    // Count the events for CC1pi
     // -------------------------------------------------------------------------------------------------------------------------------------
     // Loop over the files
     for (const auto &[sampleType, sampleName, fileName, normalisation] : inputData)
@@ -273,6 +794,7 @@ void ExtractXSecs(const Config &config)
 
             const auto isSelectedGolden = passedGoldenSelection && passesPhaseSpaceReco;
             const auto isSelectedGeneric = passedGenericSelection && passesPhaseSpaceReco;
+            std::map<std::string, bool> isSelectedMap = {{"generic",isSelectedGolden},{"golden",isSelectedGeneric}};
 
             // -----------------------------------------------------------------------------------------------------------------------------
             // Handle BNB data
@@ -282,8 +804,7 @@ void ExtractXSecs(const Config &config)
                 for (auto &[selectionName, xsecs] : xsecMap)
                 {
                     // Determine if we passed the relevant selection
-                    const auto isSelected = (selectionName == "golden" ? isSelectedGolden : isSelectedGeneric);
-
+                    const auto isSelected = isSelectedMap.at(selectionName);
                     // Only count events passing the selection
                     if (!isSelected)
                         continue;
@@ -303,14 +824,17 @@ void ExtractXSecs(const Config &config)
             // -----------------------------------------------------------------------------------------------------------------------------
 
             // Get the nominal event weight, scaled by the sample normalisation
-            const auto weight = AnalysisHelper::GetNominalEventWeight(pEvent) * normalisation;
+            auto weight = AnalysisHelper::GetNominalEventWeight(pEvent) * normalisation;
 
             // Determine if this is truly a CC1Pi event
             const auto isTrueCC1Pi = (isOverlay || isDetVar) && AnalysisHelper::IsTrueCC1Pi(pEvent, config.global.useAbsPdg);
+            
+            // Determine if this is truly a CC0Pi event
+            const auto isTrueCC0Pi = (isOverlay || isDetVar) && AnalysisHelper::IsTrueCC0Pi(pEvent, config.global.useAbsPdg, config.global.protonMomentumThreshold);
 
             // Get the truth analysis data (if available, otherwise set to dummy values)
             const auto truthData = (
-                isTrueCC1Pi
+                (isTrueCC1Pi)
                     ? AnalysisHelper::GetTruthAnalysisData(pEvent->truth, config.global.useAbsPdg, config.global.protonMomentumThreshold)
                     : AnalysisHelper::GetDummyAnalysisData()
             );
@@ -338,44 +862,45 @@ void ExtractXSecs(const Config &config)
                 }
             }
 
-            const auto isSignal = isTrueCC1Pi && passesPhaseSpaceTruth;
+            const auto isCC1PiSignal = isTrueCC1Pi && passesPhaseSpaceTruth;
+            std::map<std::string, bool> isSignalMap = {{"generic",isCC1PiSignal},{"golden",isCC1PiSignal}};
 
             // -----------------------------------------------------------------------------------------------------------------------------
             // Handle the detector variation samples (unisims)
             // -----------------------------------------------------------------------------------------------------------------------------
             if (isDetVar)
             {
-                // Handle signal events
-                if (isSignal)
+                for (auto &[selectionName, xsecs] : xsecMap)
                 {
-                    for (auto &[selectionName, xsecs] : xsecMap)
+                    const auto isSignal = isSignalMap.at(selectionName);
+                    // Handle signal events
+                    if (isSignal)
                     {
                         // Determine if we passed the relevant selection
-                        const auto isSelected = (selectionName == "golden" ? isSelectedGolden : isSelectedGeneric);
+                        const auto isSelected = isSelectedMap.at(selectionName);
 
                         for (auto &[name, xsec] : xsecs)
                         {
                             const auto recoValue = getValue.at(name)(recoData);
                             const auto trueValue = getValue.at(name)(truthData);
-
                             xsec.AddSignalEventDetVar(recoValue, trueValue, isSelected, weight, sampleName);
                         }
                     }
-                }
-                // Handle selected background events
-                else
-                {
-                    for (auto &[selectionName, xsecs] : xsecMap)
+                    // Handle selected background events
+                    else
                     {
-                        // Only use selected background events
-                        const auto isSelected = (selectionName == "golden" ? isSelectedGolden : isSelectedGeneric);
-                        if (!isSelected)
-                            continue;
-
-                        for (auto &[name, xsec] : xsecs)
+                        for (auto &[selectionName, xsecs] : xsecMap)
                         {
-                            const auto recoValue = getValue.at(name)(recoData);
-                            xsec.AddSelectedBackgroundEventDetVar(recoValue, weight, sampleName);
+                            // Only use selected background events
+                            const auto isSelected = isSelectedMap.at(selectionName);
+                            if (!isSelected)
+                                continue;
+
+                            for (auto &[name, xsec] : xsecs)
+                            {
+                                const auto recoValue = getValue.at(name)(recoData);
+                                xsec.AddSelectedBackgroundEventDetVar(recoValue, weight, sampleName);
+                            }
                         }
                     }
                 }
@@ -395,14 +920,7 @@ void ExtractXSecs(const Config &config)
                     : CrossSectionHelper::GetUnitWeightsMap(systParams.fluxDimensions)
             );
 
-            // Get the reinteraction weights
-            const auto reintWeights = (
-                isOverlay
-                    ? CrossSectionHelper::GetWeightsMap(pEvent->truth, systParams.reintDimensions, config.extractXSecs.mutuallyExclusiveDimensions)
-                    : CrossSectionHelper::GetUnitWeightsMap(systParams.reintDimensions)
-            );
-
-            // Fill the flux-reweightor with all overlay events from a neutrinos of the desired flavour in the active volume
+            // Fill the flux-reweightor with all overlay events from neutrinos of the desired flavour in the active volume
             if (isOverlay && AnalysisHelper::IsInActiveVolume(pEvent->truth.nuVertex()) &&
                 std::find(config.flux.nuPdgsSignal.begin(), config.flux.nuPdgsSignal.end(), pEvent->truth.nuPdgCode()) != config.flux.nuPdgsSignal.end())
             {
@@ -412,48 +930,87 @@ void ExtractXSecs(const Config &config)
             // Get the cross-section weights
             // ATTN here we optionally scale the cross-section weights down by the genieTuneEventWeight - this is done so we don't
             // double count this weight (once in the nominal event weight, and once in the xsec systematic event weights)
-            
             const auto xsecWeightsScaleFactor = 1.f;
             // const auto xsecWeightsScaleFactor = (isOverlay && config.extractXSecs.scaleXSecWeights) ? pEvent->truth.genieTuneEventWeight() : 1.f;
-            std::cout<<"&&&&& Extracs   tXSecs - Point 5.4 - isOverlay: "<<isOverlay<<std::endl;
+
             const auto xsecWeights = (
                 isOverlay
                     ? CrossSectionHelper::ScaleWeightsMap(CrossSectionHelper::GetWeightsMap(pEvent->truth, systParams.xsecDimensions, config.extractXSecs.mutuallyExclusiveDimensions), xsecWeightsScaleFactor)
                     : CrossSectionHelper::GetUnitWeightsMap(systParams.xsecDimensions)
             );
+
+            // Get the reinteraction weights
+            const auto reintWeights = (
+                isOverlay
+                    ? CrossSectionHelper::GetWeightsMap(pEvent->truth, systParams.reintDimensions, config.extractXSecs.mutuallyExclusiveDimensions)
+                    : CrossSectionHelper::GetUnitWeightsMap(systParams.reintDimensions)
+            );
             
-            std::cout<<"&&&&& ExtractXSecs - Point 6"<<std::endl;
-            // Handle signal events
-            if (isSignal)
+            for (auto &[selectionName, xsecs] : xsecMap)
             {
-                for (auto &[selectionName, xsecs] : xsecMap)
+                const auto isSignal = isSignalMap.at(selectionName);
+                // Handle signal events
+                if (isSignal)
                 {
-                    // Determine if we passed the relevant selection
-                    const auto isSelected = (selectionName == "golden" ? isSelectedGolden : isSelectedGeneric);
-
-                    for (auto &[name, xsec] : xsecs)
+                    for (auto &[selectionName, xsecs] : xsecMap)
                     {
-                        const auto recoValue = getValue.at(name)(recoData);
-                        const auto trueValue = getValue.at(name)(truthData);
+                        // Determine if we passed the relevant selection
+                        const auto isSelected = isSelectedMap.at(selectionName);
 
-                        xsec.AddSignalEvent(recoValue, trueValue, isSelected, weight, fluxWeights, xsecWeights, reintWeights);
+                        for (auto &[name, xsec] : xsecs)
+                        {
+                            const auto recoValue = getValue.at(name)(recoData);
+                            const auto trueValue = getValue.at(name)(truthData);
+
+                            const auto seedString =  selectionName + name + std::to_string(i);
+                            xsec.AddSignalEvent(recoValue, trueValue, isSelected, weight, fluxWeights, xsecWeights, reintWeights, seedString);
+                        }
                     }
                 }
-            }
-            // Handle selected background events
-            else
-            {
-                for (auto &[selectionName, xsecs] : xsecMap)
+                // Handle selected background events
+                else
                 {
-                    // Only use selected background events
-                    const auto isSelected = (selectionName == "golden" ? isSelectedGolden : isSelectedGeneric);
-                    if (!isSelected)
-                        continue;
-
-                    for (auto &[name, xsec] : xsecs)
+                    for (auto &[selectionName, xsecs] : xsecMap)
                     {
-                        const auto recoValue = getValue.at(name)(recoData);
-                        xsec.AddSelectedBackgroundEvent(recoValue, isDirt, weight, fluxWeights, xsecWeights, reintWeights);
+                        // Only use selected background events
+                        const auto isSelected = isSelectedMap.at(selectionName);
+                        if (!isSelected)
+                            continue;
+
+                        for (auto &[name, xsec] : xsecs)
+                        {
+                            const auto recoValue = getValue.at(name)(recoData);
+                            const auto trueValue = getValue.at(name)(truthData);
+                            
+                            // Add CC0pi constraint
+                            std::vector<float> bootstrapWeights;
+                            if(config.global.useCC0piConstraint && isTrueCC0Pi)
+                            {
+                                auto cc0piNominalConstraintParam = cc0piNominalConstraintMap.at(selectionName).at(name).first;
+                                const auto binEdges = xsec.GetBinEdges();
+                                for (unsigned i=0; i < binEdges.size()-1; i++)//Todo: Do this more efficiently
+                                {
+                                    if (trueValue>binEdges[i] && trueValue<binEdges[i+1])
+                                    {
+                                        const auto paramNominal = cc0piNominalConstraintParam[i];
+                                        weight *= paramNominal;
+                                        
+                                        auto cc0piUniverseConstraintParamVector = cc0piUniverseConstraintMap.at(selectionName).at(name);
+                                        // We iterate over the universes next
+
+                                        for (const auto &[param, paramError] : cc0piUniverseConstraintParamVector)
+                                        {
+                                            // We divide by the nominal scaling to not include it twice (first time in nominal weight)
+                                            bootstrapWeights.push_back(param[i]/paramNominal);
+                                        }
+                                        break;
+                                    }
+                                }
+                            }
+                            
+                            const auto seedString =  selectionName + name + std::to_string(i);
+                            xsec.AddSelectedBackgroundEvent(recoValue, isDirt, weight, fluxWeights, xsecWeights, reintWeights, bootstrapWeights, seedString);
+                        }
                     }
                 }
             }
@@ -544,15 +1101,20 @@ void ExtractXSecs(const Config &config)
                 {
                     const auto &[pBias, pCovariance] = biasCovariance;
 
+                    std::cout<<"%^&%^&%^& ExtractXSec DEBUG - Point 1 - selectionName: "<< selectionName << " - name: " << name <<"\n";
                     std::cout << "Smearing matrix syst uncertainty: " << group << " " << paramName << std::endl;
                     std::cout << "Bias vector" << std::endl;
                     FormattingHelper::SaveMatrix(*pBias, "xsec_" + selectionName + "_" + name + "_smearingMatrix_" + group + "_" + paramName + "_bias.txt");
                     std::cout << "Covariance matrix" << std::endl;
                     FormattingHelper::SaveMatrix(*pCovariance, "xsec_" + selectionName + "_" + name + "_smearingMatrix_" + group + "_" + paramName + "_covariance.txt");
+                    std::cout<<"%^&%^&%^& ExtractXSec DEBUG - Point 2 - selectionName: "<<"\n";
                 }
             }
+            std::cout<<"%^&%^&%^& ExtractXSec DEBUG - Point 3 - selectionName: "<<"\n";
         }
+        std::cout<<"%^&%^&%^& ExtractXSec DEBUG - Point 4 - selectionName: "<<"\n";
     }
+    std::cout<<"%^&%^&%^& ExtractXSec DEBUG - Point 5 - selectionName: "<<"\n";
 }
 
 } // namespace ubcc1pi_macros

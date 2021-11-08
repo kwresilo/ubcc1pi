@@ -6,7 +6,7 @@
 <!ENTITY username        "jdetje">
 
 <!-- LArSoft version -->
-<!ENTITY tag             "v08_00_00_25">
+<!ENTITY tag             "v08_00_00_57">
 <!ENTITY qual            "e17:prof">
 
 <!-- Job settings -->
@@ -16,7 +16,7 @@
 <!ENTITY projectName     "ubcc1pi">
 <!ENTITY dataTier        "ana">
 <!ENTITY schema          "root">    <!-- Can also use gsiftp which is less efficiency but usually more stable, you may need to request extra resources -->
-<!ENTITY jobsub           "--expected-lifetime=1h --append_condor_requirements='(TARGET.HAS_CVMFS_uboone_osgstorage_org==true)' -e XRD_LOADBALANCERTTL=7200 -e XRD_CONNECTIONRETRY=32 -e XRD_REQUESTTIMEOUT=3600 -e XRD_STREAMTIMEOUT=7200 -e XRD_REDIRECTLIMIT=255">
+<!ENTITY jobsub           "--expected-lifetime=8h --append_condor_requirements='(TARGET.HAS_CVMFS_uboone_osgstorage_org==true)' -e XRD_LOADBALANCERTTL=7200 -e XRD_CONNECTIONRETRY=32 -e XRD_REQUESTTIMEOUT=3600 -e XRD_STREAMTIMEOUT=7200 -e XRD_REDIRECTLIMIT=255 -e XRD_DATASERVERTTL=7200 -e XRD_TCPKEEPALIVE=1">
 
 ]>
 
@@ -43,8 +43,17 @@
     <maxfilesperjob>0</maxfilesperjob>
     <numevents>&numEvents;</numevents>
 
-<!-- overlays -->
-<stage name="overlays">
+
+<!--
+###################
+######################################
+###### RUN 1 ############################################
+######################################
+###################
+-->
+
+<!-- overlays_run1 -->
+<stage name="overlays_run1">
     <!-- Settings -->
     <fcl>analysis_file_writer_driver.fcl</fcl>
     <numjobs>373</numjobs>
@@ -55,9 +64,9 @@
     <inputdef>prodgenie_bnb_nu_uboone_overlay_ccinc_reweightSept24_mcc9.1_run1_suprajab</inputdef>
 
     <!-- Output directories -->
-    <outdir>/pnfs/uboone/scratch/users/&username;/&projectName;/overlays/</outdir>
-    <logdir>/pnfs/uboone/scratch/users/&username;/&projectName;/overlays/</logdir>
-    <workdir>/pnfs/uboone/resilient/users/&username;/work/&projectName;/overlays/</workdir>
+    <outdir>/pnfs/uboone/scratch/users/&username;/&projectName;/overlays_run1/</outdir>
+    <logdir>/pnfs/uboone/scratch/users/&username;/&projectName;/overlays_run1/</logdir>
+    <workdir>/pnfs/uboone/resilient/users/&username;/work/&projectName;/overlays_run1/</workdir>
 
     <!-- Options -->
     <datatier>&dataTier;</datatier>
@@ -65,32 +74,11 @@
     <jobsub>&jobsub;</jobsub>
 </stage>
 
-<stage name="overlaysFileLocationDatabase">
-    <!-- Settings -->
-    <fcl>file_location_database_driver.fcl</fcl>
-    <numjobs>35</numjobs>
-    <maxfilesperjob>11</maxfilesperjob>
-    <numevents>&numEvents;</numevents>
-
-    <!-- Input files -->
-    <inputdef>prodgenie_bnb_nu_uboone_overlay_ccinc_reweight_mcc9.1_run1_joelam</inputdef>
-
-    <!-- Output directories -->
-    <outdir>/pnfs/uboone/scratch/users/&username;/&projectName;/overlaysFileLocationDatabase/</outdir>
-    <logdir>/pnfs/uboone/scratch/users/&username;/&projectName;/overlaysFileLocationDatabase/</logdir>
-    <workdir>/pnfs/uboone/resilient/users/&username;/work/&projectName;/overlaysFileLocationDatabase/</workdir>
-
-    <!-- Options -->
-    <datatier>&dataTier;</datatier>
-    <schema>&schema;</schema>
-    <jobsub>&jobsub;</jobsub>
-</stage>
-
-<!-- dirt -->
-<stage name="dirt">
+<!-- dirt_run1 -->
+<stage name="dirt_run1">
     <!-- Settings -->
     <fcl>analysis_file_writer_driver.fcl</fcl>
-    <numjobs>5</numjobs> <!-- 34 -->
+    <numjobs>34</numjobs>
     <maxfilesperjob>1</maxfilesperjob>
     <numevents>&numEvents;</numevents>
 
@@ -98,9 +86,9 @@
     <inputdef>prodgenie_dirt_overlay_ccinc_reweightSept24_mcc9.1_run1_suprajab</inputdef>
 
     <!-- Output directories -->
-    <outdir>/pnfs/uboone/scratch/users/&username;/&projectName;/dirt/</outdir>
-    <logdir>/pnfs/uboone/scratch/users/&username;/&projectName;/dirt/</logdir>
-    <workdir>/pnfs/uboone/resilient/users/&username;/work/&projectName;/dirt/</workdir>
+    <outdir>/pnfs/uboone/scratch/users/&username;/&projectName;/dirt_run1/</outdir>
+    <logdir>/pnfs/uboone/scratch/users/&username;/&projectName;/dirt_run1/</logdir>
+    <workdir>/pnfs/uboone/resilient/users/&username;/work/&projectName;/dirt_run1/</workdir>
 
     <!-- Options -->
     <datatier>&dataTier;</datatier>
@@ -178,6 +166,7 @@
 <stage name="overlays_DetVar_CV_run1">
     <!-- Settings -->
     <fcl>analysis_file_writer_driver_noEventWeights.fcl</fcl>
+    <!-- 11533 files -->   
     <numjobs>231</numjobs>
     <maxfilesperjob>50</maxfilesperjob>
     <numevents>&numEvents;</numevents>
@@ -198,34 +187,13 @@
 </stage>
 
 
-<!-- Detector variation CV run 3b-->
-<stage name="overlays_DetVar_CV_run3b">
-    <!-- Settings -->
-    <fcl>analysis_file_writer_driver_noEventWeights.fcl</fcl>
-    <numjobs>188</numjobs>
-    <maxfilesperjob>10</maxfilesperjob>
-    <numevents>&numEvents;</numevents>
-
-    <!-- Input files -->
-    <inputdef>prodgenie_bnb_nu_overlay_DetVar_CV_reco2_v08_00_00_38_run3b_reco2_reco2</inputdef>
-
-    <!-- Output directories -->
-    <outdir>/pnfs/uboone/scratch/users/&username;/&projectName;/overlays_DetVar_CV_run3b/</outdir>
-    <logdir>/pnfs/uboone/scratch/users/&username;/&projectName;/overlays_DetVar_CV_run3b/</logdir>
-    <workdir>/pnfs/uboone/resilient/users/&username;/work/&projectName;/overlays_DetVar_CV_run3b/</workdir>
-
-    <!-- Options -->
-    <datatier>&dataTier;</datatier>
-    <schema>&schema;</schema>
-    <jobsub>&jobsub;</jobsub>
-</stage>
-
 <!-- Detector variation light yeild down run 1-->
 <stage name="overlays_DetVar_LYDown_run1">
     <!-- Settings -->
     <fcl>analysis_file_writer_driver_noEventWeights.fcl</fcl>
-    <numjobs>571</numjobs>
-    <maxfilesperjob>20</maxfilesperjob>
+    <!-- 11411 files -->
+    <numjobs>229</numjobs>
+    <maxfilesperjob>50</maxfilesperjob>
     <numevents>&numEvents;</numevents>
 
     <!-- Input files -->
@@ -246,8 +214,9 @@
 <stage name="overlays_DetVar_LYRayleigh_run1">
     <!-- Settings -->
     <fcl>analysis_file_writer_driver_noEventWeights.fcl</fcl>
-    <numjobs>10</numjobs> <!-- 1154 -->
-    <maxfilesperjob>10</maxfilesperjob>
+    <!-- 11536 files -->
+    <numjobs>231</numjobs>
+    <maxfilesperjob>50</maxfilesperjob>
     <numevents>&numEvents;</numevents>
 
     <!-- Input files -->
@@ -265,11 +234,12 @@
 </stage>
 
 <!-- Detector variation light yeild attenuation run 1-->
+<!-- Not needed for run 1-->
 <stage name="overlays_DetVar_LYAttenuation_run1">
     <!-- Settings -->
     <fcl>analysis_file_writer_driver_noEventWeights.fcl</fcl>
-    <numjobs>10</numjobs> <!-- 218 -->
-    <maxfilesperjob>10</maxfilesperjob>
+    <numjobs>0</numjobs> <!-- 218 -->
+    <maxfilesperjob>50</maxfilesperjob>
     <numevents>&numEvents;</numevents>
 
     <!-- Input files -->
@@ -289,9 +259,10 @@
 <!-- Detector variation wire mod X run 1-->
 <stage name="overlays_DetVar_WireModX_run1">
     <!-- Settings -->
-    <fcl>analysis_file_writer_driver_noEventWeights_runCCInclusive.fcl</fcl>
-    <numjobs>1150</numjobs>
-    <maxfilesperjob>10</maxfilesperjob>
+    <fcl>analysis_file_writer_driver_noEventWeights.fcl</fcl>
+    <!-- 11491 files -->
+    <numjobs>230</numjobs>
+    <maxfilesperjob>50</maxfilesperjob>
     <numevents>&numEvents;</numevents>
 
     <!-- Input files -->
@@ -311,9 +282,10 @@
 <!-- Detector variation wire mod YZ run 1-->
 <stage name="overlays_DetVar_WireModYZ_run1">
     <!-- Settings -->
-    <fcl>analysis_file_writer_driver_noEventWeights_runCCInclusive.fcl</fcl>
-    <numjobs>1146</numjobs>
-    <maxfilesperjob>10</maxfilesperjob>
+    <fcl>analysis_file_writer_driver_noEventWeights.fcl</fcl>
+    <!-- 11454 files -->
+    <numjobs>230</numjobs>
+    <maxfilesperjob>50</maxfilesperjob>
     <numevents>&numEvents;</numevents>
 
     <!-- Input files -->
@@ -333,9 +305,10 @@
 <!-- Detector variation wire mod theta XZ run 1-->
 <stage name="overlays_DetVar_WireModThetaXZ_run1">
     <!-- Settings -->
-    <fcl>analysis_file_writer_driver_noEventWeights_runCCInclusive.fcl</fcl>
-    <numjobs>1149</numjobs>
-    <maxfilesperjob>10</maxfilesperjob>
+    <fcl>analysis_file_writer_driver_noEventWeights.fcl</fcl>
+    <!-- 11485 files -->
+    <numjobs>230</numjobs>
+    <maxfilesperjob>50</maxfilesperjob>
     <numevents>&numEvents;</numevents>
 
     <!-- Input files -->
@@ -355,9 +328,10 @@
 <!-- Detector variation wire mod theta YZ run 1-->
 <stage name="overlays_DetVar_WireModThetaYZ_run1">
     <!-- Settings -->
-    <fcl>analysis_file_writer_driver_noEventWeights_runCCInclusive.fcl</fcl>
-    <numjobs>1147</numjobs>
-    <maxfilesperjob>10</maxfilesperjob>
+    <fcl>analysis_file_writer_driver_noEventWeights.fcl</fcl>
+    <!-- 11461 files -->
+    <numjobs>230</numjobs>
+    <maxfilesperjob>50</maxfilesperjob>
     <numevents>&numEvents;</numevents>
 
     <!-- Input files -->
@@ -374,34 +348,13 @@
     <jobsub>&jobsub;</jobsub>
 </stage>
 
-<!-- Detector variation wire mod dEdx run 3b-->
-<stage name="overlays_DetVar_WireModdEdx_run3b">
-    <!-- Settings -->
-    <fcl>analysis_file_writer_driver_noEventWeights_runCCInclusive.fcl</fcl>
-    <numjobs>193</numjobs>
-    <maxfilesperjob>10</maxfilesperjob>
-    <numevents>&numEvents;</numevents>
-
-    <!-- Input files -->
-    <inputdef>prodgenie_bnb_nu_overlay_DetVar_wiremod_ScaledEdX_v08_00_00_39_run3b_reco2_reco2</inputdef>
-
-    <!-- Output directories -->
-    <outdir>/pnfs/uboone/scratch/users/&username;/&projectName;/overlays_DetVar_WireModdEdx_run3b/</outdir>
-    <logdir>/pnfs/uboone/scratch/users/&username;/&projectName;/overlays_DetVar_WireModdEdx_run3b/</logdir>
-    <workdir>/pnfs/uboone/resilient/users/&username;/work/&projectName;/overlays_DetVar_WireModdEdx_run3b/</workdir>
-
-    <!-- Options -->
-    <datatier>&dataTier;</datatier>
-    <schema>&schema;</schema>
-    <jobsub>&jobsub;</jobsub>
-</stage>
-
 <!-- Detector variation space-charge effect run 1-->
 <stage name="overlays_DetVar_SCE_run1">
     <!-- Settings -->
     <fcl>analysis_file_writer_driver_noEventWeights.fcl</fcl>
-    <numjobs>1135</numjobs>
-    <maxfilesperjob>10</maxfilesperjob>
+    <!-- 11344 files -->
+    <numjobs>227</numjobs>
+    <maxfilesperjob>50</maxfilesperjob>
     <numevents>&numEvents;</numevents>
 
     <!-- Input files -->
@@ -422,8 +375,9 @@
 <stage name="overlays_DetVar_Recomb2_run1">
     <!-- Settings -->
     <fcl>analysis_file_writer_driver_noEventWeights.fcl</fcl>
-    <numjobs>1147</numjobs>
-    <maxfilesperjob>10</maxfilesperjob>
+    <!-- 11469 files -->
+    <numjobs>230</numjobs>
+    <maxfilesperjob>50</maxfilesperjob>
     <numevents>&numEvents;</numevents>
 
     <!-- Input files -->
@@ -433,6 +387,198 @@
     <outdir>/pnfs/uboone/scratch/users/&username;/&projectName;/overlays_DetVar_Recomb2_run1/</outdir>
     <logdir>/pnfs/uboone/scratch/users/&username;/&projectName;/overlays_DetVar_Recomb2_run1/</logdir>
     <workdir>/pnfs/uboone/resilient/users/&username;/work/&projectName;/overlays_DetVar_Recomb2_run1/</workdir>
+
+    <!-- Options -->
+    <datatier>&dataTier;</datatier>
+    <schema>&schema;</schema>
+    <jobsub>&jobsub;</jobsub>
+</stage>
+
+<!--
+###################
+######################################
+###### RUN 2 ############################################
+######################################
+###################
+-->
+
+<!-- overlays_run2 -->
+<stage name="overlays_run2">
+    <!-- Settings -->
+    <fcl>analysis_file_writer_driver.fcl</fcl>
+    <numjobs>232</numjobs><!--463 files-->
+    <maxfilesperjob>2</maxfilesperjob>
+    <numevents>&numEvents;</numevents>
+
+    <!-- Input files -->
+    <inputdef>prodgenie_bnb_nu_uboone_overlay_ccinc_reweightSept24_mcc9.1_run2_D2_suprajab</inputdef>
+
+    <!-- Output directories -->
+    <outdir>/pnfs/uboone/scratch/users/&username;/&projectName;/overlays_run2/</outdir>
+    <logdir>/pnfs/uboone/scratch/users/&username;/&projectName;/overlays_run2/</logdir>
+    <workdir>/pnfs/uboone/resilient/users/&username;/work/&projectName;/overlays_run2/</workdir>
+
+    <!-- Options -->
+    <datatier>&dataTier;</datatier>
+    <schema>&schema;</schema>
+    <jobsub>&jobsub;</jobsub>
+</stage>
+
+<!-- dirt_run2 -->
+<stage name="dirt_run2">
+    <!-- Settings -->
+    <fcl>analysis_file_writer_driver.fcl</fcl>
+    <numjobs>38</numjobs><!--188 files-->
+    <maxfilesperjob>5</maxfilesperjob>
+    <numevents>&numEvents;</numevents>
+
+    <!-- Input files -->
+    <inputdef>prodgenie_dirt_overlay_ccinc_reweightSept24_mcc9.1_run2a_suprajab</inputdef>
+
+    <!-- Output directories -->
+    <outdir>/pnfs/uboone/scratch/users/&username;/&projectName;/dirt_run2/</outdir>
+    <logdir>/pnfs/uboone/scratch/users/&username;/&projectName;/dirt_run2/</logdir>
+    <workdir>/pnfs/uboone/resilient/users/&username;/work/&projectName;/dirt_run2/</workdir>
+
+    <!-- Options -->
+    <datatier>&dataTier;</datatier>
+    <schema>&schema;</schema>
+    <jobsub>&jobsub;</jobsub>
+</stage>
+
+<!-- bnb_run2 -->
+<stage name="bnb_run2">
+    <!-- Settings -->
+    <fcl>analysis_file_writer_driver_data.fcl</fcl>
+    <numjobs>23</numjobs><!--4497 files-->
+    <maxfilesperjob>200</maxfilesperjob>
+    <numevents>&numEvents;</numevents>
+
+    <!-- Input files -->
+    <inputdef>data_bnb_mcc9.1_v08_00_00_25_reco2_D2_nucc_reco2_high_lifetime</inputdef>
+
+    <!-- Output directories -->
+    <outdir>/pnfs/uboone/scratch/users/&username;/&projectName;/bnb_run2/</outdir>
+    <logdir>/pnfs/uboone/scratch/users/&username;/&projectName;/bnb_run2/</logdir>
+    <workdir>/pnfs/uboone/resilient/users/&username;/work/&projectName;/bnb_run2/</workdir>
+
+    <!-- Options -->
+    <datatier>&dataTier;</datatier>
+    <schema>&schema;</schema>
+    <jobsub>&jobsub;</jobsub>
+</stage>
+
+<!-- extbnb_run2 -->
+<stage name="extbnb_run2">
+    <!-- Settings -->
+    <fcl>analysis_file_writer_driver_data.fcl</fcl>
+    <numjobs>11</numjobs><!--6239 files-->
+    <maxfilesperjob>600</maxfilesperjob>
+    <numevents>&numEvents;</numevents>
+
+    <!-- Input files -->
+    <inputdef>data_extbnb_mcc9.1_v08_00_00_25_reco2_D2_nucc_reco2_high_lifetime</inputdef>
+
+    <!-- Output directories -->
+    <outdir>/pnfs/uboone/scratch/users/&username;/&projectName;/extbnb_run2/</outdir>
+    <logdir>/pnfs/uboone/scratch/users/&username;/&projectName;/extbnb_run2/</logdir>
+    <workdir>/pnfs/uboone/resilient/users/&username;/work/&projectName;/extbnb_run2/</workdir>
+
+    <!-- Options -->
+    <datatier>&dataTier;</datatier>
+    <schema>&schema;</schema>
+    <jobsub>&jobsub;</jobsub>
+</stage>
+
+<!--
+###################
+######################################
+###### RUN 3 ############################################
+######################################
+###################
+-->
+
+<!-- overlays_run3 -->
+<stage name="overlays_run3">
+    <!-- Settings -->
+    <fcl>analysis_file_writer_driver.fcl</fcl>
+    <numjobs>252</numjobs><!--252 files-->
+    <maxfilesperjob>1</maxfilesperjob>
+    <numevents>&numEvents;</numevents>
+
+    <!-- Input files -->
+    <inputdef>prodgenie_bnb_nu_uboone_overlay_ccinc_reweightSept24_mcc9.1_run3_G_suprajab</inputdef>
+
+    <!-- Output directories -->
+    <outdir>/pnfs/uboone/scratch/users/&username;/&projectName;/overlays_run3/</outdir>
+    <logdir>/pnfs/uboone/scratch/users/&username;/&projectName;/overlays_run3/</logdir>
+    <workdir>/pnfs/uboone/resilient/users/&username;/work/&projectName;/overlays_run3/</workdir>
+
+    <!-- Options -->
+    <datatier>&dataTier;</datatier>
+    <schema>&schema;</schema>
+    <jobsub>&jobsub;</jobsub>
+</stage>
+
+<!-- dirt_run3 -->
+<stage name="dirt_run3">
+    <!-- Settings -->
+    <fcl>analysis_file_writer_driver.fcl</fcl>
+    <numjobs>37</numjobs><!--37 files-->
+    <maxfilesperjob>1</maxfilesperjob>
+    <numevents>&numEvents;</numevents>
+
+    <!-- Input files -->
+    <inputdef>prodgenie_dirt_overlay_ccinc_reweightSept24_mcc9.1_run3_suprajab</inputdef>
+
+    <!-- Output directories -->
+    <outdir>/pnfs/uboone/scratch/users/&username;/&projectName;/dirt_run3/</outdir>
+    <logdir>/pnfs/uboone/scratch/users/&username;/&projectName;/dirt_run3/</logdir>
+    <workdir>/pnfs/uboone/resilient/users/&username;/work/&projectName;/dirt_run3/</workdir>
+
+    <!-- Options -->
+    <datatier>&dataTier;</datatier>
+    <schema>&schema;</schema>
+    <jobsub>&jobsub;</jobsub>
+</stage>
+
+<!-- bnb_run3 -->
+<stage name="bnb_run3">
+    <!-- Settings -->
+    <fcl>analysis_file_writer_driver_data.fcl</fcl>
+    <numjobs>54</numjobs> <!--5340 files-->
+    <maxfilesperjob>100</maxfilesperjob>
+    <numevents>&numEvents;</numevents>
+
+    <!-- Input files -->
+    <inputdef>data_bnb_mcc9.1_v08_00_00_25_reco2_G1_nucc_reco2_high_lifetime</inputdef>
+
+    <!-- Output directories -->
+    <outdir>/pnfs/uboone/scratch/users/&username;/&projectName;/bnb_run3/</outdir>
+    <logdir>/pnfs/uboone/scratch/users/&username;/&projectName;/bnb_run3/</logdir>
+    <workdir>/pnfs/uboone/resilient/users/&username;/work/&projectName;/bnb_run3/</workdir>
+
+    <!-- Options -->
+    <datatier>&dataTier;</datatier>
+    <schema>&schema;</schema>
+    <jobsub>&jobsub;</jobsub>
+</stage>
+
+<!-- extbnb_run3 -->
+<stage name="extbnb_run3">
+    <!-- Settings -->
+    <fcl>analysis_file_writer_driver_data.fcl</fcl>
+    <numjobs>11</numjobs><!--6032 files-->
+    <maxfilesperjob>600</maxfilesperjob>
+    <numevents>&numEvents;</numevents>
+
+    <!-- Input files -->
+    <inputdef>data_extbnb_mcc9.1_v08_00_00_25_reco2_G1_nucc_reco2_high_lifetime</inputdef>
+
+    <!-- Output directories -->
+    <outdir>/pnfs/uboone/scratch/users/&username;/&projectName;/extbnb_run3/</outdir>
+    <logdir>/pnfs/uboone/scratch/users/&username;/&projectName;/extbnb_run3/</logdir>
+    <workdir>/pnfs/uboone/resilient/users/&username;/work/&projectName;/extbnb_run3/</workdir>
 
     <!-- Options -->
     <datatier>&dataTier;</datatier>

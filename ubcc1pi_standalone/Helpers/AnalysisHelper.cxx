@@ -509,6 +509,31 @@ bool AnalysisHelper::IsTrueCC1Pi(const std::shared_ptr<Event> &pEvent, const boo
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
 
+bool AnalysisHelper::IsTrueCC0Pi(const std::shared_ptr<Event> &pEvent, const bool useAbsPdg, const float protonMomentumThreshold)
+{
+    if (!pEvent->metadata.hasTruthInfo())
+        throw std::invalid_argument("AnalysisHelper::IsTrueCC0Pi - Input event doesn't have truth information!");
+
+    const auto truth = pEvent->truth;
+
+    // Insist the true neutrino is fiducial
+    if (!AnalysisHelper::IsFiducial(truth.nuVertex()))
+        return false;
+
+    // Count the visible particles
+    const auto visibleParticles = AnalysisHelper::SelectVisibleParticles(pEvent->truth.particles);
+    const auto nMu = AnalysisHelper::CountParticlesWithPdgCode(visibleParticles, 13, useAbsPdg);
+    const auto nProton = AnalysisHelper::CountParticlesWithPdgCode(visibleParticles, 2212, useAbsPdg);
+    const auto nPion = AnalysisHelper::CountParticlesWithPdgCode(visibleParticles, 211, useAbsPdg);
+    const auto nProtonAboveMomentumThreshold = AnalysisHelper::CountParticlesAboveMomentumThreshold(visibleParticles, 2212, useAbsPdg, protonMomentumThreshold);
+    const auto nOther = visibleParticles.size() - (nMu + nProton + nPion);
+
+    // Insist the CC1Pi topology
+    return (nMu == 1 && nPion == 0 && nOther == 0 && nProtonAboveMomentumThreshold>=1);
+}
+
+// -----------------------------------------------------------------------------------------------------------------------------------------
+
 bool AnalysisHelper::PassesVisibilityThreshold(const Event::Truth::Particle &particle)
 {
     // First only consider specific particle types that can lead to hits
@@ -548,6 +573,20 @@ unsigned int AnalysisHelper::CountParticlesWithPdgCode(const std::vector<Event::
     {
         const auto pdg = useAbsPdg ? std::abs(particle.pdgCode()) : particle.pdgCode();
         if (pdg == pdgCode)
+            count++;
+    }
+
+    return count;
+}
+
+unsigned int AnalysisHelper::CountParticlesAboveMomentumThreshold(const std::vector<Event::Truth::Particle> &particles, const int pdgCode, const bool useAbsPdg, const float momentumThreshold)
+{
+    unsigned int count = 0;
+
+    for (const auto &particle : particles)
+    {
+        const auto pdg = useAbsPdg ? std::abs(particle.pdgCode()) : particle.pdgCode();
+        if (pdg == pdgCode && particle.momentum()>=momentumThreshold)
             count++;
     }
 
@@ -1248,6 +1287,127 @@ AnalysisHelper::AnalysisData AnalysisHelper::GetRecoAnalysisData(const Event::Re
     data.nProtons = nProtons;
     data.hasGoldenPion = passesGoldenPionSelection;
 
+    // Fill everything else with dummy values
+    data.protonMomentum = -std::numeric_limits<float>::max(); 
+    data.protonCosTheta = -std::numeric_limits<float>::max();
+    data.protonPhi = -std::numeric_limits<float>::max();
+    data.muonProtonAngle = -std::numeric_limits<float>::max();
+
+    return data;
+}
+
+// -----------------------------------------------------------------------------------------------------------------------------------------
+
+AnalysisHelper::AnalysisData AnalysisHelper::GetRecoAnalysisDataCC0Pi(const Event::Reco &reco, const std::vector<int> &assignedPdgCodes)
+{
+    AnalysisData data;
+
+    // std::cout<<"DEBUG - GetRecoAnalysisDataCC0Pi - Point 0"<<std::endl;
+
+    // Sanity check
+    const auto recoParticles = reco.particles;
+    if (assignedPdgCodes.size() != recoParticles.size())
+        throw std::logic_error("AnalysisHelper::GetRecoAnalysisDataCC0pi - The assigned PDG codes is the wrong size");
+
+    // std::cout<<"DEBUG - GetRecoAnalysisDataCC0Pi - Point 1"<<std::endl;
+    auto muonIndex = std::numeric_limits<unsigned int>::max();
+    auto protonIndex = std::numeric_limits<unsigned int>::max();
+    auto highestProtonMomentum = -std::numeric_limits<float>::max();
+    unsigned int nMuons = 0u;
+    unsigned int nPions = 0u;
+    unsigned int nProtons = 0u;
+    unsigned int nOther = 0u;
+
+    // std::cout<<"DEBUG - GetRecoAnalysisDataCC0Pi - Point 2"<<std::endl;
+    for (unsigned int index = 0; index < assignedPdgCodes.size(); ++index)
+    {
+        const auto recoPdg = assignedPdgCodes.at(index);
+        switch (recoPdg)
+        {
+            case 13:
+                muonIndex = index;
+                nMuons++;
+                break;
+            case 211:
+                nPions++;
+                break;
+            case 2212:
+            {
+                nProtons++;
+                // std::cout<<"DEBUG - GetRecoAnalysisDataCC0Pi - Point 3"<<std::endl;
+                const auto proton = recoParticles.at(index);
+                // std::cout<<"DEBUG - GetRecoAnalysisDataCC0Pi - Point 3.0.1"<<std::endl;
+                // std::cout<<"DEBUG - GetRecoAnalysisDataCC0Pi - Point 3.1 - proton.range.IsSet(): "<<proton.range.IsSet()<<std::endl;
+                // std::cout<<"DEBUG - GetRecoAnalysisDataCC0Pi - Point 3.1 - proton.nHitsU.IsSet(): "<<proton.nHitsU.IsSet()<<" - proton.nHits U V W()"<<proton.nHitsU()<<proton.nHitsV()<<proton.nHitsW()<<std::endl;
+                
+                if(proton.range.IsSet())
+                {
+                    auto range = proton.range();
+                    // std::cout<<"DEBUG - GetRecoAnalysisDataCC0Pi - Point 3.1.1"<<std::endl;
+                    auto protonMomentum = AnalysisHelper::GetProtonMomentumFromRange(range);
+                    // std::cout<<"DEBUG - GetRecoAnalysisDataCC0Pi - Point 3.2"<<std::endl;
+                    if (protonMomentum>highestProtonMomentum)
+                    {
+                        // std::cout<<"DEBUG - GetRecoAnalysisDataCC0Pi - Point 3.3"<<std::endl;
+                        protonIndex = index;
+                        highestProtonMomentum=protonMomentum;
+                    }
+                    // std::cout<<"DEBUG - GetRecoAnalysisDataCC0Pi - Point 4"<<std::endl;
+                }
+
+                break;
+            }
+            default:
+                nOther++;
+                break;
+        }
+    }
+    
+    // std::cout<<"DEBUG - GetRecoAnalysisDataCC0Pi - Point 5"<<std::endl;
+    // Make sure the reco PDGs make sense
+    if (nMuons != 1)
+        throw std::logic_error("AnalysisHelper::GetRecoAnalysisDataCC0pi - Reconstructed " + std::to_string(nMuons) + " muons for CC0pi");
+
+    // std::cout<<"DEBUG - GetRecoAnalysisDataCC0Pi - Point 6"<<std::endl;
+    if (nPions != 0)
+        throw std::logic_error("AnalysisHelper::GetRecoAnalysisDataCC0pi - Reconstructed " + std::to_string(nPions) + " pions for CC0pi");
+
+    // std::cout<<"DEBUG - GetRecoAnalysisDataCC0Pi - Point 7"<<std::endl;
+    if (nProtons == 0)
+        throw std::logic_error("AnalysisHelper::GetRecoAnalysisDataCC0pi - Reconstructed " + std::to_string(nProtons) + " protons for CC0pi");
+
+    // std::cout<<"DEBUG - GetRecoAnalysisDataCC0Pi - Point 8"<<std::endl;
+    // Get the muon and pion reconstructed particles
+    const auto muon = recoParticles.at(muonIndex);
+    const auto proton = recoParticles.at(protonIndex);
+
+    // Find the reconstructed variables
+    const auto muonDir = TVector3(muon.directionX(), muon.directionY(), muon.directionZ()).Unit();
+    data.muonCosTheta = muonDir.Z();
+    data.muonPhi = std::atan2(muonDir.Y(), muonDir.X());
+    data.muonMomentum = AnalysisHelper::GetMuonMomentum(muon);
+    
+    const auto protonDir = TVector3(proton.directionX(), proton.directionY(), proton.directionZ()).Unit();
+    data.protonCosTheta = protonDir.Z();
+    data.protonPhi = std::atan2(protonDir.Y(), protonDir.X());
+    // std::cout<<"DEBUG - GetRecoAnalysisDataCC0Pi - Point 8.1"<<std::endl;
+    if(!proton.range.IsSet())
+        throw std::logic_error("AnalysisHelper::GetRecoAnalysisDataCC0Pi - range not set for proton");
+    data.protonMomentum = highestProtonMomentum; //AnalysisHelper::GetProtonMomentumFromRange(proton.range());
+    // std::cout<<"DEBUG - GetRecoAnalysisDataCC0Pi - Point 8.2"<<std::endl;
+
+    data.muonProtonAngle = std::acos(muonDir.Dot(protonDir));
+    data.nProtons = nProtons;
+
+    // Fill everything else with dummy values
+    data.pionMomentum = -std::numeric_limits<float>::max();
+    data.pionCosTheta = -std::numeric_limits<float>::max();
+    data.pionPhi = -std::numeric_limits<float>::max();
+    data.muonPionAngle = -std::numeric_limits<float>::max();
+    data.hasGoldenPion = false;
+
+    // std::cout<<"DEBUG - GetRecoAnalysisDataCC0Pi - Point 9"<<std::endl;
+
     return data;
 }
 
@@ -1342,6 +1502,97 @@ AnalysisHelper::AnalysisData AnalysisHelper::GetTruthAnalysisData(const Event::T
 
     data.muonPionAngle = std::acos(muonDir.Dot(pionDir));
 
+    // Fill everything else with dummy values
+    data.protonMomentum = -std::numeric_limits<float>::max(); 
+    data.protonCosTheta = -std::numeric_limits<float>::max();
+    data.protonPhi = -std::numeric_limits<float>::max();
+    data.muonProtonAngle = -std::numeric_limits<float>::max();
+
+    return data;
+}
+
+// -----------------------------------------------------------------------------------------------------------------------------------------
+
+AnalysisHelper::AnalysisData AnalysisHelper::GetTruthAnalysisDataCC0Pi(const Event::Truth &truth, const bool useAbsPdg, const float protonMomentumThreshold)
+{
+    // std::cout<<"DEBUG - GetTruthAnalysisDataCC0pi - Point 0_000"<<std::endl;
+    AnalysisData data;
+    bool foundMuon = false;
+    bool foundProton = false;
+    auto highestProtonMomentum = -std::numeric_limits<float>::max();
+
+    data.nProtons = 0u;
+    TVector3 protonDir, muonDir;
+
+    for (const auto &particle : AnalysisHelper::SelectVisibleParticles(truth.particles))
+    {
+        // std::cout<<"DEBUG - GetTruthAnalysisDataCC0pi - Point 1"<<std::endl;
+        const auto pdg = useAbsPdg ? std::abs(particle.pdgCode()) : particle.pdgCode();
+
+        const auto dir = TVector3(particle.momentumX(), particle.momentumY(), particle.momentumZ()).Unit();
+        const auto cosTheta = dir.Z();
+        const auto phi = std::atan2(dir.Y(), dir.X());
+
+        if (pdg == 13)
+        {
+            // std::cout<<"DEBUG - GetTruthAnalysisDataCC0pi - Point 2"<<std::endl;
+            if (foundMuon)
+                throw std::logic_error("AnalysisHelper::GetTruthAnalysisDataCC0pi - Found multiple muons! Are you sure this is a CC0pi signal event?");
+
+            foundMuon = true;
+
+            data.muonMomentum = particle.momentum();
+            data.muonCosTheta = cosTheta;
+            data.muonPhi = phi;
+
+            muonDir = dir;
+
+            continue;
+        }
+        // std::cout<<"DEBUG - GetTruthAnalysisDataCC0pi - Point 3"<<std::endl;
+        if (pdg == 2212)
+        {
+            // std::cout<<"DEBUG - GetTruthAnalysisDataCC0pi - Point 4 - true proton momentum: "<<particle.momentum()<<std::endl;
+            const auto passesMomentumThreshold = (particle.momentum() > protonMomentumThreshold);
+            if (!passesMomentumThreshold)
+                continue;
+            data.nProtons++;
+            // std::cout<<"DEBUG - GetTruthAnalysisDataCC0pi - Point 4.1"<<std::endl;
+            const auto isHighestEnergyProton = (particle.momentum() > highestProtonMomentum);
+            if(!isHighestEnergyProton) // Use highest energy proton 
+                continue;
+            foundProton = true;
+            highestProtonMomentum = particle.momentum();
+            // std::cout<<"DEBUG - GetTruthAnalysisDataCC0pi - Point 4.2"<<std::endl;
+            data.protonMomentum = particle.momentum(); 
+            data.protonCosTheta = cosTheta;
+            data.protonPhi = phi;
+
+            protonDir = dir;
+
+            continue;
+        }
+        // std::cout<<"DEBUG - GetTruthAnalysisDataCC0pi - Point 5"<<std::endl;
+
+        throw std::logic_error("AnalysisHelper::GetTruthAnalysisDataCC0pi - Found particle with unexpected PDG code for CC0pi event = " + std::to_string(particle.pdgCode()));
+    }
+
+    // std::cout<<"DEBUG - GetTruthAnalysisDataCC0pi - Point 6 - foundMuon"<<foundMuon<<" - foundProton: "<<foundProton<<std::endl;
+    if (!foundMuon | !foundProton)
+        throw std::logic_error("AnalysisHelper::GetTruthAnalysisDataCC0pi - Input event doesn't contain a muon event!");
+
+    // std::cout<<"DEBUG - GetTruthAnalysisDataCC0pi - Point 7"<<std::endl;
+    data.muonProtonAngle = std::acos(muonDir.Dot(protonDir));
+
+    // std::cout<<"DEBUG - GetTruthAnalysisDataCC0pi - Point 8"<<std::endl;
+    // Fill everything else with dummy values
+    data.pionMomentum = -std::numeric_limits<float>::max();
+    data.pionCosTheta = -std::numeric_limits<float>::max();
+    data.pionPhi = -std::numeric_limits<float>::max();
+    data.muonPionAngle = -std::numeric_limits<float>::max();
+    data.hasGoldenPion = false;
+
+    // std::cout<<"DEBUG - GetTruthAnalysisDataCC0pi - Point 9"<<std::endl;
     return data;
 }
 
@@ -1359,6 +1610,10 @@ AnalysisHelper::AnalysisData AnalysisHelper::GetDummyAnalysisData()
     data.pionPhi = -std::numeric_limits<float>::max();
     data.muonPionAngle = -std::numeric_limits<float>::max();
     data.nProtons = std::numeric_limits<unsigned int>::max();
+    data.protonMomentum = -std::numeric_limits<float>::max(); 
+    data.protonCosTheta = -std::numeric_limits<float>::max();
+    data.protonPhi = -std::numeric_limits<float>::max();
+    data.muonProtonAngle = -std::numeric_limits<float>::max();
     data.hasGoldenPion = false;
 
     return data;

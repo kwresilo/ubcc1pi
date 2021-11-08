@@ -307,8 +307,9 @@ class CrossSectionHelper
                 *  @param  nominalWeight the nominal event weight
                 *  @param  fluxWeights the flux systematic event weights
                 *  @param  xsecWeights the cross-section systematic event weights
+                *  @param  seed random number generator seed
                 */
-                void AddSignalEvent(const float recoValue, const float trueValue, const bool isSelected, const float nominalWeight, const SystFloatMap &fluxWeights, const SystFloatMap &xsecWeights, const SystFloatMap &reintWeights);
+                void AddSignalEvent(const float recoValue, const float trueValue, const bool isSelected, const float nominalWeight, const SystFloatMap &fluxWeights, const SystFloatMap &xsecWeights, const SystFloatMap &reintWeights, const std::string seed);
 
                 /**
                 *  @brief  Add a simulated signal event from a detector variation sample
@@ -335,8 +336,9 @@ class CrossSectionHelper
                 *  @param  nominalWeight the nominal event weight
                 *  @param  fluxWeights the flux systematic event weights
                 *  @param  xsecWeights the cross-section systematic event weights
+                *  @param  seed random number generator seed
                 */
-                void AddSelectedBackgroundEvent(const float recoValue, const bool isDirt, const float nominalWeight, const SystFloatMap &fluxWeights, const SystFloatMap &xsecWeights, const SystFloatMap &reintWeights);
+                void AddSelectedBackgroundEvent(const float recoValue, const bool isDirt, const float nominalWeight, const SystFloatMap &fluxWeights, const SystFloatMap &xsecWeights, const SystFloatMap &reintWeights, std::vector<float> bootstrapWeights, const std::string seed);
 
                 /**
                 *  @brief  Add a simulated selected background event from a detector variation sample
@@ -469,6 +471,29 @@ class CrossSectionHelper
                 */
                 SystBiasCovariancePair GetPredictedCrossSectionStatUncertainty(const ScalingData &scalingData) const;
 
+                /**
+                *  @brief  Get the selected background event distribution in reco space for each multisim universe
+                *
+                *  @return the map of multisim TH1 histograms for each universe//Todo improve description   
+                */
+                std::unordered_map<std::string, CrossSectionHelper::SystTH1FMap> GetSelectedBackgroundRecoMap() const;
+
+                /**
+                *  @brief  Get the selected signal event distribution in reco-vs-truth space for each multisim universe
+                *
+                *  @return the map of multisim TH2 histograms for each universe//Todo improve description   
+                */
+                std::unordered_map<std::string, CrossSectionHelper::SystTH2FMap> GetSelectedSignalRecoTruthMap() const;
+
+                /**
+                *  @brief  Flatten an input 2D histogram in reco-truth space, by integrating the reco-indices
+                *
+                *  @param  pSignal_selected_recoTrue the input histogram of the selected signal events in reco-vs-truth space
+                *
+                *  @return the total number of selected signal event in true bins
+                */
+                ubsmear::UBMatrix GetSignalSelectedTrue(const std::shared_ptr<TH2F> &pSignal_selected_recoTrue) const;
+
             private:
 
                 /**
@@ -489,7 +514,7 @@ class CrossSectionHelper
                 /**
                 *  @brief  Get the BNB data cross section in a given multisim universe
                 *
-                *  @param  group the group of parameters (e.g. flux, xsec, misc)
+                *  @param  group the group of parameters (e.g. flux, xsec, reint, misc)
                 *  @param  paramName the systematic parameter name
                 *  @param  universeIndex the universe index
                 *  @param  scalingData the information about how we should scale the event rate to get the cross-section
@@ -626,15 +651,6 @@ class CrossSectionHelper
                 *  @return the distribution parameters
                 */
                 SystBiasCovariancePair GetDistributionParamsNormalisation(const std::shared_ptr<ubsmear::UBMatrix> &pNominal, const float fracUncertainty) const;
-
-                /**
-                *  @brief  Flatten an input 2D histogram in reco-truth space, by integrating the reco-indices
-                *
-                *  @param  pSignal_selected_recoTrue the input histogram of the selected signal events in reco-vs-truth space
-                *
-                *  @return the total number of selected signal event in true bins
-                */
-                ubsmear::UBMatrix GetSignalSelectedTrue(const std::shared_ptr<TH2F> &pSignal_selected_recoTrue) const;
 
                 SystParams            m_systParams;       ///< The systematic parameters
                 std::vector<float>    m_binEdges;         ///< The bin edges
@@ -797,10 +813,11 @@ class CrossSectionHelper
         *  @brief  Generate a set of weights pulled from a Poisson distribution with unit mean.
         *
         *  @param  nUniverses the number of weights to generate
+        *  @param  seed random number generator seed
         *
         *  @return the bootstrap weights
         */
-        static std::vector<float> GenerateBootstrapWeights(const unsigned int nUniverses);
+        static std::vector<float> GenerateBootstrapWeights(const unsigned int nUniverses, const std::string seedString);
 
         /**
         *  @brief  Fill a SystTH1FMap with a single entry using the supplied weights

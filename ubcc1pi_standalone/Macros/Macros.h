@@ -232,6 +232,20 @@ namespace ubcc1pi_macros
     void ExtractXSecs(const Config &config = Config());
 
     /**
+     *  @brief  Generate the CC0Pi selection
+     *
+     *  @param  config the input configuration
+     */
+    // void ExtractCC0PiNormalisation(const Config &config = Config());
+
+    // /**
+    //  *  @brief  Fit sideband MC to data
+    //  *
+    //  *  @param  config the input configuration
+    //  */
+    // void MakeSidebandTemplateFit(const Config &config = Config());
+
+    /**
      *  @brief  Print a summary of the uncertainties for the total cross-section
      *
      *  @param  config the input configuration

@@ -31,9 +31,12 @@ struct Config
     struct Files
     {
         // September overlays files contain systematic weights
-        std::string  overlaysFileName = "/uboone/data/users/jdetje/ubcc1pi/sep2020/ubcc1piAnalysis_overlays_19Jul21.root"; ///< Overlays file name input
-        std::string  dirtFileName     = "/uboone/data/users/jdetje/ubcc1pi/sep2020/ubcc1piAnalysis_dirt_19Jul21.root";     ///< Dirt file name input
+        std::string  overlaysFileName = "/uboone/data/users/jdetje/ubcc1pi/sep2020/ubcc1piAnalysis_overlays_08Oct21.root"; ///< Overlays file name input
+        // std::string  overlaysFileName = "/uboone/data/users/jdetje/ubcc1pi/sep2020/ubcc1piAnalysis_overlays_08Oct21_test_head20.root";
+        std::string  dirtFileName     = "/uboone/data/users/jdetje/ubcc1pi/sep2020/ubcc1piAnalysis_dirt_08Oct21.root";     ///< Dirt file name input
+        // std::string  dirtFileName     = "/pnfs/uboone/scratch/users/jdetje/ubcc1pi/dirt_final/49396507_11/ubcc1piAnalysis.root";
         std::string  dataEXTFileName  = "/pnfs/uboone/persistent/users/kduffy/ubcc1pi/ubcc1pi_extbnb_run1_combined_5Jan2021.root";  ///< EXT data file name input
+        // std::string  dataBNBFileName  = "/uboone/data/users/jdetje/ubcc1pi/sep2020/ubcc1piAnalysis_overlays_08Oct21_test_tail20.root";  ///< BNB data file name input
         std::string  dataBNBFileName  = "/pnfs/uboone/persistent/users/kduffy/ubcc1pi/ubcc1pi_bnb_run1-C1_5Jan2021.root";  ///< BNB data file name input
 
         /**
@@ -47,18 +50,15 @@ struct Config
          */
         std::vector< std::pair<std::string, std::string> > detVarFiles = {
             // Run-1 files
-            {"CVRun1",         "/uboone/data/users/asmith/ubcc1pi/samples/oct2020/samples/ubcc1piAnalysis_overlays_DetVar_CV_run1.root"},
-            {"LYDown",         "/uboone/data/users/asmith/ubcc1pi/samples/oct2020/samples/ubcc1piAnalysis_overlays_DetVar_LYDown_run1.root"},
-            {"LYRayleigh",     "/uboone/data/users/asmith/ubcc1pi/samples/oct2020/samples/ubcc1piAnalysis_overlays_DetVar_LYRayleigh_run1.root"},
-
-            // Run-3b files
-            {"CVRun3b",        "/uboone/data/users/asmith/ubcc1pi/samples/oct2020/samples/ubcc1piAnalysis_overlays_DetVar_CV_run3b.root"},
-            {"SCE",            "/uboone/data/users/asmith/ubcc1pi/samples/oct2020/samples/ubcc1piAnalysis_overlays_DetVar_SCE_run3b.root"},
-            {"Recomb2",        "/uboone/data/users/asmith/ubcc1pi/samples/oct2020/samples/ubcc1piAnalysis_overlays_DetVar_Recomb2_run3b.root"},
-            {"WireModX",       "/uboone/data/users/asmith/ubcc1pi/samples/oct2020/samples/ubcc1piAnalysis_overlays_DetVar_WireModX_run3b.root"},
-            {"WireModYZ",      "/uboone/data/users/asmith/ubcc1pi/samples/oct2020/samples/ubcc1piAnalysis_overlays_DetVar_WireModYZ_run3b.root"},
-            {"WireModThetaXZ", "/uboone/data/users/asmith/ubcc1pi/samples/oct2020/samples/ubcc1piAnalysis_overlays_DetVar_WireModThetaXZ_run3b.root"},
-            {"WireModThetaYZ", "/uboone/data/users/asmith/ubcc1pi/samples/oct2020/samples/ubcc1piAnalysis_overlays_DetVar_WireModThetaYZ_run3b.root"}
+            {"CVRun1",         "/uboone/data/users/jdetje/ubcc1pi/sep2020/ubcc1piAnalysis_overlays_DetVar_CV_run1_19Oct.root"},
+            {"LYDown",         "/uboone/data/users/jdetje/ubcc1pi/sep2020/ubcc1piAnalysis_overlays_DetVar_LYDown_run1_19Oct.root"},
+            // {"LYRayleigh",     "/uboone/data/users/jdetje/ubcc1pi/sep2020/ubcc1piAnalysis_overlays_DetVar_LYRayleigh_run1_19Oct.root"},
+            // {"SCE",            "/uboone/data/users/jdetje/ubcc1pi/sep2020/ubcc1piAnalysis_overlays_DetVar_SCE_run1_19Oct.root"},
+            // {"Recomb2",        "/uboone/data/users/jdetje/ubcc1pi/sep2020/ubcc1piAnalysis_overlays_DetVar_Recomb2_run1_19Oct.root"},
+            // {"WireModX",       "/uboone/data/users/jdetje/ubcc1pi/sep2020/ubcc1piAnalysis_overlays_DetVar_WireModX_run1_19Oct.root"},
+            // {"WireModYZ",      "/uboone/data/users/jdetje/ubcc1pi/sep2020/ubcc1piAnalysis_overlays_DetVar_WireModYZ_run1_19Oct.root"},
+            // {"WireModThetaXZ", "/uboone/data/users/jdetje/ubcc1pi/sep2020/ubcc1piAnalysis_overlays_DetVar_WireModThetaXZ_run1_19Oct.root"},
+            // {"WireModThetaYZ", "/uboone/data/users/jdetje/ubcc1pi/sep2020/ubcc1piAnalysis_overlays_DetVar_WireModThetaYZ_run1_19Oct.root"}
         };
     };
     Files files; ///< The input files
@@ -75,31 +75,30 @@ struct Config
      */
     struct Norms
     {
-        float  overlaysPOT        =  1.18578e+21;   ///< The total POT for the overlays MC
-        // Andy S files: 1.22447e+21. Kirsty D files (Jan 21):  1.18578e+21
-        float  dirtPOT            = 2.91414e+20;   ///< The total POT for the dirt MC
-        // Andy S files: 2.85049e+20, Kirsty D files (Jan 21): 2.91414e+20
-        float  dataEXTTriggers    = 64322029.0;    ///< The EXT triggers for the EXT data
+        float  overlaysPOT        = 1.195e+21;      ///< The total POT for the overlays MC
+        // Andy S files: 1.22447e+21, Kirsty D files (Jan 21):  1.18578e+21, Philip D files (Oct 08) 1.195e+21 
+        float  dirtPOT            = 2.63523e+20;    ///< The total POT for the dirt MC
+        // Andy S files: 2.85049e+20, Kirsty D files (Jan 21): 2.91414e+20, Philip D files (Oct 08) 2.63523e+20 
+        float  dataEXTTriggers    = 64322029.0;     ///< The EXT triggers for the EXT data
         // Andy S files: 62540367.0, Kirsty D files (Jan 21): 64322029.0
-        float  dataBNBTor875WCut  = 1.532e+20;     ///< The POT measured by the 875m toroid (with quality cuts)
+        float  dataBNBTor875WCut  = 1.532e+20;      ///< The POT measured by the 875m toroid (with quality cuts)
         // Andy S files: 1.455e+20, Kirsty D files (Jan 21): 1.532e+20
-        float  dataBNBE1DCNTWCut  = 34076199.0;    ///< The BNB spills sent by the accelerator division (with quality cuts)
+        float  dataBNBE1DCNTWCut  = 34076199.0;     ///< The BNB spills sent by the accelerator division (with quality cuts)
         // Andy S files: 32339256.0, Kirsty D files (Jan 21): 34076199.0
 
         /**
          *  @brief  The detector variation POTs
          */
         std::unordered_map<std::string, float> detVarPOTs = {
-            {"CVRun1",         1.14339e+20},
-            {"LYDown",         1.05031e+20},
-            {"LYRayleigh",     1.06661e+20},
-            {"CVRun3b",        9.82298e+19},
-            {"SCE",            1.02517e+20},
-            {"Recomb2",        1.00832e+20},
-            {"WireModX",       1.09739e+20},
-            {"WireModYZ",      1.10877e+20},
-            {"WireModThetaXZ", 1.12906e+20},
-            {"WireModThetaYZ", 1.09244e+20}
+            {"CVRun1",         6.13708e+20},    // Andy/Kirst version: 1.14339e+20
+            {"LYDown",         6.14119e+20},    // Andy/Kirst version: 1.05031e+20
+            // {"LYRayleigh",     6.21255e+20},    // Andy/Kirst version: 1.06661e+20
+            // {"SCE",            6.11946e+20},    // Andy/Kirst version: 1.02517e+20
+            // {"Recomb2",        6.18821e+20},    // Andy/Kirst version: 1.00832e+20
+            // {"WireModX",       6.16338e+20},    // Andy/Kirst version: 1.09739e+20
+            // {"WireModYZ",      6.1371e+20},     // Andy/Kirst version: 1.10877e+20
+            // {"WireModThetaXZ", 6.18155e+20},    // Andy/Kirst version: 1.12906e+20
+            // {"WireModThetaYZ", 6.15852e+20}     // Andy/Kirst version: 1.09244e+20
         };
     };
     Norms norms; ///< The sample normalisations
@@ -139,14 +138,15 @@ struct Config
      */
     struct Global
     {
-        bool        useAbsPdg               = true;               ///< If we should use absolute PDG codes (this makes pi+ == pi- in the signal definition)
-        bool        countProtonsInclusively = true;               ///< If we should count protons inclusively (as Xp), or exclusively as (0p, 1p, 2p, ...)
-        std::string lastCutGeneric          = "startNearVertex";  ///< The last cut of the generic selection (remaining cuts are part of the golden selection)
-        float       protonMomentumThreshold = 0.3f;               ///< The minimum proton momentum to be counted [GeV]
-        float       targetDensity           = 8.44191f;           ///< The number of target nuclei per unit volume - units e23 / cm^3
-        std::string selection               = "Default"; ///< Which selection to use (can be "CCInclusive","Default", or "CC0pi")
-        bool        axisTitles              = false;               ///< If we want to draw axis lables and titles on the plots (if false, they are not drawn so you can add your own later)
+        bool        useAbsPdg               = true;              ///< If we should use absolute PDG codes (this makes pi+ == pi- in the signal definition)
+        bool        countProtonsInclusively = true;              ///< If we should count protons inclusively (as Xp), or exclusively as (0p, 1p, 2p, ...)
+        std::string lastCutGeneric          = "startNearVertex"; ///< The last cut of the generic selection (remaining cuts are part of the golden selection)
+        float       protonMomentumThreshold = 0.3f;              ///< The minimum proton momentum to be counted [GeV]
+        float       targetDensity           = 8.44191f;          ///< The number of target nuclei per unit volume - units e23 / cm^3
+        std::string selection               = "Default";         ///< Which selection to use (can be "CCInclusive","Default", or "CC0pi")
+        bool        axisTitles              = false;             ///< If we want to draw axis lables and titles on the plots (if false, they are not drawn so you can add your own later)
         bool        scaleByBinWidth         = true;
+        bool        useCC0piConstraint      = false;              ///< If we should use the CC0pi selection to constrain CC1pi cross-section  
 
         /**
          *  @brief  The Binning structure
@@ -257,7 +257,7 @@ struct Config
     {
         bool  useOverlays           = true; ///< If we should count the POT for the overlays
         bool  useDirt               = true; ///< If we should count the POT for the dirt
-        bool  useDetectorVariations = false; ///< If we should count the POT for the detector variations
+        bool  useDetectorVariations = true; ///< If we should count the POT for the detector variations
     };
     CountPOT countPOT; ///< The configuration options for the CountPOT macro
 
@@ -389,12 +389,12 @@ struct Config
                     {"total",         true },
                     {"muonCosTheta",  true },
                     {"muonPhi",       true },
-                    {"muonMomentum",  true },
-                    {"pionCosTheta",  true },
+                    {"muonMomentum",  false },
+                    {"pionCosTheta",  false },
                     {"pionPhi",       true },
-                    {"pionMomentum",  true },
-                    {"muonPionAngle", true },
-                    {"nProtons",      true }
+                    {"pionMomentum",  false },
+                    {"muonPionAngle", false },
+                    {"nProtons",      false }
                 }
             },
             {
@@ -402,14 +402,27 @@ struct Config
                     {"total",         true },
                     {"muonCosTheta",  true },
                     {"muonPhi",       true },
-                    {"muonMomentum",  true },
-                    {"pionCosTheta",  true },
+                    {"muonMomentum",  false },
+                    {"pionCosTheta",  false },
                     {"pionPhi",       true },
-                    {"pionMomentum",  true },
-                    {"muonPionAngle", true },
-                    {"nProtons",      true }
+                    {"pionMomentum",  false },
+                    {"muonPionAngle", false },
+                    {"nProtons",      false }
                 }
-            }
+            }//.
+            // {
+            //     "sideband", {
+            //         {"total",         true },
+            //         {"muonCosTheta",  true },
+            //         {"muonPhi",       true },
+            //         {"muonMomentum",  false },
+            //         {"pionCosTheta",  false },
+            //         {"pionPhi",       true },
+            //         {"pionMomentum",  false },
+            //         {"muonPionAngle", false },
+            //         {"nProtons",      false }
+            //     }
+            // }
         };
 
         /**
@@ -442,7 +455,6 @@ struct Config
             {"All_UBGenie",             100u},
             {"AxFFCCQEshape_UBGenie",   2u},
             {"DecayAngMEC_UBGenie",     2u},
-            {"MaNCRES_UBGenie",         2u},
             {"Theta_Delta2Npi_UBGenie", 2u},
             {"VecFFCCQEshape_UBGenie",  2u},
             {"xsr_scc_Fa3_SCC",         10u},

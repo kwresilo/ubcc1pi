@@ -193,13 +193,15 @@ CrossSectionHelper::CrossSection::CrossSection(const SystParams &systParams, con
 // -----------------------------------------------------------------------------------------------------------------------------------------
 
 void CrossSectionHelper::CrossSection::AddSignalEvent(const float recoValue, const float trueValue, const bool isSelected, 
-    const float nominalWeight, const SystFloatMap &fluxWeights, const SystFloatMap &xsecWeights, const SystFloatMap &reintWeights)
+    const float nominalWeight, const SystFloatMap &fluxWeights, const SystFloatMap &xsecWeights, const SystFloatMap &reintWeights, const std::string seed)
 {
+    const auto bootstrapWeights = CrossSectionHelper::GenerateBootstrapWeights(m_systParams.nBootstrapUniverses, seed);
+
     // Get the miscellaneous weights
     const SystFloatMap miscWeights = {
 
         // Generate the bootstrap weights
-        { "bootstrap", CrossSectionHelper::GenerateBootstrapWeights(m_systParams.nBootstrapUniverses) },
+        { "bootstrap", bootstrapWeights },
 
         // A signal event is never dirt - so just use a unit weight
         { "dirt", {1.f, 1.f} }
@@ -240,18 +242,22 @@ void CrossSectionHelper::CrossSection::AddSignalEventDetVar(const float recoValu
 // -----------------------------------------------------------------------------------------------------------------------------------------
 
 void CrossSectionHelper::CrossSection::AddSelectedBackgroundEvent(const float recoValue, const bool isDirt, const float nominalWeight,
-    const SystFloatMap &fluxWeights, const SystFloatMap &xsecWeights, const SystFloatMap &reintWeights)
+    const SystFloatMap &fluxWeights, const SystFloatMap &xsecWeights, const SystFloatMap &reintWeights, std::vector<float> bootstrapWeights, const std::string seed)
 {
     // The weight to apply as a result of dirt
     //   - For non-dirt events, just use zero (i.e. no change from the nominal simulation)
     //   - For dirt event we here use +-100%
     const auto dirtWeightDelta = isDirt ? 1.f : 0.f;
+    if(bootstrapWeights.empty())
+        bootstrapWeights = CrossSectionHelper::GenerateBootstrapWeights(m_systParams.nBootstrapUniverses, seed);
+    else if(bootstrapWeights.size()!=m_systParams.nBootstrapUniverses)
+        throw std::logic_error("CrossSectionHelper::CrossSection::AddSelectedBackgroundEvent - Number of bootstrap universes does not match vector size.");
 
     // Get the miscellaneous weights
     const SystFloatMap miscWeights = {
 
         // Generate the bootstrap weights
-        { "bootstrap", CrossSectionHelper::GenerateBootstrapWeights(m_systParams.nBootstrapUniverses) },
+        { "bootstrap", bootstrapWeights },
 
         // Apply the dirt weight
         { "dirt", {1.f - dirtWeightDelta, 1.f + dirtWeightDelta} }
@@ -349,6 +355,7 @@ ubsmear::UBMatrix CrossSectionHelper::CrossSection::GetCrossSection(const ubsmea
 
 std::shared_ptr<ubsmear::UBMatrix> CrossSectionHelper::CrossSection::GetSmearingMatrix(const std::shared_ptr<TH1F> &pSignal_true, const std::shared_ptr<TH2F> &pSignal_selected_recoTrue) const
 {
+    // std::cout<<" &&&&&&& DEBUG  CrossSectionHelper::CrossSection::GetSmearingMatrix Point 0"<<std::endl;
     // Get the input histograms as a matrix
     const auto allTrue = CrossSectionHelper::GetMatrixFromHist(pSignal_true);
     const auto selectedRecoTrue = CrossSectionHelper::GetMatrixFromHist(pSignal_selected_recoTrue);
@@ -372,13 +379,16 @@ std::shared_ptr<ubsmear::UBMatrix> CrossSectionHelper::CrossSection::GetSmearing
 
             // ATTN. If we find a bin in which there are no signal events, then there's no sensible value for the smearing matrix element
             // Here we return null to indicate that the smearing matrix can't be found
+            // std::cout<<" &&&&&&& DEBUG  CrossSectionHelper::CrossSection::GetSmearingMatrix Point 1 - denominator: " << denominator <<std::endl;
             if (denominator <= std::numeric_limits<float>::epsilon())
                 return std::shared_ptr<ubsmear::UBMatrix>(nullptr);
+            // std::cout<<" &&&&&&& DEBUG  CrossSectionHelper::CrossSection::GetSmearingMatrix Point 2"<<std::endl;
 
             elements.push_back(selectedRecoTrue.At(iReco, iTrue) / denominator);
         }
     }
 
+    // std::cout<<" &&&&&&& DEBUG  CrossSectionHelper::CrossSection::GetSmearingMatrix Point 5"<<std::endl;
     return std::make_shared<ubsmear::UBMatrix>(elements, nBins, nBins);
 }
 
@@ -426,6 +436,13 @@ ubsmear::UBMatrix CrossSectionHelper::CrossSection::GetSelectedSignalEvents() co
 {
     return this->GetSignalSelectedTrue(m_pSignal_selected_recoTrue_nom);
 }
+
+// // -----------------------------------------------------------------------------------------------------------------------------------------
+
+// ubsmear::UBMatrix CrossSectionHelper::CrossSection::GetSignalSelectedTrueMatrix() const
+// {
+//     return CrossSectionHelper::GetMatrixFromHist(m_pSignal_selected_recoTrue_nom);
+// }
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
 
@@ -582,21 +599,27 @@ CrossSectionHelper::SystBiasCovarianceMap CrossSectionHelper::CrossSection::GetS
     // Setup the output map
     SystBiasCovarianceMap outputMap;
 
+    // std::cout<<"### DEBUG - GetSmearingMatrixSystUncertainties - Point 0"<<std::endl;
+
     // Add the multisim parameters
     // ATTN the use of m_signal_true_multisims is arbitrary, we could use any multisims map
     for (const auto &[group, map] : m_signal_true_multisims)
     {
+        // std::cout<<"### DEBUG - GetSmearingMatrixSystUncertainties - Point 1"<<std::endl;
         for (const auto &entry : map)
         {
+            // std::cout<<"### DEBUG - GetSmearingMatrixSystUncertainties - Point 2"<<std::endl;
             const auto &paramName = entry.first;
             outputMap[group].emplace(paramName, this->GetSmearingMatrixDistributionParams(group, paramName));
+            // std::cout<<"### DEBUG - GetSmearingMatrixSystUncertainties - Point 3"<<std::endl;
         }
     }
-
+    // std::cout<<"### DEBUG - GetSmearingMatrixSystUncertainties - Point 4"<<std::endl;
     // Add the unisim parameters
     // ATTN again the use of m_signal_true_unisims is arbitrary, we could use any unisims map
     for (const auto &[group, map] : m_signal_true_unisims)
     {
+        // std::cout<<"### DEBUG - GetSmearingMatrixSystUncertainties - Point 5"<<std::endl;
         // ATTN for now we only have detector parameters that are unisims, if others are added later then we would need to add a clause here
         // to get the relevent dimensions.
         if (group != "detector")
@@ -608,6 +631,8 @@ CrossSectionHelper::SystBiasCovarianceMap CrossSectionHelper::CrossSection::GetS
         std::vector<std::string> cvNames;
         for (const auto &[paramName, cvName] : dimensions)
             cvNames.push_back(cvName);
+        
+        // std::cout<<"### DEBUG - GetSmearingMatrixSystUncertainties - Point 6"<<std::endl;
 
         for (const auto &entry : map)
         {
@@ -624,15 +649,164 @@ CrossSectionHelper::SystBiasCovarianceMap CrossSectionHelper::CrossSection::GetS
 
             outputMap[group].emplace(paramName, this->GetSmearingMatrixDistributionParamsUnisim(group, paramName, cvName));
         }
+        // std::cout<<"### DEBUG - GetSmearingMatrixSystUncertainties - Point 7"<<std::endl;
     }
 
+    // std::cout<<"### DEBUG - GetSmearingMatrixSystUncertainties - Point 8"<<std::endl;
     // Get the special POT normalisation uncertainty
     // ATTN no uncertainty is assigned to the smearing matrix due to POT normalisation (use a factor of 0.f)
     const auto pSmearingNom = CrossSectionHelper::FlattenMatrix(this->GetSmearingMatrixNominal());
     outputMap["misc"].emplace("POT", this->GetDistributionParamsNormalisation(pSmearingNom, 0.f));
 
+    // std::cout<<"### DEBUG - GetSmearingMatrixSystUncertainties - Point 9"<<std::endl;
     return outputMap;
 }
+
+// -----------------------------------------------------------------------------------------------------------------------------------------
+
+// CrossSectionHelper::SystBiasCovariancePair CrossSectionHelper::CrossSection::GetSidebandWeights(const ScalingData &scalingData) const
+// {
+//     // Get the number of universes for this systematic parameter
+//     // ATTN this choice of m_signal_true_multisims here is arbitrary, any of the mutlisims maps would do
+//     const auto nUniverses = m_systParams.nBootstrapUniverses;
+
+//     // Get the nominal cross-section
+//     const auto pXSecNom = std::make_shared<ubsmear::UBMatrix>(GetPredictedCrossSection(scalingData));
+
+//     // Get the number of backgrounds is zero as we are effectively applying a "perfect" selection
+//     const auto zeroVector = ubsmear::UBMatrixHelper::GetZeroMatrix(pXSecNom->GetRows(), 1);
+
+//     // Get the integrated flux in the nominal universe
+//     const auto integratedFlux = scalingData.pFluxReweightor->GetIntegratedNominalFlux();
+
+//     // The bootstrap universes
+//     const auto universes = m_signal_true_multisims.at("misc").at("bootstrap");
+
+//     // Get the distribution parameters
+//     return this->GetDistributionParams([&](const unsigned int &iUni)
+//     {
+//         // This is the function we call to get the value in each universe
+
+//         // Get the number of signal events in the nominal simulation in true bins
+//         const auto signal = CrossSectionHelper::GetMatrixFromHist(universes.at(iUni));
+
+//         // // Get the cross-section
+//         // return std::make_shared<ubsmear::UBMatrix> ( this->GetCrossSection(signal, zeroVector, integratedFlux, scalingData.exposurePOT, scalingData.nTargets) );
+
+//     }, nUniverses, pXSecNom);
+// }
+
+// -----------------------------------------------------------------------------------------------------------------------------------------
+
+// CrossSectionHelper::SystBiasCovariancePair CrossSectionHelper::CrossSection::GetSidebandWeights(std::vector<float> &x, std::vector<float> &y, std::vector<float> &errorY, std::vector<float> &S;)
+// {
+//     const auto nUniverses = m_systParams.nBootstrapUniverses;
+//     if (nUniverses == 0)
+//         throw std::logic_error("CrossSection::GetDisributionParams - No universes supplied");
+
+
+//     const auto selectedEventsData = this->GetSelectedBNBDataEvents();
+//     const auto smearingMatrixNominal = this->GetSmearingMatrix();
+//     const auto selectedEventsBackgroundNominalReco = this->GetSelectedBackgroundEvents();
+//     const auto selectedEventsSignalNominalTruth = this->GetSelectedSignalEvents();
+//     const auto signalData = selectedEventsData - selectedEventsBackgroundNominalReco;
+
+//     const auto selectedSignalUniverses = m_signal_selected_recoTrue_multisims.at("misc").at("bootstrap");
+//     const auto selectedBackgroundUniverses = m_background_selected_reco_multisims.at("misc").at("bootstrap");
+//     for (unsigned int iUni = 0; iUni < nUniverses; ++iUni)
+//     {
+//         const auto selectedSignalTruth = this->GetSignalSelectedTrue(selectedSignalUniverses.at(iUni));
+//         const auto selectedBackgoundReco = CrossSectionHelper::GetMatrixFromHist(selectedBackgroundUniverses.at(iUni));
+//     }
+
+
+
+//     // Insist the nominal input is a column vector
+//     if (pNominal->GetColumns() != 1)
+//         throw std::logic_error("CrossSection::GetDisributionParams - Input nominal is not a column vector");
+
+//     // Get the number of bins
+//     const auto nBins = pNominal->GetRows();
+
+//     // Setup some empty matrices to hold the mean vector and error matrices
+//     auto meanSum = ubsmear::UBMatrixHelper::GetZeroMatrix(nBins, 1);
+//     auto errorMatrixSum = ubsmear::UBMatrixHelper::GetZeroMatrix(nBins, nBins);
+
+//     // Loop over the universes
+//     unsigned int nValidUniverses = 0u;
+//     for (unsigned int iUni = 0; iUni < nUniverses; ++iUni)
+//     {
+//         //// BEGIN DEBUG
+//         // std::cout<< " DEBUG PrintLoadingBar - " << iUni << "/" << nUniverses <<std::endl;
+//         AnalysisHelper::PrintLoadingBar(iUni, nUniverses);
+//         //// END DEBUG
+
+//         // Get the value in this universe
+//         const auto pUniverse = func(iUni);
+
+//         // Insist that we get a valid quanitiy in this universes
+//         if (!pUniverse)
+//             continue;
+
+//         // Count the number of valid universes
+//         nValidUniverses++;
+
+//         // Loop over the bins
+//         // ATTN for speed we don't expcitly check here if the universe has the same number of bins as the nominal. Instead we rely on the
+//         // internal range checking of the ubsmear::UBMatrix class
+//         for (unsigned int iBin = 0; iBin < nBins; ++iBin)
+//         {
+//             // Add up the universes
+//             meanSum.SetElement(iBin, 0, meanSum.At(iBin, 0) + pUniverse->At(iBin, 0));
+//             // Loop over the bins again
+//             // ATTN the error matrix is symmetric so here we only set one half of the off-diagonals within the universe loop and then copy
+//             // them over to the other half afterwards. This is done for performance reasons as it halves the number of inserts required
+//             const auto diffI = pUniverse->At(iBin, 0) - pNominal->At(iBin, 0);
+//             for (unsigned int jBin = 0; jBin <= iBin; ++jBin)
+//             {
+//                 const auto diffJ = pUniverse->At(jBin, 0) - pNominal->At(jBin, 0);
+
+//                 // Add up the error matrix elements
+//                 errorMatrixSum.SetElement(iBin, jBin, errorMatrixSum.At(iBin, jBin) + diffI*diffJ);
+//             }
+//         }
+//     }
+
+//     std::cout << "DEBUG - Valid universes: " << nValidUniverses << " / " << nUniverses << std::endl;
+
+//     // Scale the sums by the number of universes
+//     if (nValidUniverses == 0)
+//         throw std::logic_error("CrossSection::GetDisributionParams - Desired quantity was invalid in all universes");
+
+//     const auto scaleFactor = 1.f / static_cast<float>(nValidUniverses);
+//     const auto mean = meanSum * scaleFactor;
+//     const auto errorMatrix = errorMatrixSum * scaleFactor;
+
+//     // Get the bias vector
+//     const auto pBias = std::make_shared<ubsmear::UBMatrix>(mean - *pNominal);
+
+//     // Get the covariance matrix
+//     auto pCovarianceMatrix = std::make_shared<ubsmear::UBMatrix>(ubsmear::UBMatrixHelper::GetZeroMatrix(nBins, nBins));
+//     for (unsigned int iBin = 0; iBin < nBins; ++iBin)
+//     {
+//         for (unsigned int jBin = 0; jBin <= iBin; ++jBin)
+//         {
+//             // ATTN here we use the fact that V_ij = E_ij - b_i*b_j
+//             //   - E_ij = error matrix element
+//             //   - V_ij = covariance matrix element
+//             //   - b_i = bias vector element
+//             //
+//             // This is done instead of calculating the covariance directly as this only requires one pass through the universe loop.
+//             const auto covariance = errorMatrix.At(iBin, jBin) - pBias->At(iBin, 0)*pBias->At(jBin, 0);
+
+//             pCovarianceMatrix->SetElement(iBin, jBin, covariance);
+//             pCovarianceMatrix->SetElement(jBin, iBin, covariance);
+//         }
+//     }
+
+//     return { pBias, pCovarianceMatrix };
+// }
+
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
 
@@ -733,6 +907,7 @@ CrossSectionHelper::SystBiasCovariancePair CrossSectionHelper::CrossSection::Get
     for (unsigned int iUni = 0; iUni < nUniverses; ++iUni)
     {
         //// BEGIN DEBUG
+        // std::cout<< " DEBUG PrintLoadingBar - " << iUni << "/" << nUniverses <<std::endl;
         AnalysisHelper::PrintLoadingBar(iUni, nUniverses);
         //// END DEBUG
 
@@ -753,9 +928,8 @@ CrossSectionHelper::SystBiasCovariancePair CrossSectionHelper::CrossSection::Get
         {
             // Add up the universes
             meanSum.SetElement(iBin, 0, meanSum.At(iBin, 0) + pUniverse->At(iBin, 0));
-
             // Loop over the bins again
-            // ATTN the error matrix is symmetic so here we only set one half of the off-diagonals within the universe loop and then copy
+            // ATTN the error matrix is symmetric so here we only set one half of the off-diagonals within the universe loop and then copy
             // them over to the other half afterwards. This is done for performance reasons as it halves the number of inserts required
             const auto diffI = pUniverse->At(iBin, 0) - pNominal->At(iBin, 0);
             for (unsigned int jBin = 0; jBin <= iBin; ++jBin)
@@ -904,10 +1078,25 @@ CrossSectionHelper::SystBiasCovariancePair CrossSectionHelper::CrossSection::Get
     return this->GetDistributionParamsUnisim(pXSec, pXSecCV, pXSecNom);
 }
 
+// -----------------------------------------------------------------------------------------------------------------------------------------s
+
+std::unordered_map<std::string, CrossSectionHelper::SystTH1FMap> CrossSectionHelper::CrossSection::GetSelectedBackgroundRecoMap() const
+{
+    return m_background_selected_reco_multisims;
+}
+
+// -----------------------------------------------------------------------------------------------------------------------------------------
+
+std::unordered_map<std::string, CrossSectionHelper::SystTH2FMap> CrossSectionHelper::CrossSection::GetSelectedSignalRecoTruthMap() const
+{
+    return m_signal_selected_recoTrue_multisims;
+}
+
 // -----------------------------------------------------------------------------------------------------------------------------------------
 
 std::shared_ptr<ubsmear::UBMatrix> CrossSectionHelper::CrossSection::GetSmearingMatrixInUniverse(const std::string &group, const std::string &paramName, const unsigned int universeIndex) const
 {
+    // std::cout<<" &&&&&&& DEBUG  CrossSectionHelper::CrossSection::GetSmearingMatrixInUniverse"<<std::endl;
     return this->GetSmearingMatrix(m_signal_true_multisims.at(group).at(paramName).at(universeIndex), m_signal_selected_recoTrue_multisims.at(group).at(paramName).at(universeIndex));
 }
 
@@ -937,7 +1126,10 @@ CrossSectionHelper::SystBiasCovariancePair CrossSectionHelper::CrossSection::Get
     return this->GetDistributionParams([&](const unsigned int &iUni)
     {
         // This is the function we call to get the value in each universe
-        return CrossSectionHelper::FlattenMatrix(this->GetSmearingMatrixInUniverse(group, paramName, iUni));
+        std::cout << "DEBUG - GetSmearingMatrixDistributionParams before - group, paramName, iUni"<< group << " " << paramName << " " << iUni <<std::endl;
+        auto flattened = CrossSectionHelper::FlattenMatrix(this->GetSmearingMatrixInUniverse(group, paramName, iUni));
+        std::cout << "DEBUG - GetSmearingMatrixDistributionParams after" <<std::endl;
+        return flattened;
 
     }, nUniverses, pSmearingNom);
 }
@@ -1171,7 +1363,6 @@ CrossSectionHelper::SystFloatMap CrossSectionHelper::GetWeightsMap(const Event::
 
 CrossSectionHelper::SystFloatMap CrossSectionHelper::GetWeightsMap(const Event::Truth &truth, const SystDimensionsMap &dimensions, const SystMutuallyExclusiveDimensionsMap &mutuallyExclusiveDimensions)
 {
-    std::cout<<"||||| CrossSectionHelper::SystFloatMap CrossSectionHelper::GetWeightsMap - Point 0"<<std::endl;
     // Make a new map for the output
     SystFloatMap map;
 
@@ -1183,7 +1374,6 @@ CrossSectionHelper::SystFloatMap CrossSectionHelper::GetWeightsMap(const Event::
     // Find which parameters (if any) are built from mutually exclusive parameters
     for (const auto &[paramName, nUniverses] : dimensions)
     {
-        std::cout<<"||||| CrossSectionHelper::SystFloatMap CrossSectionHelper::GetWeightsMap - Point 1"<<std::endl;
         // Check if this parameter name is available in the input truth information, if so just skip it for later
         if (std::find(systParamNames.begin(), systParamNames.end(), paramName) != systParamNames.end())
         {
@@ -1191,35 +1381,27 @@ CrossSectionHelper::SystFloatMap CrossSectionHelper::GetWeightsMap(const Event::
             continue;
         }
 
-        std::cout<<"||||| CrossSectionHelper::SystFloatMap CrossSectionHelper::GetWeightsMap - Point 1.1 - paramName:"<<paramName<<std::endl;
         // Insist that parameters not available in the input truth information are listed in the mutually exlusive dimensions
         if (mutuallyExclusiveDimensions.find(paramName) == mutuallyExclusiveDimensions.end())
             throw std::invalid_argument("CrossSectionHelper::GetWeightsMap - Parameter \"" + paramName + "\" isn't listed in the input truth information or in the supplied mutually exclusive parameter names");
 
-        std::cout<<"||||| CrossSectionHelper::SystFloatMap CrossSectionHelper::GetWeightsMap - Point 1.2"<<std::endl;
         // We have a mutually exclusive parameter, so get it's weights
         const auto &[parameters, nUniversesCheck] = mutuallyExclusiveDimensions.at(paramName);
 
-        std::cout<<"||||| CrossSectionHelper::SystFloatMap CrossSectionHelper::GetWeightsMap - Point 1.3"<<std::endl;
         if (nUniverses != nUniversesCheck)
             throw std::invalid_argument("CrossSectionHelper::GetWeightsMap - Inconsistent number of universes specified for parameter: \"" + paramName + "\"");
 
-        std::cout<<"||||| CrossSectionHelper::SystFloatMap CrossSectionHelper::GetWeightsMap - Point 1.4"<<std::endl;
         const auto weights = CrossSectionHelper::GetMutuallyExclusiveWeights(truth, parameters, nUniverses);
-        std::cout<<"||||| CrossSectionHelper::SystFloatMap CrossSectionHelper::GetWeightsMap - Point 1.5"<<std::endl;
 
         // Add the result to the output map
         map.emplace(paramName, weights);
     }
 
-    std::cout<<"||||| CrossSectionHelper::SystFloatMap CrossSectionHelper::GetWeightsMap - Point 2"<<std::endl;
     // Now get the weights from the rest of the parameters
     auto availableParamWeights = CrossSectionHelper::GetWeightsMap(truth, availableParamDimensions);
 
-    std::cout<<"||||| CrossSectionHelper::SystFloatMap CrossSectionHelper::GetWeightsMap - Point 3"<<std::endl;
     // Combine this together and return it!
     map.insert(availableParamWeights.begin(), availableParamWeights.end());
-    std::cout<<"||||| CrossSectionHelper::SystFloatMap CrossSectionHelper::GetWeightsMap - Point End"<<std::endl;
     return map;
 }
 
@@ -1269,15 +1451,31 @@ std::vector<float> CrossSectionHelper::GetMutuallyExclusiveWeights(const Event::
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
 
-std::vector<float> CrossSectionHelper::GenerateBootstrapWeights(const unsigned int nUniverses)
+std::vector<float> CrossSectionHelper::GenerateBootstrapWeights(const unsigned int nUniverses, const std::string seedString)
 {
+    std::vector<float> weights;
+    // for (int i=0; i<3; i++)
+    // {
+    //     weights.clear();
     std::poisson_distribution<int> poisson(1.f);
 
-    std::vector<float> weights;
+    std::seed_seq seed(seedString.begin(),seedString.end());
+    // std::cout<<"\n_____"<<i<<"_____";
+    // std::cout<<"\nSeed: ";
+    // seed.param(std::ostream_iterator<int>(std::cout, " "));
+    std::default_random_engine generator(seed);
+    // std::cout<<"\nWeights: ";
     for (unsigned int iUni = 0; iUni < nUniverses; ++iUni)
     {
-        weights.push_back(static_cast<float>(poisson(m_generator)));
+        // weights.push_back(static_cast<float>(poisson(m_generator)));
+        const auto weight = static_cast<float>(poisson(generator));
+        // if(iUni<20)
+        // {
+        //     std::cout<<" "<<weight;
+        // }
+        weights.push_back(weight);
     }
+    // }
 
     return weights;
 }
@@ -1324,7 +1522,7 @@ void CrossSectionHelper::FillSystTH2FMap(const float xValue, const float yValue,
 
         // ATTN this should never happen because of the above ValidateSystMap check, but including here for sanity
         if (histVector.size() != nUniverses)
-            throw std::logic_error("CrossSectionHelper::FillSystTH1FMap - Input weights map and SystTH1FMap have different dimensions");
+            throw std::logic_error("CrossSectionHelper::FillSystTH2FMap - Input weights map and SystTH2Map have different dimensions");
 
         for (unsigned int iUni = 0; iUni < nUniverses; ++iUni)
         {
@@ -1379,10 +1577,21 @@ ubsmear::UBMatrix CrossSectionHelper::GetMatrixFromHist(const std::shared_ptr<TH
 
 std::shared_ptr<ubsmear::UBMatrix> CrossSectionHelper::FlattenMatrix(const std::shared_ptr<ubsmear::UBMatrix> &pMatrix)
 {
+    // std::cout<<" &&&&&&& DEBUG  CrossSectionHelper::FlattenMatrix point 0"<<std::endl;
     if (!pMatrix)
+    {
+        // std::cout<<" &&&&&&& DEBUG  CrossSectionHelper::FlattenMatrix point 1" <<std::endl;
         throw std::invalid_argument("CrossSectionHelper::FlattenMatrix - Input matrix pointer is null");
+        // std::cout<<" &&&&&&& DEBUG  CrossSectionHelper::FlattenMatrix point 1.1"<<std::endl;
+    }
 
-    return std::make_shared<ubsmear::UBMatrix>(ubsmear::UBSmearingHelper::Flatten(*pMatrix));
+    // std::cout<<" &&&&&&& DEBUG  CrossSectionHelper::FlattenMatrix point 2"<<std::endl;
+    auto flattened0 = ubsmear::UBSmearingHelper::Flatten(*pMatrix);
+    // std::cout<<" &&&&&&& DEBUG  CrossSectionHelper::FlattenMatrix point 3"<<std::endl;
+    auto flattened = std::make_shared<ubsmear::UBMatrix>(flattened0);
+    // std::cout<<" &&&&&&& DEBUG  CrossSectionHelper::FlattenMatrix point 4"<<std::endl;
+    return flattened;
+    // return std::make_shared<ubsmear::UBMatrix>(ubsmear::UBSmearingHelper::Flatten(*pMatrix));
 }
 
 // -----------------------------------------------------------------------------------------------------------------------------------------

@@ -48,6 +48,10 @@ class AnalysisHelper
             float         pionCosTheta;    ///< The pion cos(theta) - angle to beam direciton
             float         pionPhi;         ///< The pion phi - angle in x-y plane
             float         muonPionAngle;   ///< The muon-pion opening angle
+            float         protonMomentum;  ///< The proton momentum
+            float         protonCosTheta;  ///< The proton cos(theta) - angle to beam direciton
+            float         protonPhi;       ///< The proton phi - angle in x-y plane
+            float         muonProtonAngle; ///< The muon-proton opening angle
             unsigned int  nProtons;        ///< The number of protons
             bool          hasGoldenPion;   ///< If the event has a golden pion
         };
@@ -290,6 +294,17 @@ class AnalysisHelper
         static bool IsTrueCC1Pi(const std::shared_ptr<Event> &pEvent, const bool useAbsPdg);
 
         /**
+         *  @brief  Determine if the input event is truly a fiducial CC0Pi event (with at least one proton)
+         *
+         *  @param  pEvent the input event
+         *  @param  useAbsPdg if we should use the absolute values of PDG codes
+         *  @param  protonMomentumThreshold the visibility threshold for protons
+         *
+         *  @return boolean, true if CC0Pi
+         */
+        static bool IsTrueCC0Pi(const std::shared_ptr<Event> &pEvent, const bool useAbsPdg, const float protonMomentumThreshold);
+
+        /**
          *  @brief  Determine if the input truth particle is deemed visible and possibly is above a momentum threshold
          *
          *  @param  particle the input truth particle
@@ -317,6 +332,19 @@ class AnalysisHelper
          *  @return the number of particles with the pdg code
          */
         static unsigned int CountParticlesWithPdgCode(const std::vector<Event::Truth::Particle> &particles, const int pdgCode, const bool useAbsPdg);
+
+
+        /**
+         *  @brief  Count the number of particles in the input vector with the supplied PDG code that are above a momentum threshold
+         *
+         *  @param  particles the input particles
+         *  @param  pdgCode the pdg code
+         *  @param  useAbsPdg if we should group particles with the same absolute PDG code
+         *  @param  momentumThreshold mimimum true momentum particles need to be counted
+         *
+         *  @return the number of particles with the pdg code
+         */
+        static unsigned int CountParticlesAboveMomentumThreshold(const std::vector<Event::Truth::Particle> &particles, const int pdgCode, const bool useAbsPdg, const float momentumThreshold);
 
         /**
          *  @brief  Count the number of particles in the input vector with the supplied PDG code that are golden
@@ -587,6 +615,17 @@ class AnalysisHelper
         static AnalysisData GetTruthAnalysisData(const Event::Truth &truth, const bool useAbsPdg, const float protonMomentumThreshold);
 
         /**
+         *  @brief  Get the truth analysis data for CC0pi
+         *
+         *  @param  truth the input truth information of the event
+         *  @param  useAbsPdg if we should use absolute pdg code values
+         *  @param  protonMomentumThreshold the visibility threshold for protons
+         *
+         *  @return the truth analysis data
+         */
+        static AnalysisData GetTruthAnalysisDataCC0Pi(const Event::Truth &truth, const bool useAbsPdg, const float protonMomentumThreshold);
+
+        /**
          *  @brief  Get the reco analysis data
          *
          *  @param  reco the input reco information of the event
@@ -596,6 +635,17 @@ class AnalysisHelper
          *  @return the reco analysis data
          */
         static AnalysisData GetRecoAnalysisData(const Event::Reco &reco, const std::vector<int> &assignedPdgCodes, const bool passesGoldenPionSelection);
+
+        /**
+         *  @brief  Get the reco analysis data for CC0pi
+         *
+         *  @param  reco the input reco information of the event
+         *  @param  assignedPdgCodes the PDG codes assigned to each reco particle
+         *  @param  passesGoldenPionSelection if the event passes the golden pion selection
+         *
+         *  @return the reco analysis data
+         */
+        static AnalysisData GetRecoAnalysisDataCC0Pi(const Event::Reco &reco, const std::vector<int> &assignedPdgCodes);
 
         /**
          *  @brief  Get the index of the particle that's been assigned the supplied PDG code

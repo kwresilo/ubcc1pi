@@ -37,6 +37,7 @@
         "Helpers/PlottingHelper.cxx",
         "Helpers/SelectionHelper.cxx",
         "Helpers/NormalisationHelper.cxx",
+        "Helpers/FittingHelper.cxx",
         "Helpers/CrossSectionHelper.cxx",
 
         // Macros
@@ -70,11 +71,12 @@
         "Macros/PlotFlux.cxx",
         "Macros/PlotFluxVariations.cxx",
         "Macros/ExtractXSecs.cxx",
+        // "Macros/ExtractCC0PiNormalisation.cxx",
         "Macros/PrintUncertaintiesSummary.cxx",
         "Macros/MakeXSecPlots.cxx",
         "Macros/MakeSidebandSamplePlots.cxx",
         "Macros/PlotEBRequests.cxx",
-
+        // "Macros/MakeSidebandTemplateFit.cxx",
         "Macros/RunFullAnalysis.cxx"
     }))
     {
