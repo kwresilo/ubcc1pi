@@ -62,6 +62,7 @@ void PrintUncertaintiesSummary(const Config &config)
         for (const auto &[group, dimensions] : std::map<std::string, CrossSectionHelper::SystDimensionsMap>({
             {"flux", config.extractXSecs.fluxDimensions},
             {"xsec", config.extractXSecs.xsecDimensions},
+            {"reint", config.extractXSecs.reintDimensions},
             {"misc", {
                 {"bootstrap", config.extractXSecs.nBootstrapUniverses},
                 {"dirt", 2},

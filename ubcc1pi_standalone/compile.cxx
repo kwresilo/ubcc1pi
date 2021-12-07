@@ -6,6 +6,19 @@
 #include <map>
 
 {
+    // Add boost library support
+    auto boost_inc = gSystem->Getenv("BOOST_INC");
+    auto boost_lib = gSystem->Getenv("BOOST_LIB");
+    //gSystem->AddIncludePath(("-I " + std::string(boost_inc) + "/").c_str());
+    gInterpreter->AddIncludePath((std::string(boost_inc) + "/boost/archive/").c_str());
+    gInterpreter->AddIncludePath((std::string(boost_inc) + "/boost/serialization/").c_str());
+    //gSystem->AddIncludePath(("  -I " + std::string(boost_inc) + "/boost/archive/").c_str());
+    //gSystem->AddIncludePath(("  -I " + std::string(boost_inc) + "/boost/serialization/").c_str());
+
+    gSystem->Load((std::string(boost_lib) + "/libboost_filesystem.so").c_str());
+    gSystem->Load((std::string(boost_lib) + "/libboost_serialization.so").c_str());
+    gSystem->Load((std::string(boost_lib) + "/libboost_wserialization.so").c_str());
+	
     // Generate any required dictionaries
     gInterpreter->GenerateDictionary("std::map<std::string, std::vector<float> >", "map;string;vector");
 

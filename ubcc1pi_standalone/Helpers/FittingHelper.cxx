@@ -14,7 +14,7 @@ namespace ubcc1pi
 FittingHelper::FittingHelper(const Int_t binNumber) :
     nBins(binNumber){}
 
-void FittingHelper::Fit(void(*fcn)(Int_t &, Double_t *, Double_t &f, Double_t *, Int_t), std::pair<std::vector<Double_t>, std::vector<Double_t>> &result, const int printlevel)
+void FittingHelper::Fit(void(*fcn)(Int_t &, Double_t *, Double_t &f, Double_t *, Int_t), std::pair<std::vector<Double_t>, std::vector<Double_t>> &result, std::vector<float> &covMatrix, const int printlevel)
 {
     // if(smearingMatrix.IsSquare() && truthRecoMatrix.GetRows() == data.GetRows() && data.GetRows()==dataStatUncertainty.GetRows() && data.GetColumns()==dataStatUncertainty.GetColumns())
     //     throw std::logic_error("FittingHelper::Fit - Incompatible input dimenstions.");
@@ -69,6 +69,21 @@ void FittingHelper::Fit(void(*fcn)(Int_t &, Double_t *, Double_t &f, Double_t *,
         minuit.GetParameter(iBin, param, paramError);
         paramVector.push_back(param);
         paramErrorVector.push_back(paramError);
+    }
+ 
+    // covMatrix = std::vector<Double_t>(nBins*nBins); 
+    Double_t covMatrixFit[nBins][nBins];
+    minuit.mnemat(&covMatrixFit[0][0], nBins);
+    std::cout<<"@@@@@@@@ Covariance matrix:"<<std::endl;
+    minuit.mnmatu(1);
+
+    covMatrix.clear();
+    for (int i=0; i<nBins; i++)
+    {
+        for (int j=0; j<nBins; j++)
+        {
+            covMatrix.push_back((float)covMatrixFit[i][j]);       
+        }
     }
     result = std::make_pair(paramVector, paramErrorVector);
 }

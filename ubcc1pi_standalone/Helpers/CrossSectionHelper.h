@@ -438,6 +438,15 @@ class CrossSectionHelper
                 ubsmear::UBMatrix GetSmearingMatrix() const;
 
                 /**
+                *  @brief  Get the smearing matrix of selected events in the nominal universe
+                *          This is the matrix that transforms a distribution in truth-space to one in reco-space, and includes the
+                *          efficiency of the selection
+                *
+                *  @return smearing matrix
+                */
+                ubsmear::UBMatrix GetSmearingMatrixAllSelected() const;
+
+                /**
                 *  @brief  Get the statistical uncertainty due to limited BNB data on the cross-section
                 *
                 *  @param  scalingData the information about how we should scale the event rate to get the cross-section
@@ -568,6 +577,17 @@ class CrossSectionHelper
                 *  @return a shared pointer to the smearing matrix or a nullptr if the smearing matrix is incalculable
                 */
                 std::shared_ptr<ubsmear::UBMatrix> GetSmearingMatrix(const std::shared_ptr<TH1F> &pSignal_true, const std::shared_ptr<TH2F> &pSignal_selected_recoTrue) const;
+
+                /**
+                *  @brief  Get the smearing matrix from only selected events of an input reco-true distribution
+                *          In some cases the smearing matrix is not defined (i.e. if there is a bin containin no signal events). If these
+                *          cases this function return null
+                *
+                *  @param  pSignal_selected_recoTrue the input histogram of the selected signal events in reco-vs-truth space
+                *
+                *  @return a shared pointer to the smearing matrix or a nullptr if the smearing matrix is incalculable
+                */
+                std::shared_ptr<ubsmear::UBMatrix> GetSmearingMatrixAllSelected(const std::shared_ptr<TH2F> &pSignal_selected_recoTrue) const;
 
                 /**
                 *  @brief  Get the smearing matrix in a given systematic universe. NB. Can return null

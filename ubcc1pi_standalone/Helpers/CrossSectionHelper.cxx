@@ -355,19 +355,73 @@ ubsmear::UBMatrix CrossSectionHelper::CrossSection::GetCrossSection(const ubsmea
 
 std::shared_ptr<ubsmear::UBMatrix> CrossSectionHelper::CrossSection::GetSmearingMatrix(const std::shared_ptr<TH1F> &pSignal_true, const std::shared_ptr<TH2F> &pSignal_selected_recoTrue) const
 {
-    // std::cout<<" &&&&&&& DEBUG  CrossSectionHelper::CrossSection::GetSmearingMatrix Point 0"<<std::endl;
+    std::cout<<" &&&&&&& DEBUG  CrossSectionHelper::CrossSection::GetSmearingMatrix Point 0"<<std::endl;
     // Get the input histograms as a matrix
     const auto allTrue = CrossSectionHelper::GetMatrixFromHist(pSignal_true);
     const auto selectedRecoTrue = CrossSectionHelper::GetMatrixFromHist(pSignal_selected_recoTrue);
 
+    std::cout<<" &&&&&&& DEBUG  CrossSectionHelper::CrossSection::GetSmearingMatrix Point 0.1"<<std::endl;
     // Check theh matrices have the expected sizes
     if (!ubsmear::UBMatrixHelper::IsSquare(selectedRecoTrue))
+    {
+        std::cout<<"CrossSection::GetSmearingMatrix - input reco-true matrix isn't square"<<std::endl;
         throw std::invalid_argument("CrossSection::GetSmearingMatrix - input reco-true matrix isn't square");
+    }
 
     const auto nBins = allTrue.GetRows();
     if (selectedRecoTrue.GetRows() != nBins)
+    {
+        std::cout<<"CrossSection::GetSmearingMatrix - the input objects differ in number of bins"<<std::endl;
         throw std::invalid_argument("CrossSection::GetSmearingMatrix - the input objects differ in number of bins");
+    }
 
+    // Get the elements of the smearing matrix
+    std::vector<float> elements;
+    for (unsigned int iReco = 0; iReco < nBins; ++iReco)
+    {
+        for (unsigned int iTrue = 0; iTrue < nBins; ++iTrue)
+        {
+            // Get the total number of signal events in this true bin
+            const auto denominator = allTrue.At(iTrue, 0);
+
+            // ATTN. If we find a bin in which there are no signal events, then there's no sensible value for the smearing matrix element
+            // Here we return null to indicate that the smearing matrix can't be found
+            std::cout<<" &&&&&&& DEBUG  CrossSectionHelper::CrossSection::GetSmearingMatrix Point 1 - denominator: " << denominator <<std::endl;
+            if (denominator <= std::numeric_limits<float>::epsilon())
+                return std::shared_ptr<ubsmear::UBMatrix>(nullptr);
+            std::cout<<" &&&&&&& DEBUG  CrossSectionHelper::CrossSection::GetSmearingMatrix Point 1.1 - denominator: " << denominator <<std::endl;
+            // std::cout<<" &&&&&&& DEBUG  CrossSectionHelper::CrossSection::GetSmearingMatrix Point 2"<<std::endl;
+
+            elements.push_back(selectedRecoTrue.At(iReco, iTrue) / denominator);
+        }
+    }
+
+    std::cout<<" &&&&&&& DEBUG  CrossSectionHelper::CrossSection::GetSmearingMatrix Point 5"<<std::endl;
+    return std::make_shared<ubsmear::UBMatrix>(elements, nBins, nBins);
+}
+
+// -----------------------------------------------------------------------------------------------------------------------------------------
+
+std::shared_ptr<ubsmear::UBMatrix> CrossSectionHelper::CrossSection::GetSmearingMatrixAllSelected(const std::shared_ptr<TH2F> &pSignal_selected_recoTrue) const
+{
+    // std::cout<<" &&&&&&& DEBUG  CrossSectionHelper::CrossSection::GetSmearingMatrix Point 0"<<std::endl;
+    // Get the input histograms as a matrix
+    // const auto allTrue = CrossSectionHelper::GetMatrixFromHist(pSignal_true);
+    const auto allTrue = GetSignalSelectedTrue(pSignal_selected_recoTrue);
+    const auto selectedRecoTrue = CrossSectionHelper::GetMatrixFromHist(pSignal_selected_recoTrue);
+
+    // Check theh matrices have the expected sizes
+    if (!ubsmear::UBMatrixHelper::IsSquare(selectedRecoTrue))
+    {
+        std::cout<<"CrossSection::GetSmearingMatrix - input reco-true matrix isn't square"<<std::endl;
+        throw std::invalid_argument("CrossSection::GetSmearingMatrix - input reco-true matrix isn't square");
+    }
+    const auto nBins = allTrue.GetRows();
+    if (selectedRecoTrue.GetRows() != nBins)
+    {
+        std::cout<<"CrossSection::GetSmearingMatrix - the input objects differ in number of bins"<<std::endl;
+        throw std::invalid_argument("CrossSection::GetSmearingMatrix - the input objects differ in number of bins");
+    }
     // Get the elements of the smearing matrix
     std::vector<float> elements;
     for (unsigned int iReco = 0; iReco < nBins; ++iReco)
@@ -509,6 +563,22 @@ ubsmear::UBMatrix CrossSectionHelper::CrossSection::GetSmearingMatrix() const
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
 
+ubsmear::UBMatrix CrossSectionHelper::CrossSection::GetSmearingMatrixAllSelected() const
+{
+    // Get the smearing matrix in the nominal universe
+    const auto pSmearingMatrix = this->GetSmearingMatrixAllSelected(m_pSignal_selected_recoTrue_nom);
+
+    // Check we were able to find the smearing matrix
+    if (!pSmearingMatrix)
+    {
+        std::cout<<"CrossSection::GetSmearingMatrix - There's a bin with no signal events! Can't get the smearing matrix"<<std::endl;
+        throw std::logic_error("CrossSection::GetSmearingMatrix - There's a bin with no signal events! Can't get the smearing matrix");
+    }
+    return *pSmearingMatrix;
+}
+
+// -----------------------------------------------------------------------------------------------------------------------------------------
+
 ubsmear::UBMatrix CrossSectionHelper::CrossSection::GetBNBDataCrossSectionStatUncertainty(const ScalingData &scalingData) const
 {
     // Get the number of selected events in BNB data
@@ -611,15 +681,15 @@ CrossSectionHelper::SystBiasCovarianceMap CrossSectionHelper::CrossSection::GetS
             // std::cout<<"### DEBUG - GetSmearingMatrixSystUncertainties - Point 2"<<std::endl;
             const auto &paramName = entry.first;
             outputMap[group].emplace(paramName, this->GetSmearingMatrixDistributionParams(group, paramName));
-            // std::cout<<"### DEBUG - GetSmearingMatrixSystUncertainties - Point 3"<<std::endl;
+            std::cout<<"### DEBUG - GetSmearingMatrixSystUncertainties - Point 3"<<std::endl;
         }
     }
-    // std::cout<<"### DEBUG - GetSmearingMatrixSystUncertainties - Point 4"<<std::endl;
+    std::cout<<"### DEBUG - GetSmearingMatrixSystUncertainties - Point 4"<<std::endl;
     // Add the unisim parameters
     // ATTN again the use of m_signal_true_unisims is arbitrary, we could use any unisims map
     for (const auto &[group, map] : m_signal_true_unisims)
     {
-        // std::cout<<"### DEBUG - GetSmearingMatrixSystUncertainties - Point 5"<<std::endl;
+        std::cout<<"### DEBUG - GetSmearingMatrixSystUncertainties - Point 5"<<std::endl;
         // ATTN for now we only have detector parameters that are unisims, if others are added later then we would need to add a clause here
         // to get the relevent dimensions.
         if (group != "detector")
@@ -632,7 +702,7 @@ CrossSectionHelper::SystBiasCovarianceMap CrossSectionHelper::CrossSection::GetS
         for (const auto &[paramName, cvName] : dimensions)
             cvNames.push_back(cvName);
         
-        // std::cout<<"### DEBUG - GetSmearingMatrixSystUncertainties - Point 6"<<std::endl;
+        std::cout<<"### DEBUG - GetSmearingMatrixSystUncertainties - Point 6"<<std::endl;
 
         for (const auto &entry : map)
         {
@@ -649,7 +719,7 @@ CrossSectionHelper::SystBiasCovarianceMap CrossSectionHelper::CrossSection::GetS
 
             outputMap[group].emplace(paramName, this->GetSmearingMatrixDistributionParamsUnisim(group, paramName, cvName));
         }
-        // std::cout<<"### DEBUG - GetSmearingMatrixSystUncertainties - Point 7"<<std::endl;
+        std::cout<<"### DEBUG - GetSmearingMatrixSystUncertainties - Point 7"<<std::endl;
     }
 
     // std::cout<<"### DEBUG - GetSmearingMatrixSystUncertainties - Point 8"<<std::endl;
@@ -888,20 +958,25 @@ ubsmear::UBMatrix CrossSectionHelper::CrossSection::GetBNBDataCrossSectionForUni
 
 CrossSectionHelper::SystBiasCovariancePair CrossSectionHelper::CrossSection::GetDistributionParams(const std::function<std::shared_ptr<ubsmear::UBMatrix>(const unsigned int)> &func, const unsigned int nUniverses, const std::shared_ptr<ubsmear::UBMatrix> &pNominal) const
 {
+    std::cout<<"DEBUG - GetDistributionParams point 0"<<std::endl;
     if (nUniverses == 0)
         throw std::logic_error("CrossSection::GetDisributionParams - No universes supplied");
 
+    std::cout<<"DEBUG - GetDistributionParams point 1"<<std::endl;
     // Insist the nominal input is a column vector
     if (pNominal->GetColumns() != 1)
         throw std::logic_error("CrossSection::GetDisributionParams - Input nominal is not a column vector");
 
+    std::cout<<"DEBUG - GetDistributionParams point 2"<<std::endl;
     // Get the number of bins
     const auto nBins = pNominal->GetRows();
 
+    std::cout<<"DEBUG - GetDistributionParams point 3"<<std::endl;
     // Setup some empty matrices to hold the mean vector and error matrices
     auto meanSum = ubsmear::UBMatrixHelper::GetZeroMatrix(nBins, 1);
     auto errorMatrixSum = ubsmear::UBMatrixHelper::GetZeroMatrix(nBins, nBins);
 
+    std::cout<<"DEBUG - GetDistributionParams point 4"<<std::endl;
     // Loop over the universes
     unsigned int nValidUniverses = 0u;
     for (unsigned int iUni = 0; iUni < nUniverses; ++iUni)
@@ -910,14 +985,18 @@ CrossSectionHelper::SystBiasCovariancePair CrossSectionHelper::CrossSection::Get
         // std::cout<< " DEBUG PrintLoadingBar - " << iUni << "/" << nUniverses <<std::endl;
         AnalysisHelper::PrintLoadingBar(iUni, nUniverses);
         //// END DEBUG
+        std::cout<<"DEBUG - GetDistributionParams point 5"<<std::endl;
 
         // Get the value in this universe
         const auto pUniverse = func(iUni);
+
+        std::cout<<"DEBUG - GetDistributionParams point 6"<<std::endl;
 
         // Insist that we get a valid quanitiy in this universes
         if (!pUniverse)
             continue;
 
+        std::cout<<"DEBUG - GetDistributionParams point 7"<<std::endl;
         // Count the number of valid universes
         nValidUniverses++;
 
@@ -940,6 +1019,7 @@ CrossSectionHelper::SystBiasCovariancePair CrossSectionHelper::CrossSection::Get
                 errorMatrixSum.SetElement(iBin, jBin, errorMatrixSum.At(iBin, jBin) + diffI*diffJ);
             }
         }
+        std::cout<<"DEBUG - GetDistributionParams point 8"<<std::endl;
     }
 
     std::cout << "DEBUG - Valid universes: " << nValidUniverses << " / " << nUniverses << std::endl;
@@ -955,6 +1035,7 @@ CrossSectionHelper::SystBiasCovariancePair CrossSectionHelper::CrossSection::Get
     // Get the bias vector
     const auto pBias = std::make_shared<ubsmear::UBMatrix>(mean - *pNominal);
 
+    std::cout<<"DEBUG - GetDistributionParams point 9"<<std::endl;
     // Get the covariance matrix
     auto pCovarianceMatrix = std::make_shared<ubsmear::UBMatrix>(ubsmear::UBMatrixHelper::GetZeroMatrix(nBins, nBins));
     for (unsigned int iBin = 0; iBin < nBins; ++iBin)
@@ -973,6 +1054,7 @@ CrossSectionHelper::SystBiasCovariancePair CrossSectionHelper::CrossSection::Get
             pCovarianceMatrix->SetElement(jBin, iBin, covariance);
         }
     }
+    std::cout<<"DEBUG - GetDistributionParams point 10"<<std::endl;
 
     return { pBias, pCovarianceMatrix };
 }
@@ -981,18 +1063,22 @@ CrossSectionHelper::SystBiasCovariancePair CrossSectionHelper::CrossSection::Get
 
 CrossSectionHelper::SystBiasCovariancePair CrossSectionHelper::CrossSection::GetDistributionParamsUnisim(const std::shared_ptr<ubsmear::UBMatrix> &pVaried, const std::shared_ptr<ubsmear::UBMatrix> &pCentralValue, const std::shared_ptr<ubsmear::UBMatrix> &pNominal) const
 {
+    std::cout << "DEBUG - GetDistributionParamsUnisim Point 0"<<std::endl;
     // Check the input matrices are valid
     if (!pVaried || !pCentralValue || !pNominal)
         throw std::invalid_argument("CrossSection::GetDistributionParamsUnisim - One or more of the inputs are not valid");
-
+    
+    std::cout << "DEBUG - GetDistributionParamsUnisim Point 1"<<std::endl;
     // Check ths input matrices have the desired dimensions
     if (pVaried->GetColumns() != 1 || pCentralValue->GetColumns() != 1 || pNominal->GetColumns() != 1)
         throw std::invalid_argument("CrossSection::GetDistributionParamsUnisim - One or more of the inputs are not a column vector");
 
+    std::cout << "DEBUG - GetDistributionParamsUnisim Point 2"<<std::endl;
     const auto nBins = pVaried->GetRows();
     if (pCentralValue->GetRows() != nBins || pNominal->GetRows() != nBins)
         throw std::invalid_argument("CrossSection::GetDistributionParamsUnisim - Input column vectors have different sizes");
 
+    std::cout << "DEBUG - GetDistributionParamsUnisim Point 3"<<std::endl;
     // Get the fractional bias of the cross-section away from the central value
     const auto fracBias = ubsmear::ElementWiseOperation(
         (*pVaried - *pCentralValue), *pCentralValue,
@@ -1007,12 +1093,14 @@ CrossSectionHelper::SystBiasCovariancePair CrossSectionHelper::CrossSection::Get
         }
     );
 
+    std::cout << "DEBUG - GetDistributionParamsUnisim Point 4"<<std::endl;
     // Apply the fractional bias to the nominal cross-section
     const auto bias = ubsmear::ElementWiseOperation(
         fracBias, *pNominal,
         [](const float lhs, const float rhs) { return lhs * rhs; }
     );
 
+    std::cout << "DEBUG - GetDistributionParamsUnisim Point 5"<<std::endl;
     // Return the result (use a zero matrix for the covariance)
     return {
         std::make_shared<ubsmear::UBMatrix>(bias),
@@ -1117,11 +1205,15 @@ CrossSectionHelper::SystBiasCovariancePair CrossSectionHelper::CrossSection::Get
     // ATTN this choice of m_signal_true_multisims here is arbitrary, any of the mutlisims maps would do
     const auto nUniverses = m_signal_true_multisims.at(group).at(paramName).size();
 
+    std::cout << "DEBUG - Smearing matrix. Point 1"<<std::endl;
     // Get the nominal smearing matrix
     const auto pSmearingNom = CrossSectionHelper::FlattenMatrix(this->GetSmearingMatrixNominal());
     if (!pSmearingNom)
+    {
+        std::cout<<"CrossSection::GetSmearingMatrixDistributionParams - The nominal smearing matrix can't be calculated"<<std::endl;
         throw std::logic_error("CrossSection::GetSmearingMatrixDistributionParams - The nominal smearing matrix can't be calculated");
-
+    }
+    std::cout << "DEBUG - Smearing matrix. Point 2"<<std::endl;
     // Get the distirbution parameters
     return this->GetDistributionParams([&](const unsigned int &iUni)
     {
@@ -1132,19 +1224,23 @@ CrossSectionHelper::SystBiasCovariancePair CrossSectionHelper::CrossSection::Get
         return flattened;
 
     }, nUniverses, pSmearingNom);
+    std::cout << "DEBUG - Smearing matrix. Point 3"<<std::endl;
 }
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
 
 CrossSectionHelper::SystBiasCovariancePair CrossSectionHelper::CrossSection::GetSmearingMatrixDistributionParamsUnisim(const std::string &group, const std::string &paramName, const std::string &cvName) const
 {
-    std::cout << "DEBUG - Smearing matrix. Processing parameter: " << group << ", " << paramName << " (with central value: " << cvName << ")" << std::endl;
+    std::cout << "DEBUG - Smearing matrix. Processing parameter Unisim: " << group << ", " << paramName << " (with central value: " << cvName << ")" << std::endl;
 
     // Get the smearing matrix using the unisim sample, in the central value sample and in the nominal universe
     const auto pSmearing = CrossSectionHelper::FlattenMatrix(this->GetSmearingMatrixForUnisim(group, paramName));
+    std::cout << "DEBUG - Smearing matrix. Processing parameter Unisim Point 1"<<std::endl;
     const auto pSmearingCV = CrossSectionHelper::FlattenMatrix(this->GetSmearingMatrixForUnisim(group, cvName));
+    std::cout << "DEBUG - Smearing matrix. Processing parameter Unisim Point 2"<<std::endl;
     const auto pSmearingNom = CrossSectionHelper::FlattenMatrix(this->GetSmearingMatrixNominal());
 
+    std::cout << "DEBUG - Smearing matrix. Processing parameter Unisim Point 3"<<std::endl;
     // Get the parameters
     return this->GetDistributionParamsUnisim(pSmearing, pSmearingCV, pSmearingNom);
 }

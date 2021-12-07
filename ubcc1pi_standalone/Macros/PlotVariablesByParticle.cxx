@@ -63,6 +63,11 @@ void PlotEBRequests(const Config &config)
     std::shared_ptr<TH2F> pPionMomVsWiggliness_nonGolden(new TH2F("pionMomVsWiggliness_nonGolden", "", bins, 0.f, 0.28f, bins, 0.f, 1.5f));
     std::shared_ptr<TH2F> pPionMomVsWiggliness_all(new TH2F("pionMomVsWiggliness_all", "", bins, 0.f, 0.28f, bins, 0.f, 1.5f));
     std::shared_ptr<TH2F> pMuonMomVsWiggliness(new TH2F("pionMuonVsWiggliness", "", bins, 0.f, 0.28f, bins, 0.f, 2.0f));
+
+    std::shared_ptr<TH2F> pTruthPionMomVsWiggliness_golden(new TH2F("truthPionMomVsWiggliness_golden", "", bins, 0.f, 0.28f, bins, 0.f, 1.5f));
+    std::shared_ptr<TH2F> pTruthPionMomVsWiggliness_nonGolden(new TH2F("truthPionMomVsWiggliness_nonGolden", "", bins, 0.f, 0.28f, bins, 0.f, 1.5f));
+    std::shared_ptr<TH2F> pTruthPionMomVsWiggliness_all(new TH2F("truthPionMomVsWiggliness_all", "", bins, 0.f, 0.28f, bins, 0.f, 1.5f));
+    std::shared_ptr<TH2F> pTruthMuonMomVsWiggliness(new TH2F("truthPionMuonVsWiggliness", "", bins, 0.f, 0.28f, bins, 0.f, 2.0f));
     
     // Loop over the events
     for (unsigned int i = 0; i < nEvents; ++i)
@@ -122,6 +127,22 @@ void PlotEBRequests(const Config &config)
         // const auto pionEndState = pion.endState();
 
         const auto muonMomentum = muon.momentum();
+
+            const auto pionRecoMomentum = AnalysisHelper::GetPionMomentumFromRange(recoParticle.range());
+            if (AnalysisHelper::IsGolden(pion))
+            {
+                pPionMomVsWiggliness_golden->Fill(pion.wiggliness(), pionMomentum, weight);
+                //pPionMomVsWiggliness_golden->Fill(recoParticle.wiggliness(), pionMomentum, weight);
+                // pPionResVsRange->Fill(recoParticle.range(), pionResolution, weight);
+            }
+            else
+            {
+                pPionMomVsWiggliness_nonGolden->Fill(pion.wiggliness(), pionMomentum, weight);
+                // pPionMomVsWiggliness_nonGolden->Fill(recoParticle.wiggliness(), pionMomentum, weight);
+            }
+
+        pMuonMomVsWiggliness->Fill(recoParticle.wiggliness(), muonMomentum, weight);
+
 
         // Get the reco particles
         for (const auto &recoParticle : pEvent->reco.particles)

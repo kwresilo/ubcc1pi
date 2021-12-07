@@ -138,7 +138,7 @@ class FormattingHelper
         *  @param  fileName the file name
         *  @param  alsoPrint if we should also print the table to the terminal
         */
-        static void SaveMatrix(const ubsmear::UBMatrix &matrix, const std::string &fileName, const bool alsoPrint = true);
+        static void SaveMatrix(const ubsmear::UBMatrix &matrix, const std::string &fileName, const bool alsoPrint = false);
 
         /**
          *  @brief  Print a line of '-' characters
@@ -159,7 +159,11 @@ FormattingHelper::Table::Table(const std::vector<std::string> &headers) :
 
         const auto nEntries = std::count(m_headers.begin(), m_headers.end(), header);
         if (nEntries != 1)
+        {
+            std::cout<<"FormattingHelper::Table::Table - Repeated header: \"" << header << "\""<<std::endl;
             throw std::invalid_argument("FormattingHelper::Table::Table - Repeated header: \"" + header + "\"");
+        }
+
     }
 }
 
@@ -299,7 +303,10 @@ template <typename T>
 void FormattingHelper::Table::SetEntry(const std::string &header, const T &value)
 {
     if (m_entries.empty())
+    {
+        std::cout<<"FormattingHelper::Table::SetEntry - Table has now rows"<<std::endl;
         throw std::invalid_argument("FormattingHelper::Table::SetEntry - Table has now rows");
+    }
 
     this->SetEntry(header, this->GetNumberOfRows() - 1, value);
 }
@@ -310,16 +317,25 @@ template <typename T>
 void FormattingHelper::Table::SetEntry(const std::string &header, const unsigned int row, const T &value)
 {
     if (header.empty())
+    {
+        std::cout<<"FormattingHelper::Table::SetEntry - Input header is empty string"<<std::endl;
         throw std::invalid_argument("FormattingHelper::Table::SetEntry - Input header is empty string");
+    }
 
     if (row >= m_entries.size())
+    {
+        std::cout<<"FormattingHelper::Table::SetEntry - Input row is out of bounds"<<std::endl;
         throw std::invalid_argument("FormattingHelper::Table::SetEntry - Input row is out of bounds");
+    }
 
     // Find this header
     auto &entriesInRow = m_entries.at(row);
     auto entryIter = entriesInRow.find(header);
     if (entryIter == entriesInRow.end())
+    {
+        std::cout<< "FormattingHelper::Table::SetEntry - Invalid input header again: \"" << header << "\"" <<std::endl;
         throw std::invalid_argument("FormattingHelper::Table::SetEntry - Invalid input header: \"" + header + "\"");
+    }
 
     auto &entry = entryIter->second;
 

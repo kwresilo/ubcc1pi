@@ -1,7 +1,7 @@
 /**
- *  @file  ubcc1pi_standalone/Macros/PlotMuonRecoVariables.cxx
+ *  @file  ubcc1pi_standalone/Macros/MakeSidebandSamplePlots.cxx
  *
- *  @brief The implementation file of the PlotMuonRecoVariables macro
+ *  @brief The implementation file of the MakeSidebandSamplePlots macro
  */
 
 #include "ubcc1pi_standalone/Macros/Macros.h"
@@ -12,6 +12,7 @@
 #include "ubcc1pi_standalone/Helpers/AnalysisHelper.h"
 #include "ubcc1pi_standalone/Helpers/SelectionHelper.h"
 #include "ubcc1pi_standalone/Helpers/NormalisationHelper.h"
+#include <fstream> // Todo: not use txt files
 
 #include <TH2F.h>
 #include <TMath.h>
@@ -197,6 +198,8 @@ void MakeSidebandSamplePlots(const Config &config)
         TrueCC0pi_SelCC1pi_ProtonPIDPhi.emplace_back(new TH2F(std::string(std::string("TrueCC0pi_SelCC1pi_ProtonPhiPID")+std::to_string(i_feat)).c_str(),std::string(std::string(";Pion Candidate ")+xlabel+std::string(";True Phi / rad.")).c_str(),binning.at(0),binning.at(1),binning.at(2),30,-TMath::Pi(),TMath::Pi()));
     }
 
+    std::vector<std::vector<float>> TrueCC0pi_CC1piSelected_PIDConfusionMatrix { { 0, 0 }, { 0, 0 }, { 0, 0 } };
+
     // Loop over the events
     for (const auto [sampleType, fileName, normalisation] : inputData)
     {
@@ -352,33 +355,80 @@ void MakeSidebandSamplePlots(const Config &config)
                 if (isSelectedCC1piGeneric){
                     // For proton kinematics, use proton that is selected as the pi+ candidate. If the pi+ candidate is a true proton, fill muon and proton kinematic plots
                     const auto recoPion = recoParticles.at(AnalysisHelper::GetParticleIndexWithPdg(assignedPdgCodesCC1pi, 211));
+                    const auto recoMuon = recoParticles.at(AnalysisHelper::GetParticleIndexWithPdg(assignedPdgCodesCC1pi, 13));
 
-                    Event::Truth::Particle pionmatch;
+                    Event::Truth::Particle pionMatch;
+                    Event::Truth::Particle muonMatch;
+                    Event::Truth::Particle leadingProtonMatch;
 
                     try{
-                        pionmatch = AnalysisHelper::GetBestMatchedTruthParticle(recoPion,pEvent->truth.particles);
+                        pionMatch = AnalysisHelper::GetBestMatchedTruthParticle(recoPion,pEvent->truth.particles);
                     }
                     catch(const std::logic_error &){
                         continue;
                     }
 
+                    try{
+                        muonMatch = AnalysisHelper::GetBestMatchedTruthParticle(recoMuon,pEvent->truth.particles);
+                    }
+                    catch(const std::logic_error &){
+                        continue;
+                    }
 
-                    if (pionmatch.pdgCode()==2212){
+                    switch(pionMatch.pdgCode()) 
+                    {
+                        case 13:
+                            TrueCC0pi_CC1piSelected_PIDConfusionMatrix[0][0]+=weight;
+                            break;
+                        case 2212:
+                            TrueCC0pi_CC1piSelected_PIDConfusionMatrix[0][1]+=weight;
+                    }
+
+                    switch(muonMatch.pdgCode()) 
+                    {
+                        case 13:
+                            TrueCC0pi_CC1piSelected_PIDConfusionMatrix[1][0]+=weight;
+                            break;
+                        case 2212:
+                            TrueCC0pi_CC1piSelected_PIDConfusionMatrix[1][1]+=weight;
+                    }
+
+                    if (protonIndex!=std::numeric_limits<unsigned int>::max())
+                    {
+                        const auto recoLeadingPion = recoParticles.at(protonIndex);
+                        Event::Truth::Particle protonMatch;
+                        try{
+                            leadingProtonMatch = AnalysisHelper::GetBestMatchedTruthParticle(recoLeadingPion,pEvent->truth.particles);
+                        }
+                        catch(const std::logic_error &){
+                            continue;
+                        }
+                        switch(leadingProtonMatch.pdgCode()) 
+                        {
+                            case 13:
+                                TrueCC0pi_CC1piSelected_PIDConfusionMatrix[2][0]+=weight;
+                                break;
+                            case 2212:
+                                TrueCC0pi_CC1piSelected_PIDConfusionMatrix[2][1]+=weight;
+                        }
+                    }
+
+                    if (pionMatch.pdgCode()==2212){
                         TrueCC0pi_MuonMomentum.at("SelCC1pi")->Fill(truemu.momentum());
                         TrueCC0pi_MuonCosTheta.at("SelCC1pi")->Fill(TrueMuCosTheta);
                         TrueCC0pi_MuonPhi.at("SelCC1pi")->Fill(TrueMuPhi);
 
-                        const auto dir = TVector3(pionmatch.momentumX(), pionmatch.momentumY(), pionmatch.momentumZ()).Unit();
+                        const auto dir = TVector3(pionMatch.momentumX(), pionMatch.momentumY(), pionMatch.momentumZ()).Unit();
                         const auto cosTheta = dir.Z();
                         const auto phi = std::atan2(dir.Y(),dir.X());
 
-                        TrueCC0pi_ProtonMomentum.at("SelCC1pi")->Fill(pionmatch.momentum());
+                        TrueCC0pi_ProtonMomentum.at("SelCC1pi")->Fill(pionMatch.momentum());
                         TrueCC0pi_ProtonCosTheta.at("SelCC1pi")->Fill(cosTheta);
                         TrueCC0pi_ProtonPhi.at("SelCC1pi")->Fill(phi);
 
-                        TrueCC0pi_ProtonMomentumCosTheta.at("SelCC1pi")->Fill(pionmatch.momentum(),cosTheta);
+                        TrueCC0pi_ProtonMomentumCosTheta.at("SelCC1pi")->Fill(pionMatch.momentum(),cosTheta);
                         TrueCC0pi_ProtonCosThetaPhi.at("SelCC1pi")->Fill(cosTheta,phi);
-                        TrueCC0pi_ProtonMomentumPhi.at("SelCC1pi")->Fill(pionmatch.momentum(),phi);
+                        TrueCC0pi_ProtonMomentumPhi.at("SelCC1pi")->Fill(pionMatch.momentum(),phi);
 
                         std::vector<float> allfeatures;
                         std::vector<float> pfeatures;
@@ -414,7 +464,7 @@ void MakeSidebandSamplePlots(const Config &config)
                             else if (i_feat == allfeatures.size()+2) // Golden pion BDT score
                                 fillx = gbdtResponse;
 
-                            TrueCC0pi_SelCC1pi_ProtonPIDMomentum.at(i_feat)->Fill(fillx,pionmatch.momentum());
+                            TrueCC0pi_SelCC1pi_ProtonPIDMomentum.at(i_feat)->Fill(fillx,pionMatch.momentum());
                             TrueCC0pi_SelCC1pi_ProtonPIDCosTheta.at(i_feat)->Fill(fillx,cosTheta);
                             TrueCC0pi_SelCC1pi_ProtonPIDPhi.at(i_feat)->Fill(fillx,phi);
                         }
@@ -577,6 +627,18 @@ void MakeSidebandSamplePlots(const Config &config)
         PlottingHelper::SaveCanvas(pCanvas,"SidebandComparisons_ProtonPIDPhi_"+std::to_string(i_hist)+"_CC1pi");
     }
 
+    std::ofstream outfile;
+    outfile.open("TrueCC0pi_CC1piSelected_PIDConfusionMatrix.txt");
+    outfile<<"Format: recoPion recoMuon recoLeadingProton\ntrueMuon \n trueProton\nValues:\n";
+    for(const auto row : TrueCC0pi_CC1piSelected_PIDConfusionMatrix)
+    {
+        for (const auto elem: row)
+        {
+            outfile<<elem<<" ";
+        }
+        outfile<<"\n";
+    }
+    outfile.close();
 
 }
 

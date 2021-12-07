@@ -31,13 +31,16 @@ struct Config
     struct Files
     {
         // September overlays files contain systematic weights
-        std::string  overlaysFileName = "/uboone/data/users/jdetje/ubcc1pi/sep2020/ubcc1piAnalysis_overlays_08Oct21.root"; ///< Overlays file name input
-        // std::string  overlaysFileName = "/uboone/data/users/jdetje/ubcc1pi/sep2020/ubcc1piAnalysis_overlays_08Oct21_test_head20.root";
-        std::string  dirtFileName     = "/uboone/data/users/jdetje/ubcc1pi/sep2020/ubcc1piAnalysis_dirt_08Oct21.root";     ///< Dirt file name input
-        // std::string  dirtFileName     = "/pnfs/uboone/scratch/users/jdetje/ubcc1pi/dirt_final/49396507_11/ubcc1piAnalysis.root";
-        std::string  dataEXTFileName  = "/pnfs/uboone/persistent/users/kduffy/ubcc1pi/ubcc1pi_extbnb_run1_combined_5Jan2021.root";  ///< EXT data file name input
-        // std::string  dataBNBFileName  = "/uboone/data/users/jdetje/ubcc1pi/sep2020/ubcc1piAnalysis_overlays_08Oct21_test_tail20.root";  ///< BNB data file name input
-        std::string  dataBNBFileName  = "/pnfs/uboone/persistent/users/kduffy/ubcc1pi/ubcc1pi_bnb_run1-C1_5Jan2021.root";  ///< BNB data file name input
+        // std::string overlaysFileName = "/uboone/data/users/jdetje/ubcc1pi/sep2020/ubcc1piAnalysis_overlays_08Oct21.root"; ///< Overlays file name input
+        std::string overlaysFileName = "/uboone/data/users/jdetje/ubcc1pi/sep2020/ubcc1piAnalysis_overlays_08Oct21_test_head20.root";
+        
+        // std::string dirtFileName     = "/uboone/data/users/jdetje/ubcc1pi/sep2020/ubcc1piAnalysis_dirt_08Oct21.root";     ///< Dirt file name input
+        std::string dirtFileName     = "/pnfs/uboone/scratch/users/jdetje/ubcc1pi/dirt_final/49396507_11/ubcc1piAnalysis.root";
+        
+        std::string dataEXTFileName  = "/pnfs/uboone/persistent/users/kduffy/ubcc1pi/ubcc1pi_extbnb_run1_combined_5Jan2021.root";  ///< EXT data file name input
+        
+        std::string dataBNBFileName  = "/uboone/data/users/jdetje/ubcc1pi/sep2020/ubcc1piAnalysis_overlays_08Oct21_test_tail20.root";  ///< BNB data file name input
+        // std::string dataBNBFileName  = "/pnfs/uboone/persistent/users/kduffy/ubcc1pi/ubcc1pi_bnb_run1-C1_5Jan2021.root";  ///< BNB data file name input
 
         /**
          *  @brief  The detector variation files
@@ -146,7 +149,7 @@ struct Config
         std::string selection               = "Default";         ///< Which selection to use (can be "CCInclusive","Default", or "CC0pi")
         bool        axisTitles              = false;             ///< If we want to draw axis lables and titles on the plots (if false, they are not drawn so you can add your own later)
         bool        scaleByBinWidth         = true;
-        bool        useCC0piConstraint      = false;              ///< If we should use the CC0pi selection to constrain CC1pi cross-section  
+        bool        useCC0piConstraint      = true;              ///< If we should use the CC0pi selection to constrain CC1pi cross-section  
 
         /**
          *  @brief  The Binning structure
@@ -388,10 +391,10 @@ struct Config
                 "generic", {
                     {"total",         true },
                     {"muonCosTheta",  true },
-                    {"muonPhi",       true },
+                    {"muonPhi",       false },
                     {"muonMomentum",  false },
                     {"pionCosTheta",  false },
-                    {"pionPhi",       true },
+                    {"pionPhi",       false },
                     {"pionMomentum",  false },
                     {"muonPionAngle", false },
                     {"nProtons",      false }
@@ -401,10 +404,10 @@ struct Config
                 "golden", {
                     {"total",         true },
                     {"muonCosTheta",  true },
-                    {"muonPhi",       true },
+                    {"muonPhi",       false },
                     {"muonMomentum",  false },
                     {"pionCosTheta",  false },
-                    {"pionPhi",       true },
+                    {"pionPhi",       false },
                     {"pionMomentum",  false },
                     {"muonPionAngle", false },
                     {"nProtons",      false }

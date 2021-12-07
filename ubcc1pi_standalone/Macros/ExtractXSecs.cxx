@@ -13,8 +13,16 @@
 #include "ubcc1pi_standalone/Helpers/CrossSectionHelper.h"
 #include "ubcc1pi_standalone/Helpers/FormattingHelper.h"
 #include "ubcc1pi_standalone/Helpers/FittingHelper.h"
+#include "ubsmear.h"
 
 #include <fstream> // Todo: not use txt files
+
+// Boost libraries
+#include "binary_iarchive.hpp"
+#include "binary_oarchive.hpp"
+#include "binary_object.hpp"
+#include "map.hpp"
+#include "vector.hpp"
 
 using namespace ubcc1pi;
 
@@ -39,11 +47,12 @@ void fcn(Int_t &npar, Double_t *gin, Double_t &f, Double_t *par, Int_t iflag)
     }
     
     std::vector<float> xSmeared(nBins, 0);
+
     for (Int_t i=0; i<nBins; i++)
     {
         for (Int_t j=0; j<nBins; j++)
         {
-            xSmeared[i] +=  S[j+i*nBins]*xScaled[j];
+            xSmeared[i] +=  S[i+j*nBins]*xScaled[j];
         }
     }
     // const auto xSmeared = S*xScaled;
@@ -148,6 +157,7 @@ void ExtractXSecs(const Config &config)
     // mapped type is the cross-section object.
     std::map<std::string, std::map<std::string, CrossSectionHelper::CrossSection> > xsecMap;
     std::map<std::string, std::map<std::string, CrossSectionHelper::CrossSection> > xsecMapSideband;
+    std::map<std::string, std::map<std::string, CrossSectionHelper::CrossSection> > xsecMapSideband2;
 
     // We additionally make a map from each cross-section to the limits of the phase-space that we should consider. The key is the
     // identifier for the kinematic quantity and the mapped value is a pair containing the limits [min, max]
@@ -188,6 +198,7 @@ void ExtractXSecs(const Config &config)
             {
                 xsecMap[selectionName].emplace(name, CrossSectionHelper::CrossSection(systParams, extendedBinEdges, hasUnderflow, hasOverflow, scaleByBinWidth));
                 xsecMapSideband[selectionName].emplace(name, CrossSectionHelper::CrossSection(systParams, extendedBinEdges, hasUnderflow, hasOverflow, scaleByBinWidth));
+                xsecMapSideband2[selectionName].emplace(name, CrossSectionHelper::CrossSection(systParams, extendedBinEdges, hasUnderflow, hasOverflow, scaleByBinWidth));
             }
         }
         // if (config.extractXSecs.crossSectionIsEnabled.at("sideband").at(name))
@@ -209,6 +220,7 @@ void ExtractXSecs(const Config &config)
         }
             xsecMap[selectionName].emplace("total", CrossSectionHelper::CrossSection(systParams, {-1.f, 1.f}, false, false, false));
             xsecMapSideband[selectionName].emplace("total", CrossSectionHelper::CrossSection(systParams, {-1.f, 1.f}, false, false, false));
+            xsecMapSideband2[selectionName].emplace("total", CrossSectionHelper::CrossSection(systParams, {-1.f, 1.f}, false, false, false));
     }
     // Don't setup a cross-section object if it's been disabled in the configuration
     // if (config.extractXSecs.crossSectionIsEnabled.at("sideband").at("total"))
@@ -585,14 +597,17 @@ void ExtractXSecs(const Config &config)
     // Calculate the sideband weights
     // -------------------------------------------------------------------------------------------------------------------------------------
     // Loop over all cross-section objects
-    std::map<std::string, std::map<std::string, std::pair<std::vector<Double_t>,std::vector<Double_t>>>> cc0piNominalConstraintMap;
-    std::map<std::string, std::map<std::string, std::vector<std::pair<std::vector<Double_t>,std::vector<Double_t>>>>> cc0piUniverseConstraintMap;
+    typedef std::pair<std::vector<Double_t>,std::vector<Double_t>> paramAndErrorPair; // Todo: Improve code!
+    //Parameters: selectionName name
+    std::map<std::string,std::map<std::string, std::vector<float>>> cc0piCovarianceMap; 
+    std::map<std::string, std::map<std::string, paramAndErrorPair>> cc0piNominalConstraintMap;
+    //Parameters: selectionName name paramName (i.e. golden muonMomentum hadronProduction)
+    std::map<std::string, std::map<std::string, std::map<std::string, std::vector<paramAndErrorPair>>>> cc0piUniverseConstraintMap;
     
     for (const auto &[selectionName, xsecs] : xsecMapSideband)
     {
         for (const auto &[name, xsec] : xsecs)
         {
-
             // -------------------------------------------------------------------------------------------------------------------------------------
             // Fit nominal
             // -------------------------------------------------------------------------------------------------------------------------------------
@@ -603,7 +618,8 @@ void ExtractXSecs(const Config &config)
             std::cout<<"_______________________Fitting Point 0.1"<<std::endl;
             const auto selectedEventsData = xsec.GetSelectedBNBDataEvents();
             std::cout<<"_______________________Fitting Point 0.2"<<std::endl;
-            const auto smearingMatrix = xsec.GetSmearingMatrix();
+            // Get the smearing matrix of selected events
+            const auto smearingMatrixAllSelected = xsec.GetSmearingMatrixAllSelected();
             std::cout<<"_______________________Fitting Point 0.3"<<std::endl;
             const auto selectedEventsBackgroundReco = xsec.GetSelectedBackgroundEvents();
             std::cout<<"_______________________Fitting Point 0.4"<<std::endl;
@@ -624,67 +640,191 @@ void ExtractXSecs(const Config &config)
                 if (value<0)
                     std::cout<<"Value below zero: "<<value<<std::endl;
                 elements.push_back(AnalysisHelper::GetCountUncertainty(std::max(value,0.f)));
+                // elements.push_back(AnalysisHelper::GetCountUncertainty(value));
                 std::cout<<"_______________________Fitting Point 1.3"<<std::endl;
             }
             std::cout<<"_______________________Fitting Point 2"<<std::endl;
-            const ubsmear::UBMatrix signalDataUncertainty(elements, nBins, 1);
+            // const ubsmear::UBMatrix signalDataUncertainty(elements, nBins, 1);
 
             std::cout<<"_______________________Fitting Point 3"<<std::endl;
-            x = signalData.GetValues();
-            y = selectedEventsSignalTruth.GetValues();
-            errorY = signalDataUncertainty.GetValues();
-            S = smearingMatrix.GetValues();
+            x = selectedEventsSignalTruth.GetValues();
+            y = signalData.GetValues();
+            errorY = elements;//signalDataUncertainty.GetValues();
+            S = smearingMatrixAllSelected.GetValues();
+
+            std::cout<<"\nx (selectedEventsSignalTruth): \n";
+            for (const auto &xValue : x)
+                std::cout<<xValue<<" ";
+
+            std::cout<<"\ny (signalData): \n";
+            for (const auto &yValue : y)
+                std::cout<<yValue<<" ";
+
+            std::cout<<"\nerrorY (signalDataUncertainty): \n";
+            for (const auto &errorYValue : errorY)
+                std::cout<<errorYValue<<" ";
+
+            std::cout<<"\nSmearing matrix: \n";
+            for(unsigned int i = 0; i<S.size(); i++)
+            {
+                if(i%nBins==0)
+                    std::cout<<"\n";
+                std::cout<<S[i]<<" ";
+            }
+            
+
             std::cout<<"_______________________Fitting Point 4"<<std::endl;
             // auto minimizer = FittingHelper(selectedEventsSignal, signalData, signalDataUncertainty, smearingMatrix);
             auto minimizer = FittingHelper(nBins);
             std::pair<std::vector<Double_t>, std::vector<Double_t>> result;
-            minimizer.Fit(fcn, result, 0);
+            
+            std::vector<float> fitCovMatrixVector;
+            minimizer.Fit(fcn, result, fitCovMatrixVector, 0);
+            cc0piCovarianceMap[selectionName].emplace(name, fitCovMatrixVector);
+
+            std::cout<<"\nFitting covariance matrix: \n";
+            for(unsigned int i = 0; i<fitCovMatrixVector.size(); i++)
+            {
+                if(i%nBins==0)
+                    std::cout<<"\n";
+                std::cout<<fitCovMatrixVector[i]<<" ";
+            }
+            std::cout<<"_______________________Fitting Point 4.1"<<std::endl;
+            // vector<float> fitCovMatrixFloat(fitCovMatrix.begin(), fitCovMatrix.end()); //Todo avoid this
+            const ubsmear::UBMatrix sidebandCovMatrix(fitCovMatrixVector, nBins, nBins);
+            std::cout<<"_______________________Fitting Point 4.2"<<std::endl;
+            FormattingHelper::SaveMatrix(sidebandCovMatrix, "CC0Pi_" + selectionName + "_" + name + "_sideband_stat_covariance.txt");
+            std::cout<<"_______________________Fitting Point 4.3"<<std::endl;
+            FormattingHelper::SaveMatrix(smearingMatrixAllSelected, "CC0Pi_" + selectionName + "_" + name + "_smearingMatrixAllSelected.txt");
+            std::cout<<"_______________________Fitting Point 4.4"<<std::endl;
+            vector<float> paramErrorVector(result.second.begin(), result.second.end()); //Todo avoid this
+            std::cout<<"_______________________Fitting Point 4.5"<<std::endl;
+            std::cout<<"nBins :"<<nBins<<std::endl;
+            std::cout<<"\nerrorY (paramErrorVector Double_t): \n";
+            for (const auto &e : result.second)
+                std::cout<<e<<" ";
+            std::cout<<"\nerrorY (paramErrorVector float): \n";
+            for (const auto &e : paramErrorVector)
+                std::cout<<e<<" ";
+            std::cout<<std::endl;
+            const ubsmear::UBMatrix sidebandErrorVectorTruth(paramErrorVector, nBins, 1);
+            std::cout<<"_______________________Fitting Point 4.6"<<std::endl;
+            // const auto sidebandErrorVectorReco = smearingMatrixAllSelected*sidebandErrorVectorTruth; // Todo: check this multiplication is correctly computed 
+            FormattingHelper::SaveMatrix(sidebandErrorVectorTruth, "CC0Pi_" + selectionName + "_" + name + "_sideband_arameterErrorVector.txt");
+            // const ubsmear::UBMatrix sidebandCovMatrix(fitCovMatrixVector, nBins, nBins);
+            // FormattingHelper::SaveMatrix(sidebandCovMatrix, "CC0Pi_" + selectionName + "_" + name + "_sideband_stat_errorVector.txt");
+
             std::cout<<"_______________________Fitting Point 5"<<std::endl;
+
+            std::cout<<"param: \n";
+            for (const auto &p : result.first)
+                std::cout<<p<<" ";
+
+            std::cout<<"paramError: \n";
+            for (const auto &p : result.second)
+                std::cout<<p<<" ";
 
 
             cc0piNominalConstraintMap[selectionName].emplace(name, result);
             // FittingHelper::Fit(selectedEventsSignal, signalData, signalDataUncertainty, smearingMatrix);
 
             // const auto sidebandWeights = xsec.GetSidebandWeights(scalingData);
-
-            // -------------------------------------------------------------------------------------------------------------------------------------
-            // Fit each universe
-            // -------------------------------------------------------------------------------------------------------------------------------------
-
-            const auto nUniverses = config.extractXSecs.nBootstrapUniverses;
-
-            const auto selectedSignalTruthUniverses = xsec.GetSelectedSignalRecoTruthMap().at("misc").at("bootstrap");
-            const auto selectedBackgroundRecoUniverses = xsec.GetSelectedBackgroundRecoMap().at("misc").at("bootstrap");
-
-            std::vector<std::pair<std::vector<Double_t>,std::vector<Double_t>>> resultVector;
-            for (unsigned int iUni = 0; iUni < nUniverses; ++iUni)
+            
+            for (const auto &[paramName, nUniverses] : systParams.xsecDimensions)
             {
-                // AnalysisHelper::PrintLoadingBar(iUni, nUniverses);
-                const auto selectedSignalTruth = xsec.GetSignalSelectedTrue(selectedSignalTruthUniverses.at(iUni));
-                const auto selectedBackgoundReco = CrossSectionHelper::GetMatrixFromHist(selectedBackgroundRecoUniverses.at(iUni));
-                const auto signalData = selectedEventsData - selectedBackgoundReco;
+                // -------------------------------------------------------------------------------------------------------------------------------------
+                // Fit each universe
+                // -------------------------------------------------------------------------------------------------------------------------------------
 
-                x = signalData.GetValues();
-                y = selectedSignalTruth.GetValues();
-                std::pair<std::vector<Double_t>, std::vector<Double_t>> result;
-                minimizer.Fit(fcn, result, -1);
-                
+                // const auto nUniverses = config.extractXSecs.nBootstrapUniverses;
 
-                std::cout<<"\nParameter("<<iUni<<"):";
-                for (const auto &r : result.first)
-                    std::cout<<" "<<r;
+                const auto selectedSignalTruthUniverses = xsec.GetSelectedSignalRecoTruthMap().at("xsec").at(paramName);
+                const auto selectedBackgroundRecoUniverses = xsec.GetSelectedBackgroundRecoMap().at("xsec").at(paramName);
+
+                std::vector<paramAndErrorPair> resultVector;
+                for (unsigned int iUni = 0; iUni < nUniverses; ++iUni)
+                {
+                    // AnalysisHelper::PrintLoadingBar(iUni, nUniverses);
+                    const auto selectedSignalTruth = xsec.GetSignalSelectedTrue(selectedSignalTruthUniverses.at(iUni));
+                    const auto selectedBackgoundReco = CrossSectionHelper::GetMatrixFromHist(selectedBackgroundRecoUniverses.at(iUni));
+                    const auto signalData = selectedEventsData - selectedBackgoundReco;
+
+                    std::vector<float> elements;
+                    const auto nBins = signalData.GetRows();
+                    for (unsigned int iBin = 0; iBin < nBins; ++iBin)
+                    {
+                        const auto value = signalData.At(iBin, 0);
+                        if (value<0)
+                            std::cout<<"Value below zero: "<<value<<std::endl;
+                        
+                        elements.push_back(AnalysisHelper::GetCountUncertainty(std::max(value,0.f)));
+                        // elements.push_back(AnalysisHelper::GetCountUncertainty(value));
+                    }
+
+                    x = selectedSignalTruth.GetValues();
+                    y = signalData.GetValues();
+                    errorY = elements;
+                    std::pair<std::vector<Double_t>, std::vector<Double_t>> result;
+                    std::vector<float> covMatrixInUniverse;
+                    minimizer.Fit(fcn, result, covMatrixInUniverse, 1);
+
+                    // std::cout<<"\nParameter("<<iUni<<"):";
+                    // for (const auto &r : result.first)
+                    //     std::cout<<" "<<r;
+                        
+                    // std::cout<<"\nUncertainty:";
+                    // for (const auto &r : result.second)
+                    //     std::cout<<" "<<r;
                     
-                std::cout<<"\nUncertainty:";
-                for (const auto &r : result.second)
-                    std::cout<<" "<<r;
-                
-                resultVector.push_back(result);
+                    resultVector.push_back(result);
+                }
+                cc0piUniverseConstraintMap[selectionName][name].emplace(paramName, resultVector);
             }
-            cc0piUniverseConstraintMap[selectionName].emplace(name, resultVector);
         }
     }
 
+	std::ofstream ofs1("cc0piCovarianceMap.bin", std::ios::binary);
+    std::ofstream ofs2("cc0piNominalConstraintMap.bin", std::ios::binary);
+    std::ofstream ofs3("cc0piUniverseConstraintMap.bin", std::ios::binary);
+	
+    boost::archive::binary_oarchive oarch1(ofs1);
+    boost::archive::binary_oarchive oarch2(ofs2);
+    boost::archive::binary_oarchive oarch3(ofs3);
+
+    oarch1 << cc0piCovarianceMap;
+    oarch2 << cc0piNominalConstraintMap;
+    oarch3 << cc0piUniverseConstraintMap;
+	
+	ofs1.close();
+    ofs2.close();
+    ofs3.close();
+
     std::cout<<"\n\nDone with CC0pi constraint."<<std::endl;
+
+	std::ifstream ifs1("cc0piCovarianceMap.bin", std::ios::binary);
+    std::ifstream ifs2("cc0piNominalConstraintMap.bin", std::ios::binary);
+    std::ifstream ifs3("cc0piUniverseConstraintMap.bin", std::ios::binary);
+	
+    boost::archive::binary_iarchive iarch1(ifs1);
+    boost::archive::binary_iarchive iarch2(ifs2);
+    boost::archive::binary_iarchive iarch3(ifs3);
+
+    iarch1 >> cc0piCovarianceMap;
+    iarch2 >> cc0piNominalConstraintMap;
+    iarch3 >> cc0piUniverseConstraintMap;
+
+	ifs1.close();
+    ifs2.close();
+    ifs3.close();
+
+
+
+
+
+
+
+
+
 
 
 
@@ -933,7 +1073,7 @@ void ExtractXSecs(const Config &config)
             const auto xsecWeightsScaleFactor = 1.f;
             // const auto xsecWeightsScaleFactor = (isOverlay && config.extractXSecs.scaleXSecWeights) ? pEvent->truth.genieTuneEventWeight() : 1.f;
 
-            const auto xsecWeights = (
+            auto xsecWeights = (
                 isOverlay
                     ? CrossSectionHelper::ScaleWeightsMap(CrossSectionHelper::GetWeightsMap(pEvent->truth, systParams.xsecDimensions, config.extractXSecs.mutuallyExclusiveDimensions), xsecWeightsScaleFactor)
                     : CrossSectionHelper::GetUnitWeightsMap(systParams.xsecDimensions)
@@ -970,6 +1110,55 @@ void ExtractXSecs(const Config &config)
                 // Handle selected background events
                 else
                 {
+                    for (auto &[selectionName, xsecs] : xsecMapSideband2)
+                    {
+                        // Only use selected background events
+                        const auto isSelected = isSelectedMap.at(selectionName);
+                        // if (!isSelected)
+                        //     continue;
+
+                        for (auto &[name, xsec] : xsecs)
+                        {
+                            const auto recoValue = getValue.at(name)(recoData);
+                            const auto trueValue = getValue.at(name)(truthData);
+                            
+                            // Add CC0pi constraint
+                            // std::vector<float> bootstrapWeights;
+                            if(config.global.useCC0piConstraint && isTrueCC0Pi)
+                            {
+                                auto cc0piNominalConstraintParam = cc0piNominalConstraintMap.at(selectionName).at(name).first;
+                                const auto binEdges = xsec.GetBinEdges();
+                                for (unsigned int i=0; i < binEdges.size()-1; i++)//Todo: Do this more efficiently
+                                {
+                                    if (trueValue>binEdges[i] && trueValue<binEdges[i+1])
+                                    {
+                                        const auto paramNominal = cc0piNominalConstraintParam[i];
+                                        weight *= paramNominal;
+                                        
+                                        // We iterate over the universes next
+
+                                        for (auto &[paramName,weightVector] : xsecWeights)
+                                        {
+                                            const auto cc0piUniverseConstraintVector = cc0piUniverseConstraintMap.at(selectionName).at(name).at(paramName);
+                                            if(cc0piUniverseConstraintVector.size()!=weightVector.size())
+                                            {
+                                                std::cout<<"Wrong number of parameters for xsecWeights."<<std::endl;
+                                                throw std::logic_error("ExtractXSecs - Wrong number of parameters for xsecWeights.");
+                                            }
+                                            for (unsigned int u=0; u<weightVector.size(); u++)
+                                            {
+                                                weightVector[u] = cc0piUniverseConstraintVector.at(u).first.at(i)/paramNominal;
+                                            }
+                                        }
+                                        break;
+                                    }
+                                }
+                                const auto seedString =  selectionName + name + std::to_string(i);
+                                xsec.AddSignalEvent(recoValue, trueValue, isSelected, weight, fluxWeights, xsecWeights, reintWeights, seedString);
+                            }
+                        }
+                    }
+
                     for (auto &[selectionName, xsecs] : xsecMap)
                     {
                         // Only use selected background events
@@ -988,21 +1177,47 @@ void ExtractXSecs(const Config &config)
                             {
                                 auto cc0piNominalConstraintParam = cc0piNominalConstraintMap.at(selectionName).at(name).first;
                                 const auto binEdges = xsec.GetBinEdges();
-                                for (unsigned i=0; i < binEdges.size()-1; i++)//Todo: Do this more efficiently
+                                for (unsigned int i=0; i < binEdges.size()-1; i++)//Todo: Do this more efficiently
                                 {
                                     if (trueValue>binEdges[i] && trueValue<binEdges[i+1])
                                     {
                                         const auto paramNominal = cc0piNominalConstraintParam[i];
                                         weight *= paramNominal;
                                         
-                                        auto cc0piUniverseConstraintParamVector = cc0piUniverseConstraintMap.at(selectionName).at(name);
                                         // We iterate over the universes next
 
-                                        for (const auto &[param, paramError] : cc0piUniverseConstraintParamVector)
+                                        for (auto &[paramName,weightVector] : xsecWeights)
                                         {
-                                            // We divide by the nominal scaling to not include it twice (first time in nominal weight)
-                                            bootstrapWeights.push_back(param[i]/paramNominal);
+                                            const auto cc0piUniverseConstraintVector = cc0piUniverseConstraintMap.at(selectionName).at(name).at(paramName);
+                                            if(cc0piUniverseConstraintVector.size()!=weightVector.size())
+                                            {
+                                                std::cout<<"Wrong number of parameters for xsecWeights."<<std::endl;
+                                                throw std::logic_error("ExtractXSecs - Wrong number of parameters for xsecWeights.");
+                                            }
+                                            for (unsigned int u=0; u<weightVector.size(); u++)
+                                            {
+                                                weightVector[u] = cc0piUniverseConstraintVector.at(u).first.at(i)/paramNominal;
+                                            }
                                         }
+
+                                        // for (const auto &[paramName,cc0piUniverseConstraintParamVector] : cc0piUniverseConstraintParamMap)
+                                        // {
+                                        //     for (const auto &[param, paramError] : cc0piUniverseConstraintParamVector)
+                                        //     {
+                                        //         // We divide by the nominal scaling to not include it twice (first time in nominal weight)
+                                        //         // bootstrapWeights.push_back(param[i]/paramNominal);
+
+                                        //         if(xsecWeights.at(paramName).size()!=param.size())
+                                        //         {
+                                        //             std::cout<<"Wrong number of parameters for xsecWeights."<<std::endl;
+                                        //             throw std::logic_error("ExtractXSecs - Wrong number of parameters for xsecWeights.");
+                                        //         }
+                                        //         for (int i=0; i<xsecWeights.at(paramName).size(); i++)
+                                        //         {
+                                        //             xsecWeights.at(paramName)[i] = param.at(i)/paramNominal;
+                                        //         }
+                                        //     }   
+                                        // }
                                         break;
                                     }
                                 }
@@ -1013,6 +1228,40 @@ void ExtractXSecs(const Config &config)
                         }
                     }
                 }
+            }
+        }
+    }
+
+
+    // -------------------------------------------------------------------------------------------------------------------------------------
+    // Calculate the CC0pi selection
+    // -------------------------------------------------------------------------------------------------------------------------------------
+    // Loop over all cross-section objects
+
+    if(config.global.useCC0piConstraint)
+    {
+        for (const auto &[selectionName, xsecs] : xsecMapSideband2)
+        {
+            for (const auto &[name, xsec] : xsecs)
+            {
+                // const auto selectedEventsBackground = xsec.GetSelectedBackgroundEvents();
+                // std::cout << "Selected background events" << std::endl;
+                // FormattingHelper::SaveMatrix(selectedEventsBackground, "CC1PiSideband_" + selectionName + "_" + name + "_CC0pi_selected_eventRate.txt");
+                const auto selectedEventsSignal = xsec.GetSelectedSignalEvents();
+                std::cout << "Selected signal events" << std::endl;
+                FormattingHelper::SaveMatrix(selectedEventsSignal, "CC1PiSideband_" + selectionName + "_" + name + "_signal_selected_eventRate.txt");
+                const auto allEventsSignal = xsec.GetSignalEvents();
+                std::cout << "All signal events" << std::endl;
+                FormattingHelper::SaveMatrix(allEventsSignal, "CC1PiSideband_" + selectionName + "_" + name + "_signal_all_eventRate.txt");
+                // std::cout << "CC0pi selection saving Point 1" << std::endl;
+                // const auto smearingMatrix = xsec.GetSmearingMatrix();
+                // std::cout << "CC0pi selection saving Point 2" << std::endl;
+                // FormattingHelper::SaveMatrix(smearingMatrix, "CC1PiSideband_" + selectionName + "_" + name + "_smearingMatrix.txt");
+                std::cout << "CC0pi selection saving Point 3" << std::endl;
+                const auto smearingMatrixAllSelected = xsec.GetSmearingMatrixAllSelected();
+                std::cout << "CC0pi selection saving Point 4" << std::endl;
+                FormattingHelper::SaveMatrix(smearingMatrixAllSelected, "CC1PiSideband_" + selectionName + "_" + name + "_smearingMatrixAllSelected.txt");
+                std::cout << "CC0pi selection saving Point 5" << std::endl;
             }
         }
     }
@@ -1093,6 +1342,9 @@ void ExtractXSecs(const Config &config)
             const auto smearingMatrix = xsec.GetSmearingMatrix();
             std::cout << "Smearing matrix (reco-space rows, truth-space columns)" << std::endl;
             FormattingHelper::SaveMatrix(smearingMatrix, "xsec_" + selectionName + "_" + name + "_smearingMatrix.txt");
+
+            const auto smearingMatrixAllSelected = xsec.GetSmearingMatrixAllSelected();
+            FormattingHelper::SaveMatrix(smearingMatrix, "xsec_" + selectionName + "_" + name + "_smearingMatrixAllSelected.txt");
 
             const auto smearingMatrixSystBiasCovariances = xsec.GetSmearingMatrixSystUncertainties();
             for (const auto &[group, map] : smearingMatrixSystBiasCovariances)

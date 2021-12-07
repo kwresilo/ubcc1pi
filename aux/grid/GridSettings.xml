@@ -586,4 +586,57 @@
     <jobsub>&jobsub;</jobsub>
 </stage>
 
+<!--
+###################
+######################################
+###### NuWro ############################################
+######################################
+###################
+-->
+
+<!-- nuwro_run2 -->
+<stage name="nuwro_run2">
+    <!-- Settings -->
+    <fcl>analysis_file_writer_driver_noEventWeights.fcl</fcl>
+    <numjobs>2</numjobs><!--64 files-->
+    <maxfilesperjob>1</maxfilesperjob>
+    <numevents>&numEvents;</numevents>
+
+    <!-- Input files -->
+    <inputdef>prodnuwro_nu_overlay_run2_pandora_reco2_reco2_ccinc_jdetje</inputdef>
+
+    <!-- Output directories -->
+    <outdir>/pnfs/uboone/scratch/users/&username;/&projectName;/nuwro_run2/</outdir>
+    <logdir>/pnfs/uboone/scratch/users/&username;/&projectName;/nuwro_run2/</logdir>
+    <workdir>/pnfs/uboone/resilient/users/&username;/work/&projectName;/nuwro_run2/</workdir>
+
+    <!-- Options -->
+    <datatier>&dataTier;</datatier>
+    <schema>&schema;</schema>
+    <jobsub>&jobsub;</jobsub>
+</stage>
+
+
+<!-- nuwro_run3 -->
+<stage name="nuwro_run3">
+    <!-- Settings -->
+    <fcl>analysis_file_writer_driver_noEventWeights.fcl</fcl>
+    <numjobs>2</numjobs><!--92 files-->
+    <maxfilesperjob>1</maxfilesperjob>
+    <numevents>&numEvents;</numevents>
+
+    <!-- Input files -->
+    <inputdef>prodnuwro_nu_overlay_run3_pandora_reco2_reco2_ccinc_jdetje</inputdef>
+
+    <!-- Output directories -->
+    <outdir>/pnfs/uboone/scratch/users/&username;/&projectName;/nuwro_run3/</outdir>
+    <logdir>/pnfs/uboone/scratch/users/&username;/&projectName;/nuwro_run3/</logdir>
+    <workdir>/pnfs/uboone/resilient/users/&username;/work/&projectName;/nuwro_run3/</workdir>
+
+    <!-- Options -->
+    <datatier>&dataTier;</datatier>
+    <schema>&schema;</schema>
+    <jobsub>&jobsub;</jobsub>
+</stage>
+
 </project>

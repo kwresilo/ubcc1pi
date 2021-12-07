@@ -132,6 +132,7 @@ void MakeXSecPlots(const Config &config)
                     {
                         {"flux", config.extractXSecs.fluxDimensions},
                         {"xsec", config.extractXSecs.xsecDimensions},
+                        {"reint", config.extractXSecs.reintDimensions},
                         {"misc", {
                             {"bootstrap", config.extractXSecs.nBootstrapUniverses},
                             {"dirt", 2},

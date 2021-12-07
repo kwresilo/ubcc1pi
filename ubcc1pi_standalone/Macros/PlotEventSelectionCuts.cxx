@@ -53,6 +53,8 @@ void PlotEventSelectionCuts(const Config &config)
     PlottingHelper::MultiPlot nUncontainedPlot("Number of uncontained particles", yLabelEvents, 4u, 0, 4);
     PlottingHelper::MultiPlot protonBDTResponsePlot("Proton BDT response", yLabelParticles, 40u, -0.60f, 0.60f);
     PlottingHelper::MultiPlot nNonProtonsPlot("Number of non-protons", yLabelEvents, 5u, 1, 6);
+    PlottingHelper::MultiPlot truncatedMeandEdxBeforePlot("Pion cos(theta) / rad", yLabelEvents, 40u, -10.f, 10.f);
+    PlottingHelper::MultiPlot truncatedMeandEdxAfterPlot("Pion cos(theta) / rad", yLabelEvents, 40u, -10.f, 10.f);
     PlottingHelper::MultiPlot pionNotInGapBeforePlot("Pion phi / rad", yLabelEvents, 40u, -3.142f, 3.142f);
     PlottingHelper::MultiPlot pionNotInGapAfterPlot("Pion phi / rad", yLabelEvents, 40u, -3.142f, 3.142f);
     PlottingHelper::MultiPlot openingAnglePlot("Muon-Pion opening angle / rad", yLabelEvents, 40u, 0.f, 3.142f);
@@ -216,6 +218,17 @@ void PlotEventSelectionCuts(const Config &config)
                 nNonProtonsPlot.Fill(static_cast<float>(nNonProtons), plotStyleEvent, weight);
             }
 
+            if(wasInputToCut("pionHasValiddEdx", cutsPassed))
+            {
+                const auto recoData = AnalysisHelper::GetRecoAnalysisData(pEvent->reco, assignedPdgCodes, passesGoldenPionSelection);
+                truncatedMeandEdxBeforePlot.Fill(recoData.pionCosTheta, plotStyleEvent, weight);
+
+                if (passedCut("pionHasValiddEdx", cutsPassed))
+                {
+                    truncatedMeandEdxAfterPlot.Fill(recoData.pionCosTheta, plotStyleEvent, weight);
+                }
+            }
+
             if (wasInputToCut("pionNotInGap", cutsPassed))
             {
                 const auto recoData = AnalysisHelper::GetRecoAnalysisData(pEvent->reco, assignedPdgCodes, passesGoldenPionSelection);
@@ -290,6 +303,8 @@ void PlotEventSelectionCuts(const Config &config)
     nUncontainedPlot.SaveAsStacked("plotEventSelectionCuts_max1Uncontained_nUncontained");
     protonBDTResponsePlot.SaveAsStacked("plotEventSelectionCuts_2NonProtons_protonBDTResponse");
     nNonProtonsPlot.SaveAsStacked("plotEventSelectionCuts_2NonProtons_nNonProtons");
+    truncatedMeandEdxBeforePlot.SaveAsStacked("plotEventSelectionCuts_pionTruncatedMeandEdx-before");
+    truncatedMeandEdxAfterPlot.SaveAsStacked("plotEventSelectionCuts_pionTruncatedMeandEdx-after");
     openingAnglePlot.SaveAsStacked("plotEventSelectionCuts_openingAngle_openingAngle");
     pionNotInGapBeforePlot.SaveAsStacked("plotEventSelectionCuts_pionNotInGap_pionPhi-before");
     pionNotInGapAfterPlot.SaveAsStacked("plotEventSelectionCuts_pionNotInGap_pionPhi-after");

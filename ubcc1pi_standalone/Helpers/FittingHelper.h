@@ -36,7 +36,7 @@ namespace ubcc1pi
              *
              *  @return xxxxxxxxxxxxx
              */
-            void Fit(void(*fcn)(Int_t &, Double_t *, Double_t &f, Double_t *, Int_t), std::pair<std::vector<Double_t>, std::vector<Double_t>> &results, const int printlevel);
+            void Fit(void(*fcn)(Int_t &, Double_t *, Double_t &f, Double_t *, Int_t), std::pair<std::vector<Double_t>, std::vector<Double_t>> &results, std::vector<float> &covMatrix, const int printlevel);
         
         private:
 
