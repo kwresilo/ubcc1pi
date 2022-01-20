@@ -477,7 +477,7 @@
     <numevents>&numEvents;</numevents>
 
     <!-- Input files -->
-    <inputdef>data_extbnb_mcc9.1_v08_00_00_25_reco2_D2_nucc_reco2_high_lifetime</inputdef>
+    <inputdef>data_extbnb_mcc9.1_v08_00_00_25_reco2_D2_nucc_reco2_high_lifetime_cleanedUp_jdetje</inputdef>
 
     <!-- Output directories -->
     <outdir>/pnfs/uboone/scratch/users/&username;/&projectName;/extbnb_run2/</outdir>
@@ -546,12 +546,12 @@
 <stage name="bnb_run3">
     <!-- Settings -->
     <fcl>analysis_file_writer_driver_data.fcl</fcl>
-    <numjobs>54</numjobs> <!--5340 files-->
+    <numjobs>60</numjobs> <!--5340 files-->
     <maxfilesperjob>100</maxfilesperjob>
     <numevents>&numEvents;</numevents>
 
     <!-- Input files -->
-    <inputdef>data_bnb_mcc9.1_v08_00_00_25_reco2_G1_nucc_reco2_high_lifetime</inputdef>
+    <inputdef>data_bnb_mcc9.1_v08_00_00_25_reco2_G1_nucc_reco2_high_lifetime_cleanedUp_jdetje</inputdef>
 
     <!-- Output directories -->
     <outdir>/pnfs/uboone/scratch/users/&username;/&projectName;/bnb_run3/</outdir>
@@ -573,12 +573,35 @@
     <numevents>&numEvents;</numevents>
 
     <!-- Input files -->
-    <inputdef>data_extbnb_mcc9.1_v08_00_00_25_reco2_G1_nucc_reco2_high_lifetime</inputdef>
+    <inputdef>data_extbnb_mcc9.1_v08_00_00_25_reco2_G1_nucc_reco2_high_lifetime_cleanedUp_jdetje</inputdef>
 
     <!-- Output directories -->
     <outdir>/pnfs/uboone/scratch/users/&username;/&projectName;/extbnb_run3/</outdir>
     <logdir>/pnfs/uboone/scratch/users/&username;/&projectName;/extbnb_run3/</logdir>
     <workdir>/pnfs/uboone/resilient/users/&username;/work/&projectName;/extbnb_run3/</workdir>
+
+    <!-- Options -->
+    <datatier>&dataTier;</datatier>
+    <schema>&schema;</schema>
+    <jobsub>&jobsub;</jobsub>
+</stage>
+
+<!-- Detector variation CV run 3b-->
+<stage name="overlays_DetVar_CV_run3b">
+    <!-- Settings -->
+    <fcl>analysis_file_writer_driver_noEventWeights.fcl</fcl> 
+    <numjobs>4</numjobs>
+    <maxfilesperjob>2</maxfilesperjob>
+    <numevents>&numEvents;</numevents>
+
+    <!-- 83 files -->
+    <inputdef>prodgenie_bnb_nu_overlay_DetVar_CV_SCE_reco2_v08_00_00_47_run3b_reco2_reco2_ccinc_jdetje</inputdef>
+
+    <!-- Output directories -->
+    <outdir>/pnfs/uboone/scratch/users/&username;/&projectName;/overlays_DetVar_CV_run3b/</outdir>
+    <logdir>/pnfs/uboone/scratch/users/&username;/&projectName;/overlays_DetVar_CV_run3b/</logdir>
+    <workdir>/pnfs/uboone/resilient/users/&username;/work/&projectName;/overlays_DetVar_CV_run3b/</workdir>
+    <bookdir>/uboone/data/users/&username;/grid/&projectName;/overlays_DetVar_CV_run3b/</bookdir>
 
     <!-- Options -->
     <datatier>&dataTier;</datatier>
@@ -598,8 +621,8 @@
 <stage name="nuwro_run2">
     <!-- Settings -->
     <fcl>analysis_file_writer_driver_noEventWeights.fcl</fcl>
-    <numjobs>2</numjobs><!--64 files-->
-    <maxfilesperjob>1</maxfilesperjob>
+    <numjobs>32</numjobs><!--64 files-->
+    <maxfilesperjob>2</maxfilesperjob>
     <numevents>&numEvents;</numevents>
 
     <!-- Input files -->
@@ -621,8 +644,8 @@
 <stage name="nuwro_run3">
     <!-- Settings -->
     <fcl>analysis_file_writer_driver_noEventWeights.fcl</fcl>
-    <numjobs>2</numjobs><!--92 files-->
-    <maxfilesperjob>1</maxfilesperjob>
+    <numjobs>23</numjobs><!--23 jobs; 92 files-->
+    <maxfilesperjob>4</maxfilesperjob>
     <numevents>&numEvents;</numevents>
 
     <!-- Input files -->
@@ -632,6 +655,27 @@
     <outdir>/pnfs/uboone/scratch/users/&username;/&projectName;/nuwro_run3/</outdir>
     <logdir>/pnfs/uboone/scratch/users/&username;/&projectName;/nuwro_run3/</logdir>
     <workdir>/pnfs/uboone/resilient/users/&username;/work/&projectName;/nuwro_run3/</workdir>
+
+    <!-- Options -->
+    <datatier>&dataTier;</datatier>
+    <schema>&schema;</schema>
+    <jobsub>&jobsub;</jobsub>
+</stage>
+
+<stage name="nuwro_run3_makeup1">
+    <!-- Settings -->
+    <fcl>analysis_file_writer_driver_noEventWeights.fcl</fcl>
+    <numjobs>3</numjobs><!--23 jobs; 92 files-->
+    <maxfilesperjob>4</maxfilesperjob>
+    <numevents>&numEvents;</numevents>
+
+    <!-- Input files -->
+    <inputdef>prodnuwro_nu_overlay_run3_pandora_reco2_reco2_ccinc_jdetje_20211213054513_makeup</inputdef>
+
+    <!-- Output directories -->
+    <outdir>/pnfs/uboone/scratch/users/&username;/&projectName;/nuwro_run3_makeup1/</outdir>
+    <logdir>/pnfs/uboone/scratch/users/&username;/&projectName;/nuwro_run3_makeup1/</logdir>
+    <workdir>/pnfs/uboone/resilient/users/&username;/work/&projectName;/nuwro_run3_makeup1/</workdir>
 
     <!-- Options -->
     <datatier>&dataTier;</datatier>

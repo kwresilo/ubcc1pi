@@ -135,6 +135,7 @@ void MakeXSecPlots(const Config &config)
                         {"reint", config.extractXSecs.reintDimensions},
                         {"misc", {
                             {"bootstrap", config.extractXSecs.nBootstrapUniverses},
+                            {"sidebandWeights", config.extractXSecs.nBootstrapUniverses},
                             {"dirt", 2},
                             {"POT", 0}
                         }}
@@ -233,6 +234,15 @@ void MakeXSecPlots(const Config &config)
             const auto prediction = getMatrix("prediction");
             const auto predictionBiasVector = getMatrix("prediction_stat_bias");
             const auto predictionCovarianceMatrix = getMatrix("prediction_stat_covariance");
+            
+            // // ######################
+            // // jdetje TEST AREA BEGIN
+
+            // const auto CC0PiFitCovarianceMatrix = getMatrix("sideband_stat_covariance"); //TODo needs xsec_ as prefix
+            // const auto prediction = getMatrix("prediction");
+            // // jdetje TEST AREA END
+            // // ######################
+
             const auto predictionErrorMatrix = CrossSectionHelper::GetErrorMatrix(predictionBiasVector, predictionCovarianceMatrix);
 
             // Plot the error matrix on the prediction

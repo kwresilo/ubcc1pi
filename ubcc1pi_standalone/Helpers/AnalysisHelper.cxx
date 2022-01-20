@@ -503,7 +503,7 @@ bool AnalysisHelper::IsTrueCC1Pi(const std::shared_ptr<Event> &pEvent, const boo
     const auto nPion = AnalysisHelper::CountParticlesWithPdgCode(visibleParticles, 211, useAbsPdg);
     const auto nOther = visibleParticles.size() - (nMu + nProton + nPion);
 
-    // Insist the CC1Pi topology
+    // Insist on the CC1Pi topology
     return (nMu == 1 && nPion == 1 && nOther == 0);
 }
 
@@ -528,7 +528,7 @@ bool AnalysisHelper::IsTrueCC0Pi(const std::shared_ptr<Event> &pEvent, const boo
     const auto nProtonAboveMomentumThreshold = AnalysisHelper::CountParticlesAboveMomentumThreshold(visibleParticles, 2212, useAbsPdg, protonMomentumThreshold);
     const auto nOther = visibleParticles.size() - (nMu + nProton + nPion);
 
-    // Insist the CC1Pi topology
+    // Insist on the CC0Pi topology
     return (nMu == 1 && nPion == 0 && nOther == 0 && nProtonAboveMomentumThreshold>=1);
 }
 

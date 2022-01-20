@@ -22,6 +22,7 @@ void FittingHelper::Fit(void(*fcn)(Int_t &, Double_t *, Double_t &f, Double_t *,
     // auto nBins = x.GetRows();
     TMinuit minuit(nBins);
     minuit.SetPrintLevel(printlevel);
+    // minuit.SetMaxIterations(5000);
     minuit.SetFCN(fcn);
 
     Double_t arglist[10];
@@ -33,16 +34,28 @@ void FittingHelper::Fit(void(*fcn)(Int_t &, Double_t *, Double_t &f, Double_t *,
     // Set starting values and step sizes for parameters
     for (Int_t iBin=0; iBin<nBins; iBin++)
     {
-        minuit.mnparm(iBin, std::to_string(iBin), 1.f, 0.2, 0.f, 0.f, ierflg);
+        minuit.mnparm(iBin, std::to_string(iBin), 1.0, 0.5, 0.0, 9999.0, ierflg);
     }
 
-    arglist[0]=500;
+    arglist[0]=5000;
     arglist[1]=0.01;
     minuit.mnexcm("MIGRAD", arglist,2,ierflg);
     if(ierflg!=0)
     {
-        std::cout<<"FittingHelper::Fit - MIGRAD not execution failed with ierflg: "<<ierflg<<std::endl;
-        throw std::logic_error("FittingHelper::Fit - MIGRAD not execution failed with ierflg: "+std::to_string(ierflg));
+        std::cout<<"FittingHelper::Fit - Did not converge. Execution failed with ierflg: "<<ierflg<<std::endl;
+        // Double_t covMatrixFit[nBins][nBins];
+
+        // for (int i=0; i<nBins; i++)
+        // {
+        //     for (int j=0; j<nBins; j++)
+        //     {
+        //         covMatrix.push_back((float)covMatrixFit[i][j]);       
+        //     }
+        // }
+        // result = std::make_pair(std::vector<Double_t>(nBins, 1.0), std::vector<Double_t>(nBins, 1.0));
+        // return;
+        
+        // throw std::logic_error("FittingHelper::Fit - Did not converge. Execution failed with ierflg: "+std::to_string(ierflg));
     }
 
     

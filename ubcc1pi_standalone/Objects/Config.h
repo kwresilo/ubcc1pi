@@ -31,16 +31,16 @@ struct Config
     struct Files
     {
         // September overlays files contain systematic weights
-        // std::string overlaysFileName = "/uboone/data/users/jdetje/ubcc1pi/sep2020/ubcc1piAnalysis_overlays_08Oct21.root"; ///< Overlays file name input
-        std::string overlaysFileName = "/uboone/data/users/jdetje/ubcc1pi/sep2020/ubcc1piAnalysis_overlays_08Oct21_test_head20.root";
+        std::string overlaysFileName = "/uboone/data/users/jdetje/ubcc1pi/sep2020/ubcc1piAnalysis_overlays_08Oct21.root"; ///< Overlays file name inputs
+        // std::string overlaysFileName = "/uboone/data/users/jdetje/ubcc1pi/sep2020/ubcc1piAnalysis_overlays_08Oct21_test_head20.root";
         
-        // std::string dirtFileName     = "/uboone/data/users/jdetje/ubcc1pi/sep2020/ubcc1piAnalysis_dirt_08Oct21.root";     ///< Dirt file name input
-        std::string dirtFileName     = "/pnfs/uboone/scratch/users/jdetje/ubcc1pi/dirt_final/49396507_11/ubcc1piAnalysis.root";
+        std::string dirtFileName     = "/uboone/data/users/jdetje/ubcc1pi/sep2020/ubcc1piAnalysis_dirt_08Oct21.root";     ///< Dirt file name input
+        // std::string dirtFileName     = "/pnfs/uboone/scratch/users/jdetje/ubcc1pi/dirt_final/49396507_11/ubcc1piAnalysis.root";
         
         std::string dataEXTFileName  = "/pnfs/uboone/persistent/users/kduffy/ubcc1pi/ubcc1pi_extbnb_run1_combined_5Jan2021.root";  ///< EXT data file name input
         
-        std::string dataBNBFileName  = "/uboone/data/users/jdetje/ubcc1pi/sep2020/ubcc1piAnalysis_overlays_08Oct21_test_tail20.root";  ///< BNB data file name input
-        // std::string dataBNBFileName  = "/pnfs/uboone/persistent/users/kduffy/ubcc1pi/ubcc1pi_bnb_run1-C1_5Jan2021.root";  ///< BNB data file name input
+        // std::string dataBNBFileName  = "/uboone/data/users/jdetje/ubcc1pi/sep2020/ubcc1piAnalysis_overlays_08Oct21_test_tail20.root";  ///< BNB data file name input
+        std::string dataBNBFileName  = "/pnfs/uboone/persistent/users/kduffy/ubcc1pi/ubcc1pi_bnb_run1-C1_5Jan2021.root";  ///< BNB data file name input
 
         /**
          *  @brief  The detector variation files
@@ -55,13 +55,13 @@ struct Config
             // Run-1 files
             {"CVRun1",         "/uboone/data/users/jdetje/ubcc1pi/sep2020/ubcc1piAnalysis_overlays_DetVar_CV_run1_19Oct.root"},
             {"LYDown",         "/uboone/data/users/jdetje/ubcc1pi/sep2020/ubcc1piAnalysis_overlays_DetVar_LYDown_run1_19Oct.root"},
-            // {"LYRayleigh",     "/uboone/data/users/jdetje/ubcc1pi/sep2020/ubcc1piAnalysis_overlays_DetVar_LYRayleigh_run1_19Oct.root"},
-            // {"SCE",            "/uboone/data/users/jdetje/ubcc1pi/sep2020/ubcc1piAnalysis_overlays_DetVar_SCE_run1_19Oct.root"},
-            // {"Recomb2",        "/uboone/data/users/jdetje/ubcc1pi/sep2020/ubcc1piAnalysis_overlays_DetVar_Recomb2_run1_19Oct.root"},
-            // {"WireModX",       "/uboone/data/users/jdetje/ubcc1pi/sep2020/ubcc1piAnalysis_overlays_DetVar_WireModX_run1_19Oct.root"},
-            // {"WireModYZ",      "/uboone/data/users/jdetje/ubcc1pi/sep2020/ubcc1piAnalysis_overlays_DetVar_WireModYZ_run1_19Oct.root"},
-            // {"WireModThetaXZ", "/uboone/data/users/jdetje/ubcc1pi/sep2020/ubcc1piAnalysis_overlays_DetVar_WireModThetaXZ_run1_19Oct.root"},
-            // {"WireModThetaYZ", "/uboone/data/users/jdetje/ubcc1pi/sep2020/ubcc1piAnalysis_overlays_DetVar_WireModThetaYZ_run1_19Oct.root"}
+            {"LYRayleigh",     "/uboone/data/users/jdetje/ubcc1pi/sep2020/ubcc1piAnalysis_overlays_DetVar_LYRayleigh_run1_19Oct.root"},
+            {"SCE",            "/uboone/data/users/jdetje/ubcc1pi/sep2020/ubcc1piAnalysis_overlays_DetVar_SCE_run1_19Oct.root"},
+            {"Recomb2",        "/uboone/data/users/jdetje/ubcc1pi/sep2020/ubcc1piAnalysis_overlays_DetVar_Recomb2_run1_19Oct.root"},
+            {"WireModX",       "/uboone/data/users/jdetje/ubcc1pi/sep2020/ubcc1piAnalysis_overlays_DetVar_WireModX_run1_19Oct.root"},
+            {"WireModYZ",      "/uboone/data/users/jdetje/ubcc1pi/sep2020/ubcc1piAnalysis_overlays_DetVar_WireModYZ_run1_19Oct.root"},
+            {"WireModThetaXZ", "/uboone/data/users/jdetje/ubcc1pi/sep2020/ubcc1piAnalysis_overlays_DetVar_WireModThetaXZ_run1_19Oct.root"},
+            {"WireModThetaYZ", "/uboone/data/users/jdetje/ubcc1pi/sep2020/ubcc1piAnalysis_overlays_DetVar_WireModThetaYZ_run1_19Oct.root"}
         };
     };
     Files files; ///< The input files
@@ -78,7 +78,7 @@ struct Config
      */
     struct Norms
     {
-        float  overlaysPOT        = 1.195e+21;      ///< The total POT for the overlays MC
+        float  overlaysPOT        = 1.195e+21;// TODO: REMOVE!! 6.42546e+19 POT for overlays_08Oct21_test_head20.root //1.195e+21;      ///< The total POT for the overlays MC
         // Andy S files: 1.22447e+21, Kirsty D files (Jan 21):  1.18578e+21, Philip D files (Oct 08) 1.195e+21 
         float  dirtPOT            = 2.63523e+20;    ///< The total POT for the dirt MC
         // Andy S files: 2.85049e+20, Kirsty D files (Jan 21): 2.91414e+20, Philip D files (Oct 08) 2.63523e+20 
@@ -95,13 +95,13 @@ struct Config
         std::unordered_map<std::string, float> detVarPOTs = {
             {"CVRun1",         6.13708e+20},    // Andy/Kirst version: 1.14339e+20
             {"LYDown",         6.14119e+20},    // Andy/Kirst version: 1.05031e+20
-            // {"LYRayleigh",     6.21255e+20},    // Andy/Kirst version: 1.06661e+20
-            // {"SCE",            6.11946e+20},    // Andy/Kirst version: 1.02517e+20
-            // {"Recomb2",        6.18821e+20},    // Andy/Kirst version: 1.00832e+20
-            // {"WireModX",       6.16338e+20},    // Andy/Kirst version: 1.09739e+20
-            // {"WireModYZ",      6.1371e+20},     // Andy/Kirst version: 1.10877e+20
-            // {"WireModThetaXZ", 6.18155e+20},    // Andy/Kirst version: 1.12906e+20
-            // {"WireModThetaYZ", 6.15852e+20}     // Andy/Kirst version: 1.09244e+20
+            {"LYRayleigh",     6.21255e+20},    // Andy/Kirst version: 1.06661e+20
+            {"SCE",            6.11946e+20},    // Andy/Kirst version: 1.02517e+20
+            {"Recomb2",        6.18821e+20},    // Andy/Kirst version: 1.00832e+20
+            {"WireModX",       6.16338e+20},    // Andy/Kirst version: 1.09739e+20
+            {"WireModYZ",      6.1371e+20},     // Andy/Kirst version: 1.10877e+20
+            {"WireModThetaXZ", 6.18155e+20},    // Andy/Kirst version: 1.12906e+20
+            {"WireModThetaYZ", 6.15852e+20}     // Andy/Kirst version: 1.09244e+20
         };
     };
     Norms norms; ///< The sample normalisations
@@ -147,7 +147,7 @@ struct Config
         float       protonMomentumThreshold = 0.3f;              ///< The minimum proton momentum to be counted [GeV]
         float       targetDensity           = 8.44191f;          ///< The number of target nuclei per unit volume - units e23 / cm^3
         std::string selection               = "Default";         ///< Which selection to use (can be "CCInclusive","Default", or "CC0pi")
-        bool        axisTitles              = false;             ///< If we want to draw axis lables and titles on the plots (if false, they are not drawn so you can add your own later)
+        bool        axisTitles              = true;             ///< If we want to draw axis lables and titles on the plots (if false, they are not drawn so you can add your own later)
         bool        scaleByBinWidth         = true;
         bool        useCC0piConstraint      = true;              ///< If we should use the CC0pi selection to constrain CC1pi cross-section  
 
@@ -393,7 +393,7 @@ struct Config
                     {"muonCosTheta",  true },
                     {"muonPhi",       false },
                     {"muonMomentum",  false },
-                    {"pionCosTheta",  false },
+                    {"pionCosTheta",  true },
                     {"pionPhi",       false },
                     {"pionMomentum",  false },
                     {"muonPionAngle", false },
@@ -406,7 +406,7 @@ struct Config
                     {"muonCosTheta",  true },
                     {"muonPhi",       false },
                     {"muonMomentum",  false },
-                    {"pionCosTheta",  false },
+                    {"pionCosTheta",  true },
                     {"pionPhi",       false },
                     {"pionMomentum",  false },
                     {"muonPionAngle", false },

@@ -232,6 +232,20 @@ namespace ubcc1pi_macros
     void ExtractXSecs(const Config &config = Config());
 
     /**
+     *  @brief  Extract the cross-sections
+     *
+     *  @param  config the input configuration
+     */
+    void ExtractXSecsOld(const Config &config = Config());
+
+    /**
+     *  @brief  Extract the sideband fit
+     *  
+     *  @param  config the input configuration
+     */
+    void ExtractSidebandFit(const Config &config = Config());
+
+    /**
      *  @brief  Generate the CC0Pi selection
      *
      *  @param  config the input configuration
@@ -258,6 +272,14 @@ namespace ubcc1pi_macros
     *  @param  config the input configuration
     */
     void MakeXSecPlots(const Config &config = Config());
+
+    /**
+    *  @brief  Produce the plots for the previously extracted sideband fit
+    *
+    *  @param  config the input configuration
+    */
+    void MakeSidebandFitPlots(const Config &config = Config());
+
     /*
      *  @brief  Make plots for the CC0pi1p sideband sample
      *

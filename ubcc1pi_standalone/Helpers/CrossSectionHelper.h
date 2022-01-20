@@ -338,7 +338,7 @@ class CrossSectionHelper
                 *  @param  xsecWeights the cross-section systematic event weights
                 *  @param  seed random number generator seed
                 */
-                void AddSelectedBackgroundEvent(const float recoValue, const bool isDirt, const float nominalWeight, const SystFloatMap &fluxWeights, const SystFloatMap &xsecWeights, const SystFloatMap &reintWeights, std::vector<float> bootstrapWeights, const std::string seed);
+                void AddSelectedBackgroundEvent(const float recoValue, const bool isDirt, const float nominalWeight, const SystFloatMap &fluxWeights, const SystFloatMap &xsecWeights, const SystFloatMap &reintWeights, std::vector<float> sidebandWeights, const std::string seed);
 
                 /**
                 *  @brief  Add a simulated selected background event from a detector variation sample
@@ -479,6 +479,16 @@ class CrossSectionHelper
                 *  @return the bias vector and covariance matrix for the MC stat uncertainty
                 */
                 SystBiasCovariancePair GetPredictedCrossSectionStatUncertainty(const ScalingData &scalingData) const;
+
+                /**
+                *  @brief  Get the statistical uncertainty due to uncertainties from CC0pi on the predicted cross-section
+                *
+                *  @param  scalingData the information about how we should scale the event rate to get the cross-section
+                *
+                *  @return the bias vector and covariance matrix for the MC stat uncertainty
+                */
+                SystBiasCovariancePair GetPredictedSidebandCrossSectionStatUncertainty(const ScalingData &scalingData) const;
+
 
                 /**
                 *  @brief  Get the selected background event distribution in reco space for each multisim universe
@@ -838,6 +848,16 @@ class CrossSectionHelper
         *  @return the bootstrap weights
         */
         static std::vector<float> GenerateBootstrapWeights(const unsigned int nUniverses, const std::string seedString);
+
+        /**
+        *  @brief  Generate a set of weights pulled from a normal distribution.
+        *
+        *  @param  nUniverses the number of weights to generate
+        *  @param  sigma the standard deviation of the normal distribution
+        *
+        *  @return the normal weights
+        */
+        static std::vector<float> GenerateNormalWeights(const unsigned int nUniverses, const float sigma);
 
         /**
         *  @brief  Fill a SystTH1FMap with a single entry using the supplied weights
