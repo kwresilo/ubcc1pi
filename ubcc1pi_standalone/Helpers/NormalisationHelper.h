@@ -24,7 +24,7 @@ namespace ubcc1pi
              *
              *  @return the normalisation factor
              */
-            static float GetOverlaysNormalisation(const Config &config);
+            static float GetOverlaysNormalisation(const Config &config, const unsigned int run);
 
             /**
              *  @brief  Get the normalisation factor for the dirt
@@ -33,7 +33,7 @@ namespace ubcc1pi
              *
              *  @return the normalisation factor
              */
-            static float GetDirtNormalisation(const Config &config);
+            static float GetDirtNormalisation(const Config &config, const unsigned int run);
 
             /**
              *  @brief  Get the normalisation factor for the EXT data
@@ -42,7 +42,7 @@ namespace ubcc1pi
              *
              *  @return the normalisation factor
              */
-            static float GetDataEXTNormalisation(const Config &config);
+            static float GetDataEXTNormalisation(const Config &config, const unsigned int run);
 
             /**
              *  @brief  Get the normalisation factor for a detector variation file
@@ -52,7 +52,7 @@ namespace ubcc1pi
              *
              *  @return the normalisation factor
              */
-            static float GetDetectorVariationNormalisation(const Config &config, const std::string &paramName);
+            static float GetDetectorVariationNormalisation(const Config &config, const std::string &paramName, const unsigned int run);
     };
 
 } // namespace ubcc1pi

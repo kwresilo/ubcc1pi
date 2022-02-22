@@ -369,6 +369,15 @@ class PlottingHelper
         static PlotStyle GetPlotStyle(const int interactionMode);
 
         /**
+         *  @brief  Get the plot style of an interaction
+         *
+         *  @param  interactionMode the interaction integer value 
+         *
+         *  @return the plot style
+         */
+        static PlotStyle GetPlotStyle2(const int interactionMode);
+
+        /**
          *  @brief  Set the line style for a given plot type
          *
          *  @tparam T the ROOT object class

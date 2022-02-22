@@ -32,12 +32,17 @@ CrossSectionHelper::FluxReweightor::FluxReweightor(const std::vector<float> &bin
     // the logic (defined in the lambda function below), store the result in the cache for later and return it.
     m_getIntegratedFluxVariationFunction([&](const std::string &paramName, const unsigned int universeIndex)
     {
+        // std::cout<<"Debug - FluxReweightor Point 0"<<std::endl;
         // Setup a new histogram to hold the reweighted flux
         auto pReweightedFlux = CrossSectionHelper::GetTH1F(binEdges);
+        // for (unsigned int binIndex = 0; binIndex < binEdges.size(); ++binIndex)
+        //     std::cout<<binEdges[binIndex]<<" "<<std::endl;
+        // std::cout<<"Debug - FluxReweightor Point 1\n"<<std::endl;
 
         // Get the event rate spectrum in this universe
         const auto pSpectrumVariation = m_spectrumVariations.at(paramName).at(universeIndex);
 
+        // std::cout<<"\n Debug - FluxReweightor Point 2\n"<<std::endl;
         // Loop over each bin
         const auto nBins = binEdges.size() - 1;
         for (unsigned iBin = 1; iBin <= nBins; ++iBin)
@@ -56,6 +61,7 @@ CrossSectionHelper::FluxReweightor::FluxReweightor(const std::vector<float> &bin
             // Store the result
             pReweightedFlux->SetBinContent(iBin, reweightedFlux);
         }
+        // std::cout<<"Debug - FluxReweightor Point 3"<<std::endl;
 
         // Return the integrated flux
         return this->GetIntegratedFlux(pReweightedFlux);
@@ -113,11 +119,12 @@ std::shared_ptr<TH1F> CrossSectionHelper::FluxReweightor::GetNominalFlux() const
 float CrossSectionHelper::FluxReweightor::GetIntegratedFlux(const std::shared_ptr<TH1F> &pFlux) const
 {
     float total = 0.f;
-
+    // std::cout<<"Debug - GetIntegratedFlux Point 0\n"<<std::endl;
     for (unsigned int iBin = 1; iBin <= static_cast<unsigned int>(pFlux->GetNbinsX()); ++iBin)
     {
         total += pFlux->GetBinContent(iBin);
     }
+    // std::cout<<"Debug - GetIntegratedFlux Point 1\n"<<std::endl;
 
     return total;
 }
@@ -126,6 +133,7 @@ float CrossSectionHelper::FluxReweightor::GetIntegratedFlux(const std::shared_pt
 
 float CrossSectionHelper::FluxReweightor::GetIntegratedNominalFlux() const
 {
+    std::cout<<"Debug GetIntegratedNominalFlux\n"<<std::endl;
     return this->GetIntegratedFlux(m_pFluxNominal);
 }
 
@@ -133,6 +141,7 @@ float CrossSectionHelper::FluxReweightor::GetIntegratedNominalFlux() const
 
 float CrossSectionHelper::FluxReweightor::GetIntegratedFluxVariation(const std::string &paramName, const unsigned int universeIndex)
 {
+    std::cout<<"\n Debug Original GetIntegratedFluxVariation \n"<<std::endl;
     // Call the cache-function to either calculate the return value or retrieve it from the cache
     return m_getIntegratedFluxVariationFunction(paramName, universeIndex);
 }
@@ -316,6 +325,13 @@ void CrossSectionHelper::CrossSection::AddSelectedBNBDataEvent(const float recoV
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
 
+bool CrossSectionHelper::CrossSection::HasOverflow() const
+{
+    return m_metadata.HasOverflow();
+}
+
+// -----------------------------------------------------------------------------------------------------------------------------------------
+
 ubsmear::UBXSecMeta CrossSectionHelper::CrossSection::GetMetadata() const
 {
     return m_metadata;
@@ -341,22 +357,37 @@ ubsmear::UBMatrix CrossSectionHelper::CrossSection::GetCrossSection(const ubsmea
 {
     // Check the input event rate has the right dimensions
     if (selected.GetColumns() != 1)
+    {
+        std::cout << "CrossSection::GetCrossSection  - Input event rate isn't a column vector" << std::endl;
         throw std::invalid_argument("CrossSection::GetCrossSection - Input event rate isn't a column vector");
+    }
 
     if (selected.GetRows() != m_metadata.GetNBins())
+    {
+        std::cout << "CrossSection::GetCrossSection - Input event rate has the wrong number of bins" << std::endl;
         throw std::invalid_argument("CrossSection::GetCrossSection - Input event rate has the wrong number of bins");
+    }
 
     // Check the input backgrounds have the right dimensions
     if (backgrounds.GetColumns() != 1)
+    {
+        std::cout << "CrossSection::GetCrossSection - Input background rate isn't a column vector" << std::endl;
         throw std::invalid_argument("CrossSection::GetCrossSection - Input background rate isn't a column vector");
+    }
 
     if (backgrounds.GetRows() != m_metadata.GetNBins())
+    {
+        std::cout << "CrossSection::GetCrossSection - Input background rate has the wrong number of bins" << std::endl;
         throw std::invalid_argument("CrossSection::GetCrossSection - Input background rate has the wrong number of bins");
+    }
 
     // Get the normalisation factor
     const auto norm = integratedFlux * exposurePOT * nTargets;
     if (norm <= std::numeric_limits<float>::epsilon())
+    {
+        std::cout << "CrossSection::GetCrossSection - Product of flux, exposure and targets non-positive" << std::endl;
         throw std::invalid_argument("CrossSection::GetCrossSection - Product of flux, exposure and targets non-positive");
+    }
 
     // Get the column vector of bin widths
     const auto binWidths = this->GetBinWidths();
@@ -371,7 +402,10 @@ ubsmear::UBMatrix CrossSectionHelper::CrossSection::GetCrossSection(const ubsmea
         [](const float numerator, const float denominator) {
 
             if (denominator <= std::numeric_limits<float>::epsilon())
+            {
+                std::cout << "CrossSection::GetCrossSection - Warning: denominator is zero" << std::endl;
                 throw std::logic_error("CrossSection::GetCrossSection - Found a bin in which the denominator (flux * POT * nTargets * binWidth) is <= 0");
+            }
 
             return numerator / denominator;
         }
@@ -436,6 +470,7 @@ std::shared_ptr<ubsmear::UBMatrix> CrossSectionHelper::CrossSection::GetSmearing
     // std::cout<<" &&&&&&& DEBUG  CrossSectionHelper::CrossSection::GetSmearingMatrix Point 5"<<std::endl;
     return std::make_shared<ubsmear::UBMatrix>(elements, nBins, nBins);
 }
+
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
 
@@ -571,6 +606,24 @@ ubsmear::UBMatrix CrossSectionHelper::CrossSection::GetBNBDataCrossSection(const
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
 
+ubsmear::UBMatrix CrossSectionHelper::CrossSection::GetNuWroTrueCrossSection(const ScalingData &scalingData) const
+{
+    // Get the number of selected events in BNB data
+    const auto signal = CrossSectionHelper::GetMatrixFromHist(m_pBNBData_selected_reco);
+
+    // Get the number of backgrounds is zero as we are effectively applying a "perfect" selection
+    const auto zeroVector = ubsmear::UBMatrixHelper::GetZeroMatrix(signal.GetRows(), 1);
+
+    // Get the integrated flux in the nominal universe
+    const auto integratedFlux = scalingData.pFluxReweightor->GetIntegratedNominalFlux();
+
+    // Get the cross-section
+    return this->GetCrossSection(signal, zeroVector, integratedFlux, scalingData.exposurePOT, scalingData.nTargets);
+}
+
+
+// -----------------------------------------------------------------------------------------------------------------------------------------
+
 ubsmear::UBMatrix CrossSectionHelper::CrossSection::GetPredictedCrossSection(const ScalingData &scalingData) const
 {
     // Get the number of signal events in the nominal simulation in true bins
@@ -606,6 +659,28 @@ ubsmear::UBMatrix CrossSectionHelper::CrossSection::GetSmearingMatrix() const
         throw std::logic_error("CrossSection::GetSmearingMatrix - There's a bin with no signal events! Can't get the smearing matrix");
 
     return *pSmearingMatrix;
+}
+
+// // // -----------------------------------------------------------------------------------------------------------------------------------------
+
+// ubsmear::UBMatrix CrossSectionHelper::CrossSection::GetSmearingMatrixInUniverseAllSelected(const std::string &group, const std::string &paramName, const unsigned int universeIndex) const
+// {
+//     // Get the smearing matrix in the nominal universe
+//     const auto pSmearingMatrix = this->GetSmearingMatrixInUniverse(const std::string &group, const std::string &paramName, const unsigned int universeIndex);
+
+//     // Check we were able to find the smearing matrix
+//     if (!pSmearingMatrix)
+//         throw std::logic_error("CrossSection::GetSmearingMatrixInUniverseWithCheck - There's a bin with no signal events! Can't get the smearing matrix");
+
+//     return *pSmearingMatrix;
+// }
+
+// -----------------------------------------------------------------------------------------------------------------------------------------
+
+std::shared_ptr<ubsmear::UBMatrix> CrossSectionHelper::CrossSection::GetSmearingMatrixInUniverseAllSelected(const std::string &group, const std::string &paramName, const unsigned int universeIndex) const
+{
+    // std::cout<<" &&&&&&& DEBUG  CrossSectionHelper::CrossSection::GetSmearingMatrixInUniverse"<<std::endl;
+    return this->GetSmearingMatrixAllSelected(m_signal_selected_recoTrue_multisims.at(group).at(paramName).at(universeIndex));
 }
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
@@ -1009,11 +1084,14 @@ ubsmear::UBMatrix CrossSectionHelper::CrossSection::GetBNBDataCrossSectionInUniv
     // function gets called once per universe!
 
     // Get the number of selected events in BNB data
+    std::cout<<"Debug GetBNBDataCrossSectionInUniverse Point 0"<<std::endl;
     const auto selected = CrossSectionHelper::GetMatrixFromHist(m_pBNBData_selected_reco);
 
+    std::cout<<"Debug GetBNBDataCrossSectionInUniverse Point 1"<<std::endl;
     // Get the number of predicted backgrounds in the supplied universe
     const auto backgrounds = CrossSectionHelper::GetMatrixFromHist(m_background_selected_reco_multisims.at(group).at(paramName).at(universeIndex));
 
+    std::cout<<"Debug GetBNBDataCrossSectionInUniverse Point 2 - group:"<<group<<" - paramName: "<<paramName<<" - universe: "<<universeIndex<<"\n"<<std::endl;
     // Get the integrated flux in the supplied universe (if it's not a flux parameter, then use the nominal universe)
     const auto integratedFlux = (
         group == "flux"
@@ -1021,8 +1099,10 @@ ubsmear::UBMatrix CrossSectionHelper::CrossSection::GetBNBDataCrossSectionInUniv
             : scalingData.pFluxReweightor->GetIntegratedNominalFlux()
     );
 
+    std::cout<<"\n Debug GetBNBDataCrossSectionInUniverse Point 3 \n"<<std::endl;
     // Get the cross-section
     return this->GetCrossSection(selected, backgrounds, integratedFlux, scalingData.exposurePOT, scalingData.nTargets);
+    std::cout<<"\n Debug GetBNBDataCrossSectionInUniverse Point 4 \n"<<std::endl;
 }
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
@@ -1046,6 +1126,7 @@ ubsmear::UBMatrix CrossSectionHelper::CrossSection::GetBNBDataCrossSectionForUni
 
 CrossSectionHelper::SystBiasCovariancePair CrossSectionHelper::CrossSection::GetDistributionParams(const std::function<std::shared_ptr<ubsmear::UBMatrix>(const unsigned int)> &func, const unsigned int nUniverses, const std::shared_ptr<ubsmear::UBMatrix> &pNominal) const
 {
+    // std::cout<<"DEBUG - GetDistributionParams point 8.6"<<std::endl;
     // std::cout<<"DEBUG - GetDistributionParams point 0"<<std::endl;
     if (nUniverses == 0)
         throw std::logic_error("CrossSection::GetDisributionParams - No universes supplied");
@@ -1067,6 +1148,7 @@ CrossSectionHelper::SystBiasCovariancePair CrossSectionHelper::CrossSection::Get
     // std::cout<<"DEBUG - GetDistributionParams point 4"<<std::endl;
     // Loop over the universes
     unsigned int nValidUniverses = 0u;
+    // std::cout<<"DEBUG - GetDistributionParams point 8.7"<<std::endl;
     for (unsigned int iUni = 0; iUni < nUniverses; ++iUni)
     {
         //// BEGIN DEBUG
@@ -1088,34 +1170,45 @@ CrossSectionHelper::SystBiasCovariancePair CrossSectionHelper::CrossSection::Get
         // Count the number of valid universes
         nValidUniverses++;
 
+        // std::cout<<"DEBUG - GetDistributionParams point 8.8"<<std::endl;
         // Loop over the bins
         // ATTN for speed we don't expcitly check here if the universe has the same number of bins as the nominal. Instead we rely on the
         // internal range checking of the ubsmear::UBMatrix class
+        // if(iUni<3) std::cout<<"DEBUG - Is this the source of the root error Point 0?"<<std::endl;
         for (unsigned int iBin = 0; iBin < nBins; ++iBin)
         {
             // Add up the universes
+            // if(iUni<3) std::cout<<"DEBUG - Is this the source of the root error Point 0.1?"<<std::endl;
             meanSum.SetElement(iBin, 0, meanSum.At(iBin, 0) + pUniverse->At(iBin, 0));
+            // if(iUni<3) std::cout<<"DEBUG - Is this the source of the root error Point 0.2?"<<std::endl;
             // Loop over the bins again
             // ATTN the error matrix is symmetric so here we only set one half of the off-diagonals within the universe loop and then copy
             // them over to the other half afterwards. This is done for performance reasons as it halves the number of inserts required
             const auto diffI = pUniverse->At(iBin, 0) - pNominal->At(iBin, 0);
+            // if(iUni<3) std::cout<<"DEBUG - Is this the source of the root error Point 0.3?"<<std::endl;
             for (unsigned int jBin = 0; jBin <= iBin; ++jBin)
             {
+                // if(iUni<3) std::cout<<"DEBUG - Is this the source of the root error Point 0.4?"<<std::endl;
                 const auto diffJ = pUniverse->At(jBin, 0) - pNominal->At(jBin, 0);
+                // if(iUni<3) std::cout<<"DEBUG - Is this the source of the root error Point 0.5?"<<std::endl;
 
                 // Add up the error matrix elements
                 errorMatrixSum.SetElement(iBin, jBin, errorMatrixSum.At(iBin, jBin) + diffI*diffJ);
+                // if(iUni<3) std::cout<<"DEBUG - Is this the source of the root error Point 0.6?"<<std::endl;
             }
         }
+        // if(iUni<3) std::cout<<"DEBUG - Is this the source of the root error Point 1?"<<std::endl;
         // std::cout<<"DEBUG - GetDistributionParams point 8"<<std::endl;
     }
 
     // std::cout << "DEBUG - Valid universes: " << nValidUniverses << " / " << nUniverses << std::endl;
-
+    
+    // std::cout<<"DEBUG - GetDistributionParams point 8.9"<<std::endl;
     // Scale the sums by the number of universes
     if (nValidUniverses == 0)
         throw std::logic_error("CrossSection::GetDisributionParams - Desired quantity was invalid in all universes");
 
+    std::cout<<"DEBUG - Is this the source of the root error Point 2?"<<std::endl;
     const auto scaleFactor = 1.f / static_cast<float>(nValidUniverses);
     const auto mean = meanSum * scaleFactor;
     const auto errorMatrix = errorMatrixSum * scaleFactor;
@@ -1123,9 +1216,10 @@ CrossSectionHelper::SystBiasCovariancePair CrossSectionHelper::CrossSection::Get
     // Get the bias vector
     const auto pBias = std::make_shared<ubsmear::UBMatrix>(mean - *pNominal);
 
-    std::cout<<"DEBUG - GetDistributionParams point 9"<<std::endl;
+    // std::cout<<"DEBUG - GetDistributionParams point 9"<<std::endl;
     // Get the covariance matrix
     auto pCovarianceMatrix = std::make_shared<ubsmear::UBMatrix>(ubsmear::UBMatrixHelper::GetZeroMatrix(nBins, nBins));
+    std::cout<<"DEBUG - Is this the source of the root error Point 3?"<<std::endl;
     for (unsigned int iBin = 0; iBin < nBins; ++iBin)
     {
         for (unsigned int jBin = 0; jBin <= iBin; ++jBin)
@@ -1142,7 +1236,8 @@ CrossSectionHelper::SystBiasCovariancePair CrossSectionHelper::CrossSection::Get
             pCovarianceMatrix->SetElement(jBin, iBin, covariance);
         }
     }
-    std::cout<<"DEBUG - GetDistributionParams point 10"<<std::endl;
+    std::cout<<"DEBUG - Is this the source of the root error Point 4?"<<std::endl;
+    // std::cout<<"DEBUG - GetDistributionParams point 10"<<std::endl;
 
     return { pBias, pCovarianceMatrix };
 }
@@ -1221,7 +1316,7 @@ CrossSectionHelper::SystBiasCovariancePair CrossSectionHelper::CrossSection::Get
 
 CrossSectionHelper::SystBiasCovariancePair CrossSectionHelper::CrossSection::GetBNBDataCrossSectionDistributionParams(const std::string &group, const std::string &paramName, const ScalingData &scalingData) const
 {
-    std::cout << "DEBUG - Processing parameter: " << group << ", " << paramName << std::endl;
+    std::cout << "\n DEBUG - Processing parameter: " << group << ", " << paramName << "\n" << std::endl;
 
     // Get the number of universes for this systematic parameter
     // ATTN this choice of m_signal_true_multisims here is arbitrary, any of the mutlisims maps would do
@@ -1886,12 +1981,13 @@ std::pair< std::vector<float>, std::vector<float> > CrossSectionHelper::ReadNomi
     // Here we also scale up the fluxes by 1e10 for the sake of comparison just so we are working with reasonable numbers
     const float unitsScaling = 1e10;
     const auto fluxScaleFactor = unitsScaling / (pot * (GeometryHelper::highX - GeometryHelper::lowX) * (GeometryHelper::highY - GeometryHelper::lowY));
-
+    std::cout<<"Debug - CrossSectionHelper::ReadNominalFlux - Point 1 - fluxScaleFactor: "<<fluxScaleFactor<<std::endl;
     bool isFirstHist = true;
     std::vector<float> fluxBinEdges, fluxBinValuesNominal;
 
     for (const auto &histName : histNames)
     {
+        std::cout<<"Debug - CrossSectionHelper::ReadNominalFlux - Point 1 - histName: "<<histName<<std::endl;
         // Get the nominal flux
         const auto pFluxHist = static_cast<TH1F *>(pFluxFile->Get(histName.c_str()));
         if (!pFluxHist)

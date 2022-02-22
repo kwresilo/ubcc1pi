@@ -928,6 +928,19 @@ PlottingHelper::PlotStyle PlottingHelper::GetPlotStyle(const int interactionMode
     }
 }
 
+PlottingHelper::PlotStyle PlottingHelper::GetPlotStyle2(const int interactionMode)
+{
+    switch (interactionMode)
+    {
+        case 0:
+            return BNBData;
+        case 1:
+            return NumuCC0Pi;
+        default:
+            return Other;
+    }
+}
+
 // -----------------------------------------------------------------------------------------------------------------------------------------
 
 std::shared_ptr<TCanvas> PlottingHelper::GetCanvas(const unsigned int width, const unsigned int height)

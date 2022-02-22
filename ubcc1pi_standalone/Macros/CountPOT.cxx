@@ -21,14 +21,14 @@ void CountPOT(const Config &config)
     std::vector<std::string> fileNames;
 
     if (config.countPOT.useOverlays)
-        fileNames.push_back(config.files.overlaysFileName);
+        fileNames.push_back(config.filesRun1.overlaysFileName);
 
     if (config.countPOT.useDirt)
-        fileNames.push_back(config.files.dirtFileName);
+        fileNames.push_back(config.filesRun1.dirtFileName);
 
     if (config.countPOT.useDetectorVariations)
     {
-        for (const auto &[name, fileName] : config.files.detVarFiles)
+        for (const auto &[name, fileName] : config.filesRun1.detVarFiles)
         {
             fileNames.push_back(fileName);
         }

@@ -130,7 +130,7 @@ class CrossSectionHelper
         /**
         *  @brief  A wrapper around an arbitrary function that caches the result of the function in a SystPartialMap.
         *          If the function has already been executed for a given systematic parameter / universe then the a call to the function
-        *          will return the cached value instead. This is provides a helful way of storing the result of a function that we might
+        *          will return the cached value instead. This provides a helful way of storing the result of a function that we might
         *          want to use in multiple places. This is done for performance reasons, so please excuse the added complexity!
         *
         *  @tparam R the return type of the function
@@ -361,6 +361,13 @@ class CrossSectionHelper
                 void AddSelectedBNBDataEvent(const float recoValue);
 
                 /**
+                *  @brief  Get information about presence of an overflow bin
+                *
+                *  @return boolen indicating if the binning contains an overflow bin
+                */
+                bool HasOverflow() const;
+
+                /**
                 *  @brief  Get the metadata about the cross-section binning
                 *
                 *  @return the metadata
@@ -427,6 +434,16 @@ class CrossSectionHelper
                 *  @return the cross-section as a column vector
                 */
                 ubsmear::UBMatrix GetPredictedCrossSection(const ScalingData &scalingData) const;
+
+                /**
+                *  @brief  Get the NuWro predicted flux-integrated forward-folded cross-section in the nominal universe
+                *
+                *  @param  scalingData the information about how we should scale the event rate to get the cross-section
+                *
+                *  @return the cross-section as a column vector
+                */
+                ubsmear::UBMatrix GetNuWroTrueCrossSection(const ScalingData &scalingData) const;
+
 
                 /**
                 *  @brief  Get the smearing matrix in the nominal universe
@@ -512,6 +529,28 @@ class CrossSectionHelper
                 *  @return the total number of selected signal event in true bins
                 */
                 ubsmear::UBMatrix GetSignalSelectedTrue(const std::shared_ptr<TH2F> &pSignal_selected_recoTrue) const;
+
+                /**
+                *  @brief  Get the smearing matrix in a given systematic universe. NB. Can return null
+                *
+                *  @param  group the group of parameters (e.g. flux, xsec, misc)
+                *  @param  paramName the systematic parameter name
+                *  @param  universeIndex the universe index
+                *
+                *  @return a shared pointer to the smearing matrix or a nullptr if the smearing matrix is incalculable
+                */
+                std::shared_ptr<ubsmear::UBMatrix> GetSmearingMatrixInUniverse(const std::string &group, const std::string &paramName, const unsigned int universeIndex) const;
+
+                /**
+                *  @brief  Get the smearing matrix of all selected events in a given systematic universe. NB. Can return null
+                *
+                *  @param  group the group of parameters (e.g. flux, xsec, misc)
+                *  @param  paramName the systematic parameter name
+                *  @param  universeIndex the universe index
+                *
+                *  @return a shared pointer to the smearing matrix or a nullptr if the smearing matrix is incalculable
+                */
+                std::shared_ptr<ubsmear::UBMatrix> GetSmearingMatrixInUniverseAllSelected(const std::string &group, const std::string &paramName, const unsigned int universeIndex) const;
 
             private:
 
@@ -599,16 +638,16 @@ class CrossSectionHelper
                 */
                 std::shared_ptr<ubsmear::UBMatrix> GetSmearingMatrixAllSelected(const std::shared_ptr<TH2F> &pSignal_selected_recoTrue) const;
 
-                /**
-                *  @brief  Get the smearing matrix in a given systematic universe. NB. Can return null
-                *
-                *  @param  group the group of parameters (e.g. flux, xsec, misc)
-                *  @param  paramName the systematic parameter name
-                *  @param  universeIndex the universe index
-                *
-                *  @return a shared pointer to the smearing matrix or a nullptr if the smearing matrix is incalculable
-                */
-                std::shared_ptr<ubsmear::UBMatrix> GetSmearingMatrixInUniverse(const std::string &group, const std::string &paramName, const unsigned int universeIndex) const;
+                // /**
+                // *  @brief  Get the smearing matrix in a given systematic universe.
+                // *
+                // *  @param  group the group of parameters (e.g. flux, xsec, misc)
+                // *  @param  paramName the systematic parameter name
+                // *  @param  universeIndex the universe index
+                // *
+                // *  @return a shared pointer to the smearing matrix or a nullptr if the smearing matrix is incalculable
+                // */
+                // std::shared_ptr<ubsmear::UBMatrix> GetSmearingMatrixInUniverseWithChecks(const std::string &group, const std::string &paramName, const unsigned int universeIndex) const;
 
                 /**
                 *  @brief  Get the smearing matrix for a given unisim sample. NB. Can return null
@@ -976,17 +1015,21 @@ inline CrossSectionHelper::SystCacheFunction<R, Args...>::SystCacheFunction(cons
 template <typename R, typename... Args>
 inline R CrossSectionHelper::SystCacheFunction<R, Args...>::operator()(const std::string &paramName, const unsigned int universeIndex, Args ... args)
 {
+    std::cout<<"CrossSectionHelper.h::SystCacheFunction::operator() - Point 0"<<std::endl;
     // Check that we have a valid parameter name and universe index
     const auto iterDimensions = m_dimensions.find(paramName);
+    std::cout<<"CrossSectionHelper.h::SystCacheFunction::operator() - Point 1"<<std::endl;
     if (iterDimensions == m_dimensions.end())
         throw std::invalid_argument("SystCacheFunction - Unknown paramName: " + paramName);
 
+    std::cout<<"CrossSectionHelper.h::SystCacheFunction::operator() - Point 2"<<std::endl;
     const auto nUniverses = iterDimensions->second;
     if (universeIndex >= nUniverses)
         throw std::out_of_range("SystCacheFunction - Universe index is out of range");
 
     // Check if we have a cached entry for this parameter name
     const auto iterCacheName = m_cache.find(paramName);
+    std::cout<<"CrossSectionHelper.h::SystCacheFunction::operator() - Point 3"<<std::endl;
     if (iterCacheName != m_cache.end())
     {
         // Check if we have a cached entry for this universe index
@@ -997,10 +1040,14 @@ inline R CrossSectionHelper::SystCacheFunction<R, Args...>::operator()(const std
             return iterCacheUniverse->second;
         }
     }
+    std::cout<<"CrossSectionHelper.h::SystCacheFunction::operator() - Point 4 - universeIndex: "<<universeIndex<<" - paramName: "<<paramName<<std::endl;
 
     // We don't have an entry in the cache, so make one
     const auto result = m_function(paramName, universeIndex, args...);
+    std::cout<<"CrossSectionHelper.h::SystCacheFunction::operator() - Point 4.1"<<std::endl;
     m_cache[paramName][universeIndex] = result;
+
+    std::cout<<"CrossSectionHelper.h::SystCacheFunction::operator() - Point 5"<<std::endl;
 
     // Return the result
     return result;

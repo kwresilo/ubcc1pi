@@ -1449,6 +1449,7 @@ AnalysisHelper::AnalysisData AnalysisHelper::GetTruthAnalysisData(const Event::T
 
         const auto dir = TVector3(particle.momentumX(), particle.momentumY(), particle.momentumZ()).Unit();
         const auto cosTheta = dir.Z();
+        // std::cout<<"DEBUG - GetTruthAnalysisData - Point 1 - particle.momentumX(): "<<particle.momentumX()<<" - cosTheta: "<<cosTheta<<" - particle.momentumZ(): "<<particle.momentumZ()<<std::endl;
         const auto phi = std::atan2(dir.Y(), dir.X());
 
         if (pdg == 211)
@@ -1531,6 +1532,7 @@ AnalysisHelper::AnalysisData AnalysisHelper::GetTruthAnalysisDataCC0Pi(const Eve
 
         const auto dir = TVector3(particle.momentumX(), particle.momentumY(), particle.momentumZ()).Unit();
         const auto cosTheta = dir.Z();
+        // std::cout<<"DEBUG - GetTruthAnalysisDataCC0Pi - Point 1 - particle.momentumX(): "<<particle.momentumX()<<" - cosTheta: "<<cosTheta<<" - particle.momentumZ(): "<<particle.momentumZ()<<std::endl;
         const auto phi = std::atan2(dir.Y(), dir.X());
 
         if (pdg == 13)

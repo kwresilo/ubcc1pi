@@ -24,13 +24,14 @@ namespace ubcc1pi_macros
 
 void MakeSidebandSamplePlots(const Config &config)
 {
+    ROOT::EnableImplicitMT(2);
     // Setup the input files
     std::vector< std::tuple<AnalysisHelper::SampleType, std::string, float> > inputData;
 
-    inputData.emplace_back(AnalysisHelper::Overlay, config.files.overlaysFileName, NormalisationHelper::GetOverlaysNormalisation(config));
-    inputData.emplace_back(AnalysisHelper::Dirt,    config.files.dirtFileName,     NormalisationHelper::GetDirtNormalisation(config));
-    inputData.emplace_back(AnalysisHelper::DataEXT, config.files.dataEXTFileName,  NormalisationHelper::GetDataEXTNormalisation(config));
-    inputData.emplace_back(AnalysisHelper::DataBNB, config.files.dataBNBFileName,  1.f);
+    inputData.emplace_back(AnalysisHelper::Overlay, config.filesRun1.overlaysFileName, NormalisationHelper::GetOverlaysNormalisation(config, 1));
+    inputData.emplace_back(AnalysisHelper::Dirt,    config.filesRun1.dirtFileName,     NormalisationHelper::GetDirtNormalisation(config, 1));
+    inputData.emplace_back(AnalysisHelper::DataEXT, config.filesRun1.dataEXTFileName,  NormalisationHelper::GetDataEXTNormalisation(config, 1));
+    inputData.emplace_back(AnalysisHelper::DataBNB, config.filesRun1.dataBNBFileName,  1.f);
 
     // Get the selections
     auto selection = SelectionHelper::GetSelection("CC0pi");

@@ -1,7 +1,7 @@
 /**
- *  @file  ubcc1pi_standalone/Macros/MakeXSecPlots.cxx
+ *  @file  ubcc1pi_standalone/Macros/MakeNuWroXSecPlots.cxx
  *
- *  @brief The implementation file of the MakeXSecPlots macro
+ *  @brief The implementation file of the MakeNuWroXSecPlots macro
  */
 
 #include "ubcc1pi_standalone/Macros/Macros.h"
@@ -20,7 +20,7 @@ using namespace ubcc1pi;
 namespace ubcc1pi_macros
 {
 
-void MakeXSecPlots(const Config &config)
+void MakeNuWroXSecPlots(const Config &config)
 {
     // -------------------------------------------------------------------------------------------------------------------------------------
     // Get the binning of each cross-section
@@ -66,7 +66,6 @@ void MakeXSecPlots(const Config &config)
     {
         for (const auto &[xsecName, isEnabled] : enabledMap)
         {
-            if(selectionName=="golden") continue;// || xsecName!="muonPhi"
             // Skip cross-sections that aren't enabled
             if (!isEnabled)
                 continue;
@@ -75,7 +74,11 @@ void MakeXSecPlots(const Config &config)
 
             // Define a lambda function to get a matrix from a file for brevity
             const auto getMatrix = [&, selectionName = selectionName, xsecName = xsecName](const std::string &identifier) -> ubsmear::UBMatrix {
-                return ubsmear::UBFileHelper::ReadMatrix("xsec_" + selectionName + "_" + xsecName + "_" + identifier + ".txt");
+                return ubsmear::UBFileHelper::ReadMatrix("xsecNuWro_" + selectionName + "_" + xsecName + "_" + identifier + ".txt");
+            };
+
+            const auto getMatrixTrue = [&, selectionName = selectionName, xsecName = xsecName](const std::string &identifier) -> ubsmear::UBMatrix {
+                return ubsmear::UBFileHelper::ReadMatrix("xsecNuWro_true_" + selectionName + "_" + xsecName + "_" + identifier + ".txt");
             };
 
             // Define a lambda function to get a matrix from a file an trim any overflow / underflow bins
@@ -84,8 +87,15 @@ void MakeXSecPlots(const Config &config)
                 return ubsmear::UBSmearingHelper::TrimUnderOverflowBins(getMatrix(identifier), metadata);
             };
 
+            // Define a lambda function to get a matrix from a file an trim any overflow / underflow bins
+            const auto &metadataTrue = metadataMap.at(xsecName);
+            const auto getTrimmedMatrixTrue = [&] (const std::string &identifier) -> ubsmear::UBMatrix {
+                return ubsmear::UBSmearingHelper::TrimUnderOverflowBins(getMatrixTrue(identifier), metadataTrue);
+            };
+
             // Get the data cross-section
             const auto data = getTrimmedMatrix("data");
+            const auto dataTrue = getMatrixTrue("data"); //getTrimmedMatrixTrue("data");
 
             // Get the smearing matrix
             const auto smearingMatrix = getMatrix("smearingMatrix");
@@ -142,7 +152,6 @@ void MakeXSecPlots(const Config &config)
                         }}
                     }))
                 {
-                    if(quantity == "smearingMatrix" && group == "sidebandWeights") continue; // Sideband does not affect smearing matrix
                     // Setup an empty error matrix for this group
                     auto errorMatrixTotal =  ubsmear::UBMatrixHelper::GetZeroMatrix(nBins, nBins);
 
@@ -202,7 +211,7 @@ void MakeXSecPlots(const Config &config)
             }
 
             // Define a prefix for the names of the plots
-            const std::string prefix = "xsecPlots_" + selectionName + "_" + xsecName;
+            const std::string prefix = "NuWroXSecPlots_" + selectionName + "_" + xsecName;
 
             // -----------------------------------------------------------------------------------------------------------------------------
             // Plot the error matrices
@@ -236,14 +245,6 @@ void MakeXSecPlots(const Config &config)
             const auto prediction = getMatrix("prediction");
             const auto predictionBiasVector = getMatrix("prediction_stat_bias");
             const auto predictionCovarianceMatrix = getMatrix("prediction_stat_covariance");
-            
-            // // ######################
-            // // jdetje TEST AREA BEGIN
-
-            // const auto CC0PiFitCovarianceMatrix = getMatrix("sideband_stat_covariance"); //TODo needs xsec_ as prefix
-            // const auto prediction = getMatrix("prediction");
-            // // jdetje TEST AREA END
-            // // ######################
 
             const auto predictionErrorMatrix = CrossSectionHelper::GetErrorMatrix(predictionBiasVector, predictionCovarianceMatrix);
 
@@ -260,13 +261,21 @@ void MakeXSecPlots(const Config &config)
                 config.makeXSecPlots.nUniverses,                           // The number of universes to use when propagating the uncertainties
                 config.makeXSecPlots.precision);                           // The precision to use when finding eigenvalues and eigenvectors
 
+
+                const auto &[smearedPredictionNuWro, smearedPredictionErrorMatrixNuWro] = ubsmear::ForwardFold(
+                metadataTrue,                                              // The metadata that defines the binning
+                dataTrue, predictionErrorMatrix,                           // The prediction and it's error matrix
+                smearingMatrix, totalErrorMatrixMap.at("smearingMatrix"),  // The smearing matrix and it's error matrix
+                config.makeXSecPlots.nUniverses,                           // The number of universes to use when propagating the uncertainties
+                config.makeXSecPlots.precision);                           // The precision to use when finding eigenvalues and eigenvectors
+
             // Plot the error matrix on the smeared prediction
             PlottingHelper::PlotErrorMatrix(smearedPredictionErrorMatrix, prefix + "_smearedPrediction_totalErrorMatrix", metadata);
             PlottingHelper::PlotFractionalErrorMatrix(smearedPredictionErrorMatrix, smearedPrediction, prefix + "_smearedPrediction_totalFracErrorMatrix", metadata);
 
             // Save the forward-folded prediction
-            FormattingHelper::SaveMatrix(smearedPrediction, "xsec_" + selectionName + "_" + xsecName + "_forwardFoldedPrediction.txt");
-            FormattingHelper::SaveMatrix(smearedPredictionErrorMatrix, "xsec_" + selectionName + "_" + xsecName + "_forwardFoldedPrediction_error.txt");
+            FormattingHelper::SaveMatrix(smearedPrediction, "xsecNuWro_" + selectionName + "_" + xsecName + "_forwardFoldedPrediction.txt");
+            FormattingHelper::SaveMatrix(smearedPredictionErrorMatrix, "xsecNuWro_" + selectionName + "_" + xsecName + "_forwardFoldedPrediction_error.txt");
 
             // -----------------------------------------------------------------------------------------------------------------------------
             // Get the chi2 for the data-prediction comparison and add it to the table
@@ -328,6 +337,7 @@ void MakeXSecPlots(const Config &config)
 
             // Setup the data histogram and the prediction histogram
             auto pDataHist = std::make_shared<TH1F>((prefix + "_data").c_str(), "", binEdges.size() - 1, binEdges.data());
+            auto pDataHistTrue = std::make_shared<TH1F>((prefix + "_dataTrue").c_str(), "", binEdges.size() - 1, binEdges.data());
             auto pDataStatOnlyHist = std::make_shared<TH1F>((prefix + "_dataStatOnly").c_str(), "", binEdges.size() - 1, binEdges.data());
             auto pPredictionHist = std::make_shared<TH1F>((prefix + "_prediction").c_str(), "", binEdges.size() - 1, binEdges.data());
 
@@ -340,11 +350,15 @@ void MakeXSecPlots(const Config &config)
             {
                 // Set the values for the data histogram
                 const auto dataValue = data.At(iBin - 1, 0);
+                const auto dataValueTrue = smearedPredictionNuWro.At(iBin - 1, 0); //dataTrue.At(iBin - 1, 0);
                 const auto dataError = std::pow(totalDataErrorMatrix.At(iBin - 1, iBin - 1), 0.5f);
                 const auto dataStatOnlyError = std::pow(dataStatErrorMatrix.At(iBin - 1, iBin - 1), 0.5f);
 
                 pDataHist->SetBinContent(iBin, dataValue);
                 pDataHist->SetBinError(iBin, dataError);
+
+                pDataHistTrue->SetBinContent(iBin, dataValueTrue);
+                pDataHistTrue->SetBinError(iBin, 0);
 
                 pDataStatOnlyHist->SetBinContent(iBin, dataValue);
                 pDataStatOnlyHist->SetBinError(iBin, dataStatOnlyError);
@@ -359,7 +373,7 @@ void MakeXSecPlots(const Config &config)
                 // For the proton multiplicity plot, use explicit bin labels
                 if (xsecName == "nProtons")
                 {
-                    for (auto &pHist : {pDataHist, pDataStatOnlyHist, pPredictionHist})
+                    for (auto &pHist : {pDataHist, pDataHistTrue, pDataStatOnlyHist, pPredictionHist})
                     {
                         pHist->GetXaxis()->SetBinLabel(1, "0");
                         pHist->GetXaxis()->SetBinLabel(2, "1");
@@ -382,11 +396,14 @@ void MakeXSecPlots(const Config &config)
             minY = std::max(minY, 0.f);
             minY = 0.f; // Remove this line to get a dynamic lower y-range
             pDataHist->GetYaxis()->SetRangeUser(minY, maxY);
+            pDataHistTrue->GetYaxis()->SetRangeUser(minY, maxY);
             pDataStatOnlyHist->GetYaxis()->SetRangeUser(minY, maxY);
             pPredictionHist->GetYaxis()->SetRangeUser(minY, maxY);
 
             // Set the colours of the histograms
             PlottingHelper::SetLineStyle(pDataHist, PlottingHelper::Primary);
+            PlottingHelper::SetLineStyle(pDataHistTrue, PlottingHelper::Tertiary);
+            pDataHistTrue->SetLineStyle(4); // Dashed line
             PlottingHelper::SetLineStyle(pDataStatOnlyHist, PlottingHelper::Primary);
             PlottingHelper::SetLineStyle(pPredictionHist, PlottingHelper::Secondary);
 
@@ -407,6 +424,7 @@ void MakeXSecPlots(const Config &config)
 
             // Draw the data as points with error bars
             pDataStatOnlyHist->Draw("e1 same");
+            pDataHistTrue->Draw("e1 same");
             pDataHist->Draw("e1 same");
 
             PlottingHelper::SaveCanvas(pCanvas, prefix + "_data-vs-smearedPrediction");
@@ -414,7 +432,7 @@ void MakeXSecPlots(const Config &config)
     }
 
     // Save the table
-    table.WriteToFile("xsecPlots_goodnessOfFitStatistics.md");
+    table.WriteToFile("NuWroXSecPlots_goodnessOfFitStatistics.md");
 }
 
 } // namespace ubcc1pi_macros

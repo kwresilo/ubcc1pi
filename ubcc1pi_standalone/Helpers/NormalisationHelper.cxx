@@ -11,49 +11,139 @@
 namespace ubcc1pi
 {
 
-float NormalisationHelper::GetOverlaysNormalisation(const Config &config)
+float NormalisationHelper::GetOverlaysNormalisation(const Config &config, const unsigned int run)
 {
-    if (config.norms.overlaysPOT <= std::numeric_limits<float>::epsilon())
+    float overlaysPOT;
+    float dataBNBTor875WCut;
+    switch (run)
+    {
+        case 1:
+            dataBNBTor875WCut = config.normsRun1.dataBNBTor875WCut;
+            overlaysPOT = config.normsRun1.overlaysPOT;
+            break;
+        case 2:
+            dataBNBTor875WCut = config.normsRun2.dataBNBTor875WCut;
+            overlaysPOT = config.normsRun2.overlaysPOT;
+            break;
+        case 3:
+            dataBNBTor875WCut = config.normsRun3.dataBNBTor875WCut;
+            overlaysPOT = config.normsRun3.overlaysPOT;
+            break;
+        default:
+            std::cout<<"NormalisationHelper::GetOverlaysNormalisation - Invalid run number"<<std::endl;
+            throw std::invalid_argument("NormalisationHelper::GetOverlaysNormalisation - Invalid run number");
+    }
+
+    if (overlaysPOT <= std::numeric_limits<float>::epsilon())
         throw std::invalid_argument("NormalisationHelper::GetOverlaysNormalisation - Overlay POT is invalid");
 
-    return config.norms.dataBNBTor875WCut / config.norms.overlaysPOT;
+    return dataBNBTor875WCut / overlaysPOT;
 }
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
 
-float NormalisationHelper::GetDirtNormalisation(const Config &config)
+float NormalisationHelper::GetDirtNormalisation(const Config &config, const unsigned int run)
 {
-    if (config.norms.dirtPOT <= std::numeric_limits<float>::epsilon())
+    float dirtPOT;
+    float dataBNBTor875WCut;
+    switch (run)
+    {
+        case 1:
+            dataBNBTor875WCut = config.normsRun1.dataBNBTor875WCut;
+            dirtPOT = config.normsRun1.dirtPOT;
+            break;
+        case 2:
+            dataBNBTor875WCut = config.normsRun2.dataBNBTor875WCut;
+            dirtPOT = config.normsRun2.dirtPOT;
+            break;
+        case 3:
+            dataBNBTor875WCut = config.normsRun3.dataBNBTor875WCut;
+            dirtPOT = config.normsRun3.dirtPOT;
+            break;
+        default:
+            std::cout<<"NormalisationHelper::GetOverlaysNormalisation - Invalid run number"<<std::endl;
+            throw std::invalid_argument("NormalisationHelper::GetOverlaysNormalisation - Invalid run number");
+    }
+
+    if (dirtPOT <= std::numeric_limits<float>::epsilon())
         throw std::invalid_argument("NormalisationHelper::GetDirtNormalisation - Dirt POT is invalid");
 
-    return config.norms.dataBNBTor875WCut / config.norms.dirtPOT;
+    return dataBNBTor875WCut / dirtPOT;
 }
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
 
-float NormalisationHelper::GetDataEXTNormalisation(const Config &config)
+float NormalisationHelper::GetDataEXTNormalisation(const Config &config, const unsigned int run)
 {
-    if (config.norms.dataEXTTriggers <= std::numeric_limits<float>::epsilon())
+    float dataEXTTriggers;
+    float dataBNBE1DCNTWCut;
+    switch (run)
+    {
+        case 1:
+            dataBNBE1DCNTWCut = config.normsRun1.dataBNBE1DCNTWCut;
+            dataEXTTriggers = config.normsRun1.dataEXTTriggers;
+            break;
+        case 2:
+            dataBNBE1DCNTWCut = config.normsRun2.dataBNBE1DCNTWCut;
+            dataEXTTriggers = config.normsRun2.dataEXTTriggers;
+            break;
+        case 3:
+            dataBNBE1DCNTWCut = config.normsRun3.dataBNBE1DCNTWCut;
+            dataEXTTriggers = config.normsRun3.dataEXTTriggers;
+            break;
+        default:
+            std::cout<<"NormalisationHelper::GetOverlaysNormalisation - Invalid run number"<<std::endl;
+            throw std::invalid_argument("NormalisationHelper::GetOverlaysNormalisation - Invalid run number");
+    }
+
+    if (dataEXTTriggers <= std::numeric_limits<float>::epsilon())
         throw std::invalid_argument("NormalisationHelper::GetDataEXTNormalisation - Data EXT trigger count is invalid");
 
-    return config.norms.dataBNBE1DCNTWCut / config.norms.dataEXTTriggers;
+    return dataBNBE1DCNTWCut / dataEXTTriggers;
 }
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
 
-float NormalisationHelper::GetDetectorVariationNormalisation(const Config &config, const std::string &paramName)
+float NormalisationHelper::GetDetectorVariationNormalisation(const Config &config, const std::string &paramName, const unsigned int run)
 {
-    // Check we have an entry for this param name
-    const auto iter = config.norms.detVarPOTs.find(paramName);
-    if (iter == config.norms.detVarPOTs.end())
-        throw std::invalid_argument("NormalisationHelper::GetDetectorVariationNormalisation - Unknown paramter: " + paramName);
+    float dataBNBTor875WCut;
+    // std::unordered_map<std::string, float>::iterator iter;
+    auto iter = config.normsRun1.detVarPOTs.find(paramName); //TODO: Fix this; dont use find
+    switch (run)
+    {
+        case 1:
+            iter = config.normsRun1.detVarPOTs.find(paramName);
+            if (config.normsRun1.detVarPOTs.find(paramName) == config.normsRun1.detVarPOTs.end())
+                throw std::invalid_argument("NormalisationHelper::GetDetectorVariationNormalisation - Unknown paramter: " + paramName);
+            dataBNBTor875WCut = config.normsRun1.dataBNBTor875WCut;
+            break;
+        case 2:
+            iter = config.normsRun2.detVarPOTs.find(paramName);
+            if (config.normsRun2.detVarPOTs.find(paramName) == config.normsRun2.detVarPOTs.end())
+                throw std::invalid_argument("NormalisationHelper::GetDetectorVariationNormalisation - Unknown paramter: " + paramName);
+            dataBNBTor875WCut = config.normsRun2.dataBNBTor875WCut;
+            break;
+        case 3:
+            iter = config.normsRun3.detVarPOTs.find(paramName);
+            if (config.normsRun3.detVarPOTs.find(paramName) == config.normsRun3.detVarPOTs.end())
+                throw std::invalid_argument("NormalisationHelper::GetDetectorVariationNormalisation - Unknown paramter: " + paramName);
+            dataBNBTor875WCut = config.normsRun3.dataBNBTor875WCut;
+            break;
+        default:
+            std::cout<<"NormalisationHelper::GetOverlaysNormalisation - Invalid run number"<<std::endl;
+            throw std::invalid_argument("NormalisationHelper::GetOverlaysNormalisation - Invalid run number");
+    }
+
+    // // Check we have an entry for this param name
+    // if (iter == config.norms.detVarPOTs.end())
+    //     throw std::invalid_argument("NormalisationHelper::GetDetectorVariationNormalisation - Unknown paramter: " + paramName);
 
     // Get the POT from the map
     const auto pot = iter->second;
     if (pot <= std::numeric_limits<float>::epsilon())
         throw std::invalid_argument("NormalisationHelper::GetDetectorVariationNormalisation - POT is invalid for detector parameter: " + paramName);
 
-    return config.norms.dataBNBTor875WCut / pot;
+    return dataBNBTor875WCut / pot;
 }
 
 
