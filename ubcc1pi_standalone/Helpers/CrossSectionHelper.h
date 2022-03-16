@@ -361,11 +361,28 @@ class CrossSectionHelper
                 void AddSelectedBNBDataEvent(const float recoValue);
 
                 /**
+                *  @brief  Add a weighted selected event from real BNB data
+                *          The events added using this function are used to produce:
+                *            - The measured "forward-folded cross-section" (= background-substracted & flux normalised event rate)
+                *
+                *  @param  recoValue the reconstructed value of the kinematic quantity
+                *  @param  weight the weight value of the event
+                */
+                void AddWeightedSelectedBNBDataEvent(const float recoValue, const float weight);
+
+                /**
                 *  @brief  Get information about presence of an overflow bin
                 *
-                *  @return boolen indicating if the binning contains an overflow bin
+                *  @return bool indicating if the binning contains an overflow bin
                 */
                 bool HasOverflow() const;
+
+                /**
+                *  @brief  Get information about presence of an underflow bin
+                *
+                *  @return bool indicating if the binning contains an overflow bin
+                */
+                bool HasUnderflow() const;
 
                 /**
                 *  @brief  Get the metadata about the cross-section binning
@@ -380,6 +397,40 @@ class CrossSectionHelper
                 *  @return the bin edges
                 */
                 std::vector<float> GetBinEdges() const;
+
+                /**
+                *  @brief  Get the nominal sideband scaling factor
+                * 
+                *  @param trueSidebandValue the true sideband value of an event
+                *  @param cc0piNominalConstraintParam the nominal constraint parameter list for a cross-section
+                * 
+                *  @return scaling parameter
+                */
+                Double_t GetSidebandScaling(const float trueSidebandValue, const std::vector<Double_t> &cc0piNominalConstraintParam) const;
+
+                /**
+                *  @brief  Get the nominal sideband scaling factor
+                * 
+                *  @param weights input weight map
+                *  @param trueSidebandValue the true sideband value of an event
+                *  @param cc0piNominalConstraintParam the nominal constraint parameter list for a cross-section                * 
+                *  @param cc0piUniverseConstraintParam the universe constraint parameter list for a cross-section
+                * 
+                *  @return universe parameter weights
+                */
+                SystFloatMap GetSidebandUniverseScaling(const CrossSectionHelper::SystFloatMap weights, const float trueSidebandValue, const std::vector<Double_t> &cc0piNominalConstraintParam, const std::map<std::string, std::vector<std::pair<std::vector<Double_t>,std::vector<Double_t>>>> &cc0piUniverseConstraints) const;
+
+                /**
+                *  @brief  Get the nominal sideband scaling factor
+                * 
+                *  @param dimensions the number fo universes for the sideband weights
+                *  @param trueSidebandValue the true sideband value of an event
+                *  @param cc0piNominalConstraintParam the nominal constraint parameter list for a cross-section                * 
+                *  @param cc0piNominalConstraintParamErro the nominal constraint parameter error list for a cross-section
+                * 
+                *  @return sideband parameter universe weights
+                */
+                std::vector<float> GetSidebandParameterWeights(const float trueSidebandValue, const std::vector<Double_t> &cc0piNominalConstraintParam, const std::vector<Double_t> &cc0piNominalConstraintParamError) const;
 
                 /**
                 *  @brief  Get a column vector containing the bin widths used in the cross-section calculation.

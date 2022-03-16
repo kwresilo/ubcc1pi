@@ -21,11 +21,35 @@ void GetRunSubrunList(const Config &config)
     // Get the input and output file names
     std::vector< std::pair<std::string, std::string> > fileNames;
 
-    if (config.getRunSubrunList.useDataEXT)
-        fileNames.emplace_back(config.files.dataEXTFileName, "runSubrunList_dataEXT.txt");
-
-    if (config.getRunSubrunList.useDataBNB)
-        fileNames.emplace_back(config.files.dataBNBFileName, "runSubrunList_dataBNB.txt");
+    for (const auto run: config.global.runs)
+    {
+        switch (run)
+        {
+            case 1:
+            {
+                if (config.getRunSubrunList.useDataEXT) fileNames.emplace_back(config.filesRun1.dataEXTFileName, "run1_runSubrunList_dataEXT.txt");
+                if (config.getRunSubrunList.useDataBNB) fileNames.emplace_back(config.filesRun1.dataBNBFileName, "run1_runSubrunList_dataBNB.txt");
+                if (config.getRunSubrunList.useNuWro) fileNames.emplace_back(config.filesRun1.nuWroFileName, "run1_runSubrunList_NuWro.txt");
+                break;
+            }
+            case 2: 
+            {
+                if (config.getRunSubrunList.useDataEXT) fileNames.emplace_back(config.filesRun2.dataEXTFileName, "run2_runSubrunList_dataEXT.txt");
+                if (config.getRunSubrunList.useDataBNB) fileNames.emplace_back(config.filesRun2.dataBNBFileName, "run2_runSubrunList_dataBNB.txt");
+                if (config.getRunSubrunList.useNuWro) fileNames.emplace_back(config.filesRun2.nuWroFileName, "run2_runSubrunList_NuWro.txt");
+                break;
+            }
+            case 3: 
+            {
+                if (config.getRunSubrunList.useDataEXT) fileNames.emplace_back(config.filesRun3.dataEXTFileName, "run3_runSubrunList_dataEXT.txt");
+                if (config.getRunSubrunList.useDataBNB) fileNames.emplace_back(config.filesRun3.dataBNBFileName, "run3_runSubrunList_dataBNB.txt");
+                if (config.getRunSubrunList.useNuWro) fileNames.emplace_back(config.filesRun3.nuWroFileName, "run3_runSubrunList_NuWro.txt");
+                break;
+            }        
+            default:
+                throw std::logic_error("GetRunSubrunList - Invalid run number");
+        }
+    }
 
     // For each of the input files
     for (const auto &ioFileName : fileNames)

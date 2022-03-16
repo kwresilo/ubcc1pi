@@ -28,10 +28,31 @@ void MakeSidebandSamplePlots(const Config &config)
     // Setup the input files
     std::vector< std::tuple<AnalysisHelper::SampleType, std::string, float> > inputData;
 
-    inputData.emplace_back(AnalysisHelper::Overlay, config.filesRun1.overlaysFileName, NormalisationHelper::GetOverlaysNormalisation(config, 1));
-    inputData.emplace_back(AnalysisHelper::Dirt,    config.filesRun1.dirtFileName,     NormalisationHelper::GetDirtNormalisation(config, 1));
-    inputData.emplace_back(AnalysisHelper::DataEXT, config.filesRun1.dataEXTFileName,  NormalisationHelper::GetDataEXTNormalisation(config, 1));
-    inputData.emplace_back(AnalysisHelper::DataBNB, config.filesRun1.dataBNBFileName,  1.f);
+    for (const auto run: config.global.runs)
+    {
+        if(run == 1)
+        {
+            inputData.emplace_back(AnalysisHelper::Overlay, config.filesRun1.overlaysFileName, NormalisationHelper::GetOverlaysNormalisation(config, 1));
+            inputData.emplace_back(AnalysisHelper::Dirt,    config.filesRun1.dirtFileName, NormalisationHelper::GetDirtNormalisation(config, 1));
+            inputData.emplace_back(AnalysisHelper::DataEXT, config.filesRun1.dataEXTFileName, NormalisationHelper::GetDataEXTNormalisation(config, 1));
+            inputData.emplace_back(AnalysisHelper::DataBNB, config.filesRun1.dataBNBFileName, 1.f);
+        }
+        else if(run == 2)
+        {
+            inputData.emplace_back(AnalysisHelper::Overlay, config.filesRun2.overlaysFileName, NormalisationHelper::GetOverlaysNormalisation(config, 2));
+            inputData.emplace_back(AnalysisHelper::Dirt,    config.filesRun2.dirtFileName, NormalisationHelper::GetDirtNormalisation(config, 2));
+            inputData.emplace_back(AnalysisHelper::DataEXT, config.filesRun2.dataEXTFileName, NormalisationHelper::GetDataEXTNormalisation(config, 2));
+            inputData.emplace_back(AnalysisHelper::DataBNB, config.filesRun2.dataBNBFileName, 1.f);
+        }
+        else if(run == 3)
+        {
+            inputData.emplace_back(AnalysisHelper::Overlay, config.filesRun3.overlaysFileName, NormalisationHelper::GetOverlaysNormalisation(config, 3));
+            inputData.emplace_back(AnalysisHelper::Dirt,    config.filesRun3.dirtFileName, NormalisationHelper::GetDirtNormalisation(config, 3));
+            inputData.emplace_back(AnalysisHelper::DataEXT, config.filesRun3.dataEXTFileName, NormalisationHelper::GetDataEXTNormalisation(config, 3));
+            inputData.emplace_back(AnalysisHelper::DataBNB, config.filesRun3.dataBNBFileName, 1.f);
+        }
+        else throw std::logic_error("ExtractSidebandFit - Invalid run number");
+    }
 
     // Get the selections
     auto selection = SelectionHelper::GetSelection("CC0pi");

@@ -1,7 +1,7 @@
 /**
- *  @file  ubcc1pi_standalone/Macros/ExtractSidebandFit.cxx
+ *  @file  ubcc1pi_standalone/Macros/ExtractNuWroSidebandFit.cxx
  *
- *  @brief The implementation file of the ExtractSidebandFit macro
+ *  @brief The implementation file of the ExtractNuWroSidebandFit macro
  */
 
 #include "ubcc1pi_standalone/Macros/Macros.h"
@@ -26,22 +26,22 @@
 
 using namespace ubcc1pi;
 
-std::vector<float> x, y, errorY, S;
-bool underflow, overflow;
+std::vector<float> xNuWro, yNuWro, errorYNuWro, SNuWro;
+bool underflowNuWro, overflowNuWro;
 
 //______________________________________________________________________________
 
-void fcn(Int_t &npar, Double_t *gin, Double_t &f, Double_t *par, Int_t iflag)
+void fcnNuWro(Int_t &npar, Double_t *gin, Double_t &f, Double_t *par, Int_t iflag)
 {
     //calculate chi2
-    if(x.size()!=y.size() || y.size()!=errorY.size() || x.size()*x.size()!=S.size())
-        throw std::logic_error("Fitting function for ExtractSidebandFit - Incompatible input dimenstions.");
+    if(xNuWro.size()!=yNuWro.size() || yNuWro.size()!=errorYNuWro.size() || xNuWro.size()*xNuWro.size()!=SNuWro.size())
+        throw std::logic_error("Fitting function for ExtractNuWroSidebandFit - Incompatible input dimenstions.");
 
     Double_t chisq = 0;
     Double_t delta;
-    Int_t nBins = x.size();
+    Int_t nBins = xNuWro.size();
     
-    std::vector<Double_t> xScaled(x.begin(), x.end()); 
+    std::vector<Double_t> xScaled(xNuWro.begin(), xNuWro.end()); 
     for (Int_t i=0; i<nBins; i++)
     {
         xScaled[i]*=par[i];
@@ -53,17 +53,17 @@ void fcn(Int_t &npar, Double_t *gin, Double_t &f, Double_t *par, Int_t iflag)
     {
         for (Int_t j=0; j<nBins; j++)
         {
-            xSmeared[i] +=  S[i*nBins+j]*xScaled[j];
+            xSmeared[i] +=  SNuWro[i*nBins+j]*xScaled[j];
         }
     }
     // const auto xSmeared = S*xScaled;
 
-    Int_t relevantBinsMax = overflow ? nBins-1 : nBins;
-    Int_t relevantBinsMin = underflow ? 1 : 0;
+    Int_t relevantBinsMax = overflowNuWro ? nBins-1 : nBins;
+    Int_t relevantBinsMin = underflowNuWro ? 1 : 0;
 
     for (Int_t i=relevantBinsMin; i<relevantBinsMax; i++) 
     {
-        delta  = (y[i]-xSmeared[i])/errorY[i];
+        delta  = (yNuWro[i]-xSmeared[i])/errorYNuWro[i];
         chisq += delta*delta;
     }
 
@@ -73,7 +73,7 @@ void fcn(Int_t &npar, Double_t *gin, Double_t &f, Double_t *par, Int_t iflag)
 namespace ubcc1pi_macros
 {
 
-void ExtractSidebandFit(const Config &config)
+void ExtractNuWroSidebandFit(const Config &config)
 {
     // -------------------------------------------------------------------------------------------------------------------------------------
     // Setup an object that holds the details of the systematic parameters to apply
@@ -272,21 +272,21 @@ void ExtractSidebandFit(const Config &config)
         {
             case 1:
                 {
-                    totalExposurePOT += config.normsRun1.dataBNBTor875WCut / (1e20);
+                    totalExposurePOT += config.normsRun1.nuWroPOT / (1e20);
                     break;
                 }
             case 2:
                 {
-                    totalExposurePOT += config.normsRun2.dataBNBTor875WCut / (1e20);
+                    totalExposurePOT += config.normsRun2.nuWroPOT / (1e20);
                     break;
                 }
             case 3:
                 {
-                    totalExposurePOT += config.normsRun3.dataBNBTor875WCut / (1e20);
+                    totalExposurePOT += config.normsRun3.nuWroPOT / (1e20);
                     break;
                 }
             default:
-                throw std::logic_error("ExtractSidebandFit - Invalid run number");
+                throw std::logic_error("ExtractNuWroSidebandFit - Invalid run number");
         }
     }
 
@@ -308,27 +308,27 @@ void ExtractSidebandFit(const Config &config)
 
         if(run == 1)
         {
-            inputData.emplace_back(AnalysisHelper::Overlay, "", config.filesRun1.overlaysFileName, NormalisationHelper::GetOverlaysNormalisation(config, 1));
-            inputData.emplace_back(AnalysisHelper::Dirt,    "", config.filesRun1.dirtFileName, NormalisationHelper::GetDirtNormalisation(config, 1));
-            inputData.emplace_back(AnalysisHelper::DataEXT, "", config.filesRun1.dataEXTFileName, NormalisationHelper::GetDataEXTNormalisation(config, 1));
-            inputData.emplace_back(AnalysisHelper::DataBNB, "", config.filesRun1.dataBNBFileName, 1.f);
+            inputData.emplace_back(AnalysisHelper::Overlay, "", config.filesRun1.overlaysFileName, NormalisationHelper::GetOverlaysNormalisationToNuWro(config, 1));
+            // inputData.emplace_back(AnalysisHelper::Dirt,    "", config.filesRun1.dirtFileName, NormalisationHelper::GetDirtNormalisation(config, 1));
+            // inputData.emplace_back(AnalysisHelper::DataEXT, "", config.filesRun1.dataEXTFileName, NormalisationHelper::GetDataEXTNormalisation(config, 1));
+            inputData.emplace_back(AnalysisHelper::DataBNB, "", config.filesRun1.nuWroFileName, 1.f);
         }
         else if(run == 2)
         {
-            inputData.emplace_back(AnalysisHelper::Overlay, "", config.filesRun2.overlaysFileName, NormalisationHelper::GetOverlaysNormalisation(config, 2));
-            inputData.emplace_back(AnalysisHelper::Dirt,    "", config.filesRun2.dirtFileName, NormalisationHelper::GetDirtNormalisation(config, 2));
-            inputData.emplace_back(AnalysisHelper::DataEXT, "", config.filesRun2.dataEXTFileName, NormalisationHelper::GetDataEXTNormalisation(config, 2));
-            inputData.emplace_back(AnalysisHelper::DataBNB, "", config.filesRun2.dataBNBFileName, 1.f);
+            inputData.emplace_back(AnalysisHelper::Overlay, "", config.filesRun2.overlaysFileName, NormalisationHelper::GetOverlaysNormalisationToNuWro(config, 2));
+            // inputData.emplace_back(AnalysisHelper::Dirt,    "", config.filesRun2.dirtFileName, NormalisationHelper::GetDirtNormalisation(config, 2));
+            // inputData.emplace_back(AnalysisHelper::DataEXT, "", config.filesRun2.dataEXTFileName, NormalisationHelper::GetDataEXTNormalisation(config, 2));
+            inputData.emplace_back(AnalysisHelper::DataBNB, "", config.filesRun2.nuWroFileName, 1.f);
         }
         else if(run == 3)
         {
-            inputData.emplace_back(AnalysisHelper::Overlay, "", config.filesRun3.overlaysFileName, NormalisationHelper::GetOverlaysNormalisation(config, 3));
-            inputData.emplace_back(AnalysisHelper::Dirt,    "", config.filesRun3.dirtFileName, NormalisationHelper::GetDirtNormalisation(config, 3));
-            inputData.emplace_back(AnalysisHelper::DataEXT, "", config.filesRun3.dataEXTFileName, NormalisationHelper::GetDataEXTNormalisation(config, 3));
-            inputData.emplace_back(AnalysisHelper::DataBNB, "", config.filesRun3.dataBNBFileName, 1.f);
+            inputData.emplace_back(AnalysisHelper::Overlay, "", config.filesRun3.overlaysFileName, NormalisationHelper::GetOverlaysNormalisationToNuWro(config, 3));
+            // inputData.emplace_back(AnalysisHelper::Dirt,    "", config.filesRun3.dirtFileName, NormalisationHelper::GetDirtNormalisation(config, 3));
+            // inputData.emplace_back(AnalysisHelper::DataEXT, "", config.filesRun3.dataEXTFileName, NormalisationHelper::GetDataEXTNormalisation(config, 3));
+            inputData.emplace_back(AnalysisHelper::DataBNB, "", config.filesRun3.nuWroFileName, 1.f);
 
         }
-        else throw std::logic_error("ExtractSidebandFit - Invalid run number");
+        else throw std::logic_error("ExtractNuWroSidebandFit - Invalid run number");
     }
     // -------------------------------------------------------------------------------------------------------------------------------------
     // -------------------------------------------------------------------------------------------------------------------------------------
@@ -345,7 +345,7 @@ void ExtractSidebandFit(const Config &config)
 
         const auto isOverlay = (sampleType == AnalysisHelper::Overlay);
         const auto isDirt    = (sampleType == AnalysisHelper::Dirt);
-        const auto isDataBNB = (sampleType == AnalysisHelper::DataBNB);
+        const auto isNuWro = (sampleType == AnalysisHelper::DataBNB);
         const auto isDetVar  = (sampleType == AnalysisHelper::DetectorVariation);
 
         // Open the input file for reading and enable the branches with systematic event weights (if required)
@@ -406,9 +406,16 @@ void ExtractSidebandFit(const Config &config)
             std::map<std::string, bool> isSelectedMap = {{"generic",isSelectedSideband},{"golden",isSelectedSideband}};
 
             // -----------------------------------------------------------------------------------------------------------------------------
+            // Work out if this event is signal, and apply any phase-space restrictions based on the input binning
+            // -----------------------------------------------------------------------------------------------------------------------------
+
+            // Get the nominal event weight, scaled by the sample normalisation
+            const auto weight = AnalysisHelper::GetNominalEventWeight(pEvent) * normalisation;
+
+            // -----------------------------------------------------------------------------------------------------------------------------
             // Handle BNB data
             // -----------------------------------------------------------------------------------------------------------------------------
-            if (isDataBNB)
+            if (isNuWro)
             {
                 for (auto &[selectionName, xsecs] : xsecMapSideband)
                 {
@@ -420,7 +427,7 @@ void ExtractSidebandFit(const Config &config)
 
                     for (auto &[name, xsec] : xsecs)
                     {
-                        xsec.AddSelectedBNBDataEvent(getSidebandValue.at(name)(recoData));
+                        xsec.AddWeightedSelectedBNBDataEvent(getSidebandValue.at(name)(recoData), weight);
                     }
                 }
 
@@ -428,15 +435,9 @@ void ExtractSidebandFit(const Config &config)
                 continue;
             }
 
-            // -----------------------------------------------------------------------------------------------------------------------------
-            // Work out if this event is signal, and apply any phase-space restrictions based on the input binning
-            // -----------------------------------------------------------------------------------------------------------------------------
-
-            // Get the nominal event weight, scaled by the sample normalisation
-            const auto weight = AnalysisHelper::GetNominalEventWeight(pEvent) * normalisation;
 
             // Determine if this is truly a CC0Pi event
-            const auto isTrueCC0Pi = (isOverlay || isDetVar) && AnalysisHelper::IsTrueCC0Pi(pEvent, config.global.useAbsPdg, config.global.protonMomentumThreshold);            
+            const auto isTrueCC0Pi = (isOverlay || isDetVar || isNuWro) && AnalysisHelper::IsTrueCC0Pi(pEvent, config.global.useAbsPdg, config.global.protonMomentumThreshold);
 
             // Get the truth analysis data (if available, otherwise set to dummy values)
             const auto truthData = (
@@ -618,7 +619,7 @@ void ExtractSidebandFit(const Config &config)
                 // Fit nominal
                 // -------------------------------------------------------------------------------------------------------------------------------------
 
-                std::cout<<"_______________________ExtractSidebandFit Fitting: "<<selectionName<<" - "<<name<<"_______________________"<<std::endl;
+                std::cout<<"_______________________ExtractNuWroSidebandFit Fitting: "<<selectionName<<" - "<<name<<"_______________________"<<std::endl;
                 // const auto sidebandCVFit = xsec.GetPredictedCrossSection(scalingData);
 
                 // std::cout<<"_______________________Fitting Point 0.1"<<std::endl;
@@ -633,10 +634,10 @@ void ExtractSidebandFit(const Config &config)
                 // std::cout<<"_______________________Fitting Point 0.5"<<std::endl;
                 auto signalData = selectedEventsData - selectedEventsBackgroundReco;
 
-                FormattingHelper::SaveMatrix(selectedEventsSignalTruth, "SidebandFit_" + selectionName + "_" + name + "_selectedEventsSignalTruth.txt");
-                FormattingHelper::SaveMatrix(selectedEventsData, "SidebandFit_" + selectionName + "_" + name + "_selectedEventsData.txt");
-                FormattingHelper::SaveMatrix(selectedEventsBackgroundReco, "SidebandFit_" + selectionName + "_" + name + "_selectedEventsBackgroundReco.txt");
-                FormattingHelper::SaveMatrix(smearingMatrix, "SidebandFit_" + selectionName + "_" + name + "_smearingMatrix.txt");
+                FormattingHelper::SaveMatrix(selectedEventsSignalTruth, "NuWroSidebandFit_" + selectionName + "_" + name + "_selectedEventsSignalTruth.txt");
+                FormattingHelper::SaveMatrix(selectedEventsData, "NuWroSidebandFit_" + selectionName + "_" + name + "_selectedEventsData.txt");
+                FormattingHelper::SaveMatrix(selectedEventsBackgroundReco, "NuWroSidebandFit_" + selectionName + "_" + name + "_selectedEventsBackgroundReco.txt");
+                FormattingHelper::SaveMatrix(smearingMatrix, "NuWroSidebandFit_" + selectionName + "_" + name + "_smearingMatrix.txt");
 
 
                 for(unsigned int r = 0; r<signalData.GetRows(); r++) // DEBUG - TODO: REMOVE !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -676,31 +677,31 @@ void ExtractSidebandFit(const Config &config)
 
                 // std::cout<<"_______________________Fitting Point 3"<<std::endl;
 
-                x = selectedEventsSignalTruth.GetValues();
-                y = signalData.GetValues();
-                errorY = elements;//signalDataUncertainty.GetValues();
-                underflow = false; //xsec.HasUnderflow(); //Also fit under and overflow bins
-                overflow = false; //xsec.HasOverflow();
-                S = smearingMatrix.GetValues();
+                xNuWro = selectedEventsSignalTruth.GetValues();
+                yNuWro = signalData.GetValues();
+                errorYNuWro = elements;//signalDataUncertainty.GetValues();
+                underflowNuWro = false; //xsec.HasUnderflow(); //Also fit under and overflow bins
+                overflowNuWro = false; //xsec.HasOverflow();
+                SNuWro = smearingMatrix.GetValues();
 
-                std::cout<<"\nx (selectedEventsSignalTruth): \n";
-                for (const auto &xValue : x)
+                std::cout<<"\nxNuWro (selectedEventsSignalTruth): \n";
+                for (const auto &xValue : xNuWro)
                     std::cout<<xValue<<" ";
 
-                std::cout<<"\ny (signalData): \n";
-                for (const auto &yValue : y)
+                std::cout<<"\nyNuWro (signalData): \n";
+                for (const auto &yValue : yNuWro)
                     std::cout<<yValue<<" ";
 
-                std::cout<<"\nerrorY (signalDataUncertainty): \n";
-                for (const auto &errorYValue : errorY)
+                std::cout<<"\nerrorYNuWro (signalDataUncertainty): \n";
+                for (const auto &errorYValue : errorYNuWro)
                     std::cout<<errorYValue<<" ";
 
                 std::cout<<"\nSmearing matrix: \n";
-                for(unsigned int i = 0; i<S.size(); i++)
+                for(unsigned int i = 0; i<SNuWro.size(); i++)
                 {
                     if(i%nBins==0)
                         std::cout<<"\n";
-                    std::cout<<S[i]<<" ";
+                    std::cout<<SNuWro[i]<<" ";
                 }
                 
 
@@ -711,7 +712,7 @@ void ExtractSidebandFit(const Config &config)
                 
                 std::vector<float> fitCovMatrixVector;
                 bool successful = false;
-                minimizer.Fit(fcn, result, successful, fitCovMatrixVector, 0);
+                minimizer.Fit(fcnNuWro, result, successful, fitCovMatrixVector, 0);
                 if(!successful)
                 {
                     std::cout<<"ERROR: ExtractXSec - Fit failed."<<std::endl;
@@ -730,7 +731,7 @@ void ExtractSidebandFit(const Config &config)
                 // vector<float> fitCovMatrixFloat(fitCovMatrix.begin(), fitCovMatrix.end()); //Todo avoid this
                 const ubsmear::UBMatrix sidebandCovMatrix(fitCovMatrixVector, nBins, nBins);
                 // std::cout<<"_______________________Fitting Point 4.2"<<std::endl;
-                FormattingHelper::SaveMatrix(sidebandCovMatrix, "SidebandFit_" + selectionName + "_" + name + "_sideband_stat_covariance.txt");
+                FormattingHelper::SaveMatrix(sidebandCovMatrix, "NuWroSidebandFit_" + selectionName + "_" + name + "_sideband_stat_covariance.txt");
                 // std::cout<<"_______________________Fitting Point 4.3"<<std::endl;
                 // std::cout<<"_______________________Fitting Point 4.4"<<std::endl;
                 vector<float> paramVector(result.first.begin(), result.first.end()); //Todo avoid this
@@ -748,10 +749,10 @@ void ExtractSidebandFit(const Config &config)
                 const ubsmear::UBMatrix sidebandErrorVectorTruth(paramErrorVector, nBins, 1);
                 // std::cout<<"_______________________Fitting Point 4.6"<<std::endl;
                 // const auto sidebandErrorVectorReco = smearingMatrixAllSelected*sidebandErrorVectorTruth; // Todo: check this multiplication is correctly computed 
-                FormattingHelper::SaveMatrix(sidebandParamVectorTruth, "SidebandFit_" + selectionName + "_" + name + "_sideband_parameterVector.txt");
-                FormattingHelper::SaveMatrix(sidebandErrorVectorTruth, "SidebandFit_" + selectionName + "_" + name + "_sideband_parameterErrorVector.txt");
+                FormattingHelper::SaveMatrix(sidebandParamVectorTruth, "NuWroSidebandFit_" + selectionName + "_" + name + "_sideband_parameterVector.txt");
+                FormattingHelper::SaveMatrix(sidebandErrorVectorTruth, "NuWroSidebandFit_" + selectionName + "_" + name + "_sideband_parameterErrorVector.txt");
                 // const ubsmear::UBMatrix sidebandCovMatrix(fitCovMatrixVector, nBins, nBins);
-                // FormattingHelper::SaveMatrix(sidebandCovMatrix, "SidebandFit_" + selectionName + "_" + name + "_sideband_covariance_matrix.txt");
+                // FormattingHelper::SaveMatrix(sidebandCovMatrix, "NuWroSidebandFit_" + selectionName + "_" + name + "_sideband_covariance_matrix.txt");
 
                 // std::cout<<"_______________________Fitting Point 5"<<std::endl;
 
@@ -782,7 +783,7 @@ void ExtractSidebandFit(const Config &config)
                         std::vector<paramAndErrorPair> resultVector;
                         for (unsigned int iUni = 0; iUni < nUniverses; ++iUni)
                         {
-                            std::cout<<"++++++++++++++ExtractSidebandFit Fitting: "<<selectionName<<" - "<<name<<" - universe: "<<iUni<<" - group: "<<group<<" - paramName: "<<paramName<<"++++++++++++++"<<std::endl;
+                            std::cout<<"++++++++++++++ExtractNuWroSidebandFit Fitting: "<<selectionName<<" - "<<name<<" - universe: "<<iUni<<" - group: "<<group<<" - paramName: "<<paramName<<"++++++++++++++"<<std::endl;
                             const auto selectedSignalTruthUniverses = xsec.GetSelectedSignalRecoTruthMap().at(group).at(paramName).at(iUni);
                             const auto selectedBackgroundRecoUniverses = xsec.GetSelectedBackgroundRecoMap().at(group).at(paramName).at(iUni);
                             std::pair<std::vector<Double_t>, std::vector<Double_t>> result;
@@ -809,9 +810,9 @@ void ExtractSidebandFit(const Config &config)
                                 }
                                 if(iUni<20)
                                 {
-                                    FormattingHelper::SaveMatrix(selectedSignalTruthInUniverse, "SidebandFit_" + selectionName + "_" + name + "_" + group + "_" + paramName + "_" + std::to_string(iUni) + "_selectedEventsSignalTruth.txt");
-                                    FormattingHelper::SaveMatrix(selectedBackgoundRecoInUniverse, "SidebandFit_" + selectionName + "_" + name + "_" + group + "_" + paramName + "_" + std::to_string(iUni) + "_selectedEventsBackgroundReco.txt");
-                                    FormattingHelper::SaveMatrix(smearingMatrixInUniverse, "SidebandFit_" + selectionName + "_" + name + "_" + group + "_" + paramName + "_" + std::to_string(iUni) + "_smearingMatrix.txt");
+                                    FormattingHelper::SaveMatrix(selectedSignalTruthInUniverse, "NuWroSidebandFit_" + selectionName + "_" + name + "_" + group + "_" + paramName + "_" + std::to_string(iUni) + "_selectedEventsSignalTruth.txt");
+                                    FormattingHelper::SaveMatrix(selectedBackgoundRecoInUniverse, "NuWroSidebandFit_" + selectionName + "_" + name + "_" + group + "_" + paramName + "_" + std::to_string(iUni) + "_selectedEventsBackgroundReco.txt");
+                                    FormattingHelper::SaveMatrix(smearingMatrixInUniverse, "NuWroSidebandFit_" + selectionName + "_" + name + "_" + group + "_" + paramName + "_" + std::to_string(iUni) + "_smearingMatrix.txt");
                                 }
 
                                 
@@ -829,9 +830,9 @@ void ExtractSidebandFit(const Config &config)
                                 //     // elements.push_back(AnalysisHelper::GetCountUncertainty(value));
                                 // }
 
-                                x = selectedSignalTruthInUniverse.GetValues();
-                                y = signalDataInUniverse.GetValues();
-                                S = smearingMatrixInUniverse.GetValues();
+                                xNuWro = selectedSignalTruthInUniverse.GetValues();
+                                yNuWro = signalDataInUniverse.GetValues();
+                                SNuWro = smearingMatrixInUniverse.GetValues();
                                 //overflow variable same as nominal
                                 // errorY = elements;
                                 std::vector<float> covMatrixInUniverse;
@@ -848,22 +849,22 @@ void ExtractSidebandFit(const Config &config)
                                 // for (const auto &errorYValue : errorY)
                                 //     std::cout<<errorYValue<<" ";
                                 bool successful = false;
-                                minimizer.Fit(fcn, result, successful, covMatrixInUniverse, 0);
+                                minimizer.Fit(fcnNuWro, result, successful, covMatrixInUniverse, 0);
                                 if(!successful)
                                 {
                                     std::cout<<"Fit not possible - Did not converge."<<std::endl;
-                                    std::cout<<"Debug x: ";
-                                    for(const auto &v: x)
+                                    std::cout<<"Debug xNuWro: ";
+                                    for(const auto &v: xNuWro)
                                         std::cout<<v<<" ";
                                     std::cout<<std::endl;
 
-                                    std::cout<<"Debug y: ";
-                                    for(const auto &v: y)
+                                    std::cout<<"Debug yNuWro: ";
+                                    for(const auto &v: yNuWro)
                                         std::cout<<v<<" ";
                                     std::cout<<std::endl;
 
-                                    std::cout<<"Debug S: ";
-                                    for(const auto &v: S)
+                                    std::cout<<"Debug SNuWro: ";
+                                    for(const auto &v: SNuWro)
                                         std::cout<<v<<" ";
                                     std::cout<<std::endl;
 
@@ -871,18 +872,18 @@ void ExtractSidebandFit(const Config &config)
                                 } else if(iUni<3)
                                 {
                                     std::cout<<"Fit possible - iUni: "<<iUni<<std::endl;
-                                    std::cout<<"Debug x: ";
-                                    for(const auto &v: x)
+                                    std::cout<<"Debug xNuWro: ";
+                                    for(const auto &v: xNuWro)
                                         std::cout<<v<<" ";
                                     std::cout<<std::endl;
                                     
-                                    std::cout<<"Debug y: ";
-                                    for(const auto &v: y)
+                                    std::cout<<"Debug yNuWro: ";
+                                    for(const auto &v: yNuWro)
                                         std::cout<<v<<" ";
                                     std::cout<<std::endl;
 
-                                    std::cout<<"Debug S: ";
-                                    for(const auto &v: S)
+                                    std::cout<<"Debug SNuWro: ";
+                                    for(const auto &v: SNuWro)
                                         std::cout<<v<<" ";
                                     std::cout<<std::endl;
                                 }
@@ -915,9 +916,9 @@ void ExtractSidebandFit(const Config &config)
         return;
     }
 
-    std::ofstream ofs1("cc0piCovarianceMap.bin", std::ios::binary);
-    std::ofstream ofs2("cc0piNominalConstraintMap.bin", std::ios::binary);
-    std::ofstream ofs3("cc0piUniverseConstraintMap.bin", std::ios::binary);
+    std::ofstream ofs1("cc0piCovarianceMapNuWro.bin", std::ios::binary);
+    std::ofstream ofs2("cc0piNominalConstraintMapNuWro.bin", std::ios::binary);
+    std::ofstream ofs3("cc0piUniverseConstraintMapNuWro.bin", std::ios::binary);
     
 
     boost::archive::binary_oarchive oarch1(ofs1);

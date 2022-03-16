@@ -12,6 +12,7 @@
 #include "ubcc1pi_standalone/Helpers/AnalysisHelper.h"
 #include "ubcc1pi_standalone/Helpers/SelectionHelper.h"
 #include "ubcc1pi_standalone/Helpers/FormattingHelper.h"
+#include "ubcc1pi_standalone/Helpers/NormalisationHelper.h"
 
 using namespace ubcc1pi;
 
@@ -27,10 +28,6 @@ void MakeEventSelectionEfficiencyPlots(const Config &config)
     std::cout << "Making plots for cuts:" << std::endl;
     for (const auto &cut : allCuts)
         std::cout << " - " << cut << std::endl;
-
-    // Read the input file
-    FileReader reader(config.files.overlaysFileName);
-    auto pEvent = reader.GetBoundEventAddress();
 
     // Set up the plots
     const auto drawErrors = config.efficiencyPlots.drawErrors;
@@ -89,109 +86,135 @@ void MakeEventSelectionEfficiencyPlots(const Config &config)
     TH2F *GoldenSel_GoldenPionCosThetaPhi = new TH2F("GoldenSel_GoldenPionCosThetaPhi",";True #pi^{+} cos(theta);True #pi^{+} phi / rad",20,-1,1,15, -TMath::Pi(), TMath::Pi());
     TH2F *GoldenSel_GoldenPionMomentumPhi = new TH2F("GoldenSel_GoldenPionMomentumPhi",";True #pi^{+} Momentum / GeV;True #pi^{+} phi / rad", 20,0,1.5,15, -TMath::Pi(), TMath::Pi());
 
-    // Run the selection
-    const auto nEvents = reader.GetNumberOfEvents();
-    for (unsigned int i = 0; i < nEvents; ++i)
+
+    std::vector< std::tuple<AnalysisHelper::SampleType, std::string, std::string, float> > inputData;
+    for (const auto run: config.global.runs)
     {
-        AnalysisHelper::PrintLoadingBar(i, nEvents);
-        reader.LoadEvent(i);
-
-        // Only care about signal events
-        if (!AnalysisHelper::IsTrueCC1Pi(pEvent, config.global.useAbsPdg))
-            continue;
-
-        // Check which event selection cuts are passed by this event
-        const auto &[isSelected, cutsPassed, assignedPdgCodes] = selection.Execute(pEvent);
-
-        // Get the event weight
-        const auto weight = AnalysisHelper::GetNominalEventWeight(pEvent);
-
-        // Get the features we want to plot
-        const auto analysisData = AnalysisHelper::GetTruthAnalysisData(pEvent->truth, config.global.useAbsPdg, config.global.protonMomentumThreshold);
-
-        // Fill the plots at each step
-        for (unsigned int i = 0; i < allCuts.size(); ++i)
+        if(run == 1)
         {
-            const auto &cut = allCuts.at(i);
-            const auto passedCut = (std::find(cutsPassed.begin(), cutsPassed.end(), cut) != cutsPassed.end());
+            inputData.emplace_back(AnalysisHelper::Overlay, "", config.filesRun1.overlaysFileName, NormalisationHelper::GetOverlaysNormalisation(config, 1));
+        }
+        else if(run == 2)
+        {
+            inputData.emplace_back(AnalysisHelper::Overlay, "", config.filesRun2.overlaysFileName, NormalisationHelper::GetOverlaysNormalisation(config, 2));
+        }
+        else if(run == 3)
+        {
+            inputData.emplace_back(AnalysisHelper::Overlay, "", config.filesRun3.overlaysFileName, NormalisationHelper::GetOverlaysNormalisation(config, 3));
+        }
+        else throw std::logic_error("ExtractSidebandFit - Invalid run number");
+    }
 
-            plot_nuEnergy.AddEvent(pEvent->truth.nuEnergy(), weight, cut, passedCut);
-            plot_nProtons.AddEvent(analysisData.nProtons, weight, cut, passedCut);
-            plot_muMomentum.AddEvent(analysisData.muonMomentum, weight, cut, passedCut);
-            plot_muCosTheta.AddEvent(analysisData.muonCosTheta, weight, cut, passedCut);
-            plot_muPhi.AddEvent(analysisData.muonPhi, weight, cut, passedCut);
-            plot_muPiAngle.AddEvent(analysisData.muonPionAngle, weight, cut, passedCut);
-            plot_piMomentum.AddEvent(analysisData.pionMomentum, weight, cut, passedCut);
-            plot_piCosTheta.AddEvent(analysisData.pionCosTheta, weight, cut, passedCut);
-            plot_piPhi.AddEvent(analysisData.pionPhi, weight, cut, passedCut);
+    for (const auto &[sampleType, sampleName, fileName, normalisation] : inputData)
+    {
+        // Read the input file
+        FileReader reader(fileName);
+        auto pEvent = reader.GetBoundEventAddress();
 
-            if (analysisData.hasGoldenPion)
+        // Run the selection
+        const auto nEvents = reader.GetNumberOfEvents();
+        for (unsigned int i = 0; i < nEvents; ++i)
+        {
+            AnalysisHelper::PrintLoadingBar(i, nEvents);
+            reader.LoadEvent(i);
+
+            // Only care about signal events
+            if (!AnalysisHelper::IsTrueCC1Pi(pEvent, config.global.useAbsPdg))
+                continue;
+
+            // Check which event selection cuts are passed by this event
+            const auto &[isSelected, cutsPassed, assignedPdgCodes] = selection.Execute(pEvent);
+
+            // Get the event weight
+            const auto weight = AnalysisHelper::GetNominalEventWeight(pEvent);//*normalisation;
+
+            // Get the features we want to plot
+            const auto analysisData = AnalysisHelper::GetTruthAnalysisData(pEvent->truth, config.global.useAbsPdg, config.global.protonMomentumThreshold);
+
+            // Fill the plots at each step
+            for (unsigned int i = 0; i < allCuts.size(); ++i)
             {
-                plot_piMomentumGolden.AddEvent(analysisData.pionMomentum, weight, cut, passedCut);
-                plot_piCosThetaGolden.AddEvent(analysisData.pionCosTheta, weight, cut, passedCut);
-                plot_piPhiGolden.AddEvent(analysisData.pionPhi, weight, cut, passedCut);
-            }
+                const auto &cut = allCuts.at(i);
+                const auto passedCut = (std::find(cutsPassed.begin(), cutsPassed.end(), cut) != cutsPassed.end());
 
-            if (pEvent->reco.passesCCInclusive())
-            {
-                plot_ccinc_nuEnergy.AddEvent(pEvent->truth.nuEnergy(), weight, cut, passedCut);
-                plot_ccinc_nProtons.AddEvent(analysisData.nProtons, weight, cut, passedCut);
-                plot_ccinc_muMomentum.AddEvent(analysisData.muonMomentum, weight, cut, passedCut);
-                plot_ccinc_muCosTheta.AddEvent(analysisData.muonCosTheta, weight, cut, passedCut);
-                plot_ccinc_muPhi.AddEvent(analysisData.muonPhi, weight, cut, passedCut);
-                plot_ccinc_muPiAngle.AddEvent(analysisData.muonPionAngle, weight, cut, passedCut);
-                plot_ccinc_piMomentum.AddEvent(analysisData.pionMomentum, weight, cut, passedCut);
-                plot_ccinc_piCosTheta.AddEvent(analysisData.pionCosTheta, weight, cut, passedCut);
-                plot_ccinc_piPhi.AddEvent(analysisData.pionPhi, weight, cut, passedCut);
+                plot_nuEnergy.AddEvent(pEvent->truth.nuEnergy(), weight, cut, passedCut);
+                plot_nProtons.AddEvent(analysisData.nProtons, weight, cut, passedCut);
+                plot_muMomentum.AddEvent(analysisData.muonMomentum, weight, cut, passedCut);
+                plot_muCosTheta.AddEvent(analysisData.muonCosTheta, weight, cut, passedCut);
+                plot_muPhi.AddEvent(analysisData.muonPhi, weight, cut, passedCut);
+                plot_muPiAngle.AddEvent(analysisData.muonPionAngle, weight, cut, passedCut);
+                plot_piMomentum.AddEvent(analysisData.pionMomentum, weight, cut, passedCut);
+                plot_piCosTheta.AddEvent(analysisData.pionCosTheta, weight, cut, passedCut);
+                plot_piPhi.AddEvent(analysisData.pionPhi, weight, cut, passedCut);
 
                 if (analysisData.hasGoldenPion)
                 {
-                    plot_ccinc_piMomentumGolden.AddEvent(analysisData.pionMomentum, weight, cut, passedCut);
-                    plot_ccinc_piCosThetaGolden.AddEvent(analysisData.pionCosTheta, weight, cut, passedCut);
-                    plot_ccinc_piPhiGolden.AddEvent(analysisData.pionPhi, weight, cut, passedCut);
+                    plot_piMomentumGolden.AddEvent(analysisData.pionMomentum, weight, cut, passedCut);
+                    plot_piCosThetaGolden.AddEvent(analysisData.pionCosTheta, weight, cut, passedCut);
+                    plot_piPhiGolden.AddEvent(analysisData.pionPhi, weight, cut, passedCut);
+                }
+
+                if (pEvent->reco.passesCCInclusive())
+                {
+                    plot_ccinc_nuEnergy.AddEvent(pEvent->truth.nuEnergy(), weight, cut, passedCut);
+                    plot_ccinc_nProtons.AddEvent(analysisData.nProtons, weight, cut, passedCut);
+                    plot_ccinc_muMomentum.AddEvent(analysisData.muonMomentum, weight, cut, passedCut);
+                    plot_ccinc_muCosTheta.AddEvent(analysisData.muonCosTheta, weight, cut, passedCut);
+                    plot_ccinc_muPhi.AddEvent(analysisData.muonPhi, weight, cut, passedCut);
+                    plot_ccinc_muPiAngle.AddEvent(analysisData.muonPionAngle, weight, cut, passedCut);
+                    plot_ccinc_piMomentum.AddEvent(analysisData.pionMomentum, weight, cut, passedCut);
+                    plot_ccinc_piCosTheta.AddEvent(analysisData.pionCosTheta, weight, cut, passedCut);
+                    plot_ccinc_piPhi.AddEvent(analysisData.pionPhi, weight, cut, passedCut);
+
+                    if (analysisData.hasGoldenPion)
+                    {
+                        plot_ccinc_piMomentumGolden.AddEvent(analysisData.pionMomentum, weight, cut, passedCut);
+                        plot_ccinc_piCosThetaGolden.AddEvent(analysisData.pionCosTheta, weight, cut, passedCut);
+                        plot_ccinc_piPhiGolden.AddEvent(analysisData.pionPhi, weight, cut, passedCut);
+                    }
                 }
             }
-        }
 
-        const auto passedGenericSelection = (std::find(cutsPassed.begin(), cutsPassed.end(), config.global.lastCutGeneric) != cutsPassed.end());
+            const auto passedGenericSelection = (std::find(cutsPassed.begin(), cutsPassed.end(), config.global.lastCutGeneric) != cutsPassed.end());
 
-        // Fill 2D plots
-        Generated_AllPionMomentumCosTheta->Fill(analysisData.pionMomentum, analysisData.pionCosTheta, weight);
-        Generated_AllPionCosThetaPhi->Fill(analysisData.pionCosTheta, analysisData.pionPhi, weight);
-        Generated_AllPionMomentumPhi->Fill(analysisData.pionMomentum, analysisData.pionPhi, weight);
-
-        if (passedGenericSelection){
-            GenericSel_AllPionMomentumCosTheta->Fill(analysisData.pionMomentum, analysisData.pionCosTheta, weight);
-            GenericSel_AllPionCosThetaPhi->Fill(analysisData.pionCosTheta, analysisData.pionPhi, weight);
-            GenericSel_AllPionMomentumPhi->Fill(analysisData.pionMomentum, analysisData.pionPhi, weight);
-        }
-
-        if (isSelected){
-            GoldenSel_AllPionMomentumCosTheta->Fill(analysisData.pionMomentum, analysisData.pionCosTheta, weight);
-            GoldenSel_AllPionCosThetaPhi->Fill(analysisData.pionCosTheta, analysisData.pionPhi, weight);
-            GoldenSel_AllPionMomentumPhi->Fill(analysisData.pionMomentum, analysisData.pionPhi, weight);
-        }
-
-
-        // Fill efficiency plots for the case that there is a true golden pion
-        if (analysisData.hasGoldenPion){
-            Generated_GoldenPionMomentumCosTheta->Fill(analysisData.pionMomentum, analysisData.pionCosTheta, weight);
-            Generated_GoldenPionCosThetaPhi->Fill(analysisData.pionCosTheta, analysisData.pionPhi, weight);
-            Generated_GoldenPionMomentumPhi->Fill(analysisData.pionMomentum, analysisData.pionPhi, weight);
+            // Fill 2D plots
+            Generated_AllPionMomentumCosTheta->Fill(analysisData.pionMomentum, analysisData.pionCosTheta, weight);
+            Generated_AllPionCosThetaPhi->Fill(analysisData.pionCosTheta, analysisData.pionPhi, weight);
+            Generated_AllPionMomentumPhi->Fill(analysisData.pionMomentum, analysisData.pionPhi, weight);
 
             if (passedGenericSelection){
-                GenericSel_GoldenPionMomentumCosTheta->Fill(analysisData.pionMomentum, analysisData.pionCosTheta, weight);
-                GenericSel_GoldenPionCosThetaPhi->Fill(analysisData.pionCosTheta, analysisData.pionPhi, weight);
-                GenericSel_GoldenPionMomentumPhi->Fill(analysisData.pionMomentum, analysisData.pionPhi, weight);
+                GenericSel_AllPionMomentumCosTheta->Fill(analysisData.pionMomentum, analysisData.pionCosTheta, weight);
+                GenericSel_AllPionCosThetaPhi->Fill(analysisData.pionCosTheta, analysisData.pionPhi, weight);
+                GenericSel_AllPionMomentumPhi->Fill(analysisData.pionMomentum, analysisData.pionPhi, weight);
             }
 
             if (isSelected){
-                GoldenSel_GoldenPionMomentumCosTheta->Fill(analysisData.pionMomentum, analysisData.pionCosTheta, weight);
-                GoldenSel_GoldenPionCosThetaPhi->Fill(analysisData.pionCosTheta, analysisData.pionPhi, weight);
-                GoldenSel_GoldenPionMomentumPhi->Fill(analysisData.pionMomentum, analysisData.pionPhi, weight);
+                GoldenSel_AllPionMomentumCosTheta->Fill(analysisData.pionMomentum, analysisData.pionCosTheta, weight);
+                GoldenSel_AllPionCosThetaPhi->Fill(analysisData.pionCosTheta, analysisData.pionPhi, weight);
+                GoldenSel_AllPionMomentumPhi->Fill(analysisData.pionMomentum, analysisData.pionPhi, weight);
             }
-        }
 
+
+            // Fill efficiency plots for the case that there is a true golden pion
+            if (analysisData.hasGoldenPion){
+                Generated_GoldenPionMomentumCosTheta->Fill(analysisData.pionMomentum, analysisData.pionCosTheta, weight);
+                Generated_GoldenPionCosThetaPhi->Fill(analysisData.pionCosTheta, analysisData.pionPhi, weight);
+                Generated_GoldenPionMomentumPhi->Fill(analysisData.pionMomentum, analysisData.pionPhi, weight);
+
+                if (passedGenericSelection){
+                    GenericSel_GoldenPionMomentumCosTheta->Fill(analysisData.pionMomentum, analysisData.pionCosTheta, weight);
+                    GenericSel_GoldenPionCosThetaPhi->Fill(analysisData.pionCosTheta, analysisData.pionPhi, weight);
+                    GenericSel_GoldenPionMomentumPhi->Fill(analysisData.pionMomentum, analysisData.pionPhi, weight);
+                }
+
+                if (isSelected){
+                    GoldenSel_GoldenPionMomentumCosTheta->Fill(analysisData.pionMomentum, analysisData.pionCosTheta, weight);
+                    GoldenSel_GoldenPionCosThetaPhi->Fill(analysisData.pionCosTheta, analysisData.pionPhi, weight);
+                    GoldenSel_GoldenPionMomentumPhi->Fill(analysisData.pionMomentum, analysisData.pionPhi, weight);
+                }
+            }
+
+        }
     }
 
     plot_nuEnergy.SaveAs("efficiency_nuEnergy");

@@ -12,6 +12,7 @@
 #include "ubcc1pi_standalone/Helpers/AnalysisHelper.h"
 #include "ubcc1pi_standalone/Helpers/FormattingHelper.h"
 #include "ubcc1pi_standalone/Helpers/PlottingHelper.h"
+#include "ubcc1pi_standalone/Helpers/NormalisationHelper.h"
 
 #include <TGraph.h>
 #include <TH2F.h>
@@ -25,49 +26,68 @@ namespace ubcc1pi_macros
 
 void GetCorrelationPlots(const Config &config)
 {
-    // Setup the input file
-    FileReader reader(config.files.overlaysFileName);
-    auto pEvent = reader.GetBoundEventAddress();
-    const auto nEvents = reader.GetNumberOfEvents();
-
+    std::vector< std::tuple<AnalysisHelper::SampleType, std::string, float> > inputData;
+    for (const auto run: config.global.runs)
+    {
+        if(run == 1)
+        {
+            inputData.emplace_back(AnalysisHelper::Overlay, config.filesRun1.overlaysFileName, NormalisationHelper::GetOverlaysNormalisation(config, 1));
+        }
+        else if(run == 2)
+        {
+            inputData.emplace_back(AnalysisHelper::Overlay, config.filesRun2.overlaysFileName, NormalisationHelper::GetOverlaysNormalisation(config, 2));
+        }
+        else if(run == 3)
+        {
+            inputData.emplace_back(AnalysisHelper::Overlay, config.filesRun3.overlaysFileName, NormalisationHelper::GetOverlaysNormalisation(config, 3));
+        }
+        else throw std::logic_error("ExtractSidebandFit - Invalid run number");
+    }
+    
     // Setup the data structures
     std::map<PlottingHelper::PlotStyle, std::map< std::string, std::vector<float> > > typeToFeatureNameToValuesMap;
-
     // Get the feature names
     const auto featureNames = BDTHelper::ParticleBDTFeatureNames;
     const auto nFeatures = featureNames.size();
-
-    // Extract the values of the features
-    for (unsigned int eventIndex = 0; eventIndex < nEvents; ++eventIndex)
+    for (const auto &[sampleType, fileName, normalisation] : inputData)
     {
-        AnalysisHelper::PrintLoadingBar(eventIndex, nEvents);
-        reader.LoadEvent(eventIndex);
+        // Open the file
+        FileReader reader(fileName);
+        auto pEvent = reader.GetBoundEventAddress();
+        const auto nEvents = reader.GetNumberOfEvents();
 
-        // Event must be true CC1Pi
-        if (!AnalysisHelper::IsTrueCC1Pi(pEvent, config.global.useAbsPdg))
-            continue;
-
-        // Event must pass the CCInclusive selection
-        if (!pEvent->reco.passesCCInclusive())
-            continue;
-
-        for (const auto &particle : pEvent->reco.particles)
+        // Extract the values of the features
+        for (unsigned int eventIndex = 0; eventIndex < nEvents; ++eventIndex)
         {
-            // Find the MC origin of this reco particle
-            const auto style = PlottingHelper::GetPlotStyle(particle, AnalysisHelper::Overlay, pEvent->truth.particles, false, config.global.useAbsPdg);
+            AnalysisHelper::PrintLoadingBar(eventIndex, nEvents);
+            reader.LoadEvent(eventIndex);
 
-            // Get the BDT features if available
-            std::vector<float> features;
-            if (!BDTHelper::GetBDTFeatures(particle, featureNames, features))
+            // Event must be true CC1Pi
+            if (!AnalysisHelper::IsTrueCC1Pi(pEvent, config.global.useAbsPdg))
                 continue;
 
-            for (unsigned int iFeature = 0; iFeature < nFeatures; ++iFeature)
-            {
-                const auto featureName = featureNames.at(iFeature);
-                const auto value = features.at(iFeature);
+            // Event must pass the CCInclusive selection
+            if (!pEvent->reco.passesCCInclusive())
+                continue;
 
-                // Store this value in the map
-                typeToFeatureNameToValuesMap[style][featureName].push_back(value);
+            for (const auto &particle : pEvent->reco.particles)
+            {
+                // Find the MC origin of this reco particle
+                const auto style = PlottingHelper::GetPlotStyle(particle, AnalysisHelper::Overlay, pEvent->truth.particles, false, config.global.useAbsPdg);
+
+                // Get the BDT features if available
+                std::vector<float> features;
+                if (!BDTHelper::GetBDTFeatures(particle, featureNames, features))
+                    continue;
+
+                for (unsigned int iFeature = 0; iFeature < nFeatures; ++iFeature)
+                {
+                    const auto featureName = featureNames.at(iFeature);
+                    const auto value = features.at(iFeature);
+
+                    // Store this value in the map
+                    typeToFeatureNameToValuesMap[style][featureName].push_back(value);
+                }
             }
         }
     }

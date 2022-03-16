@@ -11,6 +11,7 @@
 #include "ubcc1pi_standalone/Helpers/AnalysisHelper.h"
 #include "ubcc1pi_standalone/Helpers/FormattingHelper.h"
 #include "ubcc1pi_standalone/Helpers/PlottingHelper.h"
+#include "ubcc1pi_standalone/Helpers/NormalisationHelper.h"
 
 #include <string>
 #include <vector>
@@ -24,11 +25,6 @@ namespace ubcc1pi_macros
 
 void CCInclusiveMuonPIDStudy(const Config &config)
 {
-    // Open the file
-    FileReader reader(config.files.overlaysFileName);
-    auto pEvent = reader.GetBoundEventAddress();
-    const auto nEvents = reader.GetNumberOfEvents();
-
     // Setup the plots
     const std::string yLabel = "Fraction of events";
     PlottingHelper::MultiPlot momentumPlot("True muon momentum / GeV", yLabel, 40u, 0.f, 1.5f);
@@ -38,56 +34,82 @@ void CCInclusiveMuonPIDStudy(const Config &config)
     std::map<PlottingHelper::PlotStyle, float> trueParticleTypeToCountMap;
     float totalWeight = 0.f;
 
-    // Loop over the events
-    for (unsigned int i = 0; i < nEvents; ++i)
+    std::vector< std::tuple<AnalysisHelper::SampleType, std::string, std::string, float> > inputData;
+    for (const auto run: config.global.runs)
     {
-        AnalysisHelper::PrintLoadingBar(i, nEvents);
-        reader.LoadEvent(i);
-
-        // Only consider true CC1pi events
-        if (!AnalysisHelper::IsTrueCC1Pi(pEvent, config.global.useAbsPdg))
-            continue;
-
-        // Only consider events that pass the CC inclusive filter
-        if (!pEvent->reco.passesCCInclusive())
-            continue;
-
-        const auto weight = AnalysisHelper::GetNominalEventWeight(pEvent);
-        const auto analysisData = AnalysisHelper::GetTruthAnalysisData(pEvent->truth, config.global.useAbsPdg, config.global.protonMomentumThreshold);
-
-        // Find the CC inclusive muon candidate
-        bool foundCCInclusiveMuonCandidate = false;
-        for (const auto &particle : pEvent->reco.particles)
+        if(run == 1)
         {
-            if (!particle.isCCInclusiveMuonCandidate())
+            inputData.emplace_back(AnalysisHelper::Overlay, "", config.filesRun1.overlaysFileName, NormalisationHelper::GetOverlaysNormalisation(config, 1));
+        }
+        else if(run == 2)
+        {
+            inputData.emplace_back(AnalysisHelper::Overlay, "", config.filesRun2.overlaysFileName, NormalisationHelper::GetOverlaysNormalisation(config, 2));
+        }
+        else if(run == 3)
+        {
+            inputData.emplace_back(AnalysisHelper::Overlay, "", config.filesRun3.overlaysFileName, NormalisationHelper::GetOverlaysNormalisation(config, 3));
+        }
+        else throw std::logic_error("ExtractSidebandFit - Invalid run number");
+    }
+
+    for (const auto &[sampleType, sampleName, fileName, normalisation] : inputData)
+    {
+        // Open the file
+        FileReader reader(fileName);
+        auto pEvent = reader.GetBoundEventAddress();
+        const auto nEvents = reader.GetNumberOfEvents();
+        
+        // Loop over the events
+        for (unsigned int i = 0; i < nEvents; ++i)
+        {
+            AnalysisHelper::PrintLoadingBar(i, nEvents);
+            reader.LoadEvent(i);
+
+            // Only consider true CC1pi events
+            if (!AnalysisHelper::IsTrueCC1Pi(pEvent, config.global.useAbsPdg))
                 continue;
 
-            foundCCInclusiveMuonCandidate = true;
+            // Only consider events that pass the CC inclusive filter
+            if (!pEvent->reco.passesCCInclusive())
+                continue;
 
-            // Get the plotting style based on the best matched MC particle (if it exists)
-            const auto style = PlottingHelper::GetPlotStyle(particle, AnalysisHelper::Overlay, pEvent->truth.particles, false, config.global.useAbsPdg);
+            const auto weight = AnalysisHelper::GetNominalEventWeight(pEvent);//*normalisation;
+            const auto analysisData = AnalysisHelper::GetTruthAnalysisData(pEvent->truth, config.global.useAbsPdg, config.global.protonMomentumThreshold);
 
-            auto iter = trueParticleTypeToCountMap.find(style);
-            if (iter == trueParticleTypeToCountMap.end())
+            // Find the CC inclusive muon candidate
+            bool foundCCInclusiveMuonCandidate = false;
+            for (const auto &particle : pEvent->reco.particles)
             {
-                trueParticleTypeToCountMap.emplace(style, weight);
+                if (!particle.isCCInclusiveMuonCandidate())
+                    continue;
+
+                foundCCInclusiveMuonCandidate = true;
+
+                // Get the plotting style based on the best matched MC particle (if it exists)
+                const auto style = PlottingHelper::GetPlotStyle(particle, AnalysisHelper::Overlay, pEvent->truth.particles, false, config.global.useAbsPdg);
+
+                auto iter = trueParticleTypeToCountMap.find(style);
+                if (iter == trueParticleTypeToCountMap.end())
+                {
+                    trueParticleTypeToCountMap.emplace(style, weight);
+                }
+                else
+                {
+                    iter->second += weight;
+                }
+
+                totalWeight += weight;
+
+                // Fill the plots
+                momentumPlot.Fill(analysisData.muonMomentum, style, weight);
+                cosThetaPlot.Fill(analysisData.muonCosTheta, style, weight);
+
+                break;
             }
-            else
-            {
-                iter->second += weight;
-            }
 
-            totalWeight += weight;
-
-            // Fill the plots
-            momentumPlot.Fill(analysisData.muonMomentum, style, weight);
-            cosThetaPlot.Fill(analysisData.muonCosTheta, style, weight);
-
-            break;
+            if (!foundCCInclusiveMuonCandidate)
+                throw std::logic_error("CCInclusiveMuonPIDStudy - no muon candidate found");
         }
-
-        if (!foundCCInclusiveMuonCandidate)
-            throw std::logic_error("CCInclusiveMuonPIDStudy - no muon candidate found");
     }
 
     // Draw and save

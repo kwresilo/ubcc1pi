@@ -20,17 +20,56 @@ void CountPOT(const Config &config)
     // Get the input file names
     std::vector<std::string> fileNames;
 
-    if (config.countPOT.useOverlays)
-        fileNames.push_back(config.filesRun1.overlaysFileName);
-
-    if (config.countPOT.useDirt)
-        fileNames.push_back(config.filesRun1.dirtFileName);
-
-    if (config.countPOT.useDetectorVariations)
+    for (const auto run: config.global.runs)
     {
-        for (const auto &[name, fileName] : config.filesRun1.detVarFiles)
+        switch (run)
         {
-            fileNames.push_back(fileName);
+            case 1: 
+            {
+                if (config.countPOT.useOverlays) fileNames.push_back(config.filesRun1.overlaysFileName);
+                if (config.countPOT.useDirt) fileNames.push_back(config.filesRun1.dirtFileName);
+                if (config.countPOT.useNuWro) fileNames.push_back(config.filesRun1.nuWroFileName);
+                if (config.countPOT.useDetectorVariations)
+                {
+                    for (const auto &[name, fileName] : config.filesRun1.detVarFiles)
+                    {
+                        fileNames.push_back(fileName);
+                    }
+                }
+                break;
+            }
+            case 2:
+            { 
+                if (config.countPOT.useOverlays) fileNames.push_back(config.filesRun2.overlaysFileName);
+                if (config.countPOT.useDirt) fileNames.push_back(config.filesRun2.dirtFileName);
+                if (config.countPOT.useNuWro) fileNames.push_back(config.filesRun2.nuWroFileName);
+                if (config.countPOT.useDetectorVariations)
+                {
+                    for (const auto &[name, fileName] : config.filesRun2.detVarFiles)
+                    {
+                        fileNames.push_back(fileName);
+                    }
+                }
+                break;
+            }
+            case 3:
+            { 
+                if (config.countPOT.useOverlays) fileNames.push_back(config.filesRun3.overlaysFileName);
+                if (config.countPOT.useDirt) fileNames.push_back(config.filesRun3.dirtFileName);
+                if (config.countPOT.useNuWro) fileNames.push_back(config.filesRun3.nuWroFileName);
+                if (config.countPOT.useDetectorVariations)
+                {
+                    for (const auto &[name, fileName] : config.filesRun3.detVarFiles)
+                    {
+                        fileNames.push_back(fileName);
+                    }
+                }
+                break;
+            }        
+            default:
+            {
+                throw std::logic_error("TrainBDTs - Invalid run number");
+            }
         }
     }
 

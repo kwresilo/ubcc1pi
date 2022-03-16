@@ -26,6 +26,16 @@ namespace ubcc1pi
              */
             static float GetOverlaysNormalisation(const Config &config, const unsigned int run);
 
+            public:
+            /**
+             *  @brief  Get the normalisation factor for the overlays to the NuWro events
+             *
+             *  @param  config the input configuration
+             *
+             *  @return the normalisation factor
+             */
+            static float GetOverlaysNormalisationToNuWro(const Config &config, const unsigned int run);
+
             /**
              *  @brief  Get the normalisation factor for the dirt
              *
@@ -53,6 +63,16 @@ namespace ubcc1pi
              *  @return the normalisation factor
              */
             static float GetDetectorVariationNormalisation(const Config &config, const std::string &paramName, const unsigned int run);
+
+            /**
+             *  @brief  Get the normalisation factor for a detector variation file to the NuWro events
+             *
+             *  @param  config the input configuration
+             *  @param  paramName the varied detector parmater or central value sample name
+             *
+             *  @return the normalisation factor
+             */
+            static float GetDetectorVariationNormalisationToNuWro(const Config &config, const std::string &paramName, const unsigned int run);
     };
 
 } // namespace ubcc1pi

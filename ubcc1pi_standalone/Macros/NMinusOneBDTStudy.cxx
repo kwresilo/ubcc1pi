@@ -11,6 +11,7 @@
 #include "ubcc1pi_standalone/Helpers/BDTHelper.h"
 #include "ubcc1pi_standalone/Helpers/AnalysisHelper.h"
 #include "ubcc1pi_standalone/Helpers/FormattingHelper.h"
+#include "ubcc1pi_standalone/Helpers/NormalisationHelper.h"
 
 #include <TGraph.h>
 #include <TLine.h>
@@ -26,28 +27,49 @@ void NMinusOneBDTStudy(const Config &config)
     // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     // Extract the CC1Pi events that pass the pre-selection
     // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    FileReader reader(config.files.overlaysFileName);
-    auto pEvent = reader.GetBoundEventAddress();
-
     std::cout << "Finding CC1Pi events" << std::endl;
-    std::vector<unsigned int> cc1PiEventIndices;
 
-    for (unsigned int eventIndex = 0, nEvents = reader.GetNumberOfEvents(); eventIndex < nEvents; ++eventIndex)
+    std::vector< std::tuple<AnalysisHelper::SampleType, unsigned int, std::string, float> > inputData;
+    for (const auto run: config.global.runs)
     {
-        AnalysisHelper::PrintLoadingBar(eventIndex, nEvents);
-        reader.LoadEvent(eventIndex);
-
-        // Event must be true CC1Pi
-        if (!AnalysisHelper::IsTrueCC1Pi(pEvent, config.global.useAbsPdg))
-            continue;
-
-        // Event must pass the CCInclusive selection
-        if (!pEvent->reco.passesCCInclusive())
-            continue;
-
-        cc1PiEventIndices.push_back(eventIndex);
+        if(run == 1)
+        {
+            inputData.emplace_back(AnalysisHelper::Overlay, 1, config.filesRun1.overlaysFileName, NormalisationHelper::GetOverlaysNormalisation(config, 1));
+        }
+        else if(run == 2)
+        {
+            inputData.emplace_back(AnalysisHelper::Overlay, 2, config.filesRun2.overlaysFileName, NormalisationHelper::GetOverlaysNormalisation(config, 2));
+        }
+        else if(run == 3)
+        {
+            inputData.emplace_back(AnalysisHelper::Overlay, 3, config.filesRun3.overlaysFileName, NormalisationHelper::GetOverlaysNormalisation(config, 3));
+        }
+        else throw std::logic_error("ExtractSidebandFit - Invalid run number");
     }
 
+    std::cout << "Finding CC1Pi events" << std::endl;
+    std::vector<std::pair<unsigned int, unsigned int>> cc1PiEventIndices;
+    for (const auto &[sampleType, sampleRun, fileName, normalisation] : inputData)
+    {
+        // Read the input file
+        FileReader reader(fileName);
+        auto pEvent = reader.GetBoundEventAddress();
+        for (unsigned int eventIndex = 0, nEvents = reader.GetNumberOfEvents(); eventIndex < nEvents; ++eventIndex)
+        {
+            AnalysisHelper::PrintLoadingBar(eventIndex, nEvents);
+            reader.LoadEvent(eventIndex);
+
+            // Event must be true CC1Pi
+            if (!AnalysisHelper::IsTrueCC1Pi(pEvent, config.global.useAbsPdg))
+                continue;
+
+            // Event must pass the CCInclusive selection
+            if (!pEvent->reco.passesCCInclusive())
+                continue;
+
+            cc1PiEventIndices.emplace_back(sampleRun, eventIndex);
+        }
+    }
     // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     // Randomly choose the training events
     // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -119,80 +141,88 @@ void NMinusOneBDTStudy(const Config &config)
 
         // Fill the BDT factories with training examples
         std::cout << "Filling the BDT entries" << std::endl;
-        for (unsigned int i = 0; i < nCC1PiEvents; ++i)
+        for (const auto &[sampleType, sampleRun, fileName, normalisation] : inputData)
         {
-            AnalysisHelper::PrintLoadingBar(i, nCC1PiEvents);
-
-            const auto eventIndex = cc1PiEventIndices.at(i);
-            const auto isTrainingEvent = shuffler.IsTrainingEvent(i);
-            reader.LoadEvent(eventIndex);
-
-            const auto truthParticles = pEvent->truth.particles;
-            const auto recoParticles = pEvent->reco.particles;
-            const float eventWeight = AnalysisHelper::GetNominalEventWeight(pEvent);
-
-            for (const auto &recoParticle : recoParticles)
+            // Read the input file
+            FileReader reader(fileName);
+            auto pEvent = reader.GetBoundEventAddress();
+            for (unsigned int i = 0; i < nCC1PiEvents; ++i)
             {
-                // Only use contained particles for training
-                if (!AnalysisHelper::HasTrackFit(recoParticle) || !AnalysisHelper::IsContained(recoParticle))
-                    continue;
+                const auto run = cc1PiEventIndices.at(i).first;
+                if(sampleRun != run) continue;
+        
+                AnalysisHelper::PrintLoadingBar(i, nCC1PiEvents);
+                const auto eventIndex = cc1PiEventIndices.at(i).second;
+                const auto isTrainingEvent = shuffler.IsTrainingEvent(i);
+                reader.LoadEvent(eventIndex);
 
-                // Determine the true origin of the reco particle
-                bool isExternal = true;
-                int truePdgCode = -std::numeric_limits<int>::max();
-                bool trueIsGolden = false;
-                float completeness = -std::numeric_limits<float>::max();
+                const auto truthParticles = pEvent->truth.particles;
+                const auto recoParticles = pEvent->reco.particles;
+                const float eventWeight = AnalysisHelper::GetNominalEventWeight(pEvent)*normalisation;
 
-                try
+                for (const auto &recoParticle : recoParticles)
                 {
-                    const auto truthParticleIndex = AnalysisHelper::GetBestMatchedTruthParticleIndex(recoParticle, truthParticles);
-                    const auto truthParticle = truthParticles.at(truthParticleIndex);
-
-                    isExternal = false;
-                    truePdgCode = config.global.useAbsPdg ? std::abs(truthParticle.pdgCode()) : truthParticle.pdgCode();
-                    trueIsGolden = AnalysisHelper::IsGolden(truthParticle);
-                    completeness = recoParticle.truthMatchCompletenesses().at(truthParticleIndex);
-                }
-                catch (const std::exception &) {}
-
-                // Only use good matches for training
-                if (config.trainBDTs.onlyGoodTruthMatches && (isExternal || completeness < 0.5f))
-                    continue;
-
-                // Define the weight
-                const auto weight = eventWeight * (config.trainBDTs.weightByCompleteness ? (isExternal ? 1.f : completeness) : 1.f);
-
-                bool isSignal = false;
-                switch (config.nMinusOneBDTStudy.signalType)
-                {
-                    case PlottingHelper::Muon:
-                        isSignal = !isExternal && truePdgCode == 13;
-                        break;
-                    case PlottingHelper::Proton:
-                        isSignal = !isExternal && truePdgCode == 2212;
-                        break;
-                    case PlottingHelper::GoldenPion:
-                        isSignal = !isExternal && truePdgCode == 211 && trueIsGolden;
-                        break;
-                    default:
-                        throw std::invalid_argument("NMinusOneBDTStudy - Input signal type must be: proton, muon or golden pion");
-                }
-
-                // Fill the BDTs
-                for (unsigned int iBDT = 0; iBDT < reducedFeatureNames.size(); ++iBDT)
-                {
-                    const auto &usedFeatureNames = reducedFeatureNames.at(iBDT);
-
-                    // Extract the features
-                    std::vector<float> features;
-                    const auto areAllFeaturesAvailable = BDTHelper::GetBDTFeatures(recoParticle, usedFeatureNames, features);
-
-                    // Only use particles with all features available
-                    if (!areAllFeaturesAvailable)
+                    // Only use contained particles for training
+                    if (!AnalysisHelper::HasTrackFit(recoParticle) || !AnalysisHelper::IsContained(recoParticle))
                         continue;
 
-                    // Add the particle to the BDT
-                    bdtFactoryVector.at(iBDT).AddEntry(features, isSignal, isTrainingEvent, weight);
+                    // Determine the true origin of the reco particle
+                    bool isExternal = true;
+                    int truePdgCode = -std::numeric_limits<int>::max();
+                    bool trueIsGolden = false;
+                    float completeness = -std::numeric_limits<float>::max();
+
+                    try
+                    {
+                        const auto truthParticleIndex = AnalysisHelper::GetBestMatchedTruthParticleIndex(recoParticle, truthParticles);
+                        const auto truthParticle = truthParticles.at(truthParticleIndex);
+
+                        isExternal = false;
+                        truePdgCode = config.global.useAbsPdg ? std::abs(truthParticle.pdgCode()) : truthParticle.pdgCode();
+                        trueIsGolden = AnalysisHelper::IsGolden(truthParticle);
+                        completeness = recoParticle.truthMatchCompletenesses().at(truthParticleIndex);
+                    }
+                    catch (const std::exception &) {}
+
+                    // Only use good matches for training
+                    if (config.trainBDTs.onlyGoodTruthMatches && (isExternal || completeness < 0.5f))
+                        continue;
+
+                    // Define the weight
+                    const auto weight = eventWeight * (config.trainBDTs.weightByCompleteness ? (isExternal ? 1.f : completeness) : 1.f);
+
+                    bool isSignal = false;
+                    switch (config.nMinusOneBDTStudy.signalType)
+                    {
+                        case PlottingHelper::Muon:
+                            isSignal = !isExternal && truePdgCode == 13;
+                            break;
+                        case PlottingHelper::Proton:
+                            isSignal = !isExternal && truePdgCode == 2212;
+                            break;
+                        case PlottingHelper::GoldenPion:
+                            isSignal = !isExternal && truePdgCode == 211 && trueIsGolden;
+                            break;
+                        default:
+                            throw std::invalid_argument("NMinusOneBDTStudy - Input signal type must be: proton, muon or golden pion");
+                    }
+
+                    // Fill the BDTs
+                    for (unsigned int iBDT = 0; iBDT < reducedFeatureNames.size(); ++iBDT)
+                    {
+                        const auto &usedFeatureNames = reducedFeatureNames.at(iBDT);
+
+                        // Extract the features
+                        std::vector<float> features;
+                        const auto areAllFeaturesAvailable = BDTHelper::GetBDTFeatures(recoParticle, usedFeatureNames, features);
+
+                        // Only use particles with all features available
+                        if (!areAllFeaturesAvailable)
+                            continue;
+
+                        // Add the particle to the BDT
+                        bdtFactoryVector.at(iBDT).AddEntry(features, isSignal, isTrainingEvent, weight);
+                    }
                 }
             }
         }
@@ -224,51 +254,61 @@ void NMinusOneBDTStudy(const Config &config)
     // Setup the structure to hold the data
     BDTHelper::BDTResponseMap bdtResponseMap;
 
-    // Now test the BDTs
-    for (unsigned int i = 0; i < nCC1PiEvents; ++i)
+    for (const auto &[sampleType, sampleRun, fileName, normalisation] : inputData)
     {
-        AnalysisHelper::PrintLoadingBar(i, nCC1PiEvents);
+        // Read the input file
+        FileReader reader(fileName);
+        auto pEvent = reader.GetBoundEventAddress();
 
-        const auto eventIndex = cc1PiEventIndices.at(i);
-        const auto isTrainingEvent = shuffler.IsTrainingEvent(i);
-        if (isTrainingEvent)
-            continue;
-
-        reader.LoadEvent(eventIndex);
-
-        const auto truthParticles = pEvent->truth.particles;
-        const auto recoParticles = pEvent->reco.particles;
-        const float eventWeight = AnalysisHelper::GetNominalEventWeight(pEvent);
-
-        for (const auto &recoParticle : recoParticles)
+        // Now test the BDTs
+        for (unsigned int i = 0; i < nCC1PiEvents; ++i)
         {
-            // Only use contained particles for testing
-            if (!AnalysisHelper::HasTrackFit(recoParticle) || !AnalysisHelper::IsContained(recoParticle))
+            const auto run = cc1PiEventIndices.at(i).first;
+            if(sampleRun != run) continue;
+
+            AnalysisHelper::PrintLoadingBar(i, nCC1PiEvents);
+
+            const auto eventIndex = cc1PiEventIndices.at(i).second;
+            const auto isTrainingEvent = shuffler.IsTrainingEvent(i);
+            if (isTrainingEvent)
                 continue;
 
-            // Find the MC origin of this reco particle
-            const auto particleType = PlottingHelper::GetPlotStyle(recoParticle, AnalysisHelper::Overlay, truthParticles, false, config.global.useAbsPdg);
+            reader.LoadEvent(eventIndex);
 
-            // Loop over all BDTs
-            for (unsigned int iBDT = 0; iBDT < reducedFeatureNames.size(); ++iBDT)
+            const auto truthParticles = pEvent->truth.particles;
+            const auto recoParticles = pEvent->reco.particles;
+            const float eventWeight = AnalysisHelper::GetNominalEventWeight(pEvent)*normalisation;
+
+            for (const auto &recoParticle : recoParticles)
             {
-                const auto missingFeature = (iBDT < config.nMinusOneBDTStudy.featureNames.size()) ? config.nMinusOneBDTStudy.featureNames.at(iBDT) : "none";
-                const auto &usedFeatureNames = reducedFeatureNames.at(iBDT);
-
-                // Get the features if they are available
-                std::vector<float> features;
-                if (!BDTHelper::GetBDTFeatures(recoParticle, usedFeatureNames, features))
+                // Only use contained particles for testing
+                if (!AnalysisHelper::HasTrackFit(recoParticle) || !AnalysisHelper::IsContained(recoParticle))
                     continue;
 
-                // Get the BDT responses
-                const auto bdtResponse = bdtVector.at(iBDT).GetResponse(features);
+                // Find the MC origin of this reco particle
+                const auto particleType = PlottingHelper::GetPlotStyle(recoParticle, AnalysisHelper::Overlay, truthParticles, false, config.global.useAbsPdg);
 
-                // Store the result
-                bdtResponseMap[missingFeature][particleType].emplace_back(bdtResponse, eventWeight);
+                // Loop over all BDTs
+                for (unsigned int iBDT = 0; iBDT < reducedFeatureNames.size(); ++iBDT)
+                {
+                    const auto missingFeature = (iBDT < config.nMinusOneBDTStudy.featureNames.size()) ? config.nMinusOneBDTStudy.featureNames.at(iBDT) : "none";
+                    const auto &usedFeatureNames = reducedFeatureNames.at(iBDT);
 
-                // Add to the special category that sums all backgrounds
-                if (particleType != config.nMinusOneBDTStudy.signalType)
-                    bdtResponseMap[missingFeature][PlottingHelper::Other].emplace_back(bdtResponse, eventWeight);
+                    // Get the features if they are available
+                    std::vector<float> features;
+                    if (!BDTHelper::GetBDTFeatures(recoParticle, usedFeatureNames, features))
+                        continue;
+
+                    // Get the BDT responses
+                    const auto bdtResponse = bdtVector.at(iBDT).GetResponse(features);
+
+                    // Store the result
+                    bdtResponseMap[missingFeature][particleType].emplace_back(bdtResponse, eventWeight);
+
+                    // Add to the special category that sums all backgrounds
+                    if (particleType != config.nMinusOneBDTStudy.signalType)
+                        bdtResponseMap[missingFeature][PlottingHelper::Other].emplace_back(bdtResponse, eventWeight);
+                }
             }
         }
     }

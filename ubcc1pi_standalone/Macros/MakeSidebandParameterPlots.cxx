@@ -29,6 +29,7 @@ namespace ubcc1pi_macros
 
 void MakeSidebandParameterPlots(const Config &config)
 {
+    std::cout<<"MakeSidebandParameterPlots - Point 0"<<std::endl;
     // -------------------------------------------------------------------------------------------------------------------------------------
     // Setup an object that holds the details of the systematic parameters to apply
     // -------------------------------------------------------------------------------------------------------------------------------------
@@ -48,6 +49,7 @@ void MakeSidebandParameterPlots(const Config &config)
     // Get the binning of each cross-section
     // -------------------------------------------------------------------------------------------------------------------------------------
     std::map<std::string, ubsmear::UBXSecMeta> metadataMap;
+    std::cout<<"MakeSidebandParameterPlots - Point 1"<<std::endl;
 
     for (const auto &[name, binning, scaleByBinWidth] : std::vector< std::tuple<std::string, Config::Global::Binning, bool> > {
 
@@ -75,7 +77,7 @@ void MakeSidebandParameterPlots(const Config &config)
 
     // Add the dummy metadata for the total cross-section (see ExtractXSecs for more details)
     metadataMap.emplace("total", ubsmear::UBXSecMeta({-1.f, 1.f}, false, false, false));
-
+    std::cout<<"MakeSidebandParameterPlots - Point 2"<<std::endl;
     // // -------------------------------------------------------------------------------------------------------------------------------------
     // // Get the sideband weights
     // // -------------------------------------------------------------------------------------------------------------------------------------

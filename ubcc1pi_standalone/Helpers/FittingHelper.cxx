@@ -14,11 +14,11 @@ namespace ubcc1pi
 FittingHelper::FittingHelper(const Int_t binNumber) :
     nBins(binNumber){}
 
-void FittingHelper::Fit(void(*fcn)(Int_t &, Double_t *, Double_t &f, Double_t *, Int_t), std::pair<std::vector<Double_t>, std::vector<Double_t>> &result, std::vector<float> &covMatrix, const int printlevel)
+void FittingHelper::Fit(void(*fcn)(Int_t &, Double_t *, Double_t &f, Double_t *, Int_t), std::pair<std::vector<Double_t>, std::vector<Double_t>> &result, bool &successful, std::vector<float> &covMatrix, const int printlevel)
 {
     // if(smearingMatrix.IsSquare() && truthRecoMatrix.GetRows() == data.GetRows() && data.GetRows()==dataStatUncertainty.GetRows() && data.GetColumns()==dataStatUncertainty.GetColumns())
     //     throw std::logic_error("FittingHelper::Fit - Incompatible input dimenstions.");
-
+    successful = true;
     // auto nBins = x.GetRows();
     TMinuit minuit(nBins);
     minuit.SetPrintLevel(printlevel);
@@ -34,11 +34,11 @@ void FittingHelper::Fit(void(*fcn)(Int_t &, Double_t *, Double_t &f, Double_t *,
     // Set starting values and step sizes for parameters
     for (Int_t iBin=0; iBin<nBins; iBin++)
     {
-        minuit.mnparm(iBin, std::to_string(iBin), 1.0, 0.5, 0.0, 9999.0, ierflg);
+        minuit.mnparm(iBin, std::to_string(iBin), 1.0, 0.2, 0.0, 9999.0, ierflg);
     }
 
     arglist[0]=5000;
-    arglist[1]=0.01;
+    arglist[1]=0.1;
     minuit.mnexcm("MIGRAD", arglist,2,ierflg);
     if(ierflg!=0)
     {
@@ -53,7 +53,18 @@ void FittingHelper::Fit(void(*fcn)(Int_t &, Double_t *, Double_t &f, Double_t *,
         //     }
         // }
         // result = std::make_pair(std::vector<Double_t>(nBins, 1.0), std::vector<Double_t>(nBins, 1.0));
-        // return;
+        successful = false;
+
+        std::vector<Double_t>paramVector, paramErrorVector;
+        for (Int_t iBin=0; iBin<nBins; iBin++)
+        {
+            Double_t param, paramError;
+            minuit.GetParameter(iBin, param, paramError);
+            std::cout<<"FittingHelper::Fit Unsuccessful - Parameter "<<iBin<<" = "<<param<<" +/- "<<paramError<<std::endl;
+        }
+ 
+        return;
+        std::cout<<"FittingHelper::Fit - Did not converge. DEBUG After"<<std::endl;
         
         // throw std::logic_error("FittingHelper::Fit - Did not converge. Execution failed with ierflg: "+std::to_string(ierflg));
     }

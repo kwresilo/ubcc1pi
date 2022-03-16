@@ -16,7 +16,7 @@
 <!ENTITY projectName     "ubcc1pi">
 <!ENTITY dataTier        "ana">
 <!ENTITY schema          "root">    <!-- Can also use gsiftp which is less efficiency but usually more stable, you may need to request extra resources -->
-<!ENTITY jobsub           "--expected-lifetime=8h --append_condor_requirements='(TARGET.HAS_CVMFS_uboone_osgstorage_org==true)' -e XRD_LOADBALANCERTTL=7200 -e XRD_CONNECTIONRETRY=32 -e XRD_REQUESTTIMEOUT=3600 -e XRD_STREAMTIMEOUT=7200 -e XRD_REDIRECTLIMIT=255 -e XRD_DATASERVERTTL=7200 -e XRD_TCPKEEPALIVE=1">
+<!ENTITY jobsub           "--expected-lifetime=1h --append_condor_requirements='(TARGET.HAS_CVMFS_uboone_osgstorage_org==true)' -e XRD_LOADBALANCERTTL=7200 -e XRD_CONNECTIONRETRY=32 -e XRD_REQUESTTIMEOUT=3600 -e XRD_STREAMTIMEOUT=7200 -e XRD_REDIRECTLIMIT=255 -e XRD_DATASERVERTTL=7200 -e XRD_TCPKEEPALIVE=1">
 
 ]>
 
@@ -472,12 +472,12 @@
 <stage name="extbnb_run2">
     <!-- Settings -->
     <fcl>analysis_file_writer_driver_data.fcl</fcl>
-    <numjobs>11</numjobs><!--6239 files-->
-    <maxfilesperjob>600</maxfilesperjob>
+    <numjobs>130</numjobs><!--6239 files-->
+    <maxfilesperjob>50</maxfilesperjob>
     <numevents>&numEvents;</numevents>
 
     <!-- Input files -->
-    <inputdef>data_extbnb_mcc9.1_v08_00_00_25_reco2_D2_nucc_reco2_high_lifetime_cleanedUp_jdetje</inputdef>
+    <inputdef>data_extbnb_mcc9.1_v08_00_00_25_reco2_D2_nucc_reco2_high_lifetime_cleanedUp_Mar22_jdetje</inputdef>
 
     <!-- Output directories -->
     <outdir>/pnfs/uboone/scratch/users/&username;/&projectName;/extbnb_run2/</outdir>
@@ -543,20 +543,20 @@
 </stage>
 
 <!-- bnb_run3 -->
-<stage name="bnb_run3">
+<stage name="bnb_run3_new">
     <!-- Settings -->
     <fcl>analysis_file_writer_driver_data.fcl</fcl>
-    <numjobs>60</numjobs> <!--5340 files-->
-    <maxfilesperjob>100</maxfilesperjob>
+    <numjobs>20</numjobs> <!--5340 files-->
+    <maxfilesperjob>10</maxfilesperjob>
     <numevents>&numEvents;</numevents>
 
     <!-- Input files -->
-    <inputdef>data_bnb_mcc9.1_v08_00_00_25_reco2_G1_nucc_reco2_high_lifetime_cleanedUp_jdetje</inputdef>
+    <inputdef>data_bnb_mcc9.1_v08_00_00_25_reco2_G1_nucc_reco2_high_lifetime_cleanedUp_Mar22_jdetje</inputdef>
 
     <!-- Output directories -->
-    <outdir>/pnfs/uboone/scratch/users/&username;/&projectName;/bnb_run3/</outdir>
-    <logdir>/pnfs/uboone/scratch/users/&username;/&projectName;/bnb_run3/</logdir>
-    <workdir>/pnfs/uboone/resilient/users/&username;/work/&projectName;/bnb_run3/</workdir>
+    <outdir>/pnfs/uboone/scratch/users/&username;/&projectName;/bnb_run3_new/</outdir>
+    <logdir>/pnfs/uboone/scratch/users/&username;/&projectName;/bnb_run3_new/</logdir>
+    <workdir>/pnfs/uboone/resilient/users/&username;/work/&projectName;/bnb_run3_new/</workdir>
 
     <!-- Options -->
     <datatier>&dataTier;</datatier>
@@ -565,20 +565,20 @@
 </stage>
 
 <!-- extbnb_run3 -->
-<stage name="extbnb_run3">
+<stage name="extbnb_run3_new">
     <!-- Settings -->
     <fcl>analysis_file_writer_driver_data.fcl</fcl>
-    <numjobs>11</numjobs><!--6032 files-->
-    <maxfilesperjob>600</maxfilesperjob>
+    <numjobs>20</numjobs><!--6032 files-->
+    <maxfilesperjob>10</maxfilesperjob>
     <numevents>&numEvents;</numevents>
 
     <!-- Input files -->
-    <inputdef>data_extbnb_mcc9.1_v08_00_00_25_reco2_G1_nucc_reco2_high_lifetime_cleanedUp_jdetje</inputdef>
+    <inputdef>data_extbnb_mcc9.1_v08_00_00_25_reco2_G1_nucc_reco2_high_lifetime_cleanedUp_Mar22_jdetje</inputdef>
 
     <!-- Output directories -->
-    <outdir>/pnfs/uboone/scratch/users/&username;/&projectName;/extbnb_run3/</outdir>
-    <logdir>/pnfs/uboone/scratch/users/&username;/&projectName;/extbnb_run3/</logdir>
-    <workdir>/pnfs/uboone/resilient/users/&username;/work/&projectName;/extbnb_run3/</workdir>
+    <outdir>/pnfs/uboone/scratch/users/&username;/&projectName;/extbnb_run3_new/</outdir>
+    <logdir>/pnfs/uboone/scratch/users/&username;/&projectName;/extbnb_run3_new/</logdir>
+    <workdir>/pnfs/uboone/resilient/users/&username;/work/&projectName;/extbnb_run3_new/</workdir>
 
     <!-- Options -->
     <datatier>&dataTier;</datatier>
@@ -616,6 +616,28 @@
 ######################################
 ###################
 -->
+
+<!-- nuwro_run1 -->
+<stage name="nuwro_run1">
+    <!-- Settings -->
+    <fcl>analysis_file_writer_driver_noEventWeights.fcl</fcl>
+    <numjobs>22</numjobs><!--64 files-->
+    <maxfilesperjob>2</maxfilesperjob>
+    <numevents>&numEvents;</numevents>
+
+    <!-- Input files -->
+    <inputdef>prodnuwro_overlay_bnb_run1_ccandnc_pandora_run1_reco2_reco2_ccinc_jdetje</inputdef>
+
+    <!-- Output directories -->
+    <outdir>/pnfs/uboone/scratch/users/&username;/&projectName;/nuwro_run1/</outdir>
+    <logdir>/pnfs/uboone/scratch/users/&username;/&projectName;/nuwro_run1/</logdir>
+    <workdir>/pnfs/uboone/resilient/users/&username;/work/&projectName;/nuwro_run1/</workdir>
+
+    <!-- Options -->
+    <datatier>&dataTier;</datatier>
+    <schema>&schema;</schema>
+    <jobsub>&jobsub;</jobsub>
+</stage>
 
 <!-- nuwro_run2 -->
 <stage name="nuwro_run2">

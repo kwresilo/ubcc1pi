@@ -1344,7 +1344,7 @@ AnalysisHelper::AnalysisData AnalysisHelper::GetRecoAnalysisDataCC0Pi(const Even
                 {
                     auto range = proton.range();
                     // std::cout<<"DEBUG - GetRecoAnalysisDataCC0Pi - Point 3.1.1"<<std::endl;
-                    auto protonMomentum = AnalysisHelper::GetProtonMomentumFromRange(range);
+                    auto protonMomentum = AnalysisHelper::GetPionMomentumFromRange(range); //ATTN: Use pion momentum here for reco values
                     // std::cout<<"DEBUG - GetRecoAnalysisDataCC0Pi - Point 3.2"<<std::endl;
                     if (protonMomentum>highestProtonMomentum)
                     {

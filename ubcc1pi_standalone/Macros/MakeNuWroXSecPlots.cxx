@@ -88,23 +88,28 @@ void MakeNuWroXSecPlots(const Config &config)
             };
 
             // Define a lambda function to get a matrix from a file an trim any overflow / underflow bins
-            const auto &metadataTrue = metadataMap.at(xsecName);
+            // const auto &metadataTrue = metadataMap.at(xsecName);
             const auto getTrimmedMatrixTrue = [&] (const std::string &identifier) -> ubsmear::UBMatrix {
-                return ubsmear::UBSmearingHelper::TrimUnderOverflowBins(getMatrixTrue(identifier), metadataTrue);
+                return ubsmear::UBSmearingHelper::TrimUnderOverflowBins(getMatrixTrue(identifier), metadata);
             };
 
             // Get the data cross-section
-            const auto data = getTrimmedMatrix("data");
-            const auto dataTrue = getMatrixTrue("data"); //getTrimmedMatrixTrue("data");
+            const auto dataScaled = getTrimmedMatrix("data_scaled");
+            const auto dataUnscaled = getTrimmedMatrix("data_unscaled");
+            // const auto dataTrue = getTrimmedMatrixTrue("data"); //getTrimmedMatrixTrue("data");
 
             // Get the smearing matrix
-            const auto smearingMatrix = getMatrix("smearingMatrix");
+            const auto smearingMatrixScaled = getMatrix("smearingMatrix_scaled");
+            const auto smearingMatrixUnscaled = getMatrix("smearingMatrix_unscaled");
+            const auto smearingMatrixNuwro = getMatrixTrue("smearingMatrix");
 
             // Build the total error matrix for each group of systematic parameters
             // Here errorMatrixMap is indexed by [quantity][group], where quantity = "data" or "smearingMatrix"
             // Here totalErrorMatrixMap is index by [quantity] and contains the sum (over all groups) of the entries in errorMatrixMap
-            std::map<std::string, std::map<std::string, ubsmear::UBMatrix> > errorMatrixMap;
-            std::map<std::string, ubsmear::UBMatrix> totalErrorMatrixMap;
+            std::map<std::string, std::map<std::string, ubsmear::UBMatrix> > errorMatrixMapScaled;
+            std::map<std::string, ubsmear::UBMatrix> totalErrorMatrixMapScaled;
+            std::map<std::string, std::map<std::string, ubsmear::UBMatrix> > errorMatrixMapUnscaled;
+            std::map<std::string, ubsmear::UBMatrix> totalErrorMatrixMapUnscaled;
 
             // -----------------------------------------------------------------------------------------------------------------------------
             // Read the matrices from disk
@@ -121,22 +126,28 @@ void MakeNuWroXSecPlots(const Config &config)
                     : std::function<ubsmear::UBMatrix(const std::string&)>(getMatrix));
 
                 // Setup an empty error matrix for this quantity
-                auto errorMatrixTotalSum =  ubsmear::UBMatrixHelper::GetZeroMatrix(nBins, nBins);
+                auto errorMatrixTotalSumScaled =  ubsmear::UBMatrixHelper::GetZeroMatrix(nBins, nBins);
+                auto errorMatrixTotalSumUnscaled =  ubsmear::UBMatrixHelper::GetZeroMatrix(nBins, nBins);
 
                 // For the data cross-section, we also have a stat uncertainty
                 // For the smearing matrix, just use a zero vector
-                const auto statUncertainties = (quantity == "data") ? getMatrixFunction("data_stat") : ubsmear::UBMatrixHelper::GetZeroMatrix(nBins, 1);
+                const auto statUncertaintiesScaled = (quantity == "data") ? getMatrixFunction("data_stat_scaled") : ubsmear::UBMatrixHelper::GetZeroMatrix(nBins, 1);
+                const auto statUncertaintiesUnscaled = (quantity == "data") ? getMatrixFunction("data_stat_unscaled") : ubsmear::UBMatrixHelper::GetZeroMatrix(nBins, 1);
 
                 // To convert these stat uncertainties into an error matrix, we produce a diagonal matrix whose diagonal entries contain the
                 // variances (i.e. square of the stat uncerainties)
-                const auto statVariances = ubsmear::ElementWiseOperation(statUncertainties, statUncertainties, [](const auto &l, const auto &r) { return l * r; });
-                const auto statErrorMatrix = ubsmear::UBMatrixHelper::GetDiagonalMatrix(statVariances);
+                const auto statVariancesScaled = ubsmear::ElementWiseOperation(statUncertaintiesScaled, statUncertaintiesScaled, [](const auto &l, const auto &r) { return l * r; });
+                const auto statErrorMatrixScaled = ubsmear::UBMatrixHelper::GetDiagonalMatrix(statVariancesScaled);
+                const auto statVariancesUnscaled = ubsmear::ElementWiseOperation(statUncertaintiesUnscaled, statUncertaintiesUnscaled, [](const auto &l, const auto &r) { return l * r; });
+                const auto statErrorMatrixUnscaled = ubsmear::UBMatrixHelper::GetDiagonalMatrix(statVariancesUnscaled);
 
                 // Store this in the map
-                errorMatrixMap[quantity].emplace("stat", statErrorMatrix);
+                errorMatrixMapScaled[quantity].emplace("stat", statErrorMatrixScaled);
+                errorMatrixMapUnscaled[quantity].emplace("stat", statErrorMatrixUnscaled);
 
                 // Add this to the grand total error matrix
-                errorMatrixTotalSum = errorMatrixTotalSum + statErrorMatrix;
+                errorMatrixTotalSumScaled = errorMatrixTotalSumScaled + statErrorMatrixScaled;
+                errorMatrixTotalSumUnscaled = errorMatrixTotalSumUnscaled + statErrorMatrixUnscaled;
 
                 // Handle the multisim parameters
                 for (const auto &[group, dimensions] : std::map<std::string, CrossSectionHelper::SystDimensionsMap>(
@@ -153,24 +164,31 @@ void MakeNuWroXSecPlots(const Config &config)
                     }))
                 {
                     // Setup an empty error matrix for this group
-                    auto errorMatrixTotal =  ubsmear::UBMatrixHelper::GetZeroMatrix(nBins, nBins);
+                    auto errorMatrixTotalScaled =  ubsmear::UBMatrixHelper::GetZeroMatrix(nBins, nBins);
+                    auto errorMatrixTotalUnscaled =  ubsmear::UBMatrixHelper::GetZeroMatrix(nBins, nBins);
 
                     // Loop over the parameters in this group
                     for (const auto &[paramName, nUniverses] : dimensions)
                     {
                         // Get the bias vector and covariance matrix
-                        const auto biasVector = getMatrixFunction(quantity + "_" + group + "_" + paramName + "_bias");
-                        const auto covarianceMatrix = getMatrixFunction(quantity + "_" + group + "_" + paramName + "_covariance");
+                        const auto biasVectorScaled = getMatrixFunction(quantity + "_" + group + "_" + paramName + "_bias_scaled");
+                        const auto covarianceMatrixScaled = getMatrixFunction(quantity + "_" + group + "_" + paramName + "_covariance_scaled");
+
+                        const auto biasVectorUnscaled = getMatrixFunction(quantity + "_" + group + "_" + paramName + "_bias_unscaled");
+                        const auto covarianceMatrixUnscaled = getMatrixFunction(quantity + "_" + group + "_" + paramName + "_covariance_unscaled");
 
                         // Get the total error matrix from the bias and covariance
-                        const auto errorMatrix = CrossSectionHelper::GetErrorMatrix(biasVector, covarianceMatrix);
+                        const auto errorMatrixScaled = CrossSectionHelper::GetErrorMatrix(biasVectorScaled, covarianceMatrixScaled);
+                        const auto errorMatrixUnscaled = CrossSectionHelper::GetErrorMatrix(biasVectorUnscaled, covarianceMatrixUnscaled);
 
                         // Add this error matrix to the total
-                        errorMatrixTotal = errorMatrixTotal + errorMatrix;
+                        errorMatrixTotalScaled = errorMatrixTotalScaled + errorMatrixScaled;
+                        errorMatrixTotalUnscaled = errorMatrixTotalUnscaled + errorMatrixUnscaled;
                     }
 
                     // Store this total in the map
-                    errorMatrixMap[quantity].emplace(group, errorMatrixTotal);
+                    errorMatrixMapScaled[quantity].emplace(group, errorMatrixTotalScaled);
+                    errorMatrixMapUnscaled[quantity].emplace(group, errorMatrixTotalUnscaled);
 
                     // Add this total to the grand total error matrix
                     errorMatrixTotalSum = errorMatrixTotalSum + errorMatrixTotal;
@@ -189,25 +207,33 @@ void MakeNuWroXSecPlots(const Config &config)
                     for (const auto &[paramName, cvName] : dimensions)
                     {
                         // Get the bias vector and (dummy) covariance matrix
-                        const auto biasVector = getMatrixFunction(quantity + "_" + group + "_" + paramName + "_bias");
-                        const auto covarianceMatrix = getMatrixFunction(quantity + "_" + group + "_" + paramName + "_covariance");
+                        const auto biasVectorScaled = getMatrixFunction(quantity + "_" + group + "_" + paramName + "_bias_scaled");
+                        const auto covarianceMatrixScaled = getMatrixFunction(quantity + "_" + group + "_" + paramName + "_covariance_scaled");
+
+                        const auto biasVectorUnscaled = getMatrixFunction(quantity + "_" + group + "_" + paramName + "_bias_unscaled");
+                        const auto covarianceMatrixUnscaled = getMatrixFunction(quantity + "_" + group + "_" + paramName + "_covariance_unscaled");
 
                         // Get the total error matrix from the bias and covariance
-                        const auto errorMatrix = CrossSectionHelper::GetErrorMatrix(biasVector, covarianceMatrix);
+                        const auto errorMatrixScaled = CrossSectionHelper::GetErrorMatrix(biasVectorScaled, covarianceMatrixScaled);
+                        const auto errorMatrixUnscaled = CrossSectionHelper::GetErrorMatrix(biasVectorUnscaled, covarianceMatrixUnscaled);
 
                         // Add this error matrix to the total
-                        errorMatrixTotal = errorMatrixTotal + errorMatrix;
+                        errorMatrixTotalScaled = errorMatrixTotalScaled + errorMatrixScaled;
+                        errorMatrixTotalUnscaled = errorMatrixTotalUnscaled + errorMatrixUnscaled;
                     }
 
                     // Store this total in the map
-                    errorMatrixMap[quantity].emplace(group, errorMatrixTotal);
+                    errorMatrixMapScaled[quantity].emplace(group, errorMatrixTotalScaled);
+                    errorMatrixMapUnscaled[quantity].emplace(group, errorMatrixTotalUnscaled);
 
                     // Add this total to the grand total error matrix
-                    errorMatrixTotalSum = errorMatrixTotalSum + errorMatrixTotal;
+                    errorMatrixTotalSumScaled = errorMatrixTotalSumScaled + errorMatrixTotalScaled;
+                    errorMatrixTotalSumUnscaled = errorMatrixTotalSumUnscaled + errorMatrixTotalUnscaled;
                 }
 
                 // Add the grand total to the map
-                totalErrorMatrixMap.emplace(quantity, errorMatrixTotalSum);
+                totalErrorMatrixMapScaled.emplace(quantity, errorMatrixTotalSumScaled);
+                totalErrorMatrixMapUnscaled.emplace(quantity, errorMatrixTotalSumUnscaled);
             }
 
             // Define a prefix for the names of the plots
@@ -216,22 +242,41 @@ void MakeNuWroXSecPlots(const Config &config)
             // -----------------------------------------------------------------------------------------------------------------------------
             // Plot the error matrices
             // -----------------------------------------------------------------------------------------------------------------------------
-            for (const auto &[quantity, groupToMatrixMap] : errorMatrixMap)
+            for (const auto &[quantity, groupToMatrixMap] : errorMatrixMapScaled)
             {
                 // Get the quantity in question as a vector
                 // ATTN here we flatten the smearing matrix to a column vector
-                const auto quantityVector = (quantity == "data" ? data : ubsmear::UBSmearingHelper::Flatten(smearingMatrix));
+                const auto quantityVector = (quantity == "data" ? data : ubsmear::UBSmearingHelper::Flatten(smearingMatrixScaled));
 
                 // Plot the total error matrix (summed over all groups)
-                const auto totalErrorMatrix = totalErrorMatrixMap.at(quantity);
-                PlottingHelper::PlotErrorMatrix(totalErrorMatrix, prefix + "_" + quantity + "_totalErrorMatrix", metadata);
-                PlottingHelper::PlotFractionalErrorMatrix(totalErrorMatrix, quantityVector, prefix + "_" + quantity + "_totalFracErrorMatrix", metadata);
+                const auto totalErrorMatrix = totalErrorMatrixMapScaled.at(quantity);
+                PlottingHelper::PlotErrorMatrix(totalErrorMatrix, prefix + "_" + quantity + "_totalErrorMatrix_scaled", metadata);
+                PlottingHelper::PlotFractionalErrorMatrix(totalErrorMatrix, quantityVector, prefix + "_" + quantity + "_totalFracErrorMatrix_scaled", metadata);
 
                 // Plot the total error matrix for each group individually
                 for (const auto &[group, errorMatrix] : groupToMatrixMap)
                 {
-                    PlottingHelper::PlotErrorMatrix(errorMatrix, prefix + "_" + quantity + "_" + group + "_totalErrorMatrix", metadata);
-                    PlottingHelper::PlotFractionalErrorMatrix(errorMatrix, quantityVector, prefix + "_" + quantity + "_" + group + "_totalFracErrorMatrix", metadata);
+                    PlottingHelper::PlotErrorMatrix(errorMatrix, prefix + "_" + quantity + "_" + group + "_totalErrorMatrix_scaled", metadata);
+                    PlottingHelper::PlotFractionalErrorMatrix(errorMatrix, quantityVector, prefix + "_" + quantity + "_" + group + "_totalFracErrorMatrix_scaled", metadata);
+                }
+            }
+
+            for (const auto &[quantity, groupToMatrixMap] : errorMatrixMapUnscaled)
+            {
+                // Get the quantity in question as a vector
+                // ATTN here we flatten the smearing matrix to a column vector
+                const auto quantityVector = (quantity == "data" ? data : ubsmear::UBSmearingHelper::Flatten(smearingMatrixUnscaled));
+
+                // Plot the total error matrix (summed over all groups)
+                const auto totalErrorMatrix = totalErrorMatrixMapUnscaled.at(quantity);
+                PlottingHelper::PlotErrorMatrix(totalErrorMatrix, prefix + "_" + quantity + "_totalErrorMatrix_unscaled", metadata);
+                PlottingHelper::PlotFractionalErrorMatrix(totalErrorMatrix, quantityVector, prefix + "_" + quantity + "_totalFracErrorMatrix_unscaled", metadata);
+
+                // Plot the total error matrix for each group individually
+                for (const auto &[group, errorMatrix] : groupToMatrixMap)
+                {
+                    PlottingHelper::PlotErrorMatrix(errorMatrix, prefix + "_" + quantity + "_" + group + "_totalErrorMatrix_unscaled", metadata);
+                    PlottingHelper::PlotFractionalErrorMatrix(errorMatrix, quantityVector, prefix + "_" + quantity + "_" + group + "_totalFracErrorMatrix_unscaled", metadata);
                 }
             }
 
@@ -242,36 +287,57 @@ void MakeNuWroXSecPlots(const Config &config)
             PlottingHelper::PlotErrorMatrix(smearingMatrix, prefix + "_smearingMatrix", metadata, true, false);
 
             // Now get the predicted cross-section and it's error matrix
-            const auto prediction = getMatrix("prediction");
-            const auto predictionBiasVector = getMatrix("prediction_stat_bias");
-            const auto predictionCovarianceMatrix = getMatrix("prediction_stat_covariance");
+            const auto predictionScaled = getMatrix("prediction_scaled");
+            const auto predictionBiasVectorScaled = getMatrix("prediction_stat_bias_scaled");
+            const auto predictionCovarianceMatrixScaled = getMatrix("prediction_stat_covariance_scaled");
+            const auto predictionErrorMatrixScaled = CrossSectionHelper::GetErrorMatrix(predictionBiasVectorScaled, predictionCovarianceMatrixScaled);
 
-            const auto predictionErrorMatrix = CrossSectionHelper::GetErrorMatrix(predictionBiasVector, predictionCovarianceMatrix);
+            const auto predictionUnscaled = getMatrix("prediction_unscaled");
+            const auto predictionBiasVectorUnscaled = getMatrix("prediction_stat_bias_unscaled");
+            const auto predictionCovarianceMatrixUnscaled = getMatrix("prediction_stat_covariance_unscaled");
+            const auto predictionErrorMatrixUnscaled = CrossSectionHelper::GetErrorMatrix(predictionBiasVectorUnscaled, predictionCovarianceMatrixUnscaled);
+
+            const auto predictionNuWro = getMatrixTrue("prediction");
 
             // Plot the error matrix on the prediction
-            PlottingHelper::PlotErrorMatrix(predictionErrorMatrix, prefix + "_prediction_stat_totalErrorMatrix", metadata);
-            PlottingHelper::PlotFractionalErrorMatrix(predictionErrorMatrix, prediction, prefix + "_prediction_stat_totalFracErrorMatrix", metadata);
+            PlottingHelper::PlotErrorMatrix(predictionErrorMatrixScaled, prefix + "_prediction_stat_totalErrorMatrix_scaled", metadata);
+            PlottingHelper::PlotFractionalErrorMatrix(predictionErrorMatrixScaled, predictionScaled, prefix + "_prediction_stat_totalFracErrorMatrix_scaled", metadata);
+            
+            PlottingHelper::PlotErrorMatrix(predictionErrorMatrixUnscaled, prefix + "_prediction_stat_totalErrorMatrix_unscaled", metadata);
+            PlottingHelper::PlotFractionalErrorMatrix(predictionErrorMatrixUnscaled, predictionUnscaled, prefix + "_prediction_stat_totalFracErrorMatrix_unscaled", metadata);
 
             // Now smear the prediction so it can be compared to the data
             std::cout << "Forward folding prediction" << std::endl;
-            const auto &[smearedPrediction, smearedPredictionErrorMatrix] = ubsmear::ForwardFold(
+            const auto &[smearedPredictionScaled, smearedPredictionErrorMatrixScaled] = ubsmear::ForwardFold(
                 metadata,                                                  // The metadata that defines the binning
-                prediction, predictionErrorMatrix,                         // The prediction and it's error matrix
-                smearingMatrix, totalErrorMatrixMap.at("smearingMatrix"),  // The smearing matrix and it's error matrix
+                predictionScaled, predictionErrorMatrixScaled,             // The prediction and it's error matrix
+                smearingMatrixScaled, totalErrorMatrixMapScaled.at("smearingMatrix"),  // The smearing matrix and it's error matrix
                 config.makeXSecPlots.nUniverses,                           // The number of universes to use when propagating the uncertainties
                 config.makeXSecPlots.precision);                           // The precision to use when finding eigenvalues and eigenvectors
 
+            // Now smear the prediction so it can be compared to the data
+            std::cout << "Forward folding prediction" << std::endl;
+            const auto &[smearedPredictionUnscaled, smearedPredictionErrorMatrixUnscaled] = ubsmear::ForwardFold(
+                metadata,                                                  // The metadata that defines the binning
+                predictionUnscaled, predictionErrorMatrixUnscaled,                         // The prediction and it's error matrix
+                smearingMatrixUnscaled, totalErrorMatrixMapUnscaled.at("smearingMatrix"),  // The smearing matrix and it's error matrix
+                config.makeXSecPlots.nUniverses,                           // The number of universes to use when propagating the uncertainties
+                config.makeXSecPlots.precision);                           // The precision to use when finding eigenvalues and eigenvectors
 
+            std::cout << "Forward folding NuWro prediction" << std::endl;
                 const auto &[smearedPredictionNuWro, smearedPredictionErrorMatrixNuWro] = ubsmear::ForwardFold(
-                metadataTrue,                                              // The metadata that defines the binning
-                dataTrue, predictionErrorMatrix,                           // The prediction and it's error matrix
-                smearingMatrix, totalErrorMatrixMap.at("smearingMatrix"),  // The smearing matrix and it's error matrix
+                metadata,                                              // The metadata that defines the binning
+                predictionNuWro, predictionErrorMatrix,                           // The prediction and it's error matrix
+                smearingMatrixNuwro, totalErrorMatrixMap.at("smearingMatrix"),  // The smearing matrix and it's error matrix
                 config.makeXSecPlots.nUniverses,                           // The number of universes to use when propagating the uncertainties
                 config.makeXSecPlots.precision);                           // The precision to use when finding eigenvalues and eigenvectors
 
             // Plot the error matrix on the smeared prediction
-            PlottingHelper::PlotErrorMatrix(smearedPredictionErrorMatrix, prefix + "_smearedPrediction_totalErrorMatrix", metadata);
-            PlottingHelper::PlotFractionalErrorMatrix(smearedPredictionErrorMatrix, smearedPrediction, prefix + "_smearedPrediction_totalFracErrorMatrix", metadata);
+            PlottingHelper::PlotErrorMatrix(smearedPredictionErrorMatrixScaledScaled, prefix + "_smearedPrediction_totalErrorMatrix_scaled", metadata);
+            PlottingHelper::PlotFractionalErrorMatrix(smearedPredictionErrorMatrixScaled, smearedPredictionScaled, prefix + "_smearedPrediction_totalFracErrorMatrix_scaled", metadata);
+
+            PlottingHelper::PlotErrorMatrix(smearedPredictionErrorMatrixUnscaled, prefix + "_smearedPrediction_totalErrorMatrix_unscaled", metadata);
+            PlottingHelper::PlotFractionalErrorMatrix(smearedPredictionErrorMatrixUnscaled, smearedPredictionUnscaled, prefix + "_smearedPrediction_totalFracErrorMatrix_unscaled", metadata);
 
             // Save the forward-folded prediction
             FormattingHelper::SaveMatrix(smearedPrediction, "xsecNuWro_" + selectionName + "_" + xsecName + "_forwardFoldedPrediction.txt");
@@ -337,8 +403,8 @@ void MakeNuWroXSecPlots(const Config &config)
 
             // Setup the data histogram and the prediction histogram
             auto pDataHist = std::make_shared<TH1F>((prefix + "_data").c_str(), "", binEdges.size() - 1, binEdges.data());
-            auto pDataHistTrue = std::make_shared<TH1F>((prefix + "_dataTrue").c_str(), "", binEdges.size() - 1, binEdges.data());
             auto pDataStatOnlyHist = std::make_shared<TH1F>((prefix + "_dataStatOnly").c_str(), "", binEdges.size() - 1, binEdges.data());
+            auto pNuWroPredictionHist = std::make_shared<TH1F>((prefix + "_predictionNuWro").c_str(), "", binEdges.size() - 1, binEdges.data());
             auto pPredictionHist = std::make_shared<TH1F>((prefix + "_prediction").c_str(), "", binEdges.size() - 1, binEdges.data());
 
             // Fill the bins
@@ -350,15 +416,12 @@ void MakeNuWroXSecPlots(const Config &config)
             {
                 // Set the values for the data histogram
                 const auto dataValue = data.At(iBin - 1, 0);
-                const auto dataValueTrue = smearedPredictionNuWro.At(iBin - 1, 0); //dataTrue.At(iBin - 1, 0);
                 const auto dataError = std::pow(totalDataErrorMatrix.At(iBin - 1, iBin - 1), 0.5f);
                 const auto dataStatOnlyError = std::pow(dataStatErrorMatrix.At(iBin - 1, iBin - 1), 0.5f);
 
                 pDataHist->SetBinContent(iBin, dataValue);
                 pDataHist->SetBinError(iBin, dataError);
 
-                pDataHistTrue->SetBinContent(iBin, dataValueTrue);
-                pDataHistTrue->SetBinError(iBin, 0);
 
                 pDataStatOnlyHist->SetBinContent(iBin, dataValue);
                 pDataStatOnlyHist->SetBinError(iBin, dataStatOnlyError);
@@ -366,14 +429,17 @@ void MakeNuWroXSecPlots(const Config &config)
                 // Set the values of the prediction
                 const auto predictionValue = smearedPrediction.At(iBin - 1, 0);
                 const auto predictionError = std::pow(smearedPredictionErrorMatrix.At(iBin - 1, iBin - 1), 0.5f);
+                const auto predictionValueNuWro = smearedPredictionNuWro.At(iBin - 1, 0); //dataTrue.At(iBin - 1, 0);
 
                 pPredictionHist->SetBinContent(iBin, predictionValue);
                 pPredictionHist->SetBinError(iBin, predictionError);
+                pNuWroPredictionHist->SetBinContent(iBin, predictionValueNuWro);
+                pNuWroPredictionHist->SetBinError(iBin, 0);
 
                 // For the proton multiplicity plot, use explicit bin labels
                 if (xsecName == "nProtons")
                 {
-                    for (auto &pHist : {pDataHist, pDataHistTrue, pDataStatOnlyHist, pPredictionHist})
+                    for (auto &pHist : {pDataHist, pDataStatOnlyHist, pNuWroPredictionHist, pPredictionHist})
                     {
                         pHist->GetXaxis()->SetBinLabel(1, "0");
                         pHist->GetXaxis()->SetBinLabel(2, "1");
@@ -396,14 +462,14 @@ void MakeNuWroXSecPlots(const Config &config)
             minY = std::max(minY, 0.f);
             minY = 0.f; // Remove this line to get a dynamic lower y-range
             pDataHist->GetYaxis()->SetRangeUser(minY, maxY);
-            pDataHistTrue->GetYaxis()->SetRangeUser(minY, maxY);
+            pNuWroPredictionHist->GetYaxis()->SetRangeUser(minY, maxY);
             pDataStatOnlyHist->GetYaxis()->SetRangeUser(minY, maxY);
             pPredictionHist->GetYaxis()->SetRangeUser(minY, maxY);
 
             // Set the colours of the histograms
             PlottingHelper::SetLineStyle(pDataHist, PlottingHelper::Primary);
-            PlottingHelper::SetLineStyle(pDataHistTrue, PlottingHelper::Tertiary);
-            pDataHistTrue->SetLineStyle(4); // Dashed line
+            PlottingHelper::SetLineStyle(pNuWroPredictionHist, PlottingHelper::Tertiary);
+            pNuWroPredictionHist->SetLineStyle(4); // Dashed line
             PlottingHelper::SetLineStyle(pDataStatOnlyHist, PlottingHelper::Primary);
             PlottingHelper::SetLineStyle(pPredictionHist, PlottingHelper::Secondary);
 
@@ -424,7 +490,7 @@ void MakeNuWroXSecPlots(const Config &config)
 
             // Draw the data as points with error bars
             pDataStatOnlyHist->Draw("e1 same");
-            pDataHistTrue->Draw("e1 same");
+            pNuWroPredictionHist->Draw("e1 same");
             pDataHist->Draw("e1 same");
 
             PlottingHelper::SaveCanvas(pCanvas, prefix + "_data-vs-smearedPrediction");
@@ -432,7 +498,8 @@ void MakeNuWroXSecPlots(const Config &config)
     }
 
     // Save the table
-    table.WriteToFile("NuWroXSecPlots_goodnessOfFitStatistics.md");
+    tableScaled.WriteToFile("NuWroXSecPlots_goodnessOfFitStatistics_scaled.md");
+    tableUnscaled.WriteToFile("NuWroXSecPlots_goodnessOfFitStatistics_unscaled.md");
 }
 
 } // namespace ubcc1pi_macros

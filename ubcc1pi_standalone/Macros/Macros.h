@@ -28,12 +28,12 @@ namespace ubcc1pi_macros
      */
     void CountPOT(const Config &config = Config());
 
-    // /**
-    //  *  @brief  Get the run-subrun list that's needed to run Zarco's POT / trigger / spill counting tool
-    //  *
-    //  *  @param  config the input configuration
-    //  */
-    // void GetRunSubrunList(const Config &config = Config());
+    /**
+     *  @brief  Get the run-subrun list that's needed to run Zarco's POT / trigger / spill counting tool
+     *
+     *  @param  config the input configuration
+     */
+    void GetRunSubrunList(const Config &config = Config());
 
     // /**
     //  *  @brief  Look at the truth information related to signal events
@@ -63,26 +63,26 @@ namespace ubcc1pi_macros
     //  */
     // void MomentumThresholdsStudy(const Config &config = Config());
 
-    // /**
-    //  *  @brief  Look at the accuracy of the muon PID from the CC inclusive as a function of the muon kinematics
-    //  *
-    //  *  @param  config the input configuration
-    //  */
-    // void CCInclusiveMuonPIDStudy(const Config &config = Config());
+    /**
+     *  @brief  Look at the accuracy of the muon PID from the CC inclusive as a function of the muon kinematics
+     *
+     *  @param  config the input configuration
+     */
+    void CCInclusiveMuonPIDStudy(const Config &config = Config());
 
-    // /**
-    //  *  @brief  Demonstrate the impact of track direction on the PID, and how it can be improved
-    //  *
-    //  *  @param  config the input configuration
-    //  */
-    // void MultiPlanePIDDemo(const Config &config = Config());
+    /**
+     *  @brief  Demonstrate the impact of track direction on the PID, and how it can be improved
+     *
+     *  @param  config the input configuration
+     */
+    void MultiPlanePIDDemo(const Config &config = Config());
 
-    // /**
-    //  *  @brief  Plot the variables that form the input to the particle ID BDTs after the CC inclusive selection
-    //  *
-    //  *  @param  config the input configuration
-    //  */
-    // void PlotInputVariables(const Config &config = Config());
+    /**
+     *  @brief  Plot the variables that form the input to the particle ID BDTs after the CC inclusive selection
+     *
+     *  @param  config the input configuration
+     */
+    void PlotInputVariables(const Config &config = Config());
 
     // /**
     //  *  @brief  Plot the variables that form the input to the particle ID BDTs after the CC inclusive selection broken down for pions
@@ -91,26 +91,26 @@ namespace ubcc1pi_macros
     //  */
     // void PlotPionInputVariables(const Config &config = Config());
 
-    // /**
-    //  *  @brief  Get the correlation plots between the input variables to the BDT
-    //  *
-    //  *  @param  config the input configuration
-    //  */
-    // void GetCorrelationPlots(const Config &config = Config());
+    /**
+     *  @brief  Get the correlation plots between the input variables to the BDT
+     *
+     *  @param  config the input configuration
+     */
+    void GetCorrelationPlots(const Config &config = Config());
 
-    // /**
-    //  *  @brief  Train the BDTs
-    //  *
-    //  *  @param  config the input configuration
-    //  */
-    // void TrainBDTs(const Config &config = Config());
+    /**
+     *  @brief  Train the BDTs
+     *
+     *  @param  config the input configuration
+     */
+    void TrainBDTs(const Config &config = Config());
 
-    // /**
-    //  *  @brief  Run the N-1 BDT study
-    //  *
-    //  *  @param  config the input configuration
-    //  */
-    // void NMinusOneBDTStudy(const Config &config = Config());
+    /**
+     *  @brief  Run the N-1 BDT study
+     *
+     *  @param  config the input configuration
+     */
+    void NMinusOneBDTStudy(const Config &config = Config());
 
     // /**
     //  *  @brief  Make data/MC plots for one iteration of the N-1 BDT study
@@ -133,12 +133,12 @@ namespace ubcc1pi_macros
     //  */
     // void MuonPIDStudy(const Config &config = Config());
 
-    // /**
-    //  *  @brief  Make the event selection table
-    //  *
-    //  *  @param  config the input configuration
-    //  */
-    // void MakeEventSelectionTable(const Config &config = Config());
+    /**
+     *  @brief  Make the event selection table
+     *
+     *  @param  config the input configuration
+     */
+    void MakeEventSelectionTable(const Config &config = Config());
 
     // /**
     //  *  @brief  Make the PID table
@@ -147,12 +147,12 @@ namespace ubcc1pi_macros
     //  */
     // void MakeSelectedPIDTable(const Config &config = Config());
 
-    // /**
-    //  *  @brief  Make the selection efficiency plots
-    //  *
-    //  *  @param  config the input configuration
-    //  */
-    // void MakeEventSelectionEfficiencyPlots(const Config &config = Config());
+    /**
+     *  @brief  Make the selection efficiency plots
+     *
+     *  @param  config the input configuration
+     */
+    void MakeEventSelectionEfficiencyPlots(const Config &config = Config());
 
     // /**
     //  *  @brief  Plot the variables that are used by the selection at the point of usage
@@ -261,11 +261,26 @@ namespace ubcc1pi_macros
     void ExtractSidebandFit(const Config &config = Config());
 
     /**
+     *  @brief  Extract the sideband fit of Nuwro to MC (GENIE)
+     *  
+     *  @param  config the input configuration
+     */
+    void ExtractNuWroSidebandFit(const Config &config = Config());
+
+    /**
      *  @brief  Extract the sideband without fitting
      *  
      *  @param  config the input configuration
      */
     void ExtractSideband(const Config &config = Config());
+
+    /**
+     *  @brief  Print out detector variation xsec-values
+     *  
+     *  @param  config the input configuration
+     */
+    void PrintDetVar(const Config &config = Config());
+
 
     // /**
     //  *  @brief  Generate the CC0Pi selection

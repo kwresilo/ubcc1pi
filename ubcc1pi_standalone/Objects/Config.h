@@ -42,7 +42,7 @@ struct Config
         std::string dataBNBFileName  = "/pnfs/uboone/persistent/users/kduffy/ubcc1pi/ubcc1pi_bnb_run1-C1_5Jan2021.root";  ///< BNB data file name input
         // std::string dataBNBFileName  = "/uboone/data/users/jdetje/ubcc1pi/sep2020/ubcc1piAnalysis_overlays_08Oct21_test_tail20.root";
 
-        std::string nuWroFileName  = "/uboone/data/users/jdetje/ubcc1pi/sep2020/ubcc1piAnalysis_nuwro_run2_13Dec21.root";  ///< BNB data file name input // TODO: CHANGE TO RUN1 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+        std::string nuWroFileName  = "/uboone/data/users/jdetje/ubcc1pi/sep2020/ubcc1piAnalysis_nuwro_run1_28Feb22.root";
 
         /**
          *  @brief  The detector variation files
@@ -53,34 +53,35 @@ struct Config
          *          available for run 1. Instead we use run3b, for which the varaitions are available. In every case the variation is
          *          considered wrt to the relevant "CV" file, and the fractional difference is quantity we care about.
          */
-        // std::vector< std::pair<std::string, std::string> > detVarFiles = {
-        //     // Run-1 files
-        //     {"CV",             "/uboone/data/users/jdetje/ubcc1pi/sep2020/ubcc1piAnalysis_overlays_DetVar_CV_run1_19Oct.root"},
-        //     {"LYDown",         "/uboone/data/users/jdetje/ubcc1pi/sep2020/ubcc1piAnalysis_overlays_DetVar_LYDown_run1_19Oct.root"},
-        //     {"LYRayleigh",     "/uboone/data/users/jdetje/ubcc1pi/sep2020/ubcc1piAnalysis_overlays_DetVar_LYRayleigh_run1_19Oct.root"},
-        //     {"SCE",            "/uboone/data/users/jdetje/ubcc1pi/sep2020/ubcc1piAnalysis_overlays_DetVar_SCE_run1_19Oct.root"},
-        //     {"Recomb2",        "/uboone/data/users/jdetje/ubcc1pi/sep2020/ubcc1piAnalysis_overlays_DetVar_Recomb2_run1_19Oct.root"},
-        //     {"WireModX",       "/uboone/data/users/jdetje/ubcc1pi/sep2020/ubcc1piAnalysis_overlays_DetVar_WireModX_run1_19Oct.root"},
-        //     {"WireModYZ",      "/uboone/data/users/jdetje/ubcc1pi/sep2020/ubcc1piAnalysis_overlays_DetVar_WireModYZ_run1_19Oct.root"},
-        //     {"WireModThetaXZ", "/uboone/data/users/jdetje/ubcc1pi/sep2020/ubcc1piAnalysis_overlays_DetVar_WireModThetaXZ_run1_19Oct.root"},
-        //     {"WireModThetaYZ", "/uboone/data/users/jdetje/ubcc1pi/sep2020/ubcc1piAnalysis_overlays_DetVar_WireModThetaYZ_run1_19Oct.root"}
-        // };
-
         std::vector< std::pair<std::string, std::string> > detVarFiles = {
             // Run-1 files
-            {"CVRun1",         "/uboone/data/users/asmith/ubcc1pi/samples/oct2020/samples/ubcc1piAnalysis_overlays_DetVar_CV_run1.root"},
-            {"LYDown",         "/uboone/data/users/asmith/ubcc1pi/samples/oct2020/samples/ubcc1piAnalysis_overlays_DetVar_LYDown_run1.root"},
-            {"LYRayleigh",     "/uboone/data/users/asmith/ubcc1pi/samples/oct2020/samples/ubcc1piAnalysis_overlays_DetVar_LYRayleigh_run1.root"},
-
-            // Run-3b files
-            {"CVRun3b",        "/uboone/data/users/asmith/ubcc1pi/samples/oct2020/samples/ubcc1piAnalysis_overlays_DetVar_CV_run3b.root"},
-            {"SCE",            "/uboone/data/users/asmith/ubcc1pi/samples/oct2020/samples/ubcc1piAnalysis_overlays_DetVar_SCE_run3b.root"},
-            {"Recomb2",        "/uboone/data/users/asmith/ubcc1pi/samples/oct2020/samples/ubcc1piAnalysis_overlays_DetVar_Recomb2_run3b.root"},
-            {"WireModX",       "/uboone/data/users/asmith/ubcc1pi/samples/oct2020/samples/ubcc1piAnalysis_overlays_DetVar_WireModX_run3b.root"},
-            {"WireModYZ",      "/uboone/data/users/asmith/ubcc1pi/samples/oct2020/samples/ubcc1piAnalysis_overlays_DetVar_WireModYZ_run3b.root"},
-            {"WireModThetaXZ", "/uboone/data/users/asmith/ubcc1pi/samples/oct2020/samples/ubcc1piAnalysis_overlays_DetVar_WireModThetaXZ_run3b.root"},
-            {"WireModThetaYZ", "/uboone/data/users/asmith/ubcc1pi/samples/oct2020/samples/ubcc1piAnalysis_overlays_DetVar_WireModThetaYZ_run3b.root"}
+            {"CV_SCE",         "/uboone/data/users/jdetje/ubcc1pi/sep2020/ubcc1piAnalysis_overlays_DetVar_CV_run1_19Oct.root"},
+            {"CV",             "/uboone/data/users/jdetje/ubcc1pi/sep2020/ubcc1piAnalysis_overlays_DetVar_CV_run1_19Oct.root"}, // Same CV for all run 1 variations 
+            {"LYDown",         "/uboone/data/users/jdetje/ubcc1pi/sep2020/ubcc1piAnalysis_overlays_DetVar_LYDown_run1_19Oct.root"},
+            {"LYRayleigh",     "/uboone/data/users/jdetje/ubcc1pi/sep2020/ubcc1piAnalysis_overlays_DetVar_LYRayleigh_run1_19Oct.root"},
+            {"SCE",            "/uboone/data/users/jdetje/ubcc1pi/sep2020/ubcc1piAnalysis_overlays_DetVar_SCE_run1_19Oct.root"},
+            {"Recomb2",        "/uboone/data/users/jdetje/ubcc1pi/sep2020/ubcc1piAnalysis_overlays_DetVar_Recomb2_run1_19Oct.root"},
+            {"WireModX",       "/uboone/data/users/jdetje/ubcc1pi/sep2020/ubcc1piAnalysis_overlays_DetVar_WireModX_run1_19Oct.root"},
+            {"WireModYZ",      "/uboone/data/users/jdetje/ubcc1pi/sep2020/ubcc1piAnalysis_overlays_DetVar_WireModYZ_run1_19Oct.root"},
+            {"WireModThetaXZ", "/uboone/data/users/jdetje/ubcc1pi/sep2020/ubcc1piAnalysis_overlays_DetVar_WireModThetaXZ_run1_19Oct.root"},
+            {"WireModThetaYZ", "/uboone/data/users/jdetje/ubcc1pi/sep2020/ubcc1piAnalysis_overlays_DetVar_WireModThetaYZ_run1_19Oct.root"}
         };
+
+        // std::vector< std::pair<std::string, std::string> > detVarFiles = {
+        //     // Run-1 files
+        //     {"CVRun1",         "/uboone/data/users/asmith/ubcc1pi/samples/oct2020/samples/ubcc1piAnalysis_overlays_DetVar_CV_run1.root"},
+        //     {"LYDown",         "/uboone/data/users/asmith/ubcc1pi/samples/oct2020/samples/ubcc1piAnalysis_overlays_DetVar_LYDown_run1.root"},
+        //     {"LYRayleigh",     "/uboone/data/users/asmith/ubcc1pi/samples/oct2020/samples/ubcc1piAnalysis_overlays_DetVar_LYRayleigh_run1.root"},
+
+        //     // Run-3b files
+        //     {"CVRun3b",        "/uboone/data/users/asmith/ubcc1pi/samples/oct2020/samples/ubcc1piAnalysis_overlays_DetVar_CV_run3b.root"},
+        //     {"SCE",            "/uboone/data/users/asmith/ubcc1pi/samples/oct2020/samples/ubcc1piAnalysis_overlays_DetVar_SCE_run3b.root"},
+        //     {"Recomb2",        "/uboone/data/users/asmith/ubcc1pi/samples/oct2020/samples/ubcc1piAnalysis_overlays_DetVar_Recomb2_run3b.root"},
+        //     // {"WireModX",       "/uboone/data/users/asmith/ubcc1pi/samples/oct2020/samples/ubcc1piAnalysis_overlays_DetVar_WireModX_run3b.root"},
+        //     // {"WireModYZ",      "/uboone/data/users/asmith/ubcc1pi/samples/oct2020/samples/ubcc1piAnalysis_overlays_DetVar_WireModYZ_run3b.root"},
+        //     // {"WireModThetaXZ", "/uboone/data/users/asmith/ubcc1pi/samples/oct2020/samples/ubcc1piAnalysis_overlays_DetVar_WireModThetaXZ_run3b.root"},
+        //     // {"WireModThetaYZ", "/uboone/data/users/asmith/ubcc1pi/samples/oct2020/samples/ubcc1piAnalysis_overlays_DetVar_WireModThetaYZ_run3b.root"}
+        // };
     };
     FilesRun1 filesRun1; ///< The input files
 
@@ -89,8 +90,8 @@ struct Config
         // September overlays files contain systematic weights
         std::string overlaysFileName = "/uboone/data/users/jdetje/ubcc1pi/sep2020/ubcc1piAnalysis_overlays_run2_07Nov21.root"; ///< Overlays file name inputs        
         std::string dirtFileName     = "/uboone/data/users/jdetje/ubcc1pi/sep2020/ubcc1piAnalysis_dirt_run2_07Nov21.root";     ///< Dirt file name input
-        std::string dataEXTFileName  = "/pnfs/uboone/persistent/users/kduffy/ubcc1pi/ubcc1piAnalysis_extbnb_run2_17Jan22.root";  ///< EXT data file name input
-        std::string dataBNBFileName  = "/pnfs/uboone/persistent/users/kduffy/ubcc1pi/ubcc1piAnalysis_bnb_run2_08Nov21.root";  ///< BNB data file name input
+        std::string dataEXTFileName  = "/uboone/data/users/jdetje/ubcc1pi/sep2020/ubcc1piAnalysis_extbnb_run2_17Jan22.root";  ///< EXT data file name input
+        std::string dataBNBFileName  = "/uboone/data/users/jdetje/ubcc1pi/sep2020/ubcc1piAnalysis_bnb_run2_08Nov21.root";  ///< BNB data file name input
 
         std::string nuWroFileName  = "/uboone/data/users/jdetje/ubcc1pi/sep2020/ubcc1piAnalysis_nuwro_run2_13Dec21.root";  
 
@@ -105,15 +106,16 @@ struct Config
          */
         std::vector< std::pair<std::string, std::string> > detVarFiles = {
             // Run-3 files
-            {"CV",             "/uboone/data/users/jdetje/ubcc1pi/sep2020/ubcc1piAnalysis_overlays_DetVar_CV_run3b_01Jan22.root"},
-            {"LYDown",         "/uboone/data/users/jdetje/ubcc1pi/sep2020/ubcc1piAnalysis_overlays_DetVar_LYDown_run3b_01Jan22.root"},
-            {"LYRayleigh",     "/uboone/data/users/jdetje/ubcc1pi/sep2020/ubcc1piAnalysis_overlays_DetVar_LYRayleigh_run3b_01Jan22.root"},
-            {"SCE",            "/uboone/data/users/jdetje/ubcc1pi/sep2020/ubcc1piAnalysis_overlays_DetVar_SCE_run3b_01Jan22.root"},
-            {"Recomb2",        "/uboone/data/users/jdetje/ubcc1pi/sep2020/ubcc1piAnalysis_overlays_DetVar_Recomb2_run3b_01Jan22.root"},
-            {"WireModX",       "/uboone/data/users/jdetje/ubcc1pi/sep2020/ubcc1piAnalysis_overlays_DetVar_WireModX_run3b_01Jan22.root"},
-            {"WireModYZ",      "/uboone/data/users/jdetje/ubcc1pi/sep2020/ubcc1piAnalysis_overlays_DetVar_WireModYZ_run3b_01Jan22.root"},
-            {"WireModThetaXZ", "/uboone/data/users/jdetje/ubcc1pi/sep2020/ubcc1piAnalysis_overlays_DetVar_WireModThetaXZ_run3b_01Jan22.root"},
-            {"WireModThetaYZ", "/uboone/data/users/jdetje/ubcc1pi/sep2020/ubcc1piAnalysis_overlays_DetVar_WireModThetaYZ_run3b_01Jan22.root"}
+            {"CV_SCE",         "/uboone/data/users/jdetje/ubcc1pi/sep2020/ubcc1piAnalysis_overlays_DetVar_CV_run3ab_09Mar22.root"},
+            {"CV",             "/uboone/data/users/jdetje/ubcc1pi/sep2020/ubcc1piAnalysis_overlays_DetVar_CV_run3ab_high_09Mar22.root"},
+            {"LYDown",         "/uboone/data/users/jdetje/ubcc1pi/sep2020/ubcc1piAnalysis_overlays_DetVar_LYDown_run3ab_high_09Mar22.root"},
+            {"LYRayleigh",     "/uboone/data/users/jdetje/ubcc1pi/sep2020/ubcc1piAnalysis_overlays_DetVar_LYRayleigh_run3ab_high_09Mar22.root"},
+            {"SCE",            "/uboone/data/users/jdetje/ubcc1pi/sep2020/ubcc1piAnalysis_overlays_DetVar_SCE_run3ab_09Mar22.root"},
+            {"Recomb2",        "/uboone/data/users/jdetje/ubcc1pi/sep2020/ubcc1piAnalysis_overlays_DetVar_Recomb2_run3ab_09Mar22.root"},
+            {"WireModX",       "/uboone/data/users/jdetje/ubcc1pi/sep2020/ubcc1piAnalysis_overlays_DetVar_WireModX_run3ab_high_09Mar22.root"},
+            {"WireModYZ",      "/uboone/data/users/jdetje/ubcc1pi/sep2020/ubcc1piAnalysis_overlays_DetVar_WireModYZ_run3ab_high_09Mar22.root"},
+            {"WireModThetaXZ", "/uboone/data/users/jdetje/ubcc1pi/sep2020/ubcc1piAnalysis_overlays_DetVar_WireModThetaXZ_run3ab_high_09Mar22.root"},
+            {"WireModThetaYZ", "/uboone/data/users/jdetje/ubcc1pi/sep2020/ubcc1piAnalysis_overlays_DetVar_WireModThetaYZ_run3ab_high_09Mar22.root"}
         };
     };
     FilesRun2 filesRun2; ///< The input files
@@ -123,8 +125,8 @@ struct Config
         // September overlays files contain systematic weights
         std::string overlaysFileName = "/uboone/data/users/jdetje/ubcc1pi/sep2020/ubcc1piAnalysis_overlays_run3_07Nov21.root"; ///< Overlays file name inputs
         std::string dirtFileName     = "/uboone/data/users/jdetje/ubcc1pi/sep2020/ubcc1piAnalysis_dirt_run3_07Nov21.root";     ///< Dirt file name input
-        std::string dataEXTFileName  = "/pnfs/uboone/persistent/users/kduffy/ubcc1pi/ubcc1piAnalysis_bnb_run3_17Jan22.root";  ///< EXT data file name input
-        std::string dataBNBFileName  = "/pnfs/uboone/persistent/users/kduffy/ubcc1pi/ubcc1piAnalysis_extbnb_run3_17Jan22.root";  ///< BNB data file name input
+        std::string dataEXTFileName  = "/uboone/data/users/jdetje/ubcc1pi/sep2020/ubcc1piAnalysis_extbnb_run3_17Jan22.root";  ///< EXT data file name input
+        std::string dataBNBFileName  = "/uboone/data/users/jdetje/ubcc1pi/sep2020/ubcc1piAnalysis_bnb_run3_17Jan22.root";  ///< BNB data file name input
 
         std::string nuWroFileName  = "/uboone/data/users/jdetje/ubcc1pi/sep2020/ubcc1piAnalysis_nuwro_run3_14Dec21.root";
 
@@ -139,15 +141,16 @@ struct Config
          */
         std::vector< std::pair<std::string, std::string> > detVarFiles = {
             // Run-3 files
-            {"CV",             "/uboone/data/users/jdetje/ubcc1pi/sep2020/ubcc1piAnalysis_overlays_DetVar_CV_run3b_01Jan22.root"},
-            {"LYDown",         "/uboone/data/users/jdetje/ubcc1pi/sep2020/ubcc1piAnalysis_overlays_DetVar_LYDown_run3b_01Jan22.root"},
-            {"LYRayleigh",     "/uboone/data/users/jdetje/ubcc1pi/sep2020/ubcc1piAnalysis_overlays_DetVar_LYRayleigh_run3b_01Jan22.root"},
-            {"SCE",            "/uboone/data/users/jdetje/ubcc1pi/sep2020/ubcc1piAnalysis_overlays_DetVar_SCE_run3b_01Jan22.root"},
-            {"Recomb2",        "/uboone/data/users/jdetje/ubcc1pi/sep2020/ubcc1piAnalysis_overlays_DetVar_Recomb2_run3b_01Jan22.root"},
-            {"WireModX",       "/uboone/data/users/jdetje/ubcc1pi/sep2020/ubcc1piAnalysis_overlays_DetVar_WireModX_run3b_01Jan22.root"},
-            {"WireModYZ",      "/uboone/data/users/jdetje/ubcc1pi/sep2020/ubcc1piAnalysis_overlays_DetVar_WireModYZ_run3b_01Jan22.root"},
-            {"WireModThetaXZ", "/uboone/data/users/jdetje/ubcc1pi/sep2020/ubcc1piAnalysis_overlays_DetVar_WireModThetaXZ_run3b_01Jan22.root"},
-            {"WireModThetaYZ", "/uboone/data/users/jdetje/ubcc1pi/sep2020/ubcc1piAnalysis_overlays_DetVar_WireModThetaYZ_run3b_01Jan22.root"}
+            {"CV_SCE",         "/uboone/data/users/jdetje/ubcc1pi/sep2020/ubcc1piAnalysis_overlays_DetVar_CV_run3ab_09Mar22.root"},
+            {"CV",             "/uboone/data/users/jdetje/ubcc1pi/sep2020/ubcc1piAnalysis_overlays_DetVar_CV_run3ab_high_09Mar22.root"},
+            {"LYDown",         "/uboone/data/users/jdetje/ubcc1pi/sep2020/ubcc1piAnalysis_overlays_DetVar_LYDown_run3ab_high_09Mar22.root"},
+            {"LYRayleigh",     "/uboone/data/users/jdetje/ubcc1pi/sep2020/ubcc1piAnalysis_overlays_DetVar_LYRayleigh_run3ab_high_09Mar22.root"},
+            {"SCE",            "/uboone/data/users/jdetje/ubcc1pi/sep2020/ubcc1piAnalysis_overlays_DetVar_SCE_run3ab_09Mar22.root"},
+            {"Recomb2",        "/uboone/data/users/jdetje/ubcc1pi/sep2020/ubcc1piAnalysis_overlays_DetVar_Recomb2_run3ab_09Mar22.root"},
+            {"WireModX",       "/uboone/data/users/jdetje/ubcc1pi/sep2020/ubcc1piAnalysis_overlays_DetVar_WireModX_run3ab_high_09Mar22.root"},
+            {"WireModYZ",      "/uboone/data/users/jdetje/ubcc1pi/sep2020/ubcc1piAnalysis_overlays_DetVar_WireModYZ_run3ab_high_09Mar22.root"},
+            {"WireModThetaXZ", "/uboone/data/users/jdetje/ubcc1pi/sep2020/ubcc1piAnalysis_overlays_DetVar_WireModThetaXZ_run3ab_high_09Mar22.root"},
+            {"WireModThetaYZ", "/uboone/data/users/jdetje/ubcc1pi/sep2020/ubcc1piAnalysis_overlays_DetVar_WireModThetaYZ_run3ab_high_09Mar22.root"}
         };
     };
     FilesRun3 filesRun3; ///< The input files
@@ -177,36 +180,41 @@ struct Config
         float  dataBNBE1DCNTWCut  = 34076199.0;     ///< The BNB spills sent by the accelerator division (with quality cuts)
         // Andy S files: 32339256.0, Kirsty D files (Jan 21): 34076199.0
 
-        // /**
-        //  *  @brief  The detector variation POTs
-        //  */
-        // std::unordered_map<std::string, float> detVarPOTs = {
-        //     {"CV",             6.13708e+20},    // Andy/Kirst version: 1.14339e+20
-        //     {"LYDown",         6.14119e+20},    // Andy/Kirst version: 1.05031e+20
-        //     {"LYRayleigh",     6.21255e+20},    // Andy/Kirst version: 1.06661e+20
-        //     {"SCE",            6.11946e+20},    // Andy/Kirst version: 1.02517e+20
-        //     {"Recomb2",        6.18821e+20},    // Andy/Kirst version: 1.00832e+20
-        //     {"WireModX",       6.16338e+20},    // Andy/Kirst version: 1.09739e+20
-        //     {"WireModYZ",      6.1371e+20},     // Andy/Kirst version: 1.10877e+20
-        //     {"WireModThetaXZ", 6.18155e+20},    // Andy/Kirst version: 1.12906e+20
-        //     {"WireModThetaYZ", 6.15852e+20}     // Andy/Kirst version: 1.09244e+20
-        // };
+        float nuWroPOT            = 3.0867e+20;      ///< The total POT for the nuWro MC
+        // float  nuWroTor875WCut  = 1.627e+19;      ///< The POT measured by the 875m toroid (with quality cuts)
+        // float  nuWroE1DCNTWCut  = 3578340.0;     ///< The BNB spills sent by the accelerator division (with quality cuts)
 
         /**
          *  @brief  The detector variation POTs
          */
         std::unordered_map<std::string, float> detVarPOTs = {
-            {"CVRun1",         1.14339e+20},
-            {"LYDown",         1.05031e+20},
-            {"LYRayleigh",     1.06661e+20},
-            {"CVRun3b",        9.82298e+19},
-            {"SCE",            1.02517e+20},
-            {"Recomb2",        1.00832e+20},
-            {"WireModX",       1.09739e+20},
-            {"WireModYZ",      1.10877e+20},
-            {"WireModThetaXZ", 1.12906e+20},
-            {"WireModThetaYZ", 1.09244e+20}
+            {"CV",             6.13708e+20},    // Andy/Kirst version: 1.14339e+20
+            {"CV_SCE",         6.13708e+20},
+            {"LYDown",         6.14119e+20},    // Andy/Kirst version: 1.05031e+20
+            {"LYRayleigh",     6.21255e+20},    // Andy/Kirst version: 1.06661e+20
+            {"SCE",            6.11946e+20},    // Andy/Kirst version: 1.02517e+20
+            {"Recomb2",        6.18821e+20},    // Andy/Kirst version: 1.00832e+20
+            {"WireModX",       6.16338e+20},    // Andy/Kirst version: 1.09739e+20
+            {"WireModYZ",      6.1371e+20},     // Andy/Kirst version: 1.10877e+20
+            {"WireModThetaXZ", 6.18155e+20},    // Andy/Kirst version: 1.12906e+20
+            {"WireModThetaYZ", 6.15852e+20}     // Andy/Kirst version: 1.09244e+20
         };
+
+        /**
+         *  @brief  The detector variation POTs
+         */
+        // std::unordered_map<std::string, float> detVarPOTs = {
+        //     {"CVRun1",         1.14339e+20},
+        //     {"LYDown",         1.05031e+20},
+        //     {"LYRayleigh",     1.06661e+20},
+        //     {"CVRun3b",        9.82298e+19},
+        //     {"SCE",            1.02517e+20},
+        //     {"Recomb2",        1.00832e+20},
+        //     {"WireModX",       1.09739e+20},
+        //     {"WireModYZ",      1.10877e+20},
+        //     {"WireModThetaXZ", 1.12906e+20},
+        //     {"WireModThetaYZ", 1.09244e+20}
+        // };
     };
     NormsRun1 normsRun1; ///< The sample normalisations
 
@@ -222,30 +230,30 @@ struct Config
      */
     struct NormsRun2
     {
-        float  overlaysPOT        = 1.195e+21;// TODO: REMOVE!! 6.42546e+19 POT for overlays_08Oct21_test_head20.root //1.195e+21;      ///< The total POT for the overlays MC
-        // Andy S files: 1.22447e+21, Kirsty D files (Jan 21):  1.18578e+21, Philip D files (Oct 08) 1.195e+21 
-        float  dirtPOT            = 2.63523e+20;    ///< The total POT for the dirt MC
-        // Andy S files: 2.85049e+20, Kirsty D files (Jan 21): 2.91414e+20, Philip D files (Oct 08) 2.63523e+20 
-        float  dataEXTTriggers    = 64322029.0;     ///< The EXT triggers for the EXT data
-        // Andy S files: 62540367.0, Kirsty D files (Jan 21): 64322029.0
-        float  dataBNBTor875WCut  = 1.532e+20;      ///< The POT measured by the 875m toroid (with quality cuts)
-        // Andy S files: 1.455e+20, Kirsty D files (Jan 21): 1.532e+20
-        float  dataBNBE1DCNTWCut  = 34076199.0;     ///< The BNB spills sent by the accelerator division (with quality cuts)
-        // Andy S files: 32339256.0, Kirsty D files (Jan 21): 34076199.0
+        float  overlaysPOT        = 4.38501e+20;
+        float  dirtPOT            = 4.40468e+20;
+        float  dataEXTTriggers    = 87761971.0;
+        float  dataBNBTor875WCut  = 1.94e+20;
+        float  dataBNBE1DCNTWCut  = 42667752.0;
+
+        // float  nuWroTor875WCut  = 2.278e+19;      ///< The POT measured by the 875m toroid (with quality cuts)
+        // float  nuWroE1DCNTWCut  = 5397028.0;     ///< The BNB spills sent by the accelerator division (with quality cuts)
+        float nuWroPOT            = 3.14564e+20;      ///< The total POT for the nuWro MC
 
         /**
          *  @brief  The detector variation POTs
          */
         std::unordered_map<std::string, float> detVarPOTs = {
-            {"CV",             6.13708e+20},    // Andy/Kirst version: 1.14339e+20
-            {"LYDown",         6.14119e+20},    // Andy/Kirst version: 1.05031e+20
-            {"LYRayleigh",     6.21255e+20},    // Andy/Kirst version: 1.06661e+20
-            {"SCE",            6.11946e+20},    // Andy/Kirst version: 1.02517e+20
-            {"Recomb2",        6.18821e+20},    // Andy/Kirst version: 1.00832e+20
-            {"WireModX",       6.16338e+20},    // Andy/Kirst version: 1.09739e+20
-            {"WireModYZ",      6.1371e+20},     // Andy/Kirst version: 1.10877e+20
-            {"WireModThetaXZ", 6.18155e+20},    // Andy/Kirst version: 1.12906e+20
-            {"WireModThetaYZ", 6.15852e+20}     // Andy/Kirst version: 1.09244e+20
+            {"CV",             1.35602e+21},//4.85185e+20},
+            {"CV_SCE",         5.46746e+20},//4.85185e+20},
+            {"LYDown",         1.36375e+21},//4.72026e+20},
+            {"LYRayleigh",     1.35301e+21},//5.11749e+20},
+            {"SCE",            6.7823e+20},//6.17584e+20},
+            {"Recomb2",        6.96454e+20},//6.34396e+20},
+            {"WireModX",       1.33697e+21},//6.265e+20},
+            {"WireModYZ",      1.35337e+21},//6.24617e+20},
+            {"WireModThetaXZ", 1.27112e+21},//6.16842e+20},
+            {"WireModThetaYZ", 1.35387e+21}//6.16682e+20}
         };
     };
     NormsRun2 normsRun2; ///< The sample normalisations
@@ -262,30 +270,29 @@ struct Config
      */
     struct NormsRun3
     {
-        float  overlaysPOT        = 1.195e+21;// TODO: REMOVE!! 6.42546e+19 POT for overlays_08Oct21_test_head20.root //1.195e+21;      ///< The total POT for the overlays MC
-        // Andy S files: 1.22447e+21, Kirsty D files (Jan 21):  1.18578e+21, Philip D files (Oct 08) 1.195e+21 
-        float  dirtPOT            = 2.63523e+20;    ///< The total POT for the dirt MC
-        // Andy S files: 2.85049e+20, Kirsty D files (Jan 21): 2.91414e+20, Philip D files (Oct 08) 2.63523e+20 
-        float  dataEXTTriggers    = 64322029.0;     ///< The EXT triggers for the EXT data
-        // Andy S files: 62540367.0, Kirsty D files (Jan 21): 64322029.0
-        float  dataBNBTor875WCut  = 1.532e+20;      ///< The POT measured by the 875m toroid (with quality cuts)
-        // Andy S files: 1.455e+20, Kirsty D files (Jan 21): 1.532e+20
-        float  dataBNBE1DCNTWCut  = 34076199.0;     ///< The BNB spills sent by the accelerator division (with quality cuts)
-        // Andy S files: 32339256.0, Kirsty D files (Jan 21): 34076199.0
+        float  overlaysPOT        = 8.92215e+20; 
+        float  dirtPOT            = 1.61137e+20; 
+        float  dataEXTTriggers    = 126185602.0;//130439550.0;
+        float  dataBNBTor875WCut  = 2.051e+20;//1.996e+20;
+        float  dataBNBE1DCNTWCut  = 49186781.0;//47886106.0;
 
+        // float  nuWroTor875WCut  = 2.195e+19;      ///< The POT measured by the 875m toroid (with quality cuts)
+        // float  nuWroE1DCNTWCut  = 5215049.0;     ///< The BNB spills sent by the accelerator division (with quality cuts)
+        float nuWroPOT            = 3.15446e+20;      ///< The total POT for the nuWro MC
         /**
          *  @brief  The detector variation POTs
          */
         std::unordered_map<std::string, float> detVarPOTs = {
-            {"CV",             6.13708e+20},    // Andy/Kirst version: 1.14339e+20
-            {"LYDown",         6.14119e+20},    // Andy/Kirst version: 1.05031e+20
-            {"LYRayleigh",     6.21255e+20},    // Andy/Kirst version: 1.06661e+20
-            {"SCE",            6.11946e+20},    // Andy/Kirst version: 1.02517e+20
-            {"Recomb2",        6.18821e+20},    // Andy/Kirst version: 1.00832e+20
-            {"WireModX",       6.16338e+20},    // Andy/Kirst version: 1.09739e+20
-            {"WireModYZ",      6.1371e+20},     // Andy/Kirst version: 1.10877e+20
-            {"WireModThetaXZ", 6.18155e+20},    // Andy/Kirst version: 1.12906e+20
-            {"WireModThetaYZ", 6.15852e+20}     // Andy/Kirst version: 1.09244e+20
+            {"CV",             1.35602e+21},//4.85185e+20},
+            {"CV_SCE",         5.46746e+20},//4.85185e+20},
+            {"LYDown",         1.36375e+21},//4.72026e+20},
+            {"LYRayleigh",     1.35301e+21},//5.11749e+20},
+            {"SCE",            6.7823e+20},//6.17584e+20},
+            {"Recomb2",        6.96454e+20},//6.34396e+20},
+            {"WireModX",       1.33697e+21},//6.265e+20},
+            {"WireModYZ",      1.35337e+21},//6.24617e+20},
+            {"WireModThetaXZ", 1.27112e+21},//6.16842e+20},
+            {"WireModThetaYZ", 1.35387e+21}//6.16682e+20}
         };
     };
     NormsRun3 normsRun3; ///< The sample normalisations
@@ -295,7 +302,7 @@ struct Config
     /**
      *  @brief  The flux structure
      */
-    struct FluxRun1
+    struct FluxRun
     {
         std::string  fileName             = "/uboone/data/users/asmith/ubcc1pi/samples/flux/MCC9_FluxHist_volTPCActive.root";  ///< The path to the file containing the flux in each systematic universe
         float        pot                  = 4997 * 5e8;                                                                        ///< The total number of protons-on-target simulated in the input flux file
@@ -316,64 +323,8 @@ struct Config
         std::string  variationDirPattern  = "NEUTRINO_ms_PARAMNAME";                 ///< The pattern for the directory corresponding to each systematic paramter (NEUTRINO and PARAMNAME are replaced)
         std::string  variationHistPattern = "hENEUTRINO_PARAMNAME_ms_UNIVERSEINDEX"; ///< The pattern for the flux histogram corresponding to each universe in a given directory (NEUTRINO, PARAMNAME and UNIVERSEINDEX are replace)
     };
-    FluxRun1 fluxRun1; ///< The flux
-    FluxRun1 flux; ///< The flux
-
-        // -------------------------------------------------------------------------------------------------------------------------------------
-
-    /**
-     *  @brief  The flux structure
-     */
-    struct FluxRun2
-    {
-        std::string  fileName             = "/uboone/data/users/asmith/ubcc1pi/samples/flux/MCC9_FluxHist_volTPCActive.root";  ///< The path to the file containing the flux in each systematic universe
-        float        pot                  = 4997 * 5e8;                                                                        ///< The total number of protons-on-target simulated in the input flux file
-
-        /**
-        *  @brief  A mapping from neutrino PDG codes, to the names used in the flux file
-        */
-        std::map<int, std::string> nuPdgToHistName = {
-            {+12, "nue"},
-            {-12, "nuebar"},
-            {+14, "numu"},
-            {-14, "numubar"},
-        };
-
-        std::vector<int> nuPdgsSignal = {-14, +14}; ///< The neutrino PDG codes for the fluxes to use in the cross-section calculation
-
-        std::string  nomHistPattern       = "hENEUTRINO_cv";                         ///< The pattern for the nominal flux historam names (NEUTRINO is replaced by one of the names in nuPdgToHistMap)
-        std::string  variationDirPattern  = "NEUTRINO_ms_PARAMNAME";                 ///< The pattern for the directory corresponding to each systematic paramter (NEUTRINO and PARAMNAME are replaced)
-        std::string  variationHistPattern = "hENEUTRINO_PARAMNAME_ms_UNIVERSEINDEX"; ///< The pattern for the flux histogram corresponding to each universe in a given directory (NEUTRINO, PARAMNAME and UNIVERSEINDEX are replace)
-    };
-    FluxRun2 fluxRun2; ///< The flux
-
-        // -------------------------------------------------------------------------------------------------------------------------------------
-
-    /**
-     *  @brief  The flux structure
-     */
-    struct FluxRun3
-    {
-        std::string  fileName             = "/uboone/data/users/asmith/ubcc1pi/samples/flux/MCC9_FluxHist_volTPCActive.root";  ///< The path to the file containing the flux in each systematic universe
-        float        pot                  = 4997 * 5e8;                                                                        ///< The total number of protons-on-target simulated in the input flux file
-
-        /**
-        *  @brief  A mapping from neutrino PDG codes, to the names used in the flux file
-        */
-        std::map<int, std::string> nuPdgToHistName = {
-            {+12, "nue"},
-            {-12, "nuebar"},
-            {+14, "numu"},
-            {-14, "numubar"},
-        };
-
-        std::vector<int> nuPdgsSignal = {-14, +14}; ///< The neutrino PDG codes for the fluxes to use in the cross-section calculation
-
-        std::string  nomHistPattern       = "hENEUTRINO_cv";                         ///< The pattern for the nominal flux historam names (NEUTRINO is replaced by one of the names in nuPdgToHistMap)
-        std::string  variationDirPattern  = "NEUTRINO_ms_PARAMNAME";                 ///< The pattern for the directory corresponding to each systematic paramter (NEUTRINO and PARAMNAME are replaced)
-        std::string  variationHistPattern = "hENEUTRINO_PARAMNAME_ms_UNIVERSEINDEX"; ///< The pattern for the flux histogram corresponding to each universe in a given directory (NEUTRINO, PARAMNAME and UNIVERSEINDEX are replace)
-    };
-    FluxRun3 fluxRun3; ///< The flux
+    FluxRun fluxRun1; ///< The flux
+    FluxRun flux; ///< The flux
 
     // -------------------------------------------------------------------------------------------------------------------------------------
 
@@ -390,8 +341,8 @@ struct Config
         std::string selection               = "Default";         ///< Which selection to use (can be "CCInclusive","Default", or "CC0pi")
         bool        axisTitles              = true;              ///< If we want to draw axis lables and titles on the plots (if false, they are not drawn so you can add your own later)
         bool        scaleByBinWidth         = true;
-        bool        useCC0piConstraint      = true;              ///< If we should use the CC0pi selection to constrain CC1pi cross-section  
-        std::vector<unsigned int> runs      = {1};           ///< The runs to use in the analysis
+        bool        useCC0piConstraint      = true;              ///< If we should use the CC0pi selection to constrain CC1pi cross-section
+        std::vector<unsigned int> runs      = {1,2,3};           ///< The runs to use in the analysis
 
         /**
          *  @brief  The Binning structure
@@ -501,8 +452,9 @@ struct Config
     struct CountPOT
     {
         bool  useOverlays           = false; ///< If we should count the POT for the overlays
-        bool  useDirt               = true; ///< If we should count the POT for the dirt
-        bool  useDetectorVariations = true; ///< If we should count the POT for the detector variations
+        bool  useDirt               = false; ///< If we should count the POT for the dirt
+        bool  useDetectorVariations = false; ///< If we should count the POT for the detector variations
+        bool  useNuWro              = true; ///< If we should count the POT for NuWro
     };
     CountPOT countPOT; ///< The configuration options for the CountPOT macro
 
@@ -515,6 +467,7 @@ struct Config
     {
         bool  useDataEXT = true; ///< If we should run on the EXT data
         bool  useDataBNB = true; ///< If we should run on the BNB data
+        bool  useNuWro = true;   ///< If we should run on the NuWro files
     };
     GetRunSubrunList getRunSubrunList; ///< The configuration options for the GetRunSubrunList macro
 
@@ -548,7 +501,7 @@ struct Config
     struct NMinusOneBDTStudy
     {
         bool shouldTrainBDTs = true;                                          ///< If we should run the BDT training (if false then look for trained BDTs)
-        PlottingHelper::PlotStyle signalType = PlottingHelper::GoldenPion;    ///< The type of particle considered signal by the BDT in question
+        PlottingHelper::PlotStyle signalType = PlottingHelper::Muon;    ///< The type of particle considered signal by the BDT in question
         std::vector< std::string > featureNames = {
             "logBragg_pToMIP",
             "logBragg_piToMIP",
@@ -631,28 +584,28 @@ struct Config
         std::unordered_map<std::string, std::unordered_map<std::string, bool> > crossSectionIsEnabled = {
             {
                 "generic", {
-                    {"total",         true },
-                    {"muonCosTheta",  true },
-                    {"muonPhi",       true },
+                    {"total",         false },
+                    {"muonCosTheta",  false },
+                    {"muonPhi",       false },
                     {"muonMomentum",  true },
-                    {"pionCosTheta",  true },
-                    {"pionPhi",       true },
+                    {"pionCosTheta",  false },
+                    {"pionPhi",       false },
                     {"pionMomentum",  true },
-                    {"muonPionAngle", true },
+                    {"muonPionAngle", false },
                     {"nProtons",      true }
                 }
             },
             {
                 "golden", {
-                    {"total",         true },
-                    {"muonCosTheta",  true },
-                    {"muonPhi",       true },
-                    {"muonMomentum",  true },
-                    {"pionCosTheta",  true },
-                    {"pionPhi",       true },
+                    {"total",         false },
+                    {"muonCosTheta",  false },
+                    {"muonPhi",       false },
+                    {"muonMomentum",  false },
+                    {"pionCosTheta",  false },
+                    {"pionPhi",       false },
                     {"pionMomentum",  true },
-                    {"muonPionAngle", true },
-                    {"nProtons",      true }
+                    {"muonPionAngle", false },
+                    {"nProtons",      false }
                 }
             }
         };
@@ -699,27 +652,39 @@ struct Config
             {"reinteractions_proton_Geant4",  1000u}
         }; ///< A mapping from the reinteraction parameter names to the number of universes
 
-        // CrossSectionHelper::SystUnisimDimensionsMap detVarDimensions = {
+        CrossSectionHelper::SystUnisimDimensionsMap detVarDimensions = {
+            {"LYDown",         "CV"},
+            {"LYRayleigh",     "CV"},
+            {"SCE",            "CV_SCE"},
+            {"Recomb2",        "CV_SCE"},
+            {"WireModX",       "CV"},
+            {"WireModYZ",      "CV"},
+            {"WireModThetaXZ", "CV"},
+            {"WireModThetaYZ", "CV"}
+        }; ///< A mapping from the detector variation sample identifiers, to the identifiers for their relevant central-value sample
+
+        // CrossSectionHelper::SystUnisimDimensionsMap detVarDimensionsRun23 = {
         //     {"LYDown",         "CV"},
         //     {"LYRayleigh",     "CV"},
-        //     {"SCE",            "CV"},
-        //     {"Recomb2",        "CV"},
+        //     {"SCE",            "CV_SCE"},
+        //     {"Recomb2",        "CV_SCE"},
         //     {"WireModX",       "CV"},
         //     {"WireModYZ",      "CV"},
         //     {"WireModThetaXZ", "CV"},
         //     {"WireModThetaYZ", "CV"}
         // }; ///< A mapping from the detector variation sample identifiers, to the identifiers for their relevant central-value sample
 
-        CrossSectionHelper::SystUnisimDimensionsMap detVarDimensions = {
-            {"LYDown",         "CVRun1"},
-            {"LYRayleigh",     "CVRun1"},
-            {"SCE",            "CVRun3b"},
-            {"Recomb2",        "CVRun3b"},
-            {"WireModX",       "CVRun3b"},
-            {"WireModYZ",      "CVRun3b"},
-            {"WireModThetaXZ", "CVRun3b"},
-            {"WireModThetaYZ", "CVRun3b"}
-        }; ///< A mapping from the detector variation sample identifiers, to the identifiers for their relevant central-value sample
+        // CrossSectionHelper::SystUnisimDimensionsMap detVarDimensions = {
+        //     {"LYDown",         "CVRun1"},
+        //     {"LYRayleigh",     "CVRun1"},
+        //     {"SCE",            "CVRun3b"},
+        //     {"Recomb2",        "CVRun3b"},
+        //     // {"WireModX",       "CVRun3b"},
+        //     // {"WireModYZ",      "CVRun3b"},
+        //     // {"WireModThetaXZ", "CVRun3b"},
+        //     // {"WireModThetaYZ", "CVRun3b"}
+        // }; ///< A mapping from the detector variation sample identifiers, to the identifiers for their relevant central-value sample
+        
         /**
         *  @brief  A mapping from a user-defined parameter name, to corresponding set of mutually exclusive parameter names and the number of universes
         *

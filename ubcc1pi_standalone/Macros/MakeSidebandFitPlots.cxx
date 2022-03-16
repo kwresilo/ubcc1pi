@@ -145,16 +145,16 @@ void MakeSidebandFitPlots(const Config &config)
             std::vector<float> binEdges;
             for (unsigned int iBin = 0; iBin < metadata.GetNBins(); ++iBin)
             {
-                // Skip underflow/overflow bins
-                if (metadata.IsUnderOverflowBin(iBin))
-                    continue;
+                // // Skip underflow/overflow bins
+                // if (metadata.IsUnderOverflowBin(iBin))
+                //     continue;
 
                 // If this is the first bin then add the lower edge
                 if (binEdges.empty())
                 {
                     if (metadata.IsScaledByBinWidth())
                     {
-                        binEdges.push_back(extendedBinEdges.at(iBin));
+                        binEdges.push_back(std::min(5.f, extendedBinEdges.at(iBin)));
                     }
                     else
                     {
@@ -166,7 +166,7 @@ void MakeSidebandFitPlots(const Config &config)
                 // Add the upper bin edge
                 if (metadata.IsScaledByBinWidth())
                 {
-                    binEdges.push_back(extendedBinEdges.at(iBin + 1));
+                    binEdges.push_back(std::min(5.f, extendedBinEdges.at(iBin + 1)));
                 }
                 else
                 {
@@ -487,16 +487,16 @@ void MakeSidebandFitPlots(const Config &config)
             std::vector<float> binEdges;
             for (unsigned int iBin = 0; iBin < metadata.GetNBins(); ++iBin)
             {
-                // Skip underflow/overflow bins
-                if (metadata.IsUnderOverflowBin(iBin))
-                    continue;
+                // // Skip underflow/overflow bins
+                // if (metadata.IsUnderOverflowBin(iBin))
+                //     continue;
 
                 // If this is the first bin then add the lower edge
                 if (binEdges.empty())
                 {
                     if (metadata.IsScaledByBinWidth())
                     {
-                        binEdges.push_back(extendedBinEdges.at(iBin));
+                        binEdges.push_back(std::min(5.f, extendedBinEdges.at(iBin)));
                     }
                     else
                     {
@@ -508,7 +508,7 @@ void MakeSidebandFitPlots(const Config &config)
                 // Add the upper bin edge
                 if (metadata.IsScaledByBinWidth())
                 {
-                    binEdges.push_back(extendedBinEdges.at(iBin + 1));
+                    binEdges.push_back(std::min(5.f, extendedBinEdges.at(iBin + 1)));
                 }
                 else
                 {
@@ -517,296 +517,310 @@ void MakeSidebandFitPlots(const Config &config)
                 }
             }
 
-            const auto weightDimensions = {std::make_pair("xsec", systParams.xsecDimensions), std::make_pair("reint", systParams.reintDimensions), std::make_pair("flux", systParams.fluxDimensions)};
-            for (const auto &[group, dimensions] : weightDimensions)
+            for (unsigned int iUni = 0; iUni < 20; ++iUni)
             {
-                for (const auto &[paramName, nUniverses] : dimensions)
+                const auto weightDimensions = {std::make_pair("xsec", systParams.xsecDimensions), std::make_pair("reint", systParams.reintDimensions), std::make_pair("flux", systParams.fluxDimensions)};
+                for (const auto &[group, dimensions] : weightDimensions)
                 {
-                    const std::string prefix = "sidebandFitPlots_" + selectionName + "_" + xsecName + "_" + group + "_" + paramName + "_" + std::to_string(5);
-
-                    if(nUniverses<5) continue;
-                    const auto selectedEventsSignalTruth = ubsmear::UBFileHelper::ReadMatrix("SidebandFit_" + selectionName + "_" + xsecName  + "_" + group + "_" + paramName + "_" + std::to_string(5) + "_selectedEventsSignalTruth.txt");
-                    const auto selectedEventsBackgroundReco = ubsmear::UBFileHelper::ReadMatrix("SidebandFit_" + selectionName + "_" + xsecName + "_" + group + "_" + paramName + "_" + std::to_string(5) + "_selectedEventsBackgroundReco.txt");
-                    const auto smearingMatrix = ubsmear::UBFileHelper::ReadMatrix("SidebandFit_" + selectionName + "_" + xsecName + "_" + group + "_" + paramName + "_" + std::to_string(5) + "_smearingMatrix.txt");
-
-                    const auto signalData = selectedEventsData - selectedEventsBackgroundReco;
-                    const auto selectedEventsSignalReco = smearingMatrix * selectedEventsSignalTruth;
-
-                    auto cc0piUniverseConstraintParam = cc0piUniverseConstraintMap.at(selectionName).at(xsecName).at(paramName).at(5).first;
-                    auto cc0piUniverseConstraintParamError = cc0piUniverseConstraintMap.at(selectionName).at(xsecName).at(paramName).at(5).second;
-                    const vector<float> cc0piUniverseConstraintParamFloat(cc0piUniverseConstraintParam.begin(), cc0piUniverseConstraintParam.end());
-                    const ubsmear::UBMatrix sidebandParamVectorTruth(cc0piUniverseConstraintParamFloat, cc0piUniverseConstraintParam.size(), 1);
-                    const auto scaledSelectedEventsSignalTruth = ElementWiseOperation(selectedEventsSignalTruth, sidebandParamVectorTruth, [](const auto &l, const auto& r) { return l * r; });
-                    const auto scaledSelectedEventsSignalReco = smearingMatrix * scaledSelectedEventsSignalTruth;
-
-
-                    // -----------------------------------------------------------------------------------------------------------------------------
-                    // Data vs Prediction
-                    // -----------------------------------------------------------------------------------------------------------------------------
-                    // Setup the data histogram and the prediction histogram
-                    auto pDataHist = std::make_shared<TH1F>((prefix + "_raw_data").c_str(), "", binEdges.size() - 1, binEdges.data());
-                    // auto pDataStatOnlyHist = std::make_shared<TH1F>((prefix + "_dataStatOnly").c_str(), "", binEdges.size() - 1, binEdges.data());
-                    auto pPredictionHist = std::make_shared<TH1F>((prefix + "_raw_prediction").c_str(), "", binEdges.size() - 1, binEdges.data());
-
-                    // Fill the bins
-                    // ATTN here we only show the diagonals of the error matrices
-                    float minY = +std::numeric_limits<float>::max();
-                    float maxY = -std::numeric_limits<float>::max();
-                    // const auto dataStatErrorMatrix = errorMatrixMap.at("data").at("stat");
-                    for (unsigned int iBin = 1; iBin <= binEdges.size() - 1; ++iBin)
+                    for (const auto &[paramName, nUniverses] : dimensions)
                     {
-                        // Set the values for the data histogram
-                        const auto dataValue = signalData.At(iBin - 1, 0);
-                        // const auto dataError = std::pow(totalDataErrorMatrix.At(iBin - 1, iBin - 1), 0.5f);
-                        // const auto dataStatOnlyError = std::pow(dataStatErrorMatrix.At(iBin - 1, iBin - 1), 0.5f);
+                        const std::string prefix = "sidebandFitPlots_" + selectionName + "_" + xsecName + "_" + group + "_" + paramName + "_" + std::to_string(iUni);
 
-                        pDataHist->SetBinContent(iBin, dataValue);
-                        pDataHist->SetBinError(iBin, 0);
-
-                        // pDataStatOnlyHist->SetBinContent(iBin, dataValue);
-                        // pDataStatOnlyHist->SetBinError(iBin, dataStatOnlyError);
-
-                        // Set the values of the prediction
-                        const auto predictionValue = selectedEventsSignalReco.At(iBin - 1, 0);
-                        // const auto predictionError = std::pow(smearedPredictionErrorMatrix.At(iBin - 1, iBin - 1), 0.5f);
-
-                        pPredictionHist->SetBinContent(iBin, predictionValue);
-                        pPredictionHist->SetBinError(iBin, 0);
-
-                        // For the proton multiplicity plot, use explicit bin labels
-                        if (xsecName == "nProtons")
+                        try //todo improve code here
                         {
-                            for (auto &pHist : {pDataHist, pPredictionHist})
-                            {
-                                pHist->GetXaxis()->SetBinLabel(1, "0");
-                                pHist->GetXaxis()->SetBinLabel(2, "1");
-                                pHist->GetXaxis()->SetBinLabel(3, ">1");
-                            }
+                            const auto _selectedEventsSignalTruth = ubsmear::UBFileHelper::ReadMatrix("SidebandFit_" + selectionName + "_" + xsecName  + "_" + group + "_" + paramName + "_" + std::to_string(iUni) + "_selectedEventsSignalTruth.txt");
+                            const auto _selectedEventsBackgroundReco = ubsmear::UBFileHelper::ReadMatrix("SidebandFit_" + selectionName + "_" + xsecName + "_" + group + "_" + paramName + "_" + std::to_string(iUni) + "_selectedEventsBackgroundReco.txt");
+                            const auto _smearingMatrix = ubsmear::UBFileHelper::ReadMatrix("SidebandFit_" + selectionName + "_" + xsecName + "_" + group + "_" + paramName + "_" + std::to_string(iUni) + "_smearingMatrix.txt");
+                        }
+                        catch (const std::exception &e)
+                        {
+                            std::cout << "Skipping " << prefix << std::endl;
+                            continue;
                         }
 
-                        // Get the limiting values
-                        minY = std::min(minY, dataValue);
-                        minY = std::min(minY, predictionValue);
+                        const auto selectedEventsSignalTruth = ubsmear::UBFileHelper::ReadMatrix("SidebandFit_" + selectionName + "_" + xsecName  + "_" + group + "_" + paramName + "_" + std::to_string(iUni) + "_selectedEventsSignalTruth.txt");
+                        const auto selectedEventsBackgroundReco = ubsmear::UBFileHelper::ReadMatrix("SidebandFit_" + selectionName + "_" + xsecName + "_" + group + "_" + paramName + "_" + std::to_string(iUni) + "_selectedEventsBackgroundReco.txt");
+                        const auto smearingMatrix = ubsmear::UBFileHelper::ReadMatrix("SidebandFit_" + selectionName + "_" + xsecName + "_" + group + "_" + paramName + "_" + std::to_string(iUni) + "_smearingMatrix.txt");
 
-                        maxY = std::max(maxY, dataValue);
-                        maxY = std::max(maxY, predictionValue);
-                    }
+                        const auto signalData = selectedEventsData - selectedEventsBackgroundReco;
+                        const auto selectedEventsSignalReco = smearingMatrix * selectedEventsSignalTruth;
 
-                    // Set the y-range
-                    auto padding = (maxY - minY) * 0.05;
-                    maxY += padding;
-                    minY -= padding;
-                    minY = std::max(minY, 0.f);
-                    minY = 0.f; // Remove this line to get a dynamic lower y-range
-                    pDataHist->GetYaxis()->SetRangeUser(minY, maxY);
-                    // pDataStatOnlyHist->GetYaxis()->SetRangeUser(minY, maxY);
-                    pPredictionHist->GetYaxis()->SetRangeUser(minY, maxY);
-
-                    // Set the colours of the histograms
-                    PlottingHelper::SetLineStyle(pDataHist, PlottingHelper::Primary);
-                    // PlottingHelper::SetLineStyle(pDataStatOnlyHist, PlottingHelper::Primary);
-                    PlottingHelper::SetLineStyle(pPredictionHist, PlottingHelper::Secondary);
-
-                    // Make the plot!
-                    auto pCanvas1 = PlottingHelper::GetCanvas();
-                    gStyle->SetEndErrorSize(4);
-
-                    // Draw the smeared prediction
-                    pPredictionHist->Draw("hist");
-
-                    // Draw the prediction uncertainties as a semi-transparent band
-                    auto pHistClone = static_cast<TH1F *>(pPredictionHist->Clone());
-                    auto col = pHistClone->GetLineColor();
-                    pHistClone->SetFillStyle(1001);
-                    pHistClone->SetLineColorAlpha(col, 0.f);
-                    pHistClone->SetFillColorAlpha(col, 0.3f);
-                    pHistClone->Draw("e2 same");
-
-                    // Draw the data as points with error bars
-                    // pDataStatOnlyHist->Draw("e1 same");
-                    pDataHist->Draw("e1 same");
-
-                    PlottingHelper::SaveCanvas(pCanvas1, prefix + "_raw_data-vs-smearedPrediction");
+                        auto cc0piUniverseConstraintParam = cc0piUniverseConstraintMap.at(selectionName).at(xsecName).at(paramName).at(iUni).first;
+                        auto cc0piUniverseConstraintParamError = cc0piUniverseConstraintMap.at(selectionName).at(xsecName).at(paramName).at(iUni).second;
+                        const vector<float> cc0piUniverseConstraintParamFloat(cc0piUniverseConstraintParam.begin(), cc0piUniverseConstraintParam.end());
+                        const ubsmear::UBMatrix sidebandParamVectorTruth(cc0piUniverseConstraintParamFloat, cc0piUniverseConstraintParam.size(), 1);
+                        const auto scaledSelectedEventsSignalTruth = ElementWiseOperation(selectedEventsSignalTruth, sidebandParamVectorTruth, [](const auto &l, const auto& r) { return l * r; });
+                        const auto scaledSelectedEventsSignalReco = smearingMatrix * scaledSelectedEventsSignalTruth;
 
 
+                        // -----------------------------------------------------------------------------------------------------------------------------
+                        // Data vs Prediction
+                        // -----------------------------------------------------------------------------------------------------------------------------
+                        // Setup the data histogram and the prediction histogram
+                        auto pDataHist = std::make_shared<TH1F>((prefix + "_raw_data").c_str(), "", binEdges.size() - 1, binEdges.data());
+                        // auto pDataStatOnlyHist = std::make_shared<TH1F>((prefix + "_dataStatOnly").c_str(), "", binEdges.size() - 1, binEdges.data());
+                        auto pPredictionHist = std::make_shared<TH1F>((prefix + "_raw_prediction").c_str(), "", binEdges.size() - 1, binEdges.data());
 
-
-                    // -----------------------------------------------------------------------------------------------------------------------------
-                    // Data vs Scaled Prediction
-                    // -----------------------------------------------------------------------------------------------------------------------------
-                    // Setup the data histogram and the prediction histogram
-                    auto pDataHist2 = std::make_shared<TH1F>((prefix + "_raw_data2").c_str(), "", binEdges.size() - 1, binEdges.data());
-                    // auto pDataStatOnlyHist = std::make_shared<TH1F>((prefix + "_dataStatOnly").c_str(), "", binEdges.size() - 1, binEdges.data());
-                    auto pPredictionHist2 = std::make_shared<TH1F>((prefix + "_scaled_raw_prediction").c_str(), "", binEdges.size() - 1, binEdges.data());
-
-                    // Fill the bins
-                    // ATTN here we only show the diagonals of the error matrices
-                    minY = +std::numeric_limits<float>::max();
-                    maxY = -std::numeric_limits<float>::max();
-                    // const auto dataStatErrorMatrix = errorMatrixMap.at("data").at("stat");
-                    for (unsigned int iBin = 1; iBin <= binEdges.size() - 1; ++iBin)
-                    {
-                        // Set the values for the data histogram
-                        const auto dataValue = signalData.At(iBin - 1, 0);
-                        // const auto dataError = std::pow(totalDataErrorMatrix.At(iBin - 1, iBin - 1), 0.5f);
-                        // const auto dataStatOnlyError = std::pow(dataStatErrorMatrix.At(iBin - 1, iBin - 1), 0.5f);
-
-                        pDataHist2->SetBinContent(iBin, dataValue);
-                        pDataHist2->SetBinError(iBin, 0);
-
-                        // pDataStatOnlyHist->SetBinContent(iBin, dataValue);
-                        // pDataStatOnlyHist->SetBinError(iBin, dataStatOnlyError);
-
-                        // Set the values of the prediction
-                        const auto predictionValue = scaledSelectedEventsSignalReco.At(iBin - 1, 0);
-                        // const auto predictionError = std::pow(smearedPredictionErrorMatrix.At(iBin - 1, iBin - 1), 0.5f);
-
-                        pPredictionHist2->SetBinContent(iBin, predictionValue);
-                        pPredictionHist2->SetBinError(iBin, 0);
-
-                        // For the proton multiplicity plot, use explicit bin labels
-                        if (xsecName == "nProtons")
+                        // Fill the bins
+                        // ATTN here we only show the diagonals of the error matrices
+                        float minY = +std::numeric_limits<float>::max();
+                        float maxY = -std::numeric_limits<float>::max();
+                        // const auto dataStatErrorMatrix = errorMatrixMap.at("data").at("stat");
+                        for (unsigned int iBin = 1; iBin <= binEdges.size() - 1; ++iBin)
                         {
-                            for (auto &pHist2 : {pDataHist2, pPredictionHist2})
+                            // Set the values for the data histogram
+                            const auto dataValue = signalData.At(iBin - 1, 0);
+                            // const auto dataError = std::pow(totalDataErrorMatrix.At(iBin - 1, iBin - 1), 0.5f);
+                            // const auto dataStatOnlyError = std::pow(dataStatErrorMatrix.At(iBin - 1, iBin - 1), 0.5f);
+
+                            pDataHist->SetBinContent(iBin, dataValue);
+                            pDataHist->SetBinError(iBin, 0);
+
+                            // pDataStatOnlyHist->SetBinContent(iBin, dataValue);
+                            // pDataStatOnlyHist->SetBinError(iBin, dataStatOnlyError);
+
+                            // Set the values of the prediction
+                            const auto predictionValue = selectedEventsSignalReco.At(iBin - 1, 0);
+                            // const auto predictionError = std::pow(smearedPredictionErrorMatrix.At(iBin - 1, iBin - 1), 0.5f);
+
+                            pPredictionHist->SetBinContent(iBin, predictionValue);
+                            pPredictionHist->SetBinError(iBin, 0);
+
+                            // For the proton multiplicity plot, use explicit bin labels
+                            if (xsecName == "nProtons")
                             {
-                                pHist2->GetXaxis()->SetBinLabel(1, "0");
-                                pHist2->GetXaxis()->SetBinLabel(2, "1");
-                                pHist2->GetXaxis()->SetBinLabel(3, ">1");
+                                for (auto &pHist : {pDataHist, pPredictionHist})
+                                {
+                                    pHist->GetXaxis()->SetBinLabel(1, "0");
+                                    pHist->GetXaxis()->SetBinLabel(2, "1");
+                                    pHist->GetXaxis()->SetBinLabel(3, ">1");
+                                }
                             }
+
+                            // Get the limiting values
+                            minY = std::min(minY, dataValue);
+                            minY = std::min(minY, predictionValue);
+
+                            maxY = std::max(maxY, dataValue);
+                            maxY = std::max(maxY, predictionValue);
                         }
 
-                        // Get the limiting values
-                        minY = std::min(minY, dataValue);
-                        minY = std::min(minY, predictionValue);
+                        // Set the y-range
+                        auto padding = (maxY - minY) * 0.05;
+                        maxY += padding;
+                        minY -= padding;
+                        minY = std::max(minY, 0.f);
+                        minY = 0.f; // Remove this line to get a dynamic lower y-range
+                        pDataHist->GetYaxis()->SetRangeUser(minY, maxY);
+                        // pDataStatOnlyHist->GetYaxis()->SetRangeUser(minY, maxY);
+                        pPredictionHist->GetYaxis()->SetRangeUser(minY, maxY);
 
-                        maxY = std::max(maxY, dataValue);
-                        maxY = std::max(maxY, predictionValue);
-                    }
+                        // Set the colours of the histograms
+                        PlottingHelper::SetLineStyle(pDataHist, PlottingHelper::Primary);
+                        // PlottingHelper::SetLineStyle(pDataStatOnlyHist, PlottingHelper::Primary);
+                        PlottingHelper::SetLineStyle(pPredictionHist, PlottingHelper::Secondary);
 
-                    // Set the y-range
-                    padding = (maxY - minY) * 0.05;
-                    maxY += padding;
-                    minY -= padding;
-                    minY = std::max(minY, 0.f);
-                    minY = 0.f; // Remove this line to get a dynamic lower y-range
-                    pDataHist2->GetYaxis()->SetRangeUser(minY, maxY);
-                    // pDataStatOnlyHist->GetYaxis()->SetRangeUser(minY, maxY);
-                    pPredictionHist2->GetYaxis()->SetRangeUser(minY, maxY);
+                        // Make the plot!
+                        auto pCanvas1 = PlottingHelper::GetCanvas();
+                        gStyle->SetEndErrorSize(4);
 
-                    // Set the colours of the histograms
-                    PlottingHelper::SetLineStyle(pDataHist2, PlottingHelper::Primary);
-                    // PlottingHelper::SetLineStyle(pDataStatOnlyHist, PlottingHelper::Primary);
-                    PlottingHelper::SetLineStyle(pPredictionHist2, PlottingHelper::Secondary);
+                        // Draw the smeared prediction
+                        pPredictionHist->Draw("hist");
 
-                    // Make the plot!
-                    auto pCanvas2 = PlottingHelper::GetCanvas();
-                    gStyle->SetEndErrorSize(4);
+                        // Draw the prediction uncertainties as a semi-transparent band
+                        auto pHistClone = static_cast<TH1F *>(pPredictionHist->Clone());
+                        auto col = pHistClone->GetLineColor();
+                        pHistClone->SetFillStyle(1001);
+                        pHistClone->SetLineColorAlpha(col, 0.f);
+                        pHistClone->SetFillColorAlpha(col, 0.3f);
+                        pHistClone->Draw("e2 same");
 
-                    // Draw the smeared prediction
-                    pPredictionHist2->Draw("hist");
+                        // Draw the data as points with error bars
+                        // pDataStatOnlyHist->Draw("e1 same");
+                        pDataHist->Draw("e1 same");
 
-                    // Draw the prediction uncertainties as a semi-transparent band
-                    auto pHistClone2 = static_cast<TH1F *>(pPredictionHist2->Clone());
-                    col = pHistClone2->GetLineColor();
-                    pHistClone2->SetFillStyle(1001);
-                    pHistClone2->SetLineColorAlpha(col, 0.f);
-                    pHistClone2->SetFillColorAlpha(col, 0.3f);
-                    pHistClone2->Draw("e2 same");
-
-                    // Draw the data as points with error bars
-                    // pDataStatOnlyHist->Draw("e1 same");
-                    pDataHist2->Draw("e1 same");
-
-                    PlottingHelper::SaveCanvas(pCanvas2, prefix + "_scaled_raw_data-vs-smearedPrediction");
+                        PlottingHelper::SaveCanvas(pCanvas1, prefix + "_raw_data-vs-smearedPrediction");
 
 
-                    // -----------------------------------------------------------------------------------------------------------------------------
-                    // Scaling factors
-                    // -----------------------------------------------------------------------------------------------------------------------------
-                    // Setup the data histogram and the prediction histogram
-                    auto pFactorHist = std::make_shared<TH1F>((prefix + "_factors").c_str(), "", binEdges.size() - 1, binEdges.data());
-                    // auto pDataStatOnlyHist = std::make_shared<TH1F>((prefix + "_dataStatOnly").c_str(), "", binEdges.size() - 1, binEdges.data());
-                    // auto pPredictionHist = std::make_shared<TH1F>((prefix + "_prediction").c_str(), "", binEdges.size() - 1, binEdges.data());
 
-                    // Fill the bins
-                    // ATTN here we only show the diagonals of the error matrices
-                    minY = +std::numeric_limits<float>::max();
-                    maxY = -std::numeric_limits<float>::max();
-                    // const auto dataStatErrorMatrix = errorMatrixMap.at("data").at("stat");
-                    for (unsigned int iBin = 1; iBin <= binEdges.size() - 1; ++iBin)
-                    {
-                        // Set the values for the data histogram
-                        const auto factorValue = (float) cc0piUniverseConstraintParam.at(iBin - 1);
-                        const auto factorError = (float) cc0piUniverseConstraintParamError.at(iBin - 1);//std::pow( ... , 0.5f);
-                        // const auto dataStatOnlyError = std::pow(dataStatErrorMatrix.At(iBin - 1, iBin - 1), 0.5f);
 
-                        pFactorHist->SetBinContent(iBin, factorValue);
-                        pFactorHist->SetBinError(iBin, factorError);
+                        // -----------------------------------------------------------------------------------------------------------------------------
+                        // Data vs Scaled Prediction
+                        // -----------------------------------------------------------------------------------------------------------------------------
+                        // Setup the data histogram and the prediction histogram
+                        auto pDataHist2 = std::make_shared<TH1F>((prefix + "_raw_data2").c_str(), "", binEdges.size() - 1, binEdges.data());
+                        // auto pDataStatOnlyHist = std::make_shared<TH1F>((prefix + "_dataStatOnly").c_str(), "", binEdges.size() - 1, binEdges.data());
+                        auto pPredictionHist2 = std::make_shared<TH1F>((prefix + "_scaled_raw_prediction").c_str(), "", binEdges.size() - 1, binEdges.data());
 
-                        // pDataStatOnlyHist->SetBinContent(iBin, dataValue);
-                        // pDataStatOnlyHist->SetBinError(iBin, dataStatOnlyError);
-
-                        // Set the values of the prediction
-                        // const auto predictionValue = smearedPrediction.At(iBin - 1, 0);
-                        // const auto predictionError = std::pow(smearedPredictionErrorMatrix.At(iBin - 1, iBin - 1), 0.5f);
-
-                        // pPredictionHist->SetBinContent(iBin, predictionValue);
-                        // pPredictionHist->SetBinError(iBin, predictionError);
-
-                        // For the proton multiplicity plot, use explicit bin labels
-                        if (xsecName == "nProtons")
+                        // Fill the bins
+                        // ATTN here we only show the diagonals of the error matrices
+                        minY = +std::numeric_limits<float>::max();
+                        maxY = -std::numeric_limits<float>::max();
+                        // const auto dataStatErrorMatrix = errorMatrixMap.at("data").at("stat");
+                        for (unsigned int iBin = 1; iBin <= binEdges.size() - 1; ++iBin)
                         {
-                            for (auto &pHist : {pFactorHist})//, pDataStatOnlyHist, pPredictionHist})
+                            // Set the values for the data histogram
+                            const auto dataValue = signalData.At(iBin - 1, 0);
+                            // const auto dataError = std::pow(totalDataErrorMatrix.At(iBin - 1, iBin - 1), 0.5f);
+                            // const auto dataStatOnlyError = std::pow(dataStatErrorMatrix.At(iBin - 1, iBin - 1), 0.5f);
+
+                            pDataHist2->SetBinContent(iBin, dataValue);
+                            pDataHist2->SetBinError(iBin, 0);
+
+                            // pDataStatOnlyHist->SetBinContent(iBin, dataValue);
+                            // pDataStatOnlyHist->SetBinError(iBin, dataStatOnlyError);
+
+                            // Set the values of the prediction
+                            const auto predictionValue = scaledSelectedEventsSignalReco.At(iBin - 1, 0);
+                            // const auto predictionError = std::pow(smearedPredictionErrorMatrix.At(iBin - 1, iBin - 1), 0.5f);
+
+                            pPredictionHist2->SetBinContent(iBin, predictionValue);
+                            pPredictionHist2->SetBinError(iBin, 0);
+
+                            // For the proton multiplicity plot, use explicit bin labels
+                            if (xsecName == "nProtons")
                             {
-                                pHist->GetXaxis()->SetBinLabel(1, "0");
-                                pHist->GetXaxis()->SetBinLabel(2, "1");
-                                pHist->GetXaxis()->SetBinLabel(3, ">1");
+                                for (auto &pHist2 : {pDataHist2, pPredictionHist2})
+                                {
+                                    pHist2->GetXaxis()->SetBinLabel(1, "0");
+                                    pHist2->GetXaxis()->SetBinLabel(2, "1");
+                                    pHist2->GetXaxis()->SetBinLabel(3, ">1");
+                                }
                             }
+
+                            // Get the limiting values
+                            minY = std::min(minY, dataValue);
+                            minY = std::min(minY, predictionValue);
+
+                            maxY = std::max(maxY, dataValue);
+                            maxY = std::max(maxY, predictionValue);
                         }
 
-                        // Get the limiting values
-                        minY = std::min(minY, factorValue - factorError);
-                        // minY = std::min(minY, predictionValue - predictionError);
+                        // Set the y-range
+                        padding = (maxY - minY) * 0.05;
+                        maxY += padding;
+                        minY -= padding;
+                        minY = std::max(minY, 0.f);
+                        minY = 0.f; // Remove this line to get a dynamic lower y-range
+                        pDataHist2->GetYaxis()->SetRangeUser(minY, maxY);
+                        // pDataStatOnlyHist->GetYaxis()->SetRangeUser(minY, maxY);
+                        pPredictionHist2->GetYaxis()->SetRangeUser(minY, maxY);
 
-                        maxY = std::max(maxY, factorValue + factorError);
-                        // maxY = std::max(maxY, predictionValue + predictionError);
+                        // Set the colours of the histograms
+                        PlottingHelper::SetLineStyle(pDataHist2, PlottingHelper::Primary);
+                        // PlottingHelper::SetLineStyle(pDataStatOnlyHist, PlottingHelper::Primary);
+                        PlottingHelper::SetLineStyle(pPredictionHist2, PlottingHelper::Secondary);
+
+                        // Make the plot!
+                        auto pCanvas2 = PlottingHelper::GetCanvas();
+                        gStyle->SetEndErrorSize(4);
+
+                        // Draw the smeared prediction
+                        pPredictionHist2->Draw("hist");
+
+                        // Draw the prediction uncertainties as a semi-transparent band
+                        auto pHistClone2 = static_cast<TH1F *>(pPredictionHist2->Clone());
+                        col = pHistClone2->GetLineColor();
+                        pHistClone2->SetFillStyle(1001);
+                        pHistClone2->SetLineColorAlpha(col, 0.f);
+                        pHistClone2->SetFillColorAlpha(col, 0.3f);
+                        pHistClone2->Draw("e2 same");
+
+                        // Draw the data as points with error bars
+                        // pDataStatOnlyHist->Draw("e1 same");
+                        pDataHist2->Draw("e1 same");
+
+                        PlottingHelper::SaveCanvas(pCanvas2, prefix + "_scaled_raw_data-vs-smearedPrediction");
+
+
+                        // -----------------------------------------------------------------------------------------------------------------------------
+                        // Scaling factors
+                        // -----------------------------------------------------------------------------------------------------------------------------
+                        // Setup the data histogram and the prediction histogram
+                        auto pFactorHist = std::make_shared<TH1F>((prefix + "_factors").c_str(), "", binEdges.size() - 1, binEdges.data());
+                        // auto pDataStatOnlyHist = std::make_shared<TH1F>((prefix + "_dataStatOnly").c_str(), "", binEdges.size() - 1, binEdges.data());
+                        // auto pPredictionHist = std::make_shared<TH1F>((prefix + "_prediction").c_str(), "", binEdges.size() - 1, binEdges.data());
+
+                        // Fill the bins
+                        // ATTN here we only show the diagonals of the error matrices
+                        minY = +std::numeric_limits<float>::max();
+                        maxY = -std::numeric_limits<float>::max();
+                        // const auto dataStatErrorMatrix = errorMatrixMap.at("data").at("stat");
+                        for (unsigned int iBin = 1; iBin <= binEdges.size() - 1; ++iBin)
+                        {
+                            // Set the values for the data histogram
+                            const auto factorValue = (float) cc0piUniverseConstraintParam.at(iBin - 1);
+                            const auto factorError = (float) cc0piUniverseConstraintParamError.at(iBin - 1);//std::pow( ... , 0.5f);
+                            // const auto dataStatOnlyError = std::pow(dataStatErrorMatrix.At(iBin - 1, iBin - 1), 0.5f);
+
+                            pFactorHist->SetBinContent(iBin, factorValue);
+                            pFactorHist->SetBinError(iBin, factorError);
+
+                            // pDataStatOnlyHist->SetBinContent(iBin, dataValue);
+                            // pDataStatOnlyHist->SetBinError(iBin, dataStatOnlyError);
+
+                            // Set the values of the prediction
+                            // const auto predictionValue = smearedPrediction.At(iBin - 1, 0);
+                            // const auto predictionError = std::pow(smearedPredictionErrorMatrix.At(iBin - 1, iBin - 1), 0.5f);
+
+                            // pPredictionHist->SetBinContent(iBin, predictionValue);
+                            // pPredictionHist->SetBinError(iBin, predictionError);
+
+                            // For the proton multiplicity plot, use explicit bin labels
+                            if (xsecName == "nProtons")
+                            {
+                                for (auto &pHist : {pFactorHist})//, pDataStatOnlyHist, pPredictionHist})
+                                {
+                                    pHist->GetXaxis()->SetBinLabel(1, "0");
+                                    pHist->GetXaxis()->SetBinLabel(2, "1");
+                                    pHist->GetXaxis()->SetBinLabel(3, ">1");
+                                }
+                            }
+
+                            // Get the limiting values
+                            minY = std::min(minY, factorValue - factorError);
+                            // minY = std::min(minY, predictionValue - predictionError);
+
+                            maxY = std::max(maxY, factorValue + factorError);
+                            // maxY = std::max(maxY, predictionValue + predictionError);
+                        }
+
+                        // Set the y-range
+                        padding = (maxY - minY) * 0.05;
+                        maxY += padding;
+                        minY -= padding;
+                        minY = std::max(minY, 0.f);
+                        minY = 0.f; // Remove this line to get a dynamic lower y-range
+                        pFactorHist->GetYaxis()->SetRangeUser(minY, maxY);
+                        // pDataStatOnlyHist->GetYaxis()->SetRangeUser(minY, maxY);
+                        // pPredictionHist->GetYaxis()->SetRangeUser(minY, maxY);
+
+                        // Set the colours of the histograms
+                        PlottingHelper::SetLineStyle(pFactorHist, PlottingHelper::Primary);
+                        // PlottingHelper::SetLineStyle(pDataStatOnlyHist, PlottingHelper::Primary);
+                        // PlottingHelper::SetLineStyle(pPredictionHist, PlottingHelper::Secondary);
+
+                        // Make the plot!
+                        auto pCanvas3 = PlottingHelper::GetCanvas();
+                        gStyle->SetEndErrorSize(4);
+
+                        // // Draw the smeared prediction
+                        // pPredictionHist->Draw("hist");
+
+                        // // Draw the prediction uncertainties as a semi-transparent band
+                        // auto pHistClone = static_cast<TH1F *>(pPredictionHist->Clone());
+                        // const auto col = pHistClone->GetLineColor();
+                        // pHistClone->SetFillStyle(1001);
+                        // pHistClone->SetLineColorAlpha(col, 0.f);
+                        // pHistClone->SetFillColorAlpha(col, 0.3f);
+                        // pHistClone->Draw("e2 same");
+
+                        // Draw the data as points with error bars
+                        // pDataStatOnlyHist->Draw("e1 same");
+                        pFactorHist->Draw("e1 same");
+
+                        PlottingHelper::SaveCanvas(pCanvas3, prefix + "_factors");
                     }
-
-                    // Set the y-range
-                    padding = (maxY - minY) * 0.05;
-                    maxY += padding;
-                    minY -= padding;
-                    minY = std::max(minY, 0.f);
-                    minY = 0.f; // Remove this line to get a dynamic lower y-range
-                    pFactorHist->GetYaxis()->SetRangeUser(minY, maxY);
-                    // pDataStatOnlyHist->GetYaxis()->SetRangeUser(minY, maxY);
-                    // pPredictionHist->GetYaxis()->SetRangeUser(minY, maxY);
-
-                    // Set the colours of the histograms
-                    PlottingHelper::SetLineStyle(pFactorHist, PlottingHelper::Primary);
-                    // PlottingHelper::SetLineStyle(pDataStatOnlyHist, PlottingHelper::Primary);
-                    // PlottingHelper::SetLineStyle(pPredictionHist, PlottingHelper::Secondary);
-
-                    // Make the plot!
-                    auto pCanvas3 = PlottingHelper::GetCanvas();
-                    gStyle->SetEndErrorSize(4);
-
-                    // // Draw the smeared prediction
-                    // pPredictionHist->Draw("hist");
-
-                    // // Draw the prediction uncertainties as a semi-transparent band
-                    // auto pHistClone = static_cast<TH1F *>(pPredictionHist->Clone());
-                    // const auto col = pHistClone->GetLineColor();
-                    // pHistClone->SetFillStyle(1001);
-                    // pHistClone->SetLineColorAlpha(col, 0.f);
-                    // pHistClone->SetFillColorAlpha(col, 0.3f);
-                    // pHistClone->Draw("e2 same");
-
-                    // Draw the data as points with error bars
-                    // pDataStatOnlyHist->Draw("e1 same");
-                    pFactorHist->Draw("e1 same");
-
-                    PlottingHelper::SaveCanvas(pCanvas3, prefix + "_factors");
                 }
             }
         }

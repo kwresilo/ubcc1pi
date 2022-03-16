@@ -325,9 +325,23 @@ void CrossSectionHelper::CrossSection::AddSelectedBNBDataEvent(const float recoV
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
 
+void CrossSectionHelper::CrossSection::AddWeightedSelectedBNBDataEvent(const float recoValue, const float weight = 1.f)
+{
+    m_pBNBData_selected_reco->Fill(recoValue, weight);
+}
+
+// -----------------------------------------------------------------------------------------------------------------------------------------
+
 bool CrossSectionHelper::CrossSection::HasOverflow() const
 {
     return m_metadata.HasOverflow();
+}
+
+// -----------------------------------------------------------------------------------------------------------------------------------------
+
+bool CrossSectionHelper::CrossSection::HasUnderflow() const
+{
+    return m_metadata.HasUnderflow();
 }
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
@@ -1345,6 +1359,14 @@ CrossSectionHelper::SystBiasCovariancePair CrossSectionHelper::CrossSection::Get
     const auto pXSecCV = std::make_shared<ubsmear::UBMatrix>( this->GetBNBDataCrossSectionForUnisim(group, cvName, scalingData) );
     const auto pXSecNom = std::make_shared<ubsmear::UBMatrix>( this->GetBNBDataCrossSection(scalingData) );
 
+    std:cout<<"BNBDistParamsUnisim: "<<group<<", "<<paramName<<", "<<cvName<<std::endl;
+    for (const auto &v: pXSec->GetValues()) std::cout << v << " ";
+    std::cout << std::endl;
+    for (const auto &v: pXSecCV->GetValues()) std::cout << v << " ";
+    std::cout << std::endl;
+    for (const auto &v: pXSecNom->GetValues()) std::cout << v << " ";
+    std::cout << std::endl;
+
     // Get the parameters
     return this->GetDistributionParamsUnisim(pXSec, pXSecCV, pXSecNom);
 }
@@ -1634,8 +1656,96 @@ CrossSectionHelper::SystFloatMap CrossSectionHelper::GetWeightsMap(const Event::
             outputWeights.push_back((weight < 0.f) ? 0.f : 1.f);
         }
     }
-
     return map;
+}
+
+// -----------------------------------------------------------------------------------------------------------------------------------------
+
+Double_t CrossSectionHelper::CrossSection::GetSidebandScaling(const float trueSidebandValue, const std::vector<Double_t> &cc0piNominalConstraintParam) const
+{
+    for (unsigned int b=0; b < m_binEdges.size()-1; b++)//Todo: Do this more efficiently
+    {
+        // std::cout<<"trueSidebandValue: "<<trueSidebandValue<<" - trueValue: "<<trueValue<<" - selectionName: "<<selectionName<<" - name: "<<name<<std::endl;
+        if (trueSidebandValue>=m_binEdges[b] && trueSidebandValue<m_binEdges[b+1])
+        {
+            const auto paramNominal = cc0piNominalConstraintParam[b];//std::max(, 0.01);//cc0piNominalConstraintParam[b];
+            if(paramNominal<0.0)
+            {
+                std::cout<<"ExtractXSecs - Negative cc0piNominalConstraintParam: "<<paramNominal<<std::endl;
+                throw std::logic_error("ExtractXSecs - Negative cc0piNominalConstraintParam.");
+            }
+            return paramNominal;
+        }
+    }
+    std::cout<<"GetSidebandScaling - trueSidebandValue "<< trueSidebandValue <<" outside of bins with range: "<<m_binEdges[0]<<" - "<<m_binEdges[m_binEdges.size()-1]<<std::endl;
+    throw std::logic_error("GetSidebandScaling - trueSidebandValue outside of bin range.");
+    return -1;//Todo improve code
+}
+
+// -----------------------------------------------------------------------------------------------------------------------------------------
+
+CrossSectionHelper::SystFloatMap CrossSectionHelper::CrossSection::GetSidebandUniverseScaling(const CrossSectionHelper::SystFloatMap weights, const float trueSidebandValue, const std::vector<Double_t> &cc0piNominalConstraintParam, const std::map<std::string, std::vector<std::pair<std::vector<Double_t>,std::vector<Double_t>>>> &cc0piUniverseConstraints) const
+{
+    auto weightsScaled = weights;
+    for (unsigned int b=0; b < m_binEdges.size()-1; b++)//Todo: Do this more efficiently
+    {
+        // std::cout<<"trueSidebandValue: "<<trueSidebandValue<<" - trueValue: "<<trueValue<<" - selectionName: "<<selectionName<<" - name: "<<name<<std::endl;
+        if (trueSidebandValue>=m_binEdges[b] && trueSidebandValue<m_binEdges[b+1])
+        {
+            const auto paramNominal = cc0piNominalConstraintParam[b];//std::max(, 0.01);//cc0piNominalConstraintParam[b];
+            if(paramNominal<0.0)
+            {
+                std::cout<<"ExtractXSecs - Negative cc0piNominalConstraintParam: "<<paramNominal<<std::endl;
+                throw std::logic_error("ExtractXSecs - Negative cc0piNominalConstraintParam.");
+            }
+
+            for (auto &[paramName,weightVector] : weightsScaled)
+            {
+                const auto cc0piUniverseConstraintParam = cc0piUniverseConstraints.at(paramName);
+                if(cc0piUniverseConstraintParam.size()!= weightVector.size())
+                {
+                    std::cout<<"GetSidebandUniverseScaling - Wrong number of parameters.."<<std::endl;
+                    throw std::logic_error("GetSidebandUniverseScaling - Wrong number of parameters.");
+                }
+                
+                for (unsigned int u=0; u<weightVector.size(); u++)
+                {
+                    // The smearing matrix in a universe could contain zeros. In these cases no parameters can be computed and all are set to -1. Use only nominal values instead.
+                    if(cc0piUniverseConstraintParam.at(u).first.at(b)>=0)
+                    {
+                        weightVector[u] *= cc0piUniverseConstraintParam.at(u).first.at(b)/paramNominal;
+                    }
+                }
+            }
+            return weightsScaled;
+        }
+    }
+    std::cout<<"GetSidebandUniverseScaling - trueSidebandValue "<< trueSidebandValue <<" outside of bins with range: "<<m_binEdges[0]<<" - "<<m_binEdges[m_binEdges.size()-1]<<std::endl;
+    throw std::logic_error("GetSidebandUniverseScaling - trueSidebandValue outside of bin range.");
+    return weightsScaled;//Todo improve code
+}
+
+// -----------------------------------------------------------------------------------------------------------------------------------------
+std::vector<float> CrossSectionHelper::CrossSection::GetSidebandParameterWeights(const float trueSidebandValue, const std::vector<Double_t> &cc0piNominalConstraintParam, const std::vector<Double_t> &cc0piNominalConstraintParamError) const
+{
+    for (unsigned int b=0; b < m_binEdges.size()-1; b++)//Todo: Do this more efficiently
+    {
+        if (trueSidebandValue>=m_binEdges[b] && trueSidebandValue<m_binEdges[b+1])
+        {
+            const auto paramNominal = cc0piNominalConstraintParam[b];//std::max(, 0.01);//cc0piNominalConstraintParam[b];
+            const auto paramNominalError = cc0piNominalConstraintParamError[b];
+            
+            // std::cout<<"Debug GetSidebandParameterWeights - bin:" << b <<" - trueSidebandValue: "<< trueSidebandValue <<" - paramNominalError:" << paramNominalError <<" - paramNominal: "<<paramNominal<<std::endl;
+            const auto sidebandWeights = (
+                (paramNominal>0.001)
+                    ? GenerateNormalWeights(m_systParams.nBootstrapUniverses, paramNominalError/paramNominal)
+                    : std::vector<float>(m_systParams.nBootstrapUniverses, 1.0));
+            return sidebandWeights;
+        }
+    }
+    std::cout<<"GetSidebandParameterWeights - trueSidebandValue "<< trueSidebandValue <<" outside of bins with range: "<<m_binEdges[0]<<" - "<<m_binEdges[m_binEdges.size()-1]<<std::endl;
+    throw std::logic_error("GetSidebandParameterWeights - trueSidebandValue outside of bin range.");
+    return std::vector<float>(m_systParams.nBootstrapUniverses, 1.0);//Todo improve code
 }
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
