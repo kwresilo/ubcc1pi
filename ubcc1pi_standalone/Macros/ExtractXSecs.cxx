@@ -91,7 +91,8 @@ void ExtractXSecs(const Config &config)
     // the second index is an identifier for the kinematic quantity that's relevant for the cross-section (e.g. muonMomentum), and the
     // mapped type is the cross-section object.
     std::map<std::string, std::map<std::string, CrossSectionHelper::CrossSection> > xsecMap;
-    // std::map<std::string, std::map<std::string, CrossSectionHelper::CrossSection> > xsecMapSideband;
+    std::map<std::string, std::map<std::string, CrossSectionHelper::CrossSection> > xsecMapUnscaled;
+    std::map<std::string, std::map<std::string, CrossSectionHelper::CrossSection> > xsecMapSideband;
     // std::map<std::string, std::map<std::string, CrossSectionHelper::CrossSection> > xsecMapSideband2;
 
     // We additionally make a map from each cross-section to the limits of the phase-space that we should consider. The key is the
@@ -134,6 +135,8 @@ void ExtractXSecs(const Config &config)
             if (config.extractXSecs.crossSectionIsEnabled.at(selectionName).at(name))
             {
                 xsecMap[selectionName].emplace(name, CrossSectionHelper::CrossSection(systParams, extendedBinEdges, hasUnderflow, hasOverflow, scaleByBinWidth));
+                xsecMapUnscaled[selectionName].emplace(name, CrossSectionHelper::CrossSection(systParams, extendedBinEdges, hasUnderflow, hasOverflow, scaleByBinWidth));
+                xsecMapSideband[selectionName].emplace(name, CrossSectionHelper::CrossSection(systParams, extendedBinEdges, hasUnderflow, hasOverflow, scaleByBinWidth));
                 // xsecMapSideband[selectionName].emplace(name, CrossSectionHelper::CrossSection(systParams, extendedBinEdges, hasUnderflow, hasOverflow, scaleByBinWidth));
                 // xsecMapSideband2[selectionName].emplace(name, CrossSectionHelper::CrossSection(systParams, extendedBinEdges, hasUnderflow, hasOverflow, scaleByBinWidth));
             }
@@ -155,6 +158,8 @@ void ExtractXSecs(const Config &config)
         if (config.extractXSecs.crossSectionIsEnabled.at(selectionName).at("total"))
         {
             xsecMap[selectionName].emplace("total", CrossSectionHelper::CrossSection(systParams, {-1.f, 1.f}, false, false, false));
+            xsecMapUnscaled[selectionName].emplace("total", CrossSectionHelper::CrossSection(systParams, {-1.f, 1.f}, false, false, false));
+            xsecMapSideband[selectionName].emplace("total", CrossSectionHelper::CrossSection(systParams, {-1.f, 1.f}, false, false, false));
             // xsecMapSideband[selectionName].emplace("total", CrossSectionHelper::CrossSection(systParams, {-1.f, 1.f}, false, false, false));
             // xsecMapSideband2[selectionName].emplace("total", CrossSectionHelper::CrossSection(systParams, {-1.f, 1.f}, false, false, false));
         }
@@ -447,6 +452,7 @@ void ExtractXSecs(const Config &config)
                     for (auto &[name, xsec] : xsecs)
                     {
                         xsec.AddSelectedBNBDataEvent(getValue.at(name)(recoData));
+                        xsecMapUnscaled.at(selectionName).at(name).AddSelectedBNBDataEvent(getValue.at(name)(recoData));
                     }
                 }
 
@@ -512,12 +518,12 @@ void ExtractXSecs(const Config &config)
                 // Check the value of the kinematic quantities are within the phase-space limits
                 for (const auto &[name, minMax] : phaseSpaceMap)
                 {
+                    if(name == "pionMomentum") continue; // Not really compatible with the pion momentum in the CC1pi selection
                     const auto &[min, max] = minMax;
                     const auto value = getSidebandValue.at(name)(sidebandTruthData);
 
                     if (value < min || value > max)
                     {
-                        if(name == "pionMomentum") continue; // Not really compatible with the pion momentum in the CC1pi selection
                         // std::cout<<"passesSidebandPhaseSpaceTruth failed due to: "<<name<<" - min: "<<min<<" - max: "<<max<<" - value: "<<value<<std::endl;
                         passesSidebandPhaseSpaceTruth = false;
                         break;
@@ -559,6 +565,7 @@ void ExtractXSecs(const Config &config)
                             const auto recoValue = getValue.at(name)(recoData);
                             const auto trueValue = getValue.at(name)(truthData);
                             xsec.AddSignalEventDetVar(recoValue, trueValue, isSelected, weight, sampleName);
+                            xsecMapUnscaled.at(selectionName).at(name).AddSignalEventDetVar(recoValue, trueValue, isSelected, weight, sampleName);
                         }
                     }
                 }
@@ -576,6 +583,7 @@ void ExtractXSecs(const Config &config)
                         {
                             const auto recoValue = getValue.at(name)(recoData);
                             xsec.AddSelectedBackgroundEventDetVar(recoValue, weight, sampleName);
+                            xsecMapUnscaled.at(selectionName).at(name).AddSelectedBackgroundEventDetVar(recoValue, weight, sampleName);
                         }
                     }
                 }
@@ -646,6 +654,7 @@ void ExtractXSecs(const Config &config)
 
                         const auto seedString =  selectionName + name + std::to_string(i);
                         xsec.AddSignalEvent(recoValue, trueValue, isSelected, weight, fluxWeights, xsecWeights, reintWeights, seedString);
+                        xsecMapUnscaled.at(selectionName).at(name).AddSignalEvent(recoValue, trueValue, isSelected, weight, fluxWeights, xsecWeights, reintWeights, seedString);
                     }
                 }
             }
@@ -672,27 +681,27 @@ void ExtractXSecs(const Config &config)
                         const auto cc0piUniverseConstraintVector = cc0piUniverseConstraintMap.at("generic").at(name);
 
                         const auto scaledWeight = (
-                            (config.global.useCC0piConstraint && isCC0PiSignal)
+                            (isCC0PiSignal)
                                 ? weight*xsec.GetSidebandScaling(trueSidebandValue, cc0piNominalConstraintParam)
                                 : weight);
 
                         const auto scaledXSecWeights = (
-                            (config.global.useCC0piConstraint && isCC0PiSignal)
+                            (isCC0PiSignal)
                                 ? xsec.GetSidebandUniverseScaling(xsecWeights, trueSidebandValue, cc0piNominalConstraintParam, cc0piUniverseConstraintVector)
                                 : xsecWeights);
 
                         const auto scaledFluxWeights = (
-                            (config.global.useCC0piConstraint && isCC0PiSignal)
+                            (isCC0PiSignal)
                                 ? xsec.GetSidebandUniverseScaling(fluxWeights, trueSidebandValue, cc0piNominalConstraintParam, cc0piUniverseConstraintVector)
                                 : fluxWeights);
 
                         const auto scaledReintWeights = (
-                            (config.global.useCC0piConstraint && isCC0PiSignal)
+                            (isCC0PiSignal)
                                 ? xsec.GetSidebandUniverseScaling(reintWeights, trueSidebandValue, cc0piNominalConstraintParam, cc0piUniverseConstraintVector)
                                 : reintWeights);
 
                         const auto sidebandWeights = ( //Todo: arbitrary threshold in function. Remove??? // Also change from vector<float> to SystFloatMap for consistency
-                            (config.global.useCC0piConstraint && isCC0PiSignal)
+                            (isCC0PiSignal)
                                 ? xsec.GetSidebandParameterWeights(trueSidebandValue, cc0piNominalConstraintParam, cc0piNominalConstraintParamError)
                                 : std::vector<float>(systParams.nBootstrapUniverses, 1.0));
 
@@ -700,6 +709,24 @@ void ExtractXSecs(const Config &config)
                         const auto seedString =  selectionName + name + std::to_string(i);
                         // std::cout<<"Added selected background event"<<std::endl;
                         xsec.AddSelectedBackgroundEvent(recoValue, isDirt, scaledWeight, scaledFluxWeights, scaledXSecWeights, scaledReintWeights, sidebandWeights, seedString);
+                        xsecMapUnscaled.at(selectionName).at(name).AddSelectedBackgroundEvent(recoValue, isDirt, weight, fluxWeights, xsecWeights, reintWeights, std::vector<float>(systParams.nBootstrapUniverses, 1.0), seedString);
+                    }
+                }
+            }
+
+            if (isCC0PiSignal)
+            {
+                for (auto &[selectionName, xsecs] : xsecMapSideband)
+                {
+                    // Determine if we passed the relevant selection
+                    const auto isSelected = isSelectedMap.at(selectionName);
+
+                    for (auto &[name, xsec] : xsecs)
+                    {
+                        const auto recoValue = getValue.at(name)(recoData);
+                        const auto trueSidebandValue = getSidebandValue.at(name)(sidebandTruthData);
+                        const auto seedString =  selectionName + name + std::to_string(i);
+                        xsec.AddSignalEvent(recoValue, trueSidebandValue, isSelected, weight, fluxWeights, xsecWeights, reintWeights, seedString);
                     }
                 }
             }
@@ -743,108 +770,142 @@ void ExtractXSecs(const Config &config)
     // -------------------------------------------------------------------------------------------------------------------------------------
 
     // Loop over all cross-section objects
-    for (const auto &[selectionName, xsecs] : xsecMap)
+    for(const auto&[postfix, map]: {std::make_pair("scaled",xsecMap),std::make_pair("unscaled", xsecMapUnscaled)})
     {
-        for (const auto &[name, xsec] : xsecs)
+        for (const auto &[selectionName, xsecs] : map)
         {
-            std::cout << "Processing cross-section: "<<selectionName<< " - " << name << std::endl;
-
-            // -----------------------------------------------------------------------------------------------------------------------------
-            // Get the event rates for BNB data, backgrounds, and signal
-            // -----------------------------------------------------------------------------------------------------------------------------
-            const auto selectedEventsData = xsec.GetSelectedBNBDataEvents();
-            std::cout << "Selected BNB data events" << std::endl;
-            FormattingHelper::SaveMatrix(selectedEventsData, "xsec_" + selectionName + "_" + name + "_data_selected_eventRate.txt");
-
-            const auto selectedEventsBackground = xsec.GetSelectedBackgroundEvents();
-            std::cout << "Selected background events" << std::endl;
-            FormattingHelper::SaveMatrix(selectedEventsBackground, "xsec_" + selectionName + "_" + name + "_background_selected_eventRate.txt");
-
-            const auto selectedEventsSignal = xsec.GetSelectedSignalEvents();
-            std::cout << "Selected signal events" << std::endl;
-            FormattingHelper::SaveMatrix(selectedEventsSignal, "xsec_" + selectionName + "_" + name + "_signal_selected_eventRate.txt");
-
-            const auto allEventsSignal = xsec.GetSignalEvents();
-            std::cout << "All signal events" << std::endl;
-            FormattingHelper::SaveMatrix(allEventsSignal, "xsec_" + selectionName + "_" + name + "_signal_all_eventRate.txt");
-            std::cout << "After all signal events" << std::endl;
-            // -----------------------------------------------------------------------------------------------------------------------------
-            // Get the cross-section as measured with BNB data along with it's uncertainties
-            // -----------------------------------------------------------------------------------------------------------------------------
-            const auto data = xsec.GetBNBDataCrossSection(scalingData);
-            std::cout << "BNB data cross-section (reco-space)" << std::endl;
-            FormattingHelper::SaveMatrix(data, "xsec_" + selectionName + "_" + name + "_data.txt");
-
-            const auto dataStatUncertainties = xsec.GetBNBDataCrossSectionStatUncertainty(scalingData);
-            std::cout << "BNB data stat uncertainty" << std::endl;
-            FormattingHelper::SaveMatrix(dataStatUncertainties, "xsec_" + selectionName + "_" + name + "_data_stat.txt");
-
-            const auto dataSystBiasCovariances = xsec.GetBNBDataCrossSectionSystUncertainties(scalingData);
-            for (const auto &[group, map] : dataSystBiasCovariances)
+            for (const auto &[name, xsec] : xsecs)
             {
-                for (const auto &[paramName, biasCovariance] : map)
-                {
-                    const auto &[pBias, pCovariance] = biasCovariance;
+                std::cout << "Processing cross-section: "<<selectionName<< " - " << name << std::endl;
 
-                    std::cout << "BNB data syst uncertainty: " << group << " " << paramName << std::endl;
-                    std::cout << "Bias vector" << std::endl;
-                    FormattingHelper::SaveMatrix(*pBias, "xsec_" + selectionName + "_" + name + "_data_" + group + "_" + paramName + "_bias.txt");
-                    std::cout << "Covariance matrix" << std::endl;
-                    FormattingHelper::SaveMatrix(*pCovariance, "xsec_" + selectionName + "_" + name + "_data_" + group + "_" + paramName + "_covariance.txt");
+                // -----------------------------------------------------------------------------------------------------------------------------
+                // Get the event rates for BNB data, backgrounds, and signal
+                // -----------------------------------------------------------------------------------------------------------------------------
+                const auto selectedEventsData = xsec.GetSelectedBNBDataEvents();
+                std::cout << "Selected BNB data events" << std::endl;
+                FormattingHelper::SaveMatrix(selectedEventsData, "xsec_" + selectionName + "_" + name + "_data_selected_eventRate_"+postfix+".txt");
+
+                const auto selectedEventsBackground = xsec.GetSelectedBackgroundEvents();
+                std::cout << "Selected background events" << std::endl;
+                FormattingHelper::SaveMatrix(selectedEventsBackground, "xsec_" + selectionName + "_" + name + "_background_selected_eventRate_"+postfix+".txt");
+
+                const auto selectedEventsSignal = xsec.GetSelectedSignalEvents();
+                std::cout << "Selected signal events" << std::endl;
+                FormattingHelper::SaveMatrix(selectedEventsSignal, "xsec_" + selectionName + "_" + name + "_signal_selected_eventRate_"+postfix+".txt");
+
+                const auto allEventsSignal = xsec.GetSignalEvents();
+                std::cout << "All signal events" << std::endl;
+                FormattingHelper::SaveMatrix(allEventsSignal, "xsec_" + selectionName + "_" + name + "_signal_all_eventRate_"+postfix+".txt");
+                std::cout << "After all signal events" << std::endl;
+                // -----------------------------------------------------------------------------------------------------------------------------
+                // Get the cross-section as measured with BNB data along with it's uncertainties
+                // -----------------------------------------------------------------------------------------------------------------------------
+                const auto data = xsec.GetBNBDataCrossSection(scalingData);
+                std::cout << "BNB data cross-section (reco-space)" << std::endl;
+                FormattingHelper::SaveMatrix(data, "xsec_" + selectionName + "_" + name + "_data_"+postfix+".txt");
+
+                const auto dataStatUncertainties = xsec.GetBNBDataCrossSectionStatUncertainty(scalingData);
+                std::cout << "BNB data stat uncertainty" << std::endl;
+                FormattingHelper::SaveMatrix(dataStatUncertainties, "xsec_" + selectionName + "_" + name + "_data_stat_"+postfix+".txt");
+
+                const auto dataSystBiasCovariances = xsec.GetBNBDataCrossSectionSystUncertainties(scalingData);
+                for (const auto &[group, map] : dataSystBiasCovariances)
+                {
+                    for (const auto &[paramName, biasCovariance] : map)
+                    {
+                        const auto &[pBias, pCovariance] = biasCovariance;
+
+                        std::cout << "BNB data syst uncertainty: " << group << " " << paramName << std::endl;
+                        std::cout << "Bias vector" << std::endl;
+                        FormattingHelper::SaveMatrix(*pBias, "xsec_" + selectionName + "_" + name + "_data_" + group + "_" + paramName + "_bias_"+postfix+".txt");
+                        std::cout << "Covariance matrix" << std::endl;
+                        FormattingHelper::SaveMatrix(*pCovariance, "xsec_" + selectionName + "_" + name + "_data_" + group + "_" + paramName + "_covariance_"+postfix+".txt");
+                    }
                 }
-            }
 
-            // -----------------------------------------------------------------------------------------------------------------------------
-            // Get the predicted cross-section along with its MC stat uncertainty
-            // -----------------------------------------------------------------------------------------------------------------------------
-            const auto prediction = xsec.GetPredictedCrossSection(scalingData);
-            std::cout << "Predicted cross-section (truth-space)" << std::endl;
-            FormattingHelper::SaveMatrix(prediction, "xsec_" + selectionName + "_" + name + "_prediction.txt");
+                // -----------------------------------------------------------------------------------------------------------------------------
+                // Get the predicted cross-section along with its MC stat uncertainty
+                // -----------------------------------------------------------------------------------------------------------------------------
+                const auto prediction = xsec.GetPredictedCrossSection(scalingData);
+                std::cout << "Predicted cross-section (truth-space)" << std::endl;
+                FormattingHelper::SaveMatrix(prediction, "xsec_" + selectionName + "_" + name + "_prediction_"+postfix+".txt");
 
-            const auto &[pPredictionStatBias, pPredictionStatCovariance] = xsec.GetPredictedCrossSectionStatUncertainty(scalingData);
-            std::cout << "Predicted cross-section stat uncertainty" << std::endl;
-            std::cout << "Bias vector" << std::endl;
-            FormattingHelper::SaveMatrix(*pPredictionStatBias, "xsec_" + selectionName + "_" + name + "_prediction_stat_bias.txt");
-            std::cout << "Covariance matrix" << std::endl;
-            FormattingHelper::SaveMatrix(*pPredictionStatCovariance, "xsec_" + selectionName + "_" + name + "_prediction_stat_covariance.txt");
+                const auto &[pPredictionStatBias, pPredictionStatCovariance] = xsec.GetPredictedCrossSectionStatUncertainty(scalingData);
+                std::cout << "Predicted cross-section stat uncertainty" << std::endl;
+                std::cout << "Bias vector" << std::endl;
+                FormattingHelper::SaveMatrix(*pPredictionStatBias, "xsec_" + selectionName + "_" + name + "_prediction_stat_bias_"+postfix+".txt");
+                std::cout << "Covariance matrix" << std::endl;
+                FormattingHelper::SaveMatrix(*pPredictionStatCovariance, "xsec_" + selectionName + "_" + name + "_prediction_stat_covariance_"+postfix+".txt");
 
 
-            const auto &[pPredictionSidebandStatBias, pPredictionSidebandStatCovariance] = xsec.GetPredictedSidebandCrossSectionStatUncertainty(scalingData);
-            std::cout << "Predicted cross-section stat uncertainty" << std::endl;
-            std::cout << "Bias vector" << std::endl;
-            FormattingHelper::SaveMatrix(*pPredictionSidebandStatBias, "xsec_" + selectionName + "_" + name + "_prediction_sideband_stat_bias.txt");
-            std::cout << "Covariance matrix" << std::endl;
-            FormattingHelper::SaveMatrix(*pPredictionSidebandStatCovariance, "xsec_" + selectionName + "_" + name + "_prediction_sideband_stat_covariance.txt");
+                const auto &[pPredictionSidebandStatBias, pPredictionSidebandStatCovariance] = xsec.GetPredictedSidebandCrossSectionStatUncertainty(scalingData);
+                std::cout << "Predicted cross-section stat uncertainty" << std::endl;
+                std::cout << "Bias vector" << std::endl;
+                FormattingHelper::SaveMatrix(*pPredictionSidebandStatBias, "xsec_" + selectionName + "_" + name + "_prediction_sideband_stat_bias_"+postfix+".txt");
+                std::cout << "Covariance matrix" << std::endl;
+                FormattingHelper::SaveMatrix(*pPredictionSidebandStatCovariance, "xsec_" + selectionName + "_" + name + "_prediction_sideband_stat_covariance_"+postfix+".txt");
 
-            // -----------------------------------------------------------------------------------------------------------------------------
-            // Get the smearing matrix along with its uncertainties
-            // -----------------------------------------------------------------------------------------------------------------------------
-            std::cout << "Smearing Matrix (reco-space rows, truth-space columns)" << std::endl;
-            const auto smearingMatrix = xsec.GetSmearingMatrix();
-            FormattingHelper::SaveMatrix(smearingMatrix, "xsec_" + selectionName + "_" + name + "_smearingMatrix.txt");
+                // -----------------------------------------------------------------------------------------------------------------------------
+                // Get the smearing matrix along with its uncertainties
+                // -----------------------------------------------------------------------------------------------------------------------------
+                std::cout << "Smearing Matrix (reco-space rows, truth-space columns)" << std::endl;
+                const auto smearingMatrix = xsec.GetSmearingMatrix();
+                FormattingHelper::SaveMatrix(smearingMatrix, "xsec_" + selectionName + "_" + name + "_smearingMatrix_"+postfix+".txt");
 
-            std::cout << "Smearing Matrix AllSelected" << std::endl;
-            const auto smearingMatrixAllSelected = xsec.GetSmearingMatrixAllSelected();
-            FormattingHelper::SaveMatrix(smearingMatrix, "xsec_" + selectionName + "_" + name + "_smearingMatrixAllSelected.txt");
+                std::cout << "Smearing Matrix AllSelected" << std::endl;
+                const auto smearingMatrixAllSelected = xsec.GetSmearingMatrixAllSelected();
+                FormattingHelper::SaveMatrix(smearingMatrix, "xsec_" + selectionName + "_" + name + "_smearingMatrixAllSelected_"+postfix+".txt");
 
-            std::cout << "Smearing Matrix SystBiasCovariances" << std::endl;
-            const auto smearingMatrixSystBiasCovariances = xsec.GetSmearingMatrixSystUncertainties();
-            std::cout << "Smearing Matrix SystBiasCovariances - After" << std::endl;
-            for (const auto &[group, map] : smearingMatrixSystBiasCovariances)
-            {
-                for (const auto &[paramName, biasCovariance] : map)
+                std::cout << "Smearing Matrix SystBiasCovariances" << std::endl;
+                const auto smearingMatrixSystBiasCovariances = xsec.GetSmearingMatrixSystUncertainties();
+                std::cout << "Smearing Matrix SystBiasCovariances - After" << std::endl;
+                for (const auto &[group, map] : smearingMatrixSystBiasCovariances)
                 {
-                    const auto &[pBias, pCovariance] = biasCovariance;
+                    for (const auto &[paramName, biasCovariance] : map)
+                    {
+                        const auto &[pBias, pCovariance] = biasCovariance;
 
-                    std::cout << "Smearing matrix syst uncertainty: " << group << " " << paramName << std::endl;
-                    std::cout << "Bias vector" << std::endl;
-                    FormattingHelper::SaveMatrix(*pBias, "xsec_" + selectionName + "_" + name + "_smearingMatrix_" + group + "_" + paramName + "_bias.txt");
-                    std::cout << "Covariance matrix" << std::endl;
-                    FormattingHelper::SaveMatrix(*pCovariance, "xsec_" + selectionName + "_" + name + "_smearingMatrix_" + group + "_" + paramName + "_covariance.txt");
+                        std::cout << "Smearing matrix syst uncertainty: " << group << " " << paramName << std::endl;
+                        std::cout << "Bias vector" << std::endl;
+                        FormattingHelper::SaveMatrix(*pBias, "xsec_" + selectionName + "_" + name + "_smearingMatrix_" + group + "_" + paramName + "_bias_"+postfix+".txt");
+                        std::cout << "Covariance matrix" << std::endl;
+                        FormattingHelper::SaveMatrix(*pCovariance, "xsec_" + selectionName + "_" + name + "_smearingMatrix_" + group + "_" + paramName + "_covariance_"+postfix+".txt");
+                    }
                 }
             }
         }
     }
+
+
+for (const auto &[selectionName, xsecs] : xsecMapSideband)
+{
+    for (const auto &[name, xsec] : xsecs)
+    {
+        const auto selectedEventsSignal = xsec.GetSelectedSignalEvents();
+        std::cout << "Sideband Selected signal events" << std::endl;
+        FormattingHelper::SaveMatrix(selectedEventsSignal, "xsec_Sideband_" + selectionName + "_" + name + "_signal_selected_eventRate.txt");
+
+        const auto allEventsSignal = xsec.GetSignalEvents();
+        std::cout << "Sideband All signal events" << std::endl;
+        FormattingHelper::SaveMatrix(allEventsSignal, "xsec_Sideband_" + selectionName + "_" + name + "_signal_all_eventRate.txt");
+        std::cout << "Sideband After all signal events" << std::endl;
+    }
+}
+
+for (const auto &[selectionName, xsecs] : xsecMapSideband)
+{
+    for (const auto &[name, xsec] : xsecs)
+    {
+        std::cout << "Sideband Smearing Matrix (reco-space rows, truth-space columns)" << std::endl;
+        const auto smearingMatrix = xsec.GetSmearingMatrix();
+        FormattingHelper::SaveMatrix(smearingMatrix, "xsec_Sideband_" + selectionName + "_" + name + "_smearingMatrix.txt");
+
+        std::cout << "Sideband Smearing Matrix AllSelected" << std::endl;
+        const auto smearingMatrixAllSelected = xsec.GetSmearingMatrixAllSelected();
+        FormattingHelper::SaveMatrix(smearingMatrix, "xsec_Sideband_" + selectionName + "_" + name + "_smearingMatrixAllSelected.txt");
+    }
+}
+
     std::cout<<"------------- All Done -------------"<<std::endl;
     return;
 }

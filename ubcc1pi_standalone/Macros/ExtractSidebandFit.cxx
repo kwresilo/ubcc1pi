@@ -557,13 +557,13 @@ void ExtractSidebandFit(const Config &config)
             for (auto &[selectionName, xsecs] : xsecMapSideband)
             {
                 const auto isSignal = isSignalMap.at(selectionName);
+                const auto isSelected = isSelectedMap.at(selectionName);
                 // Handle signal events
                 if (isSignal)
                 {
-                    for (auto &[selectionName, xsecs] : xsecMapSideband)
-                    {
+                    // for (auto &[selectionName, xsecs] : xsecMapSideband)
+                    // {
                         // Determine if we passed the relevant selection
-                        const auto isSelected = isSelectedMap.at(selectionName);
 
                         for (auto &[name, xsec] : xsecs)
                         {
@@ -572,15 +572,15 @@ void ExtractSidebandFit(const Config &config)
                             const auto seedString =  selectionName + name + std::to_string(i);
                             xsec.AddSignalEvent(recoValue, trueValue, isSelected, weight, fluxWeights, xsecWeights, reintWeights, seedString);
                         }
-                    }
+                    // }
                 }
                 // Handle selected background events
                 else
                 {
-                    for (auto &[selectionName, xsecs] : xsecMapSideband)
-                    {
+                    // for (auto &[selectionName, xsecs] : xsecMapSideband)
+                    // {
                         // Only use selected background events
-                        const auto isSelected = isSelectedMap.at(selectionName);
+                        // const auto isSelected = isSelectedMap.at(selectionName);
                         if (!isSelected)
                             continue;
 
@@ -591,7 +591,7 @@ void ExtractSidebandFit(const Config &config)
                             std::vector<float> bootstrapWeights; // Parameter only needed for CC1pi
                             xsec.AddSelectedBackgroundEvent(recoValue, isDirt, weight, fluxWeights, xsecWeights, reintWeights, bootstrapWeights, seedString);
                         }
-                    }
+                    // }
                 }
             }
         }
@@ -630,9 +630,11 @@ void ExtractSidebandFit(const Config &config)
                 const auto selectedEventsBackgroundReco = xsec.GetSelectedBackgroundEvents();
                 // std::cout<<"_______________________Fitting Point 0.4"<<std::endl;
                 const auto selectedEventsSignalTruth = xsec.GetSelectedSignalEvents();
+                const auto signalTruth = xsec.GetSignalEvents();
                 // std::cout<<"_______________________Fitting Point 0.5"<<std::endl;
                 auto signalData = selectedEventsData - selectedEventsBackgroundReco;
 
+                FormattingHelper::SaveMatrix(signalTruth, "SidebandFit_" + selectionName + "_" + name + "_signalTruth.txt");
                 FormattingHelper::SaveMatrix(selectedEventsSignalTruth, "SidebandFit_" + selectionName + "_" + name + "_selectedEventsSignalTruth.txt");
                 FormattingHelper::SaveMatrix(selectedEventsData, "SidebandFit_" + selectionName + "_" + name + "_selectedEventsData.txt");
                 FormattingHelper::SaveMatrix(selectedEventsBackgroundReco, "SidebandFit_" + selectionName + "_" + name + "_selectedEventsBackgroundReco.txt");
@@ -683,25 +685,25 @@ void ExtractSidebandFit(const Config &config)
                 overflow = false; //xsec.HasOverflow();
                 S = smearingMatrix.GetValues();
 
-                std::cout<<"\nx (selectedEventsSignalTruth): \n";
-                for (const auto &xValue : x)
-                    std::cout<<xValue<<" ";
+                // std::cout<<"\nx (selectedEventsSignalTruth): \n";
+                // for (const auto &xValue : x)
+                //     std::cout<<xValue<<" ";
 
-                std::cout<<"\ny (signalData): \n";
-                for (const auto &yValue : y)
-                    std::cout<<yValue<<" ";
+                // std::cout<<"\ny (signalData): \n";
+                // for (const auto &yValue : y)
+                //     std::cout<<yValue<<" ";
 
-                std::cout<<"\nerrorY (signalDataUncertainty): \n";
-                for (const auto &errorYValue : errorY)
-                    std::cout<<errorYValue<<" ";
+                // std::cout<<"\nerrorY (signalDataUncertainty): \n";
+                // for (const auto &errorYValue : errorY)
+                //     std::cout<<errorYValue<<" ";
 
-                std::cout<<"\nSmearing matrix: \n";
-                for(unsigned int i = 0; i<S.size(); i++)
-                {
-                    if(i%nBins==0)
-                        std::cout<<"\n";
-                    std::cout<<S[i]<<" ";
-                }
+                // std::cout<<"\nSmearing matrix: \n";
+                // for(unsigned int i = 0; i<S.size(); i++)
+                // {
+                //     if(i%nBins==0)
+                //         std::cout<<"\n";
+                //     std::cout<<S[i]<<" ";
+                // }
                 
 
                 // std::cout<<"_______________________Fitting Point 4"<<std::endl;

@@ -94,6 +94,8 @@ void ExtractNuWroXSecs(const Config &config)
     std::map<std::string, std::map<std::string, CrossSectionHelper::CrossSection> > xsecMap;
     std::map<std::string, std::map<std::string, CrossSectionHelper::CrossSection> > xsecMapUnscaled;
     std::map<std::string, std::map<std::string, CrossSectionHelper::CrossSection> > xsecMapTrue; // True NuWro cross-sections
+    std::map<std::string, std::map<std::string, CrossSectionHelper::CrossSection> > xsecMapOnlyCC0Pi; // Map is used to save both nuwro as data and as preiction - not usable to calculate a cross-section 
+    std::map<std::string, std::map<std::string, CrossSectionHelper::CrossSection> > xsecMapOnlyCC0PiUnscaled; // Map is used to save both nuwro as data and as preiction - not usable to calculate a cross-section
     // std::map<std::string, std::map<std::string, CrossSectionHelper::CrossSection> > xsecMapSideband;
     // std::map<std::string, std::map<std::string, CrossSectionHelper::CrossSection> > xsecMapSideband2;
 
@@ -137,6 +139,8 @@ void ExtractNuWroXSecs(const Config &config)
                 xsecMap[selectionName].emplace(name, CrossSectionHelper::CrossSection(systParams, extendedBinEdges, hasUnderflow, hasOverflow, scaleByBinWidth));
                 xsecMapUnscaled[selectionName].emplace(name, CrossSectionHelper::CrossSection(systParams, extendedBinEdges, hasUnderflow, hasOverflow, scaleByBinWidth));
                 xsecMapTrue[selectionName].emplace(name, CrossSectionHelper::CrossSection(systParams, extendedBinEdges, hasUnderflow, hasOverflow, scaleByBinWidth));
+                xsecMapOnlyCC0Pi[selectionName].emplace(name, CrossSectionHelper::CrossSection(systParams, extendedBinEdges, hasUnderflow, hasOverflow, scaleByBinWidth));
+                xsecMapOnlyCC0PiUnscaled[selectionName].emplace(name, CrossSectionHelper::CrossSection(systParams, extendedBinEdges, hasUnderflow, hasOverflow, scaleByBinWidth));
                 // xsecMapSideband[selectionName].emplace(name, CrossSectionHelper::CrossSection(systParams, extendedBinEdges, hasUnderflow, hasOverflow, scaleByBinWidth));
                 // xsecMapSideband2[selectionName].emplace(name, CrossSectionHelper::CrossSection(systParams, extendedBinEdges, hasUnderflow, hasOverflow, scaleByBinWidth));
             }
@@ -159,6 +163,8 @@ void ExtractNuWroXSecs(const Config &config)
             xsecMap[selectionName].emplace("total", CrossSectionHelper::CrossSection(systParams, {-1.f, 1.f}, false, false, false));
             xsecMapUnscaled[selectionName].emplace("total", CrossSectionHelper::CrossSection(systParams, {-1.f, 1.f}, false, false, false));
             xsecMapTrue[selectionName].emplace("total", CrossSectionHelper::CrossSection(systParams, {-1.f, 1.f}, false, false, false));
+            xsecMapOnlyCC0Pi[selectionName].emplace("total", CrossSectionHelper::CrossSection(systParams, {-1.f, 1.f}, false, false, false));
+            xsecMapOnlyCC0PiUnscaled[selectionName].emplace("total", CrossSectionHelper::CrossSection(systParams, {-1.f, 1.f}, false, false, false));
             // xsecMapSideband[selectionName].emplace("total", CrossSectionHelper::CrossSection(systParams, {-1.f, 1.f}, false, false, false));
             // xsecMapSideband2[selectionName].emplace("total", CrossSectionHelper::CrossSection(systParams, {-1.f, 1.f}, false, false, false));
         }
@@ -379,9 +385,10 @@ void ExtractNuWroXSecs(const Config &config)
         const auto nEvents = reader.GetNumberOfEvents();
         for (unsigned int i = 0; i < nEvents; ++i)
         {
+            // std::cout<<"Debug Point 0"<<std::endl;
             AnalysisHelper::PrintLoadingBar(i, nEvents);
             reader.LoadEvent(i);
-
+            // std::cout<<"Debug Point 1"<<std::endl;
             // -----------------------------------------------------------------------------------------------------------------------------
             // Work out if this event passed the selection and apply any additional phase-space cuts based on the input binning
             // -----------------------------------------------------------------------------------------------------------------------------
@@ -424,7 +431,7 @@ void ExtractNuWroXSecs(const Config &config)
             const auto isSelectedGeneric = passedGenericSelection && passesPhaseSpaceReco;
             std::map<std::string, bool> isSelectedMap = {{"generic",isSelectedGeneric},{"golden",isSelectedGolden}};
 
-
+            // std::cout<<"Debug Point 2"<<std::endl;
             // Determine if this is truly a CC1Pi event
             const auto isTrueCC1Pi = (isOverlay || isDetVar || isNuWro) && AnalysisHelper::IsTrueCC1Pi(pEvent, config.global.useAbsPdg);
             // Get the truth analysis data (if available, otherwise set to dummy values)
@@ -456,7 +463,7 @@ void ExtractNuWroXSecs(const Config &config)
                     }
                 }
             }
-
+            // std::cout<<"Debug Point 3"<<std::endl;
             const auto isCC1PiSignal = isTrueCC1Pi && passesPhaseSpaceTruth;
             const auto isSignal = isCC1PiSignal;
 
@@ -500,7 +507,7 @@ void ExtractNuWroXSecs(const Config &config)
             }
 
             const auto isCC0PiSignal = isTrueCC0Pi && passesSidebandPhaseSpaceTruth;
-
+            // std::cout<<"Debug Point 4"<<std::endl;
             // -----------------------------------------------------------------------------------------------------------------------------
             // Handle BNB data
             // -----------------------------------------------------------------------------------------------------------------------------
@@ -518,6 +525,7 @@ void ExtractNuWroXSecs(const Config &config)
                     {
                         xsec.AddWeightedSelectedBNBDataEvent(getValue.at(name)(recoData), weight);
                         xsecMapUnscaled.at(selectionName).at(name).AddWeightedSelectedBNBDataEvent(getValue.at(name)(recoData), weight);
+                        if(isCC0PiSignal) xsecMapOnlyCC0Pi.at(selectionName).at(name).AddWeightedSelectedBNBDataEvent(getValue.at(name)(recoData), weight);
                     }
                 }
                 // For BNB data that's all we need to do!
@@ -625,7 +633,7 @@ void ExtractNuWroXSecs(const Config &config)
                     ? CrossSectionHelper::GetWeightsMap(pEvent->truth, systParams.reintDimensions, config.extractXSecs.mutuallyExclusiveDimensions)
                     : CrossSectionHelper::GetUnitWeightsMap(systParams.reintDimensions)
             );
-            
+            // std::cout<<"Debug Point 5"<<std::endl;
             // std::cout<<"xsecWeightsScaleFactor Debugging Point 3"<<std::endl;
 
             // for (auto &[selectionName, xsecs] : xsecMap)
@@ -650,7 +658,10 @@ void ExtractNuWroXSecs(const Config &config)
                             xsec.AddSignalEvent(recoValue, trueValue, isSelected, weight, fluxWeights, xsecWeights, reintWeights, seedString);
                             xsecMapUnscaled.at(selectionName).at(name).AddSignalEvent(recoValue, trueValue, isSelected, weight, fluxWeights, xsecWeights, reintWeights, seedString);
                         } 
-                        else xsecMapTrue.at(selectionName).at(name).AddSignalEvent(recoValue, trueValue, isSelected, weight, fluxWeights, xsecWeights, reintWeights, seedString);
+                        else
+                        {
+                            xsecMapTrue.at(selectionName).at(name).AddSignalEvent(recoValue, trueValue, isSelected, weight, fluxWeights, xsecWeights, reintWeights, seedString);
+                        }
                     }
                 }
             }
@@ -660,6 +671,7 @@ void ExtractNuWroXSecs(const Config &config)
                 // std::cout<<"xsecWeightsScaleFactor Debugging Point 4"<<std::endl;
                 for (auto &[selectionName, xsecs] : xsecMap)
                 {
+                    // std::cout<<"Debug Point 5.01"<<std::endl;
                     // Only use selected background events
                     const auto isSelected = isSelectedMap.at(selectionName);
                     if (!isSelected)
@@ -667,14 +679,17 @@ void ExtractNuWroXSecs(const Config &config)
 
                     for (auto &[name, xsec] : xsecs)
                     {
+                        // std::cout<<"Debug Point 5.1"<<std::endl;
                         const auto recoValue = getValue.at(name)(recoData);
                         const auto trueValue = getValue.at(name)(truthData);
+                        // std::cout<<"Debug Point 5.11"<<std::endl;
                         
                         // Add CC0pi constraint
                         const auto trueSidebandValue = getSidebandValue.at(name)(sidebandTruthData);
                         const auto cc0piNominalConstraintParam = cc0piNominalConstraintMap.at("generic").at(name).first;
                         const auto cc0piNominalConstraintParamError = cc0piNominalConstraintMap.at("generic").at(name).second;
                         const auto cc0piUniverseConstraintVector = cc0piUniverseConstraintMap.at("generic").at(name);
+                        // std::cout<<"Debug Point 5.2"<<std::endl;
 
                         const auto scaledWeight = (
                             (isCC0PiSignal)
@@ -703,13 +718,24 @@ void ExtractNuWroXSecs(const Config &config)
 
 
                         const auto seedString =  selectionName + name + std::to_string(i);
+                        // std::cout<<"Debug Point 6"<<std::endl;
                         // std::cout<<"Added selected background event"<<std::endl;
                         if(!isNuWro)
                         {
+                            // std::cout<<"Debug Point 7"<<std::endl;
                             xsec.AddSelectedBackgroundEvent(recoValue, isDirt, scaledWeight, scaledFluxWeights, scaledXSecWeights, scaledReintWeights, sidebandWeights, seedString);
                             xsecMapUnscaled.at(selectionName).at(name).AddSelectedBackgroundEvent(recoValue, isDirt, weight, fluxWeights, xsecWeights, reintWeights, std::vector<float>(systParams.nBootstrapUniverses, 1.0), seedString);
+                            if(isCC0PiSignal)
+                            {
+                                xsecMapOnlyCC0Pi.at(selectionName).at(name).AddSelectedBackgroundEvent(recoValue, isDirt, scaledWeight, scaledFluxWeights, scaledXSecWeights, scaledReintWeights, sidebandWeights, seedString);
+                                xsecMapOnlyCC0PiUnscaled.at(selectionName).at(name).AddSelectedBackgroundEvent(recoValue, isDirt, weight, fluxWeights, xsecWeights, reintWeights, std::vector<float>(systParams.nBootstrapUniverses, 1.0), seedString);
+                            }
                         }
-                        else xsecMapTrue.at(selectionName).at(name).AddSelectedBackgroundEvent(recoValue, isDirt, scaledWeight, scaledFluxWeights, scaledXSecWeights, scaledReintWeights, sidebandWeights, seedString);
+                        else
+                        {
+                            xsecMapTrue.at(selectionName).at(name).AddSelectedBackgroundEvent(recoValue, isDirt, scaledWeight, scaledFluxWeights, scaledXSecWeights, scaledReintWeights, sidebandWeights, seedString);
+                        }
+                        // std::cout<<"Debug Point 8"<<std::endl;
                     }
                 }
             }
@@ -720,7 +746,7 @@ void ExtractNuWroXSecs(const Config &config)
     // Loop over all cross-section objects
     for(const auto&[postfix, map]: {std::make_pair("scaled",xsecMap),std::make_pair("unscaled", xsecMapUnscaled)})
     {
-        for (const auto &[selectionName, xsecs] : xsecMap)
+        for (const auto &[selectionName, xsecs] : map)
         {
             for (const auto &[name, xsec] : xsecs)
             {
@@ -824,7 +850,7 @@ void ExtractNuWroXSecs(const Config &config)
         }
     }
 
-        // Loop over all cross-section objects
+    // Loop over all cross-section objects
     for (const auto &[selectionName, xsecs] : xsecMapTrue)
     {
         for (const auto &[name, xsec] : xsecs)
@@ -834,9 +860,9 @@ void ExtractNuWroXSecs(const Config &config)
             // -----------------------------------------------------------------------------------------------------------------------------
             // Get the event rates for BNB data, backgrounds, and signal
             // -----------------------------------------------------------------------------------------------------------------------------
-            const auto selectedEventsData = xsec.GetSelectedBNBDataEvents();
-            std::cout << "True: Selected BNB data events" << std::endl;
-            FormattingHelper::SaveMatrix(selectedEventsData, "xsecNuWro_true_" + selectionName + "_" + name + "_data_selected_eventRate.txt");
+            // const auto selectedEventsData = xsec.GetSelectedBNBDataEvents();
+            // std::cout << "True: Selected BNB data events" << std::endl;
+            // FormattingHelper::SaveMatrix(selectedEventsData, "xsecNuWro_true_" + selectionName + "_" + name + "_data_selected_eventRate.txt");
 
             // -----------------------------------------------------------------------------------------------------------------------------
             // Get the cross-section as measured with BNB data along with it's uncertainties
@@ -852,6 +878,35 @@ void ExtractNuWroXSecs(const Config &config)
             std::cout << "NuWro smearing Matrix (reco-space rows, truth-space columns)" << std::endl;
             const auto smearingMatrix = xsec.GetSmearingMatrix();
             FormattingHelper::SaveMatrix(smearingMatrix, "xsecNuWro_true_" + selectionName + "_" + name + "_smearingMatrix.txt");
+
+            std::cout << "NuWro smearing Matrix all selected (reco-space rows, truth-space columns)" << std::endl;
+            const auto smearingMatrixAllSelected = xsec.GetSmearingMatrixAllSelected();
+            FormattingHelper::SaveMatrix(smearingMatrixAllSelected, "xsecNuWro_true_" + selectionName + "_" + name + "_smearingMatrixAllSelected.txt");
+        }
+    }
+
+
+        // Loop over all cross-section objects
+    for (const auto &[selectionName, xsecs] : xsecMapOnlyCC0Pi)
+    {
+        for (const auto &[name, xsec] : xsecs)
+        {
+            std::cout << "Only selected CC0pi: Processing cross-section: "<<selectionName<< " - " << name << std::endl;
+
+            // -----------------------------------------------------------------------------------------------------------------------------
+            // Get the event rates for BNB data, backgrounds, and signal
+            // -----------------------------------------------------------------------------------------------------------------------------
+            const auto selectedEventsData = xsec.GetSelectedBNBDataEvents();
+            std::cout << "True: Selected BNB data events" << std::endl;
+            FormattingHelper::SaveMatrix(selectedEventsData, "xsecNuWro_onlyCC0pi_" + selectionName + "_" + name + "_data_selected_eventRate.txt");
+
+            const auto selectedEventsBackground = xsec.GetSelectedBackgroundEvents();
+            std::cout << "Selected background events" << std::endl;
+            FormattingHelper::SaveMatrix(selectedEventsBackground, "xsecNuWro_onlyCC0pi_" + selectionName + "_" + name + "_background_selected_eventRate_scaled.txt");
+
+            const auto selectedEventsBackgroundUnscaled = xsecMapOnlyCC0PiUnscaled.at(selectionName).at(name).GetSelectedBackgroundEvents();
+            std::cout << "Selected background events" << std::endl;
+            FormattingHelper::SaveMatrix(selectedEventsBackgroundUnscaled, "xsecNuWro_onlyCC0pi_" + selectionName + "_" + name + "_background_selected_eventRate_unscaled.txt");
         }
     }
 

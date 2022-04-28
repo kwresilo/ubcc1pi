@@ -144,6 +144,7 @@ void ExtractNuWroSidebandFit(const Config &config)
     // mapped type is the cross-section object.
     // std::map<std::string, std::map<std::string, CrossSectionHelper::CrossSection> > xsecMap;
     std::map<std::string, std::map<std::string, CrossSectionHelper::CrossSection> > xsecMapSideband;
+    std::map<std::string, std::map<std::string, CrossSectionHelper::CrossSection> > xsecMapSidebandTrue;
     // std::map<std::string, std::map<std::string, CrossSectionHelper::CrossSection> > xsecMapSideband2;
 
     // We additionally make a map from each cross-section to the limits of the phase-space that we should consider. The key is the
@@ -189,6 +190,7 @@ void ExtractNuWroSidebandFit(const Config &config)
             {
                 // xsecMap[selectionName].emplace(name, CrossSectionHelper::CrossSection(systParams, extendedBinEdges, hasUnderflow, hasOverflow, scaleByBinWidth));
                 xsecMapSideband[selectionName].emplace(name, CrossSectionHelper::CrossSection(systParams, extendedBinEdges, hasUnderflow, hasOverflow, scaleByBinWidth));
+                xsecMapSidebandTrue[selectionName].emplace(name, CrossSectionHelper::CrossSection(systParams, extendedBinEdges, hasUnderflow, hasOverflow, scaleByBinWidth));
                 // xsecMapSideband2[selectionName].emplace(name, CrossSectionHelper::CrossSection(systParams, extendedBinEdges, hasUnderflow, hasOverflow, scaleByBinWidth));
             }
         }
@@ -209,6 +211,7 @@ void ExtractNuWroSidebandFit(const Config &config)
         {
             // xsecMap[selectionName].emplace("total", CrossSectionHelper::CrossSection(systParams, {-1.f, 1.f}, false, false, false));
             xsecMapSideband[selectionName].emplace("total", CrossSectionHelper::CrossSection(systParams, {-1.f, 1.f}, false, false, false));
+            xsecMapSidebandTrue[selectionName].emplace("total", CrossSectionHelper::CrossSection(systParams, {-1.f, 1.f}, false, false, false));
             // xsecMapSideband2[selectionName].emplace("total", CrossSectionHelper::CrossSection(systParams, {-1.f, 1.f}, false, false, false));
         }
     }
@@ -326,10 +329,10 @@ void ExtractNuWroSidebandFit(const Config &config)
             // inputData.emplace_back(AnalysisHelper::Dirt,    "", config.filesRun3.dirtFileName, NormalisationHelper::GetDirtNormalisation(config, 3));
             // inputData.emplace_back(AnalysisHelper::DataEXT, "", config.filesRun3.dataEXTFileName, NormalisationHelper::GetDataEXTNormalisation(config, 3));
             inputData.emplace_back(AnalysisHelper::DataBNB, "", config.filesRun3.nuWroFileName, 1.f);
-
         }
         else throw std::logic_error("ExtractNuWroSidebandFit - Invalid run number");
     }
+
     // -------------------------------------------------------------------------------------------------------------------------------------
     // -------------------------------------------------------------------------------------------------------------------------------------
     // -------------------------------------------------------------------------------------------------------------------------------------
@@ -345,20 +348,20 @@ void ExtractNuWroSidebandFit(const Config &config)
 
         const auto isOverlay = (sampleType == AnalysisHelper::Overlay);
         const auto isDirt    = (sampleType == AnalysisHelper::Dirt);
-        const auto isNuWro = (sampleType == AnalysisHelper::DataBNB);
+        const auto isNuWro   = (sampleType == AnalysisHelper::DataBNB);
         const auto isDetVar  = (sampleType == AnalysisHelper::DetectorVariation);
 
         // Open the input file for reading and enable the branches with systematic event weights (if required)
         FileReader reader(fileName);
 
-        if (isOverlay)
+        if (isOverlay || isNuWro)
             reader.EnableSystematicBranches();
 
         auto pEvent = reader.GetBoundEventAddress();
 
         // Loop over the events in the file
         const auto nEvents = reader.GetNumberOfEvents();
-        for (unsigned int i = 0; i < nEvents; ++i)
+        for (unsigned int i = 0; i < nEvents-50; i+=50) //todo: remove +50
         {
             AnalysisHelper::PrintLoadingBar(i, nEvents);
             reader.LoadEvent(i);
@@ -432,7 +435,7 @@ void ExtractNuWroSidebandFit(const Config &config)
                 }
 
                 // For BNB data that's all we need to do!
-                continue;
+                // continue;
             }
 
 
@@ -541,7 +544,7 @@ void ExtractNuWroSidebandFit(const Config &config)
             // double count this weight (once in the nominal event weight, and once in the xsec systematic event weights)
             // const auto xsecWeightsScaleFactor = 1.f;
             auto xsecWeightsScaleFactor = (isOverlay && config.extractXSecs.scaleXSecWeights) ? pEvent->truth.genieTuneEventWeight() : 1.f;
-            xsecWeightsScaleFactor = std::max(xsecWeightsScaleFactor, 0.0001f);
+            xsecWeightsScaleFactor = std::max(xsecWeightsScaleFactor, 0.0001f); //Todo: use continue instead
 
             const auto xsecWeights = (
                 isOverlay
@@ -555,44 +558,59 @@ void ExtractNuWroSidebandFit(const Config &config)
                     ? CrossSectionHelper::GetWeightsMap(pEvent->truth, systParams.reintDimensions, config.extractXSecs.mutuallyExclusiveDimensions)
                     : CrossSectionHelper::GetUnitWeightsMap(systParams.reintDimensions)
             );
+            
             for (auto &[selectionName, xsecs] : xsecMapSideband)
             {
                 const auto isSignal = isSignalMap.at(selectionName);
+                const auto isSelected = isSelectedMap.at(selectionName);
                 // Handle signal events
                 if (isSignal)
                 {
-                    for (auto &[selectionName, xsecs] : xsecMapSideband)
-                    {
-                        // Determine if we passed the relevant selection
-                        const auto isSelected = isSelectedMap.at(selectionName);
+                    // for (auto &[selectionName, xsecs] : xsecMapSideband)
+                    // {
 
                         for (auto &[name, xsec] : xsecs)
                         {
                             const auto recoValue = getSidebandValue.at(name)(recoData);
                             const auto trueValue = getSidebandValue.at(name)(truthData);
                             const auto seedString =  selectionName + name + std::to_string(i);
-                            xsec.AddSignalEvent(recoValue, trueValue, isSelected, weight, fluxWeights, xsecWeights, reintWeights, seedString);
+                            if(!isNuWro)
+                            {
+                                std::cout<<"!isNuWro - name"<<name<<" - weight: "<<weight<<" - isSelected: "<< isSelected<<" - recoValue: "<<recoValue<<" - trueValue: "<<trueValue<<std::endl;
+                                xsec.AddSignalEvent(recoValue, trueValue, isSelected, weight, fluxWeights, xsecWeights, reintWeights, seedString);
+                            }
+                            if(!isOverlay)
+                            { 
+                                std::cout<<"!isOverlay - name"<<name<<" - weight: "<<weight<<" - isSelected: "<< isSelected<<" - recoValue: "<<recoValue<<" - trueValue: "<<trueValue<<std::endl;
+                                xsecMapSidebandTrue.at(selectionName).at(name).AddSignalEvent(recoValue, trueValue, isSelected, weight, fluxWeights, xsecWeights, reintWeights, seedString);
+                            }
                         }
-                    }
+                    // }
                 }
-                // Handle selected background events
-                else
+                // HandleisSelectedd background events
+                else if (isSelected)
                 {
-                    for (auto &[selectionName, xsecs] : xsecMapSideband)
-                    {
+                    // for (auto &[selectionName, xsecs] : xsecMapSideband)
+                    // {
                         // Only use selected background events
-                        const auto isSelected = isSelectedMap.at(selectionName);
-                        if (!isSelected)
-                            continue;
+                        // if (!isSelected)
+                        //     continue;
 
                         for (auto &[name, xsec] : xsecs)
                         {
                             const auto recoValue = getSidebandValue.at(name)(recoData);
                             const auto seedString =  selectionName + name + std::to_string(i);
                             std::vector<float> bootstrapWeights; // Parameter only needed for CC1pi
-                            xsec.AddSelectedBackgroundEvent(recoValue, isDirt, weight, fluxWeights, xsecWeights, reintWeights, bootstrapWeights, seedString);
+                            if(!isNuWro)
+                            {
+                                xsec.AddSelectedBackgroundEvent(recoValue, isDirt, weight, fluxWeights, xsecWeights, reintWeights, bootstrapWeights, seedString);
+                            }
+                            if(!isOverlay)
+                            { 
+                                xsecMapSidebandTrue.at(selectionName).at(name).AddSelectedBackgroundEvent(recoValue, isDirt, weight, fluxWeights, xsecWeights, reintWeights, bootstrapWeights, seedString);
+                            }
                         }
-                    }
+                    // }
                 }
             }
         }
@@ -622,22 +640,22 @@ void ExtractNuWroSidebandFit(const Config &config)
                 std::cout<<"_______________________ExtractNuWroSidebandFit Fitting: "<<selectionName<<" - "<<name<<"_______________________"<<std::endl;
                 // const auto sidebandCVFit = xsec.GetPredictedCrossSection(scalingData);
 
-                // std::cout<<"_______________________Fitting Point 0.1"<<std::endl;
-                const auto selectedEventsData = xsec.GetSelectedBNBDataEvents();
-                // std::cout<<"_______________________Fitting Point 0.2"<<std::endl;
                 // Get the smearing matrix of selected events
                 const auto smearingMatrix = xsec.GetSmearingMatrixAllSelected();
-                // std::cout<<"_______________________Fitting Point 0.3"<<std::endl;
+                const auto smearingMatrixGeneral = xsec.GetSmearingMatrix();
+
                 const auto selectedEventsBackgroundReco = xsec.GetSelectedBackgroundEvents();
-                // std::cout<<"_______________________Fitting Point 0.4"<<std::endl;
+                const auto selectedEventsData = xsec.GetSelectedBNBDataEvents();
                 const auto selectedEventsSignalTruth = xsec.GetSelectedSignalEvents();
-                // std::cout<<"_______________________Fitting Point 0.5"<<std::endl;
+                const auto eventsSignalTruth = xsec.GetSignalEvents();
                 auto signalData = selectedEventsData - selectedEventsBackgroundReco;
 
+                FormattingHelper::SaveMatrix(eventsSignalTruth, "NuWroSidebandFit_" + selectionName + "_" + name + "_eventsSignalTruth.txt");
                 FormattingHelper::SaveMatrix(selectedEventsSignalTruth, "NuWroSidebandFit_" + selectionName + "_" + name + "_selectedEventsSignalTruth.txt");
                 FormattingHelper::SaveMatrix(selectedEventsData, "NuWroSidebandFit_" + selectionName + "_" + name + "_selectedEventsData.txt");
                 FormattingHelper::SaveMatrix(selectedEventsBackgroundReco, "NuWroSidebandFit_" + selectionName + "_" + name + "_selectedEventsBackgroundReco.txt");
                 FormattingHelper::SaveMatrix(smearingMatrix, "NuWroSidebandFit_" + selectionName + "_" + name + "_smearingMatrix.txt");
+                FormattingHelper::SaveMatrix(smearingMatrixGeneral, "NuWroSidebandFit_" + selectionName + "_" + name + "_smearingMatrixGeneral.txt");
 
 
                 for(unsigned int r = 0; r<signalData.GetRows(); r++) // DEBUG - TODO: REMOVE !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -808,12 +826,12 @@ void ExtractNuWroSidebandFit(const Config &config)
                                         }
                                     }
                                 }
-                                if(iUni<20)
-                                {
-                                    FormattingHelper::SaveMatrix(selectedSignalTruthInUniverse, "NuWroSidebandFit_" + selectionName + "_" + name + "_" + group + "_" + paramName + "_" + std::to_string(iUni) + "_selectedEventsSignalTruth.txt");
-                                    FormattingHelper::SaveMatrix(selectedBackgoundRecoInUniverse, "NuWroSidebandFit_" + selectionName + "_" + name + "_" + group + "_" + paramName + "_" + std::to_string(iUni) + "_selectedEventsBackgroundReco.txt");
-                                    FormattingHelper::SaveMatrix(smearingMatrixInUniverse, "NuWroSidebandFit_" + selectionName + "_" + name + "_" + group + "_" + paramName + "_" + std::to_string(iUni) + "_smearingMatrix.txt");
-                                }
+                                // if(iUni<20)
+                                // {
+                                //     FormattingHelper::SaveMatrix(selectedSignalTruthInUniverse, "NuWroSidebandFit_" + selectionName + "_" + name + "_" + group + "_" + paramName + "_" + std::to_string(iUni) + "_selectedEventsSignalTruth.txt");
+                                //     FormattingHelper::SaveMatrix(selectedBackgoundRecoInUniverse, "NuWroSidebandFit_" + selectionName + "_" + name + "_" + group + "_" + paramName + "_" + std::to_string(iUni) + "_selectedEventsBackgroundReco.txt");
+                                //     FormattingHelper::SaveMatrix(smearingMatrixInUniverse, "NuWroSidebandFit_" + selectionName + "_" + name + "_" + group + "_" + paramName + "_" + std::to_string(iUni) + "_smearingMatrix.txt");
+                                // }
 
                                 
                                 // std::vector<float> elements;
@@ -932,6 +950,27 @@ void ExtractNuWroSidebandFit(const Config &config)
     ofs1.close();
     ofs2.close();
     ofs3.close();
+
+    // Loop over all cross-section objects
+    for (const auto &[selectionName, xsecs] : xsecMapSidebandTrue)
+    {
+        for (const auto &[name, xsec] : xsecs)
+        {
+            std::cout << "True: Processing sideband: "<<selectionName<< " - " << name << std::endl;
+
+            
+            // Get the smearing matrix of selected events
+            const auto smearingMatrix = xsec.GetSmearingMatrixAllSelected();
+            const auto smearingMatrixGeneral = xsec.GetSmearingMatrix();
+            const auto selectedEventsSignalTruth = xsec.GetSelectedSignalEvents();
+            const auto eventsSignalTruth = xsec.GetSignalEvents();
+
+            FormattingHelper::SaveMatrix(eventsSignalTruth, "NuWroSidebandFitTruth_" + selectionName + "_" + name + "_eventsSignalTruth.txt");
+            FormattingHelper::SaveMatrix(selectedEventsSignalTruth, "NuWroSidebandFitTruth_" + selectionName + "_" + name + "_selectedEventsSignalTruth.txt");
+            FormattingHelper::SaveMatrix(smearingMatrix, "NuWroSidebandFitTruth_" + selectionName + "_" + name + "_smearingMatrix.txt");
+            FormattingHelper::SaveMatrix(smearingMatrixGeneral, "NuWroSidebandFitTruth_" + selectionName + "_" + name + "_smearingMatrixGeneral.txt");
+        }
+    }
 
     std::cout<<"------------- All done -------------"<<std::endl;
     return;

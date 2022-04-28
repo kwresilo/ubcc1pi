@@ -99,8 +99,11 @@ class AnalysisHelper
                  *  @param  sampleType the type of sample from which the event came
                  *  @param  pEvent the input event to count
                  *  @param  weight a weight to apply to the event
+                 *  @param  selectCC0pi use the sideband signal definition
+                 *  @param  protonMomentumThreshold the visibility threshold for protons
+                 * 
                  */
-                void CountEvent(const std::string &tag, const SampleType &sampleType, const std::shared_ptr<Event> &pEvent, const float weight = 1.f);
+                void CountEvent(const std::string &tag, const SampleType &sampleType, const std::shared_ptr<Event> &pEvent, const float weight = 1.f, const bool selectCC0pi = false, const float protonMomentumThreshold = 0.f);
 
                 /**
                  *  @brief  Get the total weight for a given tag, sample and classification - if the entry doesn't exist a weight of zero is returned
@@ -384,10 +387,12 @@ class AnalysisHelper
          *  @param  pEvent the input event
          *  @param  useAbsPdg if we should group particles with the same absolute PDG code
          *  @param  countProtonsInclusively whether to count protons inclusively (with an X) or exclusively
-         *
+         *  @param  selectCC0pi use the sideband signal definition
+         *  @param  protonMomentumThreshold the visibility threshold for protons
+         * 
          *  @return the classification string
          */
-        static std::string GetClassificationString(const std::shared_ptr<Event> &pEvent, const bool useAbsPdg, const bool countProtonsInclusively);
+        static std::string GetClassificationString(const std::shared_ptr<Event> &pEvent, const bool useAbsPdg, const bool countProtonsInclusively, const bool selectCC0pi = false, const float protonMomentumThreshold = 0.f);
 
         /**
          *  @brief  Determine if a given point is in the volume defined by the input margins

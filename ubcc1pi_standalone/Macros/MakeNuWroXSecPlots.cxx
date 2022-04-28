@@ -57,7 +57,8 @@ void MakeNuWroXSecPlots(const Config &config)
     // -------------------------------------------------------------------------------------------------------------------------------------
     // Setup a table to hold the chi2 values between the data and prediction for each cross-section
     // -------------------------------------------------------------------------------------------------------------------------------------
-    FormattingHelper::Table table({"Selection", "Cross-section", "nBins", "", "Chi2", "DoF", "Chi2/DoF", "p-value"});
+    FormattingHelper::Table tableScaled({"Selection", "Cross-section", "nBins", "", "Chi2", "DoF", "Chi2/DoF", "p-value"});
+    FormattingHelper::Table tableUnscaled({"Selection", "Cross-section", "nBins", "", "Chi2", "DoF", "Chi2/DoF", "p-value"});
 
     // -------------------------------------------------------------------------------------------------------------------------------------
     // Loop over all possible cross-sections
@@ -118,7 +119,7 @@ void MakeNuWroXSecPlots(const Config &config)
             for (const std::string &quantity : {"data", "smearingMatrix"})
             {
                 // Get the number of bins (for the smearing matrix there are N^2 bins when flattened)
-                const auto nBins = (quantity == "data" ? data.GetRows() : std::pow(smearingMatrix.GetRows(), 2));
+                const auto nBins = (quantity == "data" ? dataUnscaled.GetRows() : std::pow(smearingMatrixUnscaled.GetRows(), 2));
 
                 // Define the function to use when getting a matrix (i.e. should we trim the under/overflow bins or not?)
                 const auto &getMatrixFunction = (quantity == "data"
@@ -191,7 +192,8 @@ void MakeNuWroXSecPlots(const Config &config)
                     errorMatrixMapUnscaled[quantity].emplace(group, errorMatrixTotalUnscaled);
 
                     // Add this total to the grand total error matrix
-                    errorMatrixTotalSum = errorMatrixTotalSum + errorMatrixTotal;
+                    errorMatrixTotalSumScaled = errorMatrixTotalSumScaled + errorMatrixTotalScaled;
+                    errorMatrixTotalSumUnscaled = errorMatrixTotalSumUnscaled + errorMatrixTotalUnscaled;
                 }
 
                 // Handle the unisim parameters
@@ -201,7 +203,8 @@ void MakeNuWroXSecPlots(const Config &config)
                     }))
                 {
                     // Setup an empty error matrix for this group
-                    auto errorMatrixTotal =  ubsmear::UBMatrixHelper::GetZeroMatrix(nBins, nBins);
+                    auto errorMatrixTotalScaled = ubsmear::UBMatrixHelper::GetZeroMatrix(nBins, nBins);
+                    auto errorMatrixTotalUnscaled = ubsmear::UBMatrixHelper::GetZeroMatrix(nBins, nBins);
 
                     // Loop over the parameters in this group
                     for (const auto &[paramName, cvName] : dimensions)
@@ -246,7 +249,7 @@ void MakeNuWroXSecPlots(const Config &config)
             {
                 // Get the quantity in question as a vector
                 // ATTN here we flatten the smearing matrix to a column vector
-                const auto quantityVector = (quantity == "data" ? data : ubsmear::UBSmearingHelper::Flatten(smearingMatrixScaled));
+                const auto quantityVector = (quantity == "data" ? dataScaled : ubsmear::UBSmearingHelper::Flatten(smearingMatrixScaled));
 
                 // Plot the total error matrix (summed over all groups)
                 const auto totalErrorMatrix = totalErrorMatrixMapScaled.at(quantity);
@@ -265,7 +268,7 @@ void MakeNuWroXSecPlots(const Config &config)
             {
                 // Get the quantity in question as a vector
                 // ATTN here we flatten the smearing matrix to a column vector
-                const auto quantityVector = (quantity == "data" ? data : ubsmear::UBSmearingHelper::Flatten(smearingMatrixUnscaled));
+                const auto quantityVector = (quantity == "data" ? dataUnscaled : ubsmear::UBSmearingHelper::Flatten(smearingMatrixUnscaled));
 
                 // Plot the total error matrix (summed over all groups)
                 const auto totalErrorMatrix = totalErrorMatrixMapUnscaled.at(quantity);
@@ -284,7 +287,8 @@ void MakeNuWroXSecPlots(const Config &config)
             // Forward-fold the prediction and plot it
             // -----------------------------------------------------------------------------------------------------------------------------
             // for now we just re-use the error matrix function (and use the default palette)
-            PlottingHelper::PlotErrorMatrix(smearingMatrix, prefix + "_smearingMatrix", metadata, true, false);
+            PlottingHelper::PlotErrorMatrix(smearingMatrixScaled, prefix + "_smearingMatrix_scaled", metadata, true, false);
+            PlottingHelper::PlotErrorMatrix(smearingMatrixUnscaled, prefix + "_smearingMatrix_unscaled", metadata, true, false);
 
             // Now get the predicted cross-section and it's error matrix
             const auto predictionScaled = getMatrix("prediction_scaled");
@@ -326,41 +330,57 @@ void MakeNuWroXSecPlots(const Config &config)
 
             std::cout << "Forward folding NuWro prediction" << std::endl;
                 const auto &[smearedPredictionNuWro, smearedPredictionErrorMatrixNuWro] = ubsmear::ForwardFold(
-                metadata,                                              // The metadata that defines the binning
-                predictionNuWro, predictionErrorMatrix,                           // The prediction and it's error matrix
-                smearingMatrixNuwro, totalErrorMatrixMap.at("smearingMatrix"),  // The smearing matrix and it's error matrix
-                config.makeXSecPlots.nUniverses,                           // The number of universes to use when propagating the uncertainties
-                config.makeXSecPlots.precision);                           // The precision to use when finding eigenvalues and eigenvectors
+                metadata,                                                       // The metadata that defines the binning
+                predictionNuWro, predictionErrorMatrixUnscaled,                 // The prediction and it's error matrix
+                smearingMatrixNuwro, totalErrorMatrixMapUnscaled.at("smearingMatrix"),  // The smearing matrix and it's error matrix
+                config.makeXSecPlots.nUniverses,                                // The number of universes to use when propagating the uncertainties
+                config.makeXSecPlots.precision);                                // The precision to use when finding eigenvalues and eigenvectors
 
             // Plot the error matrix on the smeared prediction
-            PlottingHelper::PlotErrorMatrix(smearedPredictionErrorMatrixScaledScaled, prefix + "_smearedPrediction_totalErrorMatrix_scaled", metadata);
+            PlottingHelper::PlotErrorMatrix(smearedPredictionErrorMatrixScaled, prefix + "_smearedPrediction_totalErrorMatrix_scaled", metadata);
             PlottingHelper::PlotFractionalErrorMatrix(smearedPredictionErrorMatrixScaled, smearedPredictionScaled, prefix + "_smearedPrediction_totalFracErrorMatrix_scaled", metadata);
 
             PlottingHelper::PlotErrorMatrix(smearedPredictionErrorMatrixUnscaled, prefix + "_smearedPrediction_totalErrorMatrix_unscaled", metadata);
             PlottingHelper::PlotFractionalErrorMatrix(smearedPredictionErrorMatrixUnscaled, smearedPredictionUnscaled, prefix + "_smearedPrediction_totalFracErrorMatrix_unscaled", metadata);
 
             // Save the forward-folded prediction
-            FormattingHelper::SaveMatrix(smearedPrediction, "xsecNuWro_" + selectionName + "_" + xsecName + "_forwardFoldedPrediction.txt");
-            FormattingHelper::SaveMatrix(smearedPredictionErrorMatrix, "xsecNuWro_" + selectionName + "_" + xsecName + "_forwardFoldedPrediction_error.txt");
+            FormattingHelper::SaveMatrix(smearedPredictionNuWro, "xsecNuWro_" + selectionName + "_" + xsecName + "_forwardFoldedPrediction.txt");
+            // FormattingHelper::SaveMatrix(smearedPredictionErrorMatrix, "xsecNuWro_" + selectionName + "_" + xsecName + "_forwardFoldedPrediction_error.txt");
 
             // -----------------------------------------------------------------------------------------------------------------------------
             // Get the chi2 for the data-prediction comparison and add it to the table
             // -----------------------------------------------------------------------------------------------------------------------------
-            const auto totalDataErrorMatrix = totalErrorMatrixMap.at("data");
+            const auto totalDataErrorMatrixScaled = totalErrorMatrixMapScaled.at("data");
             std::cout << "Getting chi2" << std::endl;
-            const auto &[chi2, degreesOfFreedom] = ubsmear::GetChi2(smearedPrediction, smearedPredictionErrorMatrix, data, totalDataErrorMatrix, config.makeXSecPlots.precision);
+            const auto &[chi2Scaled, degreesOfFreedomScaled] = ubsmear::GetChi2(smearedPredictionScaled, smearedPredictionErrorMatrixScaled, dataScaled, totalDataErrorMatrixScaled, config.makeXSecPlots.precision);
 
             std::cout << "Getting p-value" << std::endl;
-            const auto pValue = ubsmear::UBStatisticsHelper::GetPValue(chi2, degreesOfFreedom, config.makeXSecPlots.precision);
+            const auto pValueScaled = ubsmear::UBStatisticsHelper::GetPValue(chi2Scaled, degreesOfFreedomScaled, config.makeXSecPlots.precision);
 
-            table.AddEmptyRow();
-            table.SetEntry("Selection", selectionName);
-            table.SetEntry("Cross-section", xsecName);
-            table.SetEntry("nBins", data.GetRows());
-            table.SetEntry("Chi2", chi2);
-            table.SetEntry("DoF", degreesOfFreedom);
-            table.SetEntry("Chi2/DoF", chi2 / static_cast<float>(degreesOfFreedom));
-            table.SetEntry("p-value", pValue);
+            tableScaled.AddEmptyRow();
+            tableScaled.SetEntry("Selection", selectionName);
+            tableScaled.SetEntry("Cross-section", xsecName);
+            tableScaled.SetEntry("nBins", dataScaled.GetRows());
+            tableScaled.SetEntry("Chi2", chi2Scaled);
+            tableScaled.SetEntry("DoF", degreesOfFreedomScaled);
+            tableScaled.SetEntry("Chi2/DoF", chi2Scaled / static_cast<float>(degreesOfFreedomScaled));
+            tableScaled.SetEntry("p-value", pValueScaled);
+
+            const auto totalDataErrorMatrixUnscaled = totalErrorMatrixMapUnscaled.at("data");
+            std::cout << "Getting chi2" << std::endl;
+            const auto &[chi2Unscaled, degreesOfFreedomUnscaled] = ubsmear::GetChi2(smearedPredictionUnscaled, smearedPredictionErrorMatrixUnscaled, dataUnscaled, totalDataErrorMatrixUnscaled, config.makeXSecPlots.precision);
+
+            std::cout << "Getting p-value" << std::endl;
+            const auto pValueUnscaled = ubsmear::UBStatisticsHelper::GetPValue(chi2Unscaled, degreesOfFreedomUnscaled, config.makeXSecPlots.precision);
+
+            tableUnscaled.AddEmptyRow();
+            tableUnscaled.SetEntry("Selection", selectionName);
+            tableUnscaled.SetEntry("Cross-section", xsecName);
+            tableUnscaled.SetEntry("nBins", dataUnscaled.GetRows());
+            tableUnscaled.SetEntry("Chi2", chi2Unscaled);
+            tableUnscaled.SetEntry("DoF", degreesOfFreedomUnscaled);
+            tableUnscaled.SetEntry("Chi2/DoF", chi2Unscaled / static_cast<float>(degreesOfFreedomUnscaled));
+            tableUnscaled.SetEntry("p-value", pValueUnscaled);
 
             // -----------------------------------------------------------------------------------------------------------------------------
             // Make the comparison plot between data and smeared prediction
@@ -402,44 +422,67 @@ void MakeNuWroXSecPlots(const Config &config)
             }
 
             // Setup the data histogram and the prediction histogram
-            auto pDataHist = std::make_shared<TH1F>((prefix + "_data").c_str(), "", binEdges.size() - 1, binEdges.data());
-            auto pDataStatOnlyHist = std::make_shared<TH1F>((prefix + "_dataStatOnly").c_str(), "", binEdges.size() - 1, binEdges.data());
+            auto pDataHistScaled = std::make_shared<TH1F>((prefix + "_data_scaled").c_str(), "", binEdges.size() - 1, binEdges.data());
+            auto pDataStatOnlyHistScaled = std::make_shared<TH1F>((prefix + "_dataStatOnly_scaled").c_str(), "", binEdges.size() - 1, binEdges.data());
+            auto pPredictionHistScaled = std::make_shared<TH1F>((prefix + "_prediction_scaled").c_str(), "", binEdges.size() - 1, binEdges.data());
+
+            auto pDataHistUnscaled = std::make_shared<TH1F>((prefix + "_data_unscaled").c_str(), "", binEdges.size() - 1, binEdges.data());
+            auto pDataStatOnlyHistUnscaled = std::make_shared<TH1F>((prefix + "_dataStatOnly_unscaled").c_str(), "", binEdges.size() - 1, binEdges.data());
+            auto pPredictionHistUnscaled = std::make_shared<TH1F>((prefix + "_prediction_unscaled").c_str(), "", binEdges.size() - 1, binEdges.data());
+
             auto pNuWroPredictionHist = std::make_shared<TH1F>((prefix + "_predictionNuWro").c_str(), "", binEdges.size() - 1, binEdges.data());
-            auto pPredictionHist = std::make_shared<TH1F>((prefix + "_prediction").c_str(), "", binEdges.size() - 1, binEdges.data());
 
             // Fill the bins
             // ATTN here we only show the diagonals of the error matrices
             float minY = +std::numeric_limits<float>::max();
             float maxY = -std::numeric_limits<float>::max();
-            const auto dataStatErrorMatrix = errorMatrixMap.at("data").at("stat");
+            const auto dataStatErrorMatrixScaled = errorMatrixMapScaled.at("data").at("stat");
+            const auto dataStatErrorMatrixUnscaled = errorMatrixMapUnscaled.at("data").at("stat");
             for (unsigned int iBin = 1; iBin <= binEdges.size() - 1; ++iBin)
             {
                 // Set the values for the data histogram
-                const auto dataValue = data.At(iBin - 1, 0);
-                const auto dataError = std::pow(totalDataErrorMatrix.At(iBin - 1, iBin - 1), 0.5f);
-                const auto dataStatOnlyError = std::pow(dataStatErrorMatrix.At(iBin - 1, iBin - 1), 0.5f);
+                const auto dataValueScaled = dataScaled.At(iBin - 1, 0);
+                const auto dataErrorScaled = std::pow(totalDataErrorMatrixScaled.At(iBin - 1, iBin - 1), 0.5f);
+                const auto dataStatOnlyErrorScaled = std::pow(dataStatErrorMatrixScaled.At(iBin - 1, iBin - 1), 0.5f);
 
-                pDataHist->SetBinContent(iBin, dataValue);
-                pDataHist->SetBinError(iBin, dataError);
+                const auto dataValueUnscaled = dataUnscaled.At(iBin - 1, 0);
+                const auto dataErrorUnscaled = std::pow(totalDataErrorMatrixUnscaled.At(iBin - 1, iBin - 1), 0.5f);
+                const auto dataStatOnlyErrorUnscaled = std::pow(dataStatErrorMatrixUnscaled.At(iBin - 1, iBin - 1), 0.5f);
 
+                pDataHistScaled->SetBinContent(iBin, dataValueScaled);
+                pDataHistScaled->SetBinError(iBin, dataErrorScaled);
 
-                pDataStatOnlyHist->SetBinContent(iBin, dataValue);
-                pDataStatOnlyHist->SetBinError(iBin, dataStatOnlyError);
+                pDataHistUnscaled->SetBinContent(iBin, dataValueUnscaled);
+                pDataHistUnscaled->SetBinError(iBin, dataErrorUnscaled);
+
+                pDataStatOnlyHistScaled->SetBinContent(iBin, dataValueScaled);
+                pDataStatOnlyHistScaled->SetBinError(iBin, dataStatOnlyErrorScaled);
+
+                pDataStatOnlyHistUnscaled->SetBinContent(iBin, dataValueUnscaled);
+                pDataStatOnlyHistUnscaled->SetBinError(iBin, dataStatOnlyErrorUnscaled);
 
                 // Set the values of the prediction
-                const auto predictionValue = smearedPrediction.At(iBin - 1, 0);
-                const auto predictionError = std::pow(smearedPredictionErrorMatrix.At(iBin - 1, iBin - 1), 0.5f);
+                const auto predictionValueScaled = smearedPredictionScaled.At(iBin - 1, 0);
+                const auto predictionErrorScaled = std::pow(smearedPredictionErrorMatrixScaled.At(iBin - 1, iBin - 1), 0.5f);
+
+                const auto predictionValueUnscaled = smearedPredictionUnscaled.At(iBin - 1, 0);
+                const auto predictionErrorUnscaled = std::pow(smearedPredictionErrorMatrixUnscaled.At(iBin - 1, iBin - 1), 0.5f);
+
                 const auto predictionValueNuWro = smearedPredictionNuWro.At(iBin - 1, 0); //dataTrue.At(iBin - 1, 0);
 
-                pPredictionHist->SetBinContent(iBin, predictionValue);
-                pPredictionHist->SetBinError(iBin, predictionError);
+                pPredictionHistScaled->SetBinContent(iBin, predictionValueScaled);
+                pPredictionHistScaled->SetBinError(iBin, predictionErrorScaled);
+
+                pPredictionHistUnscaled->SetBinContent(iBin, predictionValueUnscaled);
+                pPredictionHistUnscaled->SetBinError(iBin, predictionErrorUnscaled);
+
                 pNuWroPredictionHist->SetBinContent(iBin, predictionValueNuWro);
                 pNuWroPredictionHist->SetBinError(iBin, 0);
 
                 // For the proton multiplicity plot, use explicit bin labels
                 if (xsecName == "nProtons")
                 {
-                    for (auto &pHist : {pDataHist, pDataStatOnlyHist, pNuWroPredictionHist, pPredictionHist})
+                    for (auto &pHist : {pDataHistScaled, pDataStatOnlyHistScaled, pPredictionHistScaled, pDataHistUnscaled, pDataStatOnlyHistUnscaled, pPredictionHistUnscaled, pNuWroPredictionHist})
                     {
                         pHist->GetXaxis()->SetBinLabel(1, "0");
                         pHist->GetXaxis()->SetBinLabel(2, "1");
@@ -448,11 +491,18 @@ void MakeNuWroXSecPlots(const Config &config)
                 }
 
                 // Get the limiting values
-                minY = std::min(minY, dataValue - dataError);
-                minY = std::min(minY, predictionValue - predictionError);
+                minY = std::min(minY, dataValueScaled - dataErrorScaled);
+                minY = std::min(minY, predictionValueScaled - predictionErrorScaled);
+                minY = std::min(minY, dataValueUnscaled - dataErrorUnscaled);
+                minY = std::min(minY, predictionValueUnscaled - predictionErrorUnscaled);
+                minY = std::min(minY, predictionValueNuWro);
 
-                maxY = std::max(maxY, dataValue + dataError);
-                maxY = std::max(maxY, predictionValue + predictionError);
+
+                maxY = std::max(maxY, dataValueScaled + dataErrorScaled);
+                maxY = std::max(maxY, predictionValueScaled + predictionErrorScaled);
+                maxY = std::max(maxY, dataValueUnscaled + dataErrorUnscaled);
+                maxY = std::max(maxY, predictionValueUnscaled + predictionErrorUnscaled);
+                maxY = std::max(maxY, predictionValueNuWro);
             }
 
             // Set the y-range
@@ -461,37 +511,57 @@ void MakeNuWroXSecPlots(const Config &config)
             minY -= padding;
             minY = std::max(minY, 0.f);
             minY = 0.f; // Remove this line to get a dynamic lower y-range
-            pDataHist->GetYaxis()->SetRangeUser(minY, maxY);
+            pDataHistScaled->GetYaxis()->SetRangeUser(minY, maxY);
+            pDataStatOnlyHistScaled->GetYaxis()->SetRangeUser(minY, maxY);
+            pPredictionHistScaled->GetYaxis()->SetRangeUser(minY, maxY);
+            pDataHistUnscaled->GetYaxis()->SetRangeUser(minY, maxY);
+            pDataStatOnlyHistUnscaled->GetYaxis()->SetRangeUser(minY, maxY);
+            pPredictionHistUnscaled->GetYaxis()->SetRangeUser(minY, maxY);
             pNuWroPredictionHist->GetYaxis()->SetRangeUser(minY, maxY);
-            pDataStatOnlyHist->GetYaxis()->SetRangeUser(minY, maxY);
-            pPredictionHist->GetYaxis()->SetRangeUser(minY, maxY);
 
             // Set the colours of the histograms
-            PlottingHelper::SetLineStyle(pDataHist, PlottingHelper::Primary);
+            PlottingHelper::SetLineStyle(pDataHistScaled, PlottingHelper::Primary);
+            PlottingHelper::SetLineStyle(pDataStatOnlyHistScaled, PlottingHelper::Primary);
+            PlottingHelper::SetLineStyle(pPredictionHistScaled, PlottingHelper::Secondary);
+            PlottingHelper::SetLineStyle(pDataHistUnscaled, PlottingHelper::Quaternary);
+            PlottingHelper::SetLineStyle(pDataStatOnlyHistUnscaled, PlottingHelper::Quaternary);
+            PlottingHelper::SetLineStyle(pPredictionHistUnscaled, PlottingHelper::Quinary);
+
             PlottingHelper::SetLineStyle(pNuWroPredictionHist, PlottingHelper::Tertiary);
             pNuWroPredictionHist->SetLineStyle(4); // Dashed line
-            PlottingHelper::SetLineStyle(pDataStatOnlyHist, PlottingHelper::Primary);
-            PlottingHelper::SetLineStyle(pPredictionHist, PlottingHelper::Secondary);
 
             // Make the plot!
             auto pCanvas = PlottingHelper::GetCanvas();
             gStyle->SetEndErrorSize(4);
 
             // Draw the smeared prediction
-            pPredictionHist->Draw("hist");
+            pPredictionHistScaled->Draw("hist");
 
             // Draw the prediction uncertainties as a semi-transparent band
-            auto pHistClone = static_cast<TH1F *>(pPredictionHist->Clone());
-            const auto col = pHistClone->GetLineColor();
-            pHistClone->SetFillStyle(1001);
-            pHistClone->SetLineColorAlpha(col, 0.f);
-            pHistClone->SetFillColorAlpha(col, 0.3f);
-            pHistClone->Draw("e2 same");
+            auto pHistCloneScaled = static_cast<TH1F *>(pPredictionHistScaled->Clone());
+            const auto colScaled = pHistCloneScaled->GetLineColor();
+            pHistCloneScaled->SetFillStyle(1001);
+            pHistCloneScaled->SetLineColorAlpha(colScaled, 0.f);
+            pHistCloneScaled->SetFillColorAlpha(colScaled, 0.3f);
+            pHistCloneScaled->Draw("e2 same");
+
+            // Draw the smeared prediction
+            pPredictionHistUnscaled->Draw("hist same");
+
+            // Draw the prediction uncertainties as a semi-transparent band
+            auto pHistCloneUnscaled = static_cast<TH1F *>(pPredictionHistUnscaled->Clone());
+            const auto colUnscaled = pHistCloneUnscaled->GetLineColor();
+            pHistCloneUnscaled->SetFillStyle(1001);
+            pHistCloneUnscaled->SetLineColorAlpha(colUnscaled, 0.f);
+            pHistCloneUnscaled->SetFillColorAlpha(colUnscaled, 0.3f);
+            pHistCloneUnscaled->Draw("e2 same");
 
             // Draw the data as points with error bars
-            pDataStatOnlyHist->Draw("e1 same");
+            pDataStatOnlyHistScaled->Draw("e1 same");
+            pDataHistScaled->Draw("e1 same");
+            pDataStatOnlyHistUnscaled->Draw("e1 same");
+            pDataHistUnscaled->Draw("e1 same");
             pNuWroPredictionHist->Draw("e1 same");
-            pDataHist->Draw("e1 same");
 
             PlottingHelper::SaveCanvas(pCanvas, prefix + "_data-vs-smearedPrediction");
         }

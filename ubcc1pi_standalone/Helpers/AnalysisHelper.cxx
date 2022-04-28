@@ -258,7 +258,7 @@ float AnalysisHelper::EventCounter::GetPurity(const std::string &tag, const Samp
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
 
-void AnalysisHelper::EventCounter::CountEvent(const std::string &tag, const SampleType &sampleType, const std::shared_ptr<Event> &pEvent, const float weight)
+void AnalysisHelper::EventCounter::CountEvent(const std::string &tag, const SampleType &sampleType, const std::shared_ptr<Event> &pEvent, const float weight, const bool selectCC0pi, const float protonMomentumThreshold)
 {
     // Keep track of this tag if we haven't seen it before
     if (std::find(m_tags.begin(), m_tags.end(), tag) == m_tags.end())
@@ -267,7 +267,7 @@ void AnalysisHelper::EventCounter::CountEvent(const std::string &tag, const Samp
     // Classify the event
     const auto useAbsPdg = true; // TODO make this configurable
     const auto countProtonsInclusively = true; // TODO make this configurable
-    const auto classification = AnalysisHelper::GetClassificationString(pEvent, useAbsPdg, countProtonsInclusively);
+    const auto classification = AnalysisHelper::GetClassificationString(pEvent, useAbsPdg, countProtonsInclusively, selectCC0pi, protonMomentumThreshold);
 
     // Keep track of this classification if we haven't seen it before
     if (std::find(m_classifications.begin(), m_classifications.end(), classification) == m_classifications.end())
@@ -722,7 +722,7 @@ std::string AnalysisHelper::GetTopologyString(const std::vector<Event::Truth::Pa
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
 
-std::string AnalysisHelper::GetClassificationString(const std::shared_ptr<Event> &pEvent, const bool useAbsPdg, const bool countProtonsInclusively)
+std::string AnalysisHelper::GetClassificationString(const std::shared_ptr<Event> &pEvent, const bool useAbsPdg, const bool countProtonsInclusively, const bool selectCC0pi, const float protonMomentumThreshold)
 {
     // Check if data
     if (!pEvent->metadata.hasTruthInfo())
@@ -737,11 +737,11 @@ std::string AnalysisHelper::GetClassificationString(const std::shared_ptr<Event>
     std::string classification = "";
     const auto visibleParticles = AnalysisHelper::SelectVisibleParticles(truth.particles);
 
-    // Signal or background
-    const auto isTrueCC1Pi = AnalysisHelper::IsTrueCC1Pi(pEvent, useAbsPdg);
-    classification += isTrueCC1Pi ? "S" : "B,  ";
+    // Signal or background 
+    const auto isTrueSignal = selectCC0pi ? AnalysisHelper::IsTrueCC0Pi(pEvent, useAbsPdg, protonMomentumThreshold) : AnalysisHelper::IsTrueCC1Pi(pEvent, useAbsPdg);
+    classification += isTrueSignal ? "S" : "B,  ";
 
-    if (isTrueCC1Pi)
+    if (isTrueSignal)
     {
         // Check if we have a golden pion
         const auto hasGoldenPion = (AnalysisHelper::CountGoldenParticlesWithPdgCode(visibleParticles, 211, useAbsPdg) != 0);

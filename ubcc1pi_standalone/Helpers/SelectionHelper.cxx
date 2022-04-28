@@ -332,6 +332,7 @@ SelectionHelper::EventSelection SelectionHelper::GetDefaultSelection()
 
         // Mark the cut "passesCCInclusive" as passed
         cutTracker.MarkCutAsPassed("passesCCInclusive");
+        std::cout<<"CC1pi: passesCCInclusive"<<std::endl;
 
         // ----------------------------------------------------------------------------------
         // min2Tracks
@@ -361,6 +362,7 @@ SelectionHelper::EventSelection SelectionHelper::GetDefaultSelection()
 
         // Mark the cut "min2Tracks" as passed
         cutTracker.MarkCutAsPassed("min2Tracks");
+        std::cout<<"CC1pi: min2Tracks"<<std::endl;
 
         // ----------------------------------------------------------------------------------
         // max1Uncontained
@@ -372,6 +374,7 @@ SelectionHelper::EventSelection SelectionHelper::GetDefaultSelection()
 
         // Mark the cut "max1Uncontained" as passed
         cutTracker.MarkCutAsPassed("max1Uncontained");
+        std::cout<<"CC1pi: max1Uncontained"<<std::endl;
 
         // Identify the muon candidate
         auto &pMuonBDT = bdtMap.at("muon");
@@ -456,6 +459,7 @@ SelectionHelper::EventSelection SelectionHelper::GetDefaultSelection()
 
         // Mark the cut "2NonProtons" as passed
         cutTracker.MarkCutAsPassed("2NonProtons");
+        std::cout<<"CC1pi: 2NonProtons"<<std::endl;
 
         // ----------------------------------------------------------------------------------
         // pionHasValiddEdx
@@ -473,6 +477,7 @@ SelectionHelper::EventSelection SelectionHelper::GetDefaultSelection()
 
         // Mark the cut "pionHasValiddEdx" as passed
         cutTracker.MarkCutAsPassed("pionHasValiddEdx");
+        std::cout<<"CC1pi: pionHasValiddEdx"<<std::endl;
 
         // ----------------------------------------------------------------------------------
         // pionNotInGap
@@ -488,6 +493,7 @@ SelectionHelper::EventSelection SelectionHelper::GetDefaultSelection()
 
         // Mark the cut "pionNotInGap" as passed
         cutTracker.MarkCutAsPassed("pionNotInGap");
+        std::cout<<"CC1pi: pionNotInGap"<<std::endl;
 
         // ----------------------------------------------------------------------------------
         // muonNotInGap
@@ -502,6 +508,7 @@ SelectionHelper::EventSelection SelectionHelper::GetDefaultSelection()
 
         // Mark the cut "muonNotInGap" as passed
         cutTracker.MarkCutAsPassed("muonNotInGap");
+        std::cout<<"CC1pi: muonNotInGap"<<std::endl;
 
         // ----------------------------------------------------------------------------------
         // openingAngle
@@ -521,6 +528,7 @@ SelectionHelper::EventSelection SelectionHelper::GetDefaultSelection()
 
         // Mark the cut "openingAngle" as passed
         cutTracker.MarkCutAsPassed("openingAngle");
+        std::cout<<"CC1pi: openingAngle"<<std::endl;
 
         // ----------------------------------------------------------------------------------
         // topologicalScore
@@ -535,7 +543,8 @@ SelectionHelper::EventSelection SelectionHelper::GetDefaultSelection()
 
         // Mark the cut "topologicalScore" as passed
         cutTracker.MarkCutAsPassed("topologicalScore");
-
+        std::cout<<"CC1pi: topologicalScore"<<std::endl;
+        
         // ----------------------------------------------------------------------------------
         // startNearVertex
         // ----------------------------------------------------------------------------------
@@ -563,6 +572,7 @@ SelectionHelper::EventSelection SelectionHelper::GetDefaultSelection()
 
         // Mark the cut "startNearVertex" as passed
         cutTracker.MarkCutAsPassed("startNearVertex");
+        std::cout<<"CC1pi: startNearVertex"<<std::endl;
 
         // ----------------------------------------------------------------------------------
         // likelyGoldenPion
@@ -586,6 +596,7 @@ SelectionHelper::EventSelection SelectionHelper::GetDefaultSelection()
 
         // Mark the cut "likelyGoldenPion" as passed
         cutTracker.MarkCutAsPassed("likelyGoldenPion");
+        std::cout<<"CC1pi: likelyGoldenPion"<<std::endl;
 
         // We passed all cuts!
         return true;
@@ -606,7 +617,7 @@ SelectionHelper::EventSelection SelectionHelper::GetCC0piSelection()
         {"max1Uncontained"},
         {"1NonProton", -0.06f},
         {"AtLeast1Proton", 0.1f},
-        {"MuonLikeProton", -0.4f},
+        // {"MuonLikeProton", -0.4f},
         {"protonHasValiddEdx", 1.0f},
         {"muonNotInGap"},
         {"protonNotInGap"},
@@ -633,6 +644,7 @@ SelectionHelper::EventSelection SelectionHelper::GetCC0piSelection()
 
         // Mark the cut "passesCCInclusive" as passed
         cutTracker.MarkCutAsPassed("passesCCInclusive");
+        //std::cout<<"CC0pi: passesCCInclusive"<<std::endl;
 
         // std::cout<<"SelectionHelper::GetCC0piSelection - Point 3\n";
         // ----------------------------------------------------------------------------------
@@ -663,6 +675,7 @@ SelectionHelper::EventSelection SelectionHelper::GetCC0piSelection()
 
         // Mark the cut "min2Tracks" as passed
         cutTracker.MarkCutAsPassed("min2Tracks");
+        //std::cout<<"CC0pi: min2Tracks"<<std::endl;
 
         // std::cout<<"SelectionHelper::GetCC0piSelection - Point 4\n";
         // ----------------------------------------------------------------------------------
@@ -675,6 +688,7 @@ SelectionHelper::EventSelection SelectionHelper::GetCC0piSelection()
 
         // Mark the cut "max1Uncontained" as passed
         cutTracker.MarkCutAsPassed("max1Uncontained");
+        //std::cout<<"CC0pi: max1Uncontained"<<std::endl;
 
         // Identify the muon candidate
         auto &pMuonBDT = bdtMap.at("muon");
@@ -743,7 +757,7 @@ SelectionHelper::EventSelection SelectionHelper::GetCC0piSelection()
 
             // Insist that the BDT response is greater than the cut value to identify the particle as a proton
             const auto bdtResponse = pProtonBDT->GetResponse(features);
-            if (bdtResponse >= protonBDTThresholdLow && bdtResponse <= protonBDTThresholdHigh)
+            if (bdtResponse >= protonBDTThresholdLow)// && bdtResponse <= protonBDTThresholdHigh)
             {
                 nProtons++;
                 protonIndices.push_back(i);
@@ -776,40 +790,43 @@ SelectionHelper::EventSelection SelectionHelper::GetCC0piSelection()
 
         // Mark the cut "1NonProton" as passed
         cutTracker.MarkCutAsPassed("1NonProton");
+        //std::cout<<"CC0pi: 1NonProton"<<std::endl;
 
         // Also require that there is at least 1 identified proton
         if (nProtons == 0)
             return false;
         cutTracker.MarkCutAsPassed("AtLeast1Proton");
+        //std::cout<<"CC0pi: AtLeast1Proton"<<std::endl;
 
-        // std::cout<<"SelectionHelper::GetCC0piSelection - Point 6\n";
-        // ----------------------------------------------------------------------------------
-        // MuonLikeProton
-        // ----------------------------------------------------------------------------------
-        const auto muonBDTThreshold = cutTracker.GetCutValue("MuonLikeProton");
+        // // std::cout<<"SelectionHelper::GetCC0piSelection - Point 6\n";
+        // // ----------------------------------------------------------------------------------
+        // // MuonLikeProton
+        // // ----------------------------------------------------------------------------------
+        // const auto muonBDTThreshold = cutTracker.GetCutValue("MuonLikeProton");
 
-        // Leading proton must have a muon-like muon BDT score
-        // Get the leading proton reco particle
+        // // Leading proton must have a muon-like muon BDT score
+        // // Get the leading proton reco particle
         const auto &leadingproton = recoParticles.at(leadingProtonIndex);
 
-        // Get run the muon BDT
-        std::vector<float> features;
-        const auto hasFeatures = BDTHelper::GetBDTFeatures(leadingproton, BDTHelper::MuonBDTFeatureNames, features);
-        if (!hasFeatures)
-        {
-            return false;
-        }
+        // // Get run the muon BDT
+        // std::vector<float> features;
+        // const auto hasFeatures = BDTHelper::GetBDTFeatures(leadingproton, BDTHelper::MuonBDTFeatureNames, features);
+        // if (!hasFeatures)
+        // {
+        //     return false;
+        // }
 
-        // Insist that the BDT response is greater than the cut value
-        const auto bdtResponsemu = pMuonBDT->GetResponse(features);
+        // // Insist that the BDT response is greater than the cut value
+        // const auto bdtResponsemu = pMuonBDT->GetResponse(features);
 
-        if (bdtResponsemu < muonBDTThreshold)
-        {
-            return false;
-        }
+        // if (bdtResponsemu < muonBDTThreshold)
+        // {
+        //     return false;
+        // }
 
-        // Mark the cut "MuonLikeProton" as passed
-        cutTracker.MarkCutAsPassed("MuonLikeProton");
+        // // Mark the cut "MuonLikeProton" as passed
+        // cutTracker.MarkCutAsPassed("MuonLikeProton");
+        // //std::cout<<"CC0pi: MuonLikeProton"<<std::endl;
 
 
         // std::cout<<"SelectionHelper::GetCC0piSelection - Point 7\n";
@@ -825,6 +842,7 @@ SelectionHelper::EventSelection SelectionHelper::GetCC0piSelection()
 
         // Mark the cut "protonHasValiddEdx" as passed
         cutTracker.MarkCutAsPassed("protonHasValiddEdx");
+        //std::cout<<"CC0pi: protonHasValiddEdx"<<std::endl;
 
         // std::cout<<"SelectionHelper::GetCC0piSelection - Point 8\n";
         // ----------------------------------------------------------------------------------
@@ -840,6 +858,7 @@ SelectionHelper::EventSelection SelectionHelper::GetCC0piSelection()
 
         // Mark the cut "muonNotInGap" as passed
         cutTracker.MarkCutAsPassed("muonNotInGap");
+        //std::cout<<"CC0pi: muonNotInGap"<<std::endl;
 
         // std::cout<<"SelectionHelper::GetCC0piSelection - Point 9\n";
         // ----------------------------------------------------------------------------------
@@ -862,6 +881,7 @@ SelectionHelper::EventSelection SelectionHelper::GetCC0piSelection()
 
         // Mark the cut "protonNotInGap" as passed
         cutTracker.MarkCutAsPassed("protonNotInGap");
+        //std::cout<<"CC0pi: protonNotInGap"<<std::endl;
 
         // std::cout<<"SelectionHelper::GetCC0piSelection - Point 10\n";
         // ----------------------------------------------------------------------------------
@@ -881,6 +901,7 @@ SelectionHelper::EventSelection SelectionHelper::GetCC0piSelection()
 
         // Mark the cut "openingAngle" as passed
         cutTracker.MarkCutAsPassed("openingAngle");
+        //std::cout<<"CC0pi: openingAngle"<<std::endl;
 
         // std::cout<<"SelectionHelper::GetCC0piSelection - Point 11\n";
         // ----------------------------------------------------------------------------------
@@ -895,6 +916,7 @@ SelectionHelper::EventSelection SelectionHelper::GetCC0piSelection()
 
         // Mark the cut "topologicalScore" as passed
         cutTracker.MarkCutAsPassed("topologicalScore");
+        //std::cout<<"CC0pi: topologicalScore"<<std::endl;
 
         // std::cout<<"SelectionHelper::GetCC0piSelection - Point 12\n";
         // ----------------------------------------------------------------------------------
@@ -923,6 +945,7 @@ SelectionHelper::EventSelection SelectionHelper::GetCC0piSelection()
 
         // Mark the cut "startNearVertex" as passed
         cutTracker.MarkCutAsPassed("startNearVertex");
+        //std::cout<<"CC0pi: startNearVertex"<<std::endl;
 
         // std::cout<<"SelectionHelper::GetCC0piSelection - Point 13\n";
         // We passed all cuts!

@@ -1,7 +1,7 @@
 /**
- *  @file  ubcc1pi_standalone/Macros/MakeSelectedPIDTable.cxx
+ *  @file  ubcc1pi_standalone/Macros/MakeSidebandSelectedPIDTable.cxx
  *
- *  @brief The implementation file of the MakeSelectedPIDTable macro
+ *  @brief The implementation file of the MakeSidebandSelectedPIDTable macro
  */
 
 #include "ubcc1pi_standalone/Macros/Macros.h"
@@ -18,7 +18,7 @@ using namespace ubcc1pi;
 namespace ubcc1pi_macros
 {
 
-void MakeSelectedPIDTable(const Config &config)
+void MakeSidebandSelectedPIDTable(const Config &config)
 {
     //
     // Setup the input files
@@ -51,14 +51,14 @@ void MakeSelectedPIDTable(const Config &config)
     //
     // Get the selection
     //
-    auto selection = SelectionHelper::GetSelection(config.global.selection);
+    auto selection = SelectionHelper::GetSelection("CC0pi");
     const auto allCuts = selection.GetCuts();
     const auto lastCut = config.global.selection=="Default"&&config.makeSelectedPIDTable.useGenericSelection ? config.global.lastCutGeneric : allCuts.back();
 
     std::cout << "Getting PID table after cut: " << lastCut << std::endl;
 
     if (std::find(allCuts.begin(), allCuts.end(), lastCut) == allCuts.end())
-        throw std::invalid_argument("MakeSelectedPIDTable - chosen cut \"" + lastCut + "\" isn't known to the selection");
+        throw std::invalid_argument("MakeSidebandSelectedPIDTable - chosen cut \"" + lastCut + "\" isn't known to the selection");
 
     //  Counter with index [recoPdgCode][truePdgCode][isSignalOnly]
     std::unordered_map< int, std::unordered_map< int, std::unordered_map<bool, float > > > recoToTruePdgMap;
@@ -94,14 +94,14 @@ void MakeSelectedPIDTable(const Config &config)
 
             // Determine if this is a signal event
             const auto nGoldenPions = AnalysisHelper::CountGoldenParticlesWithPdgCode(AnalysisHelper::SelectVisibleParticles(truthParticles), 211, config.global.useAbsPdg);
-            bool isTrueSignal = isOverlay && AnalysisHelper::IsTrueCC1Pi(pEvent, config.global.useAbsPdg) &&
+            bool isTrueSignal = isOverlay && AnalysisHelper::IsTrueCC0Pi(pEvent, config.global.useAbsPdg, config.global.protonMomentumThreshold) &&
                                 (config.makeSelectedPIDTable.goldenPionIsSignal ? (nGoldenPions != 0) : true);
 
             //// BEGIN TEST
             if (isTrueSignal && config.makeSelectedPIDTable.onlyLowMomentumPions)
             {
                 // Get the true pion momentum
-                const auto truthData = AnalysisHelper::GetTruthAnalysisData(pEvent->truth, config.global.useAbsPdg, config.global.protonMomentumThreshold);
+                const auto truthData = AnalysisHelper::GetTruthAnalysisDataCC0Pi(pEvent->truth, config.global.useAbsPdg, config.global.protonMomentumThreshold);
 
                 // Check if this pion has sufficiently low momentum
                 isTrueSignal = (truthData.pionMomentum < config.makeSelectedPIDTable.pionMomentumThreshold);
@@ -117,7 +117,7 @@ void MakeSelectedPIDTable(const Config &config)
                 continue;
 
             if (assignedPdgCodes.size() != recoParticles.size())
-                throw std::logic_error("MakeSelectedPIDTable - The output particle PDG codes is the wrong size");
+                throw std::logic_error("MakeSidebandSelectedPIDTable - The output particle PDG codes is the wrong size");
 
             for (unsigned int index = 0; index < recoParticles.size(); ++index)
             {
@@ -139,7 +139,7 @@ void MakeSelectedPIDTable(const Config &config)
 
                 const auto recoPdgCode = assignedPdgCodes.at(index);
                 if (recoPdgCode != 13 && recoPdgCode != 211 && recoPdgCode != 2212)
-                    throw std::logic_error("MakeSelectedPIDTable - Unknown assigned PDG code of " + std::to_string(recoPdgCode));
+                    throw std::logic_error("MakeSidebandSelectedPIDTable - Unknown assigned PDG code of " + std::to_string(recoPdgCode));
 
                 // Get the mapping from true PDG to count for this reco pdg code, making it if it doesn't exist
                 auto &truePdgToCountMap = recoToTruePdgMap[recoPdgCode];

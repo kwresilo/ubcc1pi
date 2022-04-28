@@ -140,12 +140,26 @@ namespace ubcc1pi_macros
      */
     void MakeEventSelectionTable(const Config &config = Config());
 
-    // /**
-    //  *  @brief  Make the PID table
-    //  *
-    //  *  @param  config the input configuration
-    //  */
-    // void MakeSelectedPIDTable(const Config &config = Config());
+    /**
+     *  @brief  Make the sideband event selection table
+     *
+     *  @param  config the input configuration
+     */
+    void MakeSidebandEventSelectionTable(const Config &config = Config());
+
+    /**
+     *  @brief  Make the PID table
+     *
+     *  @param  config the input configuration
+     */
+    void MakeSelectedPIDTable(const Config &config = Config());
+
+    /**
+     *  @brief  Make the PID table
+     *
+     *  @param  config the input configuration
+     */
+    void MakeSidebandSelectedPIDTable(const Config &config = Config());
 
     /**
      *  @brief  Make the selection efficiency plots
@@ -281,6 +295,19 @@ namespace ubcc1pi_macros
      */
     void PrintDetVar(const Config &config = Config());
 
+    /**
+     *  @brief  Save the sideband fit parameters as a numpy readable txt file
+     *  
+     *  @param  config the input configuration
+     */
+    void ParamsToTxt(const Config &config = Config());
+
+    /**
+     *  @brief  Compare xsec and sideband selection
+     *  
+     *  @param  config the input configuration
+     */
+    void SelectionComparison(const Config &config = Config());
 
     // /**
     //  *  @brief  Generate the CC0Pi selection

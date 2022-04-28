@@ -72,9 +72,10 @@
         // "Macros/NMinusOneBDTStudyFull.cxx",
         // "Macros/MuonPIDStudy.cxx",
         "Macros/MakeEventSelectionTable.cxx",
+        "Macros/MakeSidebandEventSelectionTable.cxx",
         "Macros/MakeEventSelectionEfficiencyPlots.cxx",
         // "Macros/PlotEventSelectionCuts.cxx",
-        // "Macros/MakeSelectedPIDTable.cxx",
+        "Macros/MakeSelectedPIDTable.cxx",
         // "Macros/PlotMuonRecoVariables.cxx",
         // "Macros/PlotReconstructedVariables.cxx",
         // "Macros/PlotProtonVariables.cxx",
@@ -97,6 +98,9 @@
         "Macros/MakeSidebandSamplePlots.cxx",
         "Macros/MakeSidebandParameterPlots.cxx",
         "Macros/PrintDetVar.cxx",
+        "Macros/ParamsToTxt.cxx",
+        "Macros/SelectionComparison.cxx",
+        "Macros/MakeSidebandSelectedPIDTable.cxx",
         // "Macros/PlotEBRequests.cxx",
         // "Macros/RunFullAnalysis.cxx"
     }))

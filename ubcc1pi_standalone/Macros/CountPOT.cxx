@@ -102,8 +102,10 @@ void CountPOT(const Config &config)
         // Count the total number of events
         std::cout << "  - Getting event counts over " << nEvents << " events." << std::endl;
         float nEventsPassingCCInc = 0.f;
+        float nEventsTrueCCInc = 0.f;
         float nEventsWeighted = 0.f;
         float nEventsPassingCCIncWeighted = 0.f;
+        float nEventsTrueCCIncWeighted = 0.f;
 
         for (unsigned int i = 0; i < nEvents; ++i)
         {
@@ -111,16 +113,21 @@ void CountPOT(const Config &config)
 
             const auto weight = AnalysisHelper::GetNominalEventWeight(pEvent);
             const auto passesCCInc = pEvent->reco.passesCCInclusive.IsSet() && pEvent->reco.passesCCInclusive();
+            const auto trueCCInc = AnalysisHelper::IsTrueCCInclusive(pEvent, true);
 
             nEventsPassingCCInc += (passesCCInc ? 1 : 0);
+            nEventsTrueCCInc += (trueCCInc ? 1 : 0);
             nEventsWeighted += weight;
             nEventsPassingCCIncWeighted += (passesCCInc ? weight : 0);
+            nEventsTrueCCIncWeighted += (trueCCInc ? weight : 0);
         }
 
         std::cout << "  - nEvents (unweighted) = " << nEvents << std::endl;
         std::cout << "  - nEvents passing CCInc. (unweighted) = " << nEventsPassingCCInc << std::endl;
+        std::cout << "  - nEvents true CCInc. (unweighted) = " << nEventsTrueCCInc << std::endl;
         std::cout << "  - nEvents (nominal weight) = " << nEventsWeighted << std::endl;
         std::cout << "  - nEvents passing CCInc. (nominal weight) = " << nEventsPassingCCIncWeighted << std::endl;
+        std::cout << "  - nEvents true CCInc. (nominal weight) = " << nEventsTrueCCIncWeighted << std::endl;
     }
 }
 

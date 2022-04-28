@@ -66,7 +66,7 @@ void MakeXSecPlots(const Config &config)
     {
         for (const auto &[xsecName, isEnabled] : enabledMap)
         {
-            if(selectionName=="golden") continue;// || xsecName!="muonPhi"
+            // if(selectionName=="golden") continue;// || xsecName!="muonPhi"
             // Skip cross-sections that aren't enabled
             if (!isEnabled)
                 continue;
@@ -85,10 +85,10 @@ void MakeXSecPlots(const Config &config)
             };
 
             // Get the data cross-section
-            const auto data = getTrimmedMatrix("data");
+            const auto data = getTrimmedMatrix("data_scaled");
 
             // Get the smearing matrix
-            const auto smearingMatrix = getMatrix("smearingMatrix");
+            const auto smearingMatrix = getMatrix("smearingMatrix_scaled");
 
             // Build the total error matrix for each group of systematic parameters
             // Here errorMatrixMap is indexed by [quantity][group], where quantity = "data" or "smearingMatrix"
@@ -115,7 +115,7 @@ void MakeXSecPlots(const Config &config)
 
                 // For the data cross-section, we also have a stat uncertainty
                 // For the smearing matrix, just use a zero vector
-                const auto statUncertainties = (quantity == "data") ? getMatrixFunction("data_stat") : ubsmear::UBMatrixHelper::GetZeroMatrix(nBins, 1);
+                const auto statUncertainties = (quantity == "data") ? getMatrixFunction("data_stat_scaled") : ubsmear::UBMatrixHelper::GetZeroMatrix(nBins, 1);
 
                 // To convert these stat uncertainties into an error matrix, we produce a diagonal matrix whose diagonal entries contain the
                 // variances (i.e. square of the stat uncerainties)
@@ -150,8 +150,8 @@ void MakeXSecPlots(const Config &config)
                     for (const auto &[paramName, nUniverses] : dimensions)
                     {
                         // Get the bias vector and covariance matrix
-                        const auto biasVector = getMatrixFunction(quantity + "_" + group + "_" + paramName + "_bias");
-                        const auto covarianceMatrix = getMatrixFunction(quantity + "_" + group + "_" + paramName + "_covariance");
+                        const auto biasVector = getMatrixFunction(quantity + "_" + group + "_" + paramName + "_bias_scaled");
+                        const auto covarianceMatrix = getMatrixFunction(quantity + "_" + group + "_" + paramName + "_covariance_scaled");
 
                         // Get the total error matrix from the bias and covariance
                         const auto errorMatrix = CrossSectionHelper::GetErrorMatrix(biasVector, covarianceMatrix);
@@ -180,8 +180,8 @@ void MakeXSecPlots(const Config &config)
                     for (const auto &[paramName, cvName] : dimensions)
                     {
                         // Get the bias vector and (dummy) covariance matrix
-                        const auto biasVector = getMatrixFunction(quantity + "_" + group + "_" + paramName + "_bias");
-                        const auto covarianceMatrix = getMatrixFunction(quantity + "_" + group + "_" + paramName + "_covariance");
+                        const auto biasVector = getMatrixFunction(quantity + "_" + group + "_" + paramName + "_bias_scaled");
+                        const auto covarianceMatrix = getMatrixFunction(quantity + "_" + group + "_" + paramName + "_covariance_scaled");
 
                         // Get the total error matrix from the bias and covariance
                         const auto errorMatrix = CrossSectionHelper::GetErrorMatrix(biasVector, covarianceMatrix);
@@ -233,9 +233,9 @@ void MakeXSecPlots(const Config &config)
             PlottingHelper::PlotErrorMatrix(smearingMatrix, prefix + "_smearingMatrix", metadata, true, false);
 
             // Now get the predicted cross-section and it's error matrix
-            const auto prediction = getMatrix("prediction");
-            const auto predictionBiasVector = getMatrix("prediction_stat_bias");
-            const auto predictionCovarianceMatrix = getMatrix("prediction_stat_covariance");
+            const auto prediction = getMatrix("prediction_scaled");
+            const auto predictionBiasVector = getMatrix("prediction_stat_bias_scaled");
+            const auto predictionCovarianceMatrix = getMatrix("prediction_stat_covariance_scaled");
             
             // // ######################
             // // jdetje TEST AREA BEGIN
