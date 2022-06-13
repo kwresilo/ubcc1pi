@@ -168,12 +168,12 @@ namespace ubcc1pi_macros
      */
     void MakeEventSelectionEfficiencyPlots(const Config &config = Config());
 
-    // /**
-    //  *  @brief  Plot the variables that are used by the selection at the point of usage
-    //  *
-    //  *  @param  config the input configuration
-    //  */
-    // void PlotEventSelectionCuts(const Config &config = Config());
+    /**
+     *  @brief  Plot the variables that are used by the selection at the point of usage
+     *
+     *  @param  config the input configuration
+     */
+    void PlotEventSelectionCuts(const Config &config = Config());
 
     // /**
     //  *  @brief  Plot the reconstructed variables for the muon candidate
@@ -267,12 +267,12 @@ namespace ubcc1pi_macros
      */
     void ExtractXSecsOld(const Config &config = Config());
 
-    /**
-     *  @brief  Extract the sideband fit
-     *  
-     *  @param  config the input configuration
-     */
-    void ExtractSidebandFit(const Config &config = Config());
+    // /**
+    //  *  @brief  Extract the sideband fit
+    //  *  
+    //  *  @param  config the input configuration
+    //  */
+    // void ExtractSidebandFit(const Config &config = Config());
 
     /**
      *  @brief  Extract the sideband fit of Nuwro to MC (GENIE)
@@ -286,7 +286,7 @@ namespace ubcc1pi_macros
      *  
      *  @param  config the input configuration
      */
-    void ExtractSideband(const Config &config = Config());
+    //void ExtractSideband(const Config &config = Config());
 
     /**
      *  @brief  Print out detector variation xsec-values

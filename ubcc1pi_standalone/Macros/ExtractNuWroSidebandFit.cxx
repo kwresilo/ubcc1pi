@@ -168,7 +168,7 @@ void ExtractNuWroSidebandFit(const Config &config)
         { "pionMomentum",  config.global.pionMomentum,  true  },
 
         { "muonPionAngle", config.global.muonPionAngle, true  },
-        { "nProtons",      config.global.nProtons,      false }
+        { "nProtons",      config.global.nProtons,      false }//ignore://todo: make sure to change tgis back after testing (nProtonsSideband -> nProtons)
 
     })
     {
@@ -576,12 +576,12 @@ void ExtractNuWroSidebandFit(const Config &config)
                             const auto seedString =  selectionName + name + std::to_string(i);
                             if(!isNuWro)
                             {
-                                std::cout<<"!isNuWro - name"<<name<<" - weight: "<<weight<<" - isSelected: "<< isSelected<<" - recoValue: "<<recoValue<<" - trueValue: "<<trueValue<<std::endl;
+                                // std::cout<<"!isNuWro - name"<<name<<" - weight: "<<weight<<" - isSelected: "<< isSelected<<" - recoValue: "<<recoValue<<" - trueValue: "<<trueValue<<std::endl;
                                 xsec.AddSignalEvent(recoValue, trueValue, isSelected, weight, fluxWeights, xsecWeights, reintWeights, seedString);
                             }
                             if(!isOverlay)
                             { 
-                                std::cout<<"!isOverlay - name"<<name<<" - weight: "<<weight<<" - isSelected: "<< isSelected<<" - recoValue: "<<recoValue<<" - trueValue: "<<trueValue<<std::endl;
+                                // std::cout<<"!isOverlay - name"<<name<<" - weight: "<<weight<<" - isSelected: "<< isSelected<<" - recoValue: "<<recoValue<<" - trueValue: "<<trueValue<<std::endl;
                                 xsecMapSidebandTrue.at(selectionName).at(name).AddSignalEvent(recoValue, trueValue, isSelected, weight, fluxWeights, xsecWeights, reintWeights, seedString);
                             }
                         }
