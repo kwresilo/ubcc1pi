@@ -169,6 +169,7 @@ void ExtractNuWroXSecs(const Config &config)
             // xsecMapSideband2[selectionName].emplace("total", CrossSectionHelper::CrossSection(systParams, {-1.f, 1.f}, false, false, false));
         }
     }
+    
     // Don't setup a cross-section object if it's been disabled in the configuration
     // if (config.extractXSecs.crossSectionIsEnabled.at("sideband").at("total"))
     //     xsecMapSideband["sideband"].emplace("total", CrossSectionHelper::CrossSection(systParams, {-1.f, 1.f}, false, false, false));

@@ -26,7 +26,15 @@ namespace ubcc1pi
              */
             static float GetOverlaysNormalisation(const Config &config, const unsigned int run);
 
-            public:
+            /**
+             *  @brief  Get the normalisation factor for nuwro
+             *
+             *  @param  config the input configuration
+             *
+             *  @return the normalisation factor
+             */
+            static float GetNuWroNormalisation(const Config &config, const unsigned int run);
+
             /**
              *  @brief  Get the normalisation factor for the overlays to the NuWro events
              *

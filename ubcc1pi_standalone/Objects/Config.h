@@ -31,7 +31,7 @@ struct Config
     struct FilesRun1
     {
         // September overlays files contain systematic weights
-        std::string overlaysFileName = "/uboone/data/users/jdetje/ubcc1pi/sep2020/ubcc1piAnalysis_overlays_08Oct21.root"; ///< Overlays file name inputs
+        std::string overlaysFileName = "/uboone/data/users/jdetje/ubcc1pi/sep2020/ubcc1piAnalysis_overlays_08Oct21.root"; ///< Overlays file name input
         // std::string overlaysFileName = "/uboone/data/users/jdetje/ubcc1pi/sep2020/ubcc1piAnalysis_overlays_08Oct21_test_head20.root";
         
         std::string dirtFileName     = "/uboone/data/users/jdetje/ubcc1pi/sep2020/ubcc1piAnalysis_dirt_08Oct21.root";     ///< Dirt file name input
@@ -42,7 +42,15 @@ struct Config
         std::string dataBNBFileName  = "/pnfs/uboone/persistent/users/kduffy/ubcc1pi/ubcc1pi_bnb_run1-C1_5Jan2021.root";  ///< BNB data file name input
         // std::string dataBNBFileName  = "/uboone/data/users/jdetje/ubcc1pi/sep2020/ubcc1piAnalysis_overlays_08Oct21_test_tail20.root";
 
-        std::string nuWroFileName  = "/uboone/data/users/jdetje/ubcc1pi/sep2020/ubcc1piAnalysis_nuwro_run1_28Feb22.root";
+        // std::string nuWroFileName  = "/uboone/data/users/jdetje/ubcc1pi/sep2020/ubcc1piAnalysis_nuwro_run1_28Feb22.root";  ///< NuWro file name input
+        // std::string nuWroFileName  = "/uboone/app/users/jdetje/cc1pi_handover_57_2/test_ccinc_21Apr/ubcc1piAnalysisFiltered.root";
+        // std::string nuWroFileName  = "/uboone/app/users/jdetje/cc1pi_handover_57_2/test_ccinc_21Apr/ubcc1piAnalysisUnfiltered.root";
+        // std::string nuWroFileName  = "/uboone/app/users/jdetje/cc1pi_handover_57_2/test_ccinc_21Apr/ubcc1piAnalysisUnfilteredDetVar.root";
+        // std::string nuWroFileName  = "/uboone/app/users/jdetje/cc1pi_handover_57_2/test_ccinc_21Apr/ubcc1piAnalysisFilteredDetVar.root";
+        // std::string nuWroFileName  = "/uboone/app/users/jdetje/cc1pi_handover_57_2/test_ccinc_21Apr/ubcc1piAnalysisFilteredDetVar_larger.root";
+        // std::string nuWroFileName  = "/uboone/app/users/jdetje/cc1pi_handover_57_2/test_ccinc_21Apr/ubcc1piAnalysisUnfilteredDetVar_larger.root";
+        // std::string nuWroFileName = "/pnfs/uboone/scratch/users/jdetje/ubcc1pi/nuwro_run1_corrected_backup/ubcc1piAnalysisCombined.root";
+        std::string nuWroFileName = "/uboone/data/users/jdetje/ubcc1pi/sep2020/ubcc1piAnalysis_nuwro_run1_28Apr22_noCCProduction.root";
 
         /**
          *  @brief  The detector variation files
@@ -93,7 +101,10 @@ struct Config
         std::string dataEXTFileName  = "/uboone/data/users/jdetje/ubcc1pi/sep2020/ubcc1piAnalysis_extbnb_run2_17Jan22.root";  ///< EXT data file name input
         std::string dataBNBFileName  = "/uboone/data/users/jdetje/ubcc1pi/sep2020/ubcc1piAnalysis_bnb_run2_08Nov21.root";  ///< BNB data file name input
 
-        std::string nuWroFileName  = "/uboone/data/users/jdetje/ubcc1pi/sep2020/ubcc1piAnalysis_nuwro_run2_13Dec21.root";  
+        // std::string nuWroFileName  = "/uboone/data/users/jdetje/ubcc1pi/sep2020/ubcc1piAnalysis_nuwro_run2_13Dec21.root";
+        // std::string nuWroFileName  = "/pnfs/uboone/scratch/users/jdetje/ubcc1pi/nuwro_run2a/nuwro_run2a_test.root";
+        // std::string nuWroFileName  = "/pnfs/uboone/scratch/users/jdetje/ubcc1pi/nuwro_run2b/nuwro_run2b_test.root";
+        std::string nuWroFileName  = "/uboone/data/users/jdetje/ubcc1pi/sep2020/ubcc1piAnalysis_nuwro_run2ab_06May22_noCCProduction.root";
 
         /**
          *  @brief  The detector variation files
@@ -117,6 +128,7 @@ struct Config
             {"WireModThetaXZ", "/uboone/data/users/jdetje/ubcc1pi/sep2020/ubcc1piAnalysis_overlays_DetVar_WireModThetaXZ_run3ab_high_09Mar22.root"},
             {"WireModThetaYZ", "/uboone/data/users/jdetje/ubcc1pi/sep2020/ubcc1piAnalysis_overlays_DetVar_WireModThetaYZ_run3ab_high_09Mar22.root"}
         };
+
     };
     FilesRun2 filesRun2; ///< The input files
 
@@ -128,7 +140,10 @@ struct Config
         std::string dataEXTFileName  = "/uboone/data/users/jdetje/ubcc1pi/sep2020/ubcc1piAnalysis_extbnb_run3_17Jan22.root";  ///< EXT data file name input
         std::string dataBNBFileName  = "/uboone/data/users/jdetje/ubcc1pi/sep2020/ubcc1piAnalysis_bnb_run3_17Jan22.root";  ///< BNB data file name input
 
-        std::string nuWroFileName  = "/uboone/data/users/jdetje/ubcc1pi/sep2020/ubcc1piAnalysis_nuwro_run3_14Dec21.root";
+        // std::string nuWroFileName  = "/uboone/data/users/jdetje/ubcc1pi/sep2020/ubcc1piAnalysis_nuwro_run3_14Dec21.root";
+        // std::string nuWroFileName  = "/pnfs/uboone/scratch/users/jdetje/ubcc1pi/nuwro_run3a/nuwro_run3a_test.root";
+        // std::string nuWroFileName  = "/pnfs/uboone/scratch/users/jdetje/ubcc1pi/nuwro_run3b/nuwro_run3b_test.root";
+        std::string nuWroFileName  = "/uboone/data/users/jdetje/ubcc1pi/sep2020/ubcc1piAnalysis_nuwro_run3ab_06May22_noCCProduction.root";
 
         /**
          *  @brief  The detector variation files
@@ -152,6 +167,25 @@ struct Config
             {"WireModThetaXZ", "/uboone/data/users/jdetje/ubcc1pi/sep2020/ubcc1piAnalysis_overlays_DetVar_WireModThetaXZ_run3ab_high_09Mar22.root"},
             {"WireModThetaYZ", "/uboone/data/users/jdetje/ubcc1pi/sep2020/ubcc1piAnalysis_overlays_DetVar_WireModThetaYZ_run3ab_high_09Mar22.root"}
         };
+
+        // std::vector< std::pair<std::string, std::string> > detVarFiles = {
+        // {"CV_run3a_low_", "/pnfs/uboone/scratch/users/jdetje/ubcc1pi/overlays_DetVar_CV_run3a_low_corrected/55682162_0/ubcc1piAnalysis.root"},
+        // {"CV_run3b_high_", "/pnfs/uboone/scratch/users/jdetje/ubcc1pi/overlays_DetVar_CV_run3b_high_corrected/55682170_0/ubcc1piAnalysis.root"},
+        // {"LYDown_run3a_low_", "/pnfs/uboone/scratch/users/jdetje/ubcc1pi/overlays_DetVar_LYDown_run3a_low_corrected/55682163_0/ubcc1piAnalysis.root"},
+        // {"LYDown_run3b_high_", "/pnfs/uboone/scratch/users/jdetje/ubcc1pi/overlays_DetVar_LYDown_run3b_high_corrected/55682172_0/ubcc1piAnalysis.root"},
+        // {"LYRayleigh_run3a_low_", "/pnfs/uboone/scratch/users/jdetje/ubcc1pi/overlays_DetVar_LYRayleigh_run3a_low_corrected/55682165_0/ubcc1piAnalysis.root"},
+        // {"LYRayleigh_run3b_high_", "/pnfs/uboone/scratch/users/jdetje/ubcc1pi/overlays_DetVar_LYRayleigh_run3b_high_corrected/55682173_0/ubcc1piAnalysis.root"},
+        // {"WireModThetaXZ_run3a_low_", "/pnfs/uboone/scratch/users/jdetje/ubcc1pi/overlays_DetVar_WireModThetaXZ_run3a_low_corrected/55682168_0/ubcc1piAnalysis.root"},
+        // {"WireModThetaXZ_run3b_high_", "/pnfs/uboone/scratch/users/jdetje/ubcc1pi/overlays_DetVar_WireModThetaXZ_run3b_high_corrected/55682177_0/ubcc1piAnalysis.root"},
+        // {"WireModThetaYZ_run3a_low_", "/pnfs/uboone/scratch/users/jdetje/ubcc1pi/overlays_DetVar_WireModThetaYZ_run3a_low_corrected/55682169_0/ubcc1piAnalysis.root"},
+        // {"WireModThetaYZ_run3b_high_", "/pnfs/uboone/scratch/users/jdetje/ubcc1pi/overlays_DetVar_WireModThetaYZ_run3b_high_corrected/55682178_0/ubcc1piAnalysis.root"},
+        // {"WireModX_run3a_low_", "/pnfs/uboone/scratch/users/jdetje/ubcc1pi/overlays_DetVar_WireModX_run3a_low_corrected/55682166_0/ubcc1piAnalysis.root"},
+        // {"WireModX_run3b_high_", "/pnfs/uboone/scratch/users/jdetje/ubcc1pi/overlays_DetVar_WireModX_run3b_high_corrected/55682175_0/ubcc1piAnalysis.root"},
+        // {"WireModYZ_run3a_low_", "/pnfs/uboone/scratch/users/jdetje/ubcc1pi/overlays_DetVar_WireModYZ_run3a_low_corrected/55682167_0/ubcc1piAnalysis.root"},
+        // {"WireModYZ_run3b_high_", "/pnfs/uboone/scratch/users/jdetje/ubcc1pi/overlays_DetVar_WireModYZ_run3b_high_corrected/55682176_0/ubcc1piAnalysis.root"}
+        // };
+
+
     };
     FilesRun3 filesRun3; ///< The input files
 
@@ -180,7 +214,7 @@ struct Config
         float  dataBNBE1DCNTWCut  = 34076199.0;     ///< The BNB spills sent by the accelerator division (with quality cuts)
         // Andy S files: 32339256.0, Kirsty D files (Jan 21): 34076199.0
 
-        float nuWroPOT            = 3.0867e+20;      ///< The total POT for the nuWro MC
+        float nuWroPOT            = 3.08669e+20;//3.0867e+20;      ///< The total POT for the nuWro MC
         // float  nuWroTor875WCut  = 1.627e+19;      ///< The POT measured by the 875m toroid (with quality cuts)
         // float  nuWroE1DCNTWCut  = 3578340.0;     ///< The BNB spills sent by the accelerator division (with quality cuts)
 
@@ -409,6 +443,23 @@ struct Config
         }; ///< The nProtons binning
 
 
+
+
+        Binning muonPhiSideband {
+            -3.142f,                                                     // min
+             3.142f,                                                     // max
+            PlottingHelper::GenerateUniformBinEdges(15, -3.142f, 3.142f) // binEdges
+        }; ///< The muonPhi binning
+
+        Binning nProtonsSideband {
+            0,                                           // min
+            std::numeric_limits<float>::max(),           // max
+            {0, 1, std::numeric_limits<float>::max()} // binEdges
+        }; ///< The nProtons binning
+
+
+
+
         // Additional plots requested by EB
         // TODO: Values are only placeholders 
         Binning protonCosTheta {
@@ -584,14 +635,14 @@ struct Config
         std::unordered_map<std::string, std::unordered_map<std::string, bool> > crossSectionIsEnabled = {
             {
                 "generic", {
-                    {"total",         false },
-                    {"muonCosTheta",  false },
-                    {"muonPhi",       false },
+                    {"total",         true },
+                    {"muonCosTheta",  true },
+                    {"muonPhi",       true },
                     {"muonMomentum",  true },
-                    {"pionCosTheta",  false },
-                    {"pionPhi",       false },
+                    {"pionCosTheta",  true },
+                    {"pionPhi",       true },
                     {"pionMomentum",  true },
-                    {"muonPionAngle", false },
+                    {"muonPionAngle", true },
                     {"nProtons",      true }
                 }
             },
@@ -603,7 +654,7 @@ struct Config
                     {"muonMomentum",  false },
                     {"pionCosTheta",  false },
                     {"pionPhi",       false },
-                    {"pionMomentum",  true },
+                    {"pionMomentum",  false },
                     {"muonPionAngle", false },
                     {"nProtons",      false }
                 }

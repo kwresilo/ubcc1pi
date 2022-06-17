@@ -42,6 +42,37 @@ float NormalisationHelper::GetOverlaysNormalisation(const Config &config, const 
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
 
+float NormalisationHelper::GetNuWroNormalisation(const Config &config, const unsigned int run)
+{
+    float nuWroPOT;
+    float dataBNBTor875WCut;
+    switch (run)
+    {
+        case 1:
+            dataBNBTor875WCut = config.normsRun1.dataBNBTor875WCut;
+            nuWroPOT = config.normsRun1.nuWroPOT;
+            break;
+        case 2:
+            dataBNBTor875WCut = config.normsRun2.dataBNBTor875WCut;
+            nuWroPOT = config.normsRun2.nuWroPOT;
+            break;
+        case 3:
+            dataBNBTor875WCut = config.normsRun3.dataBNBTor875WCut;
+            nuWroPOT = config.normsRun3.nuWroPOT;
+            break;
+        default:
+            std::cout<<"NormalisationHelper::GetOverlaysNormalisation - Invalid run number"<<std::endl;
+            throw std::invalid_argument("NormalisationHelper::GetOverlaysNormalisation - Invalid run number");
+    }
+
+    if (nuWroPOT <= std::numeric_limits<float>::epsilon())
+        throw std::invalid_argument("NormalisationHelper::GetOverlaysNormalisation - Overlay POT is invalid");
+
+    return dataBNBTor875WCut / nuWroPOT;
+}
+
+// -----------------------------------------------------------------------------------------------------------------------------------------
+
 float NormalisationHelper::GetOverlaysNormalisationToNuWro(const Config &config, const unsigned int run)
 {
     float overlaysPOT;

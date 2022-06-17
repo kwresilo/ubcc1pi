@@ -1098,14 +1098,14 @@ ubsmear::UBMatrix CrossSectionHelper::CrossSection::GetBNBDataCrossSectionInUniv
     // function gets called once per universe!
 
     // Get the number of selected events in BNB data
-    std::cout<<"Debug GetBNBDataCrossSectionInUniverse Point 0"<<std::endl;
+    // std::cout<<"Debug GetBNBDataCrossSectionInUniverse Point 0"<<std::endl;
     const auto selected = CrossSectionHelper::GetMatrixFromHist(m_pBNBData_selected_reco);
 
-    std::cout<<"Debug GetBNBDataCrossSectionInUniverse Point 1"<<std::endl;
+    // std::cout<<"Debug GetBNBDataCrossSectionInUniverse Point 1"<<std::endl;
     // Get the number of predicted backgrounds in the supplied universe
     const auto backgrounds = CrossSectionHelper::GetMatrixFromHist(m_background_selected_reco_multisims.at(group).at(paramName).at(universeIndex));
 
-    std::cout<<"Debug GetBNBDataCrossSectionInUniverse Point 2 - group:"<<group<<" - paramName: "<<paramName<<" - universe: "<<universeIndex<<"\n"<<std::endl;
+    // std::cout<<"Debug GetBNBDataCrossSectionInUniverse Point 2 - group:"<<group<<" - paramName: "<<paramName<<" - universe: "<<universeIndex<<"\n"<<std::endl;
     // Get the integrated flux in the supplied universe (if it's not a flux parameter, then use the nominal universe)
     const auto integratedFlux = (
         group == "flux"
@@ -1113,10 +1113,10 @@ ubsmear::UBMatrix CrossSectionHelper::CrossSection::GetBNBDataCrossSectionInUniv
             : scalingData.pFluxReweightor->GetIntegratedNominalFlux()
     );
 
-    std::cout<<"\n Debug GetBNBDataCrossSectionInUniverse Point 3 \n"<<std::endl;
+    // std::cout<<"\n Debug GetBNBDataCrossSectionInUniverse Point 3 \n"<<std::endl;
     // Get the cross-section
     return this->GetCrossSection(selected, backgrounds, integratedFlux, scalingData.exposurePOT, scalingData.nTargets);
-    std::cout<<"\n Debug GetBNBDataCrossSectionInUniverse Point 4 \n"<<std::endl;
+    // std::cout<<"\n Debug GetBNBDataCrossSectionInUniverse Point 4 \n"<<std::endl;
 }
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
