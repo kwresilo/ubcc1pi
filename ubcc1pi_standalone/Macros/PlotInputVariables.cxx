@@ -35,31 +35,53 @@ void PlotInputVariables(const Config &config)
     //   - Second, a string which is used to identify a given detector variation sample (for other sample type, this is unused)
     //   - Third, the path to the input file
     //   - Fourth, the normalisation factor to apply to all events in that file
+    std::cout<<"##########################################\nUSING NUWRO AS DATA & Only CC0pi!\n##########################################"<<std::endl;
     for (const auto run: config.global.runs)
     {
         if(run == 1)
         {
-            inputData.emplace_back(AnalysisHelper::Overlay, config.filesRun1.overlaysFileName, NormalisationHelper::GetOverlaysNormalisation(config, 1));
-            inputData.emplace_back(AnalysisHelper::Dirt,    config.filesRun1.dirtFileName, NormalisationHelper::GetDirtNormalisation(config, 1));
-            inputData.emplace_back(AnalysisHelper::DataEXT, config.filesRun1.dataEXTFileName, NormalisationHelper::GetDataEXTNormalisation(config, 1));
-            inputData.emplace_back(AnalysisHelper::DataBNB, config.filesRun1.dataBNBFileName, 1.f);
+            inputData.emplace_back(AnalysisHelper::Overlay, config.filesRun1.overlaysFileName, NormalisationHelper::GetOverlaysNormalisationToNuWro(config, 1));
+            inputData.emplace_back(AnalysisHelper::DataBNB, config.filesRun1.nuWroFileName, 1.f);
         }
         else if(run == 2)
         {
-            inputData.emplace_back(AnalysisHelper::Overlay, config.filesRun2.overlaysFileName, NormalisationHelper::GetOverlaysNormalisation(config, 2));
-            inputData.emplace_back(AnalysisHelper::Dirt,    config.filesRun2.dirtFileName, NormalisationHelper::GetDirtNormalisation(config, 2));
-            inputData.emplace_back(AnalysisHelper::DataEXT, config.filesRun2.dataEXTFileName, NormalisationHelper::GetDataEXTNormalisation(config, 2));
-            inputData.emplace_back(AnalysisHelper::DataBNB, config.filesRun2.dataBNBFileName, 1.f);
+            inputData.emplace_back(AnalysisHelper::Overlay, config.filesRun2.overlaysFileName, NormalisationHelper::GetOverlaysNormalisationToNuWro(config, 2));
+            inputData.emplace_back(AnalysisHelper::DataBNB, config.filesRun2.nuWroFileName, 1.f);
         }
         else if(run == 3)
         {
-            inputData.emplace_back(AnalysisHelper::Overlay, config.filesRun3.overlaysFileName, NormalisationHelper::GetOverlaysNormalisation(config, 3));
-            inputData.emplace_back(AnalysisHelper::Dirt,    config.filesRun3.dirtFileName, NormalisationHelper::GetDirtNormalisation(config, 3));
-            inputData.emplace_back(AnalysisHelper::DataEXT, config.filesRun3.dataEXTFileName, NormalisationHelper::GetDataEXTNormalisation(config, 3));
-            inputData.emplace_back(AnalysisHelper::DataBNB, config.filesRun3.dataBNBFileName, 1.f);
+            inputData.emplace_back(AnalysisHelper::Overlay, config.filesRun3.overlaysFileName, NormalisationHelper::GetOverlaysNormalisationToNuWro(config, 3));
+            inputData.emplace_back(AnalysisHelper::DataBNB, config.filesRun3.nuWroFileName, 1.f);
         }
-        else throw std::logic_error("ExtractSidebandFit - Invalid run number");
+        else throw std::logic_error("PlotEventSelectionCuts - Invalid run number");
     }
+
+
+    // for (const auto run: config.global.runs)
+    // {
+    //     if(run == 1)
+    //     {
+    //         inputData.emplace_back(AnalysisHelper::Overlay, config.filesRun1.overlaysFileName, NormalisationHelper::GetOverlaysNormalisation(config, 1));
+    //         inputData.emplace_back(AnalysisHelper::Dirt,    config.filesRun1.dirtFileName, NormalisationHelper::GetDirtNormalisation(config, 1));
+    //         inputData.emplace_back(AnalysisHelper::DataEXT, config.filesRun1.dataEXTFileName, NormalisationHelper::GetDataEXTNormalisation(config, 1));
+    //         inputData.emplace_back(AnalysisHelper::DataBNB, config.filesRun1.dataBNBFileName, 1.f);
+    //     }
+    //     else if(run == 2)
+    //     {
+    //         inputData.emplace_back(AnalysisHelper::Overlay, config.filesRun2.overlaysFileName, NormalisationHelper::GetOverlaysNormalisation(config, 2));
+    //         inputData.emplace_back(AnalysisHelper::Dirt,    config.filesRun2.dirtFileName, NormalisationHelper::GetDirtNormalisation(config, 2));
+    //         inputData.emplace_back(AnalysisHelper::DataEXT, config.filesRun2.dataEXTFileName, NormalisationHelper::GetDataEXTNormalisation(config, 2));
+    //         inputData.emplace_back(AnalysisHelper::DataBNB, config.filesRun2.dataBNBFileName, 1.f);
+    //     }
+    //     else if(run == 3)
+    //     {
+    //         inputData.emplace_back(AnalysisHelper::Overlay, config.filesRun3.overlaysFileName, NormalisationHelper::GetOverlaysNormalisation(config, 3));
+    //         inputData.emplace_back(AnalysisHelper::Dirt,    config.filesRun3.dirtFileName, NormalisationHelper::GetDirtNormalisation(config, 3));
+    //         inputData.emplace_back(AnalysisHelper::DataEXT, config.filesRun3.dataEXTFileName, NormalisationHelper::GetDataEXTNormalisation(config, 3));
+    //         inputData.emplace_back(AnalysisHelper::DataBNB, config.filesRun3.dataBNBFileName, 1.f);
+    //     }
+    //     else throw std::logic_error("ExtractSidebandFit - Invalid run number");
+    // }
 
 
     //
@@ -187,6 +209,9 @@ void PlotInputVariables(const Config &config)
 
             reader.LoadEvent(i);
 
+            const auto isTrueCC0Pi = AnalysisHelper::IsTrueCC0Pi(pEvent, config.global.useAbsPdg, config.global.protonMomentumThreshold); // todo remove this
+            if(!isTrueCC0Pi) continue;
+
             // Only use events passing the CC inclusive selection
             if (!pEvent->reco.passesCCInclusive())
                 continue;
@@ -310,6 +335,7 @@ void PlotInputVariables(const Config &config)
     }
 
     // Save the plots
+    const std::string prefix = "CC0pi";
     for (unsigned int iFeature = 0; iFeature < featureNames.size(); ++iFeature)
     {
         const auto &featureName = featureNames.at(iFeature);
@@ -317,31 +343,31 @@ void PlotInputVariables(const Config &config)
         const bool useLogY = (featureName == "trackScore");
         const bool useLogX = (featureName == "wiggliness");
 
-        plotVector.at(iFeature).SaveAsStacked("inputVariables_" + featureName, useLogX, false, useLogY);
-        plotVectorSignal.at(iFeature).SaveAs("inputVariables_signal_" + featureName, useLogX, false, 0, useLogY);
+        plotVector.at(iFeature).SaveAsStacked("inputVariables_" + prefix + "_" + featureName, useLogX, false, useLogY);
+        plotVectorSignal.at(iFeature).SaveAs("inputVariables_signal_"  + prefix + "_" + featureName, useLogX, false, 0, useLogY);
     }
 
-    goldenPionBDTPlot.SaveAsStacked("inputVariables_goldenPionBDTResponse");
-    protonBDTPlot.SaveAsStacked("inputVariables_protonBDTResponse");
-    muonBDTPlot.SaveAsStacked("inputVariables_muonBDTResponse");
+    goldenPionBDTPlot.SaveAsStacked("inputVariables_goldenPionBDTResponse_" + prefix);
+    protonBDTPlot.SaveAsStacked("inputVariables_protonBDTResponse_" + prefix);
+    muonBDTPlot.SaveAsStacked("inputVariables_muonBDTResponse_" + prefix);
 
-    trackScoreWithDescendents.SaveAsStacked("inputVariables_trackScore-withDescendents", false, false, true);
-    trackScoreWithDescendentsSignal.SaveAs("inputVariables_trackScore-withDescendents_signal", false, false, 0, true);
-    trackScoreWithoutDescendents.SaveAsStacked("inputVariables_trackScore-withoutDescendents", false, false, true);
-    trackScoreWithoutDescendentsSignal.SaveAs("inputVariables_trackScore-withoutDescendents_signal", false, false, 0, true);
+    trackScoreWithDescendents.SaveAsStacked("inputVariables_trackScore-withDescendents_" + prefix, false, false, true);
+    trackScoreWithDescendentsSignal.SaveAs("inputVariables_trackScore-withDescendents_signal_" + prefix, false, false, 0, true);
+    trackScoreWithoutDescendents.SaveAsStacked("inputVariables_trackScore-withoutDescendents_" + prefix, false, false, true);
+    trackScoreWithoutDescendentsSignal.SaveAs("inputVariables_trackScore-withoutDescendents_signal_" + prefix, false, false, 0, true);
 
-    phiPlot.SaveAsStacked("inputVariables_phi");
-    cosThetaPlot.SaveAsStacked("inputVariables_cosTheta");
+    phiPlot.SaveAsStacked("inputVariables_phi_" + prefix);
+    cosThetaPlot.SaveAsStacked("inputVariables_cosTheta_" + prefix);
 
-    phiPlot.SaveAs("inputVariables_phi_unstacked", false, false, 500u);
-    cosThetaPlot.SaveAs("inputVariables_cosTheta_unstacked", false, false, 500u);
+    phiPlot.SaveAs("inputVariables_phi_unstacked_" + prefix, false, false, 500u);
+    cosThetaPlot.SaveAs("inputVariables_cosTheta_unstacked_" + prefix, false, false, 500u);
 
     auto pCanvas = PlottingHelper::GetCanvas();
     hPhiCosThetaSim->Draw("colz");
-    PlottingHelper::SaveCanvas(pCanvas, "inputVariables_phi-cosTheta");
+    PlottingHelper::SaveCanvas(pCanvas, "inputVariables_phi-cosTheta_" + prefix);
 
     hPhiCosThetaData->Draw("colz");
-    PlottingHelper::SaveCanvas(pCanvas, "inputVariables_phi-cosTheta_data");
+    PlottingHelper::SaveCanvas(pCanvas, "inputVariables_phi-cosTheta_data_" + prefix);
 }
 
 } // ubcc1pi macros

@@ -617,7 +617,7 @@ SelectionHelper::EventSelection SelectionHelper::GetCC0piSelection()
         {"max1Uncontained"},
         {"1NonProton", -0.06f},
         {"AtLeast1Proton", 0.1f},
-        // {"MuonLikeProton", -0.4f}, //todo: why?
+        {"MuonLikeProton", -0.4f}, //todo: why?
         {"protonHasValiddEdx", 1.0f},
         {"muonNotInGap"},
         {"protonNotInGap"},
@@ -757,7 +757,7 @@ SelectionHelper::EventSelection SelectionHelper::GetCC0piSelection()
 
             // Insist that the BDT response is greater than the cut value to identify the particle as a proton
             const auto bdtResponse = pProtonBDT->GetResponse(features);
-            if (bdtResponse >= protonBDTThresholdLow)// && bdtResponse <= protonBDTThresholdHigh) //todo: why? protonBDTThresholdHigh
+            if (bdtResponse >= protonBDTThresholdLow) // && bdtResponse <= protonBDTThresholdHigh) //todo: why? protonBDTThresholdHigh
             {
                 nProtons++;
                 protonIndices.push_back(i);
@@ -799,34 +799,34 @@ SelectionHelper::EventSelection SelectionHelper::GetCC0piSelection()
         //std::cout<<"CC0pi: AtLeast1Proton"<<std::endl;
 
         // std::cout<<"SelectionHelper::GetCC0piSelection - Point 6\n";
-        // // ----------------------------------------------------------------------------------
-        // // MuonLikeProton
-        // // ----------------------------------------------------------------------------------
-        // const auto muonBDTThreshold = cutTracker.GetCutValue("MuonLikeProton");
+        // ----------------------------------------------------------------------------------
+        // MuonLikeProton
+        // ----------------------------------------------------------------------------------
+        const auto muonBDTThreshold = cutTracker.GetCutValue("MuonLikeProton");
 
-        // // Leading proton must have a muon-like muon BDT score
-        // // Get the leading proton reco particle
+        // Leading proton must have a muon-like muon BDT score
+        // Get the leading proton reco particle
         const auto &leadingproton = recoParticles.at(leadingProtonIndex);
 
-        // // Get run the muon BDT
-        // std::vector<float> features;
-        // const auto hasFeatures = BDTHelper::GetBDTFeatures(leadingproton, BDTHelper::MuonBDTFeatureNames, features);
-        // if (!hasFeatures)
-        // {
-        //     return false;
-        // }
+        // Get run the muon BDT
+        std::vector<float> features;
+        const auto hasFeatures = BDTHelper::GetBDTFeatures(leadingproton, BDTHelper::MuonBDTFeatureNames, features);
+        if (!hasFeatures)
+        {
+            return false;
+        }
 
-        // // Insist that the BDT response is greater than the cut value
-        // const auto bdtResponsemu = pMuonBDT->GetResponse(features);
+        // Insist that the BDT response is greater than the cut value
+        const auto bdtResponsemu = pMuonBDT->GetResponse(features);
 
-        // if (bdtResponsemu < muonBDTThreshold)
-        // {
-        //     return false;
-        // }
+        if (bdtResponsemu < muonBDTThreshold)
+        {
+            return false;
+        }
 
-        // // Mark the cut "MuonLikeProton" as passed
-        // cutTracker.MarkCutAsPassed("MuonLikeProton");
-        // //std::cout<<"CC0pi: MuonLikeProton"<<std::endl;
+        // Mark the cut "MuonLikeProton" as passed
+        cutTracker.MarkCutAsPassed("MuonLikeProton");
+        //std::cout<<"CC0pi: MuonLikeProton"<<std::endl;
 
 
         // std::cout<<"SelectionHelper::GetCC0piSelection - Point 7\n";

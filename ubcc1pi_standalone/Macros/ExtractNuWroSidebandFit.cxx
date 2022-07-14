@@ -15,7 +15,7 @@
 #include "ubcc1pi_standalone/Helpers/FittingHelper.h"
 #include "ubsmear.h"
 
-#include <fstream> // Todo: not use txt files
+// #include <fstream> // Todo: not use txt files
 
 // Boost libraries
 // #include "binary_iarchive.hpp"
@@ -31,14 +31,12 @@ bool underflowNuWro, overflowNuWro;
 
 //______________________________________________________________________________
 
-void fcnNuWro(Int_t &npar, Double_t *gin, Double_t &f, Double_t *par, Int_t iflag)
+void GetChi2NuWro(Int_t &npar, Double_t *gin, Double_t &f, Double_t *par, Int_t iflag)
 {
     //calculate chi2
     if(xNuWro.size()!=yNuWro.size() || yNuWro.size()!=errorYNuWro.size() || xNuWro.size()*xNuWro.size()!=SNuWro.size())
         throw std::logic_error("Fitting function for ExtractNuWroSidebandFit - Incompatible input dimenstions.");
 
-    Double_t chisq = 0;
-    Double_t delta;
     Int_t nBins = xNuWro.size();
     
     std::vector<Double_t> xScaled(xNuWro.begin(), xNuWro.end()); 
@@ -49,25 +47,55 @@ void fcnNuWro(Int_t &npar, Double_t *gin, Double_t &f, Double_t *par, Int_t ifla
     
     std::vector<Double_t> xSmeared(nBins, 0);
 
+    std::cout<<"SNuWro: "<<std::endl;
     for (Int_t i=0; i<nBins; i++)
     {
         for (Int_t j=0; j<nBins; j++)
         {
             xSmeared[i] +=  SNuWro[i*nBins+j]*xScaled[j];
+            std::cout<<SNuWro[i*nBins+j]<<" ";
         }
+        std::cout<<std::endl;
     }
+
+    std::cout<<"xSmeared: "<<std::endl;
+    for (Int_t i=0; i<nBins; i++) std::cout<<xSmeared[i]<<" ";
+    std::cout<<std::endl;
+
+    std::cout<<"xScaled: "<<std::endl;
+    for (Int_t i=0; i<nBins; i++) std::cout<<xScaled[i]<<" ";
+    std::cout<<std::endl;
+
+    std::cout<<"par: "<<std::endl;
+    for (Int_t i=0; i<nBins; i++) std::cout<<par[i]<<" ";
+    std::cout<<std::endl;
+
+    std::cout<<"xNuWro: "<<std::endl;
+    for (Int_t i=0; i<nBins; i++) std::cout<<xNuWro[i]<<" ";
+    std::cout<<std::endl;
+
+    std::cout<<"yNuWro: "<<std::endl;
+    for (Int_t i=0; i<nBins; i++) std::cout<<yNuWro[i]<<" ";
+    std::cout<<std::endl;
+
+    std::cout<<"errorYNuWro: "<<std::endl;
+    for (Int_t i=0; i<nBins; i++) std::cout<<errorYNuWro[i]<<" ";
+    std::cout<<std::endl;
+
     // const auto xSmeared = S*xScaled;
 
     Int_t relevantBinsMax = overflowNuWro ? nBins-1 : nBins;
     Int_t relevantBinsMin = underflowNuWro ? 1 : 0;
-
+    
+    Double_t chisq = 0;
     for (Int_t i=relevantBinsMin; i<relevantBinsMax; i++) 
     {
-        delta  = (yNuWro[i]-xSmeared[i])/errorYNuWro[i];
+        auto delta = (yNuWro[i]-xSmeared[i])/errorYNuWro[i];
         chisq += delta*delta;
     }
 
     f = chisq;
+    std::cout<<"f: "<<f<<std::endl;
 }
 
 namespace ubcc1pi_macros
@@ -166,10 +194,6 @@ void ExtractNuWroSidebandFit(const Config &config)
         const auto &[extendedBinEdges, hasUnderflow, hasOverflow] = CrossSectionHelper::GetExtendedBinEdges(binning.min, binning.max, binning.binEdges);
         for (const auto &selectionName : {"generic"})
         {
-            std::cout<<"selectionName: "<<selectionName<<" - name: "<<name<<" - extendedBinEdges: ";
-            for(const auto &edge: extendedBinEdges) std::cout<<edge<<" ";
-            std::cout<<"\n - hasUnderflow"<<hasUnderflow<<" - hasOverflow"<<hasOverflow<<std::endl;
-
             // Don't setup a cross-section object if it's been disabled in the configuration
             if (config.extractXSecs.crossSectionIsEnabled.at(selectionName).at(name))
             {
@@ -190,38 +214,14 @@ void ExtractNuWroSidebandFit(const Config &config)
         // Don't setup a cross-section object if it's been disabled in the configuration
         if (config.extractXSecs.crossSectionIsEnabled.at(selectionName).at("total"))
         {
-            // xsecMap[selectionName].emplace("total", CrossSectionHelper::CrossSection(systParams, {-1.f, 1.f}, false, false, false));
             xsecMapSidebandData[selectionName].emplace("total", CrossSectionHelper::CrossSection(systParams, {-1.f, 1.f}, false, false, false));
             xsecMapSidebandNuWro[selectionName].emplace("total", CrossSectionHelper::CrossSection(systParams, {-1.f, 1.f}, false, false, false));
             xsecMapSidebandNuWroTrue[selectionName].emplace("total", CrossSectionHelper::CrossSection(systParams, {-1.f, 1.f}, false, false, false));
-            // xsecMapSideband2[selectionName].emplace("total", CrossSectionHelper::CrossSection(systParams, {-1.f, 1.f}, false, false, false));
         }
     }
-    // Don't setup a cross-section object if it's been disabled in the configuration
-    // if (config.extractXSecs.crossSectionIsEnabled.at("sideband").at("total"))
-    //     xsecMapSideband["sideband"].emplace("total", CrossSectionHelper::CrossSection(systParams, {-1.f, 1.f}, false, false, false));
 
     // The dummy value that will be used as the "kinematic quantity" for the total cross-section
     const auto dummyValue = 0.f;
-
-    // // Check to see if we have any cross-sections enabled
-    // if (xsecMap.empty())
-    // {
-    //     std::cout << "All cross-sections have been disabled in the configuration! Nothing more to do" << std::endl;
-    //     return;
-    // }
-
-    // // Print the names of the cross-sections we are going to extract
-    // std::cout << "The following cross-sections are enabled:" << std::endl;
-    // for (const auto &[selectionName, xsecs] : xsecMap)
-    // {
-    //     std::cout << "  - Selection: " << selectionName << std::endl;
-    //     for (const auto &entry : xsecs)
-    //     {
-    //         const auto &name = entry.first;
-    //         std::cout << "    - " << name << std::endl;
-    //     }
-    // }
 
     // -------------------------------------------------------------------------------------------------------------------------------------
     // Setup the relevent "getters" for each the sideband
@@ -246,65 +246,62 @@ void ExtractNuWroSidebandFit(const Config &config)
     getSidebandValue.emplace("total", [=](const auto &) { return dummyValue; });
 
 
+    // -------------------------------------------------------------------------------------------------------------------------------------
+    // Setup the input files
+    // -------------------------------------------------------------------------------------------------------------------------------------
+    // Here we define a vector of tuples with 4 entries
+    //   - First, the sample type (e.g. overlay)
+    //   - Second, a string which is used to identify a given detector variation sample (for other sample type, this is unused)
+    //   - Third, the path to the input file
+    //   - Fourth, the normalisation factor to apply to all events in that file
     const auto fluxHistNames = CrossSectionHelper::GetNominalFluxHistNames(config.flux.nuPdgsSignal, config.flux.nuPdgToHistName, config.flux.nomHistPattern);
     const auto &[fluxBinEdges, fluxValues] = CrossSectionHelper::ReadNominalFlux(config.flux.fileName, fluxHistNames, config.flux.pot);
     scalingData.pFluxReweightor = std::make_shared<CrossSectionHelper::FluxReweightor>(fluxBinEdges, fluxValues, systParams.fluxDimensions);
     float totalExposurePOT = 0;
     std::vector< std::tuple<AnalysisHelper::SampleType, std::string, std::string, float> > inputData;
-    for (const auto run: config.global.runs)
-    {
-        // -------------------------------------------------------------------------------------------------------------------------------------
-        // Setup the input files
-        // -------------------------------------------------------------------------------------------------------------------------------------
-        // Here we define a vector of tuples with 4 entries
-        //   - First, the sample type (e.g. overlay)
-        //   - Second, a string which is used to identify a given detector variation sample (for other sample type, this is unused)
-        //   - Third, the path to the input file
-        //   - Fourth, the normalisation factor to apply to all events in that file
-        if(run == 1)
-        {
-            inputData.emplace_back(AnalysisHelper::Overlay, "", config.filesRun1.overlaysFileName, NormalisationHelper::GetOverlaysNormalisation(config, 1));
-            inputData.emplace_back(AnalysisHelper::Dirt,    "", config.filesRun1.dirtFileName, NormalisationHelper::GetDirtNormalisation(config, 1));
-            inputData.emplace_back(AnalysisHelper::DataEXT, "", config.filesRun1.dataEXTFileName, NormalisationHelper::GetDataEXTNormalisation(config, 1));
-            inputData.emplace_back(AnalysisHelper::NuWro,   "", config.filesRun1.nuWroFileName, NormalisationHelper::GetNuWroNormalisation(config, 1));
-            inputData.emplace_back(AnalysisHelper::DataBNB, "", config.filesRun1.dataBNBFileName, 1.f);
-            // Add the detector variation files
-            for (const auto &[name, fileName] : config.filesRun1.detVarFiles)
-            {
-                inputData.emplace_back(AnalysisHelper::DetectorVariation, name, fileName, NormalisationHelper::GetDetectorVariationNormalisation(config, name, 1));
-            }
-            totalExposurePOT += config.normsRun1.dataBNBTor875WCut / (1e20);
-        }
-        else if(run == 2)
-        {
-            inputData.emplace_back(AnalysisHelper::Overlay, "", config.filesRun2.overlaysFileName, NormalisationHelper::GetOverlaysNormalisation(config, 2));
-            inputData.emplace_back(AnalysisHelper::Dirt,    "", config.filesRun2.dirtFileName, NormalisationHelper::GetDirtNormalisation(config, 2));
-            inputData.emplace_back(AnalysisHelper::DataEXT, "", config.filesRun2.dataEXTFileName, NormalisationHelper::GetDataEXTNormalisation(config, 2));
-            inputData.emplace_back(AnalysisHelper::NuWro,   "", config.filesRun2.nuWroFileName, NormalisationHelper::GetNuWroNormalisation(config, 2));
-            inputData.emplace_back(AnalysisHelper::DataBNB, "", config.filesRun2.dataBNBFileName, 2.f);
-            // Add the detector variation files
-            for (const auto &[name, fileName] : config.filesRun2.detVarFiles)
-            {
-                inputData.emplace_back(AnalysisHelper::DetectorVariation, name, fileName, NormalisationHelper::GetDetectorVariationNormalisation(config, name, 2));
-            }
-            totalExposurePOT += config.normsRun2.dataBNBTor875WCut / (1e20);
-        }
-        else if(run == 3)
-        {
-            inputData.emplace_back(AnalysisHelper::Overlay, "", config.filesRun3.overlaysFileName, NormalisationHelper::GetOverlaysNormalisation(config, 3));
-            inputData.emplace_back(AnalysisHelper::Dirt,    "", config.filesRun3.dirtFileName, NormalisationHelper::GetDirtNormalisation(config, 3));
-            inputData.emplace_back(AnalysisHelper::DataEXT, "", config.filesRun3.dataEXTFileName, NormalisationHelper::GetDataEXTNormalisation(config, 3));
-            inputData.emplace_back(AnalysisHelper::NuWro,   "", config.filesRun3.nuWroFileName, NormalisationHelper::GetNuWroNormalisation(config, 1));
-            inputData.emplace_back(AnalysisHelper::DataBNB, "", config.filesRun3.dataBNBFileName, 3.f);
 
-            // Add the detector variation files
-            for (const auto &[name, fileName] : config.filesRun3.detVarFiles)
-            {
-                inputData.emplace_back(AnalysisHelper::DetectorVariation, name, fileName, NormalisationHelper::GetDetectorVariationNormalisation(config, name, 3));
-            }
-            totalExposurePOT += config.normsRun3.dataBNBTor875WCut / (1e20);
+    if(std::binary_search(config.global.runs.begin(), config.global.runs.end(), 1))
+    {
+        inputData.emplace_back(AnalysisHelper::Overlay, "", config.filesRun1.overlaysFileName, NormalisationHelper::GetOverlaysNormalisation(config, 1));
+        inputData.emplace_back(AnalysisHelper::Dirt,    "", config.filesRun1.dirtFileName, NormalisationHelper::GetDirtNormalisation(config, 1));
+        inputData.emplace_back(AnalysisHelper::DataEXT, "", config.filesRun1.dataEXTFileName, NormalisationHelper::GetDataEXTNormalisation(config, 1));
+        inputData.emplace_back(AnalysisHelper::NuWro,   "", config.filesRun1.nuWroFileName, NormalisationHelper::GetNuWroNormalisation(config, 1));
+        inputData.emplace_back(AnalysisHelper::DataBNB, "", config.filesRun1.dataBNBFileName, 1.f);
+        // Add the detector variation files
+        for (const auto &[name, fileName] : config.filesRun1.detVarFiles)
+        {
+            inputData.emplace_back(AnalysisHelper::DetectorVariation, name, fileName, NormalisationHelper::GetDetectorVariationNormalisation(config, name, 1));
         }
-        else throw std::logic_error("ExtractNuWroSidebandFit - Invalid run number");
+        totalExposurePOT += config.normsRun1.dataBNBTor875WCut / (1e20);
+    }
+    if(std::binary_search(config.global.runs.begin(), config.global.runs.end(), 2))
+    {
+        inputData.emplace_back(AnalysisHelper::Overlay, "", config.filesRun2.overlaysFileName, NormalisationHelper::GetOverlaysNormalisation(config, 2));
+        inputData.emplace_back(AnalysisHelper::Dirt,    "", config.filesRun2.dirtFileName, NormalisationHelper::GetDirtNormalisation(config, 2));
+        inputData.emplace_back(AnalysisHelper::DataEXT, "", config.filesRun2.dataEXTFileName, NormalisationHelper::GetDataEXTNormalisation(config, 2));
+        inputData.emplace_back(AnalysisHelper::NuWro,   "", config.filesRun2.nuWroFileName, NormalisationHelper::GetNuWroNormalisation(config, 2));
+        inputData.emplace_back(AnalysisHelper::DataBNB, "", config.filesRun2.dataBNBFileName, 1.f);
+        // Add the detector variation files
+        for (const auto &[name, fileName] : config.filesRun2.detVarFiles)
+        {
+            inputData.emplace_back(AnalysisHelper::DetectorVariation, name, fileName, NormalisationHelper::GetDetectorVariationNormalisation(config, name, 2));
+        }
+        totalExposurePOT += config.normsRun2.dataBNBTor875WCut / (1e20);
+    }
+    if(std::binary_search(config.global.runs.begin(), config.global.runs.end(), 3))
+    {
+        inputData.emplace_back(AnalysisHelper::Overlay, "", config.filesRun3.overlaysFileName, NormalisationHelper::GetOverlaysNormalisation(config, 3));
+        inputData.emplace_back(AnalysisHelper::Dirt,    "", config.filesRun3.dirtFileName, NormalisationHelper::GetDirtNormalisation(config, 3));
+        inputData.emplace_back(AnalysisHelper::DataEXT, "", config.filesRun3.dataEXTFileName, NormalisationHelper::GetDataEXTNormalisation(config, 3));
+        inputData.emplace_back(AnalysisHelper::NuWro,   "", config.filesRun3.nuWroFileName, NormalisationHelper::GetNuWroNormalisation(config, 3));
+        inputData.emplace_back(AnalysisHelper::DataBNB, "", config.filesRun3.dataBNBFileName, 1.f);
+
+        // Add the detector variation files
+        for (const auto &[name, fileName] : config.filesRun3.detVarFiles)
+        {
+            inputData.emplace_back(AnalysisHelper::DetectorVariation, name, fileName, NormalisationHelper::GetDetectorVariationNormalisation(config, name, 3));
+        }
+        totalExposurePOT += config.normsRun3.dataBNBTor875WCut / (1e20);
     }
     
     scalingData.exposurePOT = totalExposurePOT;
@@ -327,23 +324,30 @@ void ExtractNuWroSidebandFit(const Config &config)
         const auto isOverlay = (sampleType == AnalysisHelper::Overlay);
         const auto isDirt    = (sampleType == AnalysisHelper::Dirt);
         const auto isNuWro   = (sampleType == AnalysisHelper::NuWro);
-        const auto isDetVar  = (sampleType == AnalysisHelper::DetectorVariation);
         const auto isDataBNB = (sampleType == AnalysisHelper::DataBNB);
+        const auto isDetVar  = (sampleType == AnalysisHelper::DetectorVariation);
         const auto isDataEXT = (sampleType == AnalysisHelper::DataEXT);
 
-        if(isDetVar) continue; //Todo Remove!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+        if(isDetVar) continue; // Todo: Remove!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
         // Open the input file for reading and enable the branches with systematic event weights (if required)
         FileReader reader(fileName);
 
-        if (isOverlay || isNuWro)
+        if (isOverlay || isNuWro) // Todo: Is isNuWro needed ?
             reader.EnableSystematicBranches();
 
         auto pEvent = reader.GetBoundEventAddress();
 
         // Loop over the events in the file
         const auto nEvents = reader.GetNumberOfEvents();
-        for (unsigned int i = 0; i < nEvents; ++i)
+
+        //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+        //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+        //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+        //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+        //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+        //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+        for (unsigned int i = 0; i < nEvents; i+=1)
         {
             AnalysisHelper::PrintLoadingBar(i, nEvents);
             reader.LoadEvent(i);
@@ -380,7 +384,6 @@ void ExtractNuWroSidebandFit(const Config &config)
                     if (value < min || value > max)
                     {
                         passesPhaseSpaceReco = false;
-                        // std::cout << "Event failed reco phase-space cuts" << std::endl;
                         break;
                     }
                 }
@@ -389,10 +392,6 @@ void ExtractNuWroSidebandFit(const Config &config)
             const auto isSelectedSideband = passedSidebandSelection && passesPhaseSpaceReco;
             // std::map<std::string, bool> isSelectedMap = {{"sideband",isSelectedSideband}};
             std::map<std::string, bool> isSelectedMap = {{"generic",isSelectedSideband},{"golden",isSelectedSideband}};
-
-            // -----------------------------------------------------------------------------------------------------------------------------
-            // Work out if this event is signal, and apply any phase-space restrictions based on the input binning
-            // -----------------------------------------------------------------------------------------------------------------------------
 
             // -----------------------------------------------------------------------------------------------------------------------------
             // Handle BNB data
@@ -442,6 +441,10 @@ void ExtractNuWroSidebandFit(const Config &config)
             }
 
 
+            // -----------------------------------------------------------------------------------------------------------------------------
+            // Work out if this event is signal, and apply any phase-space restrictions based on the input binning
+            // -----------------------------------------------------------------------------------------------------------------------------
+
             // Determine if this is truly a CC0Pi event
             const auto isTrueCC0Pi = (isOverlay || isDetVar || isNuWro) && AnalysisHelper::IsTrueCC0Pi(pEvent, config.global.useAbsPdg, config.global.protonMomentumThreshold);
 
@@ -470,7 +473,6 @@ void ExtractNuWroSidebandFit(const Config &config)
 
                     if (value < min || value > max)
                     {
-                        // std::cout << "Event failed truth phase-space cuts - name: "<<name<<" - min: "<<min<<" - value: "<<value<<" - max: "<<max << std::endl;                        
                         passesPhaseSpaceTruth = false;
                         break;
                     }
@@ -575,14 +577,12 @@ void ExtractNuWroSidebandFit(const Config &config)
                         const auto trueValue = getSidebandValue.at(name)(truthData);
                         const auto seedString =  selectionName + name + std::to_string(i);
                         if(isNuWro)
-                        { 
-                            // std::cout<<"!isOverlay - name"<<name<<" - weight: "<<weight<<" - isSelected: "<< isSelected<<" - recoValue: "<<recoValue<<" - trueValue: "<<trueValue<<std::endl;
+                        {
                             xsecMapSidebandNuWroTrue.at(selectionName).at(name).AddSignalEvent(recoValue, trueValue, isSelected, weight, fluxWeights, xsecWeights, reintWeights, seedString);
                         } else
                         {
                             if(isOverlay) // Genie MC for NuWro (no EXT or dirt events in NuWro)
                             {
-                                // std::cout<<"!isNuWro - name"<<name<<" - weight: "<<weight<<" - isSelected: "<< isSelected<<" - recoValue: "<<recoValue<<" - trueValue: "<<trueValue<<std::endl;
                                 xsec.AddSignalEvent(recoValue, trueValue, isSelected, weight, fluxWeights, xsecWeights, reintWeights, seedString);
                             }
                             if(isOverlay || isDataEXT || isDirt) // Genie MC for Data
@@ -601,7 +601,7 @@ void ExtractNuWroSidebandFit(const Config &config)
                         const auto seedString =  selectionName + name + std::to_string(i);
                         std::vector<float> bootstrapWeights; // Parameter only needed for CC1pi
                         if(isNuWro)
-                        { 
+                        {
                             xsecMapSidebandNuWroTrue.at(selectionName).at(name).AddSelectedBackgroundEvent(recoValue, false, weight, fluxWeights, xsecWeights, reintWeights, bootstrapWeights, seedString);
                         }else
                         {
@@ -615,7 +615,7 @@ void ExtractNuWroSidebandFit(const Config &config)
                             }
                         }
                     }
-                }   
+                }
             }
         }
     }
@@ -627,14 +627,14 @@ void ExtractNuWroSidebandFit(const Config &config)
     // Calculate the sideband weights
     // -------------------------------------------------------------------------------------------------------------------------------------
     // Loop over all cross-section objects
-    typedef std::pair<std::vector<Double_t>,std::vector<Double_t>> paramAndErrorPair; // Todo: Improve code!
+    typedef std::pair<std::vector<Double_t>, std::vector<Double_t>> paramAndErrorPair; // Todo: Improve code!
     //Parameters: selectionName name
     std::map<std::string,std::map<std::string, std::vector<float>>> cc0piCovarianceMapData, cc0piCovarianceMapNuWro; 
     std::map<std::string, std::map<std::string, paramAndErrorPair>> cc0piNominalConstraintMapData, cc0piNominalConstraintMapNuWro;
     //Parameters: selectionName name paramName (i.e. golden muonMomentum hadronProduction)
     std::map<std::string, std::map<std::string, std::map<std::string, std::vector<paramAndErrorPair>>>> cc0piUniverseConstraintMapData, cc0piUniverseConstraintMapNuWro;
     
-    for (const auto &[dataTypeName, xsecMap] : {std::make_pair(std::string("NuWro"),xsecMapSidebandNuWro), std::make_pair(std::string("Data"),xsecMapSidebandData)})
+    for (const auto &[dataTypeName, xsecMap] : {std::make_pair(std::string("NuWro"), xsecMapSidebandNuWro), std::make_pair(std::string("Data"), xsecMapSidebandData)})
     {
         for (const auto &[selectionName, xsecs] : xsecMap)
         {
@@ -656,12 +656,12 @@ void ExtractNuWroSidebandFit(const Config &config)
                 const auto eventsSignalTruth = xsec.GetSignalEvents();
                 auto signalData = selectedEventsData - selectedEventsBackgroundReco;
 
-                FormattingHelper::SaveMatrix(eventsSignalTruth, "NuWroSidebandFit_" + selectionName + "_" + name + "_eventsSignalTruth.txt");
-                FormattingHelper::SaveMatrix(selectedEventsSignalTruth, "NuWroSidebandFit_" + selectionName + "_" + name + "_selectedEventsSignalTruth.txt");
-                FormattingHelper::SaveMatrix(selectedEventsData, "NuWroSidebandFit_" + selectionName + "_" + name + "_selectedEventsData.txt");
-                FormattingHelper::SaveMatrix(selectedEventsBackgroundReco, "NuWroSidebandFit_" + selectionName + "_" + name + "_selectedEventsBackgroundReco.txt");
-                FormattingHelper::SaveMatrix(smearingMatrix, "NuWroSidebandFit_" + selectionName + "_" + name + "_smearingMatrix.txt");
-                FormattingHelper::SaveMatrix(smearingMatrixGeneral, "NuWroSidebandFit_" + selectionName + "_" + name + "_smearingMatrixGeneral.txt");
+                FormattingHelper::SaveMatrix(eventsSignalTruth, dataTypeName + "SidebandFit_" + selectionName + "_" + name + "_eventsSignalTruth.txt");
+                FormattingHelper::SaveMatrix(selectedEventsSignalTruth, dataTypeName + "SidebandFit_" + selectionName + "_" + name + "_selectedEventsSignalTruth.txt");
+                FormattingHelper::SaveMatrix(selectedEventsData, dataTypeName + "SidebandFit_" + selectionName + "_" + name + "_selectedEventsData.txt");
+                FormattingHelper::SaveMatrix(selectedEventsBackgroundReco, dataTypeName + "SidebandFit_" + selectionName + "_" + name + "_selectedEventsBackgroundReco.txt");
+                FormattingHelper::SaveMatrix(smearingMatrix, dataTypeName + "SidebandFit_" + selectionName + "_" + name + "_smearingMatrix.txt");
+                FormattingHelper::SaveMatrix(smearingMatrixGeneral, dataTypeName + "SidebandFit_" + selectionName + "_" + name + "_smearingMatrixGeneral.txt");
 
 
                 for(unsigned int r = 0; r<signalData.GetRows(); r++) // DEBUG - TODO: REMOVE !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -681,14 +681,13 @@ void ExtractNuWroSidebandFit(const Config &config)
                 // std::cout<<"_______________________Fitting Point 1.1"<<std::endl;
                 for (unsigned int iBin = 0; iBin < nBins; ++iBin)
                 {
-                    // std::cout<<"_______________________Fitting Point 1.2"<<std::endl;
                     const auto value = selectedEventsData.At(iBin, 0);
                     if (value<0)
                     {
                         std::cout<<"ERROR: ExtractXSec - Background-removed signal data is negative."<<std::endl;
                         // throw std::logic_error("ERROR: ExtractXSec - Background-removed signal data is negative."); // TODO: Uncomment
                     }
-                    elements.push_back(AnalysisHelper::GetCountUncertainty(std::max(value,0.f)));
+                    elements.push_back(AnalysisHelper::GetCountUncertainty(std::max(value,0.f))); //TODO: Check if this is correct
                 }
                 
                 xNuWro = selectedEventsSignalTruth.GetValues();
@@ -696,35 +695,14 @@ void ExtractNuWroSidebandFit(const Config &config)
                 errorYNuWro = elements;//signalDataUncertainty.GetValues();
                 underflowNuWro = false; //xsec.HasUnderflow(); //Also fit under and overflow bins
                 overflowNuWro = false; //xsec.HasOverflow();
-                SNuWro = smearingMatrix.GetValues();
-
-                // std::cout<<"\nxNuWro (selectedEventsSignalTruth): \n";
-                // for (const auto &xValue : xNuWro)
-                //     std::cout<<xValue<<" ";
-
-                // std::cout<<"\nyNuWro (signalData): \n";
-                // for (const auto &yValue : yNuWro)
-                //     std::cout<<yValue<<" ";
-
-                // std::cout<<"\nerrorYNuWro (signalDataUncertainty): \n";
-                // for (const auto &errorYValue : errorYNuWro)
-                //     std::cout<<errorYValue<<" ";
-
-                // std::cout<<"\nSmearing matrix: \n";
-                // for(unsigned int i = 0; i<SNuWro.size(); i++)
-                // {
-                //     if(i%nBins==0)
-                //         std::cout<<"\n";
-                //     std::cout<<SNuWro[i]<<" ";
-                // }
-                
+                SNuWro = smearingMatrix.GetValues();                
 
                 auto minimizer = FittingHelper(nBins);
                 std::pair<std::vector<Double_t>, std::vector<Double_t>> result;
                 
                 std::vector<float> fitCovMatrixVector;
                 bool successful = false;
-                minimizer.Fit(fcnNuWro, result, successful, fitCovMatrixVector, 0);
+                minimizer.Fit(GetChi2NuWro, result, successful, fitCovMatrixVector, 0);
                 if(!successful)
                 {
                     std::cout<<"ERROR: ExtractXSec - Fit failed."<<std::endl;
@@ -749,7 +727,7 @@ void ExtractNuWroSidebandFit(const Config &config)
                 vector<float> paramVector(result.first.begin(), result.first.end()); //Todo avoid this
                 vector<float> paramErrorVector(result.second.begin(), result.second.end()); //Todo avoid this
                 const ubsmear::UBMatrix sidebandParamVectorTruth(paramVector, nBins, 1);
-                const ubsmear::UBMatrix sidebandErrorVectorTruth(paramErrorVector, nBins, 1); 
+                const ubsmear::UBMatrix sidebandErrorVectorTruth(paramErrorVector, nBins, 1);
                 FormattingHelper::SaveMatrix(sidebandParamVectorTruth, dataTypeName + "SidebandFit_" + selectionName + "_" + name + "_sideband_parameterVector.txt");
                 FormattingHelper::SaveMatrix(sidebandErrorVectorTruth, dataTypeName + "SidebandFit_" + selectionName + "_" + name + "_sideband_parameterErrorVector.txt");
 
@@ -766,6 +744,8 @@ void ExtractNuWroSidebandFit(const Config &config)
                     throw std::logic_error("ERROR: Unknown dataTypeName");
                 }
 
+                continue; // todo REMOVE; Just for debugging!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
                 // const auto sidebandWeights = xsec.GetSidebandWeights(scalingData);
                 const auto weightDimensions = {std::make_pair("xsec", systParams.xsecDimensions), std::make_pair("reint", systParams.reintDimensions), std::make_pair("flux", systParams.fluxDimensions)};
                 for (const auto &[group, dimensions] : weightDimensions)
@@ -776,8 +756,6 @@ void ExtractNuWroSidebandFit(const Config &config)
                         // Fit each universe
                         // -------------------------------------------------------------------------------------------------------------------------------------
 
-                        // const auto nUniverses = config.extractXSecs.nBootstrapUniverses;
-
                         std::vector<paramAndErrorPair> resultVector;
                         for (unsigned int iUni = 0; iUni < nUniverses; ++iUni)
                         {
@@ -785,10 +763,10 @@ void ExtractNuWroSidebandFit(const Config &config)
                             const auto selectedSignalTruthUniverses = xsec.GetSelectedSignalRecoTruthMap().at(group).at(paramName).at(iUni);
                             const auto selectedBackgroundRecoUniverses = xsec.GetSelectedBackgroundRecoMap().at(group).at(paramName).at(iUni);
                             std::pair<std::vector<Double_t>, std::vector<Double_t>> result;
-                            const auto p_smearingMatrixInUniverse = xsec.GetSmearingMatrixInUniverseAllSelected(group, paramName, iUni);//xsec.GetSmearingMatrixAllSelected();
-                            if(p_smearingMatrixInUniverse)
+                            const auto pSmearingMatrixInUniverse = xsec.GetSmearingMatrixInUniverseAllSelected(group, paramName, iUni);//xsec.GetSmearingMatrixAllSelected();
+                            if(pSmearingMatrixInUniverse)
                             {
-                                auto smearingMatrixInUniverse = *p_smearingMatrixInUniverse;
+                                auto smearingMatrixInUniverse = *pSmearingMatrixInUniverse;
 
                                 // AnalysisHelper::PrintLoadingBar(iUni, nUniverses);
                                 const auto selectedSignalTruthInUniverse = xsec.GetSignalSelectedTrue(selectedSignalTruthUniverses);
@@ -813,9 +791,13 @@ void ExtractNuWroSidebandFit(const Config &config)
                                 //overflow variable same as nominal
                                 // errorY = elements;
                                 std::vector<float> covMatrixInUniverse;
-
                                 bool successful = false;
-                                minimizer.Fit(fcnNuWro, result, successful, covMatrixInUniverse, 0);
+                                minimizer.Fit(GetChi2NuWro, result, successful, covMatrixInUniverse, 0);
+				                if(!successful)
+				                {
+                                    std::cout<<"Fit not possible - Minimization failed."<<std::endl;
+                                    result = std::make_pair(std::vector<Double_t>(nBins, -1), std::vector<Double_t>(nBins, -1));
+				                }
                             }
                             else
                             {

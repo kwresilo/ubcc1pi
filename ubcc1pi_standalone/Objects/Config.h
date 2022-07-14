@@ -463,10 +463,10 @@ struct Config
         // Additional plots requested by EB
         // TODO: Values are only placeholders 
         Binning protonCosTheta {
-            -1.f,                                                                              // min
-             1.f,                                                                              // max
-            {-1.f, -0.27f, 0.29f, 0.46f, 0.58f, 0.67f, 0.77f, 0.82f, 0.88f, 0.93f, 0.97f, 1.f} // binEdges
-        }; ///< The protonCosTheta binning
+            -1.f,                                                // min
+             1.f,                                                // max
+            {-1.f, -0.47f, 0.f, 0.39f, 0.65f, 0.84f, 0.93f, 1.f} // binEdges
+        };  ///< The protonCosTheta binning
 
         Binning protonPhi {
             -3.142f,                                                     // min
@@ -477,7 +477,7 @@ struct Config
         Binning protonMomentum {
             0.1f,                                    // min
             1.8f,        // max
-            {0.15f, 0.23f, 0.32f, 0.45f, 0.66f, 1.5f} // binEdges
+            {0.1f, 0.23f, 0.32f, 0.45f, 0.66f, 1.3f} // binEdges
         }; ///< The protonMomentum binning
 
         Binning protonPionAngle {
@@ -502,7 +502,7 @@ struct Config
      */
     struct CountPOT
     {
-        bool  useOverlays           = false; ///< If we should count the POT for the overlays
+        bool  useOverlays           = true; ///< If we should count the POT for the overlays
         bool  useDirt               = false; ///< If we should count the POT for the dirt
         bool  useDetectorVariations = false; ///< If we should count the POT for the detector variations
         bool  useNuWro              = true; ///< If we should count the POT for NuWro
@@ -637,12 +637,12 @@ struct Config
                 "generic", {
                     {"total",         true },
                     {"muonCosTheta",  true },
-                    {"muonPhi",       true },
-                    {"muonMomentum",  true },
-                    {"pionCosTheta",  true },
-                    {"pionPhi",       true },
-                    {"pionMomentum",  true },
-                    {"muonPionAngle", true },
+                    {"muonPhi",       false },
+                    {"muonMomentum",  false },
+                    {"pionCosTheta",  false },
+                    {"pionPhi",       false },
+                    {"pionMomentum",  false },
+                    {"muonPionAngle", false },
                     {"nProtons",      true }
                 }
             },

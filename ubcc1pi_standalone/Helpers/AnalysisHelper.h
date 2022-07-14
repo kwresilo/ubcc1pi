@@ -32,6 +32,7 @@ class AnalysisHelper
             DataBNB,
             DataEXT,
             Overlay,
+            NuWro,
             Dirt,
             DetectorVariation
         };

@@ -30,7 +30,10 @@ namespace ubcc1pi_macros
 void SecondaryInteractionsStudy(const Config &config)
 {
     // Open the file
-    FileReader reader(config.files.overlaysFileName);
+    // const std::string prefix = "NuWro";
+    // FileReader reader(config.filesRun1.nuWroFileName);
+    const std::string prefix = "Overlay";
+    FileReader reader(config.filesRun1.overlaysFileName);
     auto pEvent = reader.GetBoundEventAddress();
     const auto nEvents = reader.GetNumberOfEvents();
 
@@ -318,8 +321,8 @@ void SecondaryInteractionsStudy(const Config &config)
         throw std::logic_error("SecondaryInteractionsStudy - No pions from CC1Pi events found");
 
     // Make the momentum plots
-    pionMomentumPlot_endState.SaveAsStacked("secondaryInteractions_pionMomentum_endStates");
-    pionEndMomentumPlot_endState.SaveAsStacked("secondaryInteractions_pionEndMomentum_endStates");
+    pionMomentumPlot_endState.SaveAsStacked("secondaryInteractions_" + prefix + "pionMomentum_endStates");
+    pionEndMomentumPlot_endState.SaveAsStacked("secondaryInteractions_" + prefix + "pionEndMomentum_endStates");
 
     // Setup the output canvas for the remaining plots
     auto pCanvas = PlottingHelper::GetCanvas();
@@ -334,53 +337,53 @@ void SecondaryInteractionsStudy(const Config &config)
     pionMomentumResolutionPlots.at("contained")->Draw("hist same");
     pionMomentumResolutionPlots.at("contained-stopping")->Draw("hist same");
     pionMomentumResolutionPlots.at("contained-stopping-noScatters")->Draw("hist same");
-    PlottingHelper::SaveCanvas(pCanvas, "secondaryInteractions_pionMomentumResolution_range");
+    PlottingHelper::SaveCanvas(pCanvas, "secondaryInteractions_" + prefix + "pionMomentumResolution_range");
 
     PlottingHelper::SetLineStyle(muonMomentumResolutionPlots.at("all_range"), PlottingHelper::Primary);
     PlottingHelper::SetLineStyle(muonMomentumResolutionPlots.at("contained_range"), PlottingHelper::Secondary);
     muonMomentumResolutionPlots.at("all_range")->Draw("hist");
     muonMomentumResolutionPlots.at("contained_range")->Draw("hist same");
-    PlottingHelper::SaveCanvas(pCanvas, "secondaryInteractions_muonMomentumResolution_range");
+    PlottingHelper::SaveCanvas(pCanvas, "secondaryInteractions_" + prefix + "muonMomentumResolution_range");
 
     PlottingHelper::SetLineStyle(muonMomentumResolutionPlots.at("all_MCS"), PlottingHelper::Primary);
     PlottingHelper::SetLineStyle(muonMomentumResolutionPlots.at("contained_MCS"), PlottingHelper::Secondary);
     muonMomentumResolutionPlots.at("all_MCS")->Draw("hist");
     muonMomentumResolutionPlots.at("contained_MCS")->Draw("hist same");
-    PlottingHelper::SaveCanvas(pCanvas, "secondaryInteractions_muonMomentumResolution_MCS");
+    PlottingHelper::SaveCanvas(pCanvas, "secondaryInteractions_" + prefix + "muonMomentumResolution_MCS");
 
     PlottingHelper::SetLineStyle(protonMomentumResolutionPlots.at("all_range"), PlottingHelper::Primary);
     PlottingHelper::SetLineStyle(protonMomentumResolutionPlots.at("contained_range"), PlottingHelper::Secondary);
     protonMomentumResolutionPlots.at("all_range")->Draw("hist");
     protonMomentumResolutionPlots.at("contained_range")->Draw("hist same");
-    PlottingHelper::SaveCanvas(pCanvas, "secondaryInteractions_protonMomentumResolution_range");
+    PlottingHelper::SaveCanvas(pCanvas, "secondaryInteractions_" + prefix + "protonMomentumResolution_range");
 
     PlottingHelper::SetLineStyle(protonMomentumResolutionPlots.at("all_range_larsoft"), PlottingHelper::Primary);
     PlottingHelper::SetLineStyle(protonMomentumResolutionPlots.at("contained_range_larsoft"), PlottingHelper::Secondary);
     protonMomentumResolutionPlots.at("all_range_larsoft")->Draw("hist");
     protonMomentumResolutionPlots.at("contained_range_larsoft")->Draw("hist same");
-    PlottingHelper::SaveCanvas(pCanvas, "secondaryInteractions_protonMomentumResolution_range_larsoft");
+    PlottingHelper::SaveCanvas(pCanvas, "secondaryInteractions_" + prefix + "protonMomentumResolution_range_larsoft");
 
     // Save the 2D resolution plots
     pPionMomVsRange->Draw("colz");
     auto pFuncPion = AnalysisHelper::GetRangeToMomentumFunctionPion();
     pFuncPion->Draw("same");
-    PlottingHelper::SaveCanvas(pCanvas, "secondaryInteractions_pionMomentumVsRange_golden");
+    PlottingHelper::SaveCanvas(pCanvas, "secondaryInteractions_" + prefix + "pionMomentumVsRange_golden");
     pPionResVsRange->Draw("colz");
-    PlottingHelper::SaveCanvas(pCanvas, "secondaryInteractions_pionMomentumResolutionVsRange_golden");
+    PlottingHelper::SaveCanvas(pCanvas, "secondaryInteractions_" + prefix + "pionMomentumResolutionVsRange_golden");
 
     pMuonMomVsRange->Draw("colz");
     auto pFuncMuon = AnalysisHelper::GetRangeToMomentumFunctionMuon();
     pFuncMuon->Draw("same");
-    PlottingHelper::SaveCanvas(pCanvas, "secondaryInteractions_muonMomentumVsRange_contained");
+    PlottingHelper::SaveCanvas(pCanvas, "secondaryInteractions_" + prefix + "muonMomentumVsRange_contained");
     pMuonResVsRange->Draw("colz");
-    PlottingHelper::SaveCanvas(pCanvas, "secondaryInteractions_muonMomentumResolutionVsRange_contained");
+    PlottingHelper::SaveCanvas(pCanvas, "secondaryInteractions_" + prefix + "muonMomentumResolutionVsRange_contained");
 
     pProtonMomVsRange->Draw("colz");
     auto pFuncProton = AnalysisHelper::GetRangeToMomentumFunctionProton();
     pFuncProton->Draw("same");
-    PlottingHelper::SaveCanvas(pCanvas, "secondaryInteractions_protonMomentumVsRange_contained");
+    PlottingHelper::SaveCanvas(pCanvas, "secondaryInteractions_" + prefix + "protonMomentumVsRange_contained");
     pProtonResVsRange->Draw("colz");
-    PlottingHelper::SaveCanvas(pCanvas, "secondaryInteractions_protonMomentumResolutionVsRange_contained");
+    PlottingHelper::SaveCanvas(pCanvas, "secondaryInteractions_" + prefix + "protonMomentumResolutionVsRange_contained");
 
     // LArsoft momentum function is hard to convert into a single function in momentum, so instead just make a TGraph with the value in each bin
     pProtonMomVsRange->Draw("colz");
@@ -392,9 +395,9 @@ void SecondaryInteractionsStudy(const Config &config)
     }
     pFuncProtonLarsoft->SetLineWidth(2);
     pFuncProtonLarsoft->Draw("same L");
-    PlottingHelper::SaveCanvas(pCanvas, "secondaryInteractions_protonMomentumVsRange_contained_larsoft");
+    PlottingHelper::SaveCanvas(pCanvas, "secondaryInteractions_" + prefix + "protonMomentumVsRange_contained_larsoft");
     pProtonResVsRangeLarsoft->Draw("colz");
-    PlottingHelper::SaveCanvas(pCanvas, "secondaryInteractions_protonMomentumResolutionVsRange_contained_larsoft");
+    PlottingHelper::SaveCanvas(pCanvas, "secondaryInteractions_" + prefix + "protonMomentumResolutionVsRange_contained_larsoft");
 
     // Make the scatters plot
     pNScattersHist->Scale(100.f / pNScattersHist->GetEntries());
@@ -409,7 +412,7 @@ void SecondaryInteractionsStudy(const Config &config)
     gStyle->SetPaintTextFormat("2.2f");
     pNScattersHist->SetMarkerSize(2.2); // Text size
     pNScattersHist->Draw("colz text");
-    PlottingHelper::SaveCanvas(pCanvas, "secondaryInteractions_nScatters");
+    PlottingHelper::SaveCanvas(pCanvas, "secondaryInteractions_" + prefix + "nScatters");
 
     // Make the momentum fraction lost plots
     PlottingHelper::SetLineStyle(pMomLostElastic, PlottingHelper::Primary);
@@ -419,7 +422,7 @@ void SecondaryInteractionsStudy(const Config &config)
 
     pMomLostElastic->Draw("hist");
     pMomLostInelastic->Draw("hist same");
-    PlottingHelper::SaveCanvas(pCanvas, "secondaryInteractions_scatterMomentumFractionLost");
+    PlottingHelper::SaveCanvas(pCanvas, "secondaryInteractions_" + prefix + "scatterMomentumFractionLost");
 
     // Print the end-state table
     FormattingHelper::Table table({"End state", "Events", "Fraction"});
@@ -438,7 +441,7 @@ void SecondaryInteractionsStudy(const Config &config)
     FormattingHelper::PrintLine();
     std::cout << "All CC1pi pions" << std::endl;
     FormattingHelper::PrintLine();
-    table.WriteToFile("secondaryInteractions_pionEndStates.md");
+    table.WriteToFile("secondaryInteractions_" + prefix + "pionEndStates.md");
 
     FormattingHelper::Table stoppingTable({"End state", "Events", "Fraction"});
     for (const auto &entry : stoppingPionEndStateMap)
@@ -456,7 +459,7 @@ void SecondaryInteractionsStudy(const Config &config)
     FormattingHelper::PrintLine();
     std::cout << "All CC1pi stopping pions" << std::endl;
     FormattingHelper::PrintLine();
-    stoppingTable.WriteToFile("secondaryInteractions_stoppingPionEndStates.md");
+    stoppingTable.WriteToFile("secondaryInteractions_" + prefix + "stoppingPionEndStates.md");
 }
 
 } // namespace ubcc1pi_macros

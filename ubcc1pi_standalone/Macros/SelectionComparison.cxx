@@ -15,13 +15,13 @@
 // #include "ubcc1pi_standalone/Helpers/FittingHelper.h"
 #include "ubsmear.h"
 
-#include <fstream> // Todo: not use txt files
-// Boost libraries
-#include "binary_iarchive.hpp"
-// #include "binary_oarchive.hpp"
-#include "binary_object.hpp"
-#include "map.hpp"
-#include "vector.hpp"
+// #include <fstream> // Todo: not use txt files
+// // Boost libraries
+// #include "binary_iarchive.hpp"
+// // #include "binary_oarchive.hpp"
+// #include "binary_object.hpp"
+// #include "map.hpp"
+// #include "vector.hpp"
 
 using namespace ubcc1pi;
 
@@ -146,7 +146,6 @@ void SelectionComparison(const Config &config)
     getSidebandValue.emplace("total", [=](const auto &) { return dummyValue; });
 
 
-
     // -------------------------------------------------------------------------------------------------------------------------------------
     // Setup the input files
     // -------------------------------------------------------------------------------------------------------------------------------------
@@ -160,7 +159,8 @@ void SelectionComparison(const Config &config)
     {
         if(run == 1)
         {
-            inputData.emplace_back(AnalysisHelper::Overlay, "", config.filesRun1.overlaysFileName, NormalisationHelper::GetOverlaysNormalisation(config, 1));
+            inputData.emplace_back(AnalysisHelper::Overlay, "", config.filesRun1.overlaysFileName, NormalisationHelper::GetOverlaysNormalisationToNuWro(config, 1));
+            inputData.emplace_back(AnalysisHelper::Overlay, "", config.filesRun1.nuWroFileName, 1.f);
         }
         else if(run == 2)
         {
@@ -180,11 +180,11 @@ void SelectionComparison(const Config &config)
     // Loop over the files
     for (const auto &[sampleType, sampleName, fileName, normalisation] : inputData)
     {
-        std::vector<std::vector<float>> signalSelectionMatrix = {{0.f,0.f},{0.f,0.f}};
-        std::vector<std::vector<float>> signalSelectionSidebandMatrix = {{0.f,0.f},{0.f,0.f}};
-        std::vector<std::vector<float>> signalSidebandSelectionMatrix = {{0.f,0.f},{0.f,0.f}};
-        std::vector<std::vector<float>> signalSidebandSelectionSidebandMatrix = {{0.f,0.f},{0.f,0.f}};
-        std::vector<std::vector<float>> signalSidebandSelectionSelectionSidebandMatrix = {{0.f,0.f},{0.f,0.f}};
+        std::vector<std::vector<float>> signalSelectionMatrix = {{0.f,0.f,0.f,0.f},{0.f,0.f,0.f,0.f},{0.f,0.f,0.f,0.f},{0.f,0.f,0.f,0.f},{0.f,0.f,0.f,0.f}};
+        // std::vector<std::vector<float>> signalSelectionSidebandMatrix = {{0.f,0.f},{0.f,0.f}};
+        // std::vector<std::vector<float>> signalSidebandSelectionMatrix = {{0.f,0.f},{0.f,0.f}};
+        // std::vector<std::vector<float>> signalSidebandSelectionSidebandMatrix = {{0.f,0.f},{0.f,0.f}};
+        // std::vector<std::vector<float>> signalSidebandSelectionSelectionSidebandMatrix = {{0.f,0.f},{0.f,0.f}};
 
         std::cout << "Reading input file: " << fileName << std::endl;
         const auto isOverlay = (sampleType == AnalysisHelper::Overlay);
@@ -200,7 +200,8 @@ void SelectionComparison(const Config &config)
 
         // Loop over the events in the file
         const auto nEvents = reader.GetNumberOfEvents();
-        for (unsigned int i = 0; i < nEvents-10; i+=10)
+        // std::cout<<"!!!!!Only using every 3th event."<<std::endl;
+        for (unsigned int i = 0; i < nEvents; i+=1)
         {
             AnalysisHelper::PrintLoadingBar(i, nEvents);
             reader.LoadEvent(i);
@@ -242,6 +243,7 @@ void SelectionComparison(const Config &config)
                     }
                 }
             }
+            
             // std::cout<<"### Debug Point -3"<<std::endl;
             const auto isSelectedGolden = passedGoldenSelection && passesPhaseSpaceReco;
             const auto isSelectedGeneric = passedGenericSelection && passesPhaseSpaceReco;
@@ -368,63 +370,60 @@ void SelectionComparison(const Config &config)
             const auto isSelected = isSelectedMap.at(selectionName);
             // const auto isSelectedSideband = isSelectedSidebandMap.at(selectionName);
 
-            const std::vector<bool> signalBool              = {!isCC1PiSignal, isCC1PiSignal};
-            const std::vector<bool> signalBoolSideband      = {!isCC0PiSignal, isCC0PiSignal};
-            const std::vector<bool> selectionBool           = {!isSelected, isSelected}; 
-            const std::vector<bool> selectionBoolSideband   = {!isSelectedSideband, isSelectedSideband};
-            for (int n = 0; n<2; ++n)
+            const std::vector<bool> signalBool              = {true, isCC1PiSignal, isCC0PiSignal, isTrueCC0Pi, isTrueCC1Pi};
+            const std::vector<bool> selectionBool           = {true, isSelected, isSelectedSideband, isSelected && isSelectedSideband}; 
+            for (int n = 0; n<5; ++n)
             {
-                for (int m = 0; m<2; ++m)
+                for (int m = 0; m<4; ++m)
                 {
                     signalSelectionMatrix[n][m] += weight*(signalBool[n] && selectionBool[m]);
-                    signalSelectionSidebandMatrix[n][m] += weight*(signalBool[n] && selectionBoolSideband[m]);
-                    signalSidebandSelectionMatrix[n][m] += weight*(signalBoolSideband[n] && selectionBool[m]);
-                    signalSidebandSelectionSidebandMatrix[n][m] += weight*(signalBoolSideband[n] && selectionBoolSideband[m]);
-                    signalSidebandSelectionSelectionSidebandMatrix[n][m] += weight*(signalBoolSideband[n] && selectionBool[m] && selectionBoolSideband[m]);
+                    // signalSelectionSidebandMatrix[n][m] += weight*(signalBool[n] && selectionBoolSideband[m]);
+                    // signalSidebandSelectionMatrix[n][m] += weight*(signalBoolSideband[n] && selectionBool[m]);
+                    // signalSidebandSelectionSidebandMatrix[n][m] += weight*(signalBoolSideband[n] && selectionBoolSideband[m]);
+                    // signalSidebandSelectionSelectionSidebandMatrix[n][m] += weight*(signalBoolSideband[n] && selectionBool[m] && selectionBoolSideband[m]);
                 }
             }
-            std::cout<<weight<<","<<isCC0PiSignal<<","<<isCC1PiSignal<<","<<isSelected<<","<<isSelectedSideband<<","<<isTrueCC0Pi<<","<<isTrueCC1Pi<<","
-            <<passesSidebandPhaseSpaceTruth<<","<<passesPhaseSpaceTruth<<","<<passedSidebandSelection<<","<<passesPhaseSpaceRecoSideband<<","<<passedGenericSelection<<","<<passesPhaseSpaceReco<<std::endl;
+            // std::cout<<weight<<","<<isCC0PiSignal<<","<<isCC1PiSignal<<","<<isSelected<<","<<isSelectedSideband<<","<<isTrueCC0Pi<<","<<isTrueCC1Pi<<","
+            // <<passesSidebandPhaseSpaceTruth<<","<<passesPhaseSpaceTruth<<","<<passedSidebandSelection<<","<<passesPhaseSpaceRecoSideband<<","<<passedGenericSelection<<","<<passesPhaseSpaceReco<<std::endl;
         }
 
         std::cout<<"\n\nsignalSelectionMatrix: "<<std::endl;
-        for (int n = 0; n<2; ++n)
+        for (int n = 0; n<5; ++n)
         {
-            for (int m = 0; m<2; ++m) std::cout<<signalSelectionMatrix[n][m]<<" ";
+            for (int m = 0; m<4; ++m) std::cout<<signalSelectionMatrix[n][m]<<" ";
             std::cout<<std::endl;
         }
 
-        std::cout<<"signalSelectionSidebandMatrix: "<<std::endl;
-        for (int n = 0; n<2; ++n)
-        {
-            for (int m = 0; m<2; ++m) std::cout<<signalSelectionSidebandMatrix[n][m]<<" ";
-            std::cout<<std::endl;
-        }
+        // std::cout<<"signalSelectionSidebandMatrix: "<<std::endl;
+        // for (int n = 0; n<2; ++n)
+        // {
+        //     for (int m = 0; m<2; ++m) std::cout<<signalSelectionSidebandMatrix[n][m]<<" ";
+        //     std::cout<<std::endl;
+        // }
 
-        std::cout<<"signalSidebandSelectionMatrix: "<<std::endl;
-        for (int n = 0; n<2; ++n)
-        {
-            for (int m = 0; m<2; ++m) std::cout<<signalSidebandSelectionMatrix[n][m]<<" ";
-            std::cout<<std::endl;
-        }
+        // std::cout<<"signalSidebandSelectionMatrix: "<<std::endl;
+        // for (int n = 0; n<2; ++n)
+        // {
+        //     for (int m = 0; m<2; ++m) std::cout<<signalSidebandSelectionMatrix[n][m]<<" ";
+        //     std::cout<<std::endl;
+        // }
 
-        std::cout<<"signalSidebandSelectionSidebandMatrix: "<<std::endl;
-        for (int n = 0; n<2; ++n)
-        {
-            for (int m = 0; m<2; ++m) std::cout<<signalSidebandSelectionSidebandMatrix[n][m]<<" ";
-            std::cout<<std::endl;
-        }
+        // std::cout<<"signalSidebandSelectionSidebandMatrix: "<<std::endl;
+        // for (int n = 0; n<2; ++n)
+        // {
+        //     for (int m = 0; m<2; ++m) std::cout<<signalSidebandSelectionSidebandMatrix[n][m]<<" ";
+        //     std::cout<<std::endl;
+        // }
 
-        std::cout<<"signalSidebandSelectionSelectionSidebandMatrix: "<<std::endl;
-        for (int n = 0; n<2; ++n)
-        {
-            for (int m = 0; m<2; ++m) std::cout<<signalSidebandSelectionSelectionSidebandMatrix[n][m]<<" ";
-            std::cout<<std::endl;
-        }
+        // std::cout<<"signalSidebandSelectionSelectionSidebandMatrix: "<<std::endl;
+        // for (int n = 0; n<2; ++n)
+        // {
+        //     for (int m = 0; m<2; ++m) std::cout<<signalSidebandSelectionSelectionSidebandMatrix[n][m]<<" ";
+        //     std::cout<<std::endl;
+        // }
 
-        std::cout<<"\n\n";
+        // std::cout<<"\n\n";
     }
-
 }
 
 } // namespace ubcc1pi_macros

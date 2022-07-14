@@ -1,7 +1,7 @@
 /**
- *  @file  ubcc1pi_standalone/Macros/PlotEventSelectionCuts.cxx
+ *  @file  ubcc1pi_standalone/Macros/PlotSidebandEventSelectionCuts.cxx
  *
- *  @brief The implementation file of the PlotEventSelectionCuts macro
+ *  @brief The implementation file of the PlotSidebandEventSelectionCuts macro
  */
 
 #include "ubcc1pi_standalone/Macros/Macros.h"
@@ -19,7 +19,7 @@ using namespace ubcc1pi;
 namespace ubcc1pi_macros
 {
 
-void PlotEventSelectionCuts(const Config &config)
+void PlotSidebandEventSelectionCuts(const Config &config)
 {
     //
     // Setup the input files
@@ -32,7 +32,7 @@ void PlotEventSelectionCuts(const Config &config)
     // inputData.emplace_back(AnalysisHelper::DataBNB, config.files.dataBNBFileName,  1.f);
 
 
-std::cout<<"##########################################\nUSING NUWRO AS DATA & Only CC0pi!\n##########################################"<<std::endl;
+std::cout<<"##########################################\nUSING NUWRO AS DATA!\n##########################################"<<std::endl;
  for (const auto run: config.global.runs)
     {
         if(run == 1)
@@ -50,16 +50,16 @@ std::cout<<"##########################################\nUSING NUWRO AS DATA & On
             inputData.emplace_back(AnalysisHelper::Overlay, config.filesRun3.overlaysFileName, NormalisationHelper::GetOverlaysNormalisationToNuWro(config, 3));
             inputData.emplace_back(AnalysisHelper::DataBNB, config.filesRun3.nuWroFileName, 1.f);
         }
-        else throw std::logic_error("PlotEventSelectionCuts - Invalid run number");
+        else throw std::logic_error("PlotSidebandEventSelectionCuts - Invalid run number");
     }
 
     //
     // Get the selection
     //
-    auto selection = SelectionHelper::GetSelection(config.global.selection);
+    auto selection = SelectionHelper::GetCC0piSelection();
     const auto allCuts = selection.GetCuts();
 
-    const auto protonBDTCut = selection.GetCutValue("2NonProtons");
+    const auto protonBDTCut = selection.GetCutValue("1NonProton");
 
     //
     // Setup the plots
@@ -73,38 +73,41 @@ std::cout<<"##########################################\nUSING NUWRO AS DATA & On
     PlottingHelper::MultiPlot uncontainedVertexDistPlot("Distance to vertex / cm", yLabelParticles, PlottingHelper::GenerateLogBinEdges(40u, 0.15f, 1000.f));
     PlottingHelper::MultiPlot nUncontainedPlot("Number of uncontained particles", yLabelEvents, 4u, 0, 4);
     PlottingHelper::MultiPlot protonBDTResponsePlot("Proton BDT response", yLabelParticles, 40u, -0.60f, 0.60f);
-    PlottingHelper::MultiPlot recoProtonMomentumPlot("Reco Proton momentum", yLabelParticles, 40u, -0.f, 2.5f);
-    PlottingHelper::MultiPlot trueProtonMomentumPlot("True Proton momentum", yLabelParticles, 40u, -0.f, 2.5f);
-    PlottingHelper::MultiPlot nNonProtonsPlot("Number of non-protons", yLabelEvents, 6u, 0, 6);
+    PlottingHelper::MultiPlot nNonProtonsPlot("Number of non-protons", yLabelEvents, 5u, 1, 6);
+    PlottingHelper::MultiPlot nProtonsPlot("Number of protons", yLabelEvents, 5u, 1, 6);
     PlottingHelper::MultiPlot truncatedMeandEdxBeforePlot("Pion cos(theta) / rad", yLabelEvents, 40u, -1.f, 1.f);
     PlottingHelper::MultiPlot truncatedMeandEdxAfterPlot("Pion cos(theta) / rad", yLabelEvents, 40u, -1.f, 1.f);
-    PlottingHelper::MultiPlot pionNotInGapBeforePlot("Pion phi / rad", yLabelEvents, 40u, -3.142f, 3.142f);
-    PlottingHelper::MultiPlot pionNotInGapAfterPlot("Pion phi / rad", yLabelEvents, 40u, -3.142f, 3.142f);
+    PlottingHelper::MultiPlot muonNotInGapBeforePlot("Pion phi / rad", yLabelEvents, 40u, -3.142f, 3.142f);
+    PlottingHelper::MultiPlot protonNotInGapBeforePlot("Pion phi / rad", yLabelEvents, 40u, -3.142f, 3.142f);
+    PlottingHelper::MultiPlot muonNotInGapAfterPlot("Pion phi / rad", yLabelEvents, 40u, -3.142f, 3.142f);
+    PlottingHelper::MultiPlot protonNotInGapAfterPlot("Pion phi / rad", yLabelEvents, 40u, -3.142f, 3.142f);
     PlottingHelper::MultiPlot openingAnglePlot("Muon-Pion opening angle / rad", yLabelEvents, 40u, 0.f, 3.142f);
     PlottingHelper::MultiPlot topologicalScorePlot("TopologicalScore", yLabelEvents, 40u, 0.06f, 1.f);
     PlottingHelper::MultiPlot startNearVertexParticlePlot("Distance to vertex / cm", yLabelParticles, PlottingHelper::GenerateLogBinEdges(40u, 0.03f, 1000.f));
     PlottingHelper::MultiPlot startNearVertexEventPlot("Min distance to vertex / cm", yLabelEvents, PlottingHelper::GenerateLogBinEdges(40u, 0.15f, 1000.f));
-    PlottingHelper::MultiPlot likelyGoldenPionParticlePlot("Golden pion BDT response", yLabelParticles, 40u, -0.55f, 0.4f);
-    PlottingHelper::MultiPlot likelyGoldenPionEventPlot("Golden pion BDT response", yLabelEvents, 40u, -0.55f, 0.4f);
+    // PlottingHelper::MultiPlot likelyGoldenPionParticlePlot("Golden pion BDT response", yLabelParticles, 40u, -0.55f, 0.4f);
+    // PlottingHelper::MultiPlot likelyGoldenPionEventPlot("Golden pion BDT response", yLabelEvents, 40u, -0.55f, 0.4f);
 
     // Set the bin labels where appropriate
     nTracksPlot.SetIntegerBinLabels();
     nUncontainedPlot.SetIntegerBinLabels();
     nNonProtonsPlot.SetIntegerBinLabels();
+    nProtonsPlot.SetIntegerBinLabels();
     isContainedPlot.SetBinLabels({"No", "Yes"});
 
     // Add the cut values
     nTracksPlot.AddCutLine(2);
     nUncontainedPlot.AddCutLine(2);
     protonBDTResponsePlot.AddCutLine(protonBDTCut);
+    nNonProtonsPlot.AddCutLine(1);
     nNonProtonsPlot.AddCutLine(2);
-    nNonProtonsPlot.AddCutLine(3);
+    nProtonsPlot.AddCutLine(2);
     openingAnglePlot.AddCutLine(selection.GetCutValue("openingAngle"));
     topologicalScorePlot.AddCutLine(selection.GetCutValue("topologicalScore"));
     startNearVertexParticlePlot.AddCutLine(selection.GetCutValue("startNearVertex"));
     startNearVertexEventPlot.AddCutLine(selection.GetCutValue("startNearVertex"));
-    likelyGoldenPionParticlePlot.AddCutLine(selection.GetCutValue("likelyGoldenPion"));
-    likelyGoldenPionEventPlot.AddCutLine(selection.GetCutValue("likelyGoldenPion"));
+    // likelyGoldenPionParticlePlot.AddCutLine(selection.GetCutValue("likelyGoldenPion"));
+    // likelyGoldenPionEventPlot.AddCutLine(selection.GetCutValue("likelyGoldenPion"));
 
     //
     // Setup the BDTs
@@ -164,16 +167,8 @@ std::cout<<"##########################################\nUSING NUWRO AS DATA & On
             const auto plotStyleEvent = PlottingHelper::GetPlotStyle(sampleType, pEvent, config.global.useAbsPdg);
 
             // if(PlottingHelper::PlotStyle::NumuCC0Pi != plotStyleEvent) continue;
-            const auto isTrueCC0Pi = AnalysisHelper::IsTrueCC0Pi(pEvent, config.global.useAbsPdg, config.global.protonMomentumThreshold); // todo remove this
+            const auto isTrueCC0Pi = AnalysisHelper::IsTrueCC0Pi(pEvent, config.global.useAbsPdg, config.global.protonMomentumThreshold);
             if(!isTrueCC0Pi) continue;
-
-            // std::cout<<"truthParticles:"<<std::endl;
-            // for(const auto &particle: truthParticles)
-            //     std::cout<<particle.pdgCode()<<" "<<std::endl;
-            // std::cout<<"recoParticles:"<<std::endl;
-            // for(const auto &particle: recoParticles)
-            //     std::cout<<particle.pdgCode()<<" "<<std::endl;
-
             // Fill the plots
             // ...
 
@@ -217,7 +212,7 @@ std::cout<<"##########################################\nUSING NUWRO AS DATA & On
                 nUncontainedPlot.Fill(static_cast<float>(nUncontained), plotStyleEvent, weight);
             }
 
-            if (wasInputToCut("2NonProtons", cutsPassed))
+            if (wasInputToCut("1NonProton", cutsPassed))
             {
                 const auto muonIndex = SelectionHelper::GetMuonCandidateIndex(recoParticles, muonFeatureNames, muonBDT);
                 unsigned int nNonProtons = 0u;
@@ -243,46 +238,85 @@ std::cout<<"##########################################\nUSING NUWRO AS DATA & On
                     const auto protonBDTResponse = protonBDT.GetResponse(features);
 
                     if (protonBDTResponse < protonBDTCut)
-                        nNonProtons++;
+                        nNonProtons++;;
 
                     const auto plotStyleParticle = PlottingHelper::GetPlotStyle(particle, sampleType, truthParticles, false, config.global.useAbsPdg);
                     protonBDTResponsePlot.Fill(protonBDTResponse, plotStyleParticle, weight);
-                    recoProtonMomentumPlot.Fill(AnalysisHelper::GetProtonMomentumFromRange(particle.range()), plotStyleParticle, weight);
                 }
-
-                // const auto recoData = AnalysisHelper::GetRecoAnalysisDataCC0Pi(pEvent->reco, assignedPdgCodes);
-                const auto truthData = AnalysisHelper::GetTruthAnalysisDataCC0Pi(pEvent->truth, config.global.useAbsPdg, config.global.protonMomentumThreshold);
-                // recoProtonMomentumPlot.Fill(recoData.protonMomentum, plotStyleEvent, weight);
-                trueProtonMomentumPlot.Fill(truthData.protonMomentum, plotStyleEvent, weight);
 
                 nNonProtonsPlot.Fill(static_cast<float>(nNonProtons), plotStyleEvent, weight);
             }
 
-            if(wasInputToCut("pionHasValiddEdx", cutsPassed))
+            if (wasInputToCut("AtLeast1Proton", cutsPassed))
             {
-                const auto recoData = AnalysisHelper::GetRecoAnalysisData(pEvent->reco, assignedPdgCodes, passesGoldenPionSelection);
-                truncatedMeandEdxBeforePlot.Fill(recoData.pionCosTheta, plotStyleEvent, weight);
+                const auto muonIndex = SelectionHelper::GetMuonCandidateIndex(recoParticles, muonFeatureNames, muonBDT);
+                unsigned int nProtons = 0u;
 
-                if (passedCut("pionHasValiddEdx", cutsPassed))
+                for (unsigned int index = 0; index < recoParticles.size(); ++index)
                 {
-                    truncatedMeandEdxAfterPlot.Fill(recoData.pionCosTheta, plotStyleEvent, weight);
+                    if (index == muonIndex)
+                        continue;
+
+                    const auto &particle = recoParticles.at(index);
+                    if (!AnalysisHelper::HasTrackFit(particle))
+                        continue;
+
+                    std::vector<float> features;
+                    const auto hasFeatures = BDTHelper::GetBDTFeatures(particle, protonFeatureNames, features);
+
+                    if (!hasFeatures)
+                        continue;
+
+                    const auto protonBDTResponse = protonBDT.GetResponse(features);
+
+                    if (protonBDTResponse > protonBDTCut)
+                        nProtons++;
+                }
+
+                nProtonsPlot.Fill(static_cast<float>(nProtons), plotStyleEvent, weight);
+            }
+
+            // if(wasInputToCut("MuonLikeProton", cutsPassed))
+            // {
+            //     std::cout<<"MuonLikeProton not implemeneted"<<std::endl;
+            // }
+
+            if(wasInputToCut("protonHasValiddEdx", cutsPassed))
+            {
+                const auto recoData = AnalysisHelper::GetRecoAnalysisDataCC0Pi(pEvent->reco, assignedPdgCodes);
+                truncatedMeandEdxBeforePlot.Fill(recoData.protonCosTheta, plotStyleEvent, weight);
+
+                if (passedCut("protonHasValiddEdx", cutsPassed))
+                {
+                    truncatedMeandEdxAfterPlot.Fill(recoData.protonCosTheta, plotStyleEvent, weight);
                 }
             }
 
-            if (wasInputToCut("pionNotInGap", cutsPassed))
+            if (wasInputToCut("muonNotInGap", cutsPassed))
             {
-                const auto recoData = AnalysisHelper::GetRecoAnalysisData(pEvent->reco, assignedPdgCodes, passesGoldenPionSelection);
-                pionNotInGapBeforePlot.Fill(recoData.pionPhi, plotStyleEvent, weight);
+                const auto recoData = AnalysisHelper::GetRecoAnalysisDataCC0Pi(pEvent->reco, assignedPdgCodes);
+                muonNotInGapBeforePlot.Fill(recoData.muonPhi, plotStyleEvent, weight);
 
-                if (passedCut("pionNotInGap", cutsPassed))
+                if (passedCut("muonNotInGap", cutsPassed))
                 {
-                    pionNotInGapAfterPlot.Fill(recoData.pionPhi, plotStyleEvent, weight);
+                    muonNotInGapAfterPlot.Fill(recoData.muonPhi, plotStyleEvent, weight);
+                }
+            }
+
+            if (wasInputToCut("protonNotInGap", cutsPassed))
+            {
+                const auto recoData = AnalysisHelper::GetRecoAnalysisDataCC0Pi(pEvent->reco, assignedPdgCodes);
+                protonNotInGapBeforePlot.Fill(recoData.protonPhi, plotStyleEvent, weight);
+
+                if (passedCut("protonNotInGap", cutsPassed))
+                {
+                    protonNotInGapAfterPlot.Fill(recoData.protonPhi, plotStyleEvent, weight);
                 }
             }
 
             if (wasInputToCut("openingAngle", cutsPassed))
             {
-                const auto recoData = AnalysisHelper::GetRecoAnalysisData(pEvent->reco, assignedPdgCodes, passesGoldenPionSelection);
+                const auto recoData = AnalysisHelper::GetRecoAnalysisDataCC0Pi(pEvent->reco, assignedPdgCodes);
                 openingAnglePlot.Fill(recoData.muonPionAngle, plotStyleEvent, weight);
             }
 
@@ -313,48 +347,49 @@ std::cout<<"##########################################\nUSING NUWRO AS DATA & On
                 startNearVertexEventPlot.Fill(maxVertexDist, plotStyleEvent, weight);
             }
 
-            if (wasInputToCut("likelyGoldenPion", cutsPassed))
-            {
-                // Get the pion candidate
-                const auto pionIter = std::find_if(assignedPdgCodes.begin(), assignedPdgCodes.end(), [](const auto &pdgCode){ return pdgCode == 211; });
-                if (pionIter == assignedPdgCodes.end())
-                    throw std::logic_error("PlotEventSelectionCuts - No pion candidate found");
+            // if (wasInputToCut("likelyGoldenPion", cutsPassed))
+            // {
+            //     // Get the pion candidate
+            //     const auto pionIter = std::find_if(assignedPdgCodes.begin(), assignedPdgCodes.end(), [](const auto &pdgCode){ return pdgCode == 211; });
+            //     if (pionIter == assignedPdgCodes.end())
+            //         throw std::logic_error("PlotSidebandEventSelectionCuts - No pion candidate found");
 
-                const auto pion = recoParticles.at(std::distance(assignedPdgCodes.begin(), pionIter));
+            //     const auto pion = recoParticles.at(std::distance(assignedPdgCodes.begin(), pionIter));
 
-                std::vector<float> features;
-                const auto hasFeatures = BDTHelper::GetBDTFeatures(pion, goldenPionFeatureNames, features);
+            //     std::vector<float> features;
+            //     const auto hasFeatures = BDTHelper::GetBDTFeatures(pion, goldenPionFeatureNames, features);
 
-                if (!hasFeatures)
-                    throw std::logic_error("PlotEventSelectionCuts - Pion candidate doesn't have BDT features");
+            //     if (!hasFeatures)
+            //         throw std::logic_error("PlotSidebandEventSelectionCuts - Pion candidate doesn't have BDT features");
 
-                const auto goldenPionBDTResponse = goldenPionBDT.GetResponse(features);
+            //     const auto goldenPionBDTResponse = goldenPionBDT.GetResponse(features);
 
-                const auto plotStyleParticle = PlottingHelper::GetPlotStyle(pion, sampleType, truthParticles, false, config.global.useAbsPdg);
-                likelyGoldenPionParticlePlot.Fill(goldenPionBDTResponse, plotStyleParticle, weight);
-                likelyGoldenPionEventPlot.Fill(goldenPionBDTResponse, plotStyleEvent, weight);
-            }
+            //     const auto plotStyleParticle = PlottingHelper::GetPlotStyle(pion, sampleType, truthParticles, false, config.global.useAbsPdg);
+            //     likelyGoldenPionParticlePlot.Fill(goldenPionBDTResponse, plotStyleParticle, weight);
+            //     likelyGoldenPionEventPlot.Fill(goldenPionBDTResponse, plotStyleEvent, weight);
+            // }
         }
     }
     const std::string prefix = "CC0pi";
-    nTracksPlot.SaveAsStacked("plotEventSelectionCuts_" + prefix + "_min2Tracks_nTracks");
-    isContainedPlot.SaveAsStacked("plotEventSelectionCuts_" + prefix + "_max1Uncontained_isContained");
-    uncontainedVertexDistPlot.SaveAsStacked("plotEventSelectionCuts_" + prefix + "_max1Uncontained_vertexDist_uncontainedParticles", true);
-    nUncontainedPlot.SaveAsStacked("plotEventSelectionCuts_" + prefix + "_max1Uncontained_nUncontained");
-    protonBDTResponsePlot.SaveAsStacked("plotEventSelectionCuts_" + prefix + "_2NonProtons_protonBDTResponse");
-    recoProtonMomentumPlot.SaveAsStacked("plotEventSelectionCuts_" + prefix + "_recoProtonMomentumPlot");
-    trueProtonMomentumPlot.SaveAsStacked("plotEventSelectionCuts_" + prefix + "_trueProtonMomentumPlot");
-    nNonProtonsPlot.SaveAsStacked("plotEventSelectionCuts_" + prefix + "_2NonProtons_nNonProtons");
-    truncatedMeandEdxBeforePlot.SaveAsStacked("plotEventSelectionCuts_" + prefix + "_pionTruncatedMeandEdx-before");
-    truncatedMeandEdxAfterPlot.SaveAsStacked("plotEventSelectionCuts_" + prefix + "_pionTruncatedMeandEdx-after");
-    openingAnglePlot.SaveAsStacked("plotEventSelectionCuts_" + prefix + "_openingAngle_openingAngle");
-    pionNotInGapBeforePlot.SaveAsStacked("plotEventSelectionCuts_" + prefix + "_pionNotInGap_pionPhi-before");
-    pionNotInGapAfterPlot.SaveAsStacked("plotEventSelectionCuts_" + prefix + "_pionNotInGap_pionPhi-after");
-    topologicalScorePlot.SaveAsStacked("plotEventSelectionCuts_" + prefix + "_topologicalScore_topologicalScore", false, false, true);
-    startNearVertexParticlePlot.SaveAsStacked("plotEventSelectionCuts_" + prefix + "_startNearVertex_vertexDist_allParticles", true);
-    startNearVertexEventPlot.SaveAsStacked("plotEventSelectionCuts_" + prefix + "_startNearVertex_vertexDist_furthestParticle", true);
-    likelyGoldenPionParticlePlot.SaveAsStacked("plotEventSelectionCuts_" + prefix + "_likelyGoldenPion_goldenPionBDTResponse_particles");
-    likelyGoldenPionEventPlot.SaveAsStacked("plotEventSelectionCuts_" + prefix + "_likelyGoldenPion_goldenPionBDTResponse_events");
+    nTracksPlot.SaveAsStacked("plotSidebandEventSelectionCuts_" + prefix + "_min2Tracks_nTracks");
+    isContainedPlot.SaveAsStacked("plotSidebandEventSelectionCuts_" + prefix + "_max1Uncontained_isContained");
+    uncontainedVertexDistPlot.SaveAsStacked("plotSidebandEventSelectionCuts_" + prefix + "_max1Uncontained_vertexDist_uncontainedParticles", true);
+    nUncontainedPlot.SaveAsStacked("plotSidebandEventSelectionCuts_" + prefix + "_max1Uncontained_nUncontained");
+    protonBDTResponsePlot.SaveAsStacked("plotSidebandEventSelectionCuts_" + prefix + "_1NonProton_protonBDTResponse");
+    nNonProtonsPlot.SaveAsStacked("plotSidebandEventSelectionCuts_" + prefix + "_1NonProton_nNonProtons");
+    nProtonsPlot.SaveAsStacked("plotSidebandEventSelectionCuts_" + prefix + "_AtLeast1Proton_nProtons");
+    truncatedMeandEdxBeforePlot.SaveAsStacked("plotSidebandEventSelectionCuts_" + prefix + "_protonTruncatedMeandEdx-before");
+    truncatedMeandEdxAfterPlot.SaveAsStacked("plotSidebandEventSelectionCuts_" + prefix + "_protonTruncatedMeandEdx-after");
+    openingAnglePlot.SaveAsStacked("plotSidebandEventSelectionCuts_" + prefix + "_openingAngle_openingAngle");
+    muonNotInGapBeforePlot.SaveAsStacked("plotSidebandEventSelectionCuts_" + prefix + "_muonNotInGap_muonPhi-before");
+    muonNotInGapAfterPlot.SaveAsStacked("plotSidebandEventSelectionCuts_" + prefix + "_muonNotInGap_muonPhi-after");
+    protonNotInGapBeforePlot.SaveAsStacked("plotSidebandEventSelectionCuts_" + prefix + "_protonNotInGap_protonPhi-before");
+    protonNotInGapAfterPlot.SaveAsStacked("plotSidebandEventSelectionCuts_" + prefix + "_protonNotInGap_protonPhi-after");
+    topologicalScorePlot.SaveAsStacked("plotSidebandEventSelectionCuts_" + prefix + "_topologicalScore_topologicalScore", false, false, true);
+    startNearVertexParticlePlot.SaveAsStacked("plotSidebandEventSelectionCuts_" + prefix + "_startNearVertex_vertexDist_allParticles", true);
+    startNearVertexEventPlot.SaveAsStacked("plotSidebandEventSelectionCuts_" + prefix + "_startNearVertex_vertexDist_furthestParticle", true);
+    // likelyGoldenPionParticlePlot.SaveAsStacked("plotSidebandEventSelectionCuts_" + prefix + "_likelyGoldenPion_goldenPionBDTResponse_particles");
+    // likelyGoldenPionEventPlot.SaveAsStacked("plotSidebandEventSelectionCuts_" + prefix + "_likelyGoldenPion_goldenPionBDTResponse_events");
 }
 
 } // namespace ubcc1pi_macros

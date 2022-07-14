@@ -72,6 +72,15 @@ void PlotReconstructedVariables(const Config &config)
 
     PlottingHelper::MultiPlot muonPionAnglePlot("Muon-pion opening angle / rad", yLabel, 50u, config.global.muonPionAngle.min, config.global.muonPionAngle.max, true, config.global.axisTitles);
     PlottingHelper::MultiPlot nProtonsPlot("Proton multiplicity", yLabel, 5u, 0, 5, true, config.global.axisTitles);
+    
+    PlottingHelper::MultiPlot protonMomentumPlot("Proton momentum / GeV", yLabel, 50u, 0.f, 2.f, true, config.global.axisTitles);
+    PlottingHelper::MultiPlot protonCosThetaPlot("Proton cos(theta)", yLabel, 50u, config.global.protonCosTheta.min, config.global.protonCosTheta.max, true, config.global.axisTitles);
+    PlottingHelper::MultiPlot protonPhiPlot("Proton phi / rad", yLabel, 50u, config.global.protonPhi.min, config.global.protonPhi.max, true, config.global.axisTitles);
+
+    PlottingHelper::MultiPlot protonMomentumParticlePlot("Proton momentum / GeV", yLabel, 50u, 0.f, 2.f, true, config.global.axisTitles);
+    PlottingHelper::MultiPlot protonCosThetaParticlePlot("Proton cos(theta)", yLabel, 50u, config.global.protonCosTheta.min, config.global.protonCosTheta.max, true, config.global.axisTitles);
+    PlottingHelper::MultiPlot protonPhiParticlePlot("Proton phi / rad", yLabel, 50u, config.global.protonPhi.min, config.global.protonPhi.max, true, config.global.axisTitles);
+
 
     //
     // Get the selection
@@ -110,9 +119,11 @@ void PlotReconstructedVariables(const Config &config)
             const auto &recoParticles = pEvent->reco.particles;
             const auto &truthParticles = pEvent->truth.particles;
 
+            const auto proton = recoParticles.at(AnalysisHelper::GetParticleIndexWithPdg(assignedPdgCodes, 2212));
             const auto muon = recoParticles.at(AnalysisHelper::GetParticleIndexWithPdg(assignedPdgCodes, 13));
             const auto pion = recoParticles.at(AnalysisHelper::GetParticleIndexWithPdg(assignedPdgCodes, 211));
 
+            const auto protonPlotStyle = PlottingHelper::GetPlotStyle(proton, sampleType, truthParticles, false, config.global.useAbsPdg);
             const auto muonPlotStyle = PlottingHelper::GetPlotStyle(muon, sampleType, truthParticles, false, config.global.useAbsPdg);
             const auto pionPlotStyle = PlottingHelper::GetPlotStyle(pion, sampleType, truthParticles, false, config.global.useAbsPdg);
 
@@ -124,6 +135,14 @@ void PlotReconstructedVariables(const Config &config)
             muonMomentumParticlePlot.Fill(recoData.muonMomentum, muonPlotStyle, weight);
             muonCosThetaParticlePlot.Fill(recoData.muonCosTheta, muonPlotStyle, weight);
             muonPhiParticlePlot.Fill(recoData.muonPhi, muonPlotStyle, weight);
+
+            protonMomentumPlot.Fill(recoData.protonMomentum, plotStyle, weight);
+            protonCosThetaPlot.Fill(recoData.protonCosTheta, plotStyle, weight);
+            protonPhiPlot.Fill(recoData.protonPhi, plotStyle, weight);
+
+            protonMomentumParticlePlot.Fill(recoData.protonMomentum, muonPlotStyle, weight);
+            protonCosThetaParticlePlot.Fill(recoData.protonCosTheta, muonPlotStyle, weight);
+            protonPhiParticlePlot.Fill(recoData.protonPhi, muonPlotStyle, weight);
 
             if (recoData.hasGoldenPion)
             {
@@ -149,6 +168,14 @@ void PlotReconstructedVariables(const Config &config)
     muonMomentumParticlePlot.SaveAsStacked("reco_muonMomentum_particle",false,false,config.global.axisTitles);
     muonCosThetaParticlePlot.SaveAsStacked("reco_muonCosTheta_particle",false,false,config.global.axisTitles);
     muonPhiParticlePlot.SaveAsStacked("reco_muonPhi_particle",false,false,config.global.axisTitles);
+
+    protonMomentumPlot.SaveAsStacked("reco_protonMomentum",false,false,config.global.axisTitles);
+    protonCosThetaPlot.SaveAsStacked("reco_protonCosTheta",false,false,config.global.axisTitles);
+    protonPhiPlot.SaveAsStacked("reco_protonPhi",false,false,config.global.axisTitles);
+
+    protonMomentumParticlePlot.SaveAsStacked("reco_protonMomentum_particle",false,false,config.global.axisTitles);
+    protonCosThetaParticlePlot.SaveAsStacked("reco_protonCosTheta_particle",false,false,config.global.axisTitles);
+    protonPhiParticlePlot.SaveAsStacked("reco_protonPhi_particle",false,false,config.global.axisTitles);
 
     pionMomentumPlot.SaveAsStacked("reco_pionMomentum",false,false,config.global.axisTitles);
     pionCosThetaPlot.SaveAsStacked("reco_pionCosTheta",false,false,config.global.axisTitles);

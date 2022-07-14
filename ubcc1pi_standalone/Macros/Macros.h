@@ -42,12 +42,12 @@ namespace ubcc1pi_macros
     //  */
     // void TruthStudy(const Config &config = Config());
 
-    // /**
-    //  *  @brief  Look at the truth information relating to secondary interactions
-    //  *
-    //  *  @param  config the input configuration
-    //  */
-    // void SecondaryInteractionsStudy(const Config &config = Config());
+    /**
+     *  @brief  Look at the truth information relating to secondary interactions
+     *
+     *  @param  config the input configuration
+     */
+    void SecondaryInteractionsStudy(const Config &config = Config());
 
     // /**
     //  *  @brief  Get the range->momentum curve fit parameters
@@ -175,6 +175,13 @@ namespace ubcc1pi_macros
      */
     void PlotEventSelectionCuts(const Config &config = Config());
 
+        /**
+     *  @brief  Plot the variables that are used by the sideband selection at the point of usage
+     *
+     *  @param  config the input configuration
+     */
+    void PlotSidebandEventSelectionCuts(const Config &config = Config());
+
     // /**
     //  *  @brief  Plot the reconstructed variables for the muon candidate
     //  *
@@ -182,12 +189,12 @@ namespace ubcc1pi_macros
     //  */
     // void PlotMuonRecoVariables(const Config &config = Config());
 
-    // /**
-    //  *  @brief  Plot the reconstructed variables for the highest-energy proton candidate
-    //  *
-    //  *  @param  config the input configuration
-    //  */
-    // void PlotProtonVariables(const Config &config = Config());
+    /**
+     *  @brief  Plot the reconstructed variables for the highest-energy proton candidate
+     *
+     *  @param  config the input configuration
+     */
+    void PlotProtonVariables(const Config &config = Config());
 
     // /**
     //  *  @brief  Plot stacked by interaction the true momentum for the highest-energy MC protons

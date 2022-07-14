@@ -7,7 +7,6 @@
 /**
  * Todo:
  * Implement golden cut for the sideband fit?
- * Use GENIE uncertainties for the sideband fit to data?
  * 
  */
 
@@ -88,11 +87,11 @@ void GetChi2(Int_t &npar, Double_t *gin, Double_t &f, Double_t *par, Int_t iflag
     float        precision  = std::numeric_limits<float>::epsilon();  ///< The precision to use when finding eigenvalues & eigenvectors
 
     const auto &[smearedPrediction, smearedPredictionErrorMatrix] = ubsmear::ForwardFold(
-        *p_metadata,                                                  // The metadata that defines the binning
-        scaledPrediction, *pPredictionErrorMatrix,             // The prediction and it's error matrix
+        *p_metadata,                                            // The metadata that defines the binning
+        scaledPrediction, *pPredictionErrorMatrix,              // The prediction and it's error matrix
         *pSmearingMatrix, *pTotalErrorMatrixMapSmearingMatrix,  // The smearing matrix and it's error matrix
-        nUniverses,                           // The number of universes to use when propagating the uncertainties
-        precision);                           // The precision to use when finding eigenvalues and eigenvectors
+        nUniverses,                                             // The number of universes to use when propagating the uncertainties
+        precision);                                             // The precision to use when finding eigenvalues and eigenvectors
     const auto &[chi2, degreesOfFreedom] = ubsmear::GetChi2(smearedPrediction, smearedPredictionErrorMatrix, *pData, *pTotalErrorMatrixMapData, precision);
 
     f = chi2;
@@ -358,6 +357,7 @@ void ExtractSidebandFit(const Config &config)
             // -----------------------------------------------------------------------------------------------------------------------------
             // Handle BNB data
             // -----------------------------------------------------------------------------------------------------------------------------
+            
             if (isDataBNB)
             {
                 for (auto &[selectionName, xsecs] : xsecMapSideband)
@@ -462,7 +462,7 @@ void ExtractSidebandFit(const Config &config)
                         }
                     }
                 }
-                
+
                 // For detector variation samples, that's all we need to do!
                 continue;
             }
@@ -539,11 +539,13 @@ void ExtractSidebandFit(const Config &config)
     }
 
 
+
+
     // -------------------------------------------------------------------------------------------------------------------------------------
     // Calculate the sideband weights
     // -------------------------------------------------------------------------------------------------------------------------------------
     // Loop over all cross-section objects
-    typedef std::pair<std::vector<Double_t>,std::vector<Double_t>> paramAndErrorPair; // Todo: Improve code!
+    typedef std::pair<std::vector<Double_t>, std::vector<Double_t>> paramAndErrorPair; // Todo: Improve code!
     //Parameters: selectionName name
     std::map<std::string,std::map<std::string, std::vector<float>>> cc0piCovarianceMap; 
     std::map<std::string, std::map<std::string, paramAndErrorPair>> cc0piNominalConstraintMap;
@@ -560,14 +562,13 @@ void ExtractSidebandFit(const Config &config)
 
             std::cout<<"_______________________ExtractSidebandFit Fitting: "<<selectionName<<" - "<<name<<"_______________________"<<std::endl;
             
-            const auto selectedEventsData = xsec.GetSelectedBNBDataEvents();                
             // Get the smearing matrix of selected events
             const auto smearingMatrix = xsec.GetSmearingMatrixAllSelected();
             const auto selectedEventsBackgroundReco = xsec.GetSelectedBackgroundEvents();
+            const auto selectedEventsData = xsec.GetSelectedBNBDataEvents();
             const auto selectedEventsSignalTruth = xsec.GetSelectedSignalEvents();
             const auto signalTruth = xsec.GetSignalEvents();
             const auto metadata = xsec.GetMetadata();
-            
             auto signalData = selectedEventsData - selectedEventsBackgroundReco;
 
             FormattingHelper::SaveMatrix(signalTruth, "SidebandFit_" + selectionName + "_" + name + "_signalTruth.txt");
@@ -593,14 +594,14 @@ void ExtractSidebandFit(const Config &config)
             const auto nBins = selectedEventsData.GetRows();
             
             for (unsigned int iBin = 0; iBin < nBins; ++iBin)
-            {                
+            {
                 const auto value = selectedEventsData.At(iBin, 0);
                 if (value<0)
                 {
                     std::cout<<"ERROR: ExtractXSec - Background-removed signal data is negative."<<std::endl;
                     // throw std::logic_error("ERROR: ExtractXSec - Background-removed signal data is negative."); // TODO: Uncomment
                 }
-                elements.push_back(AnalysisHelper::GetCountUncertainty(std::max(value,0.f))); //TODO: Check if this is correct                    
+                elements.push_back(AnalysisHelper::GetCountUncertainty(std::max(value,0.f))); //TODO: Check if this is correct
             }
 
         ///////////////////////////////////////////
@@ -616,10 +617,11 @@ void ExtractSidebandFit(const Config &config)
 
         const auto dataSystBiasCovariances = xsec.GetBNBDataCrossSectionSystUncertainties(scalingData);
         const auto smearingMatrixSystBiasCovariances = xsec.GetSmearingMatrixSystUncertainties();
-        for (const auto &[quantity, covariances] : {
-                                                    std::make_pair(std::string("data"), dataSystBiasCovariances), 
-                                                    std::make_pair(std::string("smearingMatrix"), smearingMatrixSystBiasCovariances)
-                                                    })
+        for (const auto &[quantity, covariances] : 
+        {
+            std::make_pair(std::string("data"), dataSystBiasCovariances), 
+            std::make_pair(std::string("smearingMatrix"), smearingMatrixSystBiasCovariances)
+        })
         {
 
             auto errorMatrixTotalSum =  ubsmear::UBMatrixHelper::GetZeroMatrix(nBins, nBins);
@@ -682,10 +684,9 @@ void ExtractSidebandFit(const Config &config)
             cc0piCovarianceMap[selectionName].emplace(name, fitCovMatrixVector);
 
             const ubsmear::UBMatrix sidebandCovMatrix(fitCovMatrixVector, nBins, nBins);
-            
+
             FormattingHelper::SaveMatrix(sidebandCovMatrix, "SidebandFit_" + selectionName + "_" + name + "_sideband_stat_covariance.txt");
-            
-            
+
             vector<float> paramVector(result.first.begin(), result.first.end()); //Todo avoid this
             vector<float> paramErrorVector(result.second.begin(), result.second.end()); //Todo avoid this
             const ubsmear::UBMatrix sidebandParamVectorTruth(paramVector, nBins, 1);
@@ -705,6 +706,7 @@ void ExtractSidebandFit(const Config &config)
                     // -------------------------------------------------------------------------------------------------------------------------------------
                     // Fit each universe
                     // -------------------------------------------------------------------------------------------------------------------------------------
+
                     std::vector<paramAndErrorPair> resultVector;
                     for (unsigned int iUni = 0; iUni < nUniverses; ++iUni)
                     {

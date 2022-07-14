@@ -61,12 +61,12 @@ float NormalisationHelper::GetNuWroNormalisation(const Config &config, const uns
             nuWroPOT = config.normsRun3.nuWroPOT;
             break;
         default:
-            std::cout<<"NormalisationHelper::GetOverlaysNormalisation - Invalid run number"<<std::endl;
-            throw std::invalid_argument("NormalisationHelper::GetOverlaysNormalisation - Invalid run number");
+            std::cout<<"NormalisationHelper::GetNuWroNormalisation - Invalid run number"<<std::endl;
+            throw std::invalid_argument("NormalisationHelper::GetNuWroNormalisation - Invalid run number");
     }
 
     if (nuWroPOT <= std::numeric_limits<float>::epsilon())
-        throw std::invalid_argument("NormalisationHelper::GetOverlaysNormalisation - Overlay POT is invalid");
+        throw std::invalid_argument("NormalisationHelper::GetNuWroNormalisation - Overlay POT is invalid");
 
     return dataBNBTor875WCut / nuWroPOT;
 }

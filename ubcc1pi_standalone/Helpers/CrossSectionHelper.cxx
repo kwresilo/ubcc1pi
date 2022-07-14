@@ -1359,13 +1359,13 @@ CrossSectionHelper::SystBiasCovariancePair CrossSectionHelper::CrossSection::Get
     const auto pXSecCV = std::make_shared<ubsmear::UBMatrix>( this->GetBNBDataCrossSectionForUnisim(group, cvName, scalingData) );
     const auto pXSecNom = std::make_shared<ubsmear::UBMatrix>( this->GetBNBDataCrossSection(scalingData) );
 
-    std:cout<<"BNBDistParamsUnisim: "<<group<<", "<<paramName<<", "<<cvName<<std::endl;
-    for (const auto &v: pXSec->GetValues()) std::cout << v << " ";
-    std::cout << std::endl;
-    for (const auto &v: pXSecCV->GetValues()) std::cout << v << " ";
-    std::cout << std::endl;
-    for (const auto &v: pXSecNom->GetValues()) std::cout << v << " ";
-    std::cout << std::endl;
+    // std:cout<<"BNBDistParamsUnisim: "<<group<<", "<<paramName<<", "<<cvName<<std::endl;
+    // for (const auto &v: pXSec->GetValues()) std::cout << v << " ";
+    // std::cout << std::endl;
+    // for (const auto &v: pXSecCV->GetValues()) std::cout << v << " ";
+    // std::cout << std::endl;
+    // for (const auto &v: pXSecNom->GetValues()) std::cout << v << " ";
+    // std::cout << std::endl;
 
     // Get the parameters
     return this->GetDistributionParamsUnisim(pXSec, pXSecCV, pXSecNom);
@@ -1880,10 +1880,10 @@ std::vector<float> CrossSectionHelper::GenerateNormalWeights(const unsigned int 
         // weights.push_back(static_cast<float>(poisson(m_generator)));
         auto weight = static_cast<float>(normal(m_generator));
         weight = std::max(weight, 0.f);
-        if(iUni<20)
-        {
-            std::cout<<" "<<weight;
-        }
+        // if(iUni<20)
+        // {
+        //     std::cout<<" "<<weight;
+        // }
         weights.push_back(weight);
     }
     // }

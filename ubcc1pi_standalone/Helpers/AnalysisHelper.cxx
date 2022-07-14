@@ -27,6 +27,8 @@ std::string AnalysisHelper::GetSampleTypeName(const SampleType &sampleType)
             return "Data BNB";
         case Overlay:
             return "Overlay";
+        case NuWro:
+            return "NuWro";
         case DataEXT:
             return "Data EXT";
         case Dirt:
