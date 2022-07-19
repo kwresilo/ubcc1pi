@@ -90,6 +90,7 @@
         "Macros/ExtractXSecsOld.cxx",
         // "Macros/ExtractSidebandFit.cxx",
         "Macros/ExtractNuWroSidebandFit.cxx",
+        "Macros/ExtractNuWroSidebandFit2.cxx",
         //"Macros/ExtractSideband.cxx",
         "Macros/PrintUniverseWeights.cxx",
         // "Macros/PrintUncertaintiesSummary.cxx",

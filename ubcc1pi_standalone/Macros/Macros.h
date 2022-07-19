@@ -289,6 +289,13 @@ namespace ubcc1pi_macros
     void ExtractNuWroSidebandFit(const Config &config = Config());
 
     /**
+     *  @brief  Extract the sideband fit of Nuwro to MC (GENIE)
+     *  
+     *  @param  config the input configuration
+     */
+    void ExtractNuWroSidebandFit2(const Config &config = Config());
+
+    /**
      *  @brief  Extract the sideband without fitting
      *  
      *  @param  config the input configuration
