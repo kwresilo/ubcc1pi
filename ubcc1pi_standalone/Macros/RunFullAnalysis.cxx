@@ -17,7 +17,7 @@ namespace ubcc1pi_macros
 
 void RunFullAnalysis(const Config &config)
 {
-    PrintConfig(config);
+    // PrintConfig(config);
     std::cout << "TODO - Still need to put all the steps of the analysis together into this RunFullAnalysis macro" << std::endl;
 
     /*
@@ -42,6 +42,15 @@ void RunFullAnalysis(const Config &config)
     PlotReconstructedVariables(config);
     ExtractXSecs(config);
     */
+    std::cout << "\n\033[5;49m---------------------------------------------------\033[0m" << std::endl;
+    std::cout << "\033[5;49m| \033[35;49mFull Analysis Macro 1: ExtractNuWroSidebandFit2\033[0m\033[6;49m |" << std::endl;
+    std::cout << "\033[5;49m---------------------------------------------------\033[0m\n" << std::endl;
+    ExtractNuWroSidebandFit2(config);
+    std::cout << "\n\033[5;49m---------------------------------------------------\033[0m" << std::endl;
+    std::cout << "\033[5;49m| \033[35;49mFull Analysis Macro 2: ExtractNuWroXSecs2\033[0m\033[6;49m |" << std::endl;
+    std::cout << "\033[5;49m---------------------------------------------------\033[0m\n" << std::endl;
+    ExtractNuWroXSecs2(config);
+    std::cout << "Full Analysis Complete" << std::endl;
 }
 
 }
