@@ -28,6 +28,105 @@ struct Config
      * You can produce them from art root files by running the ubcc1pi::AnalysisFileWriter module
      *
      */
+    // struct FileList
+    // {
+    //     // September overlays files contain systematic weights
+    //     std::string overlaysFileName, dirtFileName, dataEXTFileName, dataBNBFileName, nuWroFileName;
+    //     std::vector< std::pair<std::string, std::string> > detVarFiles;
+    // };
+
+    // FileList filesRun1;
+    // filesRun1.overlaysFileName = "/uboone/data/users/jdetje/ubcc1pi/sep2020/ubcc1piAnalysis_overlays_08Oct21.root"; ///< Overlays file name input
+    // // std::string overlaysFileName = "/uboone/data/users/jdetje/ubcc1pi/sep2020/ubcc1piAnalysis_overlays_08Oct21_test_head20.root";        
+    // filesRun1.dirtFileName     = "/uboone/data/users/jdetje/ubcc1pi/sep2020/ubcc1piAnalysis_dirt_08Oct21.root";     ///< Dirt file name input
+    // // std::string dirtFileName     = "/pnfs/uboone/scratch/users/jdetje/ubcc1pi/dirt_final/49396507_11/ubcc1piAnalysis.root";
+    // filesRun1.dataEXTFileName  = "/pnfs/uboone/persistent/users/kduffy/ubcc1pi/ubcc1pi_extbnb_run1_combined_5Jan2021.root";  ///< EXT data file name input
+    // filesRun1.dataBNBFileName  = "/pnfs/uboone/persistent/users/kduffy/ubcc1pi/ubcc1pi_bnb_run1-C1_5Jan2021.root";  ///< BNB data file name input
+    // // std::string dataBNBFileName  = "/uboone/data/users/jdetje/ubcc1pi/sep2020/ubcc1piAnalysis_overlays_08Oct21_test_tail20.root";
+    // // std::string nuWroFileName  = "/uboone/data/users/jdetje/ubcc1pi/sep2020/ubcc1piAnalysis_nuwro_run1_28Feb22.root";  ///< NuWro file name input
+    // // std::string nuWroFileName  = "/uboone/app/users/jdetje/cc1pi_handover_57_2/test_ccinc_21Apr/ubcc1piAnalysisFiltered.root";
+    // // std::string nuWroFileName  = "/uboone/app/users/jdetje/cc1pi_handover_57_2/test_ccinc_21Apr/ubcc1piAnalysisUnfiltered.root";
+    // // std::string nuWroFileName  = "/uboone/app/users/jdetje/cc1pi_handover_57_2/test_ccinc_21Apr/ubcc1piAnalysisUnfilteredDetVar.root";
+    // // std::string nuWroFileName  = "/uboone/app/users/jdetje/cc1pi_handover_57_2/test_ccinc_21Apr/ubcc1piAnalysisFilteredDetVar.root";
+    // // std::string nuWroFileName  = "/uboone/app/users/jdetje/cc1pi_handover_57_2/test_ccinc_21Apr/ubcc1piAnalysisFilteredDetVar_larger.root";
+    // // std::string nuWroFileName  = "/uboone/app/users/jdetje/cc1pi_handover_57_2/test_ccinc_21Apr/ubcc1piAnalysisUnfilteredDetVar_larger.root";
+    // // std::string nuWroFileName = "/pnfs/uboone/scratch/users/jdetje/ubcc1pi/nuwro_run1_corrected_backup/ubcc1piAnalysisCombined.root";
+    // filesRun1.nuWroFileName = "/uboone/data/users/jdetje/ubcc1pi/sep2020/ubcc1piAnalysis_nuwro_run1_28Apr22_noCCProduction.root";
+    // /**
+    //  *  @brief  The detector variation files
+    //  *
+    //  *          The events in each detector variation sample (in the same run) are identical apart from the detector parameter that's
+    //  *          been changed - this way we can limit the effects of statistical variations. As a result we also need to have a
+    //  *          central-value (CV) sample in which nothing is changed that we can compare to. Here, only some of the variations are
+    //  *          available for run 1. Instead we use run3b, for which the varaitions are available. In every case the variation is
+    //  *          considered wrt to the relevant "CV" file, and the fractional difference is quantity we care about.
+    //  */
+    // filesRun1.detVarFiles = {
+    //     // Run-1 files
+    //     {"CV_SCE",         "/uboone/data/users/jdetje/ubcc1pi/sep2020/ubcc1piAnalysis_overlays_DetVar_CV_run1_19Oct.root"},
+    //     {"CV",             "/uboone/data/users/jdetje/ubcc1pi/sep2020/ubcc1piAnalysis_overlays_DetVar_CV_run1_19Oct.root"}, // Same CV for all run 1 variations 
+    //     {"LYDown",         "/uboone/data/users/jdetje/ubcc1pi/sep2020/ubcc1piAnalysis_overlays_DetVar_LYDown_run1_19Oct.root"},
+    //     {"LYRayleigh",     "/uboone/data/users/jdetje/ubcc1pi/sep2020/ubcc1piAnalysis_overlays_DetVar_LYRayleigh_run1_19Oct.root"},
+    //     {"SCE",            "/uboone/data/users/jdetje/ubcc1pi/sep2020/ubcc1piAnalysis_overlays_DetVar_SCE_run1_19Oct.root"},
+    //     {"Recomb2",        "/uboone/data/users/jdetje/ubcc1pi/sep2020/ubcc1piAnalysis_overlays_DetVar_Recomb2_run1_19Oct.root"},
+    //     {"WireModX",       "/uboone/data/users/jdetje/ubcc1pi/sep2020/ubcc1piAnalysis_overlays_DetVar_WireModX_run1_19Oct.root"},
+    //     {"WireModYZ",      "/uboone/data/users/jdetje/ubcc1pi/sep2020/ubcc1piAnalysis_overlays_DetVar_WireModYZ_run1_19Oct.root"},
+    //     {"WireModThetaXZ", "/uboone/data/users/jdetje/ubcc1pi/sep2020/ubcc1piAnalysis_overlays_DetVar_WireModThetaXZ_run1_19Oct.root"},
+    //     {"WireModThetaYZ", "/uboone/data/users/jdetje/ubcc1pi/sep2020/ubcc1piAnalysis_overlays_DetVar_WireModThetaYZ_run1_19Oct.root"}
+    // };
+
+
+
+    // FileList filesRun2;
+    // // September overlays files contain systematic weights
+    // filesRun2.overlaysFileName = "/uboone/data/users/jdetje/ubcc1pi/sep2020/ubcc1piAnalysis_overlays_run2_07Nov21.root"; ///< Overlays file name inputs        
+    // filesRun2.dirtFileName     = "/uboone/data/users/jdetje/ubcc1pi/sep2020/ubcc1piAnalysis_dirt_run2_07Nov21.root";     ///< Dirt file name input
+    // filesRun2.dataEXTFileName  = "/uboone/data/users/jdetje/ubcc1pi/sep2020/ubcc1piAnalysis_extbnb_run2_17Jan22.root";  ///< EXT data file name input
+    // filesRun2.dataBNBFileName  = "/uboone/data/users/jdetje/ubcc1pi/sep2020/ubcc1piAnalysis_bnb_run2_08Nov21.root";  ///< BNB data file name input
+
+    // // std::string nuWroFileName  = "/uboone/data/users/jdetje/ubcc1pi/sep2020/ubcc1piAnalysis_nuwro_run2_13Dec21.root";
+    // // std::string nuWroFileName  = "/pnfs/uboone/scratch/users/jdetje/ubcc1pi/nuwro_run2a/nuwro_run2a_test.root";
+    // // std::string nuWroFileName  = "/pnfs/uboone/scratch/users/jdetje/ubcc1pi/nuwro_run2b/nuwro_run2b_test.root";
+    // filesRun2.nuWroFileName  = "/uboone/data/users/jdetje/ubcc1pi/sep2020/ubcc1piAnalysis_nuwro_run2ab_06May22_noCCProduction.root";
+
+    // std::vector< std::pair<std::string, std::string> > detVarFiles = {
+    //     // Run-3 files
+    //     {"CV_SCE",         "/uboone/data/users/jdetje/ubcc1pi/sep2020/ubcc1piAnalysis_overlays_DetVar_CV_run3ab_09Mar22.root"},
+    //     {"CV",             "/uboone/data/users/jdetje/ubcc1pi/sep2020/ubcc1piAnalysis_overlays_DetVar_CV_run3ab_high_09Mar22.root"},
+    //     {"LYDown",         "/uboone/data/users/jdetje/ubcc1pi/sep2020/ubcc1piAnalysis_overlays_DetVar_LYDown_run3ab_high_09Mar22.root"},
+    //     {"LYRayleigh",     "/uboone/data/users/jdetje/ubcc1pi/sep2020/ubcc1piAnalysis_overlays_DetVar_LYRayleigh_run3ab_high_09Mar22.root"},
+    //     {"SCE",            "/uboone/data/users/jdetje/ubcc1pi/sep2020/ubcc1piAnalysis_overlays_DetVar_SCE_run3ab_09Mar22.root"},
+    //     {"Recomb2",        "/uboone/data/users/jdetje/ubcc1pi/sep2020/ubcc1piAnalysis_overlays_DetVar_Recomb2_run3ab_09Mar22.root"},
+    //     {"WireModX",       "/uboone/data/users/jdetje/ubcc1pi/sep2020/ubcc1piAnalysis_overlays_DetVar_WireModX_run3ab_high_09Mar22.root"},
+    //     {"WireModYZ",      "/uboone/data/users/jdetje/ubcc1pi/sep2020/ubcc1piAnalysis_overlays_DetVar_WireModYZ_run3ab_high_09Mar22.root"},
+    //     {"WireModThetaXZ", "/uboone/data/users/jdetje/ubcc1pi/sep2020/ubcc1piAnalysis_overlays_DetVar_WireModThetaXZ_run3ab_high_09Mar22.root"},
+    //     {"WireModThetaYZ", "/uboone/data/users/jdetje/ubcc1pi/sep2020/ubcc1piAnalysis_overlays_DetVar_WireModThetaYZ_run3ab_high_09Mar22.root"}
+    // };
+
+    // filesRun2.detVarFiles = detVarFiles;
+
+    // FileList filesRun3;
+    // // September overlays files contain systematic weights
+    // filesRun3.overlaysFileName = "/uboone/data/users/jdetje/ubcc1pi/sep2020/ubcc1piAnalysis_overlays_run3_07Nov21.root"; ///< Overlays file name inputs
+    // filesRun3.dirtFileName     = "/uboone/data/users/jdetje/ubcc1pi/sep2020/ubcc1piAnalysis_dirt_run3_07Nov21.root";     ///< Dirt file name input
+    // filesRun3.dataEXTFileName  = "/uboone/data/users/jdetje/ubcc1pi/sep2020/ubcc1piAnalysis_extbnb_run3_17Jan22.root";  ///< EXT data file name input
+    // filesRun3.dataBNBFileName  = "/uboone/data/users/jdetje/ubcc1pi/sep2020/ubcc1piAnalysis_bnb_run3_17Jan22.root";  ///< BNB data file name input
+
+    // // std::string nuWroFileName  = "/uboone/data/users/jdetje/ubcc1pi/sep2020/ubcc1piAnalysis_nuwro_run3_14Dec21.root";
+    // // std::string nuWroFileName  = "/pnfs/uboone/scratch/users/jdetje/ubcc1pi/nuwro_run3a/nuwro_run3a_test.root";
+    // // std::string nuWroFileName  = "/pnfs/uboone/scratch/users/jdetje/ubcc1pi/nuwro_run3b/nuwro_run3b_test.root";
+    // filesRun3.nuWroFileName  = "/uboone/data/users/jdetje/ubcc1pi/sep2020/ubcc1piAnalysis_nuwro_run3ab_06May22_noCCProduction.root";
+    // filesRun3.detVarFiles = detVarFiles;
+
+
+
+
+
+
+
+
+
+
     struct FilesRun1
     {
         // September overlays files contain systematic weights
@@ -154,6 +253,7 @@ struct Config
          *          available for run 1. Instead we use run3b, for which the varaitions are available. In every case the variation is
          *          considered wrt to the relevant "CV" file, and the fractional difference is quantity we care about.
          */
+
         std::vector< std::pair<std::string, std::string> > detVarFiles = {
             // Run-3 files
             {"CV_SCE",         "/uboone/data/users/jdetje/ubcc1pi/sep2020/ubcc1piAnalysis_overlays_DetVar_CV_run3ab_09Mar22.root"},
@@ -169,29 +269,47 @@ struct Config
         };
 
         // std::vector< std::pair<std::string, std::string> > detVarFiles = {
-        // {"CV_run3a_low_", "/pnfs/uboone/scratch/users/jdetje/ubcc1pi/overlays_DetVar_CV_run3a_low_corrected/55682162_0/ubcc1piAnalysis.root"},
-        // {"CV_run3b_high_", "/pnfs/uboone/scratch/users/jdetje/ubcc1pi/overlays_DetVar_CV_run3b_high_corrected/55682170_0/ubcc1piAnalysis.root"},
-        // {"LYDown_run3a_low_", "/pnfs/uboone/scratch/users/jdetje/ubcc1pi/overlays_DetVar_LYDown_run3a_low_corrected/55682163_0/ubcc1piAnalysis.root"},
-        // {"LYDown_run3b_high_", "/pnfs/uboone/scratch/users/jdetje/ubcc1pi/overlays_DetVar_LYDown_run3b_high_corrected/55682172_0/ubcc1piAnalysis.root"},
-        // {"LYRayleigh_run3a_low_", "/pnfs/uboone/scratch/users/jdetje/ubcc1pi/overlays_DetVar_LYRayleigh_run3a_low_corrected/55682165_0/ubcc1piAnalysis.root"},
-        // {"LYRayleigh_run3b_high_", "/pnfs/uboone/scratch/users/jdetje/ubcc1pi/overlays_DetVar_LYRayleigh_run3b_high_corrected/55682173_0/ubcc1piAnalysis.root"},
-        // {"WireModThetaXZ_run3a_low_", "/pnfs/uboone/scratch/users/jdetje/ubcc1pi/overlays_DetVar_WireModThetaXZ_run3a_low_corrected/55682168_0/ubcc1piAnalysis.root"},
-        // {"WireModThetaXZ_run3b_high_", "/pnfs/uboone/scratch/users/jdetje/ubcc1pi/overlays_DetVar_WireModThetaXZ_run3b_high_corrected/55682177_0/ubcc1piAnalysis.root"},
-        // {"WireModThetaYZ_run3a_low_", "/pnfs/uboone/scratch/users/jdetje/ubcc1pi/overlays_DetVar_WireModThetaYZ_run3a_low_corrected/55682169_0/ubcc1piAnalysis.root"},
-        // {"WireModThetaYZ_run3b_high_", "/pnfs/uboone/scratch/users/jdetje/ubcc1pi/overlays_DetVar_WireModThetaYZ_run3b_high_corrected/55682178_0/ubcc1piAnalysis.root"},
-        // {"WireModX_run3a_low_", "/pnfs/uboone/scratch/users/jdetje/ubcc1pi/overlays_DetVar_WireModX_run3a_low_corrected/55682166_0/ubcc1piAnalysis.root"},
-        // {"WireModX_run3b_high_", "/pnfs/uboone/scratch/users/jdetje/ubcc1pi/overlays_DetVar_WireModX_run3b_high_corrected/55682175_0/ubcc1piAnalysis.root"},
-        // {"WireModYZ_run3a_low_", "/pnfs/uboone/scratch/users/jdetje/ubcc1pi/overlays_DetVar_WireModYZ_run3a_low_corrected/55682167_0/ubcc1piAnalysis.root"},
-        // {"WireModYZ_run3b_high_", "/pnfs/uboone/scratch/users/jdetje/ubcc1pi/overlays_DetVar_WireModYZ_run3b_high_corrected/55682176_0/ubcc1piAnalysis.root"}
+        //     // Run-3 files
+        //     {"CV_SCE",         "/uboone/data/users/jdetje/ubcc1pi/sep2020/ubcc1piAnalysis_overlays_DetVar_CV_SCE_run3a_11Aug22_corrected5.root"}, // <----changed
+        //     {"CV",             "/uboone/data/users/jdetje/ubcc1pi/sep2020/ubcc1piAnalysis_overlays_DetVar_CV_run3a_11Aug22_corrected5.root"}, // <----changed
+        //     {"LYDown",         "/uboone/data/users/jdetje/ubcc1pi/sep2020/ubcc1piAnalysis_overlays_DetVar_LYDown_run3a_11Aug22_corrected5.root"}, // <----changed
+        //     {"LYRayleigh",     "/uboone/data/users/jdetje/ubcc1pi/sep2020/ubcc1piAnalysis_overlays_DetVar_LYRayleigh_run3a_11Aug22_corrected5.root"}, // <----changed
+        //     {"SCE",            "/uboone/data/users/jdetje/ubcc1pi/sep2020/ubcc1piAnalysis_overlays_DetVar_SCE_run3a_11Aug22_corrected5.root"}, // <----changed
+        //     {"Recomb2",        "/uboone/data/users/jdetje/ubcc1pi/sep2020/ubcc1piAnalysis_overlays_DetVar_Recomb2_run3a_11Aug22_corrected5.root"}, // <----changed
+        //     {"WireModX",       "/uboone/data/users/jdetje/ubcc1pi/sep2020/ubcc1piAnalysis_overlays_DetVar_WireModX_run3a_11Aug22_corrected5.root"}, // <----changed
+        //     {"WireModYZ",      "/uboone/data/users/jdetje/ubcc1pi/sep2020/ubcc1piAnalysis_overlays_DetVar_WireModYZ_run3a_11Aug22_corrected5.root"}, // <----changed
+        //     {"WireModThetaXZ", "/uboone/data/users/jdetje/ubcc1pi/sep2020/ubcc1piAnalysis_overlays_DetVar_WireModThetaXZ_run3a_11Aug22_corrected5.root"}, // <----changed
+        //     {"WireModThetaYZ", "/uboone/data/users/jdetje/ubcc1pi/sep2020/ubcc1piAnalysis_overlays_DetVar_WireModThetaYZ_run3a_11Aug22_corrected5.root"} // <----changed
         // };
 
+        // std::vector< std::pair<std::string, std::string> > detVarFiles = {
+        //     {"CV_run3a", "/pnfs/uboone/scratch/users/jdetje/ubcc1pi/overlays_DetVar_CV_run3a_low_corrected4/36473026_1/ubcc1piAnalysis.root"},
+        //     {"CV_run3b", "/pnfs/uboone/scratch/users/jdetje/ubcc1pi/overlays_DetVar_CV_run3b_high_corrected4/36473043_2/ubcc1piAnalysis.root"},
+        //     {"LYDown_run3a", "/pnfs/uboone/scratch/users/jdetje/ubcc1pi/overlays_DetVar_LYDown_run3a_low_corrected4/36473029_1/ubcc1piAnalysis.root"},
+        //     {"LYDown_run3b", "/pnfs/uboone/scratch/users/jdetje/ubcc1pi/overlays_DetVar_LYDown_run3b_high_corrected4/36473051_1/ubcc1piAnalysis.root"},
+        //     {"LYRayleigh_run3a", "/pnfs/uboone/scratch/users/jdetje/ubcc1pi/overlays_DetVar_LYRayleigh_run3a_low_corrected4/36473039_1/ubcc1piAnalysis.root"},
+        //     {"LYRayleigh_run3b", "/pnfs/uboone/scratch/users/jdetje/ubcc1pi/overlays_DetVar_LYRayleigh_run3b_high_corrected4/36473054_1/ubcc1piAnalysis.root"},
+        //     {"WireModThetaXZ_run3a", "/pnfs/uboone/scratch/users/jdetje/ubcc1pi/overlays_DetVar_WireModThetaXZ_run3a_low_corrected4/36473045_1/ubcc1piAnalysis.root"},
+        //     {"WireModThetaXZ_run3b", "/pnfs/uboone/scratch/users/jdetje/ubcc1pi/overlays_DetVar_WireModThetaXZ_run3b_high_corrected4/36473067_1/ubcc1piAnalysis.root"},
+        //     {"WireModThetaYZ_run3a", "/pnfs/uboone/scratch/users/jdetje/ubcc1pi/overlays_DetVar_WireModThetaYZ_run3a_low_corrected4/36473048_1/ubcc1piAnalysis.root"},
+        //     {"WireModThetaYZ_run3b", "/pnfs/uboone/scratch/users/jdetje/ubcc1pi/overlays_DetVar_WireModThetaYZ_run3b_high_corrected4/36473064_1/ubcc1piAnalysis.root"},
+        //     {"WireModX_run3a", "/pnfs/uboone/scratch/users/jdetje/ubcc1pi/overlays_DetVar_WireModX_run3a_low_corrected4/36473033_1/ubcc1piAnalysis.root"},
+        //     {"WireModX_run3b", "/pnfs/uboone/scratch/users/jdetje/ubcc1pi/overlays_DetVar_WireModX_run3b_high_corrected4/36473057_1/ubcc1piAnalysis.root"},
+        //     {"WireModYZ_run3a", "/pnfs/uboone/scratch/users/jdetje/ubcc1pi/overlays_DetVar_WireModYZ_run3a_low_corrected4/36473036_1/ubcc1piAnalysis.root"},
+        //     {"WireModYZ_run3b", "/pnfs/uboone/scratch/users/jdetje/ubcc1pi/overlays_DetVar_WireModYZ_run3b_high_corrected4/36473061_1/ubcc1piAnalysis.root"}
+        // };
 
     };
     FilesRun3 filesRun3; ///< The input files
 
 
-
     // -------------------------------------------------------------------------------------------------------------------------------------
+
+    struct NormList
+    {
+        float overlaysPOT, dirtPOT, dataEXTTriggers, dataBNBTor875WCut, dataBNBE1DCNTWCut, nuWroPOT;
+        std::unordered_map<std::string, float> detVarPOTs;
+    };
 
     /**
      *  @brief  The sample normalisations structure
@@ -201,7 +319,7 @@ struct Config
      *      - Running the ubcc1pi::GetRunSubrunList macro (for data), and then running Zarko's tool:
      *          /uboone/app/users/zarko/getDataInfo.py -v2 --run-subrun-list runSubrunList.txt
      */
-    struct NormsRun1
+    struct NormsRun1 : NormList
     {
         float  overlaysPOT        = 1.195e+21;// TODO: REMOVE!! 6.42546e+19 POT for overlays_08Oct21_test_head20.root //1.195e+21;      ///< The total POT for the overlays MC
         // Andy S files: 1.22447e+21, Kirsty D files (Jan 21):  1.18578e+21, Philip D files (Oct 08) 1.195e+21 
@@ -262,7 +380,7 @@ struct Config
      *      - Running the ubcc1pi::GetRunSubrunList macro (for data), and then running Zarko's tool:
      *          /uboone/app/users/zarko/getDataInfo.py -v2 --run-subrun-list runSubrunList.txt
      */
-    struct NormsRun2
+    struct NormsRun2 : NormList
     {
         float  overlaysPOT        = 4.38501e+20;
         float  dirtPOT            = 4.40468e+20;
@@ -302,7 +420,7 @@ struct Config
      *      - Running the ubcc1pi::GetRunSubrunList macro (for data), and then running Zarko's tool:
      *          /uboone/app/users/zarko/getDataInfo.py -v2 --run-subrun-list runSubrunList.txt
      */
-    struct NormsRun3
+    struct NormsRun3 : NormList
     {
         float  overlaysPOT        = 8.92215e+20; 
         float  dirtPOT            = 1.61137e+20; 
@@ -330,6 +448,8 @@ struct Config
         };
     };
     NormsRun3 normsRun3; ///< The sample normalisations
+
+    const std::vector<NormList> inputNormalisations = {normsRun1, normsRun2, normsRun3};
 
     // -------------------------------------------------------------------------------------------------------------------------------------
 
@@ -376,6 +496,10 @@ struct Config
         bool        axisTitles              = true;              ///< If we want to draw axis lables and titles on the plots (if false, they are not drawn so you can add your own later)
         bool        scaleByBinWidth         = true;
         bool        useCC0piConstraint      = true;              ///< If we should use the CC0pi selection to constrain CC1pi cross-section
+        bool        useBNB                  = true;              ///< If we should run with real data
+        bool        useNuWro                = true;              ///< If we should run with NuWro as data
+        bool        useDetVar               = true;              ///< If we should run with detector variations
+        bool        fitInSystematicUniverses= true;              ///< If we should fit not only in nominal but also in systematic universes
         std::vector<unsigned int> runs      = {1,2,3};           ///< The runs to use in the analysis
 
         /**
@@ -443,6 +567,18 @@ struct Config
         }; ///< The nProtons binning
 
 
+        Binning muonMomentumSideband {
+            0.15f,                                    // min
+            std::numeric_limits<float>::max(),        // max
+            {0.15f, 0.23f, 0.32f, 0.45f, 0.66f, 1.5f, std::numeric_limits<float>::max()} // binEdges
+        }; ///< The muonMomentum binning without the overflow bins
+
+        Binning pionMomentumSideband {
+            0.f,                               // min
+            std::numeric_limits<float>::max(), // max
+            {0.f, 0.1f, 0.16f, 0.19f, 0.22f, 0.6f, std::numeric_limits<float>::max()}  // binEdges
+        }; ///< The pionMomentum binning without the underflow/overflow bins
+
 
 
         Binning muonPhiSideband {
@@ -502,10 +638,10 @@ struct Config
      */
     struct CountPOT
     {
-        bool  useOverlays           = true; ///< If we should count the POT for the overlays
+        bool  useOverlays           = false; ///< If we should count the POT for the overlays
         bool  useDirt               = false; ///< If we should count the POT for the dirt
-        bool  useDetectorVariations = false; ///< If we should count the POT for the detector variations
-        bool  useNuWro              = true; ///< If we should count the POT for NuWro
+        bool  useDetectorVariations = true; ///< If we should count the POT for the detector variations
+        bool  useNuWro              = false; ///< If we should count the POT for NuWro
     };
     CountPOT countPOT; ///< The configuration options for the CountPOT macro
 
@@ -637,8 +773,8 @@ struct Config
                 "generic", {
                     {"total",         true },
                     {"muonCosTheta",  true },
-                    {"muonPhi",       false },
-                    {"muonMomentum",  false },
+                    {"muonPhi",       true },
+                    {"muonMomentum",  true },
                     {"pionCosTheta",  false },
                     {"pionPhi",       false },
                     {"pionMomentum",  false },
@@ -713,17 +849,6 @@ struct Config
             {"WireModThetaXZ", "CV"},
             {"WireModThetaYZ", "CV"}
         }; ///< A mapping from the detector variation sample identifiers, to the identifiers for their relevant central-value sample
-
-        // CrossSectionHelper::SystUnisimDimensionsMap detVarDimensionsRun23 = {
-        //     {"LYDown",         "CV"},
-        //     {"LYRayleigh",     "CV"},
-        //     {"SCE",            "CV_SCE"},
-        //     {"Recomb2",        "CV_SCE"},
-        //     {"WireModX",       "CV"},
-        //     {"WireModYZ",      "CV"},
-        //     {"WireModThetaXZ", "CV"},
-        //     {"WireModThetaYZ", "CV"}
-        // }; ///< A mapping from the detector variation sample identifiers, to the identifiers for their relevant central-value sample
 
         // CrossSectionHelper::SystUnisimDimensionsMap detVarDimensions = {
         //     {"LYDown",         "CVRun1"},

@@ -80,6 +80,7 @@
         // "Macros/PlotMuonRecoVariables.cxx",
         // "Macros/PlotReconstructedVariables.cxx",
         "Macros/PlotProtonVariables.cxx",
+        "Macros/OptimizeSidebandCuts.cxx",
         // "Macros/PlotProtonMomentumByInteraction.cxx",
         // "Macros/DumpSelectedEventInfo.cxx",
         // "Macros/MakeBinningPlots.cxx",
@@ -87,6 +88,7 @@
         // "Macros/PlotFluxVariations.cxx",
         "Macros/ExtractXSecs.cxx",
         "Macros/ExtractNuWroXSecs.cxx",
+        "Macros/ExtractNuWroXSecs2.cxx",
         "Macros/ExtractXSecsOld.cxx",
         // "Macros/ExtractSidebandFit.cxx",
         "Macros/ExtractNuWroSidebandFit.cxx",
@@ -104,7 +106,7 @@
         "Macros/SelectionComparison.cxx",
         "Macros/MakeSidebandSelectedPIDTable.cxx",
         // "Macros/PlotEBRequests.cxx",
-        // "Macros/RunFullAnalysis.cxx"
+        "Macros/RunFullAnalysis.cxx"
     }))
     {
         std::cout << "Compiling " << file << std::endl;
