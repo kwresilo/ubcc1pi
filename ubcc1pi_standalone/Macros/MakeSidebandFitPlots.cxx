@@ -120,13 +120,13 @@ void MakeSidebandFitPlots(const Config &config)
 
             std::cout<<"Debug point 1"<<std::endl;
             // Define a prefix for the names of the plots
-            const std::string prefix = "nuWroSidebandFitPlots_" + selectionName + "_" + xsecName;
+            const std::string prefix = "NuWro_SidebandFitPlots_" + selectionName + "_" + xsecName;
             const auto &metadata = metadataMap.at(xsecName);
 
-            const auto selectedEventsSignalTruth = ubsmear::UBFileHelper::ReadMatrix("NuWroSidebandFit_" + selectionName + "_" + xsecName + "_selectedEventsSignalTruth.txt");
-            const auto selectedEventsData = ubsmear::UBFileHelper::ReadMatrix("NuWroSidebandFit_" + selectionName + "_" + xsecName + "_selectedEventsData.txt");
-            const auto selectedEventsBackgroundReco = ubsmear::UBFileHelper::ReadMatrix("NuWroSidebandFit_" + selectionName + "_" + xsecName + "_selectedEventsBackgroundReco.txt");
-            const auto smearingMatrix = ubsmear::UBFileHelper::ReadMatrix("NuWroSidebandFit_" + selectionName + "_" + xsecName + "_smearingMatrix.txt");
+            const auto selectedEventsSignalTruth = ubsmear::UBFileHelper::ReadMatrix("NuWro_SidebandFit_" + selectionName + "_" + xsecName + "_selectedEventsSignalTruth.txt");
+            const auto selectedEventsData = ubsmear::UBFileHelper::ReadMatrix("NuWro_SidebandFit_" + selectionName + "_" + xsecName + "_selectedEventsData.txt");
+            const auto selectedEventsBackgroundReco = ubsmear::UBFileHelper::ReadMatrix("NuWro_SidebandFit_" + selectionName + "_" + xsecName + "_selectedEventsBackgroundReco.txt");
+            const auto smearingMatrix = ubsmear::UBFileHelper::ReadMatrix("NuWro_SidebandFit_" + selectionName + "_" + xsecName + "_smearingMatrix.txt");
 
             const auto signalData = selectedEventsData - selectedEventsBackgroundReco;
             const auto selectedEventsSignalReco = smearingMatrix * selectedEventsSignalTruth;
@@ -450,7 +450,8 @@ void MakeSidebandFitPlots(const Config &config)
         }
     }
 
-
+    // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    return;//todo remove this!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     // -----------------------------------------------------------------------------------------------------------------------------
         // -----------------------------------------------------------------------------------------------------------------------------
             // -----------------------------------------------------------------------------------------------------------------------------
@@ -478,7 +479,7 @@ void MakeSidebandFitPlots(const Config &config)
                 continue;
             // Define a prefix for the names of the plots
             const auto &metadata = metadataMap.at(xsecName);
-            const auto selectedEventsData = ubsmear::UBFileHelper::ReadMatrix("NuWroSidebandFit_" + selectionName + "_" + xsecName + "_selectedEventsData.txt");
+            const auto selectedEventsData = ubsmear::UBFileHelper::ReadMatrix("NuWro_SidebandFit_" + selectionName + "_" + xsecName + "_selectedEventsData.txt");
 
             // -----------------------------------------------------------------------------------------------------------------------------
             // Make the comparison plot between data and smeared prediction
@@ -526,13 +527,13 @@ void MakeSidebandFitPlots(const Config &config)
                 {
                     for (const auto &[paramName, nUniverses] : dimensions)
                     {
-                        const std::string prefix = "nuWroSidebandFitPlots_" + selectionName + "_" + xsecName + "_" + group + "_" + paramName + "_" + std::to_string(iUni);
+                        const std::string prefix = "NuWro_SidebandFitPlots_" + selectionName + "_" + xsecName + "_" + group + "_" + paramName + "_" + std::to_string(iUni);
 
                         try //todo improve code here
                         {
-                            const auto _selectedEventsSignalTruth = ubsmear::UBFileHelper::ReadMatrix("NuWroSidebandFit_" + selectionName + "_" + xsecName  + "_" + group + "_" + paramName + "_" + std::to_string(iUni) + "_selectedEventsSignalTruth.txt");
-                            const auto _selectedEventsBackgroundReco = ubsmear::UBFileHelper::ReadMatrix("NuWroSidebandFit_" + selectionName + "_" + xsecName + "_" + group + "_" + paramName + "_" + std::to_string(iUni) + "_selectedEventsBackgroundReco.txt");
-                            const auto _smearingMatrix = ubsmear::UBFileHelper::ReadMatrix("NuWroSidebandFit_" + selectionName + "_" + xsecName + "_" + group + "_" + paramName + "_" + std::to_string(iUni) + "_smearingMatrix.txt");
+                            const auto _selectedEventsSignalTruth = ubsmear::UBFileHelper::ReadMatrix("NuWro_SidebandFit_" + selectionName + "_" + xsecName  + "_" + group + "_" + paramName + "_" + std::to_string(iUni) + "_selectedEventsSignalTruth.txt");
+                            const auto _selectedEventsBackgroundReco = ubsmear::UBFileHelper::ReadMatrix("NuWro_SidebandFit_" + selectionName + "_" + xsecName + "_" + group + "_" + paramName + "_" + std::to_string(iUni) + "_selectedEventsBackgroundReco.txt");
+                            const auto _smearingMatrix = ubsmear::UBFileHelper::ReadMatrix("NuWro_SidebandFit_" + selectionName + "_" + xsecName + "_" + group + "_" + paramName + "_" + std::to_string(iUni) + "_smearingMatrix.txt");
                         }
                         catch (const std::exception &e)
                         {
@@ -540,9 +541,9 @@ void MakeSidebandFitPlots(const Config &config)
                             continue;
                         }
 
-                        const auto selectedEventsSignalTruth = ubsmear::UBFileHelper::ReadMatrix("NuWroSidebandFit_" + selectionName + "_" + xsecName  + "_" + group + "_" + paramName + "_" + std::to_string(iUni) + "_selectedEventsSignalTruth.txt");
-                        const auto selectedEventsBackgroundReco = ubsmear::UBFileHelper::ReadMatrix("NuWroSidebandFit_" + selectionName + "_" + xsecName + "_" + group + "_" + paramName + "_" + std::to_string(iUni) + "_selectedEventsBackgroundReco.txt");
-                        const auto smearingMatrix = ubsmear::UBFileHelper::ReadMatrix("NuWroSidebandFit_" + selectionName + "_" + xsecName + "_" + group + "_" + paramName + "_" + std::to_string(iUni) + "_smearingMatrix.txt");
+                        const auto selectedEventsSignalTruth = ubsmear::UBFileHelper::ReadMatrix("NuWro_SidebandFit_" + selectionName + "_" + xsecName  + "_" + group + "_" + paramName + "_" + std::to_string(iUni) + "_selectedEventsSignalTruth.txt");
+                        const auto selectedEventsBackgroundReco = ubsmear::UBFileHelper::ReadMatrix("NuWro_SidebandFit_" + selectionName + "_" + xsecName + "_" + group + "_" + paramName + "_" + std::to_string(iUni) + "_selectedEventsBackgroundReco.txt");
+                        const auto smearingMatrix = ubsmear::UBFileHelper::ReadMatrix("NuWro_SidebandFit_" + selectionName + "_" + xsecName + "_" + group + "_" + paramName + "_" + std::to_string(iUni) + "_smearingMatrix.txt");
 
                         const auto signalData = selectedEventsData - selectedEventsBackgroundReco;
                         const auto selectedEventsSignalReco = smearingMatrix * selectedEventsSignalTruth;

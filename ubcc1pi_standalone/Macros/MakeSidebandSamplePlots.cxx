@@ -77,6 +77,9 @@ void MakeSidebandSamplePlots(const Config &config)
 
     // Get the selections
     auto selection = SelectionHelper::GetSelection("CC0pi");
+    // std::cout<<"..........................................\nUSING Modified CC0pi Selection: muonLikeProtonValue=-??f, barelyResemblingProtonValue=??f\n.........................................."<<std::endl;
+    // auto selection = SelectionHelper::GetCC0piSelectionModified(-0.48f, 0.12f);
+
     const auto cuts = selection.GetCuts();
     auto CC1piSelection = SelectionHelper::GetSelection("Default");
     const auto CC1piCuts = CC1piSelection.GetCuts();
@@ -120,7 +123,7 @@ void MakeSidebandSamplePlots(const Config &config)
     }
 
     // Kinematic plots for true CC0pi1p events only, in CC1pi and CC0pi selections
-    std::map<std::string, std::shared_ptr<TH1F>> TrueCC0pi_MuonMomentum, TrueCC0pi_MuonCosTheta, TrueCC0pi_MuonPhi, TrueCC0pi_ProtonMomentum, TrueCC0pi_ProtonCosTheta, TrueCC0pi_ProtonPhi;
+    std::map<std::string, std::shared_ptr<TH1F>> TrueCC0pi_ProtonMultiplicity, TrueCC0pi_MuonMomentum, TrueCC0pi_MuonCosTheta, TrueCC0pi_MuonPhi, TrueCC0pi_ProtonMomentum, TrueCC0pi_ProtonCosTheta, TrueCC0pi_ProtonPhi;
 
     // TrueCC0pi_MuonMomentum.emplace("SelCC1pi", new TH1F("TrueCC0pi_SelCC1pi_MuonMomentum",(string(";Muon Momentum / GeV;")+yLabel).c_str(), config.global.muonMomentum.binEdges.size()-1,config.global.muonMomentum.binEdges.data()));
     // TrueCC0pi_MuonCosTheta.emplace("SelCC1pi", new TH1F("TrueCC0pi_SelCC1pi_MuonCosTheta",(string(";Muon cos(theta);")+yLabel).c_str(), config.global.muonCosTheta.binEdges.size()-1,config.global.muonCosTheta.binEdges.data()));
@@ -136,6 +139,7 @@ void MakeSidebandSamplePlots(const Config &config)
     // TrueCC0pi_ProtonCosTheta.emplace("SelCC0pi", new TH1F("TrueCC0pi_SelCC0pi_ProtonCosTheta",(string(";Proton cos(theta);")+yLabel).c_str(), config.global.pionCosTheta.binEdges.size()-1,config.global.pionCosTheta.binEdges.data()));
     // TrueCC0pi_ProtonPhi.emplace("SelCC0pi", new TH1F("TrueCC0pi_SelCC0pi_ProtonPhi",(string(";Proton phi / rad;")+yLabel).c_str(), config.global.pionPhi.binEdges.size()-1,config.global.pionPhi.binEdges.data()));
 
+    TrueCC0pi_ProtonMultiplicity.emplace("SelCC1pi", new TH1F("TrueCC0pi_SelCC1pi_ProtonMultiplicity",(string(";Proton Multiplicity;")+yLabel).c_str(), 4, 0, 4));
     TrueCC0pi_MuonMomentum.emplace("SelCC1pi", new TH1F("TrueCC0pi_SelCC1pi_MuonMomentum",(string(";Muon Momentum / GeV;")+yLabel).c_str(), 10, 0, 1.5));
     TrueCC0pi_MuonCosTheta.emplace("SelCC1pi", new TH1F("TrueCC0pi_SelCC1pi_MuonCosTheta",(string(";Muon cos(theta);")+yLabel).c_str(), 10, -1, 1));
     TrueCC0pi_MuonPhi.emplace("SelCC1pi", new TH1F("TrueCC0pi_SelCC1pi_MuonPhi",(string(";Muon phi / rad;")+yLabel).c_str(), 15, -TMath::Pi(), TMath::Pi()));
@@ -143,6 +147,7 @@ void MakeSidebandSamplePlots(const Config &config)
     TrueCC0pi_ProtonCosTheta.emplace("SelCC1pi", new TH1F("TrueCC0pi_SelCC1pi_ProtonCosTheta",(string(";Proton cos(theta);")+yLabel).c_str(), 10, -1, 1));
     TrueCC0pi_ProtonPhi.emplace("SelCC1pi", new TH1F("TrueCC0pi_SelCC1pi_ProtonPhi",(string(";Proton phi / rad;")+yLabel).c_str(), 15, -TMath::Pi(), TMath::Pi()));
 
+    TrueCC0pi_ProtonMultiplicity.emplace("SelCC0pi", new TH1F("TrueCC0pi_SelCC0pi_ProtonMultiplicity",(string(";Proton Multiplicity;")+yLabel).c_str(), 4, 0, 4));
     TrueCC0pi_MuonMomentum.emplace("SelCC0pi", new TH1F("TrueCC0pi_SelCC0pi_MuonMomentum",(string(";Muon Momentum / GeV;")+yLabel).c_str(), 10, 0, 1.5));
     TrueCC0pi_MuonCosTheta.emplace("SelCC0pi", new TH1F("TrueCC0pi_SelCC0pi_MuonCosTheta",(string(";Muon cos(theta);")+yLabel).c_str(), 10, -1, 1));
     TrueCC0pi_MuonPhi.emplace("SelCC0pi", new TH1F("TrueCC0pi_SelCC0pi_MuonPhi",(string(";Muon phi / rad;")+yLabel).c_str(), 15, -TMath::Pi(), TMath::Pi()));
@@ -252,7 +257,9 @@ void MakeSidebandSamplePlots(const Config &config)
         auto pEvent = reader.GetBoundEventAddress();
 
         const auto nEvents = reader.GetNumberOfEvents();
-        for (unsigned int i = 0; i < nEvents; ++i)
+
+        std::cout<<"\n##############\nOnly counting every 10th event!\n##############"<<std::endl;
+        for (unsigned int i = 0; i < nEvents/10; ++i)
         {
             AnalysisHelper::PrintLoadingBar(i, nEvents);
             reader.LoadEvent(i);
@@ -359,6 +366,11 @@ void MakeSidebandSamplePlots(const Config &config)
                         const auto cosTheta = dir.Z();
                         const auto phi = std::atan2(dir.Y(),dir.X());
 
+                        const auto visibleParticles = AnalysisHelper::SelectVisibleParticles(pEvent->truth.particles);
+                        // const auto nProtons = AnalysisHelper::CountParticlesAboveMomentumThreshold(visibleParticles, 2212, config.global.useAbsPdg, config.global.protonMomentumThreshold);
+                        const auto nProtons = std::min(AnalysisHelper::CountParticlesAboveMomentumThreshold(visibleParticles, 2212, config.global.useAbsPdg, config.global.protonMomentumThreshold)-1, 2u); //-1 as one proton is treated as the pion
+
+                        TrueCC0pi_ProtonMultiplicity.at("SelCC0pi")->Fill(nProtons);
                         TrueCC0pi_MuonMomentum.at("SelCC0pi")->Fill(truemu.momentum());
                         TrueCC0pi_MuonCosTheta.at("SelCC0pi")->Fill(TrueMuCosTheta);
                         TrueCC0pi_MuonPhi.at("SelCC0pi")->Fill(TrueMuPhi);
@@ -457,6 +469,11 @@ void MakeSidebandSamplePlots(const Config &config)
                     }
 
                     if (pionMatch.pdgCode()==2212){
+
+                        const auto visibleParticles = AnalysisHelper::SelectVisibleParticles(pEvent->truth.particles);
+                        // const auto nProtons = AnalysisHelper::CountParticlesWithPdgCode(visibleParticles, 2212, config.global.useAbsPdg);
+                        const auto nProtons = std::min(AnalysisHelper::CountParticlesAboveMomentumThreshold(visibleParticles, 2212, config.global.useAbsPdg, config.global.protonMomentumThreshold)-1, 2u); //-1 as one proton is treated as the pion
+                        TrueCC0pi_ProtonMultiplicity.at("SelCC1pi")->Fill(nProtons);
                         TrueCC0pi_MuonMomentum.at("SelCC1pi")->Fill(truemu.momentum());
                         TrueCC0pi_MuonCosTheta.at("SelCC1pi")->Fill(TrueMuCosTheta);
                         TrueCC0pi_MuonPhi.at("SelCC1pi")->Fill(TrueMuPhi);
@@ -535,6 +552,12 @@ void MakeSidebandSamplePlots(const Config &config)
     // Save kinematic comparison plots for true CC0pi
     auto pCanvas = PlottingHelper::GetCanvas();
 
+    PlottingHelper::SetLineStyle(TrueCC0pi_ProtonMultiplicity.at("SelCC1pi"), PlottingHelper::Primary);
+    PlottingHelper::SetLineStyle(TrueCC0pi_ProtonMultiplicity.at("SelCC0pi"), PlottingHelper::Secondary);
+    TrueCC0pi_ProtonMultiplicity.at("SelCC0pi")->Draw("hist");
+    TrueCC0pi_ProtonMultiplicity.at("SelCC1pi")->Draw("hist same");
+    PlottingHelper::SaveCanvas(pCanvas,"SidebandComparisons_ProtonMultiplicity");
+
     PlottingHelper::SetLineStyle(TrueCC0pi_MuonMomentum.at("SelCC1pi"), PlottingHelper::Primary);
     PlottingHelper::SetLineStyle(TrueCC0pi_MuonMomentum.at("SelCC0pi"), PlottingHelper::Secondary);
     TrueCC0pi_MuonMomentum.at("SelCC0pi")->Draw("hist");
@@ -570,6 +593,16 @@ void MakeSidebandSamplePlots(const Config &config)
     TrueCC0pi_ProtonPhi.at("SelCC0pi")->Draw("hist");
     TrueCC0pi_ProtonPhi.at("SelCC1pi")->Draw("hist same");
     PlottingHelper::SaveCanvas(pCanvas,"SidebandComparisons_ProtonPhi");
+
+    // Now normalise plots so we can compare shapes
+    TrueCC0pi_ProtonMultiplicity.at("SelCC1pi")->Sumw2();
+    TrueCC0pi_ProtonMultiplicity.at("SelCC1pi")->Scale(1.0/TrueCC0pi_ProtonMultiplicity.at("SelCC1pi")->Integral());
+    TrueCC0pi_ProtonMultiplicity.at("SelCC0pi")->Sumw2();
+    TrueCC0pi_ProtonMultiplicity.at("SelCC0pi")->Scale(1.0/TrueCC0pi_ProtonMultiplicity.at("SelCC0pi")->Integral());
+    TrueCC0pi_ProtonMultiplicity.at("SelCC0pi")->GetYaxis()->SetRangeUser(0, 1.1);
+    TrueCC0pi_ProtonMultiplicity.at("SelCC0pi")->Draw("hist");
+    TrueCC0pi_ProtonMultiplicity.at("SelCC1pi")->Draw("hist same");
+    PlottingHelper::SaveCanvas(pCanvas,"SidebandComparisons_ProtonMultiplicity_areanorm");
 
     // Now normalise plots so we can compare shapes
     TrueCC0pi_MuonMomentum.at("SelCC1pi")->Sumw2();

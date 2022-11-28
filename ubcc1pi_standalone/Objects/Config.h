@@ -487,20 +487,21 @@ struct Config
      */
     struct Global
     {
-        bool        useAbsPdg               = true;              ///< If we should use absolute PDG codes (this makes pi+ == pi- in the signal definition)
-        bool        countProtonsInclusively = true;              ///< If we should count protons inclusively (as Xp), or exclusively as (0p, 1p, 2p, ...)
-        std::string lastCutGeneric          = "startNearVertex"; ///< The last cut of the generic selection (remaining cuts are part of the golden selection)
-        float       protonMomentumThreshold = 0.3f;              ///< The minimum proton momentum to be counted [GeV]
-        float       targetDensity           = 8.44191f;          ///< The number of target nuclei per unit volume - units e23 / cm^3
-        std::string selection               = "Default";         ///< Which selection to use (can be "CCInclusive","Default", or "CC0pi")
-        bool        axisTitles              = true;              ///< If we want to draw axis lables and titles on the plots (if false, they are not drawn so you can add your own later)
-        bool        scaleByBinWidth         = true;
-        bool        useCC0piConstraint      = true;              ///< If we should use the CC0pi selection to constrain CC1pi cross-section
-        bool        useBNB                  = true;              ///< If we should run with real data
-        bool        useNuWro                = true;              ///< If we should run with NuWro as data
-        bool        useDetVar               = true;              ///< If we should run with detector variations
-        bool        fitInSystematicUniverses= true;              ///< If we should fit not only in nominal but also in systematic universes
-        std::vector<unsigned int> runs      = {1,2,3};           ///< The runs to use in the analysis
+        bool        useAbsPdg                = true;              ///< If we should use absolute PDG codes (this makes pi+ == pi- in the signal definition)
+        bool        countProtonsInclusively  = true;              ///< If we should count protons inclusively (as Xp), or exclusively as (0p, 1p, 2p, ...)
+        std::string lastCutGeneric           = "startNearVertex"; ///< The last cut of the generic selection (remaining cuts are part of the golden selection)
+        float       protonMomentumThreshold  = 0.3f;              ///< The minimum proton momentum to be counted [GeV]
+        float       targetDensity            = 8.44191f;          ///< The number of target nuclei per unit volume - units e23 / cm^3
+        std::string selection                = "Default";         ///< Which selection to use (can be "CCInclusive","Default", or "CC0pi")
+        bool        axisTitles               = true;              ///< If we want to draw axis lables and titles on the plots (if false, they are not drawn so you can add your own later)
+        bool        scaleByBinWidth          = true;
+        bool        useCC0piConstraint       = true;              ///< If we should use the CC0pi selection to constrain CC1pi cross-section
+        bool        useBNBAsData             = false;              ///< If we should run with real data
+        bool        useNuWroAsData           = false;              ///< If we should run with NuWro as data
+        bool        useGenieAsData           = true;              ///< If we should run with Genie as data
+        bool        useDetVar                = false;              ///< If we should run with detector variations
+        bool        fitInSystematicUniverses = true;              ///< If we should fit not only in nominal but also in systematic universes
+        std::vector<unsigned int> runs       = {1};               ///< The runs to use in the analysis
 
         /**
          *  @brief  The Binning structure
@@ -771,14 +772,14 @@ struct Config
         std::unordered_map<std::string, std::unordered_map<std::string, bool> > crossSectionIsEnabled = {
             {
                 "generic", {
-                    {"total",         true },
+                    {"total",         false },
                     {"muonCosTheta",  true },
                     {"muonPhi",       true },
                     {"muonMomentum",  true },
-                    {"pionCosTheta",  false },
-                    {"pionPhi",       false },
-                    {"pionMomentum",  false },
-                    {"muonPionAngle", false },
+                    {"pionCosTheta",  true },
+                    {"pionPhi",       true },
+                    {"pionMomentum",  true },
+                    {"muonPionAngle", true },
                     {"nProtons",      true }
                 }
             },
@@ -805,9 +806,10 @@ struct Config
         *          is set to true, then we scale the GENIE universe weights down by genieTuneEventWeight to put them on the same footing as
         *          all other parameters. If this option is false then the GENIE weights recieve no special treatment.
         */
-        bool scaleXSecWeights = true;
+        bool scaleXSecWeights = false;
 
         unsigned int nBootstrapUniverses = 1000u; ///< The number of bootrap universes to generate for the MC stat uncertainty
+        unsigned int nSidebandFitUniverses = 1000u; ///< The number of universes to use for the sideband-fit parameter uncertainties
 
         float potFracUncertainty = 0.02f; ///< The fractional uncertainty on the POT normalisation
 
@@ -832,6 +834,17 @@ struct Config
             {"xsr_scc_Fa3_SCC",         10u},
             {"xsr_scc_Fv3_SCC",         10u}
         }; ///< A mapping from the cross-section parameter names to the number of universes
+
+        std::unordered_map<std::string, bool> xsecUBGenieScalingMap = {
+            {"All_UBGenie",             true},
+            {"AxFFCCQEshape_UBGenie",   true},
+            {"DecayAngMEC_UBGenie",     true},
+            {"Theta_Delta2Npi_UBGenie", true},
+            {"VecFFCCQEshape_UBGenie",  true},
+            {"xsr_scc_Fa3_SCC",         false},
+            {"xsr_scc_Fv3_SCC",         false}
+        }; ///< Mapping from cross-section parameter names to boolean indicating if we should scale down the parameters by the genieTuneEventWeight ...
+        // ... to avoid double counting the factor in the universe and nominal weights 
 
         CrossSectionHelper::SystDimensionsMap reintDimensions = {
             {"reinteractions_piminus_Geant4", 1000u},

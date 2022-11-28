@@ -55,6 +55,7 @@ class AnalysisHelper
             float         muonProtonAngle; ///< The muon-proton opening angle
             unsigned int  nProtons;        ///< The number of protons
             bool          hasGoldenPion;   ///< If the event has a golden pion
+            bool          hasGoldenProton; ///< If the leading proton is golden / passes golden pion cut 
         };
 
         /**
@@ -647,11 +648,11 @@ class AnalysisHelper
          *
          *  @param  reco the input reco information of the event
          *  @param  assignedPdgCodes the PDG codes assigned to each reco particle
-         *  @param  passesGoldenPionSelection if the event passes the golden pion selection
+         *  @param  passesGoldenProtonSelection if the event passes the golden proton selection
          *
          *  @return the reco analysis data
          */
-        static AnalysisData GetRecoAnalysisDataCC0Pi(const Event::Reco &reco, const std::vector<int> &assignedPdgCodes);
+        static AnalysisData GetRecoAnalysisDataCC0Pi(const Event::Reco &reco, const std::vector<int> &assignedPdgCodes, const bool passesGoldenProtonSelection);
 
         /**
          *  @brief  Get the index of the particle that's been assigned the supplied PDG code
@@ -719,7 +720,7 @@ class AnalysisHelper
          *  @param  numerator the numerator
          *  @param  denominator the denominator
          */
-        static void PrintLoadingBar(const unsigned int numerator, const unsigned int denominator);
+        static void PrintLoadingBar(const unsigned int numerator, const unsigned int denominator, const bool fancy=true);
 
         /**
          *  @brief  Get the index of the true leading (i.e. highest-momentum) proton

@@ -18,58 +18,102 @@ void FittingHelper::Fit(void(*fcn)(Int_t &, Double_t *, Double_t &f, Double_t *,
 {
     // if(smearingMatrix.IsSquare() && truthRecoMatrix.GetRows() == data.GetRows() && data.GetRows()==dataStatUncertainty.GetRows() && data.GetColumns()==dataStatUncertainty.GetColumns())
     //     throw std::logic_error("FittingHelper::Fit - Incompatible input dimenstions.");
-    successful = true;
+    // std::cout<<"FittingHelper::Fit ((0))"<<std::endl;
+    successful = false;
     // auto nBins = x.GetRows();
     TMinuit minuit(nBins);
+    // std::cout<<"FittingHelper::Fit ((1))"<<std::endl;
     minuit.SetPrintLevel(printlevel);
     // minuit.SetMaxIterations(5000);
     minuit.SetFCN(fcn);
+    // std::cout<<"FittingHelper::Fit ((2))"<<std::endl;
 
     Double_t arglist[10];
     Int_t ierflg = 0;
 
     arglist[0]=1;
-    minuit.mnexcm("SET ERR", arglist ,1, ierflg);
+    minuit.mnexcm("SET ERR", arglist, 1, ierflg);
 
+    std::cout<<"FittingHelper::Fit ((3))"<<std::endl;
     // Set starting values and step sizes for parameters
     for (Int_t iBin=0; iBin<nBins; iBin++)
     {
-        minuit.mnparm(iBin, std::to_string(iBin), 1.0, 0.2, 0.0, 9999.0, ierflg);
-    }
+        minuit.mnparm(iBin, std::to_string(iBin), 1.0, 0.2, -9999.0, 9999.0, ierflg); // random limit: 9999.0 mnparm // parameter number here follows normals convention starting from 0 ...
+    }                                                                                 // ... specifically: "Parameter number as referenced by user in FCN"
 
-    arglist[0]=5000;
-    arglist[1]=0.1;
-    minuit.mnexcm("MIGRAD", arglist,2,ierflg);
-    if(ierflg!=0)
-    {
-        std::cout<<"FittingHelper::Fit - Did not converge. Execution failed with ierflg: "<<ierflg<<std::endl;
-        // Double_t covMatrixFit[nBins][nBins];
-
-        // for (int i=0; i<nBins; i++)
-        // {
-        //     for (int j=0; j<nBins; j++)
-        //     {
-        //         covMatrix.push_back((float)covMatrixFit[i][j]);       
-        //     }
-        // }
-        // result = std::make_pair(std::vector<Double_t>(nBins, 1.0), std::vector<Double_t>(nBins, 1.0));
-        successful = false;
-
-        std::vector<Double_t>paramVector, paramErrorVector;
+    std::cout<<"FittingHelper::Fit ((4))"<<std::endl;
+    std::vector<bool> fixedParameters(nBins, false); 
+    while (!successful){
+        arglist[0]=5000;
+        arglist[1]=0.1;
+        std::cout<<"FittingHelper::Fit ((4.1))"<<std::endl;
+        minuit.mnexcm("MIGRAD", arglist, 2, ierflg);
+        std::cout<<"FittingHelper::Fit ((4.2))"<<std::endl;
+        if(ierflg!=0)
+        {
+            std::cout<<"FittingHelper::Fit - Did not converge. Execution failed with ierflg: "<<ierflg<<std::endl;
+            return;
+        }
+        successful = true;
         for (Int_t iBin=0; iBin<nBins; iBin++)
         {
+            std::cout<<"FittingHelper::Fit ((4.3))"<<std::endl;
             Double_t param, paramError;
             minuit.GetParameter(iBin, param, paramError);
-            std::cout<<"FittingHelper::Fit Unsuccessful - Parameter "<<iBin<<" = "<<param<<" +/- "<<paramError<<std::endl;
+            std::cout<<"FittingHelper::Fit ((4.4))"<<std::endl;
+            // Double_t paramDebug, paramErrorDebug; // todo remove
+            // minuit.GetParameter(nBins, paramDebug, paramErrorDebug); // todo remove
+            // std::cout<<"Debug - paramDebug: "<<paramDebug<<" paramErrorDebug: "<<paramErrorDebug<<std::endl; // todo remove
+            if(param<0)
+            {
+                std::cout<<"FittingHelper::Fit - Parameter "<<iBin<<" has negative value: "<<param<<std::endl;
+                Int_t ierflgSet;
+                fixedParameters.at(iBin) = true;
+                successful = false;
+                arglist[0] = iBin+1; // Numeration starts from 1 instead of 0
+                arglist[1] = 0.0;
+                std::cout<<"FittingHelper::Fit ((5))"<<std::endl;
+                minuit.mnexcm("SET PARAM", arglist, 2, ierflgSet);
+                if(ierflgSet!=0)
+                {
+                    std::cout<<"FittingHelper::Fit - minuit SET PARAM failed."<<std::endl;
+                    throw std::logic_error("FittingHelper::Fit - minuit SET PARAM failed.");
+                }
+                std::cout<<"FittingHelper::Fit ((6))"<<std::endl;
+                minuit.FixParameter(iBin);
+            }
+            std::cout<<"FittingHelper::Fit ((7))"<<std::endl;
         }
- 
-        return;
-        std::cout<<"FittingHelper::Fit - Did not converge. DEBUG After"<<std::endl;
-        
-        // throw std::logic_error("FittingHelper::Fit - Did not converge. Execution failed with ierflg: "+std::to_string(ierflg));
+    }
+    std::cout<<"FittingHelper::Fit ((10))"<<std::endl;
+    for (Int_t iBin=0; iBin<nBins; iBin++)
+    {
+       if(fixedParameters.at(iBin))
+       {
+            Int_t ierflgScan;
+            minuit.Release(iBin);
+            arglist[0] = iBin+1; // Numeration starts from 1 instead of 0
+            minuit.mnexcm("SCAN", arglist, 1, ierflgScan);
+            if(ierflgScan!=0)
+            {
+                std::cout<<"FittingHelper::Fit - minuit SCAN failed."<<std::endl;
+                throw std::logic_error("FittingHelper::Fit - minuit SCAN failed.");
+            }
+       }
+    }
+    std::cout<<"FittingHelper::Fit ((11))"<<std::endl;
+
+    std::vector<Double_t>paramVector, paramErrorVector;
+    for (Int_t iBin=0; iBin<nBins; iBin++)
+    {
+        Double_t param, paramError;
+        minuit.GetParameter(iBin, param, paramError);
+        paramVector.push_back(param);
+        paramErrorVector.push_back(paramError);
     }
 
-    
+    std::cout<<"FittingHelper::Fit ((12))"<<std::endl;
+
     // FMIN: the best function value found so far
     // FEDM: the estimated vertical distance remaining to minimum
     // ERRDEF: the value of UP defining parameter uncertainties
@@ -84,21 +128,11 @@ void FittingHelper::Fit(void(*fcn)(Int_t &, Double_t *, Double_t &f, Double_t *,
     Double_t amin,edm,errdef;
     Int_t nvpar,nparx,icstat;
     minuit.mnstat(amin,edm,errdef,nvpar,nparx,icstat);
-    //minuit.mnprin(3,amin);
-    
-    std::vector<Double_t>paramVector, paramErrorVector;
-    for (Int_t iBin=0; iBin<nBins; iBin++)
-    {
-        Double_t param, paramError;
-        minuit.GetParameter(iBin, param, paramError);
-        paramVector.push_back(param);
-        paramErrorVector.push_back(paramError);
-    }
- 
+    // minuit.mnprin(3,amin);
+
     // covMatrix = std::vector<Double_t>(nBins*nBins); 
     Double_t covMatrixFit[nBins][nBins];
     minuit.mnemat(&covMatrixFit[0][0], nBins);
-    std::cout<<"@@@@@@@@ Covariance matrix:"<<std::endl;
     minuit.mnmatu(1);
 
     covMatrix.clear();
@@ -109,7 +143,9 @@ void FittingHelper::Fit(void(*fcn)(Int_t &, Double_t *, Double_t &f, Double_t *,
             covMatrix.push_back((float)covMatrixFit[i][j]);       
         }
     }
+
     result = std::make_pair(paramVector, paramErrorVector);
+    std::cout<<"FittingHelper::Fit ((13))"<<std::endl;
 }
 
 

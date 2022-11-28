@@ -203,10 +203,11 @@ class CrossSectionHelper
                 *          universe is added to using the product of the nominal & weight for that universe
                 *
                 *  @param  trueNuEnergy the true neutrino energy
-                *  @param  nominalWeight the nominal event weight
+                *  @param  unscaledNominalWeight the nominal event weight without any additional sideband-fit scaling applied (use nominalWeightFactor)
                 *  @param  fluxWeights the flux universe weights (mapping from flux parameter name to the weights in each universe)
+                *  @param  nominalWeightFactor a factor to apply to the nominal weight
                 */
-                void AddEvent(const float trueNuEnergy, const float nominalWeight, const SystFloatMap &fluxWeights);
+                void AddEvent(const float trueNuEnergy, const float unscaledNominalWeight, const SystFloatMap &fluxWeights, const float nominalWeightFactor = 1.f);
 
                 /**
                 *  @brief  Get the flux distribution in the nominal universe
@@ -265,6 +266,7 @@ class CrossSectionHelper
                 struct SystParams
                 {
                     unsigned int             nBootstrapUniverses; ///< The number of bootstrap universes to use for the MC stat uncertainty
+                    unsigned int             nSidebandFitUniverses; ///< The number of universes to use for the sideband-fit parameter uncertainties
                     SystDimensionsMap        fluxDimensions;      ///< The dimensions of the flux systematic parameters
                     SystDimensionsMap        xsecDimensions;      ///< The dimensions of the cross-section systematic parameters
                     SystDimensionsMap        reintDimensions;      ///< The dimensions of the reinteraction systematic parameters
@@ -277,6 +279,8 @@ class CrossSectionHelper
                 */
                 struct ScalingData
                 {
+                    ScalingData(): pFluxReweightor(nullptr), exposurePOT(0.f), nTargets(0.f) {}
+                    ScalingData(std::shared_ptr<FluxReweightor> pFluxReweightorInintial): pFluxReweightor(pFluxReweightorInintial), exposurePOT(0.f), nTargets(0.f) {}
                     std::shared_ptr<FluxReweightor>  pFluxReweightor; ///< Means of getting the integrated flux in each systematic universe
                     float                            exposurePOT;     ///< The total POT for the BNB data sample
                     float                            nTargets;        ///< The number of target nucleons
@@ -307,9 +311,8 @@ class CrossSectionHelper
                 *  @param  nominalWeight the nominal event weight
                 *  @param  fluxWeights the flux systematic event weights
                 *  @param  xsecWeights the cross-section systematic event weights
-                *  @param  seed random number generator seed
                 */
-                void AddSignalEvent(const float recoValue, const float trueValue, const bool isSelected, const float nominalWeight, const SystFloatMap &fluxWeights, const SystFloatMap &xsecWeights, const SystFloatMap &reintWeights, const std::string seed);
+                void AddSignalEvent(const float recoValue, const float trueValue, const bool isSelected, const float nominalWeight, const SystFloatMap &fluxWeights, const SystFloatMap &xsecWeights, const SystFloatMap &reintWeights);
 
                 /**
                 *  @brief  Add a simulated signal event from a detector variation sample
@@ -333,12 +336,15 @@ class CrossSectionHelper
                 *
                 *  @param  recoValue the reconstructed value of the kinematic quantity
                 *  @param  isDirt if the event is dirt
-                *  @param  nominalWeight the nominal event weight
+                *  @param  unscaledNominalWeight the nominal event weight without any additional sideband-fit scaling applied (use nominalWeightFactor)
                 *  @param  fluxWeights the flux systematic event weights
                 *  @param  xsecWeights the cross-section systematic event weights
-                *  @param  seed random number generator seed
+                *  @param  reintWeights the reinteraction systematic event weights
+                *  @param  sidebandWeights the sideband systematic event weights
+                *  @param  nominalWeightFactor a factor to apply to the nominal weight
+                *
                 */
-                void AddSelectedBackgroundEvent(const float recoValue, const bool isDirt, const float nominalWeight, const SystFloatMap &fluxWeights, const SystFloatMap &xsecWeights, const SystFloatMap &reintWeights, std::vector<float> sidebandWeights, const std::string seed);
+                void AddSelectedBackgroundEvent(const float recoValue, const bool isDirt, const float unscaledNominalWeight, const SystFloatMap &fluxWeights, const SystFloatMap &xsecWeights, const SystFloatMap &reintWeights, std::vector<float> sidebandWeights, const float nominalWeightFactor = 1.f);
 
                 /**
                 *  @brief  Add a simulated selected background event from a detector variation sample
@@ -368,7 +374,7 @@ class CrossSectionHelper
                 *  @param  recoValue the reconstructed value of the kinematic quantity
                 *  @param  weight the weight value of the event
                 */
-                void AddWeightedSelectedBNBDataEvent(const float recoValue, const float weight);
+                void AddWeightedSelectedDataEvent(const float recoValue, const float weight);
 
                 /**
                 *  @brief  Get information about presence of an overflow bin
@@ -413,12 +419,11 @@ class CrossSectionHelper
                 * 
                 *  @param weights input weight map
                 *  @param trueSidebandValue the true sideband value of an event
-                *  @param cc0piNominalConstraintParam the nominal constraint parameter list for a cross-section                * 
                 *  @param cc0piUniverseConstraintParam the universe constraint parameter list for a cross-section
                 * 
                 *  @return universe parameter weights
                 */
-                SystFloatMap GetSidebandUniverseScaling(const CrossSectionHelper::SystFloatMap weights, const float trueSidebandValue, const std::vector<Double_t> &cc0piNominalConstraintParam, const std::map<std::string, std::vector<std::pair<std::vector<Double_t>,std::vector<Double_t>>>> &cc0piUniverseConstraints) const;
+                SystFloatMap GetSidebandUniverseScaling(const CrossSectionHelper::SystFloatMap weights, const float trueSidebandValue, const std::map<std::string, std::vector<std::pair<std::vector<Double_t>,std::vector<Double_t>>>> &cc0piUniverseConstraints) const;
 
                 /**
                 *  @brief  Get the nominal sideband scaling factor
@@ -485,6 +490,18 @@ class CrossSectionHelper
                 *  @return the cross-section as a column vector
                 */
                 ubsmear::UBMatrix GetPredictedCrossSection(const ScalingData &scalingData) const;
+
+                /**
+                *  @brief  Get the predicted data cross section in a given multisim universe
+                *
+                *  @param  group the group of parameters (e.g. flux, xsec, reint, misc)
+                *  @param  paramName the systematic parameter name
+                *  @param  universeIndex the universe index
+                *  @param  scalingData the information about how we should scale the event rate to get the cross-section
+                *
+                *  @return the cross-section as a column vector
+                */
+                ubsmear::UBMatrix GetPredictedCrossSectionInUniverse(const std::string &group, const std::string &paramName, const unsigned int universeIndex, const ScalingData &scalingData) const;                
 
                 /**
                 *  @brief  Get the NuWro predicted flux-integrated forward-folded cross-section in the nominal universe
@@ -557,6 +574,14 @@ class CrossSectionHelper
                 */
                 SystBiasCovariancePair GetPredictedSidebandCrossSectionStatUncertainty(const ScalingData &scalingData) const;
 
+                /**
+                *  @brief  Get the total error matrix map
+                *
+                *  @param  scalingData the information about how we should scale the event rate to get the cross-section
+                *
+                *  @return the total error matrix map
+                */
+                std::map<std::string, ubsmear::UBMatrix> GetTotalErrorMatrixMap(const ScalingData &scalingData) const;
 
                 /**
                 *  @brief  Get the selected background event distribution in reco space for each multisim universe
@@ -603,6 +628,18 @@ class CrossSectionHelper
                 */
                 std::shared_ptr<ubsmear::UBMatrix> GetSmearingMatrixInUniverseAllSelected(const std::string &group, const std::string &paramName, const unsigned int universeIndex) const;
 
+                /**
+                *  @brief  Get the BNB data cross section in a given multisim universe
+                *
+                *  @param  group the group of parameters (e.g. flux, xsec, reint, misc)
+                *  @param  paramName the systematic parameter name
+                *  @param  universeIndex the universe index
+                *  @param  scalingData the information about how we should scale the event rate to get the cross-section
+                *
+                *  @return the cross-section as a column vector
+                */
+                ubsmear::UBMatrix GetBNBDataCrossSectionInUniverse(const std::string &group, const std::string &paramName, const unsigned int universeIndex, const ScalingData &scalingData) const;
+
             private:
 
                 /**
@@ -619,18 +656,6 @@ class CrossSectionHelper
                 *  @return the cross-section
                 */
                 ubsmear::UBMatrix GetCrossSection(const ubsmear::UBMatrix &selected, const ubsmear::UBMatrix &backgrounds, const float integratedFlux, const float exposurePOT, const float nTargets) const;
-
-                /**
-                *  @brief  Get the BNB data cross section in a given multisim universe
-                *
-                *  @param  group the group of parameters (e.g. flux, xsec, reint, misc)
-                *  @param  paramName the systematic parameter name
-                *  @param  universeIndex the universe index
-                *  @param  scalingData the information about how we should scale the event rate to get the cross-section
-                *
-                *  @return the cross-section as a column vector
-                */
-                ubsmear::UBMatrix GetBNBDataCrossSectionInUniverse(const std::string &group, const std::string &paramName, const unsigned int universeIndex, const ScalingData &scalingData) const;
 
                 /**
                 *  @brief  Get the BNB data cross section for a given unisim sample
@@ -889,10 +914,11 @@ class CrossSectionHelper
         *
         *  @param  weightsMap the input weights map to scale
         *  @param  divisor the factor by which we should divide the weights in the map
+        *  @param  scalingMap map from parameter names to boolean values indicating whether the parameter should be scaled
         *
         *  @return the scaled weights map
         */
-        static SystFloatMap ScaleWeightsMap(const SystFloatMap &weightsMap, const float &divisor);
+        static SystFloatMap ScaleWeightsMap(const SystFloatMap &weightsMap, const float &divisor, const std::unordered_map<std::string, bool> scalingMap = {});
 
         /**
         *  @brief  Get the weights corresponding to the systematic parameters in the input dimensions object. The parameter names must
@@ -933,11 +959,10 @@ class CrossSectionHelper
         *  @brief  Generate a set of weights pulled from a Poisson distribution with unit mean.
         *
         *  @param  nUniverses the number of weights to generate
-        *  @param  seed random number generator seed
         *
         *  @return the bootstrap weights
         */
-        static std::vector<float> GenerateBootstrapWeights(const unsigned int nUniverses, const std::string seedString);
+        static std::vector<float> GenerateBootstrapWeights(const unsigned int nUniverses);
 
         /**
         *  @brief  Generate a set of weights pulled from a normal distribution.
@@ -947,7 +972,7 @@ class CrossSectionHelper
         *
         *  @return the normal weights
         */
-        static std::vector<float> GenerateNormalWeights(const unsigned int nUniverses, const float sigma);
+        static std::vector<float> GenerateNormalWeights(const unsigned int nUniverses, const float sigma, const float mean = 1.f, const float globalScaling = 1.f);
 
         /**
         *  @brief  Fill a SystTH1FMap with a single entry using the supplied weights
@@ -1066,21 +1091,21 @@ inline CrossSectionHelper::SystCacheFunction<R, Args...>::SystCacheFunction(cons
 template <typename R, typename... Args>
 inline R CrossSectionHelper::SystCacheFunction<R, Args...>::operator()(const std::string &paramName, const unsigned int universeIndex, Args ... args)
 {
-    std::cout<<"CrossSectionHelper.h::SystCacheFunction::operator() - Point 0"<<std::endl;
+    // std::cout<<"CrossSectionHelper.h::SystCacheFunction::operator() - Point 0"<<std::endl;
     // Check that we have a valid parameter name and universe index
     const auto iterDimensions = m_dimensions.find(paramName);
-    std::cout<<"CrossSectionHelper.h::SystCacheFunction::operator() - Point 1"<<std::endl;
+    // std::cout<<"CrossSectionHelper.h::SystCacheFunction::operator() - Point 1"<<std::endl;
     if (iterDimensions == m_dimensions.end())
         throw std::invalid_argument("SystCacheFunction - Unknown paramName: " + paramName);
 
-    std::cout<<"CrossSectionHelper.h::SystCacheFunction::operator() - Point 2"<<std::endl;
+    // std::cout<<"CrossSectionHelper.h::SystCacheFunction::operator() - Point 2"<<std::endl;
     const auto nUniverses = iterDimensions->second;
     if (universeIndex >= nUniverses)
         throw std::out_of_range("SystCacheFunction - Universe index is out of range");
 
     // Check if we have a cached entry for this parameter name
     const auto iterCacheName = m_cache.find(paramName);
-    std::cout<<"CrossSectionHelper.h::SystCacheFunction::operator() - Point 3"<<std::endl;
+    // std::cout<<"CrossSectionHelper.h::SystCacheFunction::operator() - Point 3"<<std::endl;
     if (iterCacheName != m_cache.end())
     {
         // Check if we have a cached entry for this universe index
@@ -1091,14 +1116,14 @@ inline R CrossSectionHelper::SystCacheFunction<R, Args...>::operator()(const std
             return iterCacheUniverse->second;
         }
     }
-    std::cout<<"CrossSectionHelper.h::SystCacheFunction::operator() - Point 4 - universeIndex: "<<universeIndex<<" - paramName: "<<paramName<<std::endl;
+    // std::cout<<"CrossSectionHelper.h::SystCacheFunction::operator() - Point 4 - universeIndex: "<<universeIndex<<" - paramName: "<<paramName<<std::endl;
 
     // We don't have an entry in the cache, so make one
     const auto result = m_function(paramName, universeIndex, args...);
-    std::cout<<"CrossSectionHelper.h::SystCacheFunction::operator() - Point 4.1"<<std::endl;
+    // std::cout<<"CrossSectionHelper.h::SystCacheFunction::operator() - Point 4.1"<<std::endl;
     m_cache[paramName][universeIndex] = result;
 
-    std::cout<<"CrossSectionHelper.h::SystCacheFunction::operator() - Point 5"<<std::endl;
+    // std::cout<<"CrossSectionHelper.h::SystCacheFunction::operator() - Point 5"<<std::endl;
 
     // Return the result
     return result;

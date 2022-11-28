@@ -260,6 +260,27 @@ class SelectionHelper
         static EventSelection GetCC0piSelection();
 
         /**
+         *  @brief  Get the CC0pi event selection
+         *
+         *  @return the event selection
+         */
+        static EventSelection GetCC0piSelectionModified(const float muonLikeProtonValue = -0.4f, const float barelyResemblingProtonValue = 0.1f);
+
+        /**
+         *  @brief  Get the CC0pi event selection
+         *
+         *  @return the event selection
+         */
+        static EventSelection GetCC0piSelectionModifiedPart1();
+
+        /**
+         *  @brief  Get the CC0pi event selection
+         *
+         *  @return the event selection
+         */
+        static EventSelection GetCC0piSelectionModifiedPart2(const float muonLikeProtonValue = -0.4f, const float barelyResemblingProtonValue = 0.1f);
+
+        /**
         *  @brief  Check if a given cut is listed in the input vector of cuts passed
         *
         *  @param  cutsPassed the cuts that have been passed

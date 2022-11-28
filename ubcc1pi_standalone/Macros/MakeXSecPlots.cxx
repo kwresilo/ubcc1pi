@@ -71,6 +71,8 @@ void MakeXSecPlots(const Config &config)
             if (!isEnabled)
                 continue;
 
+            if(xsecName == "muonPionAngle") continue; //todo remove
+
             std::cout << selectionName << " - " << xsecName << std::endl;
 
             // Define a lambda function to get a matrix from a file for brevity
@@ -85,10 +87,10 @@ void MakeXSecPlots(const Config &config)
             };
 
             // Get the data cross-section
-            const auto data = getTrimmedMatrix("data_scaled");
+            const auto data = getTrimmedMatrix("data_BNB");
 
             // Get the smearing matrix
-            const auto smearingMatrix = getMatrix("smearingMatrix_scaled");
+            const auto smearingMatrix = getMatrix("smearingMatrix_BNB");
 
             // Build the total error matrix for each group of systematic parameters
             // Here errorMatrixMap is indexed by [quantity][group], where quantity = "data" or "smearingMatrix"
@@ -115,7 +117,7 @@ void MakeXSecPlots(const Config &config)
 
                 // For the data cross-section, we also have a stat uncertainty
                 // For the smearing matrix, just use a zero vector
-                const auto statUncertainties = (quantity == "data") ? getMatrixFunction("data_stat_scaled") : ubsmear::UBMatrixHelper::GetZeroMatrix(nBins, 1);
+                const auto statUncertainties = (quantity == "data") ? getMatrixFunction("data_stat_BNB") : ubsmear::UBMatrixHelper::GetZeroMatrix(nBins, 1);
 
                 // To convert these stat uncertainties into an error matrix, we produce a diagonal matrix whose diagonal entries contain the
                 // variances (i.e. square of the stat uncerainties)
@@ -150,8 +152,8 @@ void MakeXSecPlots(const Config &config)
                     for (const auto &[paramName, nUniverses] : dimensions)
                     {
                         // Get the bias vector and covariance matrix
-                        const auto biasVector = getMatrixFunction(quantity + "_" + group + "_" + paramName + "_bias_scaled");
-                        const auto covarianceMatrix = getMatrixFunction(quantity + "_" + group + "_" + paramName + "_covariance_scaled");
+                        const auto biasVector = getMatrixFunction(quantity + "_" + group + "_" + paramName + "_bias_BNB");
+                        const auto covarianceMatrix = getMatrixFunction(quantity + "_" + group + "_" + paramName + "_covariance_BNB");
 
                         // Get the total error matrix from the bias and covariance
                         const auto errorMatrix = CrossSectionHelper::GetErrorMatrix(biasVector, covarianceMatrix);
@@ -180,8 +182,8 @@ void MakeXSecPlots(const Config &config)
                     for (const auto &[paramName, cvName] : dimensions)
                     {
                         // Get the bias vector and (dummy) covariance matrix
-                        const auto biasVector = getMatrixFunction(quantity + "_" + group + "_" + paramName + "_bias_scaled");
-                        const auto covarianceMatrix = getMatrixFunction(quantity + "_" + group + "_" + paramName + "_covariance_scaled");
+                        const auto biasVector = getMatrixFunction(quantity + "_" + group + "_" + paramName + "_bias_BNB");
+                        const auto covarianceMatrix = getMatrixFunction(quantity + "_" + group + "_" + paramName + "_covariance_BNB");
 
                         // Get the total error matrix from the bias and covariance
                         const auto errorMatrix = CrossSectionHelper::GetErrorMatrix(biasVector, covarianceMatrix);
@@ -215,14 +217,14 @@ void MakeXSecPlots(const Config &config)
 
                 // Plot the total error matrix (summed over all groups)
                 const auto totalErrorMatrix = totalErrorMatrixMap.at(quantity);
-                PlottingHelper::PlotErrorMatrix(totalErrorMatrix, prefix + "_" + quantity + "_totalErrorMatrix", metadata);
-                PlottingHelper::PlotFractionalErrorMatrix(totalErrorMatrix, quantityVector, prefix + "_" + quantity + "_totalFracErrorMatrix", metadata);
+                PlottingHelper::PlotErrorMatrix(totalErrorMatrix, prefix + "_" + quantity + "_totalErrorMatrix_BNB", metadata);
+                PlottingHelper::PlotFractionalErrorMatrix(totalErrorMatrix, quantityVector, prefix + "_" + quantity + "_totalFracErrorMatrix_BNB", metadata);
 
                 // Plot the total error matrix for each group individually
                 for (const auto &[group, errorMatrix] : groupToMatrixMap)
                 {
-                    PlottingHelper::PlotErrorMatrix(errorMatrix, prefix + "_" + quantity + "_" + group + "_totalErrorMatrix", metadata);
-                    PlottingHelper::PlotFractionalErrorMatrix(errorMatrix, quantityVector, prefix + "_" + quantity + "_" + group + "_totalFracErrorMatrix", metadata);
+                    PlottingHelper::PlotErrorMatrix(errorMatrix, prefix + "_" + quantity + "_" + group + "_totalErrorMatrix_BNB", metadata);
+                    PlottingHelper::PlotFractionalErrorMatrix(errorMatrix, quantityVector, prefix + "_" + quantity + "_" + group + "_totalFracErrorMatrix_BNB", metadata);
                 }
             }
 
@@ -233,9 +235,9 @@ void MakeXSecPlots(const Config &config)
             PlottingHelper::PlotErrorMatrix(smearingMatrix, prefix + "_smearingMatrix", metadata, true, false);
 
             // Now get the predicted cross-section and it's error matrix
-            const auto prediction = getMatrix("prediction_scaled");
-            const auto predictionBiasVector = getMatrix("prediction_stat_bias_scaled");
-            const auto predictionCovarianceMatrix = getMatrix("prediction_stat_covariance_scaled");
+            const auto prediction = getMatrix("prediction_BNB");
+            const auto predictionBiasVector = getMatrix("prediction_stat_bias_BNB");
+            const auto predictionCovarianceMatrix = getMatrix("prediction_stat_covariance_BNB");
             
             // // ######################
             // // jdetje TEST AREA BEGIN
@@ -248,8 +250,8 @@ void MakeXSecPlots(const Config &config)
             const auto predictionErrorMatrix = CrossSectionHelper::GetErrorMatrix(predictionBiasVector, predictionCovarianceMatrix);
 
             // Plot the error matrix on the prediction
-            PlottingHelper::PlotErrorMatrix(predictionErrorMatrix, prefix + "_prediction_stat_totalErrorMatrix", metadata);
-            PlottingHelper::PlotFractionalErrorMatrix(predictionErrorMatrix, prediction, prefix + "_prediction_stat_totalFracErrorMatrix", metadata);
+            PlottingHelper::PlotErrorMatrix(predictionErrorMatrix, prefix + "_prediction_stat_totalErrorMatrix_BNB", metadata);
+            PlottingHelper::PlotFractionalErrorMatrix(predictionErrorMatrix, prediction, prefix + "_prediction_stat_totalFracErrorMatrix_BNB", metadata);
 
             // Now smear the prediction so it can be compared to the data
             std::cout << "Forward folding prediction" << std::endl;
@@ -261,12 +263,12 @@ void MakeXSecPlots(const Config &config)
                 config.makeXSecPlots.precision);                           // The precision to use when finding eigenvalues and eigenvectors
 
             // Plot the error matrix on the smeared prediction
-            PlottingHelper::PlotErrorMatrix(smearedPredictionErrorMatrix, prefix + "_smearedPrediction_totalErrorMatrix", metadata);
-            PlottingHelper::PlotFractionalErrorMatrix(smearedPredictionErrorMatrix, smearedPrediction, prefix + "_smearedPrediction_totalFracErrorMatrix", metadata);
+            PlottingHelper::PlotErrorMatrix(smearedPredictionErrorMatrix, prefix + "_smearedPrediction_totalErrorMatrix_BNB", metadata);
+            PlottingHelper::PlotFractionalErrorMatrix(smearedPredictionErrorMatrix, smearedPrediction, prefix + "_smearedPrediction_totalFracErrorMatrix_BNB", metadata);
 
             // Save the forward-folded prediction
-            FormattingHelper::SaveMatrix(smearedPrediction, "xsec_" + selectionName + "_" + xsecName + "_forwardFoldedPrediction.txt");
-            FormattingHelper::SaveMatrix(smearedPredictionErrorMatrix, "xsec_" + selectionName + "_" + xsecName + "_forwardFoldedPrediction_error.txt");
+            FormattingHelper::SaveMatrix(smearedPrediction, "xsec_" + selectionName + "_" + xsecName + "_forwardFoldedPrediction_BNB.txt");
+            FormattingHelper::SaveMatrix(smearedPredictionErrorMatrix, "xsec_" + selectionName + "_" + xsecName + "_forwardFoldedPrediction_error_BNB.txt");
 
             // -----------------------------------------------------------------------------------------------------------------------------
             // Get the chi2 for the data-prediction comparison and add it to the table
@@ -409,12 +411,12 @@ void MakeXSecPlots(const Config &config)
             pDataStatOnlyHist->Draw("e1 same");
             pDataHist->Draw("e1 same");
 
-            PlottingHelper::SaveCanvas(pCanvas, prefix + "_data-vs-smearedPrediction");
+            PlottingHelper::SaveCanvas(pCanvas, prefix + "_data-vs-smearedPrediction_BNB");
         }
     }
 
     // Save the table
-    table.WriteToFile("xsecPlots_goodnessOfFitStatistics.md");
+    table.WriteToFile("xsecPlots_goodnessOfFitStatistics_BNB.md");
 }
 
 } // namespace ubcc1pi_macros

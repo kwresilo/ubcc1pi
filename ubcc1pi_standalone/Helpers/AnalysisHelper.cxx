@@ -8,6 +8,7 @@
 
 #include "ubcc1pi_standalone/Helpers/GeometryHelper.h"
 #include "ubcc1pi_standalone/Helpers/FormattingHelper.h"
+#include "ubcc1pi_standalone/Helpers/NormalisationHelper.h"
 
 #include <stdexcept>
 #include <algorithm>
@@ -1300,7 +1301,7 @@ AnalysisHelper::AnalysisData AnalysisHelper::GetRecoAnalysisData(const Event::Re
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
 
-AnalysisHelper::AnalysisData AnalysisHelper::GetRecoAnalysisDataCC0Pi(const Event::Reco &reco, const std::vector<int> &assignedPdgCodes)
+AnalysisHelper::AnalysisData AnalysisHelper::GetRecoAnalysisDataCC0Pi(const Event::Reco &reco, const std::vector<int> &assignedPdgCodes, const bool passesGoldenProtonSelection)
 {
     AnalysisData data;
 
@@ -1400,6 +1401,7 @@ AnalysisHelper::AnalysisData AnalysisHelper::GetRecoAnalysisDataCC0Pi(const Even
 
     data.muonProtonAngle = std::acos(muonDir.Dot(protonDir));
     data.nProtons = nProtons;
+    data.hasGoldenProton = passesGoldenProtonSelection;
 
     // Fill everything else with dummy values
     data.pionMomentum = -std::numeric_limits<float>::max();
@@ -1503,6 +1505,7 @@ AnalysisHelper::AnalysisData AnalysisHelper::GetTruthAnalysisData(const Event::T
     if (!foundPion || !foundMuon)
         throw std::logic_error("AnalysisHelper::GetTruthAnalysisData - Input event doesn't contain both a muon and a pion!");
 
+
     data.muonPionAngle = std::acos(muonDir.Dot(pionDir));
 
     // Fill everything else with dummy values
@@ -1510,6 +1513,7 @@ AnalysisHelper::AnalysisData AnalysisHelper::GetTruthAnalysisData(const Event::T
     data.protonCosTheta = -std::numeric_limits<float>::max();
     data.protonPhi = -std::numeric_limits<float>::max();
     data.muonProtonAngle = -std::numeric_limits<float>::max();
+    data.hasGoldenProton = false; // leading proton can be golden but not relevant for regular analysis (only sideband)
 
     return data;
 }
@@ -1573,6 +1577,7 @@ AnalysisHelper::AnalysisData AnalysisHelper::GetTruthAnalysisDataCC0Pi(const Eve
             data.protonPhi = phi;
 
             protonDir = dir;
+            data.hasGoldenProton = AnalysisHelper::IsGolden(particle);
 
             continue;
         }
@@ -1619,6 +1624,7 @@ AnalysisHelper::AnalysisData AnalysisHelper::GetDummyAnalysisData()
     data.protonPhi = -std::numeric_limits<float>::max();
     data.muonProtonAngle = -std::numeric_limits<float>::max();
     data.hasGoldenPion = false;
+    data.hasGoldenProton = false;
 
     return data;
 }
@@ -1689,7 +1695,7 @@ float AnalysisHelper::GetEfficiencyUncertainty(const float &numerator, const flo
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
 
-void AnalysisHelper::PrintLoadingBar(const unsigned int numerator, const unsigned int denominator)
+void AnalysisHelper::PrintLoadingBar(const unsigned int numerator, const unsigned int denominator, const bool fancy)
 {
     if (denominator == 0)
         return;
@@ -1701,11 +1707,13 @@ void AnalysisHelper::PrintLoadingBar(const unsigned int numerator, const unsigne
 
     // Get the fraction of the way through the current stage
     const auto stageLength = static_cast<float>(denominator) / static_cast<float>(width);
-    const unsigned int tenth = std::floor(10 * ((static_cast<float>(numerator) - stageLength * std::floor(static_cast<float>(numerator) / stageLength)) / stageLength));
+    // const unsigned int tenth = std::floor(10 * ((static_cast<float>(numerator) - stageLength * std::floor(static_cast<float>(numerator) / stageLength)) / stageLength));
+    const unsigned int tenth = std::floor(10 * std::fmod(static_cast<float>(numerator) / stageLength, 1.f));
 
     // Now do the same but for the last value of the numerator
     const auto lastLoadedWidth = static_cast<unsigned int>(std::floor(width * (static_cast<float>(numerator - 1) / static_cast<float>(denominator))));
-    const unsigned int lastTenth = std::floor(10 * ((static_cast<float>(numerator - 1) - stageLength * std::floor(static_cast<float>(numerator - 1) / stageLength)) / stageLength));
+    // const unsigned int lastTenth = std::floor(10 * ((static_cast<float>(numerator - 1) - stageLength * std::floor(static_cast<float>(numerator - 1) / stageLength)) / stageLength));
+    const unsigned int lastTenth = std::floor(10 * std::fmod(static_cast<float>(numerator-1) / stageLength, 1.f));
 
     // Work out if it's worth printing
     const bool shouldPrint = (numerator == 0) || (lastLoadedWidth != loadedWidth) || (lastTenth != tenth);
@@ -1719,7 +1727,18 @@ void AnalysisHelper::PrintLoadingBar(const unsigned int numerator, const unsigne
 
     // Print the fraction and loading bar
     std::cout << numerator << " / " << denominator << std::endl;
-    std::cout << "|" << std::string(loadedWidth, '=') << tenth << std::string(unloadedWidth, ' ') << "|" << std::endl;
+    // std::cout << "|" << std::string(loadedWidth, '=') << tenth << std::string(unloadedWidth, ' ') << "|" << std::endl;
+    std::cout << "|";
+    if(fancy)
+    {
+        std::cout<<"\033[0;42m" << std::string(loadedWidth, '=') << "\033[0m" << "\033[1;" << 3 << tenth/2+1 << "m" << tenth << "\033[0m";
+    }
+    else
+    {
+        std::cout << std::string(loadedWidth, '=') << tenth;
+    }
+    std::cout << std::string(unloadedWidth, ' ') << "|" << std::endl;;
+
 }
 
 // -----------------------------------------------------------------------------------------------------------------------------------------

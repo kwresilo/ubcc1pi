@@ -50,6 +50,7 @@
         "Helpers/PlottingHelper.cxx",
         "Helpers/SelectionHelper.cxx",
         "Helpers/NormalisationHelper.cxx",
+        "Helpers/ExtractionHelper.cxx",
         "Helpers/FittingHelper.cxx",
         "Helpers/CrossSectionHelper.cxx",
 
@@ -81,13 +82,14 @@
         // "Macros/PlotReconstructedVariables.cxx",
         "Macros/PlotProtonVariables.cxx",
         "Macros/OptimizeSidebandCuts.cxx",
+        // "Macros/OptimizeProtonMomentumCut.cxx",
         // "Macros/PlotProtonMomentumByInteraction.cxx",
         // "Macros/DumpSelectedEventInfo.cxx",
         // "Macros/MakeBinningPlots.cxx",
         // "Macros/PlotFlux.cxx",
         // "Macros/PlotFluxVariations.cxx",
-        "Macros/ExtractXSecs.cxx",
-        "Macros/ExtractNuWroXSecs.cxx",
+        // "Macros/ExtractXSecs.cxx",
+        // "Macros/ExtractNuWroXSecs.cxx",
         "Macros/ExtractNuWroXSecs2.cxx",
         "Macros/ExtractXSecsOld.cxx",
         // "Macros/ExtractSidebandFit.cxx",
@@ -105,6 +107,8 @@
         "Macros/ParamsToTxt.cxx",
         "Macros/SelectionComparison.cxx",
         "Macros/MakeSidebandSelectedPIDTable.cxx",
+        "Macros/QuerryFitObject.cxx",
+        "Macros/QuerryWeights.cxx",
         // "Macros/PlotEBRequests.cxx",
         "Macros/RunFullAnalysis.cxx"
     }))

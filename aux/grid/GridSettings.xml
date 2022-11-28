@@ -16,7 +16,7 @@
 <!ENTITY projectName     "ubcc1pi">
 <!ENTITY dataTier        "ana">
 <!ENTITY schema          "root">    <!-- Can also use gsiftp which is less efficiency but usually more stable, you may need to request extra resources -->
-<!ENTITY jobsub           "--expected-lifetime=4h --append_condor_requirements='(TARGET.HAS_CVMFS_uboone_osgstorage_org==true)' -e XRD_LOADBALANCERTTL=7200 -e XRD_CONNECTIONRETRY=32 -e XRD_REQUESTTIMEOUT=3600 -e XRD_STREAMTIMEOUT=7200 -e XRD_REDIRECTLIMIT=255 -e XRD_DATASERVERTTL=7200 -e XRD_TCPKEEPALIVE=1">
+<!ENTITY jobsub           "--expected-lifetime=8h --append_condor_requirements='(TARGET.HAS_CVMFS_uboone_osgstorage_org==true)' -e XRD_LOADBALANCERTTL=7200 -e XRD_CONNECTIONRETRY=32 -e XRD_REQUESTTIMEOUT=3600 -e XRD_STREAMTIMEOUT=7200 -e XRD_REDIRECTLIMIT=255 -e XRD_DATASERVERTTL=7200 -e XRD_TCPKEEPALIVE=1">
 
 ]>
 
@@ -639,21 +639,43 @@
     <jobsub>&jobsub;</jobsub>
 </stage>
 
-<!-- nuwro_run2 -->
-<stage name="nuwro_run2">
+<!-- nuwro_run2a -->
+<stage name="nuwro_run2a_corrected">
     <!-- Settings -->
     <fcl>analysis_file_writer_driver_noEventWeights.fcl</fcl>
-    <numjobs>32</numjobs><!--64 files-->
-    <maxfilesperjob>2</maxfilesperjob>
+    <numjobs>40</numjobs><!--64 files-->
+    <maxfilesperjob>100</maxfilesperjob>
     <numevents>&numEvents;</numevents>
 
     <!-- Input files -->
-    <inputdef>prodnuwro_nu_overlay_run2_pandora_reco2_reco2_ccinc_jdetje</inputdef>
+    <inputdef>prodnuwro_nu_overlay_run2_pandora_reco2_run2a_reco2</inputdef>
 
     <!-- Output directories -->
-    <outdir>/pnfs/uboone/scratch/users/&username;/&projectName;/nuwro_run2/</outdir>
-    <logdir>/pnfs/uboone/scratch/users/&username;/&projectName;/nuwro_run2/</logdir>
-    <workdir>/pnfs/uboone/resilient/users/&username;/work/&projectName;/nuwro_run2/</workdir>
+    <outdir>/pnfs/uboone/scratch/users/&username;/&projectName;/nuwro_run2a_corrected/</outdir>
+    <logdir>/pnfs/uboone/scratch/users/&username;/&projectName;/nuwro_run2a_corrected/</logdir>
+    <workdir>/pnfs/uboone/resilient/users/&username;/work/&projectName;/nuwro_run2a_corrected/</workdir>
+
+    <!-- Options -->
+    <datatier>&dataTier;</datatier>
+    <schema>&schema;</schema>
+    <jobsub>&jobsub;</jobsub>
+</stage>
+
+<!-- nuwro_run2b -->
+<stage name="nuwro_run2b_corrected">
+    <!-- Settings -->
+    <fcl>analysis_file_writer_driver_noEventWeights.fcl</fcl>
+    <numjobs>55</numjobs><!--64 files-->
+    <maxfilesperjob>100</maxfilesperjob>
+    <numevents>&numEvents;</numevents>
+
+    <!-- Input files -->
+    <inputdef>prodnuwro_nu_overlay_run2_pandora_reco2_run2b_reco2</inputdef>
+
+    <!-- Output directories -->
+    <outdir>/pnfs/uboone/scratch/users/&username;/&projectName;/nuwro_run2b_corrected/</outdir>
+    <logdir>/pnfs/uboone/scratch/users/&username;/&projectName;/nuwro_run2b_corrected/</logdir>
+    <workdir>/pnfs/uboone/resilient/users/&username;/work/&projectName;/nuwro_run2b_corrected/</workdir>
 
     <!-- Options -->
     <datatier>&dataTier;</datatier>
@@ -663,20 +685,20 @@
 
 
 <!-- nuwro_run3 -->
-<stage name="nuwro_run3">
+<stage name="nuwro_run3a_corrected">
     <!-- Settings -->
     <fcl>analysis_file_writer_driver_noEventWeights.fcl</fcl>
-    <numjobs>23</numjobs><!--23 jobs; 92 files-->
-    <maxfilesperjob>4</maxfilesperjob>
+    <numjobs>10</numjobs><!--23 jobs; 92 files-->
+    <maxfilesperjob>100</maxfilesperjob>
     <numevents>&numEvents;</numevents>
 
     <!-- Input files -->
-    <inputdef>prodnuwro_nu_overlay_run3_pandora_reco2_reco2_ccinc_jdetje</inputdef>
+    <inputdef>prodnuwro_nu_overlay_run3_pandora_reco2_run3a_reco2</inputdef>
 
     <!-- Output directories -->
-    <outdir>/pnfs/uboone/scratch/users/&username;/&projectName;/nuwro_run3/</outdir>
-    <logdir>/pnfs/uboone/scratch/users/&username;/&projectName;/nuwro_run3/</logdir>
-    <workdir>/pnfs/uboone/resilient/users/&username;/work/&projectName;/nuwro_run3/</workdir>
+    <outdir>/pnfs/uboone/scratch/users/&username;/&projectName;/nuwro_run3a_corrected/</outdir>
+    <logdir>/pnfs/uboone/scratch/users/&username;/&projectName;/nuwro_run3a_corrected/</logdir>
+    <workdir>/pnfs/uboone/resilient/users/&username;/work/&projectName;/nuwro_run3a_corrected/</workdir>
 
     <!-- Options -->
     <datatier>&dataTier;</datatier>
@@ -684,25 +706,27 @@
     <jobsub>&jobsub;</jobsub>
 </stage>
 
-<stage name="nuwro_run3_makeup1">
+<!-- nuwro_run3b -->
+<stage name="nuwro_run3b_corrected">
     <!-- Settings -->
     <fcl>analysis_file_writer_driver_noEventWeights.fcl</fcl>
-    <numjobs>3</numjobs><!--23 jobs; 92 files-->
-    <maxfilesperjob>4</maxfilesperjob>
+    <numjobs>85</numjobs><!--23 jobs; 92 files-->
+    <maxfilesperjob>100</maxfilesperjob>
     <numevents>&numEvents;</numevents>
 
     <!-- Input files -->
-    <inputdef>prodnuwro_nu_overlay_run3_pandora_reco2_reco2_ccinc_jdetje_20211213054513_makeup</inputdef>
+    <inputdef>prodnuwro_nu_overlay_run3_pandora_reco2_run3b_reco2</inputdef>
 
     <!-- Output directories -->
-    <outdir>/pnfs/uboone/scratch/users/&username;/&projectName;/nuwro_run3_makeup1/</outdir>
-    <logdir>/pnfs/uboone/scratch/users/&username;/&projectName;/nuwro_run3_makeup1/</logdir>
-    <workdir>/pnfs/uboone/resilient/users/&username;/work/&projectName;/nuwro_run3_makeup1/</workdir>
+    <outdir>/pnfs/uboone/scratch/users/&username;/&projectName;/nuwro_run3b_corrected/</outdir>
+    <logdir>/pnfs/uboone/scratch/users/&username;/&projectName;/nuwro_run3b_corrected/</logdir>
+    <workdir>/pnfs/uboone/resilient/users/&username;/work/&projectName;/nuwro_run3b_corrected/</workdir>
 
     <!-- Options -->
     <datatier>&dataTier;</datatier>
     <schema>&schema;</schema>
     <jobsub>&jobsub;</jobsub>
 </stage>
+
 
 </project>

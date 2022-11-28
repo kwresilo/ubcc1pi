@@ -196,6 +196,20 @@ namespace ubcc1pi_macros
      */
     void PlotProtonVariables(const Config &config = Config());
 
+    /**
+     *  @brief  Querry .bin objects created during fit
+     *
+     *  @param  config the input configuration
+     */
+    void QuerryFitObject(const Config &config = Config());
+
+    /**
+     *  @brief  Querry weights of input files
+     *
+     *  @param  config the input configuration
+     */
+    void QuerryWeights(const Config &config = Config());
+
     // /**
     //  *  @brief  Plot stacked by interaction the true momentum for the highest-energy MC protons
     //  *
@@ -245,12 +259,12 @@ namespace ubcc1pi_macros
     //  */
     // void PlotFluxVariations(const Config &config = Config());
 
-    /**
-     *  @brief  Extract the cross-sections
-     *
-     *  @param  config the input configuration
-     */
-    void ExtractXSecs(const Config &config = Config());
+    // /**
+    //  *  @brief  Extract the cross-sections
+    //  *
+    //  *  @param  config the input configuration
+    //  */
+    // void ExtractXSecs(const Config &config = Config());
 
     /**
      *  @brief  Print universe weights for background CC0pi
@@ -260,12 +274,19 @@ namespace ubcc1pi_macros
     void PrintUniverseWeights(const Config &config = Config());
 
 
+    // /**
+    //  *  @brief  Extract the Nuwro fake data cross-sections
+    //  *
+    //  *  @param  config the input configuration
+    //  */
+    // void ExtractNuWroXSecs(const Config &config = Config());
+
     /**
      *  @brief  Extract the Nuwro fake data cross-sections
      *
      *  @param  config the input configuration
      */
-    void ExtractNuWroXSecs(const Config &config = Config());
+    void ExtractNuWroXSecs2(const Config &config = Config());
 
     /**
      *  @brief  Extract the cross-sections
@@ -373,18 +394,32 @@ namespace ubcc1pi_macros
     void MakeSidebandSamplePlots(const Config &config = Config());
 
     /*
+     *  @brief  Optimise the sideband cuts
+     *
+     *  @param  config the input configuration
+     */
+    void OptimizeSidebandCuts(const Config &config = Config());
+
+    // /*
+    //  *  @brief  Optimise the proton momentum threshold
+    //  *
+    //  *  @param  config the input configuration
+    //  */
+    // void OptimizeProtonMomentumCut(const Config &config = Config());
+
+    /*
      *  @brief  Make plots for the sideband parameters
      *
      *  @param  config the input configuration
      */
     void MakeSidebandParameterPlots(const Config &config = Config());
 
-    // /**
-    //  *  @brief  Top-level macro that runs the full analysis chain
-    //  *
-    //  *  @param  config the input config
-    //  */
-    // void RunFullAnalysis(const Config &config = Config());
+    /**
+     *  @brief  Top-level macro that runs the full analysis chain
+     *
+     *  @param  config the input config
+     */
+    void RunFullAnalysis(const Config &config = Config());
 
 
 } // namespace ubcc1pi_macros
