@@ -110,7 +110,8 @@
         "Macros/QuerryFitObject.cxx",
         "Macros/QuerryWeights.cxx",
         // "Macros/PlotEBRequests.cxx",
-        "Macros/RunFullAnalysis.cxx"
+        "Macros/RunFullAnalysis.cxx",
+        "Macros/OptimizeSidebandBinEdges.cxx"
     }))
     {
         std::cout << "Compiling " << file << std::endl;

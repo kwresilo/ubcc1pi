@@ -294,8 +294,9 @@ class CrossSectionHelper
                 *  @param  hasUnderflow if there is an underflow bin
                 *  @param  hasOverflow if there is an overflow bin
                 *  @param  scaleByBinWidth if the cross-section should be scaled by the width of the bin
+                *  @param  trueBinEdges optional different bin edges for the second dimension
                 */
-                CrossSection(const SystParams &systParams, const std::vector<float> &binEdges, const bool hasUnderflow, const bool hasOverflow, const bool scaleByBinWidth);
+                CrossSection(const SystParams &systParams, const std::vector<float> &binEdges, const bool hasUnderflow, const bool hasOverflow, const bool scaleByBinWidth, const std::vector<float> &trueBinEdges = std::vector<float>());
 
                 /**
                 *  @brief  Add a simulated signal event with flux and cross-section universe weights
@@ -409,10 +410,11 @@ class CrossSectionHelper
                 * 
                 *  @param trueSidebandValue the true sideband value of an event
                 *  @param cc0piNominalConstraintParam the nominal constraint parameter list for a cross-section
+                *  @param binEdges the bin edges used for the sideband fit
                 * 
                 *  @return scaling parameter
                 */
-                Double_t GetSidebandScaling(const float trueSidebandValue, const std::vector<Double_t> &cc0piNominalConstraintParam) const;
+                Double_t GetSidebandScaling(const float trueSidebandValue, const std::vector<Double_t> &cc0piNominalConstraintParam, const std::vector<float> &binEdges) const;
 
                 /**
                 *  @brief  Get the nominal sideband scaling factor
@@ -421,21 +423,23 @@ class CrossSectionHelper
                 *  @param trueSidebandValue the true sideband value of an event
                 *  @param cc0piUniverseConstraintParam the universe constraint parameter list for a cross-section
                 * 
+                * 
                 *  @return universe parameter weights
                 */
-                SystFloatMap GetSidebandUniverseScaling(const CrossSectionHelper::SystFloatMap weights, const float trueSidebandValue, const std::map<std::string, std::vector<std::pair<std::vector<Double_t>,std::vector<Double_t>>>> &cc0piUniverseConstraints) const;
+                SystFloatMap GetSidebandUniverseScaling(const CrossSectionHelper::SystFloatMap weights, const float trueSidebandValue, const std::map<std::string, std::vector<std::pair<std::vector<Double_t>,std::vector<Double_t>>>> &cc0piUniverseConstraints, const std::vector<float> &binEdges) const;
 
                 /**
                 *  @brief  Get the nominal sideband scaling factor
                 * 
                 *  @param dimensions the number fo universes for the sideband weights
                 *  @param trueSidebandValue the true sideband value of an event
-                *  @param cc0piNominalConstraintParam the nominal constraint parameter list for a cross-section                * 
+                *  @param cc0piNominalConstraintParam the nominal constraint parameter list for a cross-section
                 *  @param cc0piNominalConstraintParamErro the nominal constraint parameter error list for a cross-section
+                *  @param binEdges the bin edges used for the sideband fit
                 * 
                 *  @return sideband parameter universe weights
                 */
-                std::vector<float> GetSidebandParameterWeights(const float trueSidebandValue, const std::vector<Double_t> &cc0piNominalConstraintParam, const std::vector<Double_t> &cc0piNominalConstraintParamError) const;
+                std::vector<float> GetSidebandParameterWeights(const float trueSidebandValue, const std::vector<Double_t> &cc0piNominalConstraintParam, const std::vector<Double_t> &cc0piNominalConstraintParamError, const std::vector<float> &binEdges) const;
 
                 /**
                 *  @brief  Get a column vector containing the bin widths used in the cross-section calculation.
@@ -854,11 +858,12 @@ class CrossSectionHelper
         /**
         *  @brief  Get a shared pointer to a new TH2F and give it a unique name
         *
-        *  @param  binEdges the bin edges
+        *  @param  binEdges the bin edges along the first dimension
+        *  @param  trueBinEdges optional different bin edges for the second dimension
         *
         *  @return the TH2F
         */
-        static std::shared_ptr<TH2F> GetTH2F(const std::vector<float> &binEdges);
+        static std::shared_ptr<TH2F> GetTH2F(const std::vector<float> &binEdges, const std::vector<float> &trueBinEdges = std::vector<float>());
 
         /**
         *  @brief  Get a SystTH1FMap with the supplied dimensions containing new TH1F objects with the supplied binning
@@ -885,20 +890,22 @@ class CrossSectionHelper
         *
         *  @param  binEdges the bin edges
         *  @param  dimensions the systematic dimensions map
+        *  @param  trueBinEdges optional different bin edges for the second dimension
         *
         *  @return the SystTH2FMap
         */
-        static SystTH2FMap GetSystTH2FMap(const std::vector<float> &binEdges, const SystDimensionsMap &dimensions);
+        static SystTH2FMap GetSystTH2FMap(const std::vector<float> &binEdges, const SystDimensionsMap &dimensions, const std::vector<float> &trueBinEdges = std::vector<float>());
 
         /**
         *  @brief  Get a SystUnisimTH2FMap with the supplied dimensions containing new TH2F objects with the supplied binning
         *
         *  @param  binEdges the bin edges
         *  @param  dimensions the systematic dimensions map
+        *  @param  trueBinEdges optional different bin edges for the second dimension
         *
         *  @return the SystUnisimTH2FMap
         */
-        static SystUnisimTH2FMap GetSystUnisimTH2FMap(const std::vector<float> &binEdges, const SystUnisimDimensionsMap &dimensions);
+        static SystUnisimTH2FMap GetSystUnisimTH2FMap(const std::vector<float> &binEdges, const SystUnisimDimensionsMap &dimensions, const std::vector<float> &trueBinEdges = std::vector<float>());
 
         /**
         *  @brief  Get a weights map with the supplied dimensions containing unit weights for every universe

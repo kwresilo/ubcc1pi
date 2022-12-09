@@ -139,13 +139,13 @@ float CrossSectionHelper::FluxReweightor::GetIntegratedFluxVariation(const std::
 // -----------------------------------------------------------------------------------------------------------------------------------------
 // -----------------------------------------------------------------------------------------------------------------------------------------
 
-CrossSectionHelper::CrossSection::CrossSection(const SystParams &systParams, const std::vector<float> &binEdges, const bool hasUnderflow, const bool hasOverflow, const bool scaleByBinWidth) :
+CrossSectionHelper::CrossSection::CrossSection(const SystParams &systParams, const std::vector<float> &binEdges, const bool hasUnderflow, const bool hasOverflow, const bool scaleByBinWidth, const std::vector<float> &trueBinEdges) :
     m_systParams(systParams),
     m_binEdges(binEdges),
     m_metadata(binEdges, hasUnderflow, hasOverflow, scaleByBinWidth),
     m_scaleByBinWidth(scaleByBinWidth),
-    m_pSignal_true_nom(CrossSectionHelper::GetTH1F(binEdges)),
-    m_pSignal_selected_recoTrue_nom(CrossSectionHelper::GetTH2F(binEdges)),
+    m_pSignal_true_nom(CrossSectionHelper::GetTH1F(trueBinEdges.empty() ? binEdges : trueBinEdges)),
+    m_pSignal_selected_recoTrue_nom(CrossSectionHelper::GetTH2F(binEdges, trueBinEdges.empty() ? binEdges : trueBinEdges)),
     m_pBackground_selected_reco_nom(CrossSectionHelper::GetTH1F(binEdges)),
     m_pBNBData_selected_reco(CrossSectionHelper::GetTH1F(binEdges))
     {
@@ -153,6 +153,20 @@ CrossSectionHelper::CrossSection::CrossSection(const SystParams &systParams, con
     const int nAnalysisBins = (binEdges.size() - 1) - (hasUnderflow ? 1 : 0) - (hasOverflow ? 1 : 0);
     if (nAnalysisBins <= 0)
         throw std::invalid_argument("CrossSection::CrossSection - Insufficient bin edges provided!");
+
+
+    std::cout<<"binEdges:";
+    for(const auto &binEdge: binEdges)
+    {
+        std::cout<<" "<<binEdge;
+    }
+    std::cout<<std::endl;
+    std::cout<<"trueBinEdges:";
+    for(const auto &trueBinEdge: trueBinEdges)
+    {
+        std::cout<<" "<<trueBinEdge;
+    }
+    std::cout<<std::endl;
 
     // Setup a dimensions map for the miscellaneous ("misc") multisim parameters.
     // These are added in ad-hoc (i.e. they don't come from the weights stored in the truth information)
@@ -162,22 +176,23 @@ CrossSectionHelper::CrossSection::CrossSection(const SystParams &systParams, con
         { "bootstrap", systParams.nBootstrapUniverses },
 
         // Apply the normal weights
-        { "sidebandWeights", systParams.nBootstrapUniverses},
+        { "sidebandWeights", systParams.nBootstrapUniverses },
 
         // Here we apply a 2-universe multisim in which we weight the dirt up and down by 100%
         { "dirt", 2 }
     };
 
+    const auto binEdges2 = trueBinEdges.empty() ? binEdges : trueBinEdges;
     // Setup the maps to hold the histograms for the multisim parameters
-    m_signal_true_multisims.emplace("flux", CrossSectionHelper::GetSystTH1FMap(binEdges, systParams.fluxDimensions));
-    m_signal_true_multisims.emplace("xsec", CrossSectionHelper::GetSystTH1FMap(binEdges, systParams.xsecDimensions));
-    m_signal_true_multisims.emplace("reint", CrossSectionHelper::GetSystTH1FMap(binEdges, systParams.reintDimensions));
-    m_signal_true_multisims.emplace("misc", CrossSectionHelper::GetSystTH1FMap(binEdges, miscDimensions));
+    m_signal_true_multisims.emplace("flux", CrossSectionHelper::GetSystTH1FMap(binEdges2, systParams.fluxDimensions));
+    m_signal_true_multisims.emplace("xsec", CrossSectionHelper::GetSystTH1FMap(binEdges2, systParams.xsecDimensions));
+    m_signal_true_multisims.emplace("reint", CrossSectionHelper::GetSystTH1FMap(binEdges2, systParams.reintDimensions));
+    m_signal_true_multisims.emplace("misc", CrossSectionHelper::GetSystTH1FMap(binEdges2, miscDimensions));
 
-    m_signal_selected_recoTrue_multisims.emplace("flux", CrossSectionHelper::GetSystTH2FMap(binEdges, systParams.fluxDimensions));
-    m_signal_selected_recoTrue_multisims.emplace("xsec", CrossSectionHelper::GetSystTH2FMap(binEdges, systParams.xsecDimensions));
-    m_signal_selected_recoTrue_multisims.emplace("reint", CrossSectionHelper::GetSystTH2FMap(binEdges, systParams.reintDimensions));
-    m_signal_selected_recoTrue_multisims.emplace("misc", CrossSectionHelper::GetSystTH2FMap(binEdges, miscDimensions));
+    m_signal_selected_recoTrue_multisims.emplace("flux", CrossSectionHelper::GetSystTH2FMap(binEdges, systParams.fluxDimensions, binEdges2));
+    m_signal_selected_recoTrue_multisims.emplace("xsec", CrossSectionHelper::GetSystTH2FMap(binEdges, systParams.xsecDimensions, binEdges2));
+    m_signal_selected_recoTrue_multisims.emplace("reint", CrossSectionHelper::GetSystTH2FMap(binEdges, systParams.reintDimensions, binEdges2));
+    m_signal_selected_recoTrue_multisims.emplace("misc", CrossSectionHelper::GetSystTH2FMap(binEdges, miscDimensions, binEdges2));
 
     m_background_selected_reco_multisims.emplace("flux", CrossSectionHelper::GetSystTH1FMap(binEdges, systParams.fluxDimensions));
     m_background_selected_reco_multisims.emplace("xsec", CrossSectionHelper::GetSystTH1FMap(binEdges, systParams.xsecDimensions));
@@ -185,8 +200,8 @@ CrossSectionHelper::CrossSection::CrossSection(const SystParams &systParams, con
     m_background_selected_reco_multisims.emplace("misc", CrossSectionHelper::GetSystTH1FMap(binEdges, miscDimensions));
 
     // Setup the maps to hold the histograms for the unisim parameters
-    m_signal_true_unisims.emplace("detector", CrossSectionHelper::GetSystUnisimTH1FMap(binEdges, systParams.detVarDimensions));
-    m_signal_selected_recoTrue_unisims.emplace("detector", CrossSectionHelper::GetSystUnisimTH2FMap(binEdges, systParams.detVarDimensions));
+    m_signal_true_unisims.emplace("detector", CrossSectionHelper::GetSystUnisimTH1FMap(binEdges2, systParams.detVarDimensions));
+    m_signal_selected_recoTrue_unisims.emplace("detector", CrossSectionHelper::GetSystUnisimTH2FMap(binEdges, systParams.detVarDimensions, binEdges2));
     m_background_selected_reco_unisims.emplace("detector", CrossSectionHelper::GetSystUnisimTH1FMap(binEdges, systParams.detVarDimensions));
     // ATTN we could in theory include other unisim parameters here using a different name. At the moment we only use "detector".
 }
@@ -1570,9 +1585,10 @@ std::shared_ptr<TH1F> CrossSectionHelper::GetTH1F(const std::vector<float> &binE
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
 
-std::shared_ptr<TH2F> CrossSectionHelper::GetTH2F(const std::vector<float> &binEdges)
+std::shared_ptr<TH2F> CrossSectionHelper::GetTH2F(const std::vector<float> &binEdges, const std::vector<float> &trueBinEdges)
 {
-    return std::make_shared<TH2F>(("xSecHist_" + std::to_string(m_histCount++)).c_str(), "", binEdges.size() - 1, binEdges.data(), binEdges.size() - 1, binEdges.data());
+    const auto binEdges2 = trueBinEdges.empty() ? binEdges : trueBinEdges;
+    return std::make_shared<TH2F>(("xSecHist_" + std::to_string(m_histCount++)).c_str(), "", binEdges.size() - 1, binEdges.data(), binEdges2.size() - 1, binEdges2.data()); //todo check order is correct
 }
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
@@ -1623,16 +1639,16 @@ CrossSectionHelper::SystUnisimTH1FMap CrossSectionHelper::GetSystUnisimTH1FMap(c
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
 
-CrossSectionHelper::SystTH2FMap CrossSectionHelper::GetSystTH2FMap(const std::vector<float> &binEdges, const SystDimensionsMap &dimensions)
+CrossSectionHelper::SystTH2FMap CrossSectionHelper::GetSystTH2FMap(const std::vector<float> &binEdges, const SystDimensionsMap &dimensions, const std::vector<float> &trueBinEdges)
 {
     SystTH2FMap map;
-
+    const auto binEdges2 = trueBinEdges.empty() ? binEdges : trueBinEdges;
     for (const auto &[paramName, nUniverses] : dimensions)
     {
         std::vector< std::shared_ptr<TH2F> > universes;
         for (unsigned int iUni = 0; iUni < nUniverses; ++iUni)
         {
-            universes.push_back(CrossSectionHelper::GetTH2F(binEdges));
+            universes.push_back(CrossSectionHelper::GetTH2F(binEdges, binEdges2));
         }
 
         map.emplace(paramName, universes);
@@ -1643,17 +1659,18 @@ CrossSectionHelper::SystTH2FMap CrossSectionHelper::GetSystTH2FMap(const std::ve
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
 
-CrossSectionHelper::SystUnisimTH2FMap CrossSectionHelper::GetSystUnisimTH2FMap(const std::vector<float> &binEdges, const SystUnisimDimensionsMap &dimensions)
+CrossSectionHelper::SystUnisimTH2FMap CrossSectionHelper::GetSystUnisimTH2FMap(const std::vector<float> &binEdges, const SystUnisimDimensionsMap &dimensions, const std::vector<float> &trueBinEdges)
 {
     SystUnisimTH2FMap map;
 
     // Setup a vector to keep track of the used central-values sample names
     std::vector<std::string> allCVNames;
+    const auto binEdges2 = trueBinEdges.empty() ? binEdges : trueBinEdges;
 
     for (const auto &[paramName, cvName] : dimensions)
     {
         // Include all parameter names
-        map.emplace(paramName, CrossSectionHelper::GetTH2F(binEdges));
+        map.emplace(paramName, CrossSectionHelper::GetTH2F(binEdges, binEdges2));
 
         // If we haven't seen this central value sample name before, then add it too!
         if (std::find(allCVNames.begin(), allCVNames.end(), cvName) == allCVNames.end())
@@ -1661,7 +1678,7 @@ CrossSectionHelper::SystUnisimTH2FMap CrossSectionHelper::GetSystUnisimTH2FMap(c
             if (map.find(cvName) != map.end())
                 throw std::invalid_argument("CrossSectionHelper::GetSystUnisimTH2FMap - Name \"" + cvName + "\" is describes a parameter and a central-value sample");
 
-            map.emplace(cvName, CrossSectionHelper::GetTH2F(binEdges));
+            map.emplace(cvName, CrossSectionHelper::GetTH2F(binEdges, binEdges2));
             allCVNames.push_back(cvName);
         }
     }
@@ -1774,11 +1791,11 @@ CrossSectionHelper::SystFloatMap CrossSectionHelper::GetWeightsMap(const Event::
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
 
-Double_t CrossSectionHelper::CrossSection::GetSidebandScaling(const float trueSidebandValue, const std::vector<Double_t> &cc0piNominalConstraintParam) const
+Double_t CrossSectionHelper::CrossSection::GetSidebandScaling(const float trueSidebandValue, const std::vector<Double_t> &cc0piNominalConstraintParam, const std::vector<float> &binEdges) const
 {
-    for (unsigned int b=0; b < m_binEdges.size()-1; b++)//Todo: Do this more efficiently
+    for (unsigned int b=0; b < binEdges.size()-1; b++)//Todo: Do this more efficiently
     {
-        if (trueSidebandValue>=m_binEdges[b] && trueSidebandValue<m_binEdges[b+1])
+        if (trueSidebandValue>=binEdges[b] && trueSidebandValue<binEdges[b+1])
         {
             const auto paramNominal = cc0piNominalConstraintParam[b];//std::max(, 0.01);//cc0piNominalConstraintParam[b];
             if(paramNominal<0.0)
@@ -1789,19 +1806,19 @@ Double_t CrossSectionHelper::CrossSection::GetSidebandScaling(const float trueSi
             return paramNominal;
         }
     }
-    std::cout<<"GetSidebandScaling - trueSidebandValue "<< trueSidebandValue <<" outside of bins with range: "<<m_binEdges[0]<<" - "<<m_binEdges[m_binEdges.size()-1]<<std::endl;
+    std::cout<<"GetSidebandScaling - trueSidebandValue "<< trueSidebandValue <<" outside of bins with range: "<<binEdges[0]<<" - "<<binEdges[binEdges.size()-1]<<std::endl;
     throw std::logic_error("GetSidebandScaling - trueSidebandValue outside of bin range.");
     return -1;//Todo improve code
 }
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
 
-CrossSectionHelper::SystFloatMap CrossSectionHelper::CrossSection::GetSidebandUniverseScaling(const CrossSectionHelper::SystFloatMap weights, const float trueSidebandValue, const std::map<std::string, std::vector<std::pair<std::vector<Double_t>,std::vector<Double_t>>>> &cc0piUniverseConstraints) const
+CrossSectionHelper::SystFloatMap CrossSectionHelper::CrossSection::GetSidebandUniverseScaling(const CrossSectionHelper::SystFloatMap weights, const float trueSidebandValue, const std::map<std::string, std::vector<std::pair<std::vector<Double_t>,std::vector<Double_t>>>> &cc0piUniverseConstraints, const std::vector<float> &binEdges) const
 {
     auto weightsScaled = weights;
-    for (unsigned int b=0; b < m_binEdges.size()-1; b++)//Todo: Do this more efficiently
+    for (unsigned int b=0; b < binEdges.size()-1; b++)//Todo: Do this more efficiently
     {
-        if (trueSidebandValue>=m_binEdges[b] && trueSidebandValue<m_binEdges[b+1])
+        if (trueSidebandValue>=binEdges[b] && trueSidebandValue<binEdges[b+1])
         {
             // const auto paramNominal = cc0piNominalConstraintParam[b];//std::max(, 0.01);//cc0piNominalConstraintParam[b];
             // if(paramNominal<0.0)
@@ -1831,16 +1848,16 @@ CrossSectionHelper::SystFloatMap CrossSectionHelper::CrossSection::GetSidebandUn
             return weightsScaled;
         }
     }
-    std::cout<<"GetSidebandUniverseScaling - trueSidebandValue "<< trueSidebandValue <<" outside of bins with range: "<<m_binEdges[0]<<" - "<<m_binEdges[m_binEdges.size()-1]<<std::endl;
+    std::cout<<"GetSidebandUniverseScaling - trueSidebandValue "<< trueSidebandValue <<" outside of bins with range: "<<binEdges[0]<<" - "<<binEdges[binEdges.size()-1]<<std::endl;
     throw std::logic_error("GetSidebandUniverseScaling - trueSidebandValue outside of bin range.");//Todo improve code
 }
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
-std::vector<float> CrossSectionHelper::CrossSection::GetSidebandParameterWeights(const float trueSidebandValue, const std::vector<Double_t> &cc0piNominalConstraintParam, const std::vector<Double_t> &cc0piNominalConstraintParamError) const
+std::vector<float> CrossSectionHelper::CrossSection::GetSidebandParameterWeights(const float trueSidebandValue, const std::vector<Double_t> &cc0piNominalConstraintParam, const std::vector<Double_t> &cc0piNominalConstraintParamError, const std::vector<float> &binEdges) const
 {
-    for (unsigned int b=0; b < m_binEdges.size()-1; b++)//Todo: Do this more efficiently
+    for (unsigned int b=0; b < binEdges.size()-1; b++)//Todo: Do this more efficiently
     {
-        if (trueSidebandValue>=m_binEdges[b] && trueSidebandValue<m_binEdges[b+1])
+        if (trueSidebandValue>=binEdges[b] && trueSidebandValue<binEdges[b+1])
         {
             const auto paramNominal = cc0piNominalConstraintParam[b];//std::max(, 0.01);//cc0piNominalConstraintParam[b];
             const auto paramNominalError = cc0piNominalConstraintParamError[b];
@@ -1864,7 +1881,7 @@ std::vector<float> CrossSectionHelper::CrossSection::GetSidebandParameterWeights
             return sidebandWeights;
         }
     }
-    std::cout<<"GetSidebandParameterWeights - trueSidebandValue "<< trueSidebandValue <<" outside of bins with range: "<<m_binEdges[0]<<" - "<<m_binEdges[m_binEdges.size()-1]<<std::endl;
+    std::cout<<"GetSidebandParameterWeights - trueSidebandValue "<< trueSidebandValue <<" outside of bins with range: "<<binEdges[0]<<" - "<<binEdges[binEdges.size()-1]<<std::endl;
     throw std::logic_error("GetSidebandParameterWeights - trueSidebandValue outside of bin range.");
     return std::vector<float>(m_systParams.nBootstrapUniverses, 1.0);//Todo improve code
 }

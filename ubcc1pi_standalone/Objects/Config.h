@@ -497,10 +497,10 @@ struct Config
         bool        scaleByBinWidth          = true;
         bool        useCC0piConstraint       = true;              ///< If we should use the CC0pi selection to constrain CC1pi cross-section
         bool        useBNBAsData             = false;              ///< If we should run with real data
-        bool        useNuWroAsData           = false;              ///< If we should run with NuWro as data
-        bool        useGenieAsData           = true;              ///< If we should run with Genie as data
+        bool        useNuWroAsData           = true;              ///< If we should run with NuWro as data
+        bool        useGenieAsData           = false;              ///< If we should run with Genie as data
         bool        useDetVar                = false;              ///< If we should run with detector variations
-        bool        fitInSystematicUniverses = true;              ///< If we should fit not only in nominal but also in systematic universes
+        bool        fitInSystematicUniverses = false;              ///< If we should fit not only in nominal but also in systematic universes
         std::vector<unsigned int> runs       = {1};               ///< The runs to use in the analysis
 
         /**
@@ -567,32 +567,38 @@ struct Config
             {0, 1, 2, std::numeric_limits<float>::max()} // binEdges
         }; ///< The nProtons binning
 
-
-        Binning muonMomentumSideband {
+        Binning sidebandMuonMomentum {
             0.15f,                                    // min
             std::numeric_limits<float>::max(),        // max
             {0.15f, 0.23f, 0.32f, 0.45f, 0.66f, 1.5f, std::numeric_limits<float>::max()} // binEdges
         }; ///< The muonMomentum binning without the overflow bins
 
-        Binning pionMomentumSideband {
+        Binning sidebandPionMomentum {
             0.f,                               // min
             std::numeric_limits<float>::max(), // max
-            {0.f, 0.1f, 0.16f, 0.19f, 0.22f, 0.6f, std::numeric_limits<float>::max()}  // binEdges
+            {0.f, 0.1f, 0.16f, 0.19f, 0.22f, 0.6f, std::numeric_limits<float>::max()}
         }; ///< The pionMomentum binning without the underflow/overflow bins
 
+        Binning sidebandProtonMomentum {
+            0.f,                               // min
+            std::numeric_limits<float>::max(), // max
+            // {0.f, 0.32f, 0.63f, 0.93f, 1.23f, 1.38f, std::numeric_limits<float>::max()}  // binEdges //todo find optimal binning - currently just eyballed values
+            {0.f, 0.46f, 0.58f, 0.71f, 0.85f, 1.08f, std::numeric_limits<float>::max()}
+        }; ///< Proton momentum binning for the pionMomentum cross-section
 
 
-        Binning muonPhiSideband {
-            -3.142f,                                                     // min
-             3.142f,                                                     // max
-            PlottingHelper::GenerateUniformBinEdges(15, -3.142f, 3.142f) // binEdges
-        }; ///< The muonPhi binning
 
-        Binning nProtonsSideband {
-            0,                                           // min
-            std::numeric_limits<float>::max(),           // max
-            {0, 1, std::numeric_limits<float>::max()} // binEdges
-        }; ///< The nProtons binning
+        // Binning muonPhiSideband {
+        //     -3.142f,                                                     // min
+        //      3.142f,                                                     // max
+        //     PlottingHelper::GenerateUniformBinEdges(15, -3.142f, 3.142f) // binEdges
+        // }; ///< The muonPhi binning
+
+        // Binning nProtonsSideband {
+        //     0,                                           // min
+        //     std::numeric_limits<float>::max(),           // max
+        //     {0, 1, std::numeric_limits<float>::max()} // binEdges
+        // }; ///< The nProtons binning
 
 
 
@@ -773,14 +779,14 @@ struct Config
             {
                 "generic", {
                     {"total",         false },
-                    {"muonCosTheta",  true },
-                    {"muonPhi",       true },
+                    {"muonCosTheta",  false },
+                    {"muonPhi",       false },
                     {"muonMomentum",  true },
-                    {"pionCosTheta",  true },
-                    {"pionPhi",       true },
+                    {"pionCosTheta",  false },
+                    {"pionPhi",       false },
                     {"pionMomentum",  true },
-                    {"muonPionAngle", true },
-                    {"nProtons",      true }
+                    {"muonPionAngle", false },
+                    {"nProtons",      false }
                 }
             },
             {
@@ -791,7 +797,7 @@ struct Config
                     {"muonMomentum",  false },
                     {"pionCosTheta",  false },
                     {"pionPhi",       false },
-                    {"pionMomentum",  false },
+                    {"pionMomentum",  true },
                     {"muonPionAngle", false },
                     {"nProtons",      false }
                 }

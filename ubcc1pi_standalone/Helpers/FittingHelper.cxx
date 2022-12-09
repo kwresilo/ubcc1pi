@@ -38,7 +38,7 @@ void FittingHelper::Fit(void(*fcn)(Int_t &, Double_t *, Double_t &f, Double_t *,
     // Set starting values and step sizes for parameters
     for (Int_t iBin=0; iBin<nBins; iBin++)
     {
-        minuit.mnparm(iBin, std::to_string(iBin), 1.0, 0.2, -9999.0, 9999.0, ierflg); // random limit: 9999.0 mnparm // parameter number here follows normals convention starting from 0 ...
+        minuit.mnparm(iBin, std::to_string(iBin), 1.0, 0.1, -9999.0, 9999.0, ierflg); // random limit: 9999.0 mnparm // parameter number here follows normals convention starting from 0 ...
     }                                                                                 // ... specifically: "Parameter number as referenced by user in FCN"
 
     std::cout<<"FittingHelper::Fit ((4))"<<std::endl;

@@ -394,14 +394,14 @@ namespace ubcc1pi_macros
     void MakeSidebandSamplePlots(const Config &config = Config());
 
     /*
-     *  @brief  Optimise the sideband cuts
+     *  @brief  Optimize the sideband cuts
      *
      *  @param  config the input configuration
      */
     void OptimizeSidebandCuts(const Config &config = Config());
 
     // /*
-    //  *  @brief  Optimise the proton momentum threshold
+    //  *  @brief  Optimize the proton momentum threshold
     //  *
     //  *  @param  config the input configuration
     //  */
@@ -415,12 +415,18 @@ namespace ubcc1pi_macros
     void MakeSidebandParameterPlots(const Config &config = Config());
 
     /**
+     *  @brief  Optimize the sideband truth bin edges
+     *
+     *  @param  config the input config
+     */
+    void OptimizeSidebandBinEdges(const Config &config = Config());
+
+    /**
      *  @brief  Top-level macro that runs the full analysis chain
      *
      *  @param  config the input config
      */
     void RunFullAnalysis(const Config &config = Config());
-
 
 } // namespace ubcc1pi_macros
 
