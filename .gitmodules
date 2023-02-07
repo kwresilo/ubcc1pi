@@ -1,3 +1,6 @@
 [submodule "ubcc1pi_standalone/ubsmear"]
 	path = ubcc1pi_standalone/ubsmear
 	url = https://github.com/a-d-smith/ubsmear.git
+[submodule "ubcc1pi_standalone/ubcc1pi-unfold"]
+	path = ubcc1pi_standalone/ubcc1pi-unfold
+	url = https://github.com/Phidet/ubcc1pi-unfold.git
