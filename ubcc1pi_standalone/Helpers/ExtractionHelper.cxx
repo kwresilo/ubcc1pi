@@ -213,7 +213,7 @@ void ExtractionHelper::ExtractionHelper::SaveCrossSectionMatricies(const CrossSe
 
     std::cout << "Smearing Matrix AllSelected" << std::endl;
     const auto smearingMatrixAllSelected = xsec.GetSmearingMatrixAllSelected();
-    FormattingHelper::SaveMatrix(smearingMatrix, "xsec_" + selectionName + "_" + name + "_smearingMatrixAllSelected_" + postfix + ".txt");
+    FormattingHelper::SaveMatrix(smearingMatrixAllSelected, "xsec_" + selectionName + "_" + name + "_smearingMatrixAllSelected_" + postfix + ".txt");
 
     if(!disableUncertainties)
     {

@@ -22,6 +22,14 @@ namespace ubcc1pi_macros
 
 void MakeNuWroXSecPlots(const Config &config)
 {
+
+    if(!config.global.useEfficiencyCorrection)
+    {
+        std::cout << "############################" << std::endl;
+        std::cout << "WARNING: Efficiency effects are being ignored in the forward-folding matrix.\nThis is NOT correct and should only be used for illustrative plots showing efficiency effects!" << std::endl;
+        std::cout << "############################" << std::endl;
+    }
+
     // -------------------------------------------------------------------------------------------------------------------------------------
     // Get the binning of each cross-section
     // -------------------------------------------------------------------------------------------------------------------------------------
@@ -77,9 +85,12 @@ void MakeNuWroXSecPlots(const Config &config)
         });
 
     std::vector<std::string> dataTypeList;
-    if(config.global.useBNBAsData) dataTypeList.push_back("NuWro");
-    if(config.global.useNuWroAsData) dataTypeList.push_back("BNB");
+    if(config.global.useNuWroAsData) dataTypeList.push_back("NuWro");
+    if(config.global.useBNBAsData) dataTypeList.push_back("BNB");
     if(config.global.useGenieAsData) dataTypeList.push_back("Genie");
+
+    // String that is used to label plots and tables when efficiency correction is ignored
+    const auto infix = std::string(config.global.useEfficiencyCorrection ? "" : "_notEfficiencyCorrected");
 
     for(const auto dataTypeName: dataTypeList)
     {
@@ -130,8 +141,9 @@ void MakeNuWroXSecPlots(const Config &config)
                 // const auto dataTrue = getTrimmedMatrixTrue("data"); //getTrimmedMatrixTrue("data");
 
                 // Get the smearing matrix
-                const auto smearingMatrixScaled = getMatrix("smearingMatrix_"+dataTypeName+"Scaled");
-                const auto smearingMatrixUnscaled = getMatrix("smearingMatrix_"+dataTypeName+"Unscaled");
+                const auto smearingMatrixName = std::string(config.global.useEfficiencyCorrection ? "smearingMatrix" : "smearingMatrixAllSelected");
+                const auto smearingMatrixScaled = getMatrix(smearingMatrixName+"_"+dataTypeName+"Scaled");
+                const auto smearingMatrixUnscaled = getMatrix(smearingMatrixName+"_"+dataTypeName+"Unscaled");
                 // const auto smearingMatrixNuwro = getMatrixTrue("smearingMatrix");
 
                 // Build the total error matrix for each group of systematic parameters
@@ -265,7 +277,7 @@ void MakeNuWroXSecPlots(const Config &config)
                 }
 
                 // Define a prefix for the names of the plots
-                const std::string prefix = "xsecPlots_" + selectionName + "_" + xsecName;
+                const std::string prefix = "xsecPlots_" + selectionName + "_" + xsecName + infix;
 
                 // -----------------------------------------------------------------------------------------------------------------------------
                 // Plot the error matrices
@@ -546,9 +558,11 @@ void MakeNuWroXSecPlots(const Config &config)
                 minY -= padding;
                 minY = std::max(minY, 0.f);
                 minY = 0.f; // Remove this line to get a dynamic lower y-range
+
+
+                pPredictionHistScaled->GetYaxis()->SetRangeUser(minY, maxY);
                 pDataHistScaled->GetYaxis()->SetRangeUser(minY, maxY);
                 pDataStatOnlyHistScaled->GetYaxis()->SetRangeUser(minY, maxY);
-                pPredictionHistScaled->GetYaxis()->SetRangeUser(minY, maxY);
                 pDataHistUnscaled->GetYaxis()->SetRangeUser(minY, maxY);
                 pDataStatOnlyHistUnscaled->GetYaxis()->SetRangeUser(minY, maxY);
                 pPredictionHistUnscaled->GetYaxis()->SetRangeUser(minY, maxY);
@@ -578,14 +592,17 @@ void MakeNuWroXSecPlots(const Config &config)
                 // Draw the smeared prediction
                 pPredictionHistScaled->Draw("hist");
 
-                // Draw the prediction uncertainties as a semi-transparent band
-                auto pHistCloneScaled = static_cast<TH1F *>(pPredictionHistScaled->Clone((dataTypeName+xsecName).c_str()));
-                PlottingHelper::SetLineStyle(pHistCloneScaled, PlottingHelper::Secondary); // needed because otherwise this end up white for some plots some reason
-                const auto colScaled = pHistCloneScaled->GetLineColor();
-                pHistCloneScaled->SetFillStyle(1001);
-                pHistCloneScaled->SetLineColorAlpha(colScaled, 0.f);
-                pHistCloneScaled->SetFillColorAlpha(colScaled, 0.3f);
-                pHistCloneScaled->Draw("e2 same");
+                if(config.global.useEfficiencyCorrection)
+                {
+                    // Draw the prediction uncertainties as a semi-transparent band
+                    auto pHistCloneScaled = static_cast<TH1F *>(pPredictionHistScaled->Clone((dataTypeName+xsecName).c_str()));
+                    PlottingHelper::SetLineStyle(pHistCloneScaled, PlottingHelper::Secondary); // needed because otherwise this end up white for some plots some reason
+                    const auto colScaled = pHistCloneScaled->GetLineColor();
+                    pHistCloneScaled->SetFillStyle(1001);
+                    pHistCloneScaled->SetLineColorAlpha(colScaled, 0.f);
+                    pHistCloneScaled->SetFillColorAlpha(colScaled, 0.3f);
+                    pHistCloneScaled->Draw("e2 same");
+                }
 
                 // Same values as above - only used to confirm
                 // // Draw the smeared prediction
@@ -599,20 +616,23 @@ void MakeNuWroXSecPlots(const Config &config)
                 // pHistCloneUnscaled->SetFillColorAlpha(colUnscaled, 0.3f);
                 // pHistCloneUnscaled->Draw("e2 same");
 
-                // Draw the data as points with error bars
-                if(dataTypeName == "NuWro") pNuWroPredictionHist->Draw("e1 same");
-                pDataStatOnlyHistUnscaled->Draw("e1 same");
-                pDataHistUnscaled->Draw("e1 same");
-                pDataStatOnlyHistScaled->Draw("e1 same");
-                pDataHistScaled->Draw("e1 same");
+                if(config.global.useEfficiencyCorrection)
+                {
+                    // Draw the data as points with error bars
+                    if(dataTypeName == "NuWro") pNuWroPredictionHist->Draw("e1 same");
+                    pDataStatOnlyHistUnscaled->Draw("e1 same");
+                    pDataHistUnscaled->Draw("e1 same");
+                    pDataStatOnlyHistScaled->Draw("e1 same");
+                    pDataHistScaled->Draw("e1 same");
+                }
 
                 PlottingHelper::SaveCanvas(pCanvas, prefix + "_data-vs-smearedPrediction_" + dataTypeName);
             }
         }
 
         // Save the table
-        tableScaled.WriteToFile("XSecPlots_goodnessOfFitStatistics_"+dataTypeName+"Scaled.md");
-        tableUnscaled.WriteToFile("XSecPlots_goodnessOfFitStatistics_"+dataTypeName+"Unscaled.md");
+        tableScaled.WriteToFile("XSecPlots_goodnessOfFitStatistics_"+dataTypeName+"Scaled"+ infix + ".md");
+        tableUnscaled.WriteToFile("XSecPlots_goodnessOfFitStatistics_"+dataTypeName+"Unscaled"+ infix + ".md");
     }
 }
 

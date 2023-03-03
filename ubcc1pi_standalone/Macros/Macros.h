@@ -22,6 +22,13 @@ namespace ubcc1pi_macros
     // void PrintConfig(const Config &config = Config());
 
     /**
+     *  @brief  Process nTuples for unfolded analysis
+     *
+     *  @param  config the input configuration
+     */
+    void Analyzer(const Config &config = Config());
+
+    /**
      *  @brief  Count the POT for the overlays and dirt samples and print the results
      *
      *  @param  config the input configuration
@@ -175,6 +182,13 @@ namespace ubcc1pi_macros
      */
     void PlotEventSelectionCuts(const Config &config = Config());
 
+    /**
+     *  @brief  Plot the selected events after each cut
+     *
+     *  @param  config the input configuration
+     */
+    void PlotEventSelectionCutsAlternate(const Config &config = Config());
+
         /**
      *  @brief  Plot the variables that are used by the sideband selection at the point of usage
      *
@@ -288,12 +302,12 @@ namespace ubcc1pi_macros
      */
     void ExtractNuWroXSecs2(const Config &config = Config());
 
-    /**
-     *  @brief  Extract the cross-sections
-     *
-     *  @param  config the input configuration
-     */
-    void ExtractXSecsOld(const Config &config = Config());
+    // /**
+    //  *  @brief  Extract the cross-sections
+    //  *
+    //  *  @param  config the input configuration
+    //  */
+    // void ExtractXSecsOld(const Config &config = Config());
 
     // /**
     //  *  @brief  Extract the sideband fit
@@ -315,6 +329,34 @@ namespace ubcc1pi_macros
      *  @param  config the input configuration
      */
     void ExtractNuWroSidebandFit2(const Config &config = Config());
+
+    /**
+     *  @brief  Extract the sideband fit of Nuwro to MC (GENIE)
+     *  
+     *  @param  config the input configuration
+     */
+    void ExtractNuWroSidebandFit3(const Config &config = Config());
+
+    /**
+     *  @brief  Extract the sideband fit of Nuwro to MC (GENIE)
+     *  
+     *  @param  config the input configuration
+     */
+    void MakeNuWroXSecTruthDistributionPlots(const Config &config = Config());
+
+    /**
+     *  @brief  Extract the sideband fit of Nuwro to MC (GENIE)  with all (BNB) systematic uncertainties 
+     *  
+     *  @param  config the input configuration
+     */
+    void ExtractNuWroAllSystSidebandFit(const Config &config = Config());
+
+    /**
+     *  @brief  Extract the Nuwro fake data cross-sections with all (BNB) systematic uncertainties
+     *
+     *  @param  config the input configuration
+     */
+    void ExtractNuWroAllSystXSecs(const Config &config = Config());
 
     /**
      *  @brief  Extract the sideband without fitting
@@ -420,6 +462,13 @@ namespace ubcc1pi_macros
      *  @param  config the input config
      */
     void OptimizeSidebandBinEdges(const Config &config = Config());
+
+    /**
+     *  @brief  Check if the pion selected proton in CC0pi selection is also the true leading proton 
+     *
+     *  @param  config the input config
+     */
+    void CheckCC0piProtonMomentum(const Config &config = Config());
 
     /**
      *  @brief  Top-level macro that runs the full analysis chain

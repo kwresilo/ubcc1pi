@@ -1348,6 +1348,8 @@ AnalysisHelper::AnalysisData AnalysisHelper::GetRecoAnalysisDataCC0Pi(const Even
                     auto range = proton.range();
                     // std::cout<<"DEBUG - GetRecoAnalysisDataCC0Pi - Point 3.1.1"<<std::endl;
                     auto protonMomentum = AnalysisHelper::GetPionMomentumFromRange(range); //ATTN: Use pion momentum here for reco values
+                    // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+                    // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
                     // std::cout<<"DEBUG - GetRecoAnalysisDataCC0Pi - Point 3.2"<<std::endl;
                     if (protonMomentum>highestProtonMomentum)
                     {
@@ -1520,7 +1522,7 @@ AnalysisHelper::AnalysisData AnalysisHelper::GetTruthAnalysisData(const Event::T
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
 
-AnalysisHelper::AnalysisData AnalysisHelper::GetTruthAnalysisDataCC0Pi(const Event::Truth &truth, const bool useAbsPdg, const float protonMomentumThreshold)
+AnalysisHelper::AnalysisData AnalysisHelper::GetTruthAnalysisDataCC0Pi(const Event::Truth &truth/*, const Event::Reco &reco, const std::vector<int> &assignedPdgCodes*/, const bool useAbsPdg, const float protonMomentumThreshold)
 {
     // std::cout<<"DEBUG - GetTruthAnalysisDataCC0pi - Point 0_000"<<std::endl;
     AnalysisData data;
@@ -1530,6 +1532,13 @@ AnalysisHelper::AnalysisData AnalysisHelper::GetTruthAnalysisDataCC0Pi(const Eve
 
     data.nProtons = 0u;
     TVector3 protonDir, muonDir;
+
+
+    // // Get the index of the proton in the truth particles that matches the pion in the reco particles
+    // if (assignedPdgCodes.size() != reco.particles.size())
+    //     throw std::logic_error("AnalysisHelper::GetRecoAnalysisDataCC0pi - The assigned PDG codes is the wrong size");
+    // const auto recoPionCandidate = reco.particles.at(AnalysisHelper::GetParticleIndexWithPdg(assignedPdgCodes, 211));
+    // protonAsPionTruthIndex = AnalysisHelper::GetBestMatchedTruthParticleIndex(recoPionCandidate, truth.particles);
 
     for (const auto &particle : AnalysisHelper::SelectVisibleParticles(truth.particles))
     {

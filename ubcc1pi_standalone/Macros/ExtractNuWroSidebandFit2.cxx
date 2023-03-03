@@ -26,39 +26,109 @@
 
 using namespace ubcc1pi;
 
-const ubsmear::UBMatrix *pPredictionNuWro, *pDataNuWro, *pSmearingMatrixNuWro, *pPredictionErrorMatrixNuWro; //, *pTotalErrorMatrixMapDataNuWro, *pTotalErrorMatrixMapSmearingMatrixNuWro;//, *pPredictionErrorMatrixNuWro;
+const ubsmear::UBMatrix *pPredictionNuWro, *pDataNuWro, *pSmearingMatrixNuWro, *pPredictionErrorMatrixNuWro, *pDataEigen, *pTransformationSmearingMatrix, *pEigenvalues; //, *pTotalErrorMatrixMapDataNuWro, *pTotalErrorMatrixMapSmearingMatrixNuWro;//, *pPredictionErrorMatrixNuWro;
 const std::map<std::string, ubsmear::UBMatrix> *pTotalErrorMatrixMap;
 const ubsmear::UBXSecMeta *pMetadataNuWro;
 
-const auto testingFraction = 0.3f;
+const auto testingFraction = 1.f;
+
+// void GetChiSquared(Int_t &npar, Double_t *gin, Double_t &chi2, Double_t *par, Int_t iflag)
+// {
+//     const auto trim = false;
+//     const auto precision = 1e-5;//std::numeric_limits<float>::epsilon();
+//     // const auto nUniverses = 10000u;
+
+//     std::vector<float> paramVec;
+//     const auto nBins = pMetadataNuWro->GetNBins();
+//     for (unsigned int i = 0; i<nBins; ++i) paramVec.push_back(par[i]);
+//     const ubsmear::UBMatrix parameters(paramVec, paramVec.size(), 1);
+//     const auto parameterScaledPrediction = ElementWiseOperation(*pPredictionNuWro, parameters, [](const auto &l, const auto& r) { return l * r; });
+
+//     const auto smearedPrediction = ubsmear::UBSmearingHelper::Smear(*pMetadataNuWro, parameterScaledPrediction, *pSmearingMatrixNuWro);
+//     const auto diff = smearedPrediction - *pDataNuWro;
+//     const auto trimmedDiff = trim ? ubsmear::UBSmearingHelper::TrimUnderOverflowBins(diff, *pMetadataNuWro) : diff;
+//     const auto trimmedDataErrorNuWro = trim ? ubsmear::UBSmearingHelper::TrimUnderOverflowBins(pTotalErrorMatrixMap->at("data"), *pMetadataNuWro): pTotalErrorMatrixMap->at("data");
+//     const auto trimmedParameters = trim ? ubsmear::UBSmearingHelper::TrimUnderOverflowBins(parameters, *pMetadataNuWro) : parameters;
+
+//     // chi2 = 0;
+//     // for (unsigned int i=0; i<trimmedDiff.GetRows(); i++)
+//     // {
+//     //     if(pDataNuWro->At(i, 0)<std::numeric_limits<float>::epsilon() && pPredictionNuWro->At(i, 0)<std::numeric_limits<float>::epsilon()) continue; //todo improve so that this check is not needed every time
+//     //     chi2 += std::pow(trimmedDiff.At(i, 0), 2)/trimmedDataErrorNuWro.At(i, i);
+//     //     // if(parameters.At(i, 0)<0) chi2 -= 500*parameters.At(i, 0);
+//     //     std::cout<<" "<<parameters.At(i, 0);
+//     // }
+//     // std::cout << " -- chi2: " << chi2  << std::endl;
+
+//     // const auto &[chiSquared, degreesOfFreedom] = ubsmear::GetChi2(smearedPrediction, smearedPredictionErrorMatrix, data, totalDataErrorMatrix, config.makeXSecPlots.precision);
+//     const auto &[chiSquared, degreesOfFreedom] = ubsmear::UBStatisticsHelper::GetChi2(smearedPrediction, *pDataNuWro, trimmedDataErrorNuWro, precision);
+//     chi2 = chiSquared;
+// }
+
+std::pair<ubsmear::UBMatrix, ubsmear::UBMatrix> GetTransformationMatrix()
+{
+    const auto precision = 1e-5;
+    const auto covarianceMatrix = pTotalErrorMatrixMap->at("data");
+    // Get the eigenvalues and eigenvectors of the covariance matrix
+    const auto &[eigenvalues, eigenvectorMatrix] = ubsmear::UBMatrixHelper::GetEigenDecomposition(covarianceMatrix, precision);
+    // Get the matrix which transforms an input vector into the basis of eigenvectors
+    const auto transformationMatrix = eigenvectorMatrix.GetTranspose();
+    return {eigenvalues, transformationMatrix};
+}
 
 void GetChiSquared(Int_t &npar, Double_t *gin, Double_t &chi2, Double_t *par, Int_t iflag)
 {
-    const auto trim = false;
-    // const auto precision = 1e-5;//std::numeric_limits<float>::epsilon();
-    // const auto nUniverses = 10000u;
-
+    // std::cout<<"GetChiSquared - Debug 0"<<std::endl;
     std::vector<float> paramVec;
+    // std::cout<<"GetChiSquared - Debug 0.1"<<std::endl;
     const auto nBins = pMetadataNuWro->GetNBins();
-    for (unsigned int i = 0; i<nBins; ++i) paramVec.push_back(par[i]);
+    // std::cout<<"GetChiSquared - Debug 0.2"<<std::endl;
+    for (size_t iBin = 0; iBin < nBins; ++iBin) paramVec.push_back(par[iBin]);
+    // std::cout<<"GetChiSquared - Debug 0.3"<<std::endl;
     const ubsmear::UBMatrix parameters(paramVec, paramVec.size(), 1);
+    // std::cout<<"GetChiSquared - Debug 0.4"<<std::endl;
     const auto parameterScaledPrediction = ElementWiseOperation(*pPredictionNuWro, parameters, [](const auto &l, const auto& r) { return l * r; });
+    // std::cout<<"GetChiSquared - Debug 0.5"<<std::endl;
 
-    const auto smearedPrediction = ubsmear::UBSmearingHelper::Smear(*pMetadataNuWro, parameterScaledPrediction, *pSmearingMatrixNuWro);
-    const auto diff = smearedPrediction - *pDataNuWro;
-    const auto trimmedDiff = trim ? ubsmear::UBSmearingHelper::TrimUnderOverflowBins(diff, *pMetadataNuWro) : diff;
-    const auto trimmedDataErrorNuWro = trim ? ubsmear::UBSmearingHelper::TrimUnderOverflowBins(pTotalErrorMatrixMap->at("data"), *pMetadataNuWro): pTotalErrorMatrixMap->at("data");
-    const auto trimmedParameters = trim ? ubsmear::UBSmearingHelper::TrimUnderOverflowBins(parameters, *pMetadataNuWro) : parameters;
+    const auto smearedPredictionEigen = ubsmear::UBSmearingHelper::Smear(*pMetadataNuWro, parameterScaledPrediction, *pTransformationSmearingMatrix);
+    // std::cout<<"GetChiSquared - Debug 1"<<std::endl;
 
+    // Get the difference between the smeared prediction and the data in the eigenbasis
+    const auto diffEigen = *pDataEigen - smearedPredictionEigen;
+
+    // std::cout<<"par:";
+    // for(const auto &param: paramVec) std::cout<<" "<<param;
+    // std::cout<<std::endl;
+
+    // Calculate the test statistic
     chi2 = 0;
-    for (unsigned int i=0; i<trimmedDiff.GetRows(); i++)
+
+    for (size_t iBin = 0; iBin < nBins; ++iBin)
     {
-        if(pDataNuWro->At(i, 0)<std::numeric_limits<float>::epsilon() && pPredictionNuWro->At(i, 0)<std::numeric_limits<float>::epsilon()) continue; //todo improve so that this check is not needed every time
-        chi2 += std::pow(trimmedDiff.At(i, 0), 2)/trimmedDataErrorNuWro.At(i, i);
-        if(parameters.At(i, 0)<0) chi2 -= 500*parameters.At(i, 0);
-        std::cout<<" "<<parameters.At(i, 0);
+        // The eigenvalues of the covariance matrix give the variance along each eigenvector
+        const auto variance = pEigenvalues->At(iBin, 0);
+    
+        // Check if the eigenvalue is zero.
+        // This represents a combination of bins in which there is no variance
+        if (std::abs(variance) <= std::numeric_limits<float>::epsilon())
+        {
+            // ATTN here we are not allowing the input covariance matrix to be non-invertible
+            // we could instead just skip this bin, and calculated the test-statistic in the subspace where the covariance matrix is invertible
+            throw std::logic_error("UBStatisticsHelper::GetChi2 - input covariance matrix has a zero eigenvalue");
+        }
+
+    
+        // Check that we don't have a negative eigenvalue - this should never happen for a true covariance matrix
+        if (variance < 0.f)
+            throw std::logic_error("UBStatisticsHelper::GetChi2 - input covariance matrix has negative eigenvalue: " + std::to_string(variance));
+
+    
+        // Add to the total chi2 and increase the number of degrees of freedom
+        const auto diff = diffEigen.At(iBin, 0);
+        chi2 += (diff * diff) / variance;
+        // std::cout<<"UBStatisticsHelper::GetChi2 - Point 6.1 - chi2: "<<chi2<<" diff: "<<diff<<" variance: "<<variance<<" dataEigen: "<<dataEigen.At(iBin,0)<<" smearedPredictionEigen: "<<smearedPredictionEigen.At(iBin,0)<<std::endl;
     }
-    std::cout << " -- chi2: " << chi2  << std::endl;
+    // std::cout<<"chi2: "<<chi2<<std::endl;
 }
 
 namespace ubcc1pi_macros
@@ -160,27 +230,42 @@ void ExtractNuWroSidebandFit2(const Config &config)
         { "nProtons",       config.global.nProtons,             config.global.nProtons,                     false }
     })
     {
+        std::cout<<"Adding cross-section Point -2"<<name<<std::endl;
         // Add to the phase-space map
         phaseSpaceMapReco.emplace(name, std::pair<float, float>({binningReco.min, binningReco.max}));
         phaseSpaceMapTruth.emplace(name, std::pair<float, float>({binningTruth.min, binningTruth.max}));
 
+        std::cout<<"Adding cross-section Point -1"<<std::endl;
         // Here we calculate every cross-section using both the generic and golden selection. In the end we only use the golden selection for
         // the pion momentum, but we additionally apply it to other cross-sections as a cross-check.
         // Add the cross-section object to the map using the binning from the input configuration
         const auto &[extendedBinEdgesReco, hasUnderflowReco, hasOverflowReco] = CrossSectionHelper::GetExtendedBinEdges(binningReco.min, binningReco.max, binningReco.binEdges);
         const auto &[extendedBinEdgesTruth, hasUnderflowTruth, hasOverflowTruth] = CrossSectionHelper::GetExtendedBinEdges(binningTruth.min, binningTruth.max, binningTruth.binEdges);
+        std::cout<<"extendedBinEdgesTruth: "<<std::endl;
+        for(const auto &v:extendedBinEdgesTruth) std::cout<<" "<<v;
+        std::cout<<std::endl;
+        std::cout<<"extendedBinEdgesReco: "<<std::endl;
+        for(const auto &v:extendedBinEdgesReco) std::cout<<" "<<v;
+        std::cout<<std::endl;
+
         for (const auto &selectionName : {"generic", "golden"})
         {
+            std::cout<<"Adding cross-section Point 0"<<std::endl;
             // Don't setup a cross-section object if it's been disabled in the configuration
             if (config.extractXSecs.crossSectionIsEnabled.at(selectionName).at(name))
             {
+                std::cout<<"Adding cross-section: "<<name<<" for selection: "<<selectionName<<std::endl;
                 xsecMapSidebandBNB[selectionName].emplace(name, CrossSectionHelper::CrossSection(systParams, extendedBinEdgesReco, hasUnderflowReco, hasOverflowReco, scaleByBinWidth, extendedBinEdgesTruth));
                 xsecMapSidebandNuWro[selectionName].emplace(name, CrossSectionHelper::CrossSection(systParamsNuWro, extendedBinEdgesReco, hasUnderflowReco, hasOverflowReco, scaleByBinWidth, extendedBinEdgesTruth));
                 xsecMapSidebandGenie[selectionName].emplace(name, CrossSectionHelper::CrossSection(systParamsGenie, extendedBinEdgesReco, hasUnderflowReco, hasOverflowReco, scaleByBinWidth, extendedBinEdgesTruth));
                 xsecMapSidebandNuWroTrue[selectionName].emplace(name, CrossSectionHelper::CrossSection(systParamsNuWro, extendedBinEdgesReco, hasUnderflowReco, hasOverflowReco, scaleByBinWidth, extendedBinEdgesTruth));
+                std::cout<<"Adding cross-section Point 2"<<std::endl;
             }
+            std::cout<<"Adding cross-section Point 3"<<std::endl;
         }
+        std::cout<<"Adding cross-section Point 4"<<std::endl;
     }
+    std::cout<<"Adding cross-section Point 5"<<std::endl;
 
 
     // ATTN here we use the machinary for a differential cross-section, and treat the total cross-section as a single-bin measurement.
@@ -471,7 +556,7 @@ void ExtractNuWroSidebandFit2(const Config &config)
                     std::cout<<"Skipped event: "<<i<<" - weight: "<<weight<<" - xsecWeightsScaleFactor: "<<xsecWeightsScaleFactor<<std::endl;
                     throw std::runtime_error("xsecWeightsScaleFactor is close to zero but nominal weight is not!"); 
                 }
-                std::cout<<"Skipped: xsecWeightsScaleFactor and nominal weight are close to zero!"<<std::endl;
+                // std::cout<<"Skipped: xsecWeightsScaleFactor and nominal weight are close to zero!"<<std::endl;
                 continue;
             }
 
@@ -621,13 +706,13 @@ void ExtractNuWroSidebandFit2(const Config &config)
                 // std::map<std::string, ubsmear::UBMatrix> totalErrorMatrixMap;
                 // std::vector<float> elements;
                 const auto nBins = selectedEventsData.GetRows();
-                std::cout<<"DEBUG - nBins: "<<nBins<<std::endl;
+                // std::cout<<"DEBUG - nBins: "<<nBins<<std::endl;
 
                 ///////////////////////////////////////////
                 /////////////////////////////////////////// Start cross-section values
                 auto data = xsec.GetBNBDataCrossSection(scalingData);
-                std::cout<<dataTypeName<<": nominal data:"<<std::endl;
-                data.Print();
+                // std::cout<<dataTypeName<<": nominal data:"<<std::endl;
+                // data.Print();
                 for(unsigned int r = 0; r<data.GetRows(); r++) // DEBUG - TODO: REMOVE !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
                 {
                     for(unsigned int c = 0; c<data.GetColumns(); c++) // DEBUG - TODO: REMOVE !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -642,25 +727,25 @@ void ExtractNuWroSidebandFit2(const Config &config)
                 FormattingHelper::SaveMatrix(data, dataTypeName + "_SidebandFit_" + selectionName + "_" + name + "_data.txt");
 
                 const auto prediction = xsec.GetPredictedCrossSection(scalingData);
-                std::cout<<dataTypeName<<": nominal prediction:"<<std::endl;
-                prediction.Print();
+                // std::cout<<dataTypeName<<": nominal prediction:"<<std::endl;
+                // prediction.Print();
                 FormattingHelper::SaveMatrix(prediction, dataTypeName + "_SidebandFit_" + selectionName + "_" + name + "_prediction.txt");
 
-                std::cout<<dataTypeName<<": nominal smearingMatrixGeneral:"<<std::endl;
-                smearingMatrixGeneral.Print();
+                // std::cout<<dataTypeName<<": nominal smearingMatrixGeneral:"<<std::endl;
+                // smearingMatrixGeneral.Print();
                 FormattingHelper::SaveMatrix(smearingMatrixGeneral, dataTypeName + "_SidebandFit_" + selectionName + "_" + name + "_smearingMatrixGeneral.txt");
 
                 const auto smearedPrediction = smearingMatrixGeneral * prediction;
-                std::cout<<dataTypeName<<": nominal smearedPrediction:"<<std::endl;
-                smearedPrediction.Print();
+                // std::cout<<dataTypeName<<": nominal smearedPrediction:"<<std::endl;
+                // smearedPrediction.Print();
                 // FormattingHelper::SaveMatrix(prediction, dataTypeName + "_SidebandFit_" + selectionName + "_" + name + "_prediction_"+postfix+".txt");
 
                 // const auto &[pPredictionStatBias, pPredictionStatCovariance] = xsec.GetPredictedCrossSectionStatUncertainty(scalingData);
                 // const auto predictionErrorMatrix = CrossSectionHelper::GetErrorMatrix(*pPredictionStatBias, *pPredictionStatCovariance);
                 
                 const auto totalErrorMatrixMap = xsec.GetTotalErrorMatrixMap(scalingData);
-                std::cout<<dataTypeName<<": nominal totalErrorMatrixMap.at(\"data\"):"<<std::endl;
-                totalErrorMatrixMap.at("data").Print();
+                // std::cout<<dataTypeName<<": nominal totalErrorMatrixMap.at(\"data\"):"<<std::endl;
+                // totalErrorMatrixMap.at("data").Print();
                 FormattingHelper::SaveMatrix(totalErrorMatrixMap.at("data"), dataTypeName + "_SidebandFit_" + selectionName + "_" + name + "_totalErrorMatrixMapData.txt");
                 // std::cout<<dataTypeName<<": nominal totalErrorMatrixMap.at(\"smearingMatrix\"):"<<std::endl;
                 // totalErrorMatrixMap.at("smearingMatrix").Print();
@@ -681,7 +766,21 @@ void ExtractNuWroSidebandFit2(const Config &config)
                 
                 std::vector<float> fitCovMatrixVector;
                 bool successful = false;
-                std::cout<<"DEBUG Nom Fit Point -1"<<std::endl;
+
+                // std::cout<<"DEBUG Nom Fit Point -1"<<std::endl;
+                const auto [eigenvalues, transformationMatrix] = GetTransformationMatrix();
+                // Transform the smeared prediction and input data into the basis of eigenvectors
+                const auto dataEigen = transformationMatrix*(*pDataNuWro);
+                const auto transformationSmearingMatrix = transformationMatrix*(*pSmearingMatrixNuWro);
+                // std::cout<<"GetTransformationMatrix - Debug 0"<<pSmearingMatrixNuWro->GetRows()<<" "<<pSmearingMatrixNuWro->GetColumns()<<transformationMatrix.GetRows()<<" "<<transformationMatrix.GetColumns()<<std::endl;
+                pTransformationSmearingMatrix = &transformationSmearingMatrix;
+                // std::cout<<"GetTransformationMatrix - Debug 1"<<std::endl;
+                pDataEigen = &dataEigen;
+                // std::cout<<"GetTransformationMatrix - Debug 2"<<std::endl;
+                pEigenvalues = &eigenvalues;
+                // std::cout<<"GetTransformationMatrix - Debug 3"<<std::endl;
+                // std::cout<<"DEBUG Nom Fit Point -0.5"<<std::endl;
+
                 minimizer.Fit(GetChiSquared, result, successful, fitCovMatrixVector, 1);
                 // if(xsec.HasUnderflow()) ///todo change back !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
                 // {
@@ -693,13 +792,13 @@ void ExtractNuWroSidebandFit2(const Config &config)
                 //     result.first.at(nBins-1) = 1.;
                 //     result.second.at(nBins-1) = 0.;
                 // }
-                std::cout<<"DEBUG Nom Fit Point 0"<<std::endl;
+                // std::cout<<"DEBUG Nom Fit Point 0"<<std::endl;
                 if(!successful)
                 {
                     std::cout<<"ERROR: ExtractNuWroSidebandFit2 - Fit failed."<<std::endl;
                     throw std::logic_error("ERROR: ExtractNuWroSidebandFit2 - Nominal fit failed.");
                 }
-                std::cout<<"DEBUG Nom Fit Point 1"<<std::endl;
+                // std::cout<<"DEBUG Nom Fit Point 1"<<std::endl;
 
                 const ubsmear::UBMatrix sidebandCovMatrix(fitCovMatrixVector, nBins, nBins);
                 FormattingHelper::SaveMatrix(sidebandCovMatrix, dataTypeName + "_SidebandFit_" + selectionName + "_" + name + "_sideband_stat_covariance.txt");
@@ -714,18 +813,18 @@ void ExtractNuWroSidebandFit2(const Config &config)
                 std::cout<<"nominal param errors:"<<std::endl;
                 sidebandErrorVectorTruth.Print();
                 
-                std::cout<<"DEBUG Nom Fit Point 2"<<std::endl;
+                // std::cout<<"DEBUG Nom Fit Point 2"<<std::endl;
 
                 cc0piNominalConstraintMap[dataTypeName][selectionName].emplace(name, result);
 
-                std::cout<<"DEBUG Nom Fit Point 3"<<std::endl;
+                // std::cout<<"DEBUG Nom Fit Point 3"<<std::endl;
                 
                 if(!config.global.fitInSystematicUniverses) continue;
 
                 // -------------------------------------------------------------------------------------------------------------------------------------
                 // Fit each universe
                 // -------------------------------------------------------------------------------------------------------------------------------------
-                std::cout<<"DEBUG Nom Fit Point 4"<<std::endl;
+                // std::cout<<"DEBUG Nom Fit Point 4"<<std::endl;
                 std::map<std::string, CrossSectionHelper::SystDimensionsMap> weightDimensionMap;
                 if(dataTypeName!="Genie") // Do not fit this for Genie fake-data
                 {
@@ -748,7 +847,7 @@ void ExtractNuWroSidebandFit2(const Config &config)
                             AnalysisHelper::PrintLoadingBar(iUni, nUniverses);
                             // const auto selectedSignalTruthUniverses = xsec.GetSelectedSignalRecoTruthMap().at(group).at(paramName).at(iUni);
                             // const auto selectedBackgroundRecoUniverses = xsec.GetSelectedBackgroundRecoMap().at(group).at(paramName).at(iUni);
-                            std::pair<std::vector<Double_t>, std::vector<Double_t>> result;
+                            std::pair<std::vector<Double_t>, std::vector<Double_t>> resultInUniverse;
                             const auto pSmearingMatrixInUniverse = xsec.GetSmearingMatrixInUniverse(group, paramName, iUni);//todo check if this is righ or GetSmearingMatrixInUniverseAllSelected should be used 
 
                             if(pSmearingMatrixNuWro)
@@ -767,33 +866,46 @@ void ExtractNuWroSidebandFit2(const Config &config)
                                 // std::cout<<"+ExtractNuWroSidebandFit2 Fitting Point 2"<<std::endl;
                                 std::vector<float> covMatrixInUniverse;
                                 bool successful = false;
+
                                 // std::cout<<"+ExtractNuWroSidebandFit2 Fitting Point 3"<<std::endl;
-                                minimizer.Fit(GetChiSquared, result, successful, covMatrixInUniverse, -1);
+                                const auto [eigenvaluesInUniverse, transformationMatrixInUniverse] = GetTransformationMatrix();
+                                const auto dataEigenInUniverse = transformationMatrixInUniverse*(*pDataNuWro);
+                                const auto transformationSmearingMatrixInUniverse = transformationMatrixInUniverse*(*pSmearingMatrixNuWro);
+                                // std::cout<<"GetTransformationMatrixInUniverse - Debug 0"<<pSmearingMatrixNuWro->GetRows()<<" "<<pSmearingMatrixNuWro->GetColumns()<<transformationMatrixInUniverse.GetRows()<<" "<<transformationMatrixInUniverse.GetColumns()<<std::endl;
+                                pTransformationSmearingMatrix = &transformationSmearingMatrixInUniverse;
+                                // std::cout<<"GetTransformationMatrixInUniverse - Debug 1"<<std::endl;
+                                pDataEigen = &dataEigenInUniverse;
+                                // std::cout<<"GetTransformationMatrixInUniverse - Debug 2"<<std::endl;
+                                pEigenvalues = &eigenvaluesInUniverse;
+                                // std::cout<<"GetTransformationMatrixInUniverse - Debug 3"<<std::endl;
+                                // minimizer.Fit(GetChiSquared, result, successful, fitCovMatrixVector, 1);
+
+                                minimizer.Fit(GetChiSquared, resultInUniverse, successful, covMatrixInUniverse, -1, result.first); // uses nominal parameters as starting point
 
                                 if(!successful)
                                 {
                                     std::cout<<"Fit not possible - Minimization failed."<<std::endl;
-                                    result = std::make_pair(std::vector<Double_t>(nBins, -1), std::vector<Double_t>(nBins, -1));
+                                    resultInUniverse = std::make_pair(std::vector<Double_t>(nBins, -1), std::vector<Double_t>(nBins, -1));
                                 }
 
                                 // if(xsec.HasUnderflow()) //todo check if this is correct ///todo change back !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
                                 // {
-                                //     result.first.at(0) = 1.;
-                                //     result.second.at(0) = 0.;
+                                //     resultInUniverse.first.at(0) = 1.;
+                                //     resultInUniverse.second.at(0) = 0.;
                                 // }
                                 // if(xsec.HasOverflow())
                                 // {
-                                //     result.first.at(nBins-1) = 1.;
-                                //     result.second.at(nBins-1) = 0.;
+                                //     resultInUniverse.first.at(nBins-1) = 1.;
+                                //     resultInUniverse.second.at(nBins-1) = 0.;
                                 // }
 
                             }
                             else
                             {
                                 std::cout<<"Fit not possible - Smearing matrix not available."<<std::endl;
-                                result = std::make_pair(std::vector<Double_t>(nBins, -1), std::vector<Double_t>(nBins, -1));
+                                resultInUniverse = std::make_pair(std::vector<Double_t>(nBins, -1), std::vector<Double_t>(nBins, -1));
                             }
-                            resultVector.push_back(result);
+                            resultVector.push_back(resultInUniverse);
                         }
 
                         cc0piUniverseConstraintMap[dataTypeName][selectionName][name].emplace(paramName, resultVector);

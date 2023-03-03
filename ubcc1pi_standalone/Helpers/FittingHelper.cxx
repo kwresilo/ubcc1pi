@@ -14,7 +14,7 @@ namespace ubcc1pi
 FittingHelper::FittingHelper(const Int_t binNumber) :
     nBins(binNumber){}
 
-void FittingHelper::Fit(void(*fcn)(Int_t &, Double_t *, Double_t &f, Double_t *, Int_t), std::pair<std::vector<Double_t>, std::vector<Double_t>> &result, bool &successful, std::vector<float> &covMatrix, const int printlevel)
+void FittingHelper::Fit(void(*fcn)(Int_t &, Double_t *, Double_t &f, Double_t *, Int_t), std::pair<std::vector<Double_t>, std::vector<Double_t>> &result, bool &successful, std::vector<float> &covMatrix, const int &printlevel, const std::vector<Double_t> &initialParameters)
 {
     // if(smearingMatrix.IsSquare() && truthRecoMatrix.GetRows() == data.GetRows() && data.GetRows()==dataStatUncertainty.GetRows() && data.GetColumns()==dataStatUncertainty.GetColumns())
     //     throw std::logic_error("FittingHelper::Fit - Incompatible input dimenstions.");
@@ -34,12 +34,30 @@ void FittingHelper::Fit(void(*fcn)(Int_t &, Double_t *, Double_t &f, Double_t *,
     arglist[0]=1;
     minuit.mnexcm("SET ERR", arglist, 1, ierflg);
 
-    std::cout<<"FittingHelper::Fit ((3))"<<std::endl;
-    // Set starting values and step sizes for parameters
-    for (Int_t iBin=0; iBin<nBins; iBin++)
+    if(initialParameters.empty())
     {
-        minuit.mnparm(iBin, std::to_string(iBin), 1.0, 0.1, -9999.0, 9999.0, ierflg); // random limit: 9999.0 mnparm // parameter number here follows normals convention starting from 0 ...
-    }                                                                                 // ... specifically: "Parameter number as referenced by user in FCN"
+        std::cout<<"FittingHelper::Fit ((1))"<<std::endl;
+        // Set starting values and step sizes for parameters
+        for (unsigned int iBin=0; iBin<nBins; iBin++)
+        {
+            minuit.mnparm(iBin, std::to_string(iBin), 1.0, 0.1, -9999.0, 9999.0, ierflg); // random limit: 9999.0 mnparm // parameter number here follows normals convention starting from 0 ...
+        }
+    }
+    else
+    {
+        std::cout<<"FittingHelper::Fit ((2))"<<std::endl;
+        if(initialParameters.size() != nBins)
+        {
+            std::cout<<"FittingHelper::Fit - initialParameters.size != nBins"<<std::endl;
+            throw std::logic_error("FittingHelper::Fit - initialParameters.size != nBins");
+        }
+        // Set starting values and step sizes for parameters
+        for (unsigned int iBin=0; iBin<nBins; iBin++)
+        {
+            minuit.mnparm(iBin, std::to_string(iBin), initialParameters.at(iBin), 0.05, -9999.0, 9999.0, ierflg); // random limit: 9999.0 mnparm // parameter number here follows normals convention starting from 0 ...
+        }
+    }
+    std::cout<<"FittingHelper::Fit ((3))"<<std::endl;                                                                          // ... specifically: "Parameter number as referenced by user in FCN"
 
     std::cout<<"FittingHelper::Fit ((4))"<<std::endl;
     std::vector<bool> fixedParameters(nBins, false); 
@@ -55,7 +73,7 @@ void FittingHelper::Fit(void(*fcn)(Int_t &, Double_t *, Double_t &f, Double_t *,
             return;
         }
         successful = true;
-        for (Int_t iBin=0; iBin<nBins; iBin++)
+        for (unsigned int iBin=0; iBin<nBins; iBin++)
         {
             std::cout<<"FittingHelper::Fit ((4.3))"<<std::endl;
             Double_t param, paramError;
@@ -86,7 +104,7 @@ void FittingHelper::Fit(void(*fcn)(Int_t &, Double_t *, Double_t &f, Double_t *,
         }
     }
     std::cout<<"FittingHelper::Fit ((10))"<<std::endl;
-    for (Int_t iBin=0; iBin<nBins; iBin++)
+    for (unsigned int iBin=0; iBin<nBins; iBin++)
     {
        if(fixedParameters.at(iBin))
        {
@@ -104,7 +122,7 @@ void FittingHelper::Fit(void(*fcn)(Int_t &, Double_t *, Double_t &f, Double_t *,
     std::cout<<"FittingHelper::Fit ((11))"<<std::endl;
 
     std::vector<Double_t>paramVector, paramErrorVector;
-    for (Int_t iBin=0; iBin<nBins; iBin++)
+    for (unsigned int iBin=0; iBin<nBins; iBin++)
     {
         Double_t param, paramError;
         minuit.GetParameter(iBin, param, paramError);
@@ -136,9 +154,9 @@ void FittingHelper::Fit(void(*fcn)(Int_t &, Double_t *, Double_t &f, Double_t *,
     minuit.mnmatu(1);
 
     covMatrix.clear();
-    for (int i=0; i<nBins; i++)
+    for (unsigned int i=0; i<nBins; i++)
     {
-        for (int j=0; j<nBins; j++)
+        for (unsigned int j=0; j<nBins; j++)
         {
             covMatrix.push_back((float)covMatrixFit[i][j]);       
         }

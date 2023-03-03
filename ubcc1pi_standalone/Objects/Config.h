@@ -487,21 +487,22 @@ struct Config
      */
     struct Global
     {
-        bool        useAbsPdg                = true;              ///< If we should use absolute PDG codes (this makes pi+ == pi- in the signal definition)
-        bool        countProtonsInclusively  = true;              ///< If we should count protons inclusively (as Xp), or exclusively as (0p, 1p, 2p, ...)
-        std::string lastCutGeneric           = "startNearVertex"; ///< The last cut of the generic selection (remaining cuts are part of the golden selection)
-        float       protonMomentumThreshold  = 0.3f;              ///< The minimum proton momentum to be counted [GeV]
-        float       targetDensity            = 8.44191f;          ///< The number of target nuclei per unit volume - units e23 / cm^3
-        std::string selection                = "Default";         ///< Which selection to use (can be "CCInclusive","Default", or "CC0pi")
-        bool        axisTitles               = true;              ///< If we want to draw axis lables and titles on the plots (if false, they are not drawn so you can add your own later)
-        bool        scaleByBinWidth          = true;
-        bool        useCC0piConstraint       = true;              ///< If we should use the CC0pi selection to constrain CC1pi cross-section
-        bool        useBNBAsData             = false;              ///< If we should run with real data
-        bool        useNuWroAsData           = true;              ///< If we should run with NuWro as data
-        bool        useGenieAsData           = false;              ///< If we should run with Genie as data
-        bool        useDetVar                = false;              ///< If we should run with detector variations
-        bool        fitInSystematicUniverses = false;              ///< If we should fit not only in nominal but also in systematic universes
-        std::vector<unsigned int> runs       = {1};               ///< The runs to use in the analysis
+        bool        useAbsPdg                   = true;              ///< If we should use absolute PDG codes (this makes pi+ == pi- in the signal definition)
+        bool        countProtonsInclusively     = true;              ///< If we should count protons inclusively (as Xp), or exclusively as (0p, 1p, 2p, ...)
+        std::string lastCutGeneric              = "startNearVertex"; ///< The last cut of the generic selection (remaining cuts are part of the golden selection)
+        float       protonMomentumThreshold     = 0.3f;              ///< The minimum proton momentum to be counted [GeV]
+        float       targetDensity               = 8.44191f;          ///< The number of target nuclei per unit volume - units e23 / cm^3
+        std::string selection                   = "Default";         ///< Which selection to use (can be "CCInclusive","Default", or "CC0pi")
+        bool        axisTitles                  = true;              ///< If we want to draw axis lables and titles on the plots (if false, they are not drawn so you can add your own later)
+        bool        scaleByBinWidth             = true;
+        bool        useCC0piConstraint          = true;              ///< If we should use the CC0pi selection to constrain CC1pi cross-section
+        bool        useBNBAsData                = false;              ///< If we should run with real data
+        bool        useNuWroAsData              = true;              ///< If we should run with NuWro as data
+        bool        useGenieAsData              = false;              ///< If we should run with Genie as data
+        bool        useDetVar                   = true;              ///< If we should run with detector variations
+        bool        fitInSystematicUniverses    = true;              ///< If we should fit not only in nominal but also in systematic universes
+        bool        useEfficiencyCorrection     = false;              ///< If we should use the efficiency-effect-free smearing matrix to use when creating the plots
+        std::vector<unsigned int> runs          = {1,2,3};               ///< The runs to use in the analysis
 
         /**
          *  @brief  The Binning structure
@@ -583,7 +584,8 @@ struct Config
             0.f,                               // min
             std::numeric_limits<float>::max(), // max
             // {0.f, 0.32f, 0.63f, 0.93f, 1.23f, 1.38f, std::numeric_limits<float>::max()}  // binEdges //todo find optimal binning - currently just eyballed values
-            {0.f, 0.46f, 0.58f, 0.71f, 0.85f, 1.08f, std::numeric_limits<float>::max()}
+            // {0.f, 0.44f, 0.55f, 0.69f, 0.81f, 1.01f, std::numeric_limits<float>::max()}
+            {0.f, 0.42f, 0.47f, 0.54f, 0.61f, 0.76f, std::numeric_limits<float>::max()}
         }; ///< Proton momentum binning for the pionMomentum cross-section
 
 
@@ -778,15 +780,15 @@ struct Config
         std::unordered_map<std::string, std::unordered_map<std::string, bool> > crossSectionIsEnabled = {
             {
                 "generic", {
-                    {"total",         false },
-                    {"muonCosTheta",  false },
-                    {"muonPhi",       false },
-                    {"muonMomentum",  true },
-                    {"pionCosTheta",  false },
-                    {"pionPhi",       false },
-                    {"pionMomentum",  true },
-                    {"muonPionAngle", false },
-                    {"nProtons",      false }
+                    {"total",         true }, // B
+                    {"muonCosTheta",  true }, // A
+                    {"muonPhi",       true }, // B
+                    {"muonMomentum",  false }, // C
+                    {"pionCosTheta",  true }, // B
+                    {"pionPhi",       true }, // B
+                    {"pionMomentum",  false }, // C
+                    {"muonPionAngle", true }, // B
+                    {"nProtons",      true } // B
                 }
             },
             {
@@ -797,9 +799,9 @@ struct Config
                     {"muonMomentum",  false },
                     {"pionCosTheta",  false },
                     {"pionPhi",       false },
-                    {"pionMomentum",  true },
+                    {"pionMomentum",  false },
                     {"muonPionAngle", false },
-                    {"nProtons",      false }
+                    {"nProtons",      false } // C
                 }
             }
         };
@@ -812,7 +814,7 @@ struct Config
         *          is set to true, then we scale the GENIE universe weights down by genieTuneEventWeight to put them on the same footing as
         *          all other parameters. If this option is false then the GENIE weights recieve no special treatment.
         */
-        bool scaleXSecWeights = false;
+        bool scaleXSecWeights = true;
 
         unsigned int nBootstrapUniverses = 1000u; ///< The number of bootrap universes to generate for the MC stat uncertainty
         unsigned int nSidebandFitUniverses = 1000u; ///< The number of universes to use for the sideband-fit parameter uncertainties

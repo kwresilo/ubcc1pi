@@ -6,3 +6,4 @@ docs/html/*
 *_cxx*
 *___.cxx
 .nfs*
+*.vscode

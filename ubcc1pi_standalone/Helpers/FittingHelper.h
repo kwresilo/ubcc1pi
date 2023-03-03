@@ -36,7 +36,7 @@ namespace ubcc1pi
              *
              *  @return xxxxxxxxxxxxx
              */
-            void Fit(void(*fcn)(Int_t &, Double_t *, Double_t &f, Double_t *, Int_t), std::pair<std::vector<Double_t>, std::vector<Double_t>> &results, bool &successful, std::vector<float> &covMatrix, const int printlevel);
+            void Fit(void(*fcn)(Int_t &, Double_t *, Double_t &f, Double_t *, Int_t), std::pair<std::vector<Double_t>, std::vector<Double_t>> &results, bool &successful, std::vector<float> &covMatrix, const int &printlevel = 0, const std::vector<Double_t> &initialParameters = std::vector<Double_t>());
         
         private:
 
@@ -54,7 +54,7 @@ namespace ubcc1pi
             // std::vector<ubsmear::UBMatrix> fitData;
             // auto pFitData = ;
             // ubsmear::UBMatrix x, y, errorY, S;
-            Int_t nBins;
+            unsigned int nBins;
     };
 
 } // namespace ubcc1pi

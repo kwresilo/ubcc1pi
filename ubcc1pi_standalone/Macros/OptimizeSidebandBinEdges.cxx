@@ -103,8 +103,8 @@ void OptimizeSidebandBinEdges(const Config &config)
         // Loop over the events in the file
         const auto nEvents = reader.GetNumberOfEvents();
 
-        std::cout<<"############################\nUsing 1/1 of events!\n############################"<<std::endl;
-        for (unsigned int i = 0; i < nEvents; ++i)
+        std::cout<<"############################\nUsing 1/5 of events!\n############################"<<std::endl;
+        for (unsigned int i = 0; i < nEvents/5; ++i)
         {
             AnalysisHelper::PrintLoadingBar(i, nEvents);
             reader.LoadEvent(i);
@@ -214,8 +214,10 @@ void OptimizeSidebandBinEdges(const Config &config)
             const auto weight = AnalysisHelper::GetNominalEventWeight(pEvent) * normalisation;
             for(const auto &name : names)
             {
-                const auto trueValue = getSidebandValue.at(name)(truthData);
-                eventTruthValueMap[name].push_back(std::make_pair(trueValue, weight));
+                // const auto trueValue = getSidebandValue.at(name)(truthData);
+                // eventTruthValueMap[name].push_back(std::make_pair(trueValue, weight));
+                const auto recoValue = getSidebandValue.at(name)(recoData);
+                eventTruthValueMap[name].push_back(std::make_pair(recoValue, weight));
             }
             //std::cout<<"DEBUG - K4"<<std::endl;
             eventWeightTotal += weight;

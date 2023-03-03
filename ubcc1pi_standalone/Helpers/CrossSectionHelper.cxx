@@ -139,9 +139,10 @@ float CrossSectionHelper::FluxReweightor::GetIntegratedFluxVariation(const std::
 // -----------------------------------------------------------------------------------------------------------------------------------------
 // -----------------------------------------------------------------------------------------------------------------------------------------
 
-CrossSectionHelper::CrossSection::CrossSection(const SystParams &systParams, const std::vector<float> &binEdges, const bool hasUnderflow, const bool hasOverflow, const bool scaleByBinWidth, const std::vector<float> &trueBinEdges) :
+CrossSectionHelper::CrossSection::CrossSection(const SystParams &systParams, const std::vector<float> &binEdges, const bool hasUnderflow, const bool hasOverflow, const bool scaleByBinWidth, const std::vector<float> &trueBinEdges, const bool &rateOnly) :
     m_systParams(systParams),
     m_binEdges(binEdges),
+    m_rateOnly(rateOnly),
     m_metadata(binEdges, hasUnderflow, hasOverflow, scaleByBinWidth),
     m_scaleByBinWidth(scaleByBinWidth),
     m_pSignal_true_nom(CrossSectionHelper::GetTH1F(trueBinEdges.empty() ? binEdges : trueBinEdges)),
@@ -155,18 +156,18 @@ CrossSectionHelper::CrossSection::CrossSection(const SystParams &systParams, con
         throw std::invalid_argument("CrossSection::CrossSection - Insufficient bin edges provided!");
 
 
-    std::cout<<"binEdges:";
-    for(const auto &binEdge: binEdges)
-    {
-        std::cout<<" "<<binEdge;
-    }
-    std::cout<<std::endl;
-    std::cout<<"trueBinEdges:";
-    for(const auto &trueBinEdge: trueBinEdges)
-    {
-        std::cout<<" "<<trueBinEdge;
-    }
-    std::cout<<std::endl;
+    // std::cout<<"binEdges:";
+    // for(const auto &binEdge: binEdges)
+    // {
+    //     std::cout<<" "<<binEdge;
+    // }
+    // std::cout<<std::endl;
+    // std::cout<<"trueBinEdges:";
+    // for(const auto &trueBinEdge: trueBinEdges)
+    // {
+    //     std::cout<<" "<<trueBinEdge;
+    // }
+    // std::cout<<std::endl;
 
     // Setup a dimensions map for the miscellaneous ("misc") multisim parameters.
     // These are added in ad-hoc (i.e. they don't come from the weights stored in the truth information)
@@ -211,6 +212,7 @@ CrossSectionHelper::CrossSection::CrossSection(const SystParams &systParams, con
 void CrossSectionHelper::CrossSection::AddSignalEvent(const float recoValue, const float trueValue, const bool isSelected, 
     const float nominalWeight, const SystFloatMap &fluxWeights, const SystFloatMap &xsecWeights, const SystFloatMap &reintWeights)
 {
+    // std::cout<<"DEBUG - AddSignalEvent - Point 0"<<std::endl;
     const auto bootstrapWeights = CrossSectionHelper::GenerateBootstrapWeights(m_systParams.nBootstrapUniverses);
 
     const auto sidebandWeights = std::vector<float>(m_systParams.nBootstrapUniverses, 1.0);
@@ -228,16 +230,23 @@ void CrossSectionHelper::CrossSection::AddSignalEvent(const float recoValue, con
         { "dirt", {1.f, 1.f} }
     };
 
+    // std::cout<<"DEBUG - AddSignalEvent - Point 1"<<std::endl;
     m_pSignal_true_nom->Fill(trueValue, nominalWeight);
+    // std::cout<<"DEBUG - AddSignalEvent - Point 1.1"<<std::endl;
     CrossSectionHelper::FillSystTH1FMap(trueValue, nominalWeight, fluxWeights, m_signal_true_multisims.at("flux"));
+    // std::cout<<"DEBUG - AddSignalEvent - Point 1.2"<<std::endl;
     CrossSectionHelper::FillSystTH1FMap(trueValue, nominalWeight, xsecWeights, m_signal_true_multisims.at("xsec"));
+    // std::cout<<"DEBUG - AddSignalEvent - Point 1.3"<<std::endl;
     CrossSectionHelper::FillSystTH1FMap(trueValue, nominalWeight, reintWeights, m_signal_true_multisims.at("reint"));
+    // std::cout<<"DEBUG - AddSignalEvent - Point 1.4"<<std::endl;
     CrossSectionHelper::FillSystTH1FMap(trueValue, nominalWeight, miscWeights, m_signal_true_multisims.at("misc"));
+    // std::cout<<"DEBUG - AddSignalEvent - Point 2"<<std::endl;
 
     if (!isSelected)
         return;
 
     // ATTN the reco value is only used if the event is selected
+    // std::cout<<"DEBUG - AddSignalEvent - Point 3"<<std::endl;
     m_pSignal_selected_recoTrue_nom->Fill(recoValue, trueValue, nominalWeight);
     CrossSectionHelper::FillSystTH2FMap(recoValue, trueValue, nominalWeight, fluxWeights, m_signal_selected_recoTrue_multisims.at("flux"));
     CrossSectionHelper::FillSystTH2FMap(recoValue, trueValue, nominalWeight, xsecWeights, m_signal_selected_recoTrue_multisims.at("xsec"));
@@ -377,6 +386,13 @@ ubsmear::UBMatrix CrossSectionHelper::CrossSection::GetBinWidths() const
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
 
+bool CrossSectionHelper::CrossSection::RateOnly() const
+{
+    return m_rateOnly;
+}
+
+// -----------------------------------------------------------------------------------------------------------------------------------------
+
 ubsmear::UBMatrix CrossSectionHelper::CrossSection::GetCrossSection(const ubsmear::UBMatrix &selected, const ubsmear::UBMatrix &backgrounds, const float integratedFlux, const float exposurePOT, const float nTargets) const
 {
     // Check the input event rate has the right dimensions
@@ -405,16 +421,19 @@ ubsmear::UBMatrix CrossSectionHelper::CrossSection::GetCrossSection(const ubsmea
         throw std::invalid_argument("CrossSection::GetCrossSection - Input background rate has the wrong number of bins");
     }
 
-    // Get the normalisation factor
-    const auto norm = integratedFlux * exposurePOT * nTargets;
-    if (norm <= std::numeric_limits<float>::epsilon())
-    {
-        std::cout << "CrossSection::GetCrossSection - Product of flux, exposure and targets non-positive" << std::endl;
-        throw std::invalid_argument("CrossSection::GetCrossSection - Product of flux, exposure and targets non-positive");
-    }
-
     // Get the column vector of bin widths
     const auto binWidths = this->GetBinWidths();
+    // Get the normalisation factor
+    auto norm = 1.f;
+    if(!this->RateOnly())
+    {
+        norm = integratedFlux * exposurePOT * nTargets;
+        if (norm <= std::numeric_limits<float>::epsilon())
+        {
+            std::cout << "CrossSection::GetCrossSection - Product of flux, exposure and targets non-positive" << std::endl;
+            throw std::invalid_argument("CrossSection::GetCrossSection - Product of flux, exposure and targets non-positive");
+        }
+    }
 
     // Now get the flux-integrated, forward-folded cross-section by
     //   - Subtracting the backgrounds
@@ -1815,11 +1834,14 @@ Double_t CrossSectionHelper::CrossSection::GetSidebandScaling(const float trueSi
 
 CrossSectionHelper::SystFloatMap CrossSectionHelper::CrossSection::GetSidebandUniverseScaling(const CrossSectionHelper::SystFloatMap weights, const float trueSidebandValue, const std::map<std::string, std::vector<std::pair<std::vector<Double_t>,std::vector<Double_t>>>> &cc0piUniverseConstraints, const std::vector<float> &binEdges) const
 {
+    // std::cout<<"DEBUG - GetSidebandUniverseScaling - Point 0"<<std::endl;
     auto weightsScaled = weights;
     for (unsigned int b=0; b < binEdges.size()-1; b++)//Todo: Do this more efficiently
     {
+        // std::cout<<"DEBUG - GetSidebandUniverseScaling - Point 1"<<std::endl;
         if (trueSidebandValue>=binEdges[b] && trueSidebandValue<binEdges[b+1])
         {
+            // std::cout<<"DEBUG - GetSidebandUniverseScaling - Point 2"<<std::endl;
             // const auto paramNominal = cc0piNominalConstraintParam[b];//std::max(, 0.01);//cc0piNominalConstraintParam[b];
             // if(paramNominal<0.0)
             // {
@@ -1829,12 +1851,14 @@ CrossSectionHelper::SystFloatMap CrossSectionHelper::CrossSection::GetSidebandUn
 
             for (auto &[paramName,weightVector] : weightsScaled)
             {
+                // std::cout<<"DEBUG - GetSidebandUniverseScaling - Point 3 - paramName: "<<paramName<<std::endl;
                 const auto cc0piUniverseConstraintParam = cc0piUniverseConstraints.at(paramName);
                 if(cc0piUniverseConstraintParam.size()!= weightVector.size())
                 {
                     std::cout<<"GetSidebandUniverseScaling - Wrong number of parameters.."<<std::endl;
                     throw std::logic_error("GetSidebandUniverseScaling - Wrong number of parameters.");
                 }
+                // std::cout<<"DEBUG - GetSidebandUniverseScaling - Point 4"<<std::endl;
                 
                 for (unsigned int u=0; u<weightVector.size(); u++)
                 {
@@ -1844,6 +1868,7 @@ CrossSectionHelper::SystFloatMap CrossSectionHelper::CrossSection::GetSidebandUn
                         weightVector[u] *= cc0piUniverseConstraintParam.at(u).first.at(b);///paramNominal;
                     }
                 }
+                // std::cout<<"DEBUG - GetSidebandUniverseScaling - Point 5"<<std::endl;
             }
             return weightsScaled;
         }
@@ -2145,10 +2170,8 @@ std::tuple< std::vector<float>, bool, bool > CrossSectionHelper::GetExtendedBinE
     // If the first/last edge isn't at min/max, then make sure that it's not below/above
     if (!isFirstEdgeAtMin && firstEdge < min)
         throw std::invalid_argument("CrossSectionHelper::GetExtendedBinEdges - Lowest input bin edge is smaller than the supplied minimum value");
-
     if (!isLastEdgeAtMax && lastEdge > max)
         throw std::invalid_argument("CrossSectionHelper::GetExtendedBinEdges - Uppermost input bin edge is larget than the supplied maximum value");
-
     // Determine if we need to extend to an extra underflow/overflow bin edge
     const auto hasUnderflow = !isFirstEdgeAtMin;
     const auto hasOverflow = !isLastEdgeAtMax;
@@ -2166,7 +2189,6 @@ std::tuple< std::vector<float>, bool, bool > CrossSectionHelper::GetExtendedBinE
     // Add the overflow bin if required
     if (hasOverflow)
         extendedBinEdges.push_back(max);
-
     return {extendedBinEdges, hasUnderflow, hasOverflow};
 }
 

@@ -24,7 +24,7 @@
 #include "map.hpp"
 #include "vector.hpp"
 
-const auto testingFractionXSec = 0.05f;
+const auto testingFractionXSec = 1.0f;
 
 
 using namespace ubcc1pi;
@@ -34,7 +34,6 @@ namespace ubcc1pi_macros
 
 void ExtractNuWroXSecs2(const Config &config)
 {
-
     // -------------------------------------------------------------------------------------------------------------------------------------
     // Setup an object that holds the details of the systematic parameters to apply
     // -------------------------------------------------------------------------------------------------------------------------------------
@@ -145,6 +144,7 @@ void ExtractNuWroXSecs2(const Config &config)
 
     // The names of the cross-section kinematic parameters, and their sideband binning information.
     std::map<std::string, std::vector<float>> sidebandBinningMap {
+        { "total",         {-1.f, 1.f}                                   },        
         { "muonCosTheta",  config.global.muonCosTheta.binEdges           },
         { "muonPhi",       config.global.muonPhi.binEdges                },
         { "muonMomentum",  config.global.sidebandMuonMomentum.binEdges   },
@@ -312,6 +312,7 @@ void ExtractNuWroXSecs2(const Config &config)
     {
         std::cout << "Reading input file: " << fileName << std::endl;
 
+        std::cout<<"DEBUG Y0"<<std::endl;
         const auto isOverlay = (sampleType == AnalysisHelper::Overlay);
         const auto isDirt    = (sampleType == AnalysisHelper::Dirt);
         const auto isNuWro   = (sampleType == AnalysisHelper::NuWro);
@@ -319,12 +320,15 @@ void ExtractNuWroXSecs2(const Config &config)
         const auto isDetVar  = (sampleType == AnalysisHelper::DetectorVariation);
         const auto isDataEXT = (sampleType == AnalysisHelper::DataEXT);
 
+        std::cout<<"DEBUG Y1"<<std::endl;
         // Open the input file for reading and enable the branches with systematic event weights (if required)
         FileReader reader(fileName);
 
+        std::cout<<"DEBUG Y1.1"<<std::endl;
         if (isOverlay || isNuWro) //todo check if nuwro is needed here
             reader.EnableSystematicBranches();
 
+        std::cout<<"DEBUG Y2"<<std::endl;
         auto pEvent = reader.GetBoundEventAddress();
         const auto nEvents = reader.GetNumberOfEvents();
 
@@ -338,9 +342,10 @@ void ExtractNuWroXSecs2(const Config &config)
         std::cout<<"############################\nUsing "<<testingFractionXSec*100<<"\% of events!\n############################"<<std::endl;
         for (unsigned int i = 0; i < nEvents*testingFractionXSec; ++i) // todo change back to every event!!!!!!!!!!!!!!!!!!!!!!
         {
+            // std::cout<<"TYT - P 0"<<std::endl;
             AnalysisHelper::PrintLoadingBar(i, int(nEvents*testingFractionXSec));
             reader.LoadEvent(i);
-
+            // std::cout<<"TYT - P 1"<<std::endl;
             // -----------------------------------------------------------------------------------------------------------------------------
             // Work out if this event passed the selection and apply any additional phase-space cuts based on the input binning
             // -----------------------------------------------------------------------------------------------------------------------------
@@ -348,6 +353,7 @@ void ExtractNuWroXSecs2(const Config &config)
             const auto &[passedGoldenSelection, cutsPassed, assignedPdgCodes] = selection.Execute(pEvent);
             const auto passedGenericSelection = SelectionHelper::IsCutPassed(cutsPassed, config.global.lastCutGeneric);
 
+            // std::cout<<"TYT - P 2"<<std::endl;
             // Get the reco analysis data (if available, otherwise set to dummy values)
             const auto recoData = (
                 passedGenericSelection
@@ -355,6 +361,7 @@ void ExtractNuWroXSecs2(const Config &config)
                     : AnalysisHelper::GetDummyAnalysisData()
             );
 
+            // std::cout<<"TYT - P 3"<<std::endl;
             // Here we apply reco-level phase-space restrictions
             // For any event that passes the generic selection, get the value of the kinematic quantity and check if it is outside of the
             // min/max values supplied in the binning. If so, then reject the event.
@@ -381,7 +388,7 @@ void ExtractNuWroXSecs2(const Config &config)
             const auto isSelectedGeneric = passedGenericSelection && passesPhaseSpaceReco;
             std::map<std::string, bool> isSelectedMap = {{"generic",isSelectedGeneric},{"golden",isSelectedGolden}};
 
-
+            // std::cout<<"TYT - P 4"<<std::endl;
             // Determine if this is truly a CC1Pi event
             const auto isTrueCC1Pi = (isOverlay || isDetVar || isNuWro) && AnalysisHelper::IsTrueCC1Pi(pEvent, config.global.useAbsPdg);
             // Get the truth analysis data (if available, otherwise set to dummy values)
@@ -414,6 +421,7 @@ void ExtractNuWroXSecs2(const Config &config)
                 }
             }
 
+            // std::cout<<"TYT - P 5"<<std::endl;
             const auto isCC1PiSignal = isTrueCC1Pi && passesPhaseSpaceTruth;
             const auto isSignal = isCC1PiSignal;
 
@@ -455,6 +463,7 @@ void ExtractNuWroXSecs2(const Config &config)
                 }
             }
 
+            // std::cout<<"TYT - P 6"<<std::endl;
             const auto isCC0PiSignal = isTrueCC0Pi && passesSidebandPhaseSpaceTruth;
             
             // -----------------------------------------------------------------------------------------------------------------------------
@@ -488,6 +497,7 @@ void ExtractNuWroXSecs2(const Config &config)
             }            
             if (isDataBNB) continue; // For BNB data that's all we need to do!
 
+            // std::cout<<"TYT - P 7"<<std::endl;
             // -----------------------------------------------------------------------------------------------------------------------------
             // Handle the detector variation samples (unisims)
             // -----------------------------------------------------------------------------------------------------------------------------
@@ -532,6 +542,7 @@ void ExtractNuWroXSecs2(const Config &config)
                     : CrossSectionHelper::GetUnitWeightsMap(systParams.fluxDimensions)
             );
 
+            // std::cout<<"TYT - P 8"<<std::endl;
             // Get the cross-section weights
             // ATTN here we optionally scale the cross-section weights down by the genieTuneEventWeight - this is done so we don't
             // double count this weight (once in the nominal event weight, and once in the xsec systematic event weights)
@@ -557,6 +568,19 @@ void ExtractNuWroXSecs2(const Config &config)
                     : CrossSectionHelper::GetUnitWeightsMap(systParams.xsecDimensions)
             );
             
+            // for (auto &[paramName,weightVector] : xsecWeights)
+            // {
+            //     int i = 0;
+            //     std::cout<<"DEBUG xsecWeights Unscaled SuperPre isCC0PiSignal: "<<isCC0PiSignal<<" - paramName: "<<paramName<<" - weight: "<<weight<<" - ";
+            //     for (auto &w : weightVector)
+            //     {
+            //         std::cout<<" "<<w;
+            //         i++;
+            //         if(i>10) break;
+            //     }
+            //     std::cout<<std::endl;
+            //     break;
+            // }
 
             // Get the reinteraction weights
             auto reintWeights = (
@@ -565,7 +589,7 @@ void ExtractNuWroXSecs2(const Config &config)
                     : CrossSectionHelper::GetUnitWeightsMap(systParams.reintDimensions)
             );
 
-
+            // std::cout<<"TYT - P 9"<<std::endl;
             // Fill the flux-reweightor with all overlay events from a neutrinos of the desired flavour in the active volume
             const auto useForFluxReweighting = isOverlay && AnalysisHelper::IsInActiveVolume(pEvent->truth.nuVertex()) && 
                 std::find(config.flux.nuPdgsSignal.begin(), config.flux.nuPdgsSignal.end(), pEvent->truth.nuPdgCode()) != config.flux.nuPdgsSignal.end();
@@ -578,69 +602,123 @@ void ExtractNuWroXSecs2(const Config &config)
             const auto sidebandUnitWeights = std::vector<float>(systParams.nSidebandFitUniverses, 1.f);
             CrossSectionHelper::SystFloatMap emptySystFloatMap = {};
 
-            std::cout<<"DEBUG K-1"<<std::endl;
+            // // std::cout<<"DEBUG K-1"<<std::endl;
+            // std::cout<<"TYT - P 9.1"<<std::endl;
             // Handle selected background events
             if (!isSignal && !isNuWro) // !isNuWro = isOverlay || isDataEXT || isDirt
             {
                 for (auto &[selectionName, xsecs] : xsecMapNuWroScaled)
                 {
+                    // std::cout<<"DEBUG K-1"<<std::endl;
                     // Only use selected background events
                     if (!isSelectedMap.at(selectionName)) continue;
+                    // std::cout<<"TYT - P 9.2"<<std::endl;
 
                     for (auto &[name, xsec] : xsecs)
                     {
+                        // std::cout<<"TYT - P 9.3"<<std::endl;
+                        // std::cout<<"DEBUG K0"<<std::endl;
                         const auto recoValue = getValue.at(name)(recoData);
                         const auto trueValue = getValue.at(name)(truthData);
+                        // std::cout<<"TYT - P 9.3.1 - name: "<<name<<std::endl;
                         const auto trueSidebandValue = getSidebandValue.at(name)(sidebandTruthData);
+                        // std::cout<<"TYT - P 9.3.1.1"<<std::endl;
                         const auto sidebandBinEdges = sidebandBinningMap.at(name);
+                        // std::cout<<"TYT - P 9.3.2"<<std::endl;
                         
                         // Add CC0pi constraint
                         for (const auto &dataTypeName: {std::string("NuWro"), std::string("BNB"), std::string("Genie")})
                         {
-                            std::cout<<"DEBUG K0"<<std::endl;
+                            // std::cout<<"TYT - P 9.4"<<std::endl;
+                            // std::cout<<"DEBUG K1"<<std::endl;
+                            // // std::cout<<"DEBUG K0"<<std::endl;
                             if (dataTypeName=="NuWro" && (!config.global.useNuWroAsData || !isOverlay)) continue; // use only overlay for nuwro
                             else if (dataTypeName=="Genie" && (!config.global.useGenieAsData || !isOverlay)) continue; // use only overlay for genie
                             else if (dataTypeName=="BNB" && (!config.global.useBNBAsData)) continue; // use overlay, dirt, extbnb for BNB
-
-                            std::cout<<"DEBUG K0.1 - dataTypeName: "<<dataTypeName<<std::endl;
+                            // std::cout<<"DEBUG K1.1"<<std::endl;
+                            // // std::cout<<"DEBUG K0.1 - dataTypeName: "<<dataTypeName<<std::endl;
+                            // std::cout<<"TYT - P 9.5"<<std::endl;
                             const auto cc0piNominalConstraintParam = cc0piNominalConstraintMap.at(dataTypeName).at(selectionName).at(name).first;
                             const auto cc0piNominalConstraintParamError = cc0piNominalConstraintMap.at(dataTypeName).at(selectionName).at(name).second;
+                            // std::cout<<"TYT - P 9.6"<<std::endl;
 
-                            std::cout<<"DEBUG K0.2"<<std::endl;
+                            // // std::cout<<"DEBUG K0.2"<<std::endl;
                             const auto nominalWeightFactor = isCC0PiSignal ? xsec.GetSidebandScaling(trueSidebandValue, cc0piNominalConstraintParam, sidebandBinEdges) : 1.f;
                             
-                            std::cout<<"DEBUG K1"<<std::endl;
+                            // // std::cout<<"DEBUG K1"<<std::endl;
                             // Todo: arbitrary threshold in function. Fixed??? // Also change from vector<float> to SystFloatMap for consistency
                             const auto sidebandWeights = isCC0PiSignal ? xsec.GetSidebandParameterWeights(trueSidebandValue, cc0piNominalConstraintParam, cc0piNominalConstraintParamError, sidebandBinEdges) : sidebandUnitWeights;
 
                             if (dataTypeName=="Genie")
                             {
-                                std::cout<<"DEBUG K1.0.1"<<" "<<selectionName<<" "<<name<<" - recoValue: "<<recoValue<<std::endl;
+                                // std::cout<<"TYT - P 9.7"<<std::endl;
+                                // // std::cout<<"DEBUG K1.0.1"<<" "<<selectionName<<" "<<name<<" - recoValue: "<<recoValue<<std::endl;
                                 xsecMapGenieUnscaled.at(selectionName).at(name).AddSelectedBackgroundEvent(recoValue, isDirt, weight, emptySystFloatMap, emptySystFloatMap, emptySystFloatMap, sidebandUnitWeights);
                                 if (config.global.useCC0piConstraint) xsecMapGenieScaled.at(selectionName).at(name).AddSelectedBackgroundEvent(recoValue, isDirt, weight, emptySystFloatMap, emptySystFloatMap, emptySystFloatMap, sidebandWeights, nominalWeightFactor);
                                 // if (useForFluxReweighting) scalingDataScaledMap.at(dataTypeName).at(selectionName).at(name).pFluxReweightor->AddEvent(pEvent->truth.nuEnergy(), weight, fluxWeights, nominalWeightFactor); //todo check if fluxWeights is correct here
                             }
                             else 
                             {
-                                std::cout<<"DEBUG K1.1"<<std::endl;
+                                // std::cout<<"TYT - P 9.8"<<std::endl;
+                                // // std::cout<<"DEBUG K1.1"<<std::endl;
                                 const auto cc0piUniverseConstraintVector = cc0piUniverseConstraintMap.at(dataTypeName).at(selectionName).at(name);
-                                const auto scaledXSecWeights = (isCC0PiSignal && (dataTypeName=="BNB" || dataTypeName=="NuWro")) ? xsec.GetSidebandUniverseScaling(xsecWeights, trueSidebandValue, cc0piUniverseConstraintVector, sidebandBinEdges) : xsecWeights;
-                                std::cout<<"DEBUG K1.2"<<std::endl;
+                                const auto scaledXSecWeights = isCC0PiSignal ? xsec.GetSidebandUniverseScaling(xsecWeights, trueSidebandValue, cc0piUniverseConstraintVector, sidebandBinEdges) : xsecWeights;
+
+
+                                // for (auto &[paramName,weightVector] : xsecWeights)
+                                // {
+                                //     std::cout<<"DEBUG xsecWeights extrema: "<<*std::min_element(weightVector.begin(), weightVector.end())<<" "<<*std::max_element(weightVector.begin(), weightVector.end())<<std::endl;
+                                //     int i = 0;
+                                //     std::cout<<"DEBUG xsecWeights isCC0PiSignal: "<<isCC0PiSignal<<" - recoValue: "<<recoValue<<" - trueValue: "<<trueValue<<"- dataTypeName: "<<dataTypeName<<" - paramName: "<<paramName<<" - weight: "<<weight<<" - xsecWeightsScaleFactor: "<<xsecWeightsScaleFactor<<" - nominalWeightFactor: "<<nominalWeightFactor<<" | ";
+                                //     for (auto &w : weightVector)
+                                //     {
+                                //         std::cout<<" "<<w;
+                                //         i++;
+                                //         if(i>10) break;
+                                //     }
+                                //     std::cout<<std::endl;
+                                //     break;
+                                // }
+
+                                // for (auto &[paramName,weightVector] : scaledXSecWeights)
+                                // {
+                                //     std::cout<<"DEBUG scaledXSecWeights extrema: "<<*std::min_element(weightVector.begin(), weightVector.end())<<" "<<*std::max_element(weightVector.begin(), weightVector.end())<<std::endl;
+                                //     int i = 0;
+                                //     std::cout<<"DEBUG scaledXSecWeights - isCC0PiSignal: "<<isCC0PiSignal<<" | ";
+                                //     for (auto &w : weightVector)
+                                //     {
+                                //         std::cout<<" "<<w;
+                                //         i++;
+                                //         if(i>10) break;
+                                //     }
+                                //     std::cout<<std::endl;
+                                //     break;
+                                // }
+                                // std::cout<<"DEBUG K1.2"<<std::endl;
                                 if (dataTypeName=="NuWro")
                                 {
+                                    // std::cout<<"DEBUG K1.3"<<std::endl;
                                     xsecMapNuWroUnscaled.at(selectionName).at(name).AddSelectedBackgroundEvent(recoValue, isDirt, weight, emptySystFloatMap, xsecWeights, emptySystFloatMap, sidebandUnitWeights);
                                     if (config.global.useCC0piConstraint) xsec.AddSelectedBackgroundEvent(recoValue, isDirt, weight, emptySystFloatMap, scaledXSecWeights, emptySystFloatMap, sidebandWeights, nominalWeightFactor);
+                                    // std::cout<<"DEBUG K1.4"<<std::endl;
                                     // if (useForFluxReweighting) scalingDataScaledMap.at(dataTypeName).at(selectionName).at(name).pFluxReweightor->AddEvent(pEvent->truth.nuEnergy(), weight, fluxWeights, nominalWeightFactor); //todo check if fluxWeights is correct here
                                 } else if (dataTypeName=="BNB")
                                 {
+                                    // std::cout<<"DEBUG K1.5"<<std::endl;
                                     const auto scaledFluxWeights = isCC0PiSignal ? xsec.GetSidebandUniverseScaling(fluxWeights, trueSidebandValue, cc0piUniverseConstraintVector, sidebandBinEdges) : fluxWeights;
                                     const auto scaledReintWeights = isCC0PiSignal ? xsec.GetSidebandUniverseScaling(reintWeights, trueSidebandValue, cc0piUniverseConstraintVector, sidebandBinEdges) : reintWeights;
+                                    // std::cout<<"DEBUG K1.6"<<std::endl;
                                     xsecMapBNBUnscaled.at(selectionName).at(name).AddSelectedBackgroundEvent(recoValue, isDirt, weight, fluxWeights, xsecWeights, reintWeights, sidebandUnitWeights);
+                                    // std::cout<<"DEBUG K1.7"<<std::endl;
                                     if (config.global.useCC0piConstraint) xsecMapBNBScaled.at(selectionName).at(name).AddSelectedBackgroundEvent(recoValue, isDirt, weight, scaledFluxWeights, scaledXSecWeights, scaledReintWeights, sidebandWeights, nominalWeightFactor);
+                                    // std::cout<<"DEBUG K1.8"<<std::endl;
                                     if (useForFluxReweighting) scalingDataScaledMap.at(dataTypeName).at(selectionName).at(name).pFluxReweightor->AddEvent(pEvent->truth.nuEnergy(), weight, scaledFluxWeights, nominalWeightFactor);
+                                    // std::cout<<"DEBUG K1.9"<<std::endl;
                                 }
+                                // std::cout<<"TYT - P 9.9"<<std::endl;
+                                // std::cout<<"DEBUG K1.10"<<std::endl;
                             }
-                            std::cout<<"DEBUG K2"<<std::endl;
+                            // // std::cout<<"DEBUG K2"<<std::endl;
                             // Fill the flux-reweightor with all overlay events from a neutrinos of the desired flavour in the active volume
                             // if (useForFluxReweighting) scalingDataScaledMap.at(dataTypeName).at(selectionName).at(name).pFluxReweightor->AddEvent(pEvent->truth.nuEnergy(), weight, scaledFluxWeights, nominalWeightFactor);
                         }
@@ -650,7 +728,7 @@ void ExtractNuWroXSecs2(const Config &config)
             // Handle other events
             else  
             {
-                std::cout<<"DEBUG K3"<<std::endl;
+                // // std::cout<<"DEBUG K3"<<std::endl;
                 // Fill the flux-reweightor with all overlay events from a neutrinos of the desired flavour in the active volume
                 if (useForFluxReweighting)
                 {
@@ -666,7 +744,7 @@ void ExtractNuWroXSecs2(const Config &config)
                     }
                 }
 
-                std::cout<<"DEBUG K4"<<std::endl;
+                // // std::cout<<"DEBUG K4"<<std::endl;
                 // Handle signal events
                 if (isSignal)
                 {
@@ -677,7 +755,7 @@ void ExtractNuWroXSecs2(const Config &config)
 
                         for (auto &[name, xsec] : xsecs)
                         {
-                            std::cout<<"DEBUG K4.1"<<std::endl;
+                            // // std::cout<<"DEBUG K4.1"<<std::endl;
                             const auto recoValue = getValue.at(name)(recoData);
                             const auto trueValue = getValue.at(name)(truthData);
                             if (isNuWro)
@@ -685,7 +763,7 @@ void ExtractNuWroXSecs2(const Config &config)
                                 xsecMapNuWroTrue.at(selectionName).at(name).AddSignalEvent(recoValue, trueValue, isSelected, weight, emptySystFloatMap, xsecWeights, emptySystFloatMap);
                             } else
                             {
-                                std::cout<<"DEBUG K4.2"<<std::endl;
+                                // // std::cout<<"DEBUG K4.2"<<std::endl;
                                 if (isOverlay) // Genie MC for NuWro (no EXT or dirt events in NuWro)
                                 {
                                     if (config.global.useNuWroAsData)
@@ -695,29 +773,29 @@ void ExtractNuWroXSecs2(const Config &config)
                                     }
                                     if (config.global.useGenieAsData)
                                     {
-                                        std::cout<<"DEBUG K4.3"<<" "<<selectionName<<" "<<name<<" - recoValue: "<<recoValue<<" - trueValue: "<<trueValue<<" - isSelected: "<<isSelected<<std::endl;
+                                        // // std::cout<<"DEBUG K4.3"<<" "<<selectionName<<" "<<name<<" - recoValue: "<<recoValue<<" - trueValue: "<<trueValue<<" - isSelected: "<<isSelected<<std::endl;
                                         xsecMapGenieUnscaled.at(selectionName).at(name).AddSignalEvent(recoValue, trueValue, isSelected, weight, emptySystFloatMap, emptySystFloatMap, emptySystFloatMap);
-                                        std::cout<<"DEBUG K4.3.1"<<std::endl;
+                                        // // std::cout<<"DEBUG K4.3.1"<<std::endl;
                                         if (config.global.useCC0piConstraint) xsecMapGenieScaled.at(selectionName).at(name).AddSignalEvent(recoValue, trueValue, isSelected, weight, emptySystFloatMap, emptySystFloatMap, emptySystFloatMap);
-                                        std::cout<<"DEBUG K4.4"<<std::endl;
+                                        // // std::cout<<"DEBUG K4.4"<<std::endl;
                                     }
                                 }
-                                std::cout<<"DEBUG K4.5"<<std::endl;
+                                // // std::cout<<"DEBUG K4.5"<<std::endl;
                                 if (config.global.useBNBAsData) // Genie MC for Data (isOverlay || isDataEXT || isDirt)
                                 {
                                     xsecMapBNBUnscaled.at(selectionName).at(name).AddSignalEvent(recoValue, trueValue, isSelected, weight, fluxWeights, xsecWeights, reintWeights);
                                     if (config.global.useCC0piConstraint) xsecMapBNBScaled.at(selectionName).at(name).AddSignalEvent(recoValue, trueValue, isSelected, weight, fluxWeights, xsecWeights, reintWeights);
                                 }
-                                std::cout<<"DEBUG K4.6"<<std::endl;
+                                // // std::cout<<"DEBUG K4.6"<<std::endl;
                             }
                         }
                     }
                 }
-                std::cout<<"DEBUG K5"<<std::endl;
+                // // std::cout<<"DEBUG K5"<<std::endl;
             }
         }
+        // std::cout<<"TYT - P 10"<<std::endl;
     }
-
     // Loop over all cross-section objects
     std::vector<std::tuple<std::string, std::string, NestedCrossSectionMap>> xsecMapVector;
     if (config.global.useNuWroAsData)
@@ -735,6 +813,7 @@ void ExtractNuWroXSecs2(const Config &config)
         xsecMapVector.push_back(std::make_tuple(std::string("BNB"), std::string("Unscaled"), xsecMapBNBUnscaled));
         if (config.global.useCC0piConstraint) xsecMapVector.push_back(std::make_tuple(std::string("BNB"), std::string("Scaled"), xsecMapBNBScaled));
     }
+
     for (const auto&[dataTypeName, scaling, xsecMap]: xsecMapVector)
     {
         const auto postfix = dataTypeName + scaling;
@@ -744,7 +823,7 @@ void ExtractNuWroXSecs2(const Config &config)
             {
                 std::cout << "Processing cross-section: " << postfix << " - " << selectionName << " - " << name << std::endl;
 
-                const auto scalingData = scaling == "Unscaled" ? scalingDataUnscaled : scalingDataScaledMap.at(dataTypeName).at(selectionName).at(name);
+                const auto scalingData = (scaling == "Unscaled") ? scalingDataUnscaled : scalingDataScaledMap.at(dataTypeName).at(selectionName).at(name);
                 ExtractionHelper::SaveCrossSectionMatricies(xsec, scalingData, selectionName, name, postfix, false);
             }
         }

@@ -295,8 +295,9 @@ class CrossSectionHelper
                 *  @param  hasOverflow if there is an overflow bin
                 *  @param  scaleByBinWidth if the cross-section should be scaled by the width of the bin
                 *  @param  trueBinEdges optional different bin edges for the second dimension
+                *  @param  rateOnly whether to calculate everything with the rate instead of cross-section (i.e. no division by integrated flux, pot ...)
                 */
-                CrossSection(const SystParams &systParams, const std::vector<float> &binEdges, const bool hasUnderflow, const bool hasOverflow, const bool scaleByBinWidth, const std::vector<float> &trueBinEdges = std::vector<float>());
+                CrossSection(const SystParams &systParams, const std::vector<float> &binEdges, const bool hasUnderflow, const bool hasOverflow, const bool scaleByBinWidth, const std::vector<float> &trueBinEdges = std::vector<float>(), const bool &rateOnly = false);
 
                 /**
                 *  @brief  Add a simulated signal event with flux and cross-section universe weights
@@ -448,6 +449,13 @@ class CrossSectionHelper
                 *  @return the bin width
                 */
                 ubsmear::UBMatrix GetBinWidths() const;
+
+                /**
+                *  @brief Calculate the rate instead of the cross-section (i.e no division by integrated flux, POT ...)
+                *
+                *  @return the bin width
+                */
+                bool RateOnly() const;
 
                 /**
                 *  @brief  Get the number of BNB data event selected in each bin
@@ -805,6 +813,7 @@ class CrossSectionHelper
                 std::vector<float>    m_binEdges;         ///< The bin edges
                 ubsmear::UBXSecMeta   m_metadata;         ///< The cross-section metadata
                 bool                  m_scaleByBinWidth;  ///< If we should scale the cross-section by the bin width
+                bool                  m_rateOnly;         ///< If we should use the rate instead of the cross-section
 
                 // Signal event distributions in truth space (all signal events before any selection)
                 std::shared_ptr<TH1F>                               m_pSignal_true_nom;      ///< The signal event distribution in truth space in the nominal universe
