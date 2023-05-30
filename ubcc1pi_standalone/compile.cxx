@@ -39,7 +39,9 @@
 
         // Interface
         "Interface/Event.cxx",
+        "Interface/EventPeLEE.cxx",
         "Interface/Subrun.cxx",
+        "Interface/SubrunPeLEE.cxx",
 
         // Objects
         "Objects/FileReader.cxx",
@@ -55,7 +57,8 @@
         "Helpers/CrossSectionHelper.cxx",
 
         // Macros
-        "Macros/Analyzer.cxx",
+        // "Macros/Analyzer.cxx",
+        "Macros/AnalyzerTest.cxx",
         // "Macros/PrintConfig.cxx",
         // "Macros/CountPOT.cxx",
         // "Macros/GetRunSubrunList.cxx",

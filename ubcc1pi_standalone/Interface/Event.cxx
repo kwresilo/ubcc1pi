@@ -5,6 +5,7 @@
  */
 
 #include "ubcc1pi_standalone/Interface/Event.h"
+// #include "ubcc1pi_standalone/Interface/EventPeLEE.h"
 #include <ctime> // DEBUG
 
 namespace ubcc1pi
@@ -14,6 +15,227 @@ Event::Event()
 {
     UBCC1PI_MACRO_EVENT_TRUTH_PARTICLE_MEMBERS(truth_particle, "", UBCC1PI_MACRO_INIT_MEMBER_VECTOR)
     UBCC1PI_MACRO_EVENT_RECO_PARTICLE_MEMBERS(reco_particle, "", UBCC1PI_MACRO_INIT_MEMBER_VECTOR)
+}
+
+// -----------------------------------------------------------------------------------------------------------------------------------------
+
+Event::Event(const EventPeLEE& eventPeLEE)
+{
+    UBCC1PI_MACRO_EVENT_TRUTH_PARTICLE_MEMBERS(truth_particle, "", UBCC1PI_MACRO_INIT_MEMBER_VECTOR)
+    UBCC1PI_MACRO_EVENT_RECO_PARTICLE_MEMBERS(reco_particle, "", UBCC1PI_MACRO_INIT_MEMBER_VECTOR)
+
+    const int intMinValue = -2147483648; // hardcoded to match root type 
+    const float floatMinValue = -340282346638528859811704183484516925440.000000f;
+
+    // PELEE_TO_UBCC1PI_MACRO_EVENT_METADATA(eventPeLEE.metadata, metadata, PELEE_TO_UBCC1PI_MEMBER_CONVERSION)
+    // PELEE_TO_UBCC1PI_MACRO_EVENT_TRUTH(eventPeLEE.truth, truth, PELEE_TO_UBCC1PI_MEMBER_CONVERSION)
+
+    // ************* EVENT METADATA *************
+    metadata.run.Set(eventPeLEE.metadata.run());
+    metadata.subRun.Set(eventPeLEE.metadata.sub());
+    metadata.event.Set(eventPeLEE.metadata.evt());
+    //metadata.hasTruthInfo;
+
+    // ************* EVENT TRUTH *************
+    truth.splineEventWeight.Set(eventPeLEE.truth.weightSpline());
+    truth.genieTuneEventWeight.Set(eventPeLEE.truth.weightSplineTimesTune());
+
+    std::vector<std::string> systParamNames;
+    std::vector<int> systParamFirstValueIndex;
+    std::vector<float> systParamValues;
+    for (const auto &[paramName, values]: eventPeLEE.truth.weights())
+    {
+        systParamFirstValueIndex.push_back(systParamValues.size());
+        systParamNames.push_back(paramName);
+        for (const auto &value: values)
+        {
+            systParamValues.push_back(value);
+        }
+    }
+    truth.systParamNames.Set(systParamNames);
+    truth.systParamFirstValueIndex.Set(systParamFirstValueIndex); // Might need to use weightsFlux, weightsGenie, weightsReint at some point to sort out the indices
+    truth.systParamValues.Set(systParamValues);
+    truth.isCC.Set(eventPeLEE.truth.ccnc() == 0);
+    truth.interactionMode.Set(eventPeLEE.truth.interaction());
+    // truth.interactionString = DebugHelper::GetInteractionString(eventPeLEE.truth.interaction(), true); // To do: Needs to be implemented in DebugHelper
+    if(eventPeLEE.truth.nu_pdg() != intMinValue) truth.nuPdgCode.Set(eventPeLEE.truth.nu_pdg());
+    if(eventPeLEE.truth.nu_e() != floatMinValue) truth.nuEnergy.Set(eventPeLEE.truth.nu_e());
+    if(eventPeLEE.truth.true_nu_vtx_x() != floatMinValue && eventPeLEE.truth.true_nu_vtx_y() != floatMinValue && eventPeLEE.truth.true_nu_vtx_z() != floatMinValue) truth.nuVertex.Set(TVector3(eventPeLEE.truth.true_nu_vtx_x(), eventPeLEE.truth.true_nu_vtx_y(), eventPeLEE.truth.true_nu_vtx_z()));
+    // truth.nFinalStates;
+    // truth.slicePurities.Set(eventPeLEE.truth.mc_purity());
+    // truth.sliceCompletenesses.Set(eventPeLEE.truth.mc_completeness());
+
+
+    // ************* EVENT TRUTH PARTICLE *************
+    unsigned int nTruthParticles = eventPeLEE.truth.particles.size();
+    truth.particles.resize(nTruthParticles);
+    for(unsigned int i = 0; i<nTruthParticles; ++i)
+    {
+        const auto pParticle = &truth.particles.at(i);
+        const auto pParticlePeLEE = &eventPeLEE.truth.particles.at(i);
+        std::cout<<"DEBUG - Event.cxx - Pre - Truth Particle i: "<<i<<std::endl;
+        if(pParticlePeLEE->mc_pdg() != intMinValue) pParticle->pdgCode.Set(pParticlePeLEE->mc_pdg());
+        std::cout<<"DEBUG - Event.cxx - Post"<<std::endl;
+        if(pParticlePeLEE->mc_vx() != floatMinValue) pParticle->startX.Set(pParticlePeLEE->mc_vx());
+        if(pParticlePeLEE->mc_vy() != floatMinValue) pParticle->startY.Set(pParticlePeLEE->mc_vy());
+        if(pParticlePeLEE->mc_vz() != floatMinValue) pParticle->startZ.Set(pParticlePeLEE->mc_vz());
+        if(pParticlePeLEE->mc_endx() != floatMinValue) pParticle->endX.Set(pParticlePeLEE->mc_endx());
+        if(pParticlePeLEE->mc_endy() != floatMinValue) pParticle->endY.Set(pParticlePeLEE->mc_endy());
+        if(pParticlePeLEE->mc_endz() != floatMinValue) pParticle->endZ.Set(pParticlePeLEE->mc_endz());
+        if(pParticlePeLEE->mc_px() != floatMinValue) pParticle->momentumX.Set(pParticlePeLEE->mc_px());
+        if(pParticlePeLEE->mc_py() != floatMinValue) pParticle->momentumY.Set(pParticlePeLEE->mc_py());
+        if(pParticlePeLEE->mc_pz() != floatMinValue) pParticle->momentumZ.Set(pParticlePeLEE->mc_pz());
+        const auto momentumVector = std::hypot(pParticlePeLEE->mc_px(), pParticlePeLEE->mc_py(), pParticlePeLEE->mc_pz());
+        if(pParticlePeLEE->mc_px() != floatMinValue && pParticlePeLEE->mc_py() != floatMinValue && pParticlePeLEE->mc_pz() != floatMinValue) pParticle->momentum.Set(momentumVector);
+        if(pParticlePeLEE->mc_E() != floatMinValue) pParticle->energy.Set(pParticlePeLEE->mc_E());
+        if(pParticlePeLEE->mc_end_p() != floatMinValue) pParticle->endMomentum.Set(pParticlePeLEE->mc_end_p());
+        if(pParticlePeLEE->mc_end_p() != floatMinValue) pParticle->isStopping.Set(pParticlePeLEE->mc_end_p() <= std::numeric_limits<float>::epsilon()); 
+        if(pParticlePeLEE->mc_n_elastic() != intMinValue) pParticle->nElasticScatters.Set(pParticlePeLEE->mc_n_elastic());
+        if(pParticlePeLEE->mc_n_inelastic() != intMinValue) pParticle->nInelasticScatters.Set(pParticlePeLEE->mc_n_inelastic());
+
+        // pParticle->mass.Set(pParticlePeLEE->());
+        // pParticle->hitWeightU.Set(pParticlePeLEE->());
+        // pParticle->hitWeightV.Set(pParticlePeLEE->());
+        // pParticle->hitWeightW.Set(pParticlePeLEE->());
+        // pParticle->scatterCosThetas.Set(pParticlePeLEE->());
+        // pParticle->scatterMomentumFracsLost.Set(pParticlePeLEE->());
+        // pParticle->scatterIsElastic.Set(pParticlePeLEE->());
+        // pParticle->scatteredMomentum.Set(pParticlePeLEE->());
+        // pParticle->endState.Set(pParticlePeLEE->());
+        // pParticle->endStateProductsHitWeightU.Set(pParticlePeLEE->());
+        // pParticle->endStateProductsHitWeightV.Set(pParticlePeLEE->());
+        // pParticle->endStateProductsHitWeightW.Set(pParticlePeLEE->());
+    }
+
+    // ************* EVENT RECO *************
+    reco.passesCCInclusive.Set(eventPeLEE.reco.filter_ccinclusive());
+    // if(eventPeLEE.reco.nslice() != intMinValue) reco.nSlices.Set(eventPeLEE.reco.nslice());
+    // reco.hasSelectedSlice.Set(eventPeLEE.reco..());
+    if(eventPeLEE.reco.topological_score() != floatMinValue) reco.selectedTopologicalScore.Set(eventPeLEE.reco.topological_score());
+    // reco.sliceTopologicalScores.Set(eventPeLEE.reco..());
+    // reco.sliceIsSelectedAsNu.Set(eventPeLEE.reco..());
+    // reco.hasNeutrino.Set(eventPeLEE.reco..());
+    if(eventPeLEE.reco.slpdg() != intMinValue) reco.nuPdgCode.Set(eventPeLEE.reco.slpdg());
+    if(eventPeLEE.reco.reco_nu_vtx_sce_x() != floatMinValue && eventPeLEE.reco.reco_nu_vtx_sce_y() != floatMinValue && eventPeLEE.reco.reco_nu_vtx_sce_z() != floatMinValue) reco.nuVertex.Set(TVector3(eventPeLEE.reco.reco_nu_vtx_sce_x(), eventPeLEE.reco.reco_nu_vtx_sce_y(), eventPeLEE.reco.reco_nu_vtx_sce_z()));
+    // reco.nFinalStates.Set(eventPeLEE.reco..());
+    // reco.flashChi2.Set(eventPeLEE.reco..());
+    // reco.flashTime.Set(eventPeLEE.reco..());
+    // reco.largestFlashPE.Set(eventPeLEE.reco..());
+    // reco.largestFlashTime.Set(eventPeLEE.reco..());
+    // reco.largestFlashTimeWidth.Set(eventPeLEE.reco..());
+    // reco.largestFlashYCtr.Set(eventPeLEE.reco..());
+    // reco.largestFlashYWidth.Set(eventPeLEE.reco..());
+    // reco.largestFlashZCtr.Set(eventPeLEE.reco..());
+    // reco.largestFlashZWidth.Set(eventPeLEE.reco..());
+
+
+    // ************* EVENT RECO PARTICLE *************
+    unsigned int nRecoParticles = eventPeLEE.reco.particles.size();
+    std::cout<<"DEBUG [Event::Event; Point 0] nRecoParticles: "<<nRecoParticles<<std::endl;
+    unsigned int nParticlesToSkip = 0u;
+    for(unsigned int i = 0; i<nRecoParticles; ++i)
+    {
+        if(eventPeLEE.reco.particles.at(i).pfp_generation_v()>2) nParticlesToSkip++; // Skip granddaughter and higher order descendants
+    }
+    std::cout<<"DEBUG nParticlesToSkip = "<<nParticlesToSkip<<std::endl;
+    reco.particles.resize(nRecoParticles - nParticlesToSkip);
+    for(unsigned int i = 0; i<nRecoParticles; ++i)
+    {
+        const auto pParticle = &reco.particles.at(i);
+        const auto pParticlePeLEE = &eventPeLEE.reco.particles.at(i);
+
+        std::cout<<"DEBUG pParticlePeLEE->pfp_generation_v"<<pParticlePeLEE->pfp_generation_v()<<std::endl;
+        if(pParticlePeLEE->pfp_generation_v()>2) continue; // Skip granddaughter and higher order descendants
+
+        // pParticle->isCCInclusiveMuonCandidate.Set(pParticlePeLEE->);
+        if(pParticlePeLEE->pfpdg() != intMinValue) pParticle->pdgCode.Set(pParticlePeLEE->pfpdg());
+        if(pParticlePeLEE->pfnplanehits_U() != intMinValue) pParticle->nHitsU.Set(pParticlePeLEE->pfnplanehits_U());
+        if(pParticlePeLEE->pfnplanehits_V() != intMinValue) pParticle->nHitsV.Set(pParticlePeLEE->pfnplanehits_V());
+        if(pParticlePeLEE->pfnplanehits_Y() != intMinValue) pParticle->nHitsW.Set(pParticlePeLEE->pfnplanehits_Y());
+        if(pParticlePeLEE->pfp_trk_daughters_v() != intMinValue && pParticlePeLEE->pfp_shr_daughters_v() != intMinValue) pParticle->nDaughters.Set(pParticlePeLEE->pfp_trk_daughters_v() + pParticlePeLEE->pfp_shr_daughters_v());
+        if(pParticlePeLEE->pfp_n_descendents_v() != intMinValue) pParticle->nDescendents.Set(pParticlePeLEE->pfp_n_descendents_v());
+        // pParticle->nDescendentHitsU.Set(pParticlePeLEE->);
+        // pParticle->nDescendentHitsV.Set(pParticlePeLEE->);
+        // pParticle->nDescendentHitsW.Set(pParticlePeLEE->);
+        // pParticle->nHitsInLargestDescendent.Set(pParticlePeLEE->);
+        if(pParticlePeLEE->trk_score_v() != floatMinValue) pParticle->trackScore.Set(pParticlePeLEE->trk_score_v());
+        if(pParticlePeLEE->trk_sce_start_x_v() != floatMinValue) pParticle->startX.Set(pParticlePeLEE->trk_sce_start_x_v());
+        if(pParticlePeLEE->trk_sce_start_y_v() != floatMinValue) pParticle->startY.Set(pParticlePeLEE->trk_sce_start_y_v());
+        if(pParticlePeLEE->trk_sce_start_z_v() != floatMinValue) pParticle->startZ.Set(pParticlePeLEE->trk_sce_start_z_v());
+        if(pParticlePeLEE->trk_sce_end_x_v() != floatMinValue) pParticle->endX.Set(pParticlePeLEE->trk_sce_end_x_v());
+        if(pParticlePeLEE->trk_sce_end_y_v() != floatMinValue) pParticle->endY.Set(pParticlePeLEE->trk_sce_end_y_v());
+        if(pParticlePeLEE->trk_sce_end_z_v() != floatMinValue) pParticle->endZ.Set(pParticlePeLEE->trk_sce_end_z_v());
+        if(pParticlePeLEE->trk_dir_x_v() != floatMinValue) pParticle->directionX.Set(pParticlePeLEE->trk_dir_x_v());
+        if(pParticlePeLEE->trk_dir_y_v() != floatMinValue) pParticle->directionY.Set(pParticlePeLEE->trk_dir_y_v());
+        if(pParticlePeLEE->trk_dir_z_v() != floatMinValue) pParticle->directionZ.Set(pParticlePeLEE->trk_dir_z_v());
+        if(pParticlePeLEE->trk_dir_z_v() != floatMinValue && pParticlePeLEE->trk_dir_y_v() != floatMinValue) pParticle->yzAngle.Set(std::atan2(pParticlePeLEE->trk_dir_z_v(), pParticlePeLEE->trk_dir_y_v()));
+        if(pParticlePeLEE->trk_dir_y_v()!= floatMinValue && pParticlePeLEE->trk_dir_x_v() != floatMinValue) pParticle->xyAngle.Set(std::atan2(pParticlePeLEE->trk_dir_y_v(), pParticlePeLEE->trk_dir_x_v()));
+        if(pParticlePeLEE->trk_dir_z_v()!= floatMinValue && pParticlePeLEE->trk_dir_x_v() != floatMinValue) pParticle->xzAngle.Set(std::atan2(pParticlePeLEE->trk_dir_z_v(), pParticlePeLEE->trk_dir_x_v()));
+        if(pParticlePeLEE->trk_len_v() != floatMinValue) pParticle->length.Set(pParticlePeLEE->trk_len_v());
+        if(pParticlePeLEE->trk_len_v() != floatMinValue) pParticle->range.Set(pParticlePeLEE->trk_len_v());
+        // pParticle->transverseVertexDist.Set(pParticlePeLEE->);
+        // pParticle->longitudinalVertexDist.Set(pParticlePeLEE->);
+        // pParticle->mcsMomentumForwardMuon.Set(pParticlePeLEE->);
+        // pParticle->mcsMomentumUncertaintyForwardMuon.Set(pParticlePeLEE->);
+        // pParticle->mcsLogLikelihoodForwardMuon.Set(pParticlePeLEE->);
+        // pParticle->mcsMomentumBackwardMuon.Set(pParticlePeLEE->);
+        // pParticle->mcsMomentumUncertaintyBackwardMuon.Set(pParticlePeLEE->);
+        // pParticle->mcsLogLikelihoodBackwardMuon.Set(pParticlePeLEE->);
+        if(pParticlePeLEE->trk_avg_deflection_stdev_v() != floatMinValue) pParticle->wiggliness.Set(pParticlePeLEE->trk_avg_deflection_stdev_v());
+        if(pParticlePeLEE->trk_end_spacepoints_v() != intMinValue) pParticle->nSpacePointsNearEnd.Set(pParticlePeLEE->trk_end_spacepoints_v());
+        // pParticle->likelihoodForwardMuonU.Set(pParticlePeLEE->);
+        // pParticle->likelihoodForwardMuonV.Set(pParticlePeLEE->);
+        // pParticle->likelihoodForwardMuonW.Set(pParticlePeLEE->);
+        if(pParticlePeLEE->trk_bragg_fwd_mu_uvy_v() > 0.f && !std::isinf(pParticlePeLEE->trk_bragg_fwd_mu_uvy_v())) pParticle->likelihoodForwardMuon.Set(pParticlePeLEE->trk_bragg_fwd_mu_uvy_v());
+        // pParticle->likelihoodBackwardMuonU.Set(pParticlePeLEE->);
+        // pParticle->likelihoodBackwardMuonV.Set(pParticlePeLEE->);
+        // pParticle->likelihoodBackwardMuonW.Set(pParticlePeLEE->);
+        if(pParticlePeLEE->trk_bragg_bwd_mu_uvy_v() > 0.f && !std::isinf(pParticlePeLEE->trk_bragg_bwd_mu_uvy_v())) pParticle->likelihoodBackwardMuon.Set(pParticlePeLEE->trk_bragg_bwd_mu_uvy_v());
+        // pParticle->likelihoodForwardPionU.Set(pParticlePeLEE->);
+        // pParticle->likelihoodForwardPionV.Set(pParticlePeLEE->);
+        // pParticle->likelihoodForwardPionW.Set(pParticlePeLEE->);
+        if(pParticlePeLEE->trk_bragg_fwd_pion_uvy_v() > 0.f && !std::isinf(pParticlePeLEE->trk_bragg_fwd_pion_uvy_v())) pParticle->likelihoodForwardPion.Set(pParticlePeLEE->trk_bragg_fwd_pion_uvy_v());
+        // pParticle->likelihoodBackwardPionU.Set(pParticlePeLEE->);
+        // pParticle->likelihoodBackwardPionV.Set(pParticlePeLEE->);
+        // pParticle->likelihoodBackwardPionW.Set(pParticlePeLEE->);
+        if(pParticlePeLEE->trk_bragg_bwd_pion_uvy_v() > 0.f && !std::isinf(pParticlePeLEE->trk_bragg_bwd_pion_uvy_v())) pParticle->likelihoodBackwardPion.Set(pParticlePeLEE->trk_bragg_bwd_pion_uvy_v());
+        // pParticle->likelihoodForwardProtonU.Set(pParticlePeLEE->);
+        // pParticle->likelihoodForwardProtonV.Set(pParticlePeLEE->);
+        // pParticle->likelihoodForwardProtonW.Set(pParticlePeLEE->);
+        if(pParticlePeLEE->trk_bragg_fwd_p_uvy_v() > 0.f && !std::isinf(pParticlePeLEE->trk_bragg_fwd_p_uvy_v())) pParticle->likelihoodForwardProton.Set(pParticlePeLEE->trk_bragg_fwd_p_uvy_v());
+        // pParticle->likelihoodBackwardProtonU.Set(pParticlePeLEE->);
+        // pParticle->likelihoodBackwardProtonV.Set(pParticlePeLEE->);
+        // pParticle->likelihoodBackwardProtonW.Set(pParticlePeLEE->);
+        if(pParticlePeLEE->trk_bragg_bwd_p_uvy_v() > 0.f && !std::isinf(pParticlePeLEE->trk_bragg_bwd_p_uvy_v())) pParticle->likelihoodBackwardProton.Set(pParticlePeLEE->trk_bragg_bwd_p_uvy_v());
+        // pParticle->likelihoodMIPU.Set(pParticlePeLEE->);
+        // pParticle->likelihoodMIPV.Set(pParticlePeLEE->);
+        // pParticle->likelihoodMIPW.Set(pParticlePeLEE->);
+        if(pParticlePeLEE->trk_bragg_fwd_mip_uvy_v() > 0.f && !std::isinf(pParticlePeLEE->trk_bragg_fwd_mip_uvy_v())) pParticle->likelihoodMIP.Set(pParticlePeLEE->trk_bragg_fwd_mip_uvy_v());
+
+        if(pParticlePeLEE->trk_bragg_p_v() > 0.f && !std::isinf(pParticlePeLEE->trk_bragg_p_v())) pParticle->likelihoodForwardProtonW.Set(pParticlePeLEE->trk_bragg_p_v()); // TODO: This is a wrong conversion - only for debugging - remove
+        if(pParticlePeLEE->trk_bragg_mu_v() > 0.f && !std::isinf(pParticlePeLEE->trk_bragg_mu_v())) pParticle->likelihoodForwardMuonW.Set(pParticlePeLEE->trk_bragg_mu_v());
+        if(pParticlePeLEE->trk_bragg_pion_v() > 0.f && !std::isinf(pParticlePeLEE->trk_bragg_pion_v())) pParticle->likelihoodForwardPionW.Set(pParticlePeLEE->trk_bragg_pion_v());
+        if(pParticlePeLEE->trk_bragg_mip_v() > 0.f && !std::isinf(pParticlePeLEE->trk_bragg_mip_v())) pParticle->likelihoodBackwardMuonW.Set(pParticlePeLEE->trk_bragg_mip_v());
+        if(pParticlePeLEE->trk_bragg_p_u_v() > 0.f && !std::isinf(pParticlePeLEE->trk_bragg_p_u_v())) pParticle->likelihoodForwardProtonV.Set(pParticlePeLEE->trk_bragg_p_u_v());
+        if(pParticlePeLEE->trk_bragg_mu_u_v() > 0.f && !std::isinf(pParticlePeLEE->trk_bragg_mu_u_v())) pParticle->likelihoodForwardMuonV.Set(pParticlePeLEE->trk_bragg_mu_u_v());
+        if(pParticlePeLEE->trk_bragg_pion_u_v() > 0.f && !std::isinf(pParticlePeLEE->trk_bragg_pion_u_v())) pParticle->likelihoodForwardPionV.Set(pParticlePeLEE->trk_bragg_pion_u_v());
+        if(pParticlePeLEE->trk_bragg_mip_u_v() > 0.f && !std::isinf(pParticlePeLEE->trk_bragg_mip_u_v())) pParticle->likelihoodBackwardMuonV.Set(pParticlePeLEE->trk_bragg_mip_u_v());
+        if(pParticlePeLEE->trk_bragg_p_v_v() > 0.f && !std::isinf(pParticlePeLEE->trk_bragg_p_v_v())) pParticle->likelihoodForwardProtonV.Set(pParticlePeLEE->trk_bragg_p_v_v());
+        if(pParticlePeLEE->trk_bragg_mu_v_v() > 0.f && !std::isinf(pParticlePeLEE->trk_bragg_mu_v_v())) pParticle->likelihoodForwardMuonV.Set(pParticlePeLEE->trk_bragg_mu_v_v());
+        if(pParticlePeLEE->trk_bragg_pion_v_v() > 0.f && !std::isinf(pParticlePeLEE->trk_bragg_pion_v_v())) pParticle->likelihoodForwardPionV.Set(pParticlePeLEE->trk_bragg_pion_v_v());
+        if(pParticlePeLEE->trk_bragg_mip_v_v() > 0.f && !std::isinf(pParticlePeLEE->trk_bragg_mip_v_v())) pParticle->likelihoodBackwardMuonV.Set(pParticlePeLEE->trk_bragg_mip_v_v());
+
+        if(pParticlePeLEE->trk_trunk_dEdx_u_v() != floatMinValue) pParticle->truncatedMeandEdxU.Set(pParticlePeLEE->trk_trunk_dEdx_u_v());
+        if(pParticlePeLEE->trk_trunk_dEdx_v_v() != floatMinValue) pParticle->truncatedMeandEdxV.Set(pParticlePeLEE->trk_trunk_dEdx_v_v());
+        if(pParticlePeLEE->trk_trunk_dEdx_y_v() != floatMinValue) pParticle->truncatedMeandEdxW.Set(pParticlePeLEE->trk_trunk_dEdx_y_v());
+
+        // pParticle->truncatedMeandEdx.Set(pParticlePeLEE->);
+        // pParticle->truthMatchPurities.Set(pParticlePeLEE->);
+        // pParticle->truthMatchCompletenesses.Set(pParticlePeLEE->);
+        // pParticle->hasMatchedMCParticle.Set(pParticlePeLEE->);
+        // pParticle->bestMatchedMCParticleIndex.Set(pParticlePeLEE->);
+    }
+
 }
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
@@ -95,13 +317,11 @@ void Event::PrepareForTreeFill()
 {
     for (const auto &particle : truth.particles)
     {
-        std::cout << "DEBUG - Event::PrepareForTreeFill - Point 0 - Time: " << std::time(nullptr) << std::endl;
         UBCC1PI_MACRO_EVENT_TRUTH_PARTICLE_MEMBERS(truth_particle, particle, UBCC1PI_MACRO_FILL_MEMBER_VECTOR)
     }
 
     for (const auto &particle : reco.particles)
     {
-        std::cout << "DEBUG - Event::PrepareForTreeFill - Point 1 - Time: " << std::time(nullptr) << std::endl;
         UBCC1PI_MACRO_EVENT_RECO_PARTICLE_MEMBERS(reco_particle, particle, UBCC1PI_MACRO_FILL_MEMBER_VECTOR)
     }
 }

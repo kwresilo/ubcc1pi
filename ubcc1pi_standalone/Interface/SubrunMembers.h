@@ -22,4 +22,10 @@
     f(p, q, false, int,         totalSpills)                                                                                               \
     f(p, q, false, int,         goodSpills)
 
+/** The PeLEE subrun members */
+#define PELEE_MACRO_SUBRUN_MEMBERS(p, q, f)                                                                                                \
+    f(p, q, false, int,         run)                                                                                                       \
+    f(p, q, false, int,         subRun)                                                                                                    \
+    f(p, q, false, float,       pot)
+    
 #endif

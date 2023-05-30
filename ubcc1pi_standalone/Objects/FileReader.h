@@ -8,7 +8,9 @@
 #define UBCC1PI_STANDALONE_OBJECTS_FILE_READER
 
 #include "ubcc1pi_standalone/Interface/Event.h"
+#include "ubcc1pi_standalone/Interface/EventPeLEE.h"
 #include "ubcc1pi_standalone/Interface/Subrun.h"
+#include "ubcc1pi_standalone/Interface/SubrunPeLEE.h"
 
 #include <memory>
 #include <TFile.h>
@@ -20,6 +22,7 @@ namespace ubcc1pi
 /**
  *  @brief  The File Reader class
  */
+template <class T = Event, class U = Subrun> // T: Event or EventPeLEE class
 class FileReader
 {
     public:
@@ -57,14 +60,14 @@ class FileReader
          *
          *  @return the address of the bound event
          */
-        std::shared_ptr<Event> GetBoundEventAddress();
+        std::shared_ptr<T> GetBoundEventAddress();
 
         /**
          *  @brief  Get the subrun bound to the output tree
          *
          *  @return the address of the bound subrun
          */
-        std::shared_ptr<Subrun> GetBoundSubrunAddress();
+        std::shared_ptr<U> GetBoundSubrunAddress();
 
         /**
          *  @brief  Disable the branches related to systematic weights
@@ -108,8 +111,8 @@ class FileReader
         TTree      *m_pEventTree;  ///< The input event tree
         TTree      *m_pSubrunTree; ///< The input subrun tree
 
-        std::shared_ptr<Event>   m_pEvent;       ///< The input event
-        std::shared_ptr<Subrun>  m_pSubrun;      ///< The input subrun
+        std::shared_ptr<T>           m_pEvent;       ///< The input event
+        std::shared_ptr<U>           m_pSubrun;      ///< The input subrun
 };
 
 } // namespace ubcc1pi

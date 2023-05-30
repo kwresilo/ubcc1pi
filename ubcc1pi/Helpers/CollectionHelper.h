@@ -534,7 +534,7 @@ inline ObjectData<R, D> CollectionHelper::GetSingleAssociatedWithData(const art:
     const auto objects = CollectionHelper::GetManyAssociatedWithData(objectL, association);
 
     if (objects.size() != 1)
-        throw cet::exception("CollectionHelper::GetSingleAssociated") << " - Found " << objects.size() << " objects associated to the input object. Expected 1." << std::endl;
+        throw cet::exception("CollectionHelper::GetSingleAssociatedWithData") << " - Found " << objects.size() << " objects associated to the input object. Expected 1." << std::endl;
 
     return objects.front();
 }

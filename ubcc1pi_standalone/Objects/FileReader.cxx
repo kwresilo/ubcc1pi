@@ -9,14 +9,21 @@
 namespace ubcc1pi
 {
 
-FileReader::FileReader(const std::string &inputFile) :
-    m_inputFile(inputFile),
-    m_pFile(TFile::Open(m_inputFile.c_str())),
-    m_pEventTree(static_cast<TTree*>(m_pFile->Get("events"))),
-    m_pSubrunTree(static_cast<TTree*>(m_pFile->Get("subruns"))),
-    m_pEvent(std::make_shared<Event>()),
-    m_pSubrun(std::make_shared<Subrun>())
+template <class T, class U>
+FileReader<T, U>::FileReader(const std::string &inputFile)
 {
+    m_inputFile = inputFile;
+    m_pFile = TFile::Open(m_inputFile.c_str());
+    std::string eventTreeName = "events";
+    if constexpr (std::is_same_v<T, EventPeLEE>) eventTreeName = "nuselection/NeutrinoSelectionFilter";
+    m_pEventTree = static_cast<TTree*>(m_pFile->Get(eventTreeName.c_str()));
+    std::string subrunTreeName = "subruns";
+    if constexpr (std::is_same_v<U, SubrunPeLEE>) subrunTreeName = "nuselection/SubRun";
+    m_pSubrunTree = static_cast<TTree*>(m_pFile->Get(subrunTreeName.c_str()));
+    m_pEvent = std::make_shared<T>();
+    m_pSubrun = std::make_shared<U>();
+
+
     this->BindEventToTree();
     this->BindSubrunToTree();
 
@@ -32,7 +39,8 @@ FileReader::FileReader(const std::string &inputFile) :
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
 
-FileReader::~FileReader()
+template <class T, class U>
+FileReader<T, U>::~FileReader()
 {
     // ATTN this function does the memory management for the pointers belonging to this class
     m_pFile->Close();
@@ -40,67 +48,81 @@ FileReader::~FileReader()
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
 
-void FileReader::BindEventToTree()
+template <class T, class U>
+void FileReader<T, U>::BindEventToTree()
 {
     m_pEvent->BindToInputTree(m_pEventTree);
 }
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
 
-void FileReader::BindSubrunToTree()
+template <class T, class U>
+void FileReader<T, U>::BindSubrunToTree()
 {
     m_pSubrun->BindToInputTree(m_pSubrunTree);
 }
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
 
-std::shared_ptr<Event> FileReader::GetBoundEventAddress()
+template <class T, class U>
+std::shared_ptr<T> FileReader<T, U>::GetBoundEventAddress()
 {
     return m_pEvent;
 }
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
 
-std::shared_ptr<Subrun> FileReader::GetBoundSubrunAddress()
+template <class T, class U>
+std::shared_ptr<U> FileReader<T, U>::GetBoundSubrunAddress()
 {
     return m_pSubrun;
 }
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
 
-void FileReader::DisableSystematicBranches()
+template <class T, class U>
+void FileReader<T, U>::DisableSystematicBranches()
 {
-    m_pEventTree->SetBranchStatus("truth_systParam*", false);
+    std::string weightBranches = "truth_systParam*";
+    if constexpr (std::is_same_v<T, EventPeLEE>) weightBranches = "weights*";
+    m_pEventTree->SetBranchStatus(weightBranches.c_str(), false);
 }
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
 
-void FileReader::EnableSystematicBranches()
+template <class T, class U>
+void FileReader<T, U>::EnableSystematicBranches()
 {
-    m_pEventTree->SetBranchStatus("truth_systParam*", true);
+    std::string weightBranches = "truth_systParam*";
+    if constexpr (std::is_same_v<T, EventPeLEE>) weightBranches = "weights*";
+    m_pEventTree->SetBranchStatus(weightBranches.c_str(), true);
 }
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
 
-unsigned int FileReader::GetNumberOfEvents() const
+template <class T, class U>
+unsigned int FileReader<T, U>::GetNumberOfEvents() const
 {
     return m_pEventTree->GetEntries();
 }
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
 
-unsigned int FileReader::GetNumberOfSubruns() const
+template <class T, class U>
+unsigned int FileReader<T, U>::GetNumberOfSubruns() const
 {
     return m_pSubrunTree->GetEntries();
 }
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
 
-void FileReader::LoadEvent(const unsigned int eventIndex)
+template <class T, class U>
+void FileReader<T, U>::LoadEvent(const unsigned int eventIndex)
 {
     const auto nEvents = this->GetNumberOfEvents();
     if (eventIndex >= nEvents)
         throw std::range_error("Can't load event, input eventIndex is out of bounds");
+
 
     m_pEvent->Reset();
     m_pEventTree->GetEntry(eventIndex);
@@ -109,7 +131,8 @@ void FileReader::LoadEvent(const unsigned int eventIndex)
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
 
-void FileReader::LoadSubrun(const unsigned int subrunIndex)
+template <class T, class U>
+void FileReader<T, U>::LoadSubrun(const unsigned int subrunIndex)
 {
     const auto nSubruns = this->GetNumberOfSubruns();
     if (subrunIndex >= nSubruns)
@@ -120,5 +143,9 @@ void FileReader::LoadSubrun(const unsigned int subrunIndex)
 }
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
+
+// Explicit instantiations
+template class FileReader<Event, Subrun>;
+template class FileReader<EventPeLEE, SubrunPeLEE>;
 
 } // namespace ubcc1pi

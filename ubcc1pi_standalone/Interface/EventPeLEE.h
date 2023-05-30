@@ -1,15 +1,14 @@
 /**
- *  @file  ubcc1pi_standalone/Interface/Event.h
+ *  @file  ubcc1pi_standalone/Interface/EventPeLEE.h
  *
  *  @brief The header file for the event class
  */
 
-#ifndef UBCC1PI_STANDALONE_INTERFACE_EVENT
-#define UBCC1PI_STANDALONE_INTERFACE_EVENT
+#ifndef UBCC1PI_STANDALONE_INTERFACE_EVENT_PELEE
+#define UBCC1PI_STANDALONE_INTERFACE_EVENT_PELEE
 
 #include "ubcc1pi_standalone/Interface/EventMembers.h"
 #include "ubcc1pi_standalone/Interface/Member.h"
-#include "ubcc1pi_standalone/Interface/EventPeLEE.h"
 
 #include <iostream>
 #include <stdexcept>
@@ -30,20 +29,15 @@ class EventFactory;
 /**
  *  @brief  The event class
  */
-class Event
+class EventPeLEE
 {
     public:
 
         /**
          *  @brief  Constructor
          */
-        Event();
+        EventPeLEE();
 
-        /**
-         *  @brief  Construct event from PeLEE event
-         */
-        explicit Event(const EventPeLEE& eventPeLEE);
-        
         /**
          *  @brief  Print the member variables to the terminal
          */
@@ -54,7 +48,7 @@ class Event
          */
         struct Metadata
         {
-            UBCC1PI_MACRO_EVENT_METADATA_MEMBERS("", "", UBCC1PI_MACRO_DECLARE_MEMBER)
+            PELEE_MACRO_EVENT_METADATA_MEMBERS("", "", PELEE_MACRO_DECLARE_MEMBER)
         };
 
         /**
@@ -62,14 +56,14 @@ class Event
          */
         struct Truth
         {
-            UBCC1PI_MACRO_EVENT_TRUTH_MEMBERS("", "", UBCC1PI_MACRO_DECLARE_MEMBER)
+            PELEE_MACRO_EVENT_TRUTH_MEMBERS("", "", PELEE_MACRO_DECLARE_MEMBER)
 
             /**
              *  @brief  The truth particle information structure
              */
             struct Particle
             {
-                UBCC1PI_MACRO_EVENT_TRUTH_PARTICLE_MEMBERS("", "", UBCC1PI_MACRO_DECLARE_MEMBER)
+                PELEE_MACRO_EVENT_TRUTH_PARTICLE_MEMBERS("", "", PELEE_MACRO_DECLARE_MEMBER)
             };
 
             std::vector<Particle> particles; ///< The truth particles
@@ -80,14 +74,14 @@ class Event
          */
         struct Reco
         {
-            UBCC1PI_MACRO_EVENT_RECO_MEMBERS("", "", UBCC1PI_MACRO_DECLARE_MEMBER)
+            PELEE_MACRO_EVENT_RECO_MEMBERS("", "", PELEE_MACRO_DECLARE_MEMBER)
 
             /**
              *  @brief  The reco particle information structure
              */
             struct Particle
             {
-                UBCC1PI_MACRO_EVENT_RECO_PARTICLE_MEMBERS("", "", UBCC1PI_MACRO_DECLARE_MEMBER)
+                PELEE_MACRO_EVENT_RECO_PARTICLE_MEMBERS("", "", PELEE_MACRO_DECLARE_MEMBER)
             };
 
             std::vector<Particle> particles; ///< The reco particles
@@ -99,10 +93,10 @@ class Event
 
     private:
 
-        friend FileWriter;    ///< The file writer class is a friend
-        // friend FileReader<Event>;    ///< The file reader class is a friend
+        friend FileWriter;              ///< The file writer class is a friend
+        // friend FileReader<EventPeLEE>;  ///< The file reader class is a friend
         template<typename T, typename U> friend class FileReader;
-        friend EventFactory;  ///< The event factory class is a friend
+        friend EventFactory;            ///< The event factory class is a friend
 
         /**
          *  @brief  Bind this event to an output tree
@@ -134,8 +128,8 @@ class Event
         void PrepareAfterTreeRead();
 
         // Here we define private member variables for each of the particle parameters as a vector so they can be read from the root file
-        UBCC1PI_MACRO_EVENT_TRUTH_PARTICLE_MEMBERS(truth_particle, "", UBCC1PI_MACRO_DECLARE_MEMBER_VECTOR)
-        UBCC1PI_MACRO_EVENT_RECO_PARTICLE_MEMBERS(reco_particle, "", UBCC1PI_MACRO_DECLARE_MEMBER_VECTOR)
+        PELEE_MACRO_EVENT_TRUTH_PARTICLE_MEMBERS(truth_particle, "", PELEE_MACRO_DECLARE_MEMBER_VECTOR)
+        PELEE_MACRO_EVENT_RECO_PARTICLE_MEMBERS(reco_particle, "", PELEE_MACRO_DECLARE_MEMBER_VECTOR)
 };
 
 } // namespace ubcc1pi

@@ -279,7 +279,7 @@ void PlottingHelper::MultiPlot::SaveAs(const std::string &fileName, const bool u
 
         const bool usePoints = PlottingHelper::ShouldUsePoints(style);
         const TString tstyle = usePoints ? "e1" : "hist";
-        pHist->Draw(isFirst ? tstyle : tstyle + "same");
+        pHist->Draw(isFirst ? tstyle : tstyle + " same");
         isFirst = false;
     }
 

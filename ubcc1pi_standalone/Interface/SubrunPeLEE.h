@@ -1,11 +1,11 @@
 /**
- *  @file  ubcc1pi_standalone/Interface/Subrun.h
+ *  @file  ubcc1pi_standalone/Interface/SubrunPeLEE.h
  *
- *  @brief The header file for the subrun class
+ *  @brief The header file for the subrun PeLEE class
  */
 
-#ifndef UBCC1PI_STANDALONE_INTERFACE_SUBRUN
-#define UBCC1PI_STANDALONE_INTERFACE_SUBRUN
+#ifndef UBCC1PI_STANDALONE_INTERFACE_SUBRUN_PELEE
+#define UBCC1PI_STANDALONE_INTERFACE_SUBRUN_PELEE
 
 #include "ubcc1pi_standalone/Interface/SubrunMembers.h"
 #include "ubcc1pi_standalone/Interface/Member.h"
@@ -22,7 +22,7 @@ class SubrunFactory;
 /**
  *  @brief  The subrun class
  */
-class Subrun
+class SubrunPeLEE
 {
     public:
 
@@ -31,7 +31,7 @@ class Subrun
          */
         void Print() const;
 
-        UBCC1PI_MACRO_SUBRUN_MEMBERS("", "", UBCC1PI_MACRO_DECLARE_MEMBER)
+        PELEE_MACRO_SUBRUN_MEMBERS("", "", PELEE_MACRO_DECLARE_MEMBER)
 
     private:
 

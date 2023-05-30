@@ -29,6 +29,13 @@ namespace ubcc1pi_macros
     void Analyzer(const Config &config = Config());
 
     /**
+     *  @brief  Process nTuples for unfolded analysis
+     *
+     *  @param  config the input configuration
+     */
+    void AnalyzerTest(const Config &config = Config());
+
+    /**
      *  @brief  Count the POT for the overlays and dirt samples and print the results
      *
      *  @param  config the input configuration

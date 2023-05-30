@@ -241,6 +241,7 @@ void EventFactory::PopulateEventRecoInfo(const art::Event &event, const Config &
 
     // Find the neutrino PFParticle
     const auto allPFParticles = CollectionHelper::GetCollection<recob::PFParticle>(event, config.PFParticleLabel());
+    std::cout<<"DEBUG allPFParticles.size() = "<<allPFParticles.size()<<std::endl;
     const auto neutrinos = RecoHelper::GetNeutrinos(allPFParticles);
 
     if (neutrinos.size() > 1)
@@ -261,6 +262,7 @@ void EventFactory::PopulateEventRecoInfo(const art::Event &event, const Config &
     reco.nuPdgCode.Set(neutrinos.front()->PdgCode());
 
     const auto finalStatePFParticles = RecoHelper::GetNeutrinoFinalStates(allPFParticles);
+    std::cout<<"DEBUG finalStatePFParticles.size() = "<<finalStatePFParticles.size()<<std::endl;
     reco.nFinalStates.Set(finalStatePFParticles.size());
 
     const auto flashChi2 = RecoHelper::GetRecoFlashChi2(event, neutrinos, config.PFParticleLabel(), config.FlashMatchLabel());
@@ -301,6 +303,21 @@ void EventFactory::PopulateEventRecoInfo(const art::Event &event, const Config &
     const auto spacePoints = CollectionHelper::GetCollection<recob::SpacePoint>(event, config.SpacePointLabel());
     const auto trackToMCSFitResults = CollectionHelper::GetAssociationFromAlignedCollections<recob::Track, recob::MCSFitResult>(event, config.TrackLabel(), config.MCSFitResultLabel());
 
+    std::cout<<"DEBUG trackToPIDs size: "<<trackToPIDs.size()<<std::endl;
+    // Todo remove
+    for (const auto& kv : trackToPIDs) {
+    // Print out the key (track) and value (vector of ParticleID objects)
+    std::cout << "DEBUG trackToPIDs - Track " << kv.first.key() << " - length: "<<kv.first->Length()<< ":\n";
+    for (const auto& pid : kv.second) {
+        for (const auto& algo : pid->ParticleIDAlgScores()) {
+            std::cout<<"DEBUG trackToPIDs algo.fAlgName: " << algo.fAlgName << " - algo.fValue: " << algo.fValue << " - algo.fVariableType: " << algo.fVariableType << " - algo.fTrackDir: " << algo.fTrackDir << " - algo.fAssumedPdg: " << algo.fAssumedPdg << " - algo.fPlaneMask: " << algo.fPlaneMask << std::endl;
+            break;
+        }
+    }
+    }
+    std::cout<<std::endl;
+
+    std::cout<<"DEBUG PopulateEventRecoInfo finalStatePFParticles.size(): "<<finalStatePFParticles.size()<<std::endl;
     for (const auto &pfParticle : finalStatePFParticles)
     {
         reco.particles.emplace_back();
@@ -327,23 +344,35 @@ void EventFactory::PopulateEventRecoParticleInfo(const Config &config, const art
 
     try
     {
+        std::cout<<"DEBUG TRY Point 0 in PopulateEventRecoParticleInfo"<<std::endl;
         const auto track = CollectionHelper::GetSingleAssociated(pfParticle, pfParticleToTracks);
+        std::cout<<"DEBUG TRY Point 1 in PopulateEventRecoParticleInfo"<<std::endl;
         EventFactory::PopulateEventRecoParticleTrackInfo(config, track, spacePoints, nuVertex, particle);
+        std::cout<<"DEBUG TRY Point 2 in PopulateEventRecoParticleInfo"<<std::endl;
 
         try
         {
             const auto pid = CollectionHelper::GetSingleAssociated(track, trackToPIDs);
             EventFactory::PopulateEventRecoParticlePIDInfo(config, pid, particle);
         }
-        catch (const cet::exception &) {}
+        catch (const cet::exception& e) 
+        {
+            std::cout<<"DEBUG TRY Exception in PopulateEventRecoParticleInfo - Point 0 - "<<e.what()<<std::endl;
+        }
 
+        std::cout<<"DEBUG TRY Point 3 in PopulateEventRecoParticleInfo"<<std::endl;
         const auto calos = CollectionHelper::GetManyAssociated(track, trackToCalorimetries);
         EventFactory::PopulateEventRecoParticleCalorimetryInfo(config, calos, particle);
+        std::cout<<"DEBUG TRY Point 4 in PopulateEventRecoParticleInfo"<<std::endl;
 
         const auto mcsFitResult = CollectionHelper::GetSingleAssociated(track, trackToMCSFitResults);
         EventFactory::PopulateEventRecoParticleMCSFitInfo(mcsFitResult, particle);
+        std::cout<<"DEBUG TRY Point 5 in PopulateEventRecoParticleInfo"<<std::endl;
     }
-    catch (const cet::exception &) {}
+    catch (const cet::exception& e) 
+    {
+        std::cout<<"DEBUG TRY Exception in PopulateEventRecoParticleInfo - Point 1 - "<<e.what()<<std::endl;
+    }
 
     // TODO consider refactoring below into separate function
     // Reco-true matching information
@@ -360,7 +389,7 @@ void EventFactory::PopulateEventRecoParticleInfo(const Config &config, const art
         bestMatchedMCParticle = pBacktrackerData->GetBestMatchedMCParticle(pfParticle);
         particle.hasMatchedMCParticle.Set(true);
     }
-    catch (const cet::exception &)
+    catch (const cet::exception&)
     {
         particle.hasMatchedMCParticle.Set(false);
     }
@@ -554,6 +583,7 @@ void EventFactory::PopulateEventRecoParticlePIDInfo(const Config &config, const 
     const auto nHitsU = particle.nHitsU();
     const auto nHitsV = particle.nHitsV();
 
+    std::cout << "DEBUG yzAngle: " << yzAngle << std::endl;
     EventFactory::SetBraggLikelihood(pid, 13, anab::kForward, yzAngle, sin2AngleThreshold, nHitsU, nHitsV, particle.likelihoodForwardMuon);
     EventFactory::SetBraggLikelihood(pid, 13, anab::kBackward, yzAngle, sin2AngleThreshold, nHitsU, nHitsV, particle.likelihoodBackwardMuon);
 
@@ -694,7 +724,10 @@ void EventFactory::PopulateEventRecoSliceInfo(const art::Event &event, const Con
                     topologicalScore = RecoHelper::GetTopologicalScore(metadata);
                     break;
                 }
-                catch (const cet::exception &) {}
+                catch (const cet::exception &e) 
+                {
+                    std::cout<<"DEBUG TRY Exception in PopulateEventRecoSliceInfo - Point 0 - "<<e.what()<<std::endl;
+                }
             }
         }
 
@@ -730,7 +763,7 @@ void EventFactory::PopulateEventTruthSliceInfo(const art::Event &event, const Co
         const auto isSelectedAsNu = RecoHelper::IsSliceSelectedAsNu(slice, slicesToPFParticles);
 
         if (!sliceToIsSelectedAsNu.emplace(slice, isSelectedAsNu).second)
-            throw cet::exception("AnalysisHelper::PopulateEventRecoSliceInfo") << " - Repeated slices." << std::endl;
+            throw cet::exception("AnalysisHelper::PopulateEventTruthSliceInfo") << " - Repeated slices." << std::endl;
     }
 
     const auto sliceMetadata = BacktrackHelper::SliceMetadata(slices, sliceToIsSelectedAsNu, slicesToHits, hitsToIsNuInduced);

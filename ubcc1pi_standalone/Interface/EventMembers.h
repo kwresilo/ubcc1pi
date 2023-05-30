@@ -55,7 +55,7 @@
     f(p, q, false, int,         run)                                                                                                       \
     f(p, q, false, int,         subRun)                                                                                                    \
     f(p, q, false, int,         event)                                                                                                     \
-    f(p, q, false, bool,        hasTruthInfo)                                                                                              \
+    f(p, q, false, bool,        hasTruthInfo)
 
 /** The event truth information members */
 #define UBCC1PI_MACRO_EVENT_TRUTH_MEMBERS(p, q, f)                                                                                         \
@@ -202,5 +202,188 @@
     f(p, q, false, std::vector<float>,  truthMatchCompletenesses)                                                                          \
     f(p, q, false, bool,                hasMatchedMCParticle)                                                                              \
     f(p, q, false, int,                 bestMatchedMCParticleIndex)
+
+
+
+//*****************************************************************************************************************************************
+//**************************************************************************************************************************************
+//***********************************************************************************************************************************
+// PeLEE Mode:
+//***********************************************************************************************************************************
+//***************************************************************************************************************************************
+//*****************************************************************************************************************************************
+/** The event metadata members */
+#define PELEE_MACRO_EVENT_METADATA_MEMBERS(p, q, f)                                                                                        \
+    f(p, q, false, int,         run)                                                                                                       \
+    f(p, q, false, int,         sub) /*subRun*/                                                                                            \
+    f(p, q, false, int,         evt) /*event*/
+
+/** The event truth information members */
+#define COMMA , // This is needed for the std::map macro below since it uses commas to separate arguments
+#define PELEE_MACRO_EVENT_TRUTH_MEMBERS(p, q, f)                                                                                                           \
+    f(p, q, false, float,                                           weightSpline) /*splineEventWeight*/                                                    \
+    f(p, q, false, float,                                           weightTune) /*splineEventWeight ?*/                                                    \
+    f(p, q, false, float,                                           weightSplineTimesTune) /*genieTuneEventWeight*/                                        \
+    f(p, q, true,  std::map<std::string COMMA std::vector<double>>, weights) /*systParamNames and systParamValues*/                                        \
+    f(p, q, true,  std::vector<int>,                                weightsFlux) /*cast from u short to int*/ /*systParamFirstValueIndex*/                 \
+    f(p, q, true,  std::vector<int>,                                weightsGenie) /*cast from u short to int*/ /*systParamFirstValueIndex*/                \
+    f(p, q, true,  std::vector<int>,                                weightsReint) /*cast from u short to int*/ /*systParamFirstValueIndex*/                \
+    f(p, q, false, int,                                             ccnc) /*bool isCC*/                                                                    \
+    f(p, q, false, int,                                             interaction) /*interactionMode and interactionString*/                                 \
+    f(p, q, false, int,                                             nu_pdg) /*nuPDGCode*/                                                                  \
+    f(p, q, false, float,                                           nu_e) /*nuEnergy*/                                                                     \
+    f(p, q, true,  float,                                           true_nu_vtx_x) /*Part of nuVertex*/                                                    \
+    f(p, q, true,  float,                                           true_nu_vtx_y) /*Part of nuVertex*/                                                    \
+    f(p, q, true,  float,                                           true_nu_vtx_z) /*Part of nuVertex*/                                                    \
+    f(p, q, true,  std::vector<float>,                              mc_purity) /*slicePurities*/                                                           \
+    f(p, q, true,  std::vector<float>,                              mc_completeness) /*sliceCompletenesses*/                                               \
+    /*f(p, q, false, int,                                           nFinalStates)*/
+
+
+/** The event truth particle information members */
+#define PELEE_MACRO_EVENT_TRUTH_PARTICLE_MEMBERS(p, q, f)                                                                                  \
+    f(p, q, false, int,                 mc_pdg) /*pdgCode*/                                                                                \
+    f(p, q, false, float,               mc_vx) /*startX*/                                                                                  \
+    f(p, q, false, float,               mc_vy) /*startY*/                                                                                  \
+    f(p, q, false, float,               mc_vz) /*startZ*/                                                                                  \
+    f(p, q, false, float,               mc_endx) /*endX*/                                                                                  \
+    f(p, q, false, float,               mc_endy) /*endY*/                                                                                  \
+    f(p, q, false, float,               mc_endz) /*endZ*/                                                                                  \
+    f(p, q, false, float,               mc_px) /*momentumX and part of momentum*/                                                          \
+    f(p, q, false, float,               mc_py) /*momentumY and part of momentum*/                                                          \
+    f(p, q, false, float,               mc_pz) /*momentumZ and part of momentum*/                                                          \
+    f(p, q, false, float,               mc_E) /*energy*/                                                                                   \
+    f(p, q, false, float,               mc_end_p) /*endMomentum and isStopping*/                                                           \
+    f(p, q, false, int,                 mc_n_elastic)                                                                                      \
+    f(p, q, false, int,                 mc_n_inelastic)                                                                                    \
+    /*f(p, q, false, float,               mass)                                                                                            \
+    f(p, q, false, float,               hitWeightU)                                                                                        \
+    f(p, q, false, float,               hitWeightV)                                                                                        \
+    f(p, q, false, float,               hitWeightW)                                                                                        \
+    f(p, q, false, std::vector<float>,  scatterCosThetas)                                                                                  \
+    f(p, q, false, std::vector<float>,  scatterMomentumFracsLost)                                                                          \
+    f(p, q, false, std::vector<int>,    scatterIsElastic)                                                                                  \
+    f(p, q, false, float,               scatteredMomentum)                                                                                 \
+    f(p, q, false, int,                 endState)                                                                                          \
+    f(p, q, false, float,               endStateProductsHitWeightU)                                                                        \
+    f(p, q, false, float,               endStateProductsHitWeightV)                                                                        \
+    f(p, q, false, float,               endStateProductsHitWeightW)*/
+
+/** The event reco information members */
+#define PELEE_MACRO_EVENT_RECO_MEMBERS(p, q, f)                                                                                            \
+    f(p, q, false, int,                 filter_ccinclusive) /*passesCCInclusivex*/                                                         \
+    f(p, q, false, int,                 nslice) /*nSlices*/                                                                                \
+    f(p, q, false, float,               topological_score) /*selectedTopologicalScore*/                                                    \
+    f(p, q, false, int,                 slpdg) /*nuPdgCode and hasNeutrino*/                                                               \
+    f(p, q, true,  float,               reco_nu_vtx_x) /*Part of nuVertex*/                                                                \
+    f(p, q, true,  float,               reco_nu_vtx_y) /*Part of nuVertex*/                                                                \
+    f(p, q, true,  float,               reco_nu_vtx_z) /*Part of nuVertex*/                                                                \
+    f(p, q, true,  float,               reco_nu_vtx_sce_x) /*Part of nuVertex?*/                                                           \
+    f(p, q, true,  float,               reco_nu_vtx_sce_y) /*Part of nuVertex?*/                                                           \
+    f(p, q, true,  float,               reco_nu_vtx_sce_z) /*Part of nuVertex?*/                                                           \
+    /*f(p, q, false, bool,                hasSelectedSlice)                                                                                \
+    f(p, q, true,  std::vector<float>,  sliceTopologicalScores)                                                                            \
+    f(p, q, true,  std::vector<bool>,   sliceIsSelectedAsNu)                                                                               \
+    f(p, q, false, bool,                hasNeutrino)                                                                                       \
+    f(p, q, false, int,                 nFinalStates)                                                                                      \
+    f(p, q, false, float,               flashChi2)                                                                                         \
+    f(p, q, false, float,               flashTime)                                                                                         \
+    f(p, q, false, float,               largestFlashPE)                                                                                    \
+    f(p, q, false, float,               largestFlashTime)                                                                                  \
+    f(p, q, false, float,               largestFlashTimeWidth)                                                                             \
+    f(p, q, false, float,               largestFlashYCtr)                                                                                  \
+    f(p, q, false, float,               largestFlashYWidth)                                                                                \
+    f(p, q, false, float,               largestFlashZCtr)                                                                                  \
+    f(p, q, false, float,               largestFlashZWidth)*/
+
+/** The event reco particle information members */
+#define PELEE_MACRO_EVENT_RECO_PARTICLE_MEMBERS(p, q, f)                                                                                   \
+    f(p, q, false, int,                 pfpdg) /*pdgCode*/                                                                                 \
+    f(p, q, false, int,                 pfnplanehits_U) /*nHitsU*/                                                                         \
+    f(p, q, false, int,                 pfnplanehits_V) /*nHitsV*/                                                                         \
+    f(p, q, false, int,                 pfnplanehits_Y) /*nHitsW*/                                                                         \
+    f(p, q, false, int,                 pfp_trk_daughters_v) /*to compute nDaughters*/                                                     \
+    f(p, q, false, int,                 pfp_shr_daughters_v) /*to compute nDaughters*/                                                     \
+    f(p, q, false, int,                 pfp_n_descendents_v) /*nDescendents*/                                                              \
+    f(p, q, false, float,               trk_score_v) /*trackScore*/                                                                        \
+    f(p, q, false, float,               pfp_generation_v) /*used to reject granddaughter entries*/                                         \
+    f(p, q, false, float,               trk_sce_start_x_v) /*startX ?*/                                                                          \
+    f(p, q, false, float,               trk_sce_start_y_v) /*startY ?*/                                                                          \
+    f(p, q, false, float,               trk_sce_start_z_v) /*startZ ?*/                                                                          \
+    f(p, q, false, float,               trk_sce_end_x_v) /*endX*/                                                                              \
+    f(p, q, false, float,               trk_sce_end_y_v) /*endY*/                                                                              \
+    f(p, q, false, float,               trk_sce_end_z_v) /*endZ*/                                                                              \
+    f(p, q, false, float,               trk_dir_x_v) /*directionX*/                                                                        \
+    f(p, q, false, float,               trk_dir_y_v) /*directionY*/                                                                        \
+    f(p, q, false, float,               trk_dir_z_v) /*directionZ*/                                                                        \
+    f(p, q, false, float,               trk_len_v) /*range not length*/                                                                              \
+    f(p, q, false, float,               trk_avg_deflection_stdev_v) /*wiggliness*/                                                         \
+    f(p, q, false, int,                 trk_end_spacepoints_v) /*nSpacePointsNearEnd*/                                                     \
+    f(p, q, false, float,               trk_bragg_fwd_mu_uvy_v) /*likelihoodForwardMuon*/                                                  \
+    f(p, q, false, float,               trk_bragg_bwd_mu_uvy_v) /*likelihoodBackwardMuon*/                                                 \
+    f(p, q, false, float,               trk_bragg_fwd_pion_uvy_v) /*likelihoodForwardPion*/                                                  \
+    f(p, q, false, float,               trk_bragg_bwd_pion_uvy_v) /*likelihoodBackwardPion*/                                                 \
+    f(p, q, false, float,               trk_bragg_fwd_p_uvy_v) /*likelihoodForwardProton*/                                                 \
+    f(p, q, false, float,               trk_bragg_bwd_p_uvy_v) /*likelihoodBackwardProton*/                                                \
+    f(p, q, false, float,               trk_bragg_fwd_mip_uvy_v) /*likelihoodMIP*/                                                         \
+    f(p, q, false, float,               trk_bragg_p_v) /*ATTN: Not same as ubcc1pi - max of fwd and bwd*/                                  \
+    f(p, q, false, float,               trk_bragg_mu_v) /*ATTN: Not same as ubcc1pi - max of fwd and bwd*/                                 \
+    f(p, q, false, float,               trk_bragg_pion_v) /*ATTN: Not same as ubcc1pi - max of fwd and bwd*/                               \
+    f(p, q, false, float,               trk_bragg_mip_v) /*ATTN: Not same as ubcc1pi - max of fwd and bwd*/                                \
+    f(p, q, false, float,               trk_bragg_p_u_v) /*ATTN: Not same as ubcc1pi - max of fwd and bwd*/                                \
+    f(p, q, false, float,               trk_bragg_mu_u_v) /*ATTN: Not same as ubcc1pi - max of fwd and bwd*/                               \
+    f(p, q, false, float,               trk_bragg_pion_u_v) /*ATTN: Not same as ubcc1pi - max of fwd and bwd*/                             \
+    f(p, q, false, float,               trk_bragg_mip_u_v) /*ATTN: Not same as ubcc1pi - max of fwd and bwd*/                              \
+    f(p, q, false, float,               trk_bragg_p_v_v) /*ATTN: Not same as ubcc1pi - max of fwd and bwd*/                                \
+    f(p, q, false, float,               trk_bragg_mu_v_v) /*ATTN: Not same as ubcc1pi - max of fwd and bwd*/                               \
+    f(p, q, false, float,               trk_bragg_pion_v_v) /*ATTN: Not same as ubcc1pi - max of fwd and bwd*/                             \
+    f(p, q, false, float,               trk_bragg_mip_v_v) /*ATTN: Not same as ubcc1pi - max of fwd and bwd*/                              \
+    f(p, q, false, float,               trk_trunk_dEdx_u_v) /*truncatedMeandEdxU*/                                                         \
+    f(p, q, false, float,               trk_trunk_dEdx_v_v) /*truncatedMeandEdxV*/                                                         \
+    f(p, q, false, float,               trk_trunk_dEdx_y_v) /*truncatedMeandEdxW*/                                                         \
+
+    /*f(p, q, false, bool,                isCCInclusiveMuonCandidate)                                                                      \
+    f(p, q, false, int,                 nDescendentHitsU)                                                                                  \
+    f(p, q, false, int,                 nDescendentHitsV)                                                                                  \
+    f(p, q, false, int,                 nDescendentHitsW)                                                                                  \
+    f(p, q, false, int,                 nHitsInLargestDescendent)                                                                          \
+    f(p, q, false, float,               yzAngle)                                                                                           \
+    f(p, q, false, float,               xyAngle)                                                                                           \
+    f(p, q, false, float,               xzAngle)                                                                                           \
+    f(p, q, false, float,               range)                                                                                             \
+    f(p, q, false, float,               transverseVertexDist)                                                                              \
+    f(p, q, false, float,               longitudinalVertexDist)                                                                            \
+    f(p, q, false, float,               mcsMomentumForwardMuon)                                                                            \
+    f(p, q, false, float,               mcsMomentumUncertaintyForwardMuon)                                                                 \
+    f(p, q, false, float,               mcsLogLikelihoodForwardMuon)                                                                       \
+    f(p, q, false, float,               mcsMomentumBackwardMuon)                                                                           \
+    f(p, q, false, float,               mcsMomentumUncertaintyBackwardMuon)                                                                \
+    f(p, q, false, float,               mcsLogLikelihoodBackwardMuon)                                                                      \
+    f(p, q, false, float,               likelihoodForwardMuonU)                                                                            \
+    f(p, q, false, float,               likelihoodForwardMuonV)                                                                            \
+    f(p, q, false, float,               likelihoodForwardMuonW)                                                                            \
+    f(p, q, false, float,               likelihoodBackwardMuonU)                                                                           \
+    f(p, q, false, float,               likelihoodBackwardMuonV)                                                                           \
+    f(p, q, false, float,               likelihoodBackwardMuonW)                                                                           \
+    f(p, q, false, float,               likelihoodForwardPionU)                                                                            \
+    f(p, q, false, float,               likelihoodForwardPionV)                                                                            \
+    f(p, q, false, float,               likelihoodForwardPionW)                                                                            \
+    f(p, q, false, float,               likelihoodBackwardPionU)                                                                           \
+    f(p, q, false, float,               likelihoodBackwardPionV)                                                                           \
+    f(p, q, false, float,               likelihoodBackwardPionW)                                                                           \
+    f(p, q, false, float,               likelihoodForwardProtonU)                                                                          \
+    f(p, q, false, float,               likelihoodForwardProtonV)                                                                          \
+    f(p, q, false, float,               likelihoodForwardProtonW)                                                                          \
+    f(p, q, false, float,               likelihoodBackwardProtonU)                                                                         \
+    f(p, q, false, float,               likelihoodBackwardProtonV)                                                                         \
+    f(p, q, false, float,               likelihoodBackwardProtonW)                                                                         \
+    f(p, q, false, float,               likelihoodMIPU)                                                                                    \
+    f(p, q, false, float,               likelihoodMIPV)                                                                                    \
+    f(p, q, false, float,               likelihoodMIPW)                                                                                    \
+    f(p, q, false, float,               truncatedMeandEdx)                                                                                 \
+    f(p, q, false, std::vector<float>,  truthMatchPurities)                                                                                \
+    f(p, q, false, std::vector<float>,  truthMatchCompletenesses)                                                                          \
+    f(p, q, false, bool,                hasMatchedMCParticle)                                                                              \
+    f(p, q, false, int,                 bestMatchedMCParticleIndex)*/
 
 #endif

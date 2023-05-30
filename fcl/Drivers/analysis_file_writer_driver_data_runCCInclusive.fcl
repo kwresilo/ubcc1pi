@@ -1,0 +1,12 @@
+#include "analysis_file_writer_driver.fcl"
+
+physics.analyzers.analysisFileWriter.EventFactoryConfig.HasTruthInfo: false
+physics.analyzers.analysisFileWriter.SubrunFactoryConfig.HasTruthInfo: false
+
+# Configure the CC inclusive producer with default settings
+physics.producers.NuCCproducer: {
+    module_type: "NuCCproducer"
+}
+
+# Add the CC inclusive producer to the reco path
+physics.reco: [ pandoraAllAsTrack, pandoraAllAsTrackMCSMu, pandoraAllAsTrackCaloSCE, pandoraAllAsTrackCaliSCE, pandoraAllAsTrackCaliPidSCE, NuCCproducer ]
