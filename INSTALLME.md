@@ -14,14 +14,8 @@ mrb updateDepsCM
 # For some uboonecode versions it might is necessary to change the default CMakeLists.txt 
 # Replace: cmake_minimum_required (VERSION 3.12...3.14 FATAL_ERROR) → cmake_minimum_required (VERSION 3.10 FATAL_ERROR)
 
-# Set up your development environment and check for dependency issues
-mrbsetenv
-
-# Install the package
-mrb install -j4
-
-# Setup your local products
-mrbslp
+# Set up your development environment & check for dependency issues + install + setup your local products
+mrbsetenv && mrb install -j4 && mrbslp
 ```
 
 ### Debugging
