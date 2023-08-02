@@ -45,6 +45,7 @@
 
         // Objects
         "Objects/FileReader.cxx",
+        "Objects/TreeWriter.cxx",
 
         // Helpers
         "Helpers/AnalysisHelper.cxx",
@@ -57,8 +58,11 @@
         "Helpers/CrossSectionHelper.cxx",
 
         // Macros
-        // "Macros/Analyzer.cxx",
+        "Macros/Analyzer.cxx",
         "Macros/AnalyzerTest.cxx",
+        "Macros/TestCCInclusiveSelection.cxx",
+        "Macros/TestSelectionsPeLEEVsUbcc1pi.cxx",
+        "Macros/TestSidebandSelectionsPeLEEVsUbcc1pi.cxx",
         // "Macros/PrintConfig.cxx",
         // "Macros/CountPOT.cxx",
         // "Macros/GetRunSubrunList.cxx",

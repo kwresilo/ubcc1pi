@@ -36,6 +36,27 @@ namespace ubcc1pi_macros
     void AnalyzerTest(const Config &config = Config());
 
     /**
+     *  @brief  Check that the numucc filter and the CC inclusive cuts included in the analysis have the same effect
+     *
+     *  @param  config the input configuration
+     */
+    void TestCCInclusiveSelection(const Config &config = Config());
+
+    /**
+     *  @brief  Check that the selection is the same when PeLEE ntuples are used
+     *
+     *  @param  config the input configuration
+     */
+    void TestSelectionsPeLEEVsUbcc1pi(const Config &config = Config());
+
+    /**
+     *  @brief  Check that the sideband selection is the same when PeLEE ntuples are used
+     *
+     *  @param  config the input configuration
+     */
+    void TestSidebandSelectionsPeLEEVsUbcc1pi(const Config &config = Config());
+
+    /**
      *  @brief  Count the POT for the overlays and dirt samples and print the results
      *
      *  @param  config the input configuration

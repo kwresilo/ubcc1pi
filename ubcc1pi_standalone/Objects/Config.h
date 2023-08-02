@@ -503,6 +503,7 @@ struct Config
         bool        fitInSystematicUniverses    = true;              ///< If we should fit not only in nominal but also in systematic universes
         bool        useEfficiencyCorrection     = false;              ///< If we should use the efficiency-effect-free smearing matrix to use when creating the plots
         std::vector<unsigned int> runs          = {1,2,3};               ///< The runs to use in the analysis
+        std::string outputFile                  = "/uboone/data/users/jdetje/ubcc1piOutput/processedPeLEE.root"; ///< The location to save processed PeLEE files
 
         /**
          *  @brief  The Binning structure

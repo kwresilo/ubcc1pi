@@ -493,7 +493,7 @@ bool AnalysisHelper::IsTrueCC1Pi(const std::shared_ptr<Event> &pEvent, const boo
     if (!pEvent->metadata.hasTruthInfo())
         throw std::invalid_argument("AnalysisHelper::IsTrueCC1Pi - Input event doesn't have truth information!");
 
-    const auto truth = pEvent->truth;
+    const auto& truth = pEvent->truth;
 
     // Insist the true neutrino is fiducial
     if (!AnalysisHelper::IsFiducial(truth.nuVertex()))
@@ -506,6 +506,7 @@ bool AnalysisHelper::IsTrueCC1Pi(const std::shared_ptr<Event> &pEvent, const boo
     const auto nPion = AnalysisHelper::CountParticlesWithPdgCode(visibleParticles, 211, useAbsPdg);
     const auto nOther = visibleParticles.size() - (nMu + nProton + nPion);
 
+    std::cout<<"DEBUG AnalysisHelper::IsTrueCC1Pi - nMu: "<<nMu<<" nProton: "<<nProton<<" nPion: "<<nPion<<" nOther: "<<nOther<<std::endl;
     // Insist on the CC1Pi topology
     return (nMu == 1 && nPion == 1 && nOther == 0);
 }
@@ -517,14 +518,14 @@ bool AnalysisHelper::IsTrueCC0Pi(const std::shared_ptr<Event> &pEvent, const boo
     if (!pEvent->metadata.hasTruthInfo())
         throw std::invalid_argument("AnalysisHelper::IsTrueCC0Pi - Input event doesn't have truth information!");
 
-    const auto truth = pEvent->truth;
+    const auto& truth = pEvent->truth;
 
     // Insist the true neutrino is fiducial
     if (!AnalysisHelper::IsFiducial(truth.nuVertex()))
         return false;
 
     // Count the visible particles
-    const auto visibleParticles = AnalysisHelper::SelectVisibleParticles(pEvent->truth.particles);
+    const auto visibleParticles = AnalysisHelper::SelectVisibleParticles(truth.particles);
     const auto nMu = AnalysisHelper::CountParticlesWithPdgCode(visibleParticles, 13, useAbsPdg);
     const auto nProton = AnalysisHelper::CountParticlesWithPdgCode(visibleParticles, 2212, useAbsPdg);
     const auto nPion = AnalysisHelper::CountParticlesWithPdgCode(visibleParticles, 211, useAbsPdg);
@@ -731,7 +732,7 @@ std::string AnalysisHelper::GetClassificationString(const std::shared_ptr<Event>
     if (!pEvent->metadata.hasTruthInfo())
         return "D,  ";
 
-    const auto truth = pEvent->truth;
+    const auto& truth = pEvent->truth;
 
     // Insist the true neutrino is fiducial
     if (!AnalysisHelper::IsFiducial(truth.nuVertex()))

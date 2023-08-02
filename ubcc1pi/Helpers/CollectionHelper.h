@@ -63,6 +63,7 @@ typedef Collection<recob::Hit> HitVector;                ///< A collection of Hi
 typedef Collection<recob::SpacePoint> SpacePointVector;  ///< A collection of SpacePoints
 typedef Collection<recob::Slice> SliceVector;            ///< A collection of Slices
 typedef Collection<recob::Track> TrackVector;            ///< A colleciton of Tracks
+typedef Collection<recob::Vertex> VertexVector;          ///< A colleciton of Vertices
 typedef Collection<anab::Calorimetry> CalorimetryVector; ///< A collection of Calorimetry objects
 
 typedef Association<recob::Hit, recob::PFParticle> HitsToPFParticles;                  ///< Association from Hit to PFParticle
@@ -72,6 +73,7 @@ typedef Association<recob::Slice, recob::Hit> SlicesToHits;                     
 typedef Association<recob::Slice, recob::PFParticle> SlicesToPFParticles;              ///< Association from Slice to PFParticle
 typedef Association<recob::PFParticle, recob::Hit> PFParticleToHits;                   ///< Association from PFParticle to Hit
 typedef Association<recob::PFParticle, recob::Track> PFParticleToTracks;               ///< Association from PFParticle to Tracks
+typedef Association<recob::PFParticle, recob::Vertex> PFParticleToVertices;             ///< Association from PFParticle to Vertices
 typedef Association<recob::PFParticle, recob::PFParticle> PFParticleToPFParticles;     ///< Association from PFParticle to PFParticles
 typedef Association<recob::PFParticle, larpandoraobj::PFParticleMetadata> PFParticleToMetadata;     ///< Association from PFParticle to metadata
 typedef Association<recob::PFParticle, anab::T0> PFParticleToT0s;                      ///< Association from PFParticle to T0s

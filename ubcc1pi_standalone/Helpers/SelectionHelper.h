@@ -246,6 +246,13 @@ class SelectionHelper
         static EventSelection GetCCInclusiveSelection();
 
         /**
+         *  @brief  Get the 'original' CC1Pi event selection (relies on NuMuCC filter)
+         *
+         *  @return the event selection
+         */
+        static EventSelection GetOriginalSelection();
+
+        /**
          *  @brief  Get the default CC1Pi event selection
          *
          *  @return the event selection
@@ -296,10 +303,11 @@ class SelectionHelper
          *  @param  particles the input list of all reco particles
          *  @param  featureNames the input list of muon BDT feature names
          *  @param  muonBDT the muon BDT
+         *  @param  ccInclusiveMuonCandidateIndex the override for the index of the muon candidate in the CC inclusive selection
          *
          *  @return the index of the muon candidate in the input list
          */
-        static unsigned int GetMuonCandidateIndex(const std::vector<Event::Reco::Particle> &particles, const std::vector<std::string> &featureNames, BDTHelper::BDT &muonBDT);
+        static unsigned int GetMuonCandidateIndex(const std::vector<Event::Reco::Particle> &particles, const std::vector<std::string> &featureNames, BDTHelper::BDT &muonBDT, const int ccInclusiveMuonCandidateIndex = -1);
 
         /**
          *  @brief  Get the leading proton candidate index (works for the CC0pi1p sideband selection only)

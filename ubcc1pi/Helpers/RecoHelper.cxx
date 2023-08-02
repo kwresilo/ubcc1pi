@@ -12,15 +12,11 @@ namespace ubcc1pi
 PFParticleMap RecoHelper::GetPFParticleMap(const PFParticleVector &allPFParticles)
 {
     PFParticleMap pfParticleMap;
-
-    std::cout<<"DEBUG RecoHelper::GetPFParticleMap allPFParticles.size(): "<<allPFParticles.size()<<std::endl;
     for (const auto &pfParticle : allPFParticles)
     {
         if (!pfParticleMap.emplace(pfParticle->Self(), pfParticle).second)
             throw cet::exception("RecoHelper::GetPFParticleMap") << " - Found repeated PFParticle with Self = " << pfParticle->Self() << "." << std::endl;
     }
-
-    std::cout<<"DEBUG RecoHelper::GetPFParticleMap pfParticleMap.size(): "<<pfParticleMap.size()<<std::endl;
     return pfParticleMap;
 }
 
@@ -76,7 +72,6 @@ PFParticleVector RecoHelper::GetNeutrinoFinalStates(const PFParticleVector &allP
     }
     catch (const cet::exception &)
     {
-        std::cout<<"DEBUG TRY RecoHelper::GetNeutrinoFinalStates"<<std::endl;
         // No neutrino found
         return PFParticleVector();
     }
@@ -100,7 +95,6 @@ TVector3 RecoHelper::GetRecoNeutrinoVertex(const art::Event &event, const PFPart
     }
     catch (const cet::exception &)
     {
-        std::cout<<"DEBUG TRY RecoHelper::GetRecoNeutrinoVertex"<<std::endl;
         return TVector3(-std::numeric_limits<float>::max(), -std::numeric_limits<float>::max(), -std::numeric_limits<float>::max());
     }
 }
@@ -121,7 +115,6 @@ float RecoHelper::GetRecoFlashChi2(const art::Event &event, const PFParticleVect
     }
     catch (const cet::exception &)
     {
-        std::cout<<"DEBUG TRY RecoHelper::GetRecoFlashChi2"<<std::endl;
         return -std::numeric_limits<float>::max();
     }
 }
@@ -142,7 +135,6 @@ float RecoHelper::GetRecoFlashTime(const art::Event &event, const PFParticleVect
     }
     catch (const cet::exception &)
     {
-        std::cout<<"DEBUG TRY RecoHelper::GetRecoFlashTime"<<std::endl;
         return -std::numeric_limits<float>::max();
     }
 }
@@ -195,7 +187,6 @@ PFParticleVector RecoHelper::GetDaughters(const art::Ptr<recob::PFParticle> &par
 {
     PFParticleVector daughters;
 
-    std::cout<<"DEBUG RecoHelper::GetDaughters particle->NumDaughters(): "<<particle->NumDaughters()<<std::endl;
     for (int i = 0; i < particle->NumDaughters(); ++i)
     {
         const auto daughterIter = pfParticleMap.find(particle->Daughter(i));
@@ -204,8 +195,6 @@ PFParticleVector RecoHelper::GetDaughters(const art::Ptr<recob::PFParticle> &par
 
         daughters.push_back(daughterIter->second);
     }
-
-    std::cout<<"DEBUG RecoHelper::GetDaughters daughters.size(): "<<daughters.size()<<std::endl;
 
     return daughters;
 }
@@ -234,7 +223,7 @@ void RecoHelper::GetDownstreamParticles(const art::Ptr<recob::PFParticle> &parti
 
 unsigned int RecoHelper::GetGeneration(const art::Ptr<recob::PFParticle> &particle, const PFParticleMap &pfParticleMap)
 {
-    unsigned int generation = 0;
+    unsigned int generation = 1; // Starting at 1 to be in oine with PeLEE definition  
 
     art::Ptr<recob::PFParticle> nextParticle = particle;
     while (!nextParticle->IsPrimary())
@@ -350,8 +339,6 @@ float RecoHelper::GetPidScore(const art::Ptr<anab::ParticleID> &pid, const std::
 
     for (const auto &algo : pid->ParticleIDAlgScores())
     {
-        // Print algo infotrmation
-        std::cout<<"DEBUG RecoHelper::GetPidScore algo fAlgName: "<<algo.fAlgName<<" fValue: "<<algo.fValue<<" fNdf: "<<algo.fNdf<<" fAssumedPdg: "<<algo.fAssumedPdg<<std::endl;
         if (!fCriteria(algo))
             continue;
 
@@ -361,7 +348,6 @@ float RecoHelper::GetPidScore(const art::Ptr<anab::ParticleID> &pid, const std::
         found = true;
         score = algo.fValue;
     }
-
     return score;
 }
 
@@ -387,6 +373,18 @@ geo::View_t RecoHelper::GetView(const std::bitset<8> &planeMask)
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
 
+float RecoHelper::GetChi2Fit(const art::Ptr<anab::ParticleID> &pid, const int &pdg, const geo::View_t &view, const anab::kTrackDir &dir)
+{
+    return RecoHelper::GetPidScore(pid, [&](const anab::sParticleIDAlgScores &algo) -> bool {
+        return (algo.fAlgName == "Chi2"                      &&
+                algo.fTrackDir == dir                        &&
+                algo.fAssumedPdg == pdg                      &&
+                RecoHelper::GetView(algo.fPlaneMask) == view );
+    });
+}
+
+// -----------------------------------------------------------------------------------------------------------------------------------------
+
 float RecoHelper::GetBraggLikelihood(const art::Ptr<anab::ParticleID> &pid, const int &pdg, const geo::View_t &view, const anab::kTrackDir &dir)
 {
     return RecoHelper::GetPidScore(pid, [&](const anab::sParticleIDAlgScores &algo) -> bool {
@@ -401,29 +399,21 @@ float RecoHelper::GetBraggLikelihood(const art::Ptr<anab::ParticleID> &pid, cons
 
 float RecoHelper::GetBraggLikelihood(const art::Ptr<anab::ParticleID> &pid, const int &pdg, const anab::kTrackDir &dir, const float yzAngle, const float sin2AngleThreshold, const unsigned int nHitsU, const unsigned int nHitsV)
 {
-    // std::cout<<"DEBUG TrackAnalysis::GetMultiplaneBraggLikelihood pid: " << *pid << std::endl;
-    for (const auto& algo : pid->ParticleIDAlgScores()) {
-        std::cout<<"DEBUG RecoHelper::GetBraggLikelihood algo.fAlgName: " << algo.fAlgName << " - algo.fValue: " << algo.fValue << " - algo.fVariableType: " << algo.fVariableType << " - algo.fTrackDir: " << algo.fTrackDir << " - algo.fAssumedPdg: " << algo.fAssumedPdg << " - algo.fPlaneMask: " << algo.fPlaneMask << std::endl;
-    }  
-    std::cout<<"DEBUG RecoHelper::GetBraggLikelihood pdg: "<<pdg<<" - dir: "<<dir<<" - yzAngle: "<<yzAngle<<" - sin2AngleThreshold: "<<sin2AngleThreshold<<" - nHitsU: "<<nHitsU<<" - nHitsV: "<<nHitsV<<std::endl;
     const auto piBy3 = std::acos(0.5f);
 
     const auto likelihoodW = RecoHelper::GetBraggLikelihood(pid, pdg, geo::kW, dir);
     const bool isTrackAlongWWire = (std::pow(std::sin(yzAngle), 2) < sin2AngleThreshold);
     const auto hasW = (likelihoodW > -1.f && !isTrackAlongWWire);
 
-    std::cout<<"DEBUG RecoHelper::GetBraggLikelihood likelihoodW: "<<likelihoodW<<std::endl;
     if (hasW)
         return likelihoodW;
 
     // Otherwise the track is along the W wire direction, so just average the other two planes weighted by the number of degrees of freedom
     const auto likelihoodU = RecoHelper::GetBraggLikelihood(pid, pdg, geo::kU, dir);
-    std::cout<<"\tDEBUG RecoHelper::GetBraggLikelihood likelihoodU: "<<likelihoodU<<std::endl;
     const bool isTrackAlongUWire = (std::pow(std::sin(yzAngle - piBy3), 2) < sin2AngleThreshold);
     const auto hasU = (likelihoodU > -1.f && !isTrackAlongUWire);
 
     const auto likelihoodV = RecoHelper::GetBraggLikelihood(pid, pdg, geo::kV, dir);
-    std::cout<<"\tDEBUG RecoHelper::GetBraggLikelihood likelihoodV: "<<likelihoodV<<std::endl;
     const bool isTrackAlongVWire = (std::pow(std::sin(yzAngle + piBy3), 2) < sin2AngleThreshold);
     const auto hasV = (likelihoodV > -1.f && !isTrackAlongVWire);
 

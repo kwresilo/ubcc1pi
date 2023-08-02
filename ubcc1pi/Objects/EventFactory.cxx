@@ -241,7 +241,6 @@ void EventFactory::PopulateEventRecoInfo(const art::Event &event, const Config &
 
     // Find the neutrino PFParticle
     const auto allPFParticles = CollectionHelper::GetCollection<recob::PFParticle>(event, config.PFParticleLabel());
-    std::cout<<"DEBUG allPFParticles.size() = "<<allPFParticles.size()<<std::endl;
     const auto neutrinos = RecoHelper::GetNeutrinos(allPFParticles);
 
     if (neutrinos.size() > 1)
@@ -258,11 +257,11 @@ void EventFactory::PopulateEventRecoInfo(const art::Event &event, const Config &
     const auto nuVertex = RecoHelper::GetRecoNeutrinoVertex(event, neutrinos, config.VertexLabel());
     const auto nuVertexSCC = RecoHelper::CorrectForSpaceCharge(nuVertex, pSpaceChargeService);
 
+    reco.nuVertexNoSCC.Set(nuVertex);
     reco.nuVertex.Set(nuVertexSCC);
     reco.nuPdgCode.Set(neutrinos.front()->PdgCode());
 
     const auto finalStatePFParticles = RecoHelper::GetNeutrinoFinalStates(allPFParticles);
-    std::cout<<"DEBUG finalStatePFParticles.size() = "<<finalStatePFParticles.size()<<std::endl;
     reco.nFinalStates.Set(finalStatePFParticles.size());
 
     const auto flashChi2 = RecoHelper::GetRecoFlashChi2(event, neutrinos, config.PFParticleLabel(), config.FlashMatchLabel());
@@ -297,33 +296,21 @@ void EventFactory::PopulateEventRecoInfo(const art::Event &event, const Config &
     const auto pfParticleToT0s = CollectionHelper::GetAssociation<recob::PFParticle, anab::T0>(event, config.PFParticleLabel(), config.CCInclusiveLabel());
     const auto pfParticleToMetadata = CollectionHelper::GetAssociation<recob::PFParticle, larpandoraobj::PFParticleMetadata>(event, config.PFParticleLabel(), config.PFParticleLabel());
     const auto pfParticleToTracks = CollectionHelper::GetAssociation<recob::PFParticle, recob::Track>(event, config.PFParticleLabel(), config.TrackLabel());
+    const auto pfParticleToVertices = CollectionHelper::GetAssociation<recob::PFParticle, recob::Vertex>(event, config.VertexLabel());
     const auto pfParticleToHits = CollectionHelper::GetAssociationViaCollection<recob::PFParticle, recob::Cluster, recob::Hit>(event, config.PFParticleLabel(), config.PFParticleLabel(), config.PFParticleLabel());
     const auto trackToPIDs = CollectionHelper::GetAssociation<recob::Track, anab::ParticleID>(event, config.TrackLabel(), config.PIDLabel());
     const auto trackToCalorimetries = CollectionHelper::GetAssociation<recob::Track, anab::Calorimetry>(event, config.TrackLabel(), config.CalorimetryLabel());
     const auto spacePoints = CollectionHelper::GetCollection<recob::SpacePoint>(event, config.SpacePointLabel());
     const auto trackToMCSFitResults = CollectionHelper::GetAssociationFromAlignedCollections<recob::Track, recob::MCSFitResult>(event, config.TrackLabel(), config.MCSFitResultLabel());
 
-    std::cout<<"DEBUG trackToPIDs size: "<<trackToPIDs.size()<<std::endl;
-    // Todo remove
-    for (const auto& kv : trackToPIDs) {
-    // Print out the key (track) and value (vector of ParticleID objects)
-    std::cout << "DEBUG trackToPIDs - Track " << kv.first.key() << " - length: "<<kv.first->Length()<< ":\n";
-    for (const auto& pid : kv.second) {
-        for (const auto& algo : pid->ParticleIDAlgScores()) {
-            std::cout<<"DEBUG trackToPIDs algo.fAlgName: " << algo.fAlgName << " - algo.fValue: " << algo.fValue << " - algo.fVariableType: " << algo.fVariableType << " - algo.fTrackDir: " << algo.fTrackDir << " - algo.fAssumedPdg: " << algo.fAssumedPdg << " - algo.fPlaneMask: " << algo.fPlaneMask << std::endl;
-            break;
-        }
-    }
-    }
-    std::cout<<std::endl;
-
-    std::cout<<"DEBUG PopulateEventRecoInfo finalStatePFParticles.size(): "<<finalStatePFParticles.size()<<std::endl;
-    for (const auto &pfParticle : finalStatePFParticles)
+    const auto downstreamPFParticles = RecoHelper::GetDownstreamParticles(neutrinos.front(), pfParticleMap);
+    for (const auto &pfParticle : downstreamPFParticles)
     {
+        if(RecoHelper::GetGeneration(pfParticle, pfParticleMap) == 1) continue;
         reco.particles.emplace_back();
         auto &particle = reco.particles.back();
 
-        EventFactory::PopulateEventRecoParticleInfo(config, pfParticle, pfParticleMap, pfParticleToT0s, pfParticleToMetadata, pfParticleToHits, pfParticleToTracks, trackToMCSFitResults, trackToPIDs, trackToCalorimetries, spacePoints, finalStateMCParticles, pBacktrackerData, nuVertex, particle);
+        EventFactory::PopulateEventRecoParticleInfo(config, pfParticle, pfParticleMap, pfParticleToT0s, pfParticleToMetadata, pfParticleToHits, pfParticleToTracks, pfParticleToVertices, trackToMCSFitResults, trackToPIDs, trackToCalorimetries, spacePoints, finalStateMCParticles, pBacktrackerData, nuVertex, particle);
 
         // If we have a muon candidate from the CC inclusive selection, then this event passed
         if (particle.isCCInclusiveMuonCandidate())
@@ -333,22 +320,31 @@ void EventFactory::PopulateEventRecoInfo(const art::Event &event, const Config &
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
 
-void EventFactory::PopulateEventRecoParticleInfo(const Config &config, const art::Ptr<recob::PFParticle> &pfParticle, const PFParticleMap &pfParticleMap, const PFParticleToT0s &pfParticleToT0s, const PFParticleToMetadata &pfParticleToMetadata, const PFParticleToHits &pfParticleToHits, const PFParticleToTracks &pfParticleToTracks, const TrackToMCSFitResults &trackToMCSFitResults, const TrackToPIDs &trackToPIDs, const TrackToCalorimetries &trackToCalorimetries, const SpacePointVector &spacePoints, const MCParticleVector &finalStateMCParticles, const std::shared_ptr<BacktrackHelper::BacktrackerData> &pBacktrackerData, const TVector3 &nuVertex, Event::Reco::Particle &particle)
+void EventFactory::PopulateEventRecoParticleInfo(const Config &config, const art::Ptr<recob::PFParticle> &pfParticle, const PFParticleMap &pfParticleMap, const PFParticleToT0s &pfParticleToT0s, const PFParticleToMetadata &pfParticleToMetadata, const PFParticleToHits &pfParticleToHits, const PFParticleToTracks &pfParticleToTracks, const PFParticleToVertices &pfParticleToVertices, const TrackToMCSFitResults &trackToMCSFitResults, const TrackToPIDs &trackToPIDs, const TrackToCalorimetries &trackToCalorimetries, const SpacePointVector &spacePoints, const MCParticleVector &finalStateMCParticles, const std::shared_ptr<BacktrackHelper::BacktrackerData> &pBacktrackerData, const TVector3 &nuVertex, Event::Reco::Particle &particle)
 {
     if (!config.HasTruthInfo() && pBacktrackerData)
         throw cet::exception("EventFactory::PopulateEventRecoParticleInfo") << " - Supplied with backtracker data even though there should be no truth info." << std::endl;
 
     particle.isCCInclusiveMuonCandidate.Set(EventFactory::IsCCInclusiveMuonCandidate(pfParticle, pfParticleToT0s));
 
-    EventFactory::PopulateEventRecoParticlePatRecInfo(pfParticle, pfParticleMap, pfParticleToMetadata, pfParticleToHits, particle);
+    EventFactory::PopulateEventRecoParticlePatRecInfo(pfParticle, pfParticleMap, pfParticleToMetadata, pfParticleToHits, pfParticleToVertices, particle);
 
     try
     {
-        std::cout<<"DEBUG TRY Point 0 in PopulateEventRecoParticleInfo"<<std::endl;
+        const auto vertex = CollectionHelper::GetSingleAssociated(pfParticle, pfParticleToVertices);
+        particle.vertexX.Set(vertex->position().X());
+        particle.vertexY.Set(vertex->position().Y());
+        particle.vertexZ.Set(vertex->position().Z());
+    }
+    catch (const cet::exception& e) 
+    {
+        std::cout<<"Error in EventFactory::PopulateEventRecoParticlePatRecInfo: "<<e.what()<<std::endl;
+    }
+
+    try
+    {
         const auto track = CollectionHelper::GetSingleAssociated(pfParticle, pfParticleToTracks);
-        std::cout<<"DEBUG TRY Point 1 in PopulateEventRecoParticleInfo"<<std::endl;
         EventFactory::PopulateEventRecoParticleTrackInfo(config, track, spacePoints, nuVertex, particle);
-        std::cout<<"DEBUG TRY Point 2 in PopulateEventRecoParticleInfo"<<std::endl;
 
         try
         {
@@ -357,21 +353,18 @@ void EventFactory::PopulateEventRecoParticleInfo(const Config &config, const art
         }
         catch (const cet::exception& e) 
         {
-            std::cout<<"DEBUG TRY Exception in PopulateEventRecoParticleInfo - Point 0 - "<<e.what()<<std::endl;
+            std::cout<<"Error in EventFactory::PopulateEventRecoParticlePatRecInfo: "<<e.what()<<std::endl;
         }
 
-        std::cout<<"DEBUG TRY Point 3 in PopulateEventRecoParticleInfo"<<std::endl;
         const auto calos = CollectionHelper::GetManyAssociated(track, trackToCalorimetries);
         EventFactory::PopulateEventRecoParticleCalorimetryInfo(config, calos, particle);
-        std::cout<<"DEBUG TRY Point 4 in PopulateEventRecoParticleInfo"<<std::endl;
 
         const auto mcsFitResult = CollectionHelper::GetSingleAssociated(track, trackToMCSFitResults);
         EventFactory::PopulateEventRecoParticleMCSFitInfo(mcsFitResult, particle);
-        std::cout<<"DEBUG TRY Point 5 in PopulateEventRecoParticleInfo"<<std::endl;
     }
     catch (const cet::exception& e) 
     {
-        std::cout<<"DEBUG TRY Exception in PopulateEventRecoParticleInfo - Point 1 - "<<e.what()<<std::endl;
+        std::cout<<"Error in EventFactory::PopulateEventRecoParticlePatRecInfo: "<<e.what()<<std::endl;
     }
 
     // TODO consider refactoring below into separate function
@@ -421,7 +414,7 @@ bool EventFactory::IsCCInclusiveMuonCandidate(const art::Ptr<recob::PFParticle> 
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
 
-void EventFactory::PopulateEventRecoParticlePatRecInfo(const art::Ptr<recob::PFParticle> &pfParticle, const PFParticleMap &pfParticleMap, const PFParticleToMetadata &pfParticleToMetadata, const PFParticleToHits &pfParticleToHits, Event::Reco::Particle &particle)
+void EventFactory::PopulateEventRecoParticlePatRecInfo(const art::Ptr<recob::PFParticle> &pfParticle, const PFParticleMap &pfParticleMap, const PFParticleToMetadata &pfParticleToMetadata, const PFParticleToHits &pfParticleToHits, const PFParticleToVertices &pfParticleToVertices, Event::Reco::Particle &particle)
 {
     particle.pdgCode.Set(pfParticle->PdgCode());
 
@@ -431,6 +424,7 @@ void EventFactory::PopulateEventRecoParticlePatRecInfo(const art::Ptr<recob::PFP
     particle.nHitsW.Set(RecoHelper::CountHitsInView(hits, geo::kW));
 
     particle.nDaughters.Set(pfParticle->NumDaughters());
+    particle.generation.Set(RecoHelper::GetGeneration(pfParticle, pfParticleMap));
 
     // Get the descendent PFParticles (not including the primary)
     PFParticleVector descendents;
@@ -478,10 +472,11 @@ void EventFactory::PopulateEventRecoParticleTrackInfo(const Config &config, cons
 {
     const auto pSpaceChargeService = RecoHelper::GetSpaceChargeService();
 
-    const auto start = RecoHelper::CorrectForSpaceCharge(TVector3(track->Start().X(), track->Start().Y(), track->Start().Z()), pSpaceChargeService);
-    particle.startX.Set(start.X());
-    particle.startY.Set(start.Y());
-    particle.startZ.Set(start.Z());
+    const auto start = TVector3(track->Start().X(), track->Start().Y(), track->Start().Z());
+    const auto startSCE = RecoHelper::CorrectForSpaceCharge(start, pSpaceChargeService);
+    particle.startX.Set(startSCE.X());
+    particle.startY.Set(startSCE.Y());
+    particle.startZ.Set(startSCE.Z());
 
     const auto end = RecoHelper::CorrectForSpaceCharge(TVector3(track->End().X(), track->End().Y(), track->End().Z()), pSpaceChargeService);
     particle.endX.Set(end.X());
@@ -499,6 +494,9 @@ void EventFactory::PopulateEventRecoParticleTrackInfo(const Config &config, cons
 
     particle.length.Set(track->Length());
     particle.range.Set(RecoHelper::GetRange(track, pSpaceChargeService));
+    
+    const auto distance = (start - nuVertex).Mag();
+    particle.distance.Set(distance); // This is not SCE corrected because that's how it is implemented in PeLEE and the CC-inclusive filter
 
     float transverseVertexDist = -std::numeric_limits<float>::max();
     float longitudinalVertexDist = -std::numeric_limits<float>::max();
@@ -549,6 +547,9 @@ void EventFactory::PopulateEventRecoParticleMCSFitInfo(const art::Ptr<recob::MCS
 
 void EventFactory::PopulateEventRecoParticlePIDInfo(const Config &config, const art::Ptr<anab::ParticleID> &pid, Event::Reco::Particle &particle)
 {
+    EventFactory::SetChi2Fit(pid, 2212, geo::kW, anab::kForward, particle.chi2ForwardProtonW);
+    EventFactory::SetChi2Fit(pid, 13, geo::kW, anab::kForward, particle.chi2ForwardMuonW);
+
     EventFactory::SetBraggLikelihood(pid, 13, geo::kU, anab::kForward, particle.likelihoodForwardMuonU);
     EventFactory::SetBraggLikelihood(pid, 13, geo::kV, anab::kForward, particle.likelihoodForwardMuonV);
     EventFactory::SetBraggLikelihood(pid, 13, geo::kW, anab::kForward, particle.likelihoodForwardMuonW);
@@ -583,7 +584,6 @@ void EventFactory::PopulateEventRecoParticlePIDInfo(const Config &config, const 
     const auto nHitsU = particle.nHitsU();
     const auto nHitsV = particle.nHitsV();
 
-    std::cout << "DEBUG yzAngle: " << yzAngle << std::endl;
     EventFactory::SetBraggLikelihood(pid, 13, anab::kForward, yzAngle, sin2AngleThreshold, nHitsU, nHitsV, particle.likelihoodForwardMuon);
     EventFactory::SetBraggLikelihood(pid, 13, anab::kBackward, yzAngle, sin2AngleThreshold, nHitsU, nHitsV, particle.likelihoodBackwardMuon);
 
@@ -594,6 +594,17 @@ void EventFactory::PopulateEventRecoParticlePIDInfo(const Config &config, const 
     EventFactory::SetBraggLikelihood(pid, 2212, anab::kBackward, yzAngle, sin2AngleThreshold, nHitsU, nHitsV, particle.likelihoodBackwardProton);
 
     EventFactory::SetBraggLikelihood(pid, 0, anab::kForward, yzAngle, sin2AngleThreshold, nHitsU, nHitsV, particle.likelihoodMIP);
+}
+
+// -----------------------------------------------------------------------------------------------------------------------------------------
+
+void EventFactory::SetChi2Fit(const art::Ptr<anab::ParticleID> &pid, const int &pdg, const geo::View_t &view, const anab::kTrackDir &dir, Member<float> &member)
+{
+    const auto chi2 = RecoHelper::GetChi2Fit(pid, pdg, view, dir);
+
+    // When likelihood isn't available the default is -floatmax
+    if (chi2 > 0.f)
+        member.Set(chi2);
 }
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
@@ -697,7 +708,7 @@ void EventFactory::PopulateEventRecoSliceInfo(const art::Event &event, const Con
         if (isSelectedAsNu)
         {
             if (selectedSlice.isNonnull())
-                throw cet::exception("AnalysisHelper::PopulateEventRecoSliceInfo") << " - Multiple slices selected as neutrino." << std::endl;
+                throw cet::exception("EventFactory::PopulateEventRecoSliceInfo") << " - Multiple slices selected as neutrino." << std::endl;
 
             selectedSlice = slice;
         }
@@ -726,7 +737,6 @@ void EventFactory::PopulateEventRecoSliceInfo(const art::Event &event, const Con
                 }
                 catch (const cet::exception &e) 
                 {
-                    std::cout<<"DEBUG TRY Exception in PopulateEventRecoSliceInfo - Point 0 - "<<e.what()<<std::endl;
                 }
             }
         }
@@ -763,7 +773,7 @@ void EventFactory::PopulateEventTruthSliceInfo(const art::Event &event, const Co
         const auto isSelectedAsNu = RecoHelper::IsSliceSelectedAsNu(slice, slicesToPFParticles);
 
         if (!sliceToIsSelectedAsNu.emplace(slice, isSelectedAsNu).second)
-            throw cet::exception("AnalysisHelper::PopulateEventTruthSliceInfo") << " - Repeated slices." << std::endl;
+            throw cet::exception("EventFactory::PopulateEventTruthSliceInfo") << " - Repeated slices." << std::endl;
     }
 
     const auto sliceMetadata = BacktrackHelper::SliceMetadata(slices, sliceToIsSelectedAsNu, slicesToHits, hitsToIsNuInduced);

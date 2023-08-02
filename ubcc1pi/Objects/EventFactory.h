@@ -322,7 +322,7 @@ class EventFactory
          *  @param  nuVertex the (not space-charge corrected) reconstructed neutrino vertex
          *  @param  particle the output particle
          */
-        static void PopulateEventRecoParticleInfo(const Config &config, const art::Ptr<recob::PFParticle> &pfParticle, const PFParticleMap &pfParticleMap, const PFParticleToT0s &pfParticleToT0s, const PFParticleToMetadata &pfParticleToMetadata, const PFParticleToHits &pfParticleToHits, const PFParticleToTracks &pfParticleToTracks, const TrackToMCSFitResults &trackToMCSFitResults, const TrackToPIDs &trackToPIDs, const TrackToCalorimetries &trackToCalorimetries, const SpacePointVector &spacePoints, const MCParticleVector &finalStateMCParticles, const std::shared_ptr<BacktrackHelper::BacktrackerData> &pBacktrackerData, const TVector3 &nuVertex, Event::Reco::Particle &particle);
+        static void PopulateEventRecoParticleInfo(const Config &config, const art::Ptr<recob::PFParticle> &pfParticle, const PFParticleMap &pfParticleMap, const PFParticleToT0s &pfParticleToT0s, const PFParticleToMetadata &pfParticleToMetadata, const PFParticleToHits &pfParticleToHits, const PFParticleToTracks &pfParticleToTracks, const PFParticleToVertices &pfParticleToVertices, const TrackToMCSFitResults &trackToMCSFitResults, const TrackToPIDs &trackToPIDs, const TrackToCalorimetries &trackToCalorimetries, const SpacePointVector &spacePoints, const MCParticleVector &finalStateMCParticles, const std::shared_ptr<BacktrackHelper::BacktrackerData> &pBacktrackerData, const TVector3 &nuVertex, Event::Reco::Particle &particle);
 
         /**
          *  @brief  Check if the input particle is the CC inclusive muon candidate
@@ -343,7 +343,7 @@ class EventFactory
          *  @param  pfParticleToHits the input mapping from PFParticle to hits
          *  @param  particle the output particle
          */
-        static void PopulateEventRecoParticlePatRecInfo(const art::Ptr<recob::PFParticle> &pfParticle, const PFParticleMap &pfParticleMap, const PFParticleToMetadata &pfParticleToMetadata, const PFParticleToHits &pfParticleToHits, Event::Reco::Particle &particle);
+        static void PopulateEventRecoParticlePatRecInfo(const art::Ptr<recob::PFParticle> &pfParticle, const PFParticleMap &pfParticleMap, const PFParticleToMetadata &pfParticleToMetadata, const PFParticleToHits &pfParticleToHits, const PFParticleToVertices &pfParticleToVertices, Event::Reco::Particle &particle);
 
         /**
          *  @brief  Populate the reco particle track information
@@ -381,6 +381,17 @@ class EventFactory
          *  @param  particle the output particle
          */
         static void PopulateEventRecoParticleCalorimetryInfo(const Config &config, const CalorimetryVector &calos, Event::Reco::Particle &particle);
+
+        /**
+         *  @brief  Set the value of the input member variable to the chi2 fit from the PID with given parameters
+         *
+         *  @param  pid the input PID object
+         *  @param  pdg the assumed pdg
+         *  @param  view the view
+         *  @param  dir if the fit is forward or backward
+         *  @param  member the member to set
+         */
+        static void SetChi2Fit(const art::Ptr<anab::ParticleID> &pid, const int &pdg, const geo::View_t &view, const anab::kTrackDir &dir, Member<float> &member);
 
         /**
          *  @brief  Set the value of the input member variable to the bragg likelihood from the PID with given parameters

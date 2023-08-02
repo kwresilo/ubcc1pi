@@ -126,7 +126,8 @@
     f(p, q, false, float,               largestFlashYCtr)                                                                                  \
     f(p, q, false, float,               largestFlashYWidth)                                                                                \
     f(p, q, false, float,               largestFlashZCtr)                                                                                  \
-    f(p, q, false, float,               largestFlashZWidth)
+    f(p, q, false, float,               largestFlashZWidth)                                                                                \
+    f(p, q, true,  TVector3,            nuVertexNoSCC) /* New PeLEE variable */
 
 /** The event reco particle information members */
 #define UBCC1PI_MACRO_EVENT_RECO_PARTICLE_MEMBERS(p, q, f)                                                                                 \
@@ -201,7 +202,18 @@
     f(p, q, false, std::vector<float>,  truthMatchPurities)                                                                                \
     f(p, q, false, std::vector<float>,  truthMatchCompletenesses)                                                                          \
     f(p, q, false, bool,                hasMatchedMCParticle)                                                                              \
-    f(p, q, false, int,                 bestMatchedMCParticleIndex)
+    f(p, q, false, int,                 bestMatchedMCParticleIndex)                                                                        \
+    f(p, q, false, int,                 generation) /* New PeLEE variable */                                                               \
+    f(p, q, false, float,               chi2ForwardMuonW) /* New PeLEE variable */                                                         \
+    f(p, q, false, float,               chi2ForwardProtonW) /* New PeLEE variable */                                                       \
+    f(p, q, false, float,               distance) /* New PeLEE variable; not SCE corrected (unlike transverse- and logitudinalVertexDist)*/\
+    f(p, q, false, float,               vertexX) /* New variable !ONLY USED FOR UBCC1PI INPUT*/                                            \
+    f(p, q, false, float,               vertexY) /* New variable !ONLY USED FOR UBCC1PI INPUT*/                                            \
+    f(p, q, false, float,               vertexZ) /* New variable !ONLY USED FOR UBCC1PI INPUT*/
+    // f(p, q, false, double,              vertexDistanceToXBoundary) /* New PeLEE variable !ONLY USED FOR PELEE INPUT*/
+    // f(p, q, false, double,              vertexDistanceToZBoundary) /* New PeLEE variable !ONLY USED FOR PELEE INPUT*/
+    // f(p, q, false, double,              vertexDistanceToYBoundary) /* New PeLEE variable !ONLY USED FOR PELEE INPUT*/
+
 
 
 
@@ -225,16 +237,16 @@
     f(p, q, false, float,                                           weightTune) /*splineEventWeight ?*/                                                    \
     f(p, q, false, float,                                           weightSplineTimesTune) /*genieTuneEventWeight*/                                        \
     f(p, q, true,  std::map<std::string COMMA std::vector<double>>, weights) /*systParamNames and systParamValues*/                                        \
-    f(p, q, true,  std::vector<int>,                                weightsFlux) /*cast from u short to int*/ /*systParamFirstValueIndex*/                 \
-    f(p, q, true,  std::vector<int>,                                weightsGenie) /*cast from u short to int*/ /*systParamFirstValueIndex*/                \
-    f(p, q, true,  std::vector<int>,                                weightsReint) /*cast from u short to int*/ /*systParamFirstValueIndex*/                \
+    f(p, q, true,  std::vector<unsigned short>,                     weightsFlux) /*cast from u short to int*/ /*systParamFirstValueIndex*/                 \
+    f(p, q, true,  std::vector<unsigned short>,                     weightsGenie) /*cast from u short to int*/ /*systParamFirstValueIndex*/                \
+    f(p, q, true,  std::vector<unsigned short>,                     weightsReint) /*cast from u short to int*/ /*systParamFirstValueIndex*/                \
     f(p, q, false, int,                                             ccnc) /*bool isCC*/                                                                    \
     f(p, q, false, int,                                             interaction) /*interactionMode and interactionString*/                                 \
     f(p, q, false, int,                                             nu_pdg) /*nuPDGCode*/                                                                  \
     f(p, q, false, float,                                           nu_e) /*nuEnergy*/                                                                     \
-    f(p, q, true,  float,                                           true_nu_vtx_x) /*Part of nuVertex*/                                                    \
-    f(p, q, true,  float,                                           true_nu_vtx_y) /*Part of nuVertex*/                                                    \
-    f(p, q, true,  float,                                           true_nu_vtx_z) /*Part of nuVertex*/                                                    \
+    f(p, q, false, float,                                           true_nu_vtx_x) /*Part of nuVertex*/                                                    \
+    f(p, q, false, float,                                           true_nu_vtx_y) /*Part of nuVertex*/                                                    \
+    f(p, q, false, float,                                           true_nu_vtx_z) /*Part of nuVertex*/                                                    \
     f(p, q, true,  std::vector<float>,                              mc_purity) /*slicePurities*/                                                           \
     f(p, q, true,  std::vector<float>,                              mc_completeness) /*sliceCompletenesses*/                                               \
     /*f(p, q, false, int,                                           nFinalStates)*/
@@ -256,6 +268,7 @@
     f(p, q, false, float,               mc_end_p) /*endMomentum and isStopping*/                                                           \
     f(p, q, false, int,                 mc_n_elastic)                                                                                      \
     f(p, q, false, int,                 mc_n_inelastic)                                                                                    \
+    // f(p, q, false, bool,                mc_nu_truth) /*Used to dismiss some mcParticles*/
     /*f(p, q, false, float,               mass)                                                                                            \
     f(p, q, false, float,               hitWeightU)                                                                                        \
     f(p, q, false, float,               hitWeightV)                                                                                        \
@@ -275,18 +288,18 @@
     f(p, q, false, int,                 nslice) /*nSlices*/                                                                                \
     f(p, q, false, float,               topological_score) /*selectedTopologicalScore*/                                                    \
     f(p, q, false, int,                 slpdg) /*nuPdgCode and hasNeutrino*/                                                               \
-    f(p, q, true,  float,               reco_nu_vtx_x) /*Part of nuVertex*/                                                                \
-    f(p, q, true,  float,               reco_nu_vtx_y) /*Part of nuVertex*/                                                                \
-    f(p, q, true,  float,               reco_nu_vtx_z) /*Part of nuVertex*/                                                                \
-    f(p, q, true,  float,               reco_nu_vtx_sce_x) /*Part of nuVertex?*/                                                           \
-    f(p, q, true,  float,               reco_nu_vtx_sce_y) /*Part of nuVertex?*/                                                           \
-    f(p, q, true,  float,               reco_nu_vtx_sce_z) /*Part of nuVertex?*/                                                           \
+    f(p, q, false, float,               reco_nu_vtx_x) /*Part of nuVertexNoSCC*/                                                           \
+    f(p, q, false, float,               reco_nu_vtx_y) /*Part of nuVertexNoSCC*/                                                           \
+    f(p, q, false, float,               reco_nu_vtx_z) /*Part of nuVertexNoSCC*/                                                           \
+    f(p, q, false, float,               reco_nu_vtx_sce_x) /*Part of nuVertex*/                                                            \
+    f(p, q, false, float,               reco_nu_vtx_sce_y) /*Part of nuVertex*/                                                            \
+    f(p, q, false, float,               reco_nu_vtx_sce_z) /*Part of nuVertex*/                                                            \
+    f(p, q, false, float,               nu_flashmatch_score) /*flashChi2*/
     /*f(p, q, false, bool,                hasSelectedSlice)                                                                                \
     f(p, q, true,  std::vector<float>,  sliceTopologicalScores)                                                                            \
     f(p, q, true,  std::vector<bool>,   sliceIsSelectedAsNu)                                                                               \
     f(p, q, false, bool,                hasNeutrino)                                                                                       \
     f(p, q, false, int,                 nFinalStates)                                                                                      \
-    f(p, q, false, float,               flashChi2)                                                                                         \
     f(p, q, false, float,               flashTime)                                                                                         \
     f(p, q, false, float,               largestFlashPE)                                                                                    \
     f(p, q, false, float,               largestFlashTime)                                                                                  \
@@ -306,41 +319,89 @@
     f(p, q, false, int,                 pfp_shr_daughters_v) /*to compute nDaughters*/                                                     \
     f(p, q, false, int,                 pfp_n_descendents_v) /*nDescendents*/                                                              \
     f(p, q, false, float,               trk_score_v) /*trackScore*/                                                                        \
-    f(p, q, false, float,               pfp_generation_v) /*used to reject granddaughter entries*/                                         \
-    f(p, q, false, float,               trk_sce_start_x_v) /*startX ?*/                                                                          \
-    f(p, q, false, float,               trk_sce_start_y_v) /*startY ?*/                                                                          \
-    f(p, q, false, float,               trk_sce_start_z_v) /*startZ ?*/                                                                          \
-    f(p, q, false, float,               trk_sce_end_x_v) /*endX*/                                                                              \
-    f(p, q, false, float,               trk_sce_end_y_v) /*endY*/                                                                              \
-    f(p, q, false, float,               trk_sce_end_z_v) /*endZ*/                                                                              \
+    f(p, q, false, int,                 pfp_generation_v) /*used to reject granddaughter entries & generation; ATTN: original is unsigned int */ \
+    f(p, q, false, float,               trk_pid_chipr_v) /*chi2ForwardProtonW*/ /*todo: check this is squared*/                            \
+    f(p, q, false, float,               trk_pid_chimu_v) /*chi2ForwardMuonW*/ /*todo: check this is squared*/                              \
+    f(p, q, false, float,               trk_sce_start_x_v) /*startX*/                                                                      \
+    f(p, q, false, float,               trk_sce_start_y_v) /*startY*/                                                                      \
+    f(p, q, false, float,               trk_sce_start_z_v) /*startZ*/                                                                      \
+    f(p, q, false, float,               trk_start_x_v) /*vertexX*/                                                                         \
+    f(p, q, false, float,               trk_start_y_v) /*vertexY*/                                                                         \
+    f(p, q, false, float,               trk_start_z_v) /*vertexZ*/                                                                         \
+    f(p, q, false, float,               shr_start_x_v) /*vertexX*/                                                                         \
+    f(p, q, false, float,               shr_start_y_v) /*vertexY*/                                                                         \
+    f(p, q, false, float,               shr_start_z_v) /*vertexZ*/                                                                         \
+    f(p, q, false, float,               shr_tkfit_start_x_v) /*vertexX*/                                                                   \
+    f(p, q, false, float,               shr_tkfit_start_y_v) /*vertexY*/                                                                   \
+    f(p, q, false, float,               shr_tkfit_start_z_v) /*vertexZ*/                                                                   \
+    f(p, q, false, float,               pfp_vtx_x_v) /*vertexX*/                                                                             \
+    f(p, q, false, float,               pfp_vtx_y_v) /*vertexY*/                                                                             \
+    f(p, q, false, float,               pfp_vtx_z_v) /*vertexZ*/                                                                             \
+    f(p, q, false, float,               trk_end_x_v) /*used for vertexX*/                                                                  \
+    f(p, q, false, float,               trk_end_y_v) /*used for vertexY*/                                                                  \
+    f(p, q, false, float,               trk_end_z_v) /*used for vertexZ*/                                                                  \
+    f(p, q, false, float,               trk_sce_end_x_v) /*endX*/                                                                          \
+    f(p, q, false, float,               trk_sce_end_y_v) /*endY*/                                                                          \
+    f(p, q, false, float,               trk_sce_end_z_v) /*endZ*/                                                                          \
     f(p, q, false, float,               trk_dir_x_v) /*directionX*/                                                                        \
     f(p, q, false, float,               trk_dir_y_v) /*directionY*/                                                                        \
     f(p, q, false, float,               trk_dir_z_v) /*directionZ*/                                                                        \
-    f(p, q, false, float,               trk_len_v) /*range not length*/                                                                              \
+    f(p, q, false, float,               trk_len_v) /*range not length*/                                                                    \
     f(p, q, false, float,               trk_avg_deflection_stdev_v) /*wiggliness*/                                                         \
     f(p, q, false, int,                 trk_end_spacepoints_v) /*nSpacePointsNearEnd*/                                                     \
-    f(p, q, false, float,               trk_bragg_fwd_mu_uvy_v) /*likelihoodForwardMuon*/                                                  \
-    f(p, q, false, float,               trk_bragg_bwd_mu_uvy_v) /*likelihoodBackwardMuon*/                                                 \
-    f(p, q, false, float,               trk_bragg_fwd_pion_uvy_v) /*likelihoodForwardPion*/                                                  \
-    f(p, q, false, float,               trk_bragg_bwd_pion_uvy_v) /*likelihoodBackwardPion*/                                                 \
-    f(p, q, false, float,               trk_bragg_fwd_p_uvy_v) /*likelihoodForwardProton*/                                                 \
-    f(p, q, false, float,               trk_bragg_bwd_p_uvy_v) /*likelihoodBackwardProton*/                                                \
-    f(p, q, false, float,               trk_bragg_fwd_mip_uvy_v) /*likelihoodMIP*/                                                         \
-    f(p, q, false, float,               trk_bragg_p_v) /*ATTN: Not same as ubcc1pi - max of fwd and bwd*/                                  \
-    f(p, q, false, float,               trk_bragg_mu_v) /*ATTN: Not same as ubcc1pi - max of fwd and bwd*/                                 \
-    f(p, q, false, float,               trk_bragg_pion_v) /*ATTN: Not same as ubcc1pi - max of fwd and bwd*/                               \
-    f(p, q, false, float,               trk_bragg_mip_v) /*ATTN: Not same as ubcc1pi - max of fwd and bwd*/                                \
-    f(p, q, false, float,               trk_bragg_p_u_v) /*ATTN: Not same as ubcc1pi - max of fwd and bwd*/                                \
-    f(p, q, false, float,               trk_bragg_mu_u_v) /*ATTN: Not same as ubcc1pi - max of fwd and bwd*/                               \
-    f(p, q, false, float,               trk_bragg_pion_u_v) /*ATTN: Not same as ubcc1pi - max of fwd and bwd*/                             \
-    f(p, q, false, float,               trk_bragg_mip_u_v) /*ATTN: Not same as ubcc1pi - max of fwd and bwd*/                              \
-    f(p, q, false, float,               trk_bragg_p_v_v) /*ATTN: Not same as ubcc1pi - max of fwd and bwd*/                                \
-    f(p, q, false, float,               trk_bragg_mu_v_v) /*ATTN: Not same as ubcc1pi - max of fwd and bwd*/                               \
-    f(p, q, false, float,               trk_bragg_pion_v_v) /*ATTN: Not same as ubcc1pi - max of fwd and bwd*/                             \
-    f(p, q, false, float,               trk_bragg_mip_v_v) /*ATTN: Not same as ubcc1pi - max of fwd and bwd*/                              \
-    f(p, q, false, float,               trk_trunk_dEdx_u_v) /*truncatedMeandEdxU*/                                                         \
-    f(p, q, false, float,               trk_trunk_dEdx_v_v) /*truncatedMeandEdxV*/                                                         \
-    f(p, q, false, float,               trk_trunk_dEdx_y_v) /*truncatedMeandEdxW*/                                                         \
+    f(p, q, false, float,               trk_trunk_rr_dEdx_u_v) /*truncatedMeandEdxU*/                                                      \
+    f(p, q, false, float,               trk_trunk_rr_dEdx_v_v) /*truncatedMeandEdxV*/                                                      \
+    f(p, q, false, float,               trk_trunk_rr_dEdx_y_v) /*truncatedMeandEdxW*/                                                      \
+    f(p, q, false, float,               trk_distance_v) /*distance*/                                                                       \
+    f(p, q, false, float,               trk_bragg_p_v)                                                                                     \
+    f(p, q, false, float,               trk_bragg_mu_v)                                                                                    \
+    f(p, q, false, float,               trk_bragg_pion_v)                                                                                  \
+    f(p, q, false, float,               trk_bragg_mip_v)                                                                                   \
+    f(p, q, false, float,               trk_bragg_p_u_v)                                                                                   \
+    f(p, q, false, float,               trk_bragg_mu_u_v)                                                                                  \
+    f(p, q, false, float,               trk_bragg_pion_u_v)                                                                                \
+    f(p, q, false, float,               trk_bragg_mip_u_v)                                                                                 \
+    f(p, q, false, float,               trk_bragg_p_v_v)                                                                                   \
+    f(p, q, false, float,               trk_bragg_mu_v_v)                                                                                  \
+    f(p, q, false, float,               trk_bragg_pion_v_v)                                                                                \
+    f(p, q, false, float,               trk_bragg_mip_v_v)                                                                                 \
+    f(p, q, false, float,               trk_bragg_p_alt_dir_v)                                                                             \
+    f(p, q, false, float,               trk_bragg_mu_alt_dir_v)                                                                            \
+    f(p, q, false, float,               trk_bragg_pion_alt_dir_v)                                                                          \
+    f(p, q, false, bool,                trk_bragg_p_fwd_preferred_v)                                                                       \
+    f(p, q, false, bool,                trk_bragg_mu_fwd_preferred_v)                                                                      \
+    f(p, q, false, bool,                trk_bragg_pion_fwd_preferred_v)                                                                    \
+    f(p, q, false, float,               trk_bragg_p_alt_dir_u_v)                                                                           \
+    f(p, q, false, float,               trk_bragg_mu_alt_dir_u_v)                                                                          \
+    f(p, q, false, float,               trk_bragg_pion_alt_dir_u_v)                                                                        \
+    f(p, q, false, bool,                trk_bragg_p_fwd_preferred_u_v)                                                                     \
+    f(p, q, false, bool,                trk_bragg_mu_fwd_preferred_u_v)                                                                    \
+    f(p, q, false, bool,                trk_bragg_pion_fwd_preferred_u_v)                                                                  \
+    f(p, q, false, float,               trk_bragg_p_alt_dir_v_v)                                                                           \
+    f(p, q, false, float,               trk_bragg_mu_alt_dir_v_v)                                                                          \
+    f(p, q, false, float,               trk_bragg_pion_alt_dir_v_v)                                                                        \
+    f(p, q, false, bool,                trk_bragg_p_fwd_preferred_v_v)                                                                     \
+    f(p, q, false, bool,                trk_bragg_mu_fwd_preferred_v_v)                                                                    \
+    f(p, q, false, bool,                trk_bragg_pion_fwd_preferred_v_v)                                                                  \
+    f(p, q, false, int,                 trk_nhits_u_v) /*Used for truncatedMeandEdx*/                                                      \
+    f(p, q, false, int,                 trk_nhits_v_v) /*Used for truncatedMeandEdx*/                                                      \
+    f(p, q, false, int,                 trk_nhits_y_v) /*Used for truncatedMeandEdx*/
+
+    // f(p, q, false, float,               trk_bragg_p_v) /*ATTN: Not same as ubcc1pi - max of fwd and bwd*/
+    // f(p, q, false, float,               trk_bragg_mu_v) /*ATTN: Not same as ubcc1pi - max of fwd and bwd*/
+    // f(p, q, false, float,               trk_bragg_pion_v) /*ATTN: Not same as ubcc1pi - max of fwd and bwd*/
+    // f(p, q, false, float,               trk_bragg_mip_v) /*ATTN: Not same as ubcc1pi - max of fwd and bwd*/
+    // f(p, q, false, float,               trk_bragg_p_u_v) /*ATTN: Not same as ubcc1pi - max of fwd and bwd*/
+    // f(p, q, false, float,               trk_bragg_mu_u_v) /*ATTN: Not same as ubcc1pi - max of fwd and bwd*/
+    // f(p, q, false, float,               trk_bragg_pion_u_v) /*ATTN: Not same as ubcc1pi - max of fwd and bwd*/
+    // f(p, q, false, float,               trk_bragg_mip_u_v) /*ATTN: Not same as ubcc1pi - max of fwd and bwd*/
+    // f(p, q, false, float,               trk_bragg_p_v_v) /*ATTN: Not same as ubcc1pi - max of fwd and bwd*/
+    // f(p, q, false, float,               trk_bragg_mu_v_v) /*ATTN: Not same as ubcc1pi - max of fwd and bwd*/
+    // f(p, q, false, float,               trk_bragg_pion_v_v) /*ATTN: Not same as ubcc1pi - max of fwd and bwd*/
+    // f(p, q, false, float,               trk_bragg_mip_v_v) /*ATTN: Not same as ubcc1pi - max of fwd and bwd*/
+    // f(p, q, false, double,              dvtx_x_boundary) /*vertexDistanceToXBoundary; todo: Warning conversion from double to float*/
+    // f(p, q, false, double,              dvtx_y_boundary) /*vertexDistanceToYBoundary; todo: Warning conversion from double to float*/
+    // f(p, q, false, double,              dvtx_z_boundary) /*vertexDistanceToZBoundary; todo: Warning conversion from double to float*/
 
     /*f(p, q, false, bool,                isCCInclusiveMuonCandidate)                                                                      \
     f(p, q, false, int,                 nDescendentHitsU)                                                                                  \

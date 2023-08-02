@@ -57,11 +57,15 @@ MCParticleVector TruthHelper::GetMCParticlesFromMCTruth(const art::Event &event,
 
         // Insist that the MCParticle originated from the desired MCTruth
         if (associatedMCTruth != mcTruth)
+        {
+            std::cout<<"DEBUG TruthHelper::GetMCParticlesFromMCTruth associatedMCTruth != mcTruth"<<std::endl;
             continue;
+        }
 
         outputMCParticles.push_back(mcParticle);
     }
 
+    std::cout<<"DEBUG TruthHelper::GetMCParticlesFromMCTruth outputMCParticles.size() "<<outputMCParticles.size()<<std::endl;
     return outputMCParticles;
 }
 
@@ -84,7 +88,7 @@ MCParticleVector TruthHelper::GetPrimaryMCParticles(const MCParticleVector &allM
 
 bool TruthHelper::IsPrimary(const art::Ptr<simb::MCParticle> &particle)
 {
-    return (particle->Process() == "primary");
+    return (particle->Process() == "primary" && particle->StatusCode() == 1);
 }
 
 // -----------------------------------------------------------------------------------------------------------------------------------------

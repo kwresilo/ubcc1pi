@@ -56,6 +56,13 @@ class Member
         const T Get() const;
 
         /**
+         *  @brief  Gets the address of the value of the member if set and throws otherwise
+         *
+         *  @return the value
+         */
+        const T* GetAddress() const;
+
+        /**
          *  @brief  Overload the () operator as a shorthand Get()
          */
         const T operator()() const;
@@ -96,7 +103,7 @@ class Member
         std::string ToString() const;
 
         std::shared_ptr<T>   m_pValue;         ///< The value of the member
-        T                   *m_pAddress;       ///< The address owned by the shared_ptr needed by root... sigh
+        T*                   m_pAddress;       ///< The address owned by the shared_ptr needed by root... sigh
         bool                 m_isSet;          ///< If the value has been set
         static unsigned int  m_maxVectorPrint; ///< The maximum number of entries of a vector to print
         std::string          m_name;           ///< The name of the member
@@ -159,6 +166,17 @@ inline const T Member<T>::Get() const
 // -----------------------------------------------------------------------------------------------------------------------------------------
 
 template <typename T>
+inline const T* Member<T>::GetAddress() const
+{
+    if (this->IsSet())
+        return m_pAddress;
+
+    throw std::logic_error("Member::GetAddress() - You are trying to access a member value: \"" + m_name + "\" that hasn't been set");
+}
+
+// -----------------------------------------------------------------------------------------------------------------------------------------
+
+template <typename T>
 inline const T Member<T>::operator()() const
 {
     return this->Get();
@@ -199,15 +217,15 @@ inline void Member<int>::SetDefault()
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
 
-// /** @brief doxygen wants this :( */
-// /**
-//  *  @brief  Set the member variable to default
-//  */
-// template <>
-// inline void Member<unsigned short>::SetDefault()
-// {
-//     *m_pValue =  -std::numeric_limits<unsigned short>::max();
-// }
+/** @brief doxygen wants this :( */
+/**
+ *  @brief  Set the member variable to default
+ */
+template <>
+inline void Member<unsigned short>::SetDefault()
+{
+    *m_pValue = 0u;
+}
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
 
@@ -305,17 +323,17 @@ inline void Member< std::vector<int> >::SetDefault()
     m_pValue->clear();
 }
 
-// -----------------------------------------------------------------------------------------------------------------------------------------
+//-----------------------------------------------------------------------------------------------------------------------------------------
 
-// /** @brief doxygen wants this :( */
-// /**
-//  *  @brief  Set the member variable to default
-//  */
-// template <>
-// inline void Member< std::vector<unsigned short> >::SetDefault()
-// {
-//     m_pValue->clear();
-// }
+/** @brief doxygen wants this :( */
+/**
+ *  @brief  Set the member variable to default
+ */
+template <>
+inline void Member< std::vector<unsigned short> >::SetDefault()
+{
+    m_pValue->clear();
+}
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
 
@@ -382,6 +400,22 @@ inline std::string Member<int>::ToString() const
  */
 template <>
 inline std::string Member<float>::ToString() const
+{
+    if (!this->IsSet())
+        return "?";
+
+    return std::to_string(this->Get());
+}
+
+// -----------------------------------------------------------------------------------------------------------------------------------------
+
+/**
+ *  @brief  Get the member variable as a string
+ *
+ *  @return the member variable string
+ */
+template <>
+inline std::string Member<double>::ToString() const
 {
     if (!this->IsSet())
         return "?";
@@ -548,34 +582,34 @@ inline std::string Member< std::vector<int> >::ToString() const
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
 
-// /**
-//  *  @brief  Get the member variable as a string
-//  *
-//  *  @return the member variable string
-//  */
-// template <>
-// inline std::string Member< std::vector<unsigned short> >::ToString() const
-// {
-//     if (!this->IsSet())
-//         return "?";
+/**
+ *  @brief  Get the member variable as a string
+ *
+ *  @return the member variable string
+ */
+template <>
+inline std::string Member< std::vector<unsigned short> >::ToString() const
+{
+    if (!this->IsSet())
+        return "?";
 
-//     const auto value = this->Get();
-//     std::string str = "[" + std::to_string(value.size()) + "]  ";
+    const auto value = this->Get();
+    std::string str = "[" + std::to_string(value.size()) + "]  ";
 
-//     unsigned int i = 0;
-//     for (const auto &entry : value)
-//     {
-//         str += std::to_string(entry) + "  ";
+    unsigned int i = 0;
+    for (const auto &entry : value)
+    {
+        str += std::to_string(entry) + "  ";
 
-//         if (++i >= m_maxVectorPrint)
-//             break;
-//     }
+        if (++i >= m_maxVectorPrint)
+            break;
+    }
 
-//     if (i < value.size())
-//         str += "...";
+    if (i < value.size())
+        str += "...";
 
-//     return str;
-// }
+    return str;
+}
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
 

@@ -123,7 +123,6 @@ void FileReader<T, U>::LoadEvent(const unsigned int eventIndex)
     if (eventIndex >= nEvents)
         throw std::range_error("Can't load event, input eventIndex is out of bounds");
 
-
     m_pEvent->Reset();
     m_pEventTree->GetEntry(eventIndex);
     m_pEvent->PrepareAfterTreeRead();

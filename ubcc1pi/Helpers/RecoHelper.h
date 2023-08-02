@@ -280,6 +280,18 @@ class RecoHelper
         static geo::View_t GetView(const std::bitset<8> &planeMask);
 
         /**
+         *  @brief  Get the chi2 pid from a PID object
+         *
+         *  @param  pid the input pid
+         *  @param  pdg the assumed pdg
+         *  @param  view the view
+         *  @param  dir if the fit is forward or backward
+         *
+         *  @return the chi2 fit
+         */
+        static float GetChi2Fit(const art::Ptr<anab::ParticleID> &pid, const int &pdg, const geo::View_t &view, const anab::kTrackDir &dir = anab::kForward);
+
+        /**
          *  @brief  Get the bragg likelihood from a PID object
          *
          *  @param  pid the input pid
