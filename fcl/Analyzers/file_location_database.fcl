@@ -1,8 +1,0 @@
-BEGIN_PROLOG
-
-fileLocationDatabase:
-{
-    module_type: "FileLocationDatabase"
-}
-
-END_PROLOG

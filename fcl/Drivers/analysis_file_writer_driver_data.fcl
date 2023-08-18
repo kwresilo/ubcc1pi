@@ -1,4 +1,0 @@
-#include "analysis_file_writer_driver.fcl"
-
-physics.analyzers.analysisFileWriter.EventFactoryConfig.HasTruthInfo: false
-physics.analyzers.analysisFileWriter.SubrunFactoryConfig.HasTruthInfo: false

@@ -1,5 +1,0 @@
-#include "pandora_evd_driver.fcl"
-
-# Disable any truth information
-physics.producers.hitSlicer.HasMC: false
-physics.producers.pandoraEvd.EnableMCParticles: false
