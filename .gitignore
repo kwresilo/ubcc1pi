@@ -7,3 +7,5 @@ docs/html/*
 *___.cxx
 .nfs*
 *.vscode
+*.code-workspace
+*.git_notNeeded

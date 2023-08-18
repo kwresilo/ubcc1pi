@@ -71,7 +71,8 @@ void Analyzer(const Config &config)
     ExtractionHelper::InputFileList inputData;
     typedef std::vector< std::tuple<AnalysisHelper::SampleType, std::string, std::string, float> > InputFileList;
     // inputData.emplace_back(AnalysisHelper::Overlay, "", "/uboone/data/users/jdetje/ubcc1piVSpelee/pelee/neutrinoselection_filt_0_4k.root", 1);
-    inputData.emplace_back(AnalysisHelper::Overlay, "", "/uboone/app/users/jdetje/searchingfornues/files/steps4/neutrinoselection_filt_upodated5.root", 1);
+    // inputData.emplace_back(AnalysisHelper::Overlay, "", "/uboone/app/users/jdetje/searchingfornues/files/steps4/neutrinoselection_filt_upodated5.root", 1);
+    inputData.emplace_back(AnalysisHelper::DataBNB, "", "/uboone/data/users/jdetje/pelee_v08_00_00_70/bnb_beam_on_peleeTuple_uboone_v08_00_00_70_run2_E1_head5.root", 1);
 
 
     // -------------------------------------------------------------------------------------------------------------------------------------

@@ -9,5 +9,8 @@ physics.producers.NuCCproducer: {
     module_type: "NuCCproducer"
 }
 
+# physics.producers.NuCCproducer.PIDLabel: "pandoraAllAsTrackCaliPidSCE"
+
 # Add the CC inclusive producer to the reco path
 physics.reco: [ pandoraAllAsTrack, pandoraAllAsTrackMCSMu, pandoraAllAsTrackCaloSCE, pandoraAllAsTrackCaliSCE, pandoraAllAsTrackCaliPidSCE, NuCCproducer ]
+

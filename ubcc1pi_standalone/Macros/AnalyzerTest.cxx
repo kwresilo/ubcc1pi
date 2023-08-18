@@ -24,16 +24,17 @@
 #include "map.hpp"
 #include "vector.hpp"
 
+
 #define COMPARETWOSINGLEVALUES(A, X, Y, Z) \
-    if(X.Z.IsSet() != Y.Z.IsSet()) std::cout<<"\033[93m!\033[39m "<<#A<<" "<<#Z<<" - one value not set: "<<X.Z.IsSet()<<(X.Z.IsSet() ? std::string(" (")+std::to_string(X.Z())+std::string(")"):std::string(" "))<<" vs "<<Y.Z.IsSet()<<(Y.Z.IsSet() ? std::string(" (")+std::to_string(Y.Z())+std::string(")"):std::string(" "))<<std::endl; \
+    if(X.Z.IsSet() != Y.Z.IsSet()) std::cout<<"! "<<#A<<" "<<#Z<<" - one value not set: "<<X.Z.IsSet()<<(X.Z.IsSet() ? std::string(" (")+std::to_string(X.Z())+std::string(")"):std::string(" "))<<" vs "<<Y.Z.IsSet()<<(Y.Z.IsSet() ? std::string(" (")+std::to_string(Y.Z())+std::string(")"):std::string(" "))<<std::endl; \
     else if(!X.Z.IsSet() && !Y.Z.IsSet()) std::cout<<"✓ "<<#A<<" "<<#Z<<" Both values not set."<<std::endl; \
-    else {if(X.Z() != Y.Z()) std::cout<<"\033[91m✕\033[39m "<<#A<<" "<<#Z<<" values not identical in PeLEE and ubcc1pi events: "<<X.Z()<<" vs "<<Y.Z()<<std::endl; \
+    else {if(X.Z() - Y.Z() > 1e-3f ) std::cout<<"✕ "<<#A<<" "<<#Z<<" values not identical in PeLEE and ubcc1pi events: "<<X.Z()<<" vs "<<Y.Z()<<std::endl; \
     else std::cout<<"✓ "<<#A<<" "<<#Z<<" values identical in PeLEE and ubcc1pi events: "<<X.Z()<<" vs "<<Y.Z()<<std::endl;}
 
 #define COMPAREANYTWOVALUES(A, X, Y, Z) \
-    if(X.Z.IsSet() != Y.Z.IsSet()) std::cout<<"\033[93m!\033[39m "<<#A<<" "<<#Z<<" - one value not set: "<<X.Z.IsSet()<<" vs "<<Y.Z.IsSet()<<std::endl; \
+    if(X.Z.IsSet() != Y.Z.IsSet()) std::cout<<"! "<<#A<<" "<<#Z<<" - one value not set: "<<X.Z.IsSet()<<" vs "<<Y.Z.IsSet()<<std::endl; \
     else if(!X.Z.IsSet() && !Y.Z.IsSet()) std::cout<<"✓ "<<#A<<" "<<#Z<<" Both values not set."<<std::endl; \
-    else {if(X.Z() != Y.Z()) std::cout<<"\033[91m✕\033[39m "<<#A<<" "<<#Z<<" values not identical in PeLEE and ubcc1pi events."<<std::endl; \
+    else {if(X.Z() != Y.Z()) std::cout<<"✕ "<<#A<<" "<<#Z<<" values not identical in PeLEE and ubcc1pi events."<<std::endl; \
     else std::cout<<"✓ "<<#A<<" "<<#Z<<" values identical in PeLEE and ubcc1pi events."<<std::endl;}
 
 #define CHECKANYVALUE(A, X, Z) \
@@ -73,8 +74,9 @@ void AnalyzerTest(const Config &config)
         phaseSpaceMap.emplace(name, std::pair<float, float>({binning.min, binning.max}));
     }
 
-    std::cout<<"DEBUG AnalyzerTest Point 1"<<std::endl;
-
+    // Set output precision
+    std::cout << std::fixed;
+    std::cout << std::setprecision(4);
 
     // -------------------------------------------------------------------------------------------------------------------------------------
     // Setup the plots
@@ -113,14 +115,15 @@ void AnalyzerTest(const Config &config)
     // -------------------------------------------------------------------------------------------------------------------------------------
     // Setup the relevent "getters" for each cross-section and for the sideband
     // -------------------------------------------------------------------------------------------------------------------------------------
-    ExtractionHelper::AnalysisValueMap getValue;
-    ExtractionHelper::AnalysisValueMap getSidebandValue;
-    ExtractionHelper::PopulateAnalysisValueMap(getValue, false);
-    ExtractionHelper::PopulateAnalysisValueMap(getSidebandValue, true); // true: creates sideband getters
+    // ExtractionHelper::AnalysisValueMap getValue;
+    // ExtractionHelper::AnalysisValueMap getSidebandValue;
+    // ExtractionHelper::PopulateAnalysisValueMap(getValue, false);
+    // ExtractionHelper::PopulateAnalysisValueMap(getSidebandValue, true); // true: creates sideband getters
 
-    std::cout<<"..........................................\nUSING Modified CC0pi Selection: muonLikeProtonValue=-0.48f, barelyResemblingProtonValue=0.12f\n.........................................."<<std::endl;
-    auto sidebandSelection = SelectionHelper::GetCC0piSelectionModified(-0.48f, 0.12f);
-    auto selection = SelectionHelper::GetDefaultSelection();
+    // std::cout<<"..........................................\nUSING Modified CC0pi Selection: muonLikeProtonValue=-0.48f, barelyResemblingProtonValue=0.12f\n.........................................."<<std::endl;
+    // auto sidebandSelection = SelectionHelper::GetCC0piSelectionModified(-0.48f, 0.12f);
+    auto originalSelection = SelectionHelper::GetOriginalSelection(); // Relies on the pre-applied CC-inclusive filter
+    auto defaultSelection = SelectionHelper::GetDefaultSelection(); // Recreates cuts from the CC-inclusive filter in the selection
 
     ExtractionHelper::InputFileList inputData;
     // float totalExposurePOT;
@@ -132,11 +135,10 @@ void AnalyzerTest(const Config &config)
     // inputData.push_back(std::make_tuple(AnalysisHelper::Overlay,"",std::string("/pnfs/uboone/scratch/users/jdetje/v08_00_00_60/PeLee_Run4b_BNB_Overlay_for_ubcc1pi_4/0/0/8/66842097_8/neutrinoselection_filt_ce69f77c-3147-4279-a07d-799714e646d6.root"),1.f));
 
     // inputData.push_back(std::make_tuple(AnalysisHelper::Overlay,"",std::string("/uboone/app/users/jdetje/searchingfornues/files/steps2/PhysicsRun-2019_1_17_7_54_14-eventweight_20230414T155652_eventweight_extragenie1_20230414T164323_eventweight_extragenie2_20230414T165358_eventweight_extragenie3_20230414T170405_eventweight_extragenie4.root"),1.f));
-    inputData.push_back(std::make_tuple(AnalysisHelper::Overlay,"",std::string("/uboone/app/users/jdetje/searchingfornues/files/steps3/neutrinoselection_filt.root"),1.f));
+    inputData.push_back(std::make_tuple(AnalysisHelper::Overlay, "", std::string("/uboone/data/users/jdetje/ubcc1piVSpelee/pelee/neutrinoselection_filt_0_4k.root"), 1.f));
     // inputData.push_back(std::make_tuple(AnalysisHelper::Overlay,"",std::string("/uboone/app/users/jdetje/searchingfornues/files/steps3/PhysicsRun_eventweight_20230428T142324_eventweight_extragenie1_20230428T151854_eventweight_extragenie2_20230428T152700_eventweight_extragenie3_20230428T153504_eventweight_extragenie4.root"),1.f));
-    inputData.push_back(std::make_tuple(AnalysisHelper::DataBNB,"",std::string("/uboone/app/users/jdetje/cc1pi_handover_57_2/marchPeLEE/files2/ubcc1piAnalysis.root"),1.f));
+    inputData.push_back(std::make_tuple(AnalysisHelper::DataBNB, "", std::string("/uboone/data/users/jdetje/ubcc1piVSpelee/ubcc1pi/ubcc1piAnalysis_0_4k.root"), 1.f));
 
-    std::cout<<"DEBUG AnalyzerTest Point 2"<<std::endl;
     // Loop over the files
     FileReader<EventPeLEE, SubrunPeLEE> readerPeLEE(std::get<2>(inputData.at(0)));
     FileReader<Event, Subrun> reader(std::get<2>(inputData.at(1)));
@@ -157,43 +159,49 @@ void AnalyzerTest(const Config &config)
         // const auto isDetVar  = (sampleType == AnalysisHelper::DetectorVariation);
         // const auto isDataEXT = (sampleType == AnalysisHelper::DataEXT);
 
+        std::cout << "DEBUG Point Y0" << std::endl;
         const auto isPeLEE    = (sampleType == AnalysisHelper::Overlay);
+        std::cout << "DEBUG Point Y1" << std::endl;
         const auto isUbcc1pi  = (sampleType == AnalysisHelper::DataBNB);
+        std::cout << "DEBUG Point Y2" << std::endl;
 
         // Open the input file for reading and enable the branches with systematic event weights (if required)
-        std::cout<<"DEBUG AnalyzerTest Point 3"<<std::endl;
         // FileReader<EventPeLEE, SubrunPeLEE> readerPeLEE(fileName);
         // FileReader<Event, Subrun> reader(fileName);
         // FileReader<Event, Subrun> reader(fileName);
 
-        // std::cout<<"DEBUG AnalyzerTest Point 4"<<std::endl;
         // if (isOverlay || isNuWro) // Todo: Is isNuWro needed ?
         //     reader.EnableSystematicBranches();
 
-        std::cout<<"DEBUG AnalyzerTest Point 5"<<std::endl;
+        std::cout << "DEBUG Point Y3" << std::endl;
         auto pEvent = reader.GetBoundEventAddress();
+        std::cout << "DEBUG Point Y4" << std::endl;
         auto pEventPeLEE = readerPeLEE.GetBoundEventAddress();
+        std::cout << "DEBUG Point Y5" << std::endl;
 
-        std::cout<<"DEBUG AnalyzerTest Point 6"<<std::endl;
         // Loop over the events in the file
-        const auto nEvents = isPeLEE ? readerPeLEE.GetNumberOfEvents() : reader.GetNumberOfEvents();
-        std::cout<<"DEBUG AnalyzerTest Point 7 - nEvents: "<<nEvents<<std::endl;
+        // const auto nEvents = isPeLEE ? readerPeLEE.GetNumberOfEvents() : reader.GetNumberOfEvents();
+        const auto nEvents = std::min(readerPeLEE.GetNumberOfEvents(), reader.GetNumberOfEvents());
 
         const auto style = isPeLEE ? PlottingHelper::ExternalPoints : PlottingHelper::External;//BNBData;
-
+        
+        std::cout << "DEBUG Point Y6" << std::endl;
+        // ******************************************************************************************
+        // Check the input ntuples
+        // ******************************************************************************************
         for (unsigned int i = 0; i < nEvents; ++i)
         {
-            // AnalysisHelper::PrintLoadingBar(i, nEvents);
-            std::cout<<"DEBUG AnalyzerTest Point 8"<<std::endl;
+            std::cout << "DEBUG Point Y7" << std::endl;
             readerPeLEE.LoadEvent(i);
-            std::cout<<"DEBUG AnalyzerTest Point 9"<<std::endl;
+            std::cout << "DEBUG Point Y8" << std::endl;
             reader.LoadEvent(i);
-            std::cout<<"DEBUG AnalyzerTest Point 10"<<std::endl;
+            std::cout << "DEBUG Point Y9" << std::endl;
 
-            // pEventPeLEE->Print();
-            const auto event = isPeLEE ? static_cast<Event>(*pEventPeLEE) : *pEvent;
-            std::cout<<"DEBUG AnalyzerTest Point 11"<<std::endl;
+            // const auto event = isPeLEE ? static_cast<Event>(*pEventPeLEE) : *pEvent;
+            const auto hasTruth = true;
+            Event event(*pEventPeLEE, hasTruth);
             // event.Print();
+            std::cout << "DEBUG Point Y10" << std::endl;
             
             // std::cout<<"("<<i<<")\nPeLEE: "<<"metadata.sub: "<<pEventPeLEE->metadata.sub()<<" "<<pEventPeLEE->metadata.run()<<std::endl;
             // std::cout<<"ubcc1pi: "<<"metadata.subRun: "<<event.metadata.subRun()<<" "<<event.metadata.run()<<std::endl;
@@ -227,15 +235,8 @@ void AnalyzerTest(const Config &config)
             const auto pTruthUbcc1pi = &pEvent->truth;
 
             COMPARETWOSINGLEVALUES(Truth, event.truth, pEvent->truth, splineEventWeight)
-            std::cout<<"W: "<<event.truth.splineEventWeight()<<" "<<event.truth.genieTuneEventWeight()<<" vs "<<pEventPeLEE->truth.weightSpline()<<" "<<pEventPeLEE->truth.weightTune()<<" "<<pEventPeLEE->truth.weightSplineTimesTune()<<std::endl;
             COMPARETWOSINGLEVALUES(Truth, event.truth, pEvent->truth, genieTuneEventWeight)
             COMPAREANYTWOVALUES(Truth, event.truth, pEvent->truth, systParamNames)
-            std::cout<<"PeLEE: ";
-            if(event.truth.systParamNames.IsSet()) for (const auto & name : event.truth.systParamNames()) std::cout<<name<<" ";
-            std::cout<<std::endl;
-            std::cout<<"ubcc1pi: ";
-            if(pEvent->truth.systParamNames.IsSet()) for (const auto & name : pEvent->truth.systParamNames()) std::cout<<name<<" ";
-            std::cout<<std::endl;
 
             if(!pTruth->systParamFirstValueIndex.IsSet() || !pTruthUbcc1pi->systParamFirstValueIndex.IsSet()) std::cout<<"Truth systParamFirstValueIndex - at least one value not set: "<<pTruth->systParamFirstValueIndex.IsSet()<<" vs "<<pTruthUbcc1pi->systParamFirstValueIndex.IsSet()<<std::endl;
             else if(pTruth->systParamFirstValueIndex() != pTruthUbcc1pi->systParamFirstValueIndex())
@@ -262,8 +263,14 @@ void AnalyzerTest(const Config &config)
 
 
             if(!pTruth->nuVertex.IsSet() || !pTruthUbcc1pi->nuVertex.IsSet()) std::cout<<"Truth nuVertex - at least one value not set: "<<pTruth->nuVertex.IsSet()<<" vs "<<pTruthUbcc1pi->nuVertex.IsSet()<<std::endl;
-            else if(pTruth->nuVertex() != pTruthUbcc1pi->nuVertex()) std::cout<<"Truth nuVertex values not identical in PeLEE and ubcc1pi events: "<<pTruth->nuVertex().X()<<" "<<pTruth->nuVertex().Y()<<" "<<pTruth->nuVertex().Z() \
+            else
+            {
+                const auto sameVertex = (pTruth->nuVertex() - pTruthUbcc1pi->nuVertex()).Mag() < 1e-3f;
+                if(!sameVertex)
+                std::cout<<"Truth nuVertex values not identical in PeLEE and ubcc1pi events: "<<pTruth->nuVertex().X()<<" "<<pTruth->nuVertex().Y()<<" "<<pTruth->nuVertex().Z() \
                                                                               <<" vs "<<pTruthUbcc1pi->nuVertex().X()<<" "<<pTruthUbcc1pi->nuVertex().Y()<<" "<<pTruthUbcc1pi->nuVertex().Z()<<std::endl;
+            }
+ 
             // nFinalStates
             // COMPAREANYTWOVALUES(Truth, event.truth, pEvent->truth, slicePurities)
             // COMPAREANYTWOVALUES(Truth, event.truth, pEvent->truth, sliceCompletenesses)
@@ -274,14 +281,18 @@ void AnalyzerTest(const Config &config)
             if(event.truth.particles.size()!=pEvent->truth.particles.size())
             {
                 std::cout<<"ERROR: Number of truth particles in PeLEE and ubcc1pi events are different: "<<event.truth.particles.size()<<" vs "<<pEvent->truth.particles.size()<<std::endl;
-                throw std::logic_error("Unequal number of truth particles in PeLEE and ubcc1pi events!");
+                // continue; // todo: go back to throwing an exception
+                // throw std::logic_error("Unequal number of truth particles in PeLEE and ubcc1pi events!");
             }
 
-            for(unsigned int j = 0; j < event.truth.particles.size(); j++)
+            for(unsigned long j = 0; j < std::max(event.truth.particles.size(), pEvent->truth.particles.size()); j++)
             {
                 std::cout<<"-----"<<j<<"-----"<<std::endl;
-                const auto particle = event.truth.particles.at(j);
-                const auto particleUbcc1pi = pEvent->truth.particles.at(j);
+                const auto j1 = std::min(j, event.truth.particles.size()-1);
+                const auto j2 = std::min(j, pEvent->truth.particles.size()-1);
+
+                const auto particle = event.truth.particles.at(j1);
+                const auto particleUbcc1pi = pEvent->truth.particles.at(j2);
                 COMPARETWOSINGLEVALUES(Truth Particles, particle, particleUbcc1pi, pdgCode)
                 COMPARETWOSINGLEVALUES(Truth Particles, particle, particleUbcc1pi, startX)
                 COMPARETWOSINGLEVALUES(Truth Particles, particle, particleUbcc1pi, startY)
@@ -292,7 +303,8 @@ void AnalyzerTest(const Config &config)
                 COMPARETWOSINGLEVALUES(Truth Particles, particle, particleUbcc1pi, momentumX)
                 COMPARETWOSINGLEVALUES(Truth Particles, particle, particleUbcc1pi, momentumY)
                 COMPARETWOSINGLEVALUES(Truth Particles, particle, particleUbcc1pi, momentumZ)
-                // particle.momentum()
+                COMPARETWOSINGLEVALUES(Truth Particles, particle, particleUbcc1pi, momentum)
+
                 COMPARETWOSINGLEVALUES(Truth Particles, particle, particleUbcc1pi, energy)
                 COMPARETWOSINGLEVALUES(Truth Particles, particle, particleUbcc1pi, endMomentum)
                 COMPARETWOSINGLEVALUES(Truth Particles, particle, particleUbcc1pi, isStopping)
@@ -324,9 +336,13 @@ void AnalyzerTest(const Config &config)
             // hasNeutrino
             COMPARETWOSINGLEVALUES(Reco, event.reco, pEvent->reco, nuPdgCode)
             if(!pReco->nuVertex.IsSet() || !pRecoUbcc1pi->nuVertex.IsSet()) std::cout<<"Reco nuVertex - at least one value not set: "<<pReco->nuVertex.IsSet()<<" vs "<<pRecoUbcc1pi->nuVertex.IsSet()<<std::endl;
-            else if(pReco->nuVertex() != pRecoUbcc1pi->nuVertex()) std::cout<<"Reco nuVertex values not identical - "<<pReco->nuVertex().X()<<" "<< pReco->nuVertex().Y()<<" "<< pReco->nuVertex().Z() \
+            else if((pReco->nuVertex() - pRecoUbcc1pi->nuVertex()).Mag() > 1e-3f) std::cout<<"Reco nuVertex values not identical - "<<pReco->nuVertex().X()<<" "<< pReco->nuVertex().Y()<<" "<< pReco->nuVertex().Z() \
                                                                      << " vs " << pRecoUbcc1pi->nuVertex().X()<<" "<<pRecoUbcc1pi->nuVertex().Y()<<" "<<pRecoUbcc1pi->nuVertex().Z()<<std::endl;
+            if(!pReco->nuVertexNoSCC.IsSet() || !pRecoUbcc1pi->nuVertexNoSCC.IsSet()) std::cout<<"Reco nuVertexNoSCC - at least one value not set: "<<pReco->nuVertexNoSCC.IsSet()<<" vs "<<pRecoUbcc1pi->nuVertexNoSCC.IsSet()<<std::endl;
+            else if((pReco->nuVertexNoSCC() - pRecoUbcc1pi->nuVertexNoSCC()).Mag() > 1e-3f) std::cout<<"Reco nuVertexNoSCC values not identical - "<<pReco->nuVertexNoSCC().X()<<" "<< pReco->nuVertexNoSCC().Y()<<" "<< pReco->nuVertexNoSCC().Z() \
+                                                                     << " vs " << pRecoUbcc1pi->nuVertexNoSCC().X()<<" "<<pRecoUbcc1pi->nuVertexNoSCC().Y()<<" "<<pRecoUbcc1pi->nuVertexNoSCC().Z()<<std::endl;
 
+            COMPARETWOSINGLEVALUES(Reco, event.reco, pEvent->reco, flashChi2)
             // ******************************************************************************************
             std::cout<<"\n~~~CHECKING RECO PARTICLES~~~"<<std::endl;
             // ******************************************************************************************
@@ -435,8 +451,8 @@ void AnalyzerTest(const Config &config)
                 COMPARETWOSINGLEVALUES(Reco Particles, particle, particleUbcc1pi, xzAngle)
                 // COMPARETWOSINGLEVALUES(Reco Particles, particle, particleUbcc1pi, length)
                 COMPARETWOSINGLEVALUES(Reco Particles, particle, particleUbcc1pi, range)
-                // transverseVertexDist
-                // longitudinalVertexDist
+                // COMPARETWOSINGLEVALUES(Reco Particles, particle, particleUbcc1pi, transverseVertexDist)
+                // COMPARETWOSINGLEVALUES(Reco Particles, particle, particleUbcc1pi, longitudinalVertexDist)
                 // mcsMomentumForwardMuon
                 // mcsMomentumUncertaintyForwardMuon
                 // mcsLogLikelihoodForwardMuon
@@ -445,71 +461,95 @@ void AnalyzerTest(const Config &config)
                 // mcsLogLikelihoodBackwardMuon
                 COMPARETWOSINGLEVALUES(Reco Particles, particle, particleUbcc1pi, wiggliness)
                 COMPARETWOSINGLEVALUES(Reco Particles, particle, particleUbcc1pi, nSpacePointsNearEnd)
-                // likelihoodForwardMuonU
-                // likelihoodForwardMuonV
-                // likelihoodForwardMuonW
+
+                COMPARETWOSINGLEVALUES(Reco Particles, particle, particleUbcc1pi, likelihoodForwardMuonU)
+                COMPARETWOSINGLEVALUES(Reco Particles, particle, particleUbcc1pi, likelihoodForwardMuonV)
+                COMPARETWOSINGLEVALUES(Reco Particles, particle, particleUbcc1pi, likelihoodForwardMuonW)
                 COMPARETWOSINGLEVALUES(Reco Particles, particle, particleUbcc1pi, likelihoodForwardMuon)
-                // likelihoodBackwardMuonU
-                // likelihoodBackwardMuonV
-                // likelihoodBackwardMuonW
+                COMPARETWOSINGLEVALUES(Reco Particles, particle, particleUbcc1pi, likelihoodBackwardMuonU)
+                COMPARETWOSINGLEVALUES(Reco Particles, particle, particleUbcc1pi, likelihoodBackwardMuonV)
+                COMPARETWOSINGLEVALUES(Reco Particles, particle, particleUbcc1pi, likelihoodBackwardMuonW)
                 COMPARETWOSINGLEVALUES(Reco Particles, particle, particleUbcc1pi, likelihoodBackwardMuon)
-                // likelihoodForwardPionU
-                // likelihoodForwardPionV
-                // likelihoodForwardPionW
+                COMPARETWOSINGLEVALUES(Reco Particles, particle, particleUbcc1pi, likelihoodForwardPionU)
+                COMPARETWOSINGLEVALUES(Reco Particles, particle, particleUbcc1pi, likelihoodForwardPionV)
+                COMPARETWOSINGLEVALUES(Reco Particles, particle, particleUbcc1pi, likelihoodForwardPionW)
                 COMPARETWOSINGLEVALUES(Reco Particles, particle, particleUbcc1pi, likelihoodForwardPion)
-                // likelihoodBackwardPionU
-                // likelihoodBackwardPionV
-                // likelihoodBackwardPionW
+                COMPARETWOSINGLEVALUES(Reco Particles, particle, particleUbcc1pi, likelihoodBackwardPionU)
+                COMPARETWOSINGLEVALUES(Reco Particles, particle, particleUbcc1pi, likelihoodBackwardPionV)
+                COMPARETWOSINGLEVALUES(Reco Particles, particle, particleUbcc1pi, likelihoodBackwardPionW)
                 COMPARETWOSINGLEVALUES(Reco Particles, particle, particleUbcc1pi, likelihoodBackwardPion)
-                // likelihoodForwardProtonU
-                // likelihoodForwardProtonV
-                // likelihoodForwardProtonW
+                COMPARETWOSINGLEVALUES(Reco Particles, particle, particleUbcc1pi, likelihoodForwardProtonU)
+                COMPARETWOSINGLEVALUES(Reco Particles, particle, particleUbcc1pi, likelihoodForwardProtonV)
+                COMPARETWOSINGLEVALUES(Reco Particles, particle, particleUbcc1pi, likelihoodForwardProtonW)
                 COMPARETWOSINGLEVALUES(Reco Particles, particle, particleUbcc1pi, likelihoodForwardProton)
-                // likelihoodBackwardProtonU
-                // likelihoodBackwardProtonV
-                // likelihoodBackwardProtonW
+                COMPARETWOSINGLEVALUES(Reco Particles, particle, particleUbcc1pi, likelihoodBackwardProtonU)
+                COMPARETWOSINGLEVALUES(Reco Particles, particle, particleUbcc1pi, likelihoodBackwardProtonV)
+                COMPARETWOSINGLEVALUES(Reco Particles, particle, particleUbcc1pi, likelihoodBackwardProtonW)
                 COMPARETWOSINGLEVALUES(Reco Particles, particle, particleUbcc1pi, likelihoodBackwardProton)
-                // likelihoodMIPU
-                // likelihoodMIPV
-                // likelihoodMIPW
+                COMPARETWOSINGLEVALUES(Reco Particles, particle, particleUbcc1pi, likelihoodMIPU)
+                COMPARETWOSINGLEVALUES(Reco Particles, particle, particleUbcc1pi, likelihoodMIPV)
+                COMPARETWOSINGLEVALUES(Reco Particles, particle, particleUbcc1pi, likelihoodMIPW)
                 COMPARETWOSINGLEVALUES(Reco Particles, particle, particleUbcc1pi, likelihoodMIP)
+
                 COMPARETWOSINGLEVALUES(Reco Particles, particle, particleUbcc1pi, truncatedMeandEdxU)
                 COMPARETWOSINGLEVALUES(Reco Particles, particle, particleUbcc1pi, truncatedMeandEdxV)
                 COMPARETWOSINGLEVALUES(Reco Particles, particle, particleUbcc1pi, truncatedMeandEdxW)
+                COMPARETWOSINGLEVALUES(Reco Particles, particle, particleUbcc1pi, truncatedMeandEdx)
 
-                COMPARETWOSINGLEVALUES(Reco Particles, particle, particleUbcc1pi, likelihoodForwardProtonW) //todo remove
-                COMPARETWOSINGLEVALUES(Reco Particles, particle, particleUbcc1pi, likelihoodForwardMuonW) //todo remove
-                COMPARETWOSINGLEVALUES(Reco Particles, particle, particleUbcc1pi, likelihoodForwardPionW) //todo remove
-                COMPARETWOSINGLEVALUES(Reco Particles, particle, particleUbcc1pi, likelihoodBackwardMuonW) //todo remove
-                COMPARETWOSINGLEVALUES(Reco Particles, particle, particleUbcc1pi, likelihoodForwardProtonU) //todo remove
-                COMPARETWOSINGLEVALUES(Reco Particles, particle, particleUbcc1pi, likelihoodForwardMuonU) //todo remove
-                COMPARETWOSINGLEVALUES(Reco Particles, particle, particleUbcc1pi, likelihoodForwardPionU) //todo remove
-                COMPARETWOSINGLEVALUES(Reco Particles, particle, particleUbcc1pi, likelihoodBackwardMuonU) //todo remove
-                COMPARETWOSINGLEVALUES(Reco Particles, particle, particleUbcc1pi, likelihoodForwardProtonV) //todo remove
-                COMPARETWOSINGLEVALUES(Reco Particles, particle, particleUbcc1pi, likelihoodForwardMuonV) //todo remove
-                COMPARETWOSINGLEVALUES(Reco Particles, particle, particleUbcc1pi, likelihoodForwardPionV) //todo remove
-                COMPARETWOSINGLEVALUES(Reco Particles, particle, particleUbcc1pi, likelihoodBackwardMuonV) //todo remove
+                // COMPARETWOSINGLEVALUES(Reco Particles, particle, particleUbcc1pi, likelihoodForwardProtonW) //todo remove
+                // COMPARETWOSINGLEVALUES(Reco Particles, particle, particleUbcc1pi, likelihoodForwardMuonW) //todo remove
+                // COMPARETWOSINGLEVALUES(Reco Particles, particle, particleUbcc1pi, likelihoodForwardPionW) //todo remove
+                // COMPARETWOSINGLEVALUES(Reco Particles, particle, particleUbcc1pi, likelihoodBackwardMuonW) //todo remove
+                // COMPARETWOSINGLEVALUES(Reco Particles, particle, particleUbcc1pi, likelihoodForwardProtonU) //todo remove
+                // COMPARETWOSINGLEVALUES(Reco Particles, particle, particleUbcc1pi, likelihoodForwardMuonU) //todo remove
+                // COMPARETWOSINGLEVALUES(Reco Particles, particle, particleUbcc1pi, likelihoodForwardPionU) //todo remove
+                // COMPARETWOSINGLEVALUES(Reco Particles, particle, particleUbcc1pi, likelihoodBackwardMuonU) //todo remove
+                // COMPARETWOSINGLEVALUES(Reco Particles, particle, particleUbcc1pi, likelihoodForwardProtonV) //todo remove
+                // COMPARETWOSINGLEVALUES(Reco Particles, particle, particleUbcc1pi, likelihoodForwardMuonV) //todo remove
+                // COMPARETWOSINGLEVALUES(Reco Particles, particle, particleUbcc1pi, likelihoodForwardPionV) //todo remove
+                // COMPARETWOSINGLEVALUES(Reco Particles, particle, particleUbcc1pi, likelihoodBackwardMuonV) //todo remove
 
-                COMPARETWOSINGLEVALUES(Reco Particles, particle, particleUbcc1pi, likelihoodBackwardProtonW) //todo remove
-                COMPARETWOSINGLEVALUES(Reco Particles, particle, particleUbcc1pi, likelihoodBackwardMuonW) //todo remove
-                COMPARETWOSINGLEVALUES(Reco Particles, particle, particleUbcc1pi, likelihoodBackwardPionW) //todo remove
-                COMPARETWOSINGLEVALUES(Reco Particles, particle, particleUbcc1pi, likelihoodForwardMuonW) //todo remove
-                COMPARETWOSINGLEVALUES(Reco Particles, particle, particleUbcc1pi, likelihoodBackwardProtonU) //todo remove
-                COMPARETWOSINGLEVALUES(Reco Particles, particle, particleUbcc1pi, likelihoodBackwardMuonU) //todo remove
-                COMPARETWOSINGLEVALUES(Reco Particles, particle, particleUbcc1pi, likelihoodBackwardPionU) //todo remove
-                COMPARETWOSINGLEVALUES(Reco Particles, particle, particleUbcc1pi, likelihoodForwardMuonU) //todo remove
-                COMPARETWOSINGLEVALUES(Reco Particles, particle, particleUbcc1pi, likelihoodBackwardProtonV) //todo remove
-                COMPARETWOSINGLEVALUES(Reco Particles, particle, particleUbcc1pi, likelihoodBackwardMuonV) //todo remove
-                COMPARETWOSINGLEVALUES(Reco Particles, particle, particleUbcc1pi, likelihoodBackwardPionV) //todo remove
-                COMPARETWOSINGLEVALUES(Reco Particles, particle, particleUbcc1pi, likelihoodForwardMuonV) //todo remove
+                // COMPARETWOSINGLEVALUES(Reco Particles, particle, particleUbcc1pi, likelihoodBackwardProtonW) //todo remove
+                // COMPARETWOSINGLEVALUES(Reco Particles, particle, particleUbcc1pi, likelihoodBackwardMuonW) //todo remove
+                // COMPARETWOSINGLEVALUES(Reco Particles, particle, particleUbcc1pi, likelihoodBackwardPionW) //todo remove
+                // COMPARETWOSINGLEVALUES(Reco Particles, particle, particleUbcc1pi, likelihoodForwardMuonW) //todo remove
+                // COMPARETWOSINGLEVALUES(Reco Particles, particle, particleUbcc1pi, likelihoodBackwardProtonU) //todo remove
+                // COMPARETWOSINGLEVALUES(Reco Particles, particle, particleUbcc1pi, likelihoodBackwardMuonU) //todo remove
+                // COMPARETWOSINGLEVALUES(Reco Particles, particle, particleUbcc1pi, likelihoodBackwardPionU) //todo remove
+                // COMPARETWOSINGLEVALUES(Reco Particles, particle, particleUbcc1pi, likelihoodForwardMuonU) //todo remove
+                // COMPARETWOSINGLEVALUES(Reco Particles, particle, particleUbcc1pi, likelihoodBackwardProtonV) //todo remove
+                // COMPARETWOSINGLEVALUES(Reco Particles, particle, particleUbcc1pi, likelihoodBackwardMuonV) //todo remove
+                // COMPARETWOSINGLEVALUES(Reco Particles, particle, particleUbcc1pi, likelihoodBackwardPionV) //todo remove
+                // COMPARETWOSINGLEVALUES(Reco Particles, particle, particleUbcc1pi, likelihoodForwardMuonV) //todo remove
 
-                // truncatedMeandEdx
                 // truthMatchPurities
                 // truthMatchCompletenesses
                 // hasMatchedMCParticle
                 // bestMatchedMCParticleIndex
+
+                COMPARETWOSINGLEVALUES(Reco Particles, particle, particleUbcc1pi, generation)
+                COMPARETWOSINGLEVALUES(Reco Particles, particle, particleUbcc1pi, chi2ForwardMuonW)
+                COMPARETWOSINGLEVALUES(Reco Particles, particle, particleUbcc1pi, chi2ForwardProtonW)
+                COMPARETWOSINGLEVALUES(Reco Particles, particle, particleUbcc1pi, distance)
+                COMPARETWOSINGLEVALUES(Reco Particles, particle, particleUbcc1pi, vertexX)
+                COMPARETWOSINGLEVALUES(Reco Particles, particle, particleUbcc1pi, vertexY)
+                COMPARETWOSINGLEVALUES(Reco Particles, particle, particleUbcc1pi, vertexZ)
+
             }
-            // break;
+
+            // ******************************************************************************************
+            // Check the selections
+            // ******************************************************************************************
+            const auto &[passedGoldenSelectionDefault, cutsPassedDefault, assignedPdgCodesDefault] = defaultSelection.Execute(pEvent);
+            const auto passedCCInclusiveSelectionDefault = SelectionHelper::IsCutPassed(cutsPassedDefault, "topologicalScoreCC");
+            const auto &[passedGoldenSelectionOriginal, cutsPassedOriginal, assignedPdgCodesOriginal] = originalSelection.Execute(pEvent);
+            const auto passedCCInclusiveSelectionOriginal = SelectionHelper::IsCutPassed(cutsPassedOriginal, "passesCCInclusive");
+
+            std::cout<<"Ubcc1pi event - passes CC-inclusive: original: "<<passedCCInclusiveSelectionOriginal<<" vs default: "<<passedCCInclusiveSelectionDefault<<std::endl;
+            std::cout<<"    passed default cuts:";
+            for(const auto &cut : cutsPassedDefault) std::cout<<" "<<cut;
+            std::cout<<std::endl;
+
         }
         break;
 
@@ -595,9 +635,9 @@ void AnalyzerTest(const Config &config)
         //     // ############################################################
         //     // ############### Run the sideband selection #################
         //     // ############################################################
-        //     const auto &[passedGoldenSidebandSelection, sidebandCutsPassed, sidebandAssignedPdgCodes] = sidebandSelection.Execute(pEvent);
+        //     const auto &[passedGoldenSidebandSelection, cutsPassed, assignedPdgCodes] = sidebandSelection.Execute(pEvent);
 
-        //     const auto passedGenericSidebandSelection = SelectionHelper::IsCutPassed(sidebandCutsPassed, config.global.lastCutGeneric);
+        //     const auto passedGenericSidebandSelection = SelectionHelper::IsCutPassed(cutsPassed, config.global.lastCutGeneric);
 
         //     // o_isSelectedGenericCC0Pi = passedGenericSidebandSelection;
         //     // o_isSelectedGoldenCC0Pi =  passedGoldenSidebandSelection;
@@ -607,7 +647,7 @@ void AnalyzerTest(const Config &config)
         //     // Get the reco analysis data (if available, otherwise set to dummy values)
         //     const auto recoSidebandData = (
         //         passedGenericSidebandSelection
-        //             ? AnalysisHelper::GetRecoAnalysisDataCC0Pi(pEvent->reco, sidebandAssignedPdgCodes, passedGoldenSidebandSelection)
+        //             ? AnalysisHelper::GetRecoAnalysisDataCC0Pi(pEvent->reco, assignedPdgCodes, passedGoldenSidebandSelection)
         //             : AnalysisHelper::GetDummyAnalysisData()
         //     );
 

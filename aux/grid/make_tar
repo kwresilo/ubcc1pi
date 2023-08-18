@@ -1,4 +1,0 @@
-#!/bin/bash
-
-# Make the tarball for the current local products in the place the grid settings XML file expects
-make_tar_uboone.sh /pnfs/uboone/resilient/users/$USER/tars/ubcc1pi/local.tar

@@ -941,7 +941,7 @@ SelectionHelper::EventSelection SelectionHelper::GetDefaultSelection()
 
         // Insist that the topological score is above the cut value or the flash match score is below the cut value
         // Here: when neither is the case, the event is rejected 
-        if (pEvent->reco.selectedTopologicalScore() <= minTopologicalScoreCC1 && pEvent->reco.flashChi2() >= maxFlashMatchScore)
+        if (pEvent->reco.selectedTopologicalScore() <= minTopologicalScoreCC1 && pEvent->reco.flashChi2.IsSet() && pEvent->reco.flashChi2() >= maxFlashMatchScore)
             return false;
 
         // Mark the cut "topologicalOrFlashMatch" as passed

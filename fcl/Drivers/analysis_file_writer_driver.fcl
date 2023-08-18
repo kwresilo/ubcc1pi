@@ -12,6 +12,18 @@ source:
 }
 
 services.TFileService: { fileName: "dummy.root" }
+services.TPCEnergyCalibService.TPCEnergyCalibProvider: @local::microboone_tpcenergycalib_provider_data
+# services.SpaceCharge.EnableSimEfieldSCE: true
+# services.SpaceCharge.EnableSimSpatialSCE: true
+# services.SpaceCharge.PmtGainService.UseDB: true
+
+# services.DetPedestalService.DetPedestalRetrievalAlg.DefaultCollMean: 473
+# services.DetPedestalService.DetPedestalRetrievalAlg.DefaultIndMean: 2046
+# services.DetPedestalService.DetPedestalRetrievalAlg.UseDB: true
+# services.PmtGainService.PmtGainProvider.UseDB: true
+
+# # services.ParticleInventoryService: {}
+# services.SpaceCharge.PmtGainService.UseDB: false
 
 physics:
 {
@@ -36,26 +48,38 @@ physics:
     end_paths: [ ana ]
 }
 
-physics.producers.pandoraAllAsTrack.PFParticleLabel:                  "pandora"
-physics.producers.pandoraAllAsTrack.UseAllParticles:                  true
+physics.producers.pandoraAllAsTrack.PFParticleLabel:                            "pandora"
+physics.producers.pandoraAllAsTrack.UseAllParticles:                            true
 
-physics.producers.pandoraAllAsTrackMCSMu.inputs.inputLabel:           "pandoraAllAsTrack"
+physics.producers.pandoraAllAsTrackMCSMu.inputs.inputLabel:                     "pandoraAllAsTrack"
 
-physics.producers.pandoraAllAsTrackCaloSCE.TrackModuleLabel:          "pandoraAllAsTrack"
-physics.producers.pandoraAllAsTrackCaloSCE.SpacePointModuleLabel:     "pandora"
+physics.producers.pandoraAllAsTrackCaloSCE.TrackModuleLabel:                    "pandoraAllAsTrack"
+physics.producers.pandoraAllAsTrackCaloSCE.SpacePointModuleLabel:               "pandora"
 
-physics.producers.pandoraAllAsTrackCaliSCE.TrackModuleLabel:          "pandoraAllAsTrack"
-physics.producers.pandoraAllAsTrackCaliSCE.CalorimetryModuleLabel:    "pandoraAllAsTrackCaloSCE"
+physics.producers.pandoraAllAsTrackCaliSCE.CaloAlg.CalAreaConstants:            [4.31e-3, 4.02e-3, 4.10e-3]
+physics.producers.pandoraAllAsTrackCaliSCE.CaloAlg.CalAmpConstants:             [5.82554e-4, 1.16594e-3]
 
-physics.producers.pandoraAllAsTrackCaliPidSCE.TrackModuleLabel:       "pandoraAllAsTrack"
-physics.producers.pandoraAllAsTrackCaliPidSCE.CalorimetryModuleLabel: "pandoraAllAsTrackCaliSCE"
+physics.producers.pandoraAllAsTrackCaloSCE.CaloAlg.CalAreaConstants:            [4.31e-3, 4.02e-3, 4.10e-3]
+physics.producers.pandoraAllAsTrackCaloSCE.CaloAlg.CalAmpConstants:             [5.82554e-4, 1.16594e-3]
+physics.producers.pandoraAllAsTrackCaloSCE.CorrectSCE:                          false
 
-physics.producers.pandoraAllAsTrackCaliPidSCE.ProducerLabels.CaloTrackAssn:    "pandoraAllAsTrackCaliSCE"
-physics.producers.pandoraAllAsTrackCaliPidSCE.ProducerLabels.CalorimetryLabel: "pandoraAllAsTrackCaliSCE"
-physics.producers.pandoraAllAsTrackCaliPidSCE.ProducerLabels.HitTrackAssn:     "pandoraAllAsTrack"
-physics.producers.pandoraAllAsTrackCaliPidSCE.ProducerLabels.TrackLabel:       "pandoraAllAsTrack"
 
-physics.analyzers.analysisFileWriter.EventFactoryConfig.TrackLabel:         "pandoraAllAsTrack"
-physics.analyzers.analysisFileWriter.EventFactoryConfig.MCSFitResultLabel:  "pandoraAllAsTrackMCSMu"
-physics.analyzers.analysisFileWriter.EventFactoryConfig.CalorimetryLabel:   "pandoraAllAsTrackCaliSCE"
-physics.analyzers.analysisFileWriter.EventFactoryConfig.PIDLabel:           "pandoraAllAsTrackCaliPidSCE"
+
+physics.producers.pandoraAllAsTrackCaliSCE.TrackModuleLabel:                    "pandoraAllAsTrack"
+physics.producers.pandoraAllAsTrackCaliSCE.CalorimetryModuleLabel:              "pandoraAllAsTrackCaloSCE"
+
+# physics.producers.pandoraAllAsTrackCaliSCE.CaloAlg.CalAreaConstants:            [4.31e-3, 4.02e-3, 4.10e-3]
+# physics.producers.pandoraAllAsTrackCaliSCE.CaloAlg.CalAreaConstants:            [4.31e-3, 4.02e-3, 4.10e-3]
+# physics.producers.pandoraAllAsTrackCaliPidSCE.CaloAlg.CalAreaConstants:         [4.31e-3, 4.02e-3, 4.10e-3] # @local::microboone_reco_data_producers.pandoracalo.CaloAlg.CalAreaConstants
+# physics.producers.pandoraAllAsTrackCaliPidSCE.TrackModuleLabel:                 "pandoraAllAsTrack"
+# physics.producers.pandoraAllAsTrackCaliPidSCE.CalorimetryModuleLabel:           "pandoraAllAsTrackCaliSCE"
+
+physics.producers.pandoraAllAsTrackCaliPidSCE.ProducerLabels.CaloTrackAssn:     "pandoraAllAsTrackCaliSCE"
+physics.producers.pandoraAllAsTrackCaliPidSCE.ProducerLabels.CalorimetryLabel:  "pandoraAllAsTrackCaliSCE"
+physics.producers.pandoraAllAsTrackCaliPidSCE.ProducerLabels.HitTrackAssn:      "pandoraAllAsTrack"
+physics.producers.pandoraAllAsTrackCaliPidSCE.ProducerLabels.TrackLabel:        "pandoraAllAsTrack"
+
+physics.analyzers.analysisFileWriter.EventFactoryConfig.TrackLabel:             "pandoraAllAsTrack"
+physics.analyzers.analysisFileWriter.EventFactoryConfig.MCSFitResultLabel:      "pandoraAllAsTrackMCSMu"
+physics.analyzers.analysisFileWriter.EventFactoryConfig.CalorimetryLabel:       "pandoraAllAsTrackCaliSCE"
+physics.analyzers.analysisFileWriter.EventFactoryConfig.PIDLabel:               "pandoraAllAsTrackCaliPidSCE"
