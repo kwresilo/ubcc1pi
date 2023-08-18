@@ -58,7 +58,7 @@ void CCInclusiveMuonPIDStudy(const Config &config)
         FileReader reader(fileName);
         auto pEvent = reader.GetBoundEventAddress();
         const auto nEvents = reader.GetNumberOfEvents();
-        
+
         // Loop over the events
         for (unsigned int i = 0; i < nEvents; ++i)
         {

@@ -45,14 +45,14 @@ void OptimizeSidebandBinEdges(const Config &config)
         // The names of the cross-section kinematic parameters, and their binning information.
         // The third (boolean) parameter indicates if the cross-section bins should be scaled by their width
         { "muonCosTheta", config.global.muonCosTheta, false  }, // scaleByBinWidth not relevant for fit and incompatible with overflow bin fit.
-        { "muonPhi", config.global.muonPhi, false  }, 
+        { "muonPhi", config.global.muonPhi, false  },
         { "muonMomentum", config.global.sidebandMuonMomentum, false  }, // modified version to treat overflow as regular bins
 
-        { "pionCosTheta", config.global.pionCosTheta, false  }, 
-        { "pionPhi", config.global.pionPhi, false  }, 
+        { "pionCosTheta", config.global.pionCosTheta, false  },
+        { "pionPhi", config.global.pionPhi, false  },
         { "pionMomentum", config.global.sidebandPionMomentum, false  }, // modified version to with different bins
 
-        { "muonPionAngle", config.global.muonPionAngle, false  }, 
+        { "muonPionAngle", config.global.muonPionAngle, false  },
         { "nProtons", config.global.nProtons, false }
 
     })
@@ -121,7 +121,7 @@ void OptimizeSidebandBinEdges(const Config &config)
 
             //std::cout<<"DEBUG - K-1.3"<<std::endl;
             const auto passedGenericSidebandSelection = SelectionHelper::IsCutPassed(sidebandCutsPassed, config.global.lastCutGeneric);
-            
+
             // if(!passedGenericSidebandSelection) continue;
 
             //std::cout<<"DEBUG - K-1.2"<<std::endl;
@@ -230,10 +230,10 @@ void OptimizeSidebandBinEdges(const Config &config)
     std::map<std::string, Config::Global::Binning> binningMap{
         // The names of the cross-section kinematic parameters, and their binning information.
         // { "muonCosTheta", config.global.muonCosTheta },
-        // { "muonPhi", config.global.muonPhi}, 
+        // { "muonPhi", config.global.muonPhi},
         // { "muonMomentum", config.global.sidebandMuonMomentum },
-        // { "pionCosTheta", config.global.pionCosTheta }, 
-        // { "pionPhi", config.global.pionPhi }, 
+        // { "pionCosTheta", config.global.pionCosTheta },
+        // { "pionPhi", config.global.pionPhi },
         { "pionMomentum", config.global.sidebandPionMomentum },
         // { "muonPionAngle", config.global.muonPionAngle }
     };

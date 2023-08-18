@@ -15,7 +15,7 @@
 
 using namespace ubcc1pi;
 
-const bool onlyTrueCC0piMode = false; 
+const bool onlyTrueCC0piMode = false;
 
 namespace ubcc1pi_macros
 {
@@ -106,7 +106,7 @@ void MakeSidebandEventSelectionTable(const Config &config)
     // Setup the event counter
     AnalysisHelper::EventCounter counterBNB;
     AnalysisHelper::EventCounter counterNuWro;
-    
+
     // Loop over the input files
     for (const auto &[sampleType, fileName, normalisation] : inputData)
     {
@@ -117,7 +117,7 @@ void MakeSidebandEventSelectionTable(const Config &config)
 
         // Loop over the events
         const auto nEvents = reader.GetNumberOfEvents();
-        
+
         std::cout<<"\n##############\nOnly counting every 25th event!\n##############"<<std::endl;
         for (unsigned int i = 0; i < nEvents/25; ++i)
         {
@@ -142,7 +142,7 @@ void MakeSidebandEventSelectionTable(const Config &config)
             {
                 if(onlyTrueCC0piMode && counterType == AnalysisHelper::DataBNB) continue;
                 if (sampleType != AnalysisHelper::Overlay
-                    && ((counterType == AnalysisHelper::NuWro && sampleType != AnalysisHelper::NuWro) 
+                    && ((counterType == AnalysisHelper::NuWro && sampleType != AnalysisHelper::NuWro)
                     || (counterType == AnalysisHelper::DataBNB && !(sampleType == AnalysisHelper::DataBNB || sampleType == AnalysisHelper::Dirt || sampleType == AnalysisHelper::DataEXT))))
                     continue;
 

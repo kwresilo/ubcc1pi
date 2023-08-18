@@ -36,13 +36,13 @@
 //         throw std::logic_error("Fitting function for ExtractNuWroSidebandFit - Incompatible input dimenstions.");
 
 //     Int_t nBins = xNuWro.size();
-    
-//     std::vector<Double_t> xScaled(xNuWro.begin(), xNuWro.end()); 
+
+//     std::vector<Double_t> xScaled(xNuWro.begin(), xNuWro.end());
 //     for (Int_t i=0; i<nBins; i++)
 //     {
 //         xScaled[i]*=par[i];
 //     }
-    
+
 //     std::vector<Double_t> xSmeared(nBins, 0);
 
 //     std::cout<<"SNuWro: "<<std::endl;
@@ -84,9 +84,9 @@
 
 //     Int_t relevantBinsMax = overflowNuWro ? nBins-1 : nBins;
 //     Int_t relevantBinsMin = underflowNuWro ? 1 : 0;
-    
+
 //     Double_t chisq = 0;
-//     for (Int_t i=relevantBinsMin; i<relevantBinsMax; i++) 
+//     for (Int_t i=relevantBinsMin; i<relevantBinsMax; i++)
 //     {
 //         auto delta = (yNuWro[i]-xSmeared[i])/errorYNuWro[i];
 //         chisq += delta*delta;
@@ -301,7 +301,7 @@
 //         }
 //         totalExposurePOT += config.normsRun3.dataBNBTor875WCut / (1e20);
 //     }
-    
+
 //     scalingData.exposurePOT = totalExposurePOT;
 //     scalingData.nTargets = config.global.targetDensity * (1e-8) * AnalysisHelper::GetFiducialVolume();
 
@@ -396,7 +396,7 @@
 //             // -----------------------------------------------------------------------------------------------------------------------------
 //             // Handle BNB data
 //             // -----------------------------------------------------------------------------------------------------------------------------
-            
+
 //             if (isDataBNB)
 //             {
 //                 for (auto &[selectionName, xsecs] : xsecMapSidebandData)
@@ -563,7 +563,7 @@
 //                     ? CrossSectionHelper::GetWeightsMap(pEvent->truth, systParams.reintDimensions, config.extractXSecs.mutuallyExclusiveDimensions)
 //                     : CrossSectionHelper::GetUnitWeightsMap(systParams.reintDimensions)
 //             );
-            
+
 //             for (auto &[selectionName, xsecs] : xsecMapSidebandNuWro)
 //             {
 //                 const auto isSignal = isSignalMap.at(selectionName);
@@ -629,11 +629,11 @@
 //     // Loop over all cross-section objects
 //     typedef std::pair<std::vector<Double_t>, std::vector<Double_t>> paramAndErrorPair; // Todo: Improve code!
 //     //Parameters: selectionName name
-//     std::map<std::string,std::map<std::string, std::vector<float>>> cc0piCovarianceMapData, cc0piCovarianceMapNuWro; 
+//     std::map<std::string,std::map<std::string, std::vector<float>>> cc0piCovarianceMapData, cc0piCovarianceMapNuWro;
 //     std::map<std::string, std::map<std::string, paramAndErrorPair>> cc0piNominalConstraintMapData, cc0piNominalConstraintMapNuWro;
 //     //Parameters: selectionName name paramName (i.e. golden muonMomentum hadronProduction)
 //     std::map<std::string, std::map<std::string, std::map<std::string, std::vector<paramAndErrorPair>>>> cc0piUniverseConstraintMapData, cc0piUniverseConstraintMapNuWro;
-    
+
 //     for (const auto &[dataTypeName, xsecMap] : {std::make_pair(std::string("NuWro"), xsecMapSidebandNuWro), std::make_pair(std::string("Data"), xsecMapSidebandData)})
 //     {
 //         for (const auto &[selectionName, xsecs] : xsecMap)
@@ -689,17 +689,17 @@
 //                     }
 //                     elements.push_back(AnalysisHelper::GetCountUncertainty(std::max(value,0.f))); //TODO: Check if this is correct
 //                 }
-                
+
 //                 xNuWro = selectedEventsSignalTruth.GetValues();
 //                 yNuWro = signalData.GetValues();
 //                 errorYNuWro = elements;//signalDataUncertainty.GetValues();
 //                 underflowNuWro = false; //xsec.HasUnderflow(); //Also fit under and overflow bins
 //                 overflowNuWro = false; //xsec.HasOverflow();
-//                 SNuWro = smearingMatrix.GetValues();                
+//                 SNuWro = smearingMatrix.GetValues();
 
 //                 auto minimizer = FittingHelper(nBins);
 //                 std::pair<std::vector<Double_t>, std::vector<Double_t>> result;
-                
+
 //                 std::vector<float> fitCovMatrixVector;
 //                 bool successful = false;
 //                 minimizer.Fit(GetChi2NuWro, result, successful, fitCovMatrixVector, 0);
@@ -804,7 +804,7 @@
 //                                 std::cout<<"Fit not possible - Smearing matrix not available."<<std::endl;
 //                                 result = std::make_pair(std::vector<Double_t>(nBins, -1), std::vector<Double_t>(nBins, -1));
 //                             }
-                            
+
 //                             resultVector.push_back(result);
 //                         }
 //                         if(dataTypeName=="NuWro")
@@ -831,7 +831,7 @@
 //     std::ofstream ofs4("cc0piCovarianceMapData.bin", std::ios::binary);
 //     std::ofstream ofs5("cc0piNominalConstraintMapData.bin", std::ios::binary);
 //     std::ofstream ofs6("cc0piUniverseConstraintMapData.bin", std::ios::binary);
-    
+
 
 //     boost::archive::binary_oarchive oarch1(ofs1);
 //     boost::archive::binary_oarchive oarch2(ofs2);
@@ -861,7 +861,7 @@
 //         {
 //             std::cout << "True: Processing sideband: "<<selectionName<< " - " << name << std::endl;
 
-            
+
 //             // Get the smearing matrix of selected events
 //             const auto smearingMatrix = xsec.GetSmearingMatrixAllSelected();
 //             const auto smearingMatrixGeneral = xsec.GetSmearingMatrix();

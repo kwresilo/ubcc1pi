@@ -150,7 +150,7 @@ void NMinusOneBDTStudy(const Config &config)
             {
                 const auto run = cc1PiEventIndices.at(i).first;
                 if(sampleRun != run) continue;
-        
+
                 AnalysisHelper::PrintLoadingBar(i, nCC1PiEvents);
                 const auto eventIndex = cc1PiEventIndices.at(i).second;
                 const auto isTrainingEvent = shuffler.IsTrainingEvent(i);

@@ -60,7 +60,7 @@ void FittingHelper::Fit(void(*fcn)(Int_t &, Double_t *, Double_t &f, Double_t *,
     std::cout<<"FittingHelper::Fit ((3))"<<std::endl;                                                                          // ... specifically: "Parameter number as referenced by user in FCN"
 
     std::cout<<"FittingHelper::Fit ((4))"<<std::endl;
-    std::vector<bool> fixedParameters(nBins, false); 
+    std::vector<bool> fixedParameters(nBins, false);
     while (!successful){
         arglist[0]=5000;
         arglist[1]=0.1;
@@ -148,7 +148,7 @@ void FittingHelper::Fit(void(*fcn)(Int_t &, Double_t *, Double_t &f, Double_t *,
     minuit.mnstat(amin,edm,errdef,nvpar,nparx,icstat);
     // minuit.mnprin(3,amin);
 
-    // covMatrix = std::vector<Double_t>(nBins*nBins); 
+    // covMatrix = std::vector<Double_t>(nBins*nBins);
     Double_t covMatrixFit[nBins][nBins];
     minuit.mnemat(&covMatrixFit[0][0], nBins);
     minuit.mnmatu(1);
@@ -158,7 +158,7 @@ void FittingHelper::Fit(void(*fcn)(Int_t &, Double_t *, Double_t &f, Double_t *,
     {
         for (unsigned int j=0; j<nBins; j++)
         {
-            covMatrix.push_back((float)covMatrixFit[i][j]);       
+            covMatrix.push_back((float)covMatrixFit[i][j]);
         }
     }
 
@@ -174,15 +174,15 @@ void FittingHelper::Fit(void(*fcn)(Int_t &, Double_t *, Double_t &f, Double_t *,
 //     Double_t chisq = 0;
 //     Double_t delta;
 //     auto nBins = x.GetRows();
-    
-//     auto xScaled = x; 
+
+//     auto xScaled = x;
 //     for (Int_t i=0; i<nBins; i++)
 //     {
 //         xScaled.SetElement(i,0,xScaled.At(i,0)*par[i]);
-//     } 
+//     }
 //     const auto xSmeared = S*xScaled;
 
-//     for (Int_t i=0; i<nBins; i++) 
+//     for (Int_t i=0; i<nBins; i++)
 //     {
 //         delta  = (y.At(i,0)-xSmeared.At(i,0))/errorY.At(i,0);
 //         chisq += delta*delta;

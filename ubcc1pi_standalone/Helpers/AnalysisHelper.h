@@ -55,7 +55,7 @@ class AnalysisHelper
             float         muonProtonAngle; ///< The muon-proton opening angle
             unsigned int  nProtons;        ///< The number of protons
             bool          hasGoldenPion;   ///< If the event has a golden pion
-            bool          hasGoldenProton; ///< If the leading proton is golden / passes golden pion cut 
+            bool          hasGoldenProton; ///< If the leading proton is golden / passes golden pion cut
         };
 
         /**
@@ -103,7 +103,7 @@ class AnalysisHelper
                  *  @param  weight a weight to apply to the event
                  *  @param  selectCC0pi use the sideband signal definition
                  *  @param  protonMomentumThreshold the visibility threshold for protons
-                 * 
+                 *
                  */
                 void CountEvent(const std::string &tag, const SampleType &sampleType, const std::shared_ptr<Event> &pEvent, const float weight = 1.f, const bool selectCC0pi = false, const float protonMomentumThreshold = 0.f);
 
@@ -391,7 +391,7 @@ class AnalysisHelper
          *  @param  countProtonsInclusively whether to count protons inclusively (with an X) or exclusively
          *  @param  selectCC0pi use the sideband signal definition
          *  @param  protonMomentumThreshold the visibility threshold for protons
-         * 
+         *
          *  @return the classification string
          */
         static std::string GetClassificationString(const std::shared_ptr<Event> &pEvent, const bool useAbsPdg, const bool countProtonsInclusively, const bool selectCC0pi = false, const float protonMomentumThreshold = 0.f);

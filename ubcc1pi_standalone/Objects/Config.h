@@ -37,7 +37,7 @@ struct Config
 
     // FileList filesRun1;
     // filesRun1.overlaysFileName = "/uboone/data/users/jdetje/ubcc1pi/sep2020/ubcc1piAnalysis_overlays_08Oct21.root"; ///< Overlays file name input
-    // // std::string overlaysFileName = "/uboone/data/users/jdetje/ubcc1pi/sep2020/ubcc1piAnalysis_overlays_08Oct21_test_head20.root";        
+    // // std::string overlaysFileName = "/uboone/data/users/jdetje/ubcc1pi/sep2020/ubcc1piAnalysis_overlays_08Oct21_test_head20.root";
     // filesRun1.dirtFileName     = "/uboone/data/users/jdetje/ubcc1pi/sep2020/ubcc1piAnalysis_dirt_08Oct21.root";     ///< Dirt file name input
     // // std::string dirtFileName     = "/pnfs/uboone/scratch/users/jdetje/ubcc1pi/dirt_final/49396507_11/ubcc1piAnalysis.root";
     // filesRun1.dataEXTFileName  = "/pnfs/uboone/persistent/users/kduffy/ubcc1pi/ubcc1pi_extbnb_run1_combined_5Jan2021.root";  ///< EXT data file name input
@@ -64,7 +64,7 @@ struct Config
     // filesRun1.detVarFiles = {
     //     // Run-1 files
     //     {"CV_SCE",         "/uboone/data/users/jdetje/ubcc1pi/sep2020/ubcc1piAnalysis_overlays_DetVar_CV_run1_19Oct.root"},
-    //     {"CV",             "/uboone/data/users/jdetje/ubcc1pi/sep2020/ubcc1piAnalysis_overlays_DetVar_CV_run1_19Oct.root"}, // Same CV for all run 1 variations 
+    //     {"CV",             "/uboone/data/users/jdetje/ubcc1pi/sep2020/ubcc1piAnalysis_overlays_DetVar_CV_run1_19Oct.root"}, // Same CV for all run 1 variations
     //     {"LYDown",         "/uboone/data/users/jdetje/ubcc1pi/sep2020/ubcc1piAnalysis_overlays_DetVar_LYDown_run1_19Oct.root"},
     //     {"LYRayleigh",     "/uboone/data/users/jdetje/ubcc1pi/sep2020/ubcc1piAnalysis_overlays_DetVar_LYRayleigh_run1_19Oct.root"},
     //     {"SCE",            "/uboone/data/users/jdetje/ubcc1pi/sep2020/ubcc1piAnalysis_overlays_DetVar_SCE_run1_19Oct.root"},
@@ -79,7 +79,7 @@ struct Config
 
     // FileList filesRun2;
     // // September overlays files contain systematic weights
-    // filesRun2.overlaysFileName = "/uboone/data/users/jdetje/ubcc1pi/sep2020/ubcc1piAnalysis_overlays_run2_07Nov21.root"; ///< Overlays file name inputs        
+    // filesRun2.overlaysFileName = "/uboone/data/users/jdetje/ubcc1pi/sep2020/ubcc1piAnalysis_overlays_run2_07Nov21.root"; ///< Overlays file name inputs
     // filesRun2.dirtFileName     = "/uboone/data/users/jdetje/ubcc1pi/sep2020/ubcc1piAnalysis_dirt_run2_07Nov21.root";     ///< Dirt file name input
     // filesRun2.dataEXTFileName  = "/uboone/data/users/jdetje/ubcc1pi/sep2020/ubcc1piAnalysis_extbnb_run2_17Jan22.root";  ///< EXT data file name input
     // filesRun2.dataBNBFileName  = "/uboone/data/users/jdetje/ubcc1pi/sep2020/ubcc1piAnalysis_bnb_run2_08Nov21.root";  ///< BNB data file name input
@@ -132,12 +132,12 @@ struct Config
         // September overlays files contain systematic weights
         std::string overlaysFileName = "/uboone/data/users/jdetje/ubcc1pi/sep2020/ubcc1piAnalysis_overlays_08Oct21.root"; ///< Overlays file name input
         // std::string overlaysFileName = "/uboone/data/users/jdetje/ubcc1pi/sep2020/ubcc1piAnalysis_overlays_08Oct21_test_head20.root";
-        
+
         std::string dirtFileName     = "/uboone/data/users/jdetje/ubcc1pi/sep2020/ubcc1piAnalysis_dirt_08Oct21.root";     ///< Dirt file name input
         // std::string dirtFileName     = "/pnfs/uboone/scratch/users/jdetje/ubcc1pi/dirt_final/49396507_11/ubcc1piAnalysis.root";
-        
+
         std::string dataEXTFileName  = "/pnfs/uboone/persistent/users/kduffy/ubcc1pi/ubcc1pi_extbnb_run1_combined_5Jan2021.root";  ///< EXT data file name input
-        
+
         std::string dataBNBFileName  = "/pnfs/uboone/persistent/users/kduffy/ubcc1pi/ubcc1pi_bnb_run1-C1_5Jan2021.root";  ///< BNB data file name input
         // std::string dataBNBFileName  = "/uboone/data/users/jdetje/ubcc1pi/sep2020/ubcc1piAnalysis_overlays_08Oct21_test_tail20.root";
 
@@ -163,7 +163,7 @@ struct Config
         std::vector< std::pair<std::string, std::string> > detVarFiles = {
             // Run-1 files
             {"CV_SCE",         "/uboone/data/users/jdetje/ubcc1pi/sep2020/ubcc1piAnalysis_overlays_DetVar_CV_run1_19Oct.root"},
-            {"CV",             "/uboone/data/users/jdetje/ubcc1pi/sep2020/ubcc1piAnalysis_overlays_DetVar_CV_run1_19Oct.root"}, // Same CV for all run 1 variations 
+            {"CV",             "/uboone/data/users/jdetje/ubcc1pi/sep2020/ubcc1piAnalysis_overlays_DetVar_CV_run1_19Oct.root"}, // Same CV for all run 1 variations
             {"LYDown",         "/uboone/data/users/jdetje/ubcc1pi/sep2020/ubcc1piAnalysis_overlays_DetVar_LYDown_run1_19Oct.root"},
             {"LYRayleigh",     "/uboone/data/users/jdetje/ubcc1pi/sep2020/ubcc1piAnalysis_overlays_DetVar_LYRayleigh_run1_19Oct.root"},
             {"SCE",            "/uboone/data/users/jdetje/ubcc1pi/sep2020/ubcc1piAnalysis_overlays_DetVar_SCE_run1_19Oct.root"},
@@ -195,7 +195,7 @@ struct Config
     struct FilesRun2
     {
         // September overlays files contain systematic weights
-        std::string overlaysFileName = "/uboone/data/users/jdetje/ubcc1pi/sep2020/ubcc1piAnalysis_overlays_run2_07Nov21.root"; ///< Overlays file name inputs        
+        std::string overlaysFileName = "/uboone/data/users/jdetje/ubcc1pi/sep2020/ubcc1piAnalysis_overlays_run2_07Nov21.root"; ///< Overlays file name inputs
         std::string dirtFileName     = "/uboone/data/users/jdetje/ubcc1pi/sep2020/ubcc1piAnalysis_dirt_run2_07Nov21.root";     ///< Dirt file name input
         std::string dataEXTFileName  = "/uboone/data/users/jdetje/ubcc1pi/sep2020/ubcc1piAnalysis_extbnb_run2_17Jan22.root";  ///< EXT data file name input
         std::string dataBNBFileName  = "/uboone/data/users/jdetje/ubcc1pi/sep2020/ubcc1piAnalysis_bnb_run2_08Nov21.root";  ///< BNB data file name input
@@ -322,9 +322,9 @@ struct Config
     struct NormsRun1 : NormList
     {
         float  overlaysPOT        = 1.195e+21;// TODO: REMOVE!! 6.42546e+19 POT for overlays_08Oct21_test_head20.root //1.195e+21;      ///< The total POT for the overlays MC
-        // Andy S files: 1.22447e+21, Kirsty D files (Jan 21):  1.18578e+21, Philip D files (Oct 08) 1.195e+21 
+        // Andy S files: 1.22447e+21, Kirsty D files (Jan 21):  1.18578e+21, Philip D files (Oct 08) 1.195e+21
         float  dirtPOT            = 2.63523e+20;    ///< The total POT for the dirt MC
-        // Andy S files: 2.85049e+20, Kirsty D files (Jan 21): 2.91414e+20, Philip D files (Oct 08) 2.63523e+20 
+        // Andy S files: 2.85049e+20, Kirsty D files (Jan 21): 2.91414e+20, Philip D files (Oct 08) 2.63523e+20
         float  dataEXTTriggers    = 64322029.0;     ///< The EXT triggers for the EXT data
         // Andy S files: 62540367.0, Kirsty D files (Jan 21): 64322029.0
         float  dataBNBTor875WCut  = 1.532e+20;      ///< The POT measured by the 875m toroid (with quality cuts)
@@ -422,8 +422,8 @@ struct Config
      */
     struct NormsRun3 : NormList
     {
-        float  overlaysPOT        = 8.92215e+20; 
-        float  dirtPOT            = 1.61137e+20; 
+        float  overlaysPOT        = 8.92215e+20;
+        float  dirtPOT            = 1.61137e+20;
         float  dataEXTTriggers    = 126185602.0;//130439550.0;
         float  dataBNBTor875WCut  = 2.051e+20;//1.996e+20;
         float  dataBNBE1DCNTWCut  = 49186781.0;//47886106.0;
@@ -607,7 +607,7 @@ struct Config
 
 
         // Additional plots requested by EB
-        // TODO: Values are only placeholders 
+        // TODO: Values are only placeholders
         Binning protonCosTheta {
             -1.f,                                                // min
              1.f,                                                // max
@@ -853,7 +853,7 @@ struct Config
             {"xsr_scc_Fa3_SCC",         false},
             {"xsr_scc_Fv3_SCC",         false}
         }; ///< Mapping from cross-section parameter names to boolean indicating if we should scale down the parameters by the genieTuneEventWeight ...
-        // ... to avoid double counting the factor in the universe and nominal weights 
+        // ... to avoid double counting the factor in the universe and nominal weights
 
         CrossSectionHelper::SystDimensionsMap reintDimensions = {
             {"reinteractions_piminus_Geant4", 1000u},
@@ -882,7 +882,7 @@ struct Config
         //     // {"WireModThetaXZ", "CVRun3b"},
         //     // {"WireModThetaYZ", "CVRun3b"}
         // }; ///< A mapping from the detector variation sample identifiers, to the identifiers for their relevant central-value sample
-        
+
         /**
         *  @brief  A mapping from a user-defined parameter name, to corresponding set of mutually exclusive parameter names and the number of universes
         *

@@ -73,7 +73,7 @@ class Member
          *  @param  value the value to set
          */
         void Set(const T &value);
-        
+
     private:
 
         friend class Event;
@@ -145,7 +145,7 @@ inline void Member<T>::Set(const T &value)
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
 
-template <> 
+template <>
 inline void Member<unsigned short>::Set(const unsigned short &value)
 {
     *m_pValue = static_cast<int>(value);
@@ -661,13 +661,13 @@ inline std::string Member< std::map<std::string, std::vector<double>> >::ToStrin
     unsigned int i = 0;
     for (const auto &[key, entry] : value)
     {
-        str += key + " : ["; 
+        str += key + " : [";
         for ( unsigned int j = 0; j < std::min(m_maxVectorPrint, (unsigned int)entry.size()); j++ )
         {
             str += std::to_string(entry[j]) + "  ";
         }
         str += "]";
-        
+
         if (++i >= m_maxVectorPrint)
             break;
     }

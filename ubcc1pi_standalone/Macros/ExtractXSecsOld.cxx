@@ -35,7 +35,7 @@ void ExtractXSecsOld(const Config &config)
     inputData.emplace_back(AnalysisHelper::DataBNB, "", config.filesRun1.dataBNBFileName, 1.f);
 
     // Add the detector variation files //Todo uncomment !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-    // for (const auto &[name, fileName] : config.filesRun1.detVarFiles) 
+    // for (const auto &[name, fileName] : config.filesRun1.detVarFiles)
     //     inputData.emplace_back(AnalysisHelper::DetectorVariation, name, fileName, NormalisationHelper::GetDetectorVariationNormalisation(config, name, 1));
 
     // -------------------------------------------------------------------------------------------------------------------------------------
@@ -76,7 +76,7 @@ void ExtractXSecsOld(const Config &config)
     const auto &[fluxBinEdges, fluxValues] = CrossSectionHelper::ReadNominalFlux(config.fluxRun1.fileName, fluxHistNames, config.fluxRun1.pot);
     std::cout << "Flux bin edges: " << std::endl;
     for(const auto &edges: fluxBinEdges)
-        std::cout << edges << std::endl;        
+        std::cout << edges << std::endl;
     scalingData.pFluxReweightor = std::make_shared<CrossSectionHelper::FluxReweightor>(fluxBinEdges, fluxValues, systParams.fluxDimensions);
     const auto debugFlux = scalingData.pFluxReweightor->GetIntegratedNominalFlux();
     std::cout << "\n- Flux:            " << debugFlux << " * 10^-10 cm^-2 POT^-1\n" << std::endl;

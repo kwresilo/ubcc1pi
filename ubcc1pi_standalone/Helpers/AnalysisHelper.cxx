@@ -741,7 +741,7 @@ std::string AnalysisHelper::GetClassificationString(const std::shared_ptr<Event>
     std::string classification = "";
     const auto visibleParticles = AnalysisHelper::SelectVisibleParticles(truth.particles);
 
-    // Signal or background 
+    // Signal or background
     const auto isTrueSignal = selectCC0pi ? AnalysisHelper::IsTrueCC0Pi(pEvent, useAbsPdg, protonMomentumThreshold) : AnalysisHelper::IsTrueCC1Pi(pEvent, useAbsPdg);
     classification += isTrueSignal ? "S" : "B,  ";
 
@@ -1264,7 +1264,7 @@ AnalysisHelper::AnalysisData AnalysisHelper::GetRecoAnalysisData(const Event::Re
                 break;
         }
     }
-    
+
     // Make sure the reco PDGs make sense
     if (nMuons != 1)
         throw std::logic_error("AnalysisHelper::GetRecoAnalysisData - Reconstructed " + std::to_string(nMuons) + " muons");
@@ -1281,7 +1281,7 @@ AnalysisHelper::AnalysisData AnalysisHelper::GetRecoAnalysisData(const Event::Re
     data.muonCosTheta = muonDir.Z();
     data.muonPhi = std::atan2(muonDir.Y(), muonDir.X());
     data.muonMomentum = AnalysisHelper::GetMuonMomentum(muon);
-    
+
     const auto pionDir = TVector3(pion.directionX(), pion.directionY(), pion.directionZ()).Unit();
     data.pionCosTheta = pionDir.Z();
     data.pionPhi = std::atan2(pionDir.Y(), pionDir.X());
@@ -1292,7 +1292,7 @@ AnalysisHelper::AnalysisData AnalysisHelper::GetRecoAnalysisData(const Event::Re
     data.hasGoldenPion = passesGoldenPionSelection;
 
     // Fill everything else with dummy values
-    data.protonMomentum = -std::numeric_limits<float>::max(); 
+    data.protonMomentum = -std::numeric_limits<float>::max();
     data.protonCosTheta = -std::numeric_limits<float>::max();
     data.protonPhi = -std::numeric_limits<float>::max();
     data.muonProtonAngle = -std::numeric_limits<float>::max();
@@ -1343,7 +1343,7 @@ AnalysisHelper::AnalysisData AnalysisHelper::GetRecoAnalysisDataCC0Pi(const Even
                 // std::cout<<"DEBUG - GetRecoAnalysisDataCC0Pi - Point 3.0.1"<<std::endl;
                 // std::cout<<"DEBUG - GetRecoAnalysisDataCC0Pi - Point 3.1 - proton.range.IsSet(): "<<proton.range.IsSet()<<std::endl;
                 // std::cout<<"DEBUG - GetRecoAnalysisDataCC0Pi - Point 3.1 - proton.nHitsU.IsSet(): "<<proton.nHitsU.IsSet()<<" - proton.nHits U V W()"<<proton.nHitsU()<<proton.nHitsV()<<proton.nHitsW()<<std::endl;
-                
+
                 if(proton.range.IsSet())
                 {
                     auto range = proton.range();
@@ -1368,7 +1368,7 @@ AnalysisHelper::AnalysisData AnalysisHelper::GetRecoAnalysisDataCC0Pi(const Even
                 break;
         }
     }
-    
+
     // std::cout<<"DEBUG - GetRecoAnalysisDataCC0Pi - Point 5"<<std::endl;
     // Make sure the reco PDGs make sense
     if (nMuons != 1)
@@ -1392,7 +1392,7 @@ AnalysisHelper::AnalysisData AnalysisHelper::GetRecoAnalysisDataCC0Pi(const Even
     data.muonCosTheta = muonDir.Z();
     data.muonPhi = std::atan2(muonDir.Y(), muonDir.X());
     data.muonMomentum = AnalysisHelper::GetMuonMomentum(muon);
-    
+
     const auto protonDir = TVector3(proton.directionX(), proton.directionY(), proton.directionZ()).Unit();
     data.protonCosTheta = protonDir.Z();
     data.protonPhi = std::atan2(protonDir.Y(), protonDir.X());
@@ -1512,7 +1512,7 @@ AnalysisHelper::AnalysisData AnalysisHelper::GetTruthAnalysisData(const Event::T
     data.muonPionAngle = std::acos(muonDir.Dot(pionDir));
 
     // Fill everything else with dummy values
-    data.protonMomentum = -std::numeric_limits<float>::max(); 
+    data.protonMomentum = -std::numeric_limits<float>::max();
     data.protonCosTheta = -std::numeric_limits<float>::max();
     data.protonPhi = -std::numeric_limits<float>::max();
     data.muonProtonAngle = -std::numeric_limits<float>::max();
@@ -1577,12 +1577,12 @@ AnalysisHelper::AnalysisData AnalysisHelper::GetTruthAnalysisDataCC0Pi(const Eve
             data.nProtons++;
             // std::cout<<"DEBUG - GetTruthAnalysisDataCC0pi - Point 4.1"<<std::endl;
             const auto isHighestEnergyProton = (particle.momentum() > highestProtonMomentum);
-            if(!isHighestEnergyProton) // Use highest energy proton 
+            if(!isHighestEnergyProton) // Use highest energy proton
                 continue;
             foundProton = true;
             highestProtonMomentum = particle.momentum();
             // std::cout<<"DEBUG - GetTruthAnalysisDataCC0pi - Point 4.2"<<std::endl;
-            data.protonMomentum = particle.momentum(); 
+            data.protonMomentum = particle.momentum();
             data.protonCosTheta = cosTheta;
             data.protonPhi = phi;
 
@@ -1629,7 +1629,7 @@ AnalysisHelper::AnalysisData AnalysisHelper::GetDummyAnalysisData()
     data.pionPhi = -std::numeric_limits<float>::max();
     data.muonPionAngle = -std::numeric_limits<float>::max();
     data.nProtons = std::numeric_limits<unsigned int>::max();
-    data.protonMomentum = -std::numeric_limits<float>::max(); 
+    data.protonMomentum = -std::numeric_limits<float>::max();
     data.protonCosTheta = -std::numeric_limits<float>::max();
     data.protonPhi = -std::numeric_limits<float>::max();
     data.muonProtonAngle = -std::numeric_limits<float>::max();

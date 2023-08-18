@@ -41,13 +41,13 @@ class Event
 
         /**
          *  @brief  Construct event from PeLEE event
-         * 
+         *
          *  @param  eventPeLEE the PeLEE event
          *  @param  hasTruthInfo whether the event has truth info
          *  @param  excludeGranddaughterParticles whether to exclude the granddaughter particles (generation > 2)
          */
         explicit Event(const EventPeLEE& eventPeLEE, const bool hasTruthInfo = false, const bool excludeGranddaughterParticles = false);
-        
+
         /**
          *  @brief  Print the member variables to the terminal
          */

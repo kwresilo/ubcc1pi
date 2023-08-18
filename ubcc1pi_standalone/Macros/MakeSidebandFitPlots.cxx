@@ -78,7 +78,7 @@ void MakeSidebandFitPlots(const Config &config)
     // // Loop over all cross-section objects
     typedef std::pair<std::vector<Double_t>,std::vector<Double_t>> paramAndErrorPair; // Todo: Improve code!
     //Parameters: selectionName name
-    std::map<std::string,std::map<std::string, std::vector<float>>> cc0piCovarianceMap; 
+    std::map<std::string,std::map<std::string, std::vector<float>>> cc0piCovarianceMap;
     std::map<std::string, std::map<std::string, paramAndErrorPair>> cc0piNominalConstraintMap;
     //Parameters: selectionName name paramName (i.e. golden muonMomentum hadronProduction)
     std::map<std::string, std::map<std::string, std::map<std::string, std::vector<paramAndErrorPair>>>> cc0piUniverseConstraintMap;
@@ -88,7 +88,7 @@ void MakeSidebandFitPlots(const Config &config)
 	std::ifstream ifs1("cc0piCovarianceMapNuWro.bin", std::ios::binary);
     std::ifstream ifs2("cc0piNominalConstraintMapNuWro.bin", std::ios::binary);
     std::ifstream ifs3("cc0piUniverseConstraintMapNuWro.bin", std::ios::binary);
-	
+
     boost::archive::binary_iarchive iarch1(ifs1);
     boost::archive::binary_iarchive iarch2(ifs2);
     boost::archive::binary_iarchive iarch3(ifs3);

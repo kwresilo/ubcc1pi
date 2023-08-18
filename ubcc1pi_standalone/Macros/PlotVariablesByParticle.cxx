@@ -68,7 +68,7 @@ void PlotEBRequests(const Config &config)
     std::shared_ptr<TH2F> pTruthPionMomVsWiggliness_nonGolden(new TH2F("truthPionMomVsWiggliness_nonGolden", "", bins, 0.f, 0.28f, bins, 0.f, 1.5f));
     std::shared_ptr<TH2F> pTruthPionMomVsWiggliness_all(new TH2F("truthPionMomVsWiggliness_all", "", bins, 0.f, 0.28f, bins, 0.f, 1.5f));
     std::shared_ptr<TH2F> pTruthMuonMomVsWiggliness(new TH2F("truthPionMuonVsWiggliness", "", bins, 0.f, 0.28f, bins, 0.f, 2.0f));
-    
+
     // Loop over the events
     for (unsigned int i = 0; i < nEvents; ++i)
     {
@@ -197,7 +197,7 @@ void PlotEBRequests(const Config &config)
             }
         }
     }
-    
+
     auto pCanvas = PlottingHelper::GetCanvas();
     // Save the 2D resolution plots
     pPionMomVsWiggliness_golden->Draw("colz");

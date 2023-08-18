@@ -1,8 +1,8 @@
 /**
  *  @file  ubcc1pi_standalone/Objects/TreeWriter.cxx
  *
- *  @brief  Code to facilitate setting output TTree branch addresses 
- * 
+ *  @brief  Code to facilitate setting output TTree branch addresses
+ *
  */
 
 #include "ubcc1pi_standalone/Objects/TreeWriter.h"
@@ -26,7 +26,7 @@ TreeWriter::TreeWriter(const std::vector<std::string> inputFiles, const std::str
     }
 
     // Get the total POT from the subruns TTree. Save it in the output
-    // TFile as a TParameter<float>. Real data doesn't have this TTree, 
+    // TFile as a TParameter<float>. Real data doesn't have this TTree,
     // so check that it exists first.
     float pot;
     auto totalExposurePOT = 0.f;
@@ -71,7 +71,7 @@ void TreeWriter::Fill()
 }
 
 // template <typename T>
-// class TreeWriter::Pointer : public std::unique_ptr<T> 
+// class TreeWriter::Pointer : public std::unique_ptr<T>
 // {
 //     public:
 //         Pointer() : std::unique_ptr<T>( new T ) {}
@@ -88,7 +88,7 @@ void TreeWriter::Fill()
 
 void TreeWriter::SetOutputBranchAddress(const std::string& branchName, void* address, const std::string& leafSpec)
 {
-    if ( !m_createdOutputBranches ) 
+    if ( !m_createdOutputBranches )
     {
         if ( leafSpec != "" ) m_pOutTree->Branch( branchName.c_str(), address, leafSpec.c_str() );
         else m_pOutTree->Branch( branchName.c_str(), address );
@@ -103,7 +103,7 @@ void TreeWriter::SetObjectOutputBranchAddress(const std::string& branchName, con
     else m_pOutTree->SetBranchAddress( branchName.c_str(), &address );
 }
 
-// template <typename T> 
+// template <typename T>
 // void TreeWriter::SetObjectOutputBranchAddress(const std::string& branchName, TreeWriter::Pointer<T>& ptr)
 // {
 //   T*& address = ptr.getBarePtr();

@@ -94,7 +94,7 @@
 //     std::map<std::string, std::map<std::string, CrossSectionHelper::CrossSection> > xsecMap;
 //     std::map<std::string, std::map<std::string, CrossSectionHelper::CrossSection> > xsecMapUnscaled;
 //     std::map<std::string, std::map<std::string, CrossSectionHelper::CrossSection> > xsecMapTrue; // True NuWro cross-sections
-//     std::map<std::string, std::map<std::string, CrossSectionHelper::CrossSection> > xsecMapOnlyCC0Pi; // Map is used to save both nuwro as data and as preiction - not usable to calculate a cross-section 
+//     std::map<std::string, std::map<std::string, CrossSectionHelper::CrossSection> > xsecMapOnlyCC0Pi; // Map is used to save both nuwro as data and as preiction - not usable to calculate a cross-section
 //     std::map<std::string, std::map<std::string, CrossSectionHelper::CrossSection> > xsecMapOnlyCC0PiUnscaled; // Map is used to save both nuwro as data and as prediction - not usable to calculate a cross-section
 
 //     // We additionally make a map from each cross-section to the limits of the phase-space that we should consider. The key is the
@@ -189,7 +189,7 @@
 //     // // Loop over all cross-section objects
 //     typedef std::pair<std::vector<Double_t>,std::vector<Double_t>> paramAndErrorPair; // Todo: Improve code!
 //     //Parameters: selectionName, name
-//     std::map<std::string,std::map<std::string, std::vector<float>>> cc0piCovarianceMap; 
+//     std::map<std::string,std::map<std::string, std::vector<float>>> cc0piCovarianceMap;
 //     std::map<std::string, std::map<std::string, paramAndErrorPair>> cc0piNominalConstraintMap;
 //     //Parameters: selectionName, name, paramName (i.e. golden, muonMomentum, hadronProduction)
 //     std::map<std::string, std::map<std::string, std::map<std::string, std::vector<paramAndErrorPair>>>> cc0piUniverseConstraintMap;
@@ -197,7 +197,7 @@
 //     std::ifstream ifs1("cc0piCovarianceMapNuWro.bin", std::ios::binary);
 //     std::ifstream ifs2("cc0piNominalConstraintMapNuWro.bin", std::ios::binary);
 //     std::ifstream ifs3("cc0piUniverseConstraintMapNuWro.bin", std::ios::binary);
-    
+
 //     boost::archive::binary_iarchive iarch1(ifs1);
 //     boost::archive::binary_iarchive iarch2(ifs2);
 //     boost::archive::binary_iarchive iarch3(ifs3);
@@ -294,7 +294,7 @@
 //         // Add the detector variation files
 //         for (const auto &[name, fileName] : config.filesRun3.detVarFiles)
 //             inputData.emplace_back(AnalysisHelper::DetectorVariation, name, fileName, NormalisationHelper::GetDetectorVariationNormalisation(config, name, 3));
-        
+
 //         totalExposurePOT += config.normsRun3.nuWroPOT / (1e20);
 //     }
 
@@ -321,7 +321,7 @@
 
 //         if (isOverlay || isNuWro)
 //             reader.EnableSystematicBranches();
-        
+
 //         if (isDetVar) continue; // TODO: Remove this after debugging !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
 //         auto pEvent = reader.GetBoundEventAddress();
@@ -424,7 +424,7 @@
 
 //             // Get the nominal event weight, scaled by the sample normalisation
 //             const auto weight = AnalysisHelper::GetNominalEventWeight(pEvent) * normalisation;
-            
+
 //             // Determine if this is truly a CC0Pi event
 //             const auto isTrueCC0Pi = (isOverlay || isDetVar || isNuWro) && AnalysisHelper::IsTrueCC0Pi(pEvent, config.global.useAbsPdg, config.global.protonMomentumThreshold);
 
@@ -457,7 +457,7 @@
 //             }
 
 //             const auto isCC0PiSignal = isTrueCC0Pi && passesSidebandPhaseSpaceTruth;
-            
+
 //             // -----------------------------------------------------------------------------------------------------------------------------
 //             // Handle BNB data
 //             // -----------------------------------------------------------------------------------------------------------------------------
@@ -507,7 +507,7 @@
 //                             // xsecMapTrue.at(selectionName).at(name).AddSignalEventDetVar(recoValue, trueValue, isSelected, weight, sampleName);
 //                         }
 //                     }
-                    
+
 //                 }
 //                 // Handle selected background events
 //                 else
@@ -608,7 +608,7 @@
 //                         {
 //                             xsec.AddSignalEvent(recoValue, trueValue, isSelected, weight, fluxWeights, xsecWeights, reintWeights, seedString);
 //                             xsecMapUnscaled.at(selectionName).at(name).AddSignalEvent(recoValue, trueValue, isSelected, weight, fluxWeights, xsecWeights, reintWeights, seedString);
-//                         } 
+//                         }
 //                         else
 //                         {
 //                             xsecMapTrue.at(selectionName).at(name).AddSignalEvent(recoValue, trueValue, isSelected, weight, fluxWeights, xsecWeights, reintWeights, seedString);

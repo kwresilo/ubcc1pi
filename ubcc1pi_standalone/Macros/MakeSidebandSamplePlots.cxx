@@ -430,7 +430,7 @@ void MakeSidebandSamplePlots(const Config &config)
                         continue;
                     }
 
-                    switch(pionMatch.pdgCode()) 
+                    switch(pionMatch.pdgCode())
                     {
                         case 13:
                             TrueCC0pi_CC1piSelected_PIDConfusionMatrix[0][0]+=weight;
@@ -439,7 +439,7 @@ void MakeSidebandSamplePlots(const Config &config)
                             TrueCC0pi_CC1piSelected_PIDConfusionMatrix[0][1]+=weight;
                     }
 
-                    switch(muonMatch.pdgCode()) 
+                    switch(muonMatch.pdgCode())
                     {
                         case 13:
                             TrueCC0pi_CC1piSelected_PIDConfusionMatrix[1][0]+=weight;
@@ -458,7 +458,7 @@ void MakeSidebandSamplePlots(const Config &config)
                         catch(const std::logic_error &){
                             continue;
                         }
-                        switch(leadingProtonMatch.pdgCode()) 
+                        switch(leadingProtonMatch.pdgCode())
                         {
                             case 13:
                                 TrueCC0pi_CC1piSelected_PIDConfusionMatrix[2][0]+=weight;

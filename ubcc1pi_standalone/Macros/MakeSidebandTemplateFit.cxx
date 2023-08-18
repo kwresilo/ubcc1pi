@@ -32,7 +32,7 @@ void fcn(Int_t &npar, Double_t *gin, Double_t &f, Double_t *par, Int_t iflag)
     //calculate chisquare
     Double_t chisq = 0;
     Double_t delta;
-    for (Int_t i=0; i<nBins; i++) 
+    for (Int_t i=0; i<nBins; i++)
     {
         delta  = (y[i]-func(x[i],par[i]))/errorY[i];
         chisq += delta*delta;
@@ -92,9 +92,9 @@ void MakeSidebandTemplateFit(const Config &config)
         }
         if(std::getline(signalSelected, signalBinValue) || std::getline(dataSelected, dataBinValue) || std::getline(backgroundSelected, backgroundBinValue))
             throw std::logic_error("ExtractXSecs - CC0pi weight files have different numbers of entries.");
-        
+
         // cc0piConstraInt_tMap.emplace(name, {cc0piData, cc0piDataStatUncertainty, cc0piPrediction, cc0piPredictionStatUncertainty});
-        
+
         x = cc0piPrediction;
         y = cc0piData;
         errorY = cc0piDataStatUncertainty;
@@ -128,28 +128,28 @@ void MakeSidebandTemplateFit(const Config &config)
 
         TMinuit minuit(nBins);  //initialize TMinuit with a maximum of 5 params
         minuit.SetFCN(fcn);
-    
+
         //std::vector<Double_t> arglist(10);
         Double_t arglist[10];
         Int_t ierflg = 0;
-    
+
         //arglist.at(0) = 1;
         arglist[0]=1;
         minuit.mnexcm("SET ERR", arglist ,1, ierflg);
-    
+
         // Set starting values and step sizes for parameters
         for (Int_t iBin=0; iBin<nBins; iBin++)
         {
             minuit.mnparm(iBin, std::to_string(iBin), 1.f, 0.2, 0.f, 0.f, ierflg);
         }
-            
+
         // Now ready for minimization step
         // arglist.at(0) = 500;
         // arglist.at(1) = 1;
         arglist[0]=500;
         arglist[1]=0.01;
         minuit.mnexcm("MIGRAD", arglist ,2,ierflg);
-    
+
         // PrInt_t results
         Double_t amin,edm,errdef;
         Int_t nvpar,nparx,icstat;

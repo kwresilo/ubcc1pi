@@ -171,14 +171,14 @@ void OptimizeSidebandCuts(const Config &config)
                     const auto recoPion = recoParticles.at(AnalysisHelper::GetParticleIndexWithPdg(assignedPdgCodesCC1pi, 211));
                     const auto recoMuon = recoParticles.at(AnalysisHelper::GetParticleIndexWithPdg(assignedPdgCodesCC1pi, 13));
                     Event::Truth::Particle pionMatch;
-                    
+
                     try{
                         pionMatch = AnalysisHelper::GetBestMatchedTruthParticle(recoPion,pEvent->truth.particles);
                     }
                     catch(const std::logic_error &){
                         continue;
                     }
-                    
+
                     if (pionMatch.pdgCode()==2212){
                         TrueCC0pi_ProtonMomentum_SelCC1pi->Fill(pionMatch.momentum(), weight);
                         TrueCC0pi_nProtons_SelCC1pi->Fill(nProtons, weight);

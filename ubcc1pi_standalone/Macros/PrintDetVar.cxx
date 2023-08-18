@@ -239,21 +239,21 @@ void PrintDetVar(const Config &config)
     const auto fluxHistNames = CrossSectionHelper::GetNominalFluxHistNames(config.flux.nuPdgsSignal, config.flux.nuPdgToHistName, config.flux.nomHistPattern);
     const auto &[fluxBinEdges, fluxValues] = CrossSectionHelper::ReadNominalFlux(config.flux.fileName, fluxHistNames, config.flux.pot);
     scalingData.pFluxReweightor = std::make_shared<CrossSectionHelper::FluxReweightor>(fluxBinEdges, fluxValues, systParams.fluxDimensions);
-    
+
     float totalExposurePOT = 0;
     for (const auto run: config.global.runs)
     {
         switch (run)
         {
-            case 1: 
+            case 1:
                 totalExposurePOT += config.normsRun1.dataBNBTor875WCut / (1e20);
                 break;
-            case 2: 
+            case 2:
                 totalExposurePOT += config.normsRun2.dataBNBTor875WCut / (1e20);
                 break;
-            case 3: 
+            case 3:
                 totalExposurePOT += config.normsRun3.dataBNBTor875WCut / (1e20);
-                break;        
+                break;
             default:
                 throw std::logic_error("ExtractSidebandFit - Invalid run number");
         }
@@ -381,7 +381,7 @@ void PrintDetVar(const Config &config)
 
                 // Determine if this is truly a CC1Pi event
                 const auto isTrueCC1Pi = (isOverlay || isDetVar) && AnalysisHelper::IsTrueCC1Pi(pEvent, config.global.useAbsPdg);
-                
+
                 // Determine if this is truly a CC0Pi event
                 const auto isTrueCC0Pi = (isOverlay || isDetVar) && AnalysisHelper::IsTrueCC0Pi(pEvent, config.global.useAbsPdg, config.global.protonMomentumThreshold);
 
@@ -423,7 +423,7 @@ void PrintDetVar(const Config &config)
                 //     }
                 // }
                 // continue;//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////// Remove
-                
+
                 // Here we apply truth-level phase-space restrictions
                 // For all true CC1Pi events, we check if the values of each kinematic variable are within the supplied limits. If not then the
                 // event is not classed as "signal"
@@ -491,7 +491,7 @@ void PrintDetVar(const Config &config)
                             const auto isSelected = isSelectedMap.at(selectionName);
 
                             for (auto &[name, xsec] : xsecs)
-                            {                                
+                            {
                                 // std::cout<<"detvar sideband scaling Point 0 - selectionName: " << selectionName << " - name: " << name << std::endl;
                                 // const auto trueSidebandValue = getSidebandValue.at(name)(sidebandTruthData);
                                 // const auto cc0piNominalConstraintParam = cc0piNominalConstraintMap.at("generic").at(name).first;
@@ -587,7 +587,7 @@ void PrintDetVar(const Config &config)
                 //         ? CrossSectionHelper::GetWeightsMap(pEvent->truth, systParams.reintDimensions, config.extractXSecs.mutuallyExclusiveDimensions)
                 //         : CrossSectionHelper::GetUnitWeightsMap(systParams.reintDimensions)
                 // );
-                
+
                 // // std::cout<<"xsecWeightsScaleFactor Debugging Point 3"<<std::endl;
 
                 // // for (auto &[selectionName, xsecs] : xsecMap)
@@ -628,7 +628,7 @@ void PrintDetVar(const Config &config)
                 //         {
                 //             const auto recoValue = getValue.at(name)(recoData);
                 //             const auto trueValue = getValue.at(name)(truthData);
-                            
+
                 //             // Add CC0pi constraint
                 //             const auto trueSidebandValue = getSidebandValue.at(name)(sidebandTruthData);
                 //             const auto cc0piNominalConstraintParam = cc0piNominalConstraintMap.at("generic").at(name).first;

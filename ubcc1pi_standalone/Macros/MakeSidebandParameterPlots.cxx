@@ -84,7 +84,7 @@ void MakeSidebandParameterPlots(const Config &config)
     // // Loop over all cross-section objects
     typedef std::pair<std::vector<Double_t>,std::vector<Double_t>> paramAndErrorPair; // Todo: Improve code!
     //Parameters: selectionName name
-    // std::map<std::string,std::map<std::string, std::vector<float>>> cc0piCovarianceMap; 
+    // std::map<std::string,std::map<std::string, std::vector<float>>> cc0piCovarianceMap;
     std::map<std::string, std::map<std::string, paramAndErrorPair>> cc0piNominalConstraintMap;
     //Parameters: selectionName name paramName (i.e. golden muonMomentum hadronProduction)
     std::map<std::string, std::map<std::string, std::map<std::string, std::vector<paramAndErrorPair>>>> cc0piUniverseConstraintMap;
@@ -94,7 +94,7 @@ void MakeSidebandParameterPlots(const Config &config)
 	// std::ifstream ifs1("cc0piCovarianceMap.bin", std::ios::binary);
     std::ifstream ifs2("cc0piNominalConstraintMap.bin", std::ios::binary);
     std::ifstream ifs3("cc0piUniverseConstraintMap.bin", std::ios::binary);
-	
+
     // boost::archive::binary_iarchive iarch1(ifs1);
     boost::archive::binary_iarchive iarch2(ifs2);
     boost::archive::binary_iarchive iarch3(ifs3);
@@ -143,7 +143,7 @@ void MakeSidebandParameterPlots(const Config &config)
 
                     // Calculate mean parameter value across all universes
                     vector<float> meanParameters(metadata.GetNBins(), 0.f);
-                    unsigned int totalUniverses=0; 
+                    unsigned int totalUniverses=0;
                     // for (const auto &[paramName, nUniverses] : systParams.xsecDimensions)
                     // {
                     if(cc0piUniverseConstraintMap.at(selectionName).at(xsecName).at(paramName).at(0).first.at(0)>=0)
@@ -187,7 +187,7 @@ void MakeSidebandParameterPlots(const Config &config)
                     {
                         stddevParameters.at(iBin) = std::pow(stddevParameters.at(iBin)/totalUniverses, 0.5);
                     }
-                    
+
                     // -----------------------------------------------------------------------------------------------------------------------------
                     // Make the comparison plot between data and smeared prediction
                     // -----------------------------------------------------------------------------------------------------------------------------

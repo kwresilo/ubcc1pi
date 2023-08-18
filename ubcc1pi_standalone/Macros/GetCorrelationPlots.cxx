@@ -43,7 +43,7 @@ void GetCorrelationPlots(const Config &config)
         }
         else throw std::logic_error("ExtractSidebandFit - Invalid run number");
     }
-    
+
     // Setup the data structures
     std::map<PlottingHelper::PlotStyle, std::map< std::string, std::vector<float> > > typeToFeatureNameToValuesMap;
     // Get the feature names

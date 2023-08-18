@@ -39,13 +39,13 @@ void fcn(Int_t &npar, Double_t *gin, Double_t &f, Double_t *par, Int_t iflag)
     Double_t chisq = 0;
     Double_t delta;
     Int_t nBins = x.size();
-    
-    auto xScaled = x; 
+
+    auto xScaled = x;
     for (Int_t i=0; i<nBins; i++)
     {
         xScaled[i]*=par[i];
     }
-    
+
     std::vector<float> xSmeared(nBins, 0);
 
     for (Int_t i=0; i<nBins; i++)
@@ -57,7 +57,7 @@ void fcn(Int_t &npar, Double_t *gin, Double_t &f, Double_t *par, Int_t iflag)
     }
     // const auto xSmeared = S*xScaled;
 
-    for (Int_t i=0; i<nBins; i++) 
+    for (Int_t i=0; i<nBins; i++)
     {
         delta  = (y[i]-xSmeared[i])/errorY[i];
         chisq += delta*delta;
@@ -85,11 +85,11 @@ void CalculateSidebandFit(const Config &config)
     // Loop over all cross-section objects
     typedef std::pair<std::vector<Double_t>,std::vector<Double_t>> paramAndErrorPair; // Todo: Improve code!
     //Parameters: selectionName name
-    std::map<std::string,std::map<std::string, std::vector<float>>> cc0piCovarianceMap; 
+    std::map<std::string,std::map<std::string, std::vector<float>>> cc0piCovarianceMap;
     std::map<std::string, std::map<std::string, paramAndErrorPair>> cc0piNominalConstraintMap;
     //Parameters: selectionName name paramName (i.e. golden muonMomentum hadronProduction)
     std::map<std::string, std::map<std::string, std::map<std::string, std::vector<paramAndErrorPair>>>> cc0piUniverseConstraintMap;
-    
+
     try
     {
         for (const auto &[selectionName, xsecs] : xsecMapSideband)
@@ -176,13 +176,13 @@ void CalculateSidebandFit(const Config &config)
                         std::cout<<"\n";
                     std::cout<<S[i]<<" ";
                 }
-                
+
 
                 std::cout<<"_______________________Fitting Point 4"<<std::endl;
                 // auto minimizer = FittingHelper(selectedEventsSignal, signalData, signalDataUncertainty, smearingMatrix);
                 auto minimizer = FittingHelper(nBins);
                 std::pair<std::vector<Double_t>, std::vector<Double_t>> result;
-                
+
                 std::vector<float> fitCovMatrixVector;
                 minimizer.Fit(fcn, result, fitCovMatrixVector, 0);
                 cc0piCovarianceMap[selectionName].emplace(name, fitCovMatrixVector);
@@ -216,7 +216,7 @@ void CalculateSidebandFit(const Config &config)
                 const ubsmear::UBMatrix sidebandParamVectorTruth(paramVector, nBins, 1);
                 const ubsmear::UBMatrix sidebandErrorVectorTruth(paramErrorVector, nBins, 1);
                 std::cout<<"_______________________Fitting Point 4.6"<<std::endl;
-                // const auto sidebandErrorVectorReco = smearingMatrixAllSelected*sidebandErrorVectorTruth; // Todo: check this multiplication is correctly computed 
+                // const auto sidebandErrorVectorReco = smearingMatrixAllSelected*sidebandErrorVectorTruth; // Todo: check this multiplication is correctly computed
                 FormattingHelper::SaveMatrix(sidebandParamVectorTruth, "CC0Pi_" + selectionName + "_" + name + "_sideband_parameterVector.txt");
                 FormattingHelper::SaveMatrix(sidebandErrorVectorTruth, "CC0Pi_" + selectionName + "_" + name + "_sideband_parameterErrorVector.txt");
                 // const ubsmear::UBMatrix sidebandCovMatrix(fitCovMatrixVector, nBins, nBins);
@@ -237,7 +237,7 @@ void CalculateSidebandFit(const Config &config)
                 // FittingHelper::Fit(selectedEventsSignal, signalData, signalDataUncertainty, smearingMatrix);
 
                 // const auto sidebandWeights = xsec.GetSidebandWeights(scalingData);
-                
+
                 for (const auto &[paramName, nUniverses] : systParams.xsecDimensions)
                 {
                     // -------------------------------------------------------------------------------------------------------------------------------------
@@ -256,7 +256,7 @@ void CalculateSidebandFit(const Config &config)
                         const auto selectedSignalTruth = xsec.GetSignalSelectedTrue(selectedSignalTruthUniverses.at(iUni));
                         const auto selectedBackgoundReco = CrossSectionHelper::GetMatrixFromHist(selectedBackgroundRecoUniverses.at(iUni));
                         const auto signalData = selectedEventsData - selectedBackgoundReco;
-                        
+
                         std::vector<float> elements;
                         const auto nBins = signalData.GetRows();
                         for (unsigned int iBin = 0; iBin < nBins; ++iBin)
@@ -264,7 +264,7 @@ void CalculateSidebandFit(const Config &config)
                             const auto value = signalData.At(iBin, 0);
                             if (value<0)
                                 std::cout<<"Value below zero: "<<value<<std::endl;
-                            
+
                             elements.push_back(AnalysisHelper::GetCountUncertainty(std::max(value,0.f)));
                             // elements.push_back(AnalysisHelper::GetCountUncertainty(value));
                         }
@@ -279,11 +279,11 @@ void CalculateSidebandFit(const Config &config)
                         // std::cout<<"\nParameter("<<iUni<<"):";
                         // for (const auto &r : result.first)
                         //     std::cout<<" "<<r;
-                            
+
                         // std::cout<<"\nUncertainty:";
                         // for (const auto &r : result.second)
                         //     std::cout<<" "<<r;
-                        
+
                         resultVector.push_back(result);
                     }
                     cc0piUniverseConstraintMap[selectionName][name].emplace(paramName, resultVector);
@@ -300,7 +300,7 @@ void CalculateSidebandFit(const Config &config)
 	std::ofstream ofs1("cc0piCovarianceMap.bin", std::ios::binary);
     std::ofstream ofs2("cc0piNominalConstraintMap.bin", std::ios::binary);
     std::ofstream ofs3("cc0piUniverseConstraintMap.bin", std::ios::binary);
-	
+
 
     boost::archive::binary_oarchive oarch1(ofs1);
     boost::archive::binary_oarchive oarch2(ofs2);
@@ -309,7 +309,7 @@ void CalculateSidebandFit(const Config &config)
     oarch1 << cc0piCovarianceMap;
     oarch2 << cc0piNominalConstraintMap;
     oarch3 << cc0piUniverseConstraintMap;
-	
+
 	ofs1.close();
     ofs2.close();
     ofs3.close();

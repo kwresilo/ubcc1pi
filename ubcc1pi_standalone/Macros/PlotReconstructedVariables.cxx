@@ -72,7 +72,7 @@ void PlotReconstructedVariables(const Config &config)
 
     PlottingHelper::MultiPlot muonPionAnglePlot("Muon-pion opening angle / rad", yLabel, 50u, config.global.muonPionAngle.min, config.global.muonPionAngle.max, true, config.global.axisTitles);
     PlottingHelper::MultiPlot nProtonsPlot("Proton multiplicity", yLabel, 5u, 0, 5, true, config.global.axisTitles);
-    
+
     PlottingHelper::MultiPlot protonMomentumPlot("Proton momentum / GeV", yLabel, 50u, 0.f, 2.f, true, config.global.axisTitles);
     PlottingHelper::MultiPlot protonCosThetaPlot("Proton cos(theta)", yLabel, 50u, config.global.protonCosTheta.min, config.global.protonCosTheta.max, true, config.global.axisTitles);
     PlottingHelper::MultiPlot protonPhiPlot("Proton phi / rad", yLabel, 50u, config.global.protonPhi.min, config.global.protonPhi.max, true, config.global.axisTitles);

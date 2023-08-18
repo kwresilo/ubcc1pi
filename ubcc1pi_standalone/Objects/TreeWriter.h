@@ -2,10 +2,10 @@
  *  @file  ubcc1pi_standalone/Objects/TreeWriter.h
  *
  *  @brief The header file for the event file reader class
- * 
+ *
  *  Adapted from https://github.com/sjgardiner/stv-analysis-new/blob/master/analyzer.C
  *  & https://github.com/sjgardiner/stv-analysis-new/blob/4658cb1d4163ebc4f0378a1027e2f91629eefe25/TreeUtils.hh
- * 
+ *
  */
 
 #ifndef UBCC1PI_STANDALONE_OBJECTS_TREE_WRITER
@@ -70,7 +70,7 @@ class TreeWriter
 
         /**
          * @brief  Set the output branch addresses
-         * 
+         *
          * @param  branchName the name of the branch
          * @param  address the address of the branch
          * @param  leafSpec the leaf specification
@@ -79,11 +79,11 @@ class TreeWriter
 
         /**
          * @brief  Set the output branch addresses for objects
-         * 
+         *
          * @param  branchName the name of the branch
          * @param  address the address of the branch
-         */ 
-        template <typename T>       
+         */
+        template <typename T>
         void SetObjectOutputBranchAddress(const std::string& branchName, const T*& address);
 
     private:

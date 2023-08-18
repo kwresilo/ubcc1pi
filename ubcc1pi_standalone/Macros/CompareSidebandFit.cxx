@@ -202,7 +202,7 @@ void CompareSidebandFit(const Config &config)
 
     std::ifstream ifs2("cc0piNominalConstraintMap.bin", std::ios::binary);
     std::ifstream ifs3("cc0piUniverseConstraintMap.bin", std::ios::binary);
-    
+
     boost::archive::binary_iarchive iarch1(ifs1);
     boost::archive::binary_iarchive iarch2(ifs2);
     boost::archive::binary_iarchive iarch3(ifs3);
@@ -547,14 +547,14 @@ void CompareSidebandFit(const Config &config)
                         ? CrossSectionHelper::GetWeightsMap(pEvent->truth, systParams.reintDimensions, config.extractXSecs.mutuallyExclusiveDimensions)
                         : CrossSectionHelper::GetUnitWeightsMap(systParams.reintDimensions)
                 );
-                
+
                 // std::cout<<"xsecWeightsScaleFactor Debugging Point 3"<<std::endl;
 
                 // for (auto &[selectionName, xsecs] : xsecMap)
                 // {
                 // const auto isSignal = isSignalMap.at(selectionName);
                 // Handle signal events
-  
+
                 // std::cout<<"xsecWeightsScaleFactor Debugging Point 4"<<std::endl;
                 for (auto &[selectionName, xsecs] : xsecMap)
                 {
@@ -566,7 +566,7 @@ void CompareSidebandFit(const Config &config)
                     for (auto &[name, xsec] : xsecs)
                     {
                         const auto recoValue = getValue.at(name)(recoData);
-                        
+
                         const auto trueValue = getValue.at(name)(truthData);
                         // // Add CC0pi constraint
                         std::vector<float> sidebandWeights;
@@ -600,7 +600,7 @@ void CompareSidebandFit(const Config &config)
                                             std::cout<<"Wrong number of parameters for fluxWeights."<<std::endl;
                                             throw std::logic_error("CompareSidebandFit - Wrong number of parameters for fluxWeights.");
                                         }
-                                        
+
                                         // std::cout<<"Before ("<<weightVector[0]<<weightVector[1]<<")"<<std::endl;
                                         for (unsigned int u=0; u<weightVector.size(); u++)
                                         {
@@ -618,7 +618,7 @@ void CompareSidebandFit(const Config &config)
                                             std::cout<<"Wrong number of parameters for fluxWeights."<<std::endl;
                                             throw std::logic_error("CompareSidebandFit - Wrong number of parameters for fluxWeights.");
                                         }
-                                        
+
                                         // std::cout<<"Before ("<<weightVector[0]<<weightVector[1]<<")"<<std::endl;
                                         for (unsigned int u=0; u<weightVector.size(); u++)
                                         {
@@ -636,7 +636,7 @@ void CompareSidebandFit(const Config &config)
                                             std::cout<<"Wrong number of parameters for fluxWeights."<<std::endl;
                                             throw std::logic_error("CompareSidebandFit - Wrong number of parameters for fluxWeights.");
                                         }
-                                        
+
                                         // std::cout<<"Before ("<<weightVector[0]<<weightVector[1]<<")"<<std::endl;
                                         for (unsigned int u=0; u<weightVector.size(); u++)
                                         {

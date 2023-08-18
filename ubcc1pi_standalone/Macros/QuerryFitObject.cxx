@@ -100,7 +100,7 @@ void QuerryFitObject(const Config &config)
                     std::cout << u.first.at(i) << "(" << u.second.at(i) << ") ";
                 }
                 std::cout<<std::endl;
-            }            
+            }
         }
     }
 

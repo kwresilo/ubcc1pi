@@ -24,7 +24,7 @@ void CountPOT(const Config &config)
     {
         switch (run)
         {
-            case 1: 
+            case 1:
             {
                 if (config.countPOT.useOverlays) fileNames.push_back(config.filesRun1.overlaysFileName);
                 if (config.countPOT.useDirt) fileNames.push_back(config.filesRun1.dirtFileName);
@@ -39,7 +39,7 @@ void CountPOT(const Config &config)
                 break;
             }
             case 2:
-            { 
+            {
                 if (config.countPOT.useOverlays) fileNames.push_back(config.filesRun2.overlaysFileName);
                 if (config.countPOT.useDirt) fileNames.push_back(config.filesRun2.dirtFileName);
                 if (config.countPOT.useNuWro) fileNames.push_back(config.filesRun2.nuWroFileName);
@@ -53,7 +53,7 @@ void CountPOT(const Config &config)
                 break;
             }
             case 3:
-            { 
+            {
                 if (config.countPOT.useOverlays) fileNames.push_back(config.filesRun3.overlaysFileName);
                 if (config.countPOT.useDirt) fileNames.push_back(config.filesRun3.dirtFileName);
                 if (config.countPOT.useNuWro) fileNames.push_back(config.filesRun3.nuWroFileName);
@@ -65,7 +65,7 @@ void CountPOT(const Config &config)
                     }
                 }
                 break;
-            }        
+            }
             default:
             {
                 throw std::logic_error("TrainBDTs - Invalid run number");

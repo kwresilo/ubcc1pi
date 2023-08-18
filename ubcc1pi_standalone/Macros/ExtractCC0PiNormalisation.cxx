@@ -310,7 +310,7 @@ void ExtractCC0PiNormalisation(const Config &config)
             // -----------------------------------------------------------------------------------------------------------------------------
             // Work out if this event is signal, and apply any phase-space restrictions based on the input binning
             // -----------------------------------------------------------------------------------------------------------------------------
-            
+
             // std::cout<<"DEBUG - ExtractCC0PiNormalisation - Point 17"<<std::endl;
             // Get the nominal event weight, scaled by the sample normalisation
             const auto weight = AnalysisHelper::GetNominalEventWeight(pEvent) * normalisation;
@@ -353,9 +353,9 @@ void ExtractCC0PiNormalisation(const Config &config)
             }
             // if(passesPhaseSpaceTruth)
             //     std::cout<<"passesPhaseSpaceTruth: "<<passesPhaseSpaceTruth<<std::endl;
-            
+
             const auto isSignal = IsTrueCC0Pi && passesPhaseSpaceTruth;
-            
+
             // std::cout<<"DEBUG - ExtractCC0PiNormalisation - Point 18"<<std::endl;
             // -----------------------------------------------------------------------------------------------------------------------------
             // Handle the detector variation samples (unisims)
@@ -431,7 +431,7 @@ void ExtractCC0PiNormalisation(const Config &config)
             // Get the cross-section weights
             // ATTN here we optionally scale the cross-section weights down by the genieTuneEventWeight - this is done so we don't
             // double count this weight (once in the nominal event weight, and once in the xsec systematic event weights)
-            
+
             const auto xsecWeightsScaleFactor = 1.f;
             // const auto xsecWeightsScaleFactor = (isOverlay && config.extractXSecs.scaleXSecWeights) ? pEvent->truth.genieTuneEventWeight() : 1.f;
 
@@ -519,7 +519,7 @@ void ExtractCC0PiNormalisation(const Config &config)
             const auto selectedEventsData = xsec.GetSelectedBNBDataEvents();
             std::cout << "Selected BNB data events" << std::endl;
             FormattingHelper::SaveMatrix(selectedEventsData, "CC0pi_" + name + "_data_selected_eventRate.txt");
-            
+
 
             const auto selectedEventsBackground = xsec.GetSelectedBackgroundEvents();
             std::cout << "Selected background events" << std::endl;

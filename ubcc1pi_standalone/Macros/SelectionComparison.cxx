@@ -243,7 +243,7 @@
 //                     }
 //                 }
 //             }
-            
+
 //             // std::cout<<"### Debug Point -3"<<std::endl;
 //             const auto isSelectedGolden = passedGoldenSelection && passesPhaseSpaceReco;
 //             const auto isSelectedGeneric = passedGenericSelection && passesPhaseSpaceReco;
@@ -301,7 +301,7 @@
 
 //             // Determine if this is truly a CC1Pi event
 //             const auto isTrueCC1Pi = (isOverlay || isDetVar) && AnalysisHelper::IsTrueCC1Pi(pEvent, config.global.useAbsPdg);
-            
+
 //             // Determine if this is truly a CC0Pi event
 //             const auto isTrueCC0Pi = (isOverlay || isDetVar) && AnalysisHelper::IsTrueCC0Pi(pEvent, config.global.useAbsPdg, config.global.protonMomentumThreshold);
 
@@ -371,7 +371,7 @@
 //             // const auto isSelectedSideband = isSelectedSidebandMap.at(selectionName);
 
 //             const std::vector<bool> signalBool              = {true, isCC1PiSignal, isCC0PiSignal, isTrueCC0Pi, isTrueCC1Pi};
-//             const std::vector<bool> selectionBool           = {true, isSelected, isSelectedSideband, isSelected && isSelectedSideband}; 
+//             const std::vector<bool> selectionBool           = {true, isSelected, isSelectedSideband, isSelected && isSelectedSideband};
 //             for (int n = 0; n<5; ++n)
 //             {
 //                 for (int m = 0; m<4; ++m)

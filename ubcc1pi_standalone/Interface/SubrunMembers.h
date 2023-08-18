@@ -27,5 +27,5 @@
     f(p, q, false, int,         run)                                                                                                       \
     f(p, q, false, int,         subRun)                                                                                                    \
     f(p, q, false, float,       pot)
-    
+
 #endif

@@ -67,7 +67,7 @@ void ExtractSideband(const Config &config)
     // total neutrino event rate (as a function of the true neutrino energy) to the same rate in the nominal simulation to reweight the
     // input neutrino flux distribution. The integrated flux is each universe is used to scale the selected event rate when calculating the
     // cross-section in that universe. For all non-flux parameters, the nominal integrated flux is used.
-    
+
     CrossSectionHelper::CrossSection::ScalingData scalingData;
     // std::cout << "- Flux:            " << scalingData.pFluxReweightor->GetIntegratedNominalFlux() << " * 10^-10 cm^-2 POT^-1" << std::endl;
     // std::cout << "- Exposure:        " << scalingData.exposurePOT << " * 10^20 POT" << std::endl;
@@ -411,7 +411,7 @@ void ExtractSideband(const Config &config)
                 const auto weight = AnalysisHelper::GetNominalEventWeight(pEvent) * normalisation;
 
                 // Determine if this is truly a CC0Pi event
-                const auto isTrueCC0Pi = (isOverlay || isDetVar) && AnalysisHelper::IsTrueCC0Pi(pEvent, config.global.useAbsPdg, config.global.protonMomentumThreshold);            
+                const auto isTrueCC0Pi = (isOverlay || isDetVar) && AnalysisHelper::IsTrueCC0Pi(pEvent, config.global.useAbsPdg, config.global.protonMomentumThreshold);
 
                 // Get the truth analysis data (if available, otherwise set to dummy values)
                 const auto truthData = (
@@ -440,7 +440,7 @@ void ExtractSideband(const Config &config)
 
                         if (value < min || value > max)
                         {
-                            // std::cout << "Event failed truth phase-space cuts - name: "<<name<<" - min: "<<min<<" - value: "<<value<<" - max: "<<max << std::endl;                        
+                            // std::cout << "Event failed truth phase-space cuts - name: "<<name<<" - min: "<<min<<" - value: "<<value<<" - max: "<<max << std::endl;
                             passesPhaseSpaceTruth = false;
                             break;
                         }

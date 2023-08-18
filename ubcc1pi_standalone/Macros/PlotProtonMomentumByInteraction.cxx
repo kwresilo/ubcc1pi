@@ -35,8 +35,8 @@ void PlotProtonMomentumByInteraction(const Config &config)
     // Setup the plots
     //
     const std::string yLabel = "Number of particles";
-    
-    // The highest energy proton variables are plotted with three different selections  
+
+    // The highest energy proton variables are plotted with three different selections
     const std::vector<std::string> protonPlotNames{"protons>0", "protons==1", "protons>=2"};
     std::vector<PlottingHelper::MultiPlot> protonMomentumPlots;
 
@@ -74,7 +74,7 @@ void PlotProtonMomentumByInteraction(const Config &config)
         if (!isSelectedGeneric)
             continue;
 
-        // Check that at least one proton is present 
+        // Check that at least one proton is present
         const auto &recoParticles = pEvent->reco.particles;
         const auto protonIndex = SelectionHelper::GetLeadingProtonCandidateIndex(recoParticles, assignedPdgCodes);
         if (protonIndex!=std::numeric_limits<unsigned int>::max())

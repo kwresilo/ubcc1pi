@@ -144,7 +144,7 @@ void ExtractNuWroXSecs2(const Config &config)
 
     // The names of the cross-section kinematic parameters, and their sideband binning information.
     std::map<std::string, std::vector<float>> sidebandBinningMap {
-        { "total",         {-1.f, 1.f}                                   },        
+        { "total",         {-1.f, 1.f}                                   },
         { "muonCosTheta",  config.global.muonCosTheta.binEdges           },
         { "muonPhi",       config.global.muonPhi.binEdges                },
         { "muonMomentum",  config.global.sidebandMuonMomentum.binEdges   },
@@ -205,7 +205,7 @@ void ExtractNuWroXSecs2(const Config &config)
     // (-1 -> +1), and we request that the cross-section object does not apply bin-width scaling. When we fill this object, we will use
     // the dummy kinematic quantity with a value of 0 for all events. This is arbitrary, as long as it's within the bin edges we chose.
     // In this way the single bin contains all events. It's just a trick to avoid implementing extra logic for the total cross-section.
-    
+
     for (const auto &selectionName : {"generic", "golden"})
     {
         // Don't setup a cross-section object if it's been disabled in the configuration
@@ -258,7 +258,7 @@ void ExtractNuWroXSecs2(const Config &config)
     //Parameters: dataTypeName selectionName name paramName (i.e. golden muonMomentum hadronProduction)
     typedef std::map<std::string, std::map<std::string, std::map<std::string, std::map<std::string, std::vector<paramAndErrorPair>>>>> universeFitMap;
 
-    //Parameters: selectionName, name; 
+    //Parameters: selectionName, name;
     nominalFitMap cc0piNominalConstraintMap;
     universeFitMap cc0piUniverseConstraintMap;
 
@@ -430,7 +430,7 @@ void ExtractNuWroXSecs2(const Config &config)
             // -----------------------------------------------------------------------------------------------------------------------------
             // Get the nominal event weight, scaled by the sample normalisation
             const auto weight = AnalysisHelper::GetNominalEventWeight(pEvent) * normalisation;
-            
+
             // Determine if this is truly a CC0Pi event
             const auto isTrueCC0Pi = (isOverlay || isDetVar || isNuWro) && AnalysisHelper::IsTrueCC0Pi(pEvent, config.global.useAbsPdg, config.global.protonMomentumThreshold);
 
@@ -465,7 +465,7 @@ void ExtractNuWroXSecs2(const Config &config)
 
             // std::cout<<"TYT - P 6"<<std::endl;
             const auto isCC0PiSignal = isTrueCC0Pi && passesSidebandPhaseSpaceTruth;
-            
+
             // -----------------------------------------------------------------------------------------------------------------------------
             // Handle 'data' (BNB & fake-data)
             // -----------------------------------------------------------------------------------------------------------------------------
@@ -494,7 +494,7 @@ void ExtractNuWroXSecs2(const Config &config)
                         xsecMapGenieScaled.at(selectionName).at(name).AddWeightedSelectedDataEvent(getValue.at(name)(recoData), weight);
                     }
                 }
-            }            
+            }
             if (isDataBNB) continue; // For BNB data that's all we need to do!
 
             // std::cout<<"TYT - P 7"<<std::endl;
@@ -567,7 +567,7 @@ void ExtractNuWroXSecs2(const Config &config)
                     ? CrossSectionHelper::ScaleWeightsMap(CrossSectionHelper::GetWeightsMap(pEvent->truth, systParams.xsecDimensions, config.extractXSecs.mutuallyExclusiveDimensions), xsecWeightsScaleFactor, config.extractXSecs.xsecUBGenieScalingMap)
                     : CrossSectionHelper::GetUnitWeightsMap(systParams.xsecDimensions)
             );
-            
+
             // for (auto &[paramName,weightVector] : xsecWeights)
             // {
             //     int i = 0;
@@ -591,7 +591,7 @@ void ExtractNuWroXSecs2(const Config &config)
 
             // std::cout<<"TYT - P 9"<<std::endl;
             // Fill the flux-reweightor with all overlay events from a neutrinos of the desired flavour in the active volume
-            const auto useForFluxReweighting = isOverlay && AnalysisHelper::IsInActiveVolume(pEvent->truth.nuVertex()) && 
+            const auto useForFluxReweighting = isOverlay && AnalysisHelper::IsInActiveVolume(pEvent->truth.nuVertex()) &&
                 std::find(config.flux.nuPdgsSignal.begin(), config.flux.nuPdgsSignal.end(), pEvent->truth.nuPdgCode()) != config.flux.nuPdgsSignal.end();
             if (useForFluxReweighting) scalingDataUnscaled.pFluxReweightor->AddEvent(pEvent->truth.nuEnergy(), weight, fluxWeights);
 
@@ -625,7 +625,7 @@ void ExtractNuWroXSecs2(const Config &config)
                         // std::cout<<"TYT - P 9.3.1.1"<<std::endl;
                         const auto sidebandBinEdges = sidebandBinningMap.at(name);
                         // std::cout<<"TYT - P 9.3.2"<<std::endl;
-                        
+
                         // Add CC0pi constraint
                         for (const auto &dataTypeName: {std::string("NuWro"), std::string("BNB"), std::string("Genie")})
                         {
@@ -644,7 +644,7 @@ void ExtractNuWroXSecs2(const Config &config)
 
                             // // std::cout<<"DEBUG K0.2"<<std::endl;
                             const auto nominalWeightFactor = isCC0PiSignal ? xsec.GetSidebandScaling(trueSidebandValue, cc0piNominalConstraintParam, sidebandBinEdges) : 1.f;
-                            
+
                             // // std::cout<<"DEBUG K1"<<std::endl;
                             // Todo: arbitrary threshold in function. Fixed??? // Also change from vector<float> to SystFloatMap for consistency
                             const auto sidebandWeights = isCC0PiSignal ? xsec.GetSidebandParameterWeights(trueSidebandValue, cc0piNominalConstraintParam, cc0piNominalConstraintParamError, sidebandBinEdges) : sidebandUnitWeights;
@@ -657,7 +657,7 @@ void ExtractNuWroXSecs2(const Config &config)
                                 if (config.global.useCC0piConstraint) xsecMapGenieScaled.at(selectionName).at(name).AddSelectedBackgroundEvent(recoValue, isDirt, weight, emptySystFloatMap, emptySystFloatMap, emptySystFloatMap, sidebandWeights, nominalWeightFactor);
                                 // if (useForFluxReweighting) scalingDataScaledMap.at(dataTypeName).at(selectionName).at(name).pFluxReweightor->AddEvent(pEvent->truth.nuEnergy(), weight, fluxWeights, nominalWeightFactor); //todo check if fluxWeights is correct here
                             }
-                            else 
+                            else
                             {
                                 // std::cout<<"TYT - P 9.8"<<std::endl;
                                 // // std::cout<<"DEBUG K1.1"<<std::endl;
@@ -726,7 +726,7 @@ void ExtractNuWroXSecs2(const Config &config)
                 }
             }
             // Handle other events
-            else  
+            else
             {
                 // // std::cout<<"DEBUG K3"<<std::endl;
                 // Fill the flux-reweightor with all overlay events from a neutrinos of the desired flavour in the active volume

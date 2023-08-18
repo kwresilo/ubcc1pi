@@ -198,7 +198,7 @@
 //     // // Loop over all cross-section objects
 //     typedef std::pair<std::vector<Double_t>,std::vector<Double_t>> paramAndErrorPair; // Todo: Improve code!
 //     //Parameters: selectionName name
-//     std::map<std::string,std::map<std::string, std::vector<float>>> cc0piCovarianceMap; 
+//     std::map<std::string,std::map<std::string, std::vector<float>>> cc0piCovarianceMap;
 //     std::map<std::string, std::map<std::string, paramAndErrorPair>> cc0piNominalConstraintMap;
 //     //Parameters: selectionName name paramName (i.e. golden muonMomentum hadronProduction)
 //     std::map<std::string, std::map<std::string, std::map<std::string, std::vector<paramAndErrorPair>>>> cc0piUniverseConstraintMap;
@@ -208,7 +208,7 @@
 //     std::ifstream ifs1("cc0piCovarianceMap.bin", std::ios::binary);
 //     std::ifstream ifs2("cc0piNominalConstraintMap.bin", std::ios::binary);
 //     std::ifstream ifs3("cc0piUniverseConstraintMap.bin", std::ios::binary);
-    
+
 //     boost::archive::binary_iarchive iarch1(ifs1);
 //     boost::archive::binary_iarchive iarch2(ifs2);
 //     boost::archive::binary_iarchive iarch3(ifs3);
@@ -282,7 +282,7 @@
 //     const auto fluxHistNames = CrossSectionHelper::GetNominalFluxHistNames(config.flux.nuPdgsSignal, config.flux.nuPdgToHistName, config.flux.nomHistPattern);
 //     const auto &[fluxBinEdges, fluxValues] = CrossSectionHelper::ReadNominalFlux(config.flux.fileName, fluxHistNames, config.flux.pot);
 //     scalingData.pFluxReweightor = std::make_shared<CrossSectionHelper::FluxReweightor>(fluxBinEdges, fluxValues, systParams.fluxDimensions);
-    
+
 //     float totalExposurePOT = 0;
 //     for (const auto run: config.global.runs)
 //     {
@@ -470,7 +470,7 @@
 
 //             // Determine if this is truly a CC1Pi event
 //             const auto isTrueCC1Pi = (isOverlay || isDetVar) && AnalysisHelper::IsTrueCC1Pi(pEvent, config.global.useAbsPdg);
-            
+
 //             // Determine if this is truly a CC0Pi event
 //             const auto isTrueCC0Pi = (isOverlay || isDetVar) && AnalysisHelper::IsTrueCC0Pi(pEvent, config.global.useAbsPdg, config.global.protonMomentumThreshold);
 
@@ -553,7 +553,7 @@
 //                         const auto isSelected = isSelectedMap.at(selectionName);
 
 //                         for (auto &[name, xsec] : xsecs)
-//                         {                                
+//                         {
 //                             // std::cout<<"detvar sideband scaling Point 0 - selectionName: " << selectionName << " - name: " << name << std::endl;
 //                             // const auto trueSidebandValue = getSidebandValue.at(name)(sidebandTruthData);
 //                             // const auto cc0piNominalConstraintParam = cc0piNominalConstraintMap.at("generic").at(name).first;
@@ -631,7 +631,7 @@
 //                     ? CrossSectionHelper::GetWeightsMap(pEvent->truth, systParams.reintDimensions, config.extractXSecs.mutuallyExclusiveDimensions)
 //                     : CrossSectionHelper::GetUnitWeightsMap(systParams.reintDimensions)
 //             );
-            
+
 //             // std::cout<<"xsecWeightsScaleFactor Debugging Point 3"<<std::endl;
 
 //             // for (auto &[selectionName, xsecs] : xsecMap)
@@ -673,7 +673,7 @@
 //                     {
 //                         const auto recoValue = getValue.at(name)(recoData);
 //                         const auto trueValue = getValue.at(name)(truthData);
-                        
+
 //                         // Add CC0pi constraint
 //                         const auto trueSidebandValue = getSidebandValue.at(name)(sidebandTruthData);
 //                         const auto cc0piNominalConstraintParam = cc0piNominalConstraintMap.at("generic").at(name).first;

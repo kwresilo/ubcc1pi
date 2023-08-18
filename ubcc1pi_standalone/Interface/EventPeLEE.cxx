@@ -118,13 +118,13 @@ void EventPeLEE::PrepareAfterTreeRead()
 {
     unsigned int nTruthParticles;
     PELEE_MACRO_EVENT_TRUTH_PARTICLE_MEMBERS(truth_particle, &nTruthParticles, PELEE_MACRO_GET_MEMBER_VECTOR_SIZE)
-    
+
     truth.particles.resize(nTruthParticles);
     PELEE_MACRO_EVENT_TRUTH_PARTICLE_MEMBERS(truth_particle, truth.particles, PELEE_MACRO_READ_MEMBER_VECTOR)
 
     unsigned int nRecoParticles;
     PELEE_MACRO_EVENT_RECO_PARTICLE_MEMBERS(reco_particle, &nRecoParticles, PELEE_MACRO_GET_MEMBER_VECTOR_SIZE)
-    
+
     reco.particles.resize(nRecoParticles);
     PELEE_MACRO_EVENT_RECO_PARTICLE_MEMBERS(reco_particle, reco.particles, PELEE_MACRO_READ_MEMBER_VECTOR)
 }

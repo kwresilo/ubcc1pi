@@ -77,19 +77,19 @@ void PlotProtonRecoVariables(const Config &config)
     // PlottingHelper::MultiPlot muonPionAnglePlot("Muon-pion opening angle / rad", yLabel, 50u, config.global.muonPionAngle.min, config.global.muonPionAngle.max, true, config.global.axisTitles);
     // PlottingHelper::MultiPlot nProtonsPlot("Proton multiplicity", yLabel, 5u, 0, 5, true, config.global.axisTitles);
 
-    // The highest energy proton variables are plotted with three different selections  
+    // The highest energy proton variables are plotted with three different selections
     const std::vector<std::string> protonSelectionNames{"nProtons>0", "nProtons==1", "nProtons>=2"};
     std::vector<PlottingHelper::MultiPlot> protonMomentumPlots, protonCosThetaPlots, protonPhiPlots;
     std::vector<PlottingHelper::MultiPlot> protonMomentumParticlePlots, protonCosThetaParticlePlots, protonPhiParticlePlots;
     std::vector<PlottingHelper::MultiPlot> protonPionAnglePlots, protonMuonAnglePlots;
-    
+
     // Proton plots are generated for three different muliplicity ranges
     // const std::vector<std::pair<std::string, std::function<bool(unsigned int)>> {
-    //     {"protons>0", [](unsigned int n){return n>0;}}, 
+    //     {"protons>0", [](unsigned int n){return n>0;}},
     //     {"protons=1", [](unsigned int n){return n=1;}},
     //     {"protons>=2", [](unsigned int n){return n>=2;}}
     // };
-    
+
     std::cout<<"PlotProtonRecoVariables Point 1"<<std::endl;
 
     for(auto const& selectionName : protonSelectionNames)
@@ -185,7 +185,7 @@ void PlotProtonRecoVariables(const Config &config)
                 const auto muonDir = TVector3(muon.directionX(), muon.directionY(), muon.directionZ()).Unit();
                 const auto pionDir = TVector3(pion.directionX(), pion.directionY(), pion.directionZ()).Unit();
                 const auto protonDir = TVector3(proton.directionX(), proton.directionY(), proton.directionZ()).Unit();
-                
+
                 const auto protonMomentum = AnalysisHelper::GetProtonMomentumFromRange(proton.range());
                 const auto protonCosTheta = protonDir.Z();
                 const auto protonPhi  = std::atan2(protonDir.Y(), protonDir.X());
@@ -196,7 +196,7 @@ void PlotProtonRecoVariables(const Config &config)
                 for (unsigned int selection = 0; selection < protonSelectionNames.size(); ++selection)
                 {
                     // Check proton multiplicity to match conditions described in protonSelectionNames
-                    // No need to to test for selection==0 due to: if (protonIndex!=std::numeric_limits<unsigned int>::max()) 
+                    // No need to to test for selection==0 due to: if (protonIndex!=std::numeric_limits<unsigned int>::max())
                     if(selection==1 && recoData.nProtons!=1) continue;
                     if(selection==2 && recoData.nProtons<2) continue;
 

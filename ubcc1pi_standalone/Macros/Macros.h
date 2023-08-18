@@ -339,42 +339,42 @@ namespace ubcc1pi_macros
 
     // /**
     //  *  @brief  Extract the sideband fit
-    //  *  
+    //  *
     //  *  @param  config the input configuration
     //  */
     // void ExtractSidebandFit(const Config &config = Config());
 
     /**
      *  @brief  Extract the sideband fit of Nuwro to MC (GENIE)
-     *  
+     *
      *  @param  config the input configuration
      */
     void ExtractNuWroSidebandFit(const Config &config = Config());
 
     /**
      *  @brief  Extract the sideband fit of Nuwro to MC (GENIE)
-     *  
+     *
      *  @param  config the input configuration
      */
     void ExtractNuWroSidebandFit2(const Config &config = Config());
 
     /**
      *  @brief  Extract the sideband fit of Nuwro to MC (GENIE)
-     *  
+     *
      *  @param  config the input configuration
      */
     void ExtractNuWroSidebandFit3(const Config &config = Config());
 
     /**
      *  @brief  Extract the sideband fit of Nuwro to MC (GENIE)
-     *  
+     *
      *  @param  config the input configuration
      */
     void MakeNuWroXSecTruthDistributionPlots(const Config &config = Config());
 
     /**
-     *  @brief  Extract the sideband fit of Nuwro to MC (GENIE)  with all (BNB) systematic uncertainties 
-     *  
+     *  @brief  Extract the sideband fit of Nuwro to MC (GENIE)  with all (BNB) systematic uncertainties
+     *
      *  @param  config the input configuration
      */
     void ExtractNuWroAllSystSidebandFit(const Config &config = Config());
@@ -388,28 +388,28 @@ namespace ubcc1pi_macros
 
     /**
      *  @brief  Extract the sideband without fitting
-     *  
+     *
      *  @param  config the input configuration
      */
     //void ExtractSideband(const Config &config = Config());
 
     /**
      *  @brief  Print out detector variation xsec-values
-     *  
+     *
      *  @param  config the input configuration
      */
     void PrintDetVar(const Config &config = Config());
 
     /**
      *  @brief  Save the sideband fit parameters as a numpy readable txt file
-     *  
+     *
      *  @param  config the input configuration
      */
     void ParamsToTxt(const Config &config = Config());
 
     /**
      *  @brief  Compare xsec and sideband selection
-     *  
+     *
      *  @param  config the input configuration
      */
     void SelectionComparison(const Config &config = Config());
@@ -492,7 +492,7 @@ namespace ubcc1pi_macros
     void OptimizeSidebandBinEdges(const Config &config = Config());
 
     /**
-     *  @brief  Check if the pion selected proton in CC0pi selection is also the true leading proton 
+     *  @brief  Check if the pion selected proton in CC0pi selection is also the true leading proton
      *
      *  @param  config the input config
      */

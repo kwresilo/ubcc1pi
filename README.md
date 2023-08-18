@@ -1,5 +1,5 @@
 # ubcc1pi
-A package for the selection and analysis of charged current single pion muon neutrino interactions in MicroBooNE
+A package for the selection and analysis of charged current single pion muon neutrino interactions in MicroBooNE.
 
 ## Overview
 This repository contains code which can be run in LArSoft or as a standalone package. The LArSoft component is used to exctract relevant

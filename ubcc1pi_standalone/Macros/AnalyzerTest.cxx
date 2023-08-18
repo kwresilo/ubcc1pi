@@ -94,7 +94,7 @@ void AnalyzerTest(const Config &config)
 
     // // Set the bin labels where appropriate
     // truth_particle_mc_pdg_plot.SetIntegerBinLabels();
-    
+
     const auto ll = -100.f; // std::numeric_limits<float>::lowest();
     const auto ul = 100.f; // std::numeric_limits<float>::max();
 
@@ -107,7 +107,7 @@ void AnalyzerTest(const Config &config)
     // PlottingHelper::MultiPlot truth_particle_momentumZ_plot("truth particle momentumZ", yLabelParticles, 10u, ll, ul);
     // // PlottingHelper::MultiPlot truth_particle_momentum_plot("truth particle momentum", yLabelParticles, 10u, -5.f, 5.f);
     // PlottingHelper::MultiPlot truth_particle_energy_plot("truth particle energy", yLabelParticles, 10u, ll, ul);
-    
+
     // // Set the bin labels where appropriate
     // truth_particle_pdgCode_plot.SetIntegerBinLabels();
 
@@ -184,7 +184,7 @@ void AnalyzerTest(const Config &config)
         const auto nEvents = std::min(readerPeLEE.GetNumberOfEvents(), reader.GetNumberOfEvents());
 
         const auto style = isPeLEE ? PlottingHelper::ExternalPoints : PlottingHelper::External;//BNBData;
-        
+
         std::cout << "DEBUG Point Y6" << std::endl;
         // ******************************************************************************************
         // Check the input ntuples
@@ -202,7 +202,7 @@ void AnalyzerTest(const Config &config)
             Event event(*pEventPeLEE, hasTruth);
             // event.Print();
             std::cout << "DEBUG Point Y10" << std::endl;
-            
+
             // std::cout<<"("<<i<<")\nPeLEE: "<<"metadata.sub: "<<pEventPeLEE->metadata.sub()<<" "<<pEventPeLEE->metadata.run()<<std::endl;
             // std::cout<<"ubcc1pi: "<<"metadata.subRun: "<<event.metadata.subRun()<<" "<<event.metadata.run()<<std::endl;
             // std::cout<<"PeLEE: "<<"truth.ccnc: "<<pEventPeLEE->truth.ccnc()<<std::endl;
@@ -227,7 +227,7 @@ void AnalyzerTest(const Config &config)
             COMPARETWOSINGLEVALUES(Metadata, event.metadata, pEvent->metadata, subRun)
             COMPARETWOSINGLEVALUES(Metadata, event.metadata, pEvent->metadata, event)
             // hasTruthInfo
-            
+
             // ******************************************************************************************
             std::cout<<"\n~~~CHECKING TRUTH EVENT~~~"<<std::endl;
             // ******************************************************************************************
@@ -246,7 +246,7 @@ void AnalyzerTest(const Config &config)
                 std::cout<<"\n"<<std::endl;
                 for(const auto &v : pTruthUbcc1pi->systParamFirstValueIndex()) std::cout<<v<<std::endl;
             }
-            
+
             COMPAREANYTWOVALUES(Truth, event.truth, pEvent->truth, systParamValues)
             std::cout<<"PeLEE: ";
             if(event.truth.systParamValues.IsSet()) for (const auto & value : event.truth.systParamValues()) std::cout<<value<<" ";
@@ -270,7 +270,7 @@ void AnalyzerTest(const Config &config)
                 std::cout<<"Truth nuVertex values not identical in PeLEE and ubcc1pi events: "<<pTruth->nuVertex().X()<<" "<<pTruth->nuVertex().Y()<<" "<<pTruth->nuVertex().Z() \
                                                                               <<" vs "<<pTruthUbcc1pi->nuVertex().X()<<" "<<pTruthUbcc1pi->nuVertex().Y()<<" "<<pTruthUbcc1pi->nuVertex().Z()<<std::endl;
             }
- 
+
             // nFinalStates
             // COMPAREANYTWOVALUES(Truth, event.truth, pEvent->truth, slicePurities)
             // COMPAREANYTWOVALUES(Truth, event.truth, pEvent->truth, sliceCompletenesses)
@@ -424,7 +424,7 @@ void AnalyzerTest(const Config &config)
                 std::cout<<"-----"<<j<<"("<<j1<<" vs "<<j2<<")"<<"-----"<<std::endl;
                 const auto particle = event.reco.particles.at(j1);
                 const auto particleUbcc1pi = pEvent->reco.particles.at(j2);
-                
+
                 // isCCInclusiveMuonCandidate
                 COMPARETWOSINGLEVALUES(Reco Particles, particle, particleUbcc1pi, pdgCode)
                 COMPARETWOSINGLEVALUES(Reco Particles, particle, particleUbcc1pi, nHitsU)
@@ -575,7 +575,7 @@ void AnalyzerTest(const Config &config)
         //  // ATTN: This does not check whether file is corrupted or not; if in doubt, clear output directory before running
         // // auto pFileOut = std::make_shared<TFile>(path.c_str(), "UPDATE");
         //         // if(!pFileOut || pFileOut->IsZombie())//
-        // if(access( path.c_str(), F_OK ) == -1) 
+        // if(access( path.c_str(), F_OK ) == -1)
         // {
         //     // pFileOut->Close();
         //     auto pFileIn = std::make_shared<TFile>(fileName.c_str(), "READ"); // std::unique_ptr<TFile>(myFile(TFile::Open(fileName, "READ")));
@@ -609,7 +609,7 @@ void AnalyzerTest(const Config &config)
         // //     pTree->Branch("isSignalCC1Pi", &o_isSignalCC1Pi);
         // // }
 
-        // std::vector<Bool_t> isSelectedGenericCC0PiVect(nEvents, false); //todo remove default value -  only for debugging with >100% of events!!!!!!!!!!!!!!!!!! 
+        // std::vector<Bool_t> isSelectedGenericCC0PiVect(nEvents, false); //todo remove default value -  only for debugging with >100% of events!!!!!!!!!!!!!!!!!!
         // std::vector<Bool_t> isSelectedGenericCC1PiVect(nEvents, false);
         // std::vector<Bool_t> isSelectedGoldenCC0PiVect(nEvents, false);
         // std::vector<Bool_t> isSelectedGoldenCC1PiVect(nEvents, false);
@@ -625,7 +625,7 @@ void AnalyzerTest(const Config &config)
         // }
 
         // auto b1 = pTree->Branch("isSignalCC1Pi", &isSignalCC1PiVect, "isSignalCC1Pi/O");
-        
+
 
         // for (unsigned int i = 0; i < 5000/*nEvents*/; ++i) // todo change back to all events!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
         // {
@@ -801,12 +801,12 @@ void AnalyzerTest(const Config &config)
         //     // o_isSignalCC1Pi = isCC1PiSignal;
         //     // isSignalCC1PiVect.at(i) = isCC1PiSignal;
         //     isSignalCC1PiVect.at(i) = true; //todo remove debugging only
-            
+
         //     // pTree->Fill();
         // } // End of event-level iteration
 
         // Float_t isSelectedGenericCC0Pi = 44.14f;
-        
+
         // // auto pB0 = pTree->GetBranch("isSelectedGenericCC0Pi");
         // // if(pB0)
         // // {

@@ -39,15 +39,15 @@ void Analyzer(const Config &config)
 
         // The names of the cross-section kinematic parameters, and their binning information.
         // The third (boolean) parameter indicates if the cross-section bins should be scaled by their width
-        { "muonCosTheta", config.global.muonCosTheta, true }, 
-        { "muonPhi", config.global.muonPhi, true }, 
-        { "muonMomentum", config.global.muonMomentum, true }, 
+        { "muonCosTheta", config.global.muonCosTheta, true },
+        { "muonPhi", config.global.muonPhi, true },
+        { "muonMomentum", config.global.muonMomentum, true },
 
-        { "pionCosTheta", config.global.pionCosTheta, true }, 
-        { "pionPhi", config.global.pionPhi, true  }, 
-        { "pionMomentum", config.global.pionMomentum, true }, 
+        { "pionCosTheta", config.global.pionCosTheta, true },
+        { "pionPhi", config.global.pionPhi, true  },
+        { "pionMomentum", config.global.pionMomentum, true },
 
-        { "muonPionAngle", config.global.muonPionAngle, true }, 
+        { "muonPionAngle", config.global.muonPionAngle, true },
         { "nProtons", config.global.nProtons, false }
 
     })

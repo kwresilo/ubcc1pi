@@ -24,9 +24,9 @@ Event::Event(const EventPeLEE& eventPeLEE, const bool hasTruthInfo, const bool e
     UBCC1PI_MACRO_EVENT_TRUTH_PARTICLE_MEMBERS(truth_particle, "", UBCC1PI_MACRO_INIT_MEMBER_VECTOR)
     UBCC1PI_MACRO_EVENT_RECO_PARTICLE_MEMBERS(reco_particle, "", UBCC1PI_MACRO_INIT_MEMBER_VECTOR)
 
-    const int intMinValue = -2147483648; // hardcoded to match root type 
+    const int intMinValue = -2147483648; // hardcoded to match root type
     const float floatMinValue = -340282346638528859811704183484516925440.000000f;
-    // const double doubleMinValue = -1.7976931348623158e+308; 
+    // const double doubleMinValue = -1.7976931348623158e+308;
 
     // PELEE_TO_UBCC1PI_MACRO_EVENT_METADATA(eventPeLEE.metadata, metadata, PELEE_TO_UBCC1PI_MEMBER_CONVERSION)
     // PELEE_TO_UBCC1PI_MACRO_EVENT_TRUTH(eventPeLEE.truth, truth, PELEE_TO_UBCC1PI_MEMBER_CONVERSION)
@@ -114,7 +114,7 @@ Event::Event(const EventPeLEE& eventPeLEE, const bool hasTruthInfo, const bool e
             if(pParticlePeLEE->mc_px() != floatMinValue && pParticlePeLEE->mc_py() != floatMinValue && pParticlePeLEE->mc_pz() != floatMinValue) pParticle->momentum.Set(momentumVector);
             if(pParticlePeLEE->mc_E() != floatMinValue) pParticle->energy.Set(pParticlePeLEE->mc_E());
             if(pParticlePeLEE->mc_end_p() != floatMinValue) pParticle->endMomentum.Set(pParticlePeLEE->mc_end_p());
-            if(pParticlePeLEE->mc_end_p() != floatMinValue) pParticle->isStopping.Set(pParticlePeLEE->mc_end_p() <= std::numeric_limits<float>::epsilon()); 
+            if(pParticlePeLEE->mc_end_p() != floatMinValue) pParticle->isStopping.Set(pParticlePeLEE->mc_end_p() <= std::numeric_limits<float>::epsilon());
             if(pParticlePeLEE->mc_n_elastic() != intMinValue) pParticle->nElasticScatters.Set(pParticlePeLEE->mc_n_elastic());
             if(pParticlePeLEE->mc_n_inelastic() != intMinValue) pParticle->nInelasticScatters.Set(pParticlePeLEE->mc_n_inelastic());
 
@@ -370,7 +370,7 @@ Event::Event(const EventPeLEE& eventPeLEE, const bool hasTruthInfo, const bool e
         // if(pParticlePeLEE->dvtx_z_boundary() != doubleMinValue) pParticle->vertexDistanceToZBoundary.Set(pParticlePeLEE->dvtx_z_boundary());
 
         std::cout<<"DEBUG pfp_vtx point 0"<<std::endl;
-        if(pParticlePeLEE->pfp_vtx_x_v() != floatMinValue) pParticle->vertexX.Set(pParticlePeLEE->pfp_vtx_x_v());        
+        if(pParticlePeLEE->pfp_vtx_x_v() != floatMinValue) pParticle->vertexX.Set(pParticlePeLEE->pfp_vtx_x_v());
         if(pParticlePeLEE->pfp_vtx_y_v() != floatMinValue) pParticle->vertexY.Set(pParticlePeLEE->pfp_vtx_y_v());
         if(pParticlePeLEE->pfp_vtx_z_v() != floatMinValue) pParticle->vertexZ.Set(pParticlePeLEE->pfp_vtx_z_v());
         std::cout<<"DEBUG pfp_vtx point 1"<<std::endl;
@@ -389,7 +389,7 @@ Event::Event(const EventPeLEE& eventPeLEE, const bool hasTruthInfo, const bool e
 
         //     // if(pParticlePeLEE->shr_start_z_v() != floatMinValue) pParticle->vertexZ.Set(pParticlePeLEE->shr_start_z_v());
         //     // else if(pParticlePeLEE->trk_start_z_v() != floatMinValue) pParticle->vertexZ.Set(pParticlePeLEE->trk_start_z_v());
-            
+
         //     std::cout<<"DEBUG shr_start:     ";
         //     if(pParticlePeLEE->shr_start_x_v() != floatMinValue) std::cout<<"shr x: "<<pParticlePeLEE->shr_start_x_v()<<", ";
         //     if(pParticlePeLEE->shr_start_y_v() != floatMinValue) std::cout<<"shr y: "<<pParticlePeLEE->shr_start_y_v()<<", ";

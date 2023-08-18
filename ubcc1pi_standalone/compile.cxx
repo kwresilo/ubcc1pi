@@ -18,7 +18,7 @@
     gSystem->Load((std::string(boost_lib) + "/libboost_filesystem.so").c_str());
     gSystem->Load((std::string(boost_lib) + "/libboost_serialization.so").c_str());
     gSystem->Load((std::string(boost_lib) + "/libboost_wserialization.so").c_str());
-	
+
     // Generate any required dictionaries
     gInterpreter->GenerateDictionary("std::map<std::string, std::vector<float> >", "map;string;vector");
 

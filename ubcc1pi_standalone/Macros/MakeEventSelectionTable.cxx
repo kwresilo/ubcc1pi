@@ -98,7 +98,7 @@ void MakeEventSelectionTable(const Config &config)
             AnalysisHelper::PrintLoadingBar(i, nEvents);
 
             reader.LoadEvent(i);
-            
+
             const auto isTrueCC0Pi = AnalysisHelper::IsTrueCC0Pi(pEvent, config.global.useAbsPdg, config.global.protonMomentumThreshold); // todo remove this
             if(!isTrueCC0Pi) continue;
 

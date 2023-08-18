@@ -238,7 +238,7 @@ void MakeXSecPlots(const Config &config)
             const auto prediction = getMatrix("prediction_BNB");
             const auto predictionBiasVector = getMatrix("prediction_stat_bias_BNB");
             const auto predictionCovarianceMatrix = getMatrix("prediction_stat_covariance_BNB");
-            
+
             // // ######################
             // // jdetje TEST AREA BEGIN
 

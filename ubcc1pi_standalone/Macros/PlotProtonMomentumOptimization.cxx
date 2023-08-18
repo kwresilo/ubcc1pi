@@ -306,7 +306,7 @@ void PlotProtonMomentumOptimization(const Config &config)
             // Plot the error matrix on the prediction
             PlottingHelper::PlotErrorMatrix(predictionErrorMatrixScaled, prefix + "_prediction_stat_totalErrorMatrix_NuWroScaled", metadata);
             PlottingHelper::PlotFractionalErrorMatrix(predictionErrorMatrixScaled, predictionScaled, prefix + "_prediction_stat_totalFracErrorMatrix_NuWroScaled", metadata);
-            
+
             PlottingHelper::PlotErrorMatrix(predictionErrorMatrixUnscaled, prefix + "_prediction_stat_totalErrorMatrix_NuWroUnscaled", metadata);
             PlottingHelper::PlotFractionalErrorMatrix(predictionErrorMatrixUnscaled, predictionUnscaled, prefix + "_prediction_stat_totalFracErrorMatrix_NuWroUnscaled", metadata);
 

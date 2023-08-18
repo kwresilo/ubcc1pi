@@ -193,7 +193,7 @@ void PrintUniverseWeights(const Config &config)
     // // Loop over all cross-section objects
     typedef std::pair<std::vector<Double_t>,std::vector<Double_t>> paramAndErrorPair; // Todo: Improve code!
     //Parameters: selectionName name
-    std::map<std::string,std::map<std::string, std::vector<float>>> cc0piCovarianceMap; 
+    std::map<std::string,std::map<std::string, std::vector<float>>> cc0piCovarianceMap;
     std::map<std::string, std::map<std::string, paramAndErrorPair>> cc0piNominalConstraintMap;
     //Parameters: selectionName name paramName (i.e. golden muonMomentum hadronProduction)
     std::map<std::string, std::map<std::string, std::map<std::string, std::vector<paramAndErrorPair>>>> cc0piUniverseConstraintMap;
@@ -203,7 +203,7 @@ void PrintUniverseWeights(const Config &config)
     std::ifstream ifs1("cc0piCovarianceMap.bin", std::ios::binary);
     std::ifstream ifs2("cc0piNominalConstraintMap.bin", std::ios::binary);
     std::ifstream ifs3("cc0piUniverseConstraintMap.bin", std::ios::binary);
-    
+
     boost::archive::binary_iarchive iarch1(ifs1);
     boost::archive::binary_iarchive iarch2(ifs2);
     boost::archive::binary_iarchive iarch3(ifs3);
@@ -437,7 +437,7 @@ void PrintUniverseWeights(const Config &config)
 
                 // Determine if this is truly a CC1Pi event
                 const auto isTrueCC1Pi = (isOverlay || isDetVar) && AnalysisHelper::IsTrueCC1Pi(pEvent, config.global.useAbsPdg);
-                
+
                 // Determine if this is truly a CC0Pi event
                 const auto isTrueCC0Pi = (isOverlay || isDetVar) && AnalysisHelper::IsTrueCC0Pi(pEvent, config.global.useAbsPdg, config.global.protonMomentumThreshold);
 
@@ -479,7 +479,7 @@ void PrintUniverseWeights(const Config &config)
                 //     }
                 // }
                 // continue;//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////// Remove
-                
+
                 // Here we apply truth-level phase-space restrictions
                 // For all true CC1Pi events, we check if the values of each kinematic variable are within the supplied limits. If not then the
                 // event is not classed as "signal"
@@ -621,7 +621,7 @@ void PrintUniverseWeights(const Config &config)
                         ? CrossSectionHelper::GetWeightsMap(pEvent->truth, systParams.reintDimensions, config.extractXSecs.mutuallyExclusiveDimensions)
                         : CrossSectionHelper::GetUnitWeightsMap(systParams.reintDimensions)
                 );
-                
+
 
                 // Handle signal events
                 if (!isSignal)

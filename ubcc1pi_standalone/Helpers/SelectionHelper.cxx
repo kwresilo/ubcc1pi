@@ -563,7 +563,7 @@ SelectionHelper::EventSelection SelectionHelper::GetOriginalSelection()
         // Mark the cut "topologicalScore" as passed
         cutTracker.MarkCutAsPassed("topologicalScore");
         //std::cout<<"CC1pi: topologicalScore"<<std::endl;
-        
+
         // ----------------------------------------------------------------------------------
         // startNearVertex
         // ----------------------------------------------------------------------------------
@@ -683,13 +683,13 @@ SelectionHelper::EventSelection SelectionHelper::GetDefaultSelection()
     // Define the actual selection logic
     const auto logic = [](const auto &pEvent, auto &bdtMap, auto &cutTracker)
     {
-        const auto &recoParticles = pEvent->reco.particles; // Use all neutrino downstream particles 
+        const auto &recoParticles = pEvent->reco.particles; // Use all neutrino downstream particles
         std::vector<bool> selectedParticles(recoParticles.size(), true);
         // ----------------------------------------------------------------------------------
         // particleTrackScore
         // ----------------------------------------------------------------------------------
         // std::cout<<"DEBUG default particleTrackScore"<<std::endl;
-        
+
         // Get the track score cut value
         const auto minTrackScore = cutTracker.GetCutValue("particleTrackScore");
         for(unsigned int i = 0; i< recoParticles.size(); ++i)
@@ -841,7 +841,7 @@ SelectionHelper::EventSelection SelectionHelper::GetDefaultSelection()
         cutTracker.MarkCutAsPassed("particleProtonChi2OverMuonChi2");
 
         // ----------------------------------------------------------------------------------
-        // Not a cut: In case there are multiple muon candidates, we select the longest one 
+        // Not a cut: In case there are multiple muon candidates, we select the longest one
         // ----------------------------------------------------------------------------------
         // std::cout<<"DEBUG default longest particle"<<std::endl;
 
@@ -902,11 +902,11 @@ SelectionHelper::EventSelection SelectionHelper::GetDefaultSelection()
                 std::cout<<"DEBUG default daughterVerticesContained 3.1 vertexX.IsSet() "<<particle.vertexX.IsSet()<<" vertexY.IsSet() "<<particle.vertexY.IsSet()<<" vertexZ.IsSet() "<<particle.vertexZ.IsSet()<<std::endl;
                 return false;
             }
-            
+
             // std::cout<<"DEBUG default daughterVerticesContained 4"<<std::endl;
 
             const TVector3 vertex(particle.vertexX(), particle.vertexY(), particle.vertexZ());
-            
+
             std::cout<<"DEBUG default daughterVerticesContained 5"<<std::endl;
             // Insist that all vertices are contained within the margin
             if (!AnalysisHelper::IsPointWithinMargins(vertex, margin, margin, margin, margin, margin, margin))
@@ -926,7 +926,7 @@ SelectionHelper::EventSelection SelectionHelper::GetDefaultSelection()
         const auto recoVertexCC = pEvent->reco.nuVertexNoSCC();
         if(!AnalysisHelper::IsFiducial(recoVertexCC))
             return false;
-        
+
         // Mark the cut "nuVertexFiducial" as passed
         cutTracker.MarkCutAsPassed("nuVertexFiducial");
 
@@ -940,7 +940,7 @@ SelectionHelper::EventSelection SelectionHelper::GetDefaultSelection()
         const auto maxFlashMatchScore = 10.0f;
 
         // Insist that the topological score is above the cut value or the flash match score is below the cut value
-        // Here: when neither is the case, the event is rejected 
+        // Here: when neither is the case, the event is rejected
         if (pEvent->reco.selectedTopologicalScore() <= minTopologicalScoreCC1 && pEvent->reco.flashChi2.IsSet() && pEvent->reco.flashChi2() >= maxFlashMatchScore)
             return false;
 
@@ -1210,7 +1210,7 @@ SelectionHelper::EventSelection SelectionHelper::GetDefaultSelection()
         // Mark the cut "topologicalScore" as passed
         cutTracker.MarkCutAsPassed("topologicalScore");
         //std::cout<<"CC1pi: topologicalScore"<<std::endl;
-        
+
         // ----------------------------------------------------------------------------------
         // startNearVertex
         // ----------------------------------------------------------------------------------
@@ -1885,7 +1885,7 @@ SelectionHelper::EventSelection SelectionHelper::GetCC0piSelectionModified(const
         // const auto &leadingproton = recoParticles.at(leadingProtonIndex);
         // const auto muonBDTThreshold = cutTracker.GetCutValue("muonLikeProton");
         // const auto protonBDTThresholdHigh = cutTracker.GetCutValue("barelyResemblingProton");
-        // bool suitableProton = false; 
+        // bool suitableProton = false;
         // for(const auto &protonIndex: protonIndices)
         // {
         //     const auto proton = recoParticles.at(protonIndex);

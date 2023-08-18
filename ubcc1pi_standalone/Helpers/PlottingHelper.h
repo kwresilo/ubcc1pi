@@ -362,7 +362,7 @@ class PlottingHelper
         /**
          *  @brief  Get the plot style of an interaction
          *
-         *  @param  interactionMode the interaction integer value 
+         *  @param  interactionMode the interaction integer value
          *
          *  @return the plot style
          */
@@ -371,7 +371,7 @@ class PlottingHelper
         /**
          *  @brief  Get the plot style of an interaction
          *
-         *  @param  interactionMode the interaction integer value 
+         *  @param  interactionMode the interaction integer value
          *
          *  @return the plot style
          */

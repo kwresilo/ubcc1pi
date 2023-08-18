@@ -7,7 +7,7 @@
 // /**
 //  * Todo:
 //  * Implement golden cut for the sideband fit?
-//  * 
+//  *
 //  */
 
 // #include "ubcc1pi_standalone/Macros/Macros.h"
@@ -45,13 +45,13 @@
 // //     Double_t chisq = 0;
 // //     Double_t delta;
 // //     Int_t nBins = x.size();
-    
-// //     std::vector<Double_t> xScaled(x.begin(), x.end()); 
+
+// //     std::vector<Double_t> xScaled(x.begin(), x.end());
 // //     for (Int_t i=0; i<nBins; i++)
 // //     {
 // //         xScaled[i]*=par[i];
 // //     }
-    
+
 // //     std::vector<Double_t> xSmeared(nBins, 0);
 
 // //     for (Int_t i=0; i<nBins; i++)
@@ -65,7 +65,7 @@
 // //     Int_t relevantBinsMax = overflow ? nBins-1 : nBins;
 // //     Int_t relevantBinsMin = underflow ? 1 : 0;
 
-// //     for (Int_t i=relevantBinsMin; i<relevantBinsMax; i++) 
+// //     for (Int_t i=relevantBinsMin; i<relevantBinsMax; i++)
 // //     {
 // //         delta  = (y[i]-xSmeared[i])/errorY[i];
 // //         chisq += delta*delta;
@@ -133,7 +133,7 @@
 //     // total neutrino event rate (as a function of the true neutrino energy) to the same rate in the nominal simulation to reweight the
 //     // input neutrino flux distribution. The integrated flux is each universe is used to scale the selected event rate when calculating the
 //     // cross-section in that universe. For all non-flux parameters, the nominal integrated flux is used.
-//     CrossSectionHelper::CrossSection::ScalingData scalingData;   
+//     CrossSectionHelper::CrossSection::ScalingData scalingData;
 
 //     // -------------------------------------------------------------------------------------------------------------------------------------
 //     // Setup the event selection
@@ -357,7 +357,7 @@
 //             // -----------------------------------------------------------------------------------------------------------------------------
 //             // Handle BNB data
 //             // -----------------------------------------------------------------------------------------------------------------------------
-            
+
 //             if (isDataBNB)
 //             {
 //                 for (auto &[selectionName, xsecs] : xsecMapSideband)
@@ -386,7 +386,7 @@
 //             const auto weight = AnalysisHelper::GetNominalEventWeight(pEvent) * normalisation;
 
 //             // Determine if this is truly a CC0Pi event
-//             const auto isTrueCC0Pi = (isOverlay || isDetVar) && AnalysisHelper::IsTrueCC0Pi(pEvent, config.global.useAbsPdg, config.global.protonMomentumThreshold);            
+//             const auto isTrueCC0Pi = (isOverlay || isDetVar) && AnalysisHelper::IsTrueCC0Pi(pEvent, config.global.useAbsPdg, config.global.protonMomentumThreshold);
 
 //             // Get the truth analysis data (if available, otherwise set to dummy values)
 //             const auto truthData = (
@@ -547,11 +547,11 @@
 //     // Loop over all cross-section objects
 //     typedef std::pair<std::vector<Double_t>, std::vector<Double_t>> paramAndErrorPair; // Todo: Improve code!
 //     //Parameters: selectionName name
-//     std::map<std::string,std::map<std::string, std::vector<float>>> cc0piCovarianceMap; 
+//     std::map<std::string,std::map<std::string, std::vector<float>>> cc0piCovarianceMap;
 //     std::map<std::string, std::map<std::string, paramAndErrorPair>> cc0piNominalConstraintMap;
 //     //Parameters: selectionName name paramName (i.e. golden muonMomentum hadronProduction)
 //     std::map<std::string, std::map<std::string, std::map<std::string, std::vector<paramAndErrorPair>>>> cc0piUniverseConstraintMap;
-    
+
 //     for (const auto &[selectionName, xsecs] : xsecMapSideband)
 //     {
 //         for (const auto &[name, xsec] : xsecs)
@@ -561,7 +561,7 @@
 //             // -------------------------------------------------------------------------------------------------------------------------------------
 
 //             std::cout<<"_______________________ExtractSidebandFit Fitting: "<<selectionName<<" - "<<name<<"_______________________"<<std::endl;
-            
+
 //             // Get the smearing matrix of selected events
 //             const auto smearingMatrix = xsec.GetSmearingMatrixAllSelected();
 //             const auto selectedEventsBackgroundReco = xsec.GetSelectedBackgroundEvents();
@@ -592,7 +592,7 @@
 
 //             std::vector<float> elements;
 //             const auto nBins = selectedEventsData.GetRows();
-            
+
 //             for (unsigned int iBin = 0; iBin < nBins; ++iBin)
 //             {
 //                 const auto value = selectedEventsData.At(iBin, 0);
@@ -617,9 +617,9 @@
 
 //             const auto dataSystBiasCovariances = xsec.GetBNBDataCrossSectionSystUncertainties(scalingData);
 //             const auto smearingMatrixSystBiasCovariances = xsec.GetSmearingMatrixSystUncertainties();
-//             for (const auto &[quantity, covariances] : 
+//             for (const auto &[quantity, covariances] :
 //             {
-//                 std::make_pair(std::string("data"), dataSystBiasCovariances), 
+//                 std::make_pair(std::string("data"), dataSystBiasCovariances),
 //                 std::make_pair(std::string("smearingMatrix"), smearingMatrixSystBiasCovariances)
 //             })
 //             {
@@ -630,7 +630,7 @@
 //                 const auto statErrorMatrix = ubsmear::UBMatrixHelper::GetDiagonalMatrix(statVariances);
 //                 errorMatrixTotalSum = errorMatrixTotalSum + statErrorMatrix;
 
-//                 // Handle the multisim parameters        
+//                 // Handle the multisim parameters
 //                 for (const auto &[group, map] : covariances)
 //                 {
 //                     // Setup an empty error matrix for this group
@@ -641,7 +641,7 @@
 //                         std::cout<<"DEBUG --- "<<group<<" - "<<paramName<<std::endl;
 //                         // Get the bias vector and covariance matrix
 //                         const auto &[pBias, pCovariance] = biasCovariance;
-                        
+
 //                         // Get the total error matrix from the bias and covariance
 //                         const auto errorMatrix = CrossSectionHelper::GetErrorMatrix(*pBias, *pCovariance);
 
@@ -669,10 +669,10 @@
 //             pTotalErrorMatrixMapData = &totalErrorMatrixMap.at("data");
 //             pTotalErrorMatrixMapSmearingMatrix = &totalErrorMatrixMap.at("smearingMatrix");
 //             pPredictionErrorMatrix = &predictionErrorMatrix;
-            
+
 //             auto minimizer = FittingHelper(nBins);
 //             std::pair<std::vector<Double_t>, std::vector<Double_t>> result;
-            
+
 //             std::vector<float> fitCovMatrixVector;
 //             bool successful = false;
 //             minimizer.Fit(GetChi2, result, successful, fitCovMatrixVector, 0);
@@ -691,8 +691,8 @@
 //             vector<float> paramErrorVector(result.second.begin(), result.second.end()); //Todo avoid this
 //             const ubsmear::UBMatrix sidebandParamVectorTruth(paramVector, nBins, 1);
 //             const ubsmear::UBMatrix sidebandErrorVectorTruth(paramErrorVector, nBins, 1);
-            
-//             // const auto sidebandErrorVectorReco = smearingMatrixAllSelected*sidebandErrorVectorTruth; // Todo: check this multiplication is correctly computed 
+
+//             // const auto sidebandErrorVectorReco = smearingMatrixAllSelected*sidebandErrorVectorTruth; // Todo: check this multiplication is correctly computed
 //             FormattingHelper::SaveMatrix(sidebandParamVectorTruth, "SidebandFit_" + selectionName + "_" + name + "_sideband_parameterVector.txt");
 //             FormattingHelper::SaveMatrix(sidebandErrorVectorTruth, "SidebandFit_" + selectionName + "_" + name + "_sideband_parameterErrorVector.txt");
 
@@ -754,7 +754,7 @@
 //                             std::cout<<"Fit not possible - Smearing matrix not available."<<std::endl;
 //                             result = std::make_pair(std::vector<Double_t>(nBins, -1), std::vector<Double_t>(nBins, -1));
 //                         }
-                        
+
 //                         resultVector.push_back(result);
 //                     }
 //                     cc0piUniverseConstraintMap[selectionName][name].emplace(paramName, resultVector);
@@ -766,7 +766,7 @@
 //     std::ofstream ofs1("cc0piCovarianceMap.bin", std::ios::binary);
 //     std::ofstream ofs2("cc0piNominalConstraintMap.bin", std::ios::binary);
 //     std::ofstream ofs3("cc0piUniverseConstraintMap.bin", std::ios::binary);
-    
+
 
 //     boost::archive::binary_oarchive oarch1(ofs1);
 //     boost::archive::binary_oarchive oarch2(ofs2);
@@ -775,7 +775,7 @@
 //     oarch1 << cc0piCovarianceMap;
 //     oarch2 << cc0piNominalConstraintMap;
 //     oarch3 << cc0piUniverseConstraintMap;
-    
+
 //     ofs1.close();
 //     ofs2.close();
 //     ofs3.close();

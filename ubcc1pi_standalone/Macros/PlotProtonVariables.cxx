@@ -171,7 +171,7 @@
 //     // PlottingHelper::MultiPlot muonPionAnglePlot("Muon-pion opening angle / rad", yLabel, 50u, config.global.muonPionAngle.min, config.global.muonPionAngle.max, true, config.global.axisTitles);
 //     // PlottingHelper::MultiPlot nProtonsPlot("Proton multiplicity", yLabel, 5u, 0, 5, true, config.global.axisTitles);
 
-//     // The highest energy proton variables are plotted with three different selections  
+//     // The highest energy proton variables are plotted with three different selections
 //     const std::vector<std::string> protonPlotNames{"nProtons>0", "nProtons==1", "nProtons>=2"};
 //     std::vector<PlottingHelper::MultiPlot> protonMomentumPlots, protonCosThetaPlots, protonPhiPlots;
 //     std::vector<PlottingHelper::MultiPlot> protonMomentumParticlePlots, protonCosThetaParticlePlots, protonPhiParticlePlots;
@@ -230,7 +230,7 @@
 //     std::shared_ptr<TH2F> pTrueProtonMomvsTrueProtonMultiplicitySidebandGenie(new TH2F("trueProtonMomvsTrueProtonMultiplicitySidebandGenie", ";True proton multiplicity;True proton momentum / GeV", 10, 0, 10, 20, 0.1f, 2.2f));
 //     std::shared_ptr<TH2F> pTrueProtonMomvsTrueProtonMultiplicityNotGenericGenie(new TH2F("trueProtonMomvsTrueProtonMultiplicityNotGenericGenie", ";True proton multiplicity;True proton momentum / GeV", 10, 0, 10, 20, 0.1f, 2.2f));
 //     std::shared_ptr<TH2F> pTrueProtonMomvsTrueProtonMultiplicityNotSidebandGenie(new TH2F("trueProtonMomvsTrueProtonMultiplicityNotSidebandGenie", ";True proton multiplicity;True proton momentum / GeV", 10, 0, 10, 20, 0.1f, 2.2f));
-    
+
 //     std::shared_ptr<TH2F> pTrueProtonMomvsTrueProtonMultiplicityGenericNuWroRatio(new TH2F("trueProtonMomvsTrueProtonMultiplicityGenericNuWroRatio", ";True proton multiplicity;True proton momentum / GeV", 10, 0, 10, 20, 0.1f, 2.2f));
 //     std::shared_ptr<TH2F> pTrueProtonMomvsTrueProtonMultiplicitySidebandNuWroRatio(new TH2F("trueProtonMomvsTrueProtonMultiplicitySidebandNuWroRatio", ";True proton multiplicity;True proton momentum / GeV", 10, 0, 10, 20, 0.1f, 2.2f));
 //     std::shared_ptr<TH2F> pTrueProtonMomvsTrueProtonMultiplicityGenericGenieRatio(new TH2F("trueProtonMomvsTrueProtonMultiplicityGenericGenieRatio", ";True proton multiplicity;True proton momentum / GeV", 10, 0, 10, 20, 0.1f, 2.2f));
@@ -239,11 +239,11 @@
 
 //     // Proton plots are generated for three different muliplicity ranges
 //     // const std::vector<std::pair<std::string, std::function<bool(unsigned int)>> {
-//     //     {"protons>0", [](unsigned int n){return n>0;}}, 
+//     //     {"protons>0", [](unsigned int n){return n>0;}},
 //     //     {"protons=1", [](unsigned int n){return n=1;}},
 //     //     {"protons>=2", [](unsigned int n){return n>=2;}}
 //     // };
-    
+
 //     // std::cout<<"PlotProtonVariables Point 1"<<std::endl;
 
 //     for(auto const& plotName : protonPlotNames)
@@ -361,7 +361,7 @@
 
 //             // Get the truth and reco analysis data
 //             const auto weight = AnalysisHelper::GetNominalEventWeight(pEvent) * normalisation;
-            
+
 //             // const auto truthData = AnalysisHelper::GetTruthAnalysisData(pEvent->truth, config.global.useAbsPdg, config.global.protonMomentumThreshold);
 //             const auto plotStyle = PlottingHelper::GetPlotStyle(sampleType, pEvent, config.global.useAbsPdg);
 
@@ -473,7 +473,7 @@
 //                 pMuonPhiRecoPlotNuWroGeneric->Fill(           recoData.muonPhi,                                 weight);
 //                 pMuonPhiRecoPlotNuWroSideband->Fill(          sidebandRecoData.muonPhi,                         weight);
 //             }
-            
+
 
 //             // Not all selected events have protons. Use only those that do to plot reconstructed proton variables.
 
@@ -531,7 +531,7 @@
 //                     for (unsigned int plot = 0;plot < protonPlotNames.size();++plot)
 //                     {
 //                         // Check proton multiplicity to match conditions described in protonPlotNames
-//                         // No need to to test for plot==0 due to: if (protonIndex!=std::numeric_limits<unsigned int>::max()) 
+//                         // No need to to test for plot==0 due to: if (protonIndex!=std::numeric_limits<unsigned int>::max())
 //                         // std::cout<<"PlotProtonVariables Point 3"<<std::endl;
 //                         if(plot==1 && recoData.nProtons!=1) continue;
 //                         if(plot==2 && recoData.nProtons<2) continue;
@@ -557,7 +557,7 @@
 //             if (protonIndexTruth!=std::numeric_limits<unsigned int>::max())
 //             {
 //                 // std::cout<<"PlotProtonVariables Point 4.32"<<std::endl;
-                
+
 //                 const auto muonIndex = AnalysisHelper::GetTrueMuonIndex(pEvent->truth, true);
 //                 const auto &muonTruth = truthParticles.at(muonIndex);
 //                 // std::cout<<"PlotProtonVariables Point 4.32..1"<<std::endl;
@@ -638,7 +638,7 @@
 //                 for (unsigned int plot = 0;plot < protonPlotNames.size();++plot)
 //                 {
 //                     // Check proton multiplicity to match conditions described in protonPlotNames
-//                     // No need to to test for plot==0 due to: if (protonIndex!=std::numeric_limits<unsigned int>::max()) 
+//                     // No need to to test for plot==0 due to: if (protonIndex!=std::numeric_limits<unsigned int>::max())
 //                     if(plot==1 && truthData.nProtons!=1) continue;
 //                     if(plot==2 && truthData.nProtons<2) continue;
 
@@ -711,7 +711,7 @@
 //                     const auto muonDir = TVector3(muon.directionX(), muon.directionY(), muon.directionZ()).Unit();
 //                     // const auto pionDir = TVector3(pion.directionX(), pion.directionY(), pion.directionZ()).Unit();
 //                     const auto protonDir = TVector3(proton.directionX(), proton.directionY(), proton.directionZ()).Unit();
-                    
+
 //                     const auto protonMomentum = AnalysisHelper::GetProtonMomentumFromRange(proton.range());
 //                     const auto protonCosTheta = protonDir.Z();
 //                     const auto protonPhi  = std::atan2(protonDir.Y(), protonDir.X());
@@ -723,7 +723,7 @@
 //                     {
 //                         // std::cout<<"PlotProtonVariables Point 7"<<std::endl;
 //                         // Check proton multiplicity to match conditions described in protonPlotNames
-//                         // No need to to test for plot==0 due to: if (protonIndex!=std::numeric_limits<unsigned int>::max()) 
+//                         // No need to to test for plot==0 due to: if (protonIndex!=std::numeric_limits<unsigned int>::max())
 //                         if(plot==1 && sidebandRecoData.nProtons!=1) continue;
 //                         if(plot==2 && sidebandRecoData.nProtons<2) continue;
 //                         // std::cout<<"PlotProtonVariables Point 8"<<std::endl;
@@ -792,7 +792,7 @@
 //         // protonPionAnglePlotsTruth.at(plot).SaveAsStacked("truth_protonPionAngle_" + prefix + "_" + plotName,false,false,false,config.global.axisTitles);
 //         protonMuonAnglePlotsTruth.at(plot).SaveAsStacked("truth_protonMuonAngle_" + prefix + "_" + plotName,false,false,false,config.global.axisTitles);
 
-        
+
 //         protonMomentumPlotsSideband.at(plot).SaveAsStacked("reco_sideband_protonMomentum_" + prefix + "_" + plotName,false,false,false,config.global.axisTitles);
 //         protonCosThetaPlotsSideband.at(plot).SaveAsStacked("reco_sideband_protonCosTheta_" + prefix + "_" + plotName,false,false,false,config.global.axisTitles);
 //         protonPhiPlotsSideband.at(plot).SaveAsStacked("reco_sideband_protonPhi_" + prefix + "_" + plotName,false,false,false,config.global.axisTitles);

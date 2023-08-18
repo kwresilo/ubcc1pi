@@ -408,36 +408,36 @@ class CrossSectionHelper
 
                 /**
                 *  @brief  Get the nominal sideband scaling factor
-                * 
+                *
                 *  @param trueSidebandValue the true sideband value of an event
                 *  @param cc0piNominalConstraintParam the nominal constraint parameter list for a cross-section
                 *  @param binEdges the bin edges used for the sideband fit
-                * 
+                *
                 *  @return scaling parameter
                 */
                 Double_t GetSidebandScaling(const float trueSidebandValue, const std::vector<Double_t> &cc0piNominalConstraintParam, const std::vector<float> &binEdges) const;
 
                 /**
                 *  @brief  Get the nominal sideband scaling factor
-                * 
+                *
                 *  @param weights input weight map
                 *  @param trueSidebandValue the true sideband value of an event
                 *  @param cc0piUniverseConstraintParam the universe constraint parameter list for a cross-section
-                * 
-                * 
+                *
+                *
                 *  @return universe parameter weights
                 */
                 SystFloatMap GetSidebandUniverseScaling(const CrossSectionHelper::SystFloatMap weights, const float trueSidebandValue, const std::map<std::string, std::vector<std::pair<std::vector<Double_t>,std::vector<Double_t>>>> &cc0piUniverseConstraints, const std::vector<float> &binEdges) const;
 
                 /**
                 *  @brief  Get the nominal sideband scaling factor
-                * 
+                *
                 *  @param dimensions the number fo universes for the sideband weights
                 *  @param trueSidebandValue the true sideband value of an event
                 *  @param cc0piNominalConstraintParam the nominal constraint parameter list for a cross-section
                 *  @param cc0piNominalConstraintParamErro the nominal constraint parameter error list for a cross-section
                 *  @param binEdges the bin edges used for the sideband fit
-                * 
+                *
                 *  @return sideband parameter universe weights
                 */
                 std::vector<float> GetSidebandParameterWeights(const float trueSidebandValue, const std::vector<Double_t> &cc0piNominalConstraintParam, const std::vector<Double_t> &cc0piNominalConstraintParamError, const std::vector<float> &binEdges) const;
@@ -513,7 +513,7 @@ class CrossSectionHelper
                 *
                 *  @return the cross-section as a column vector
                 */
-                ubsmear::UBMatrix GetPredictedCrossSectionInUniverse(const std::string &group, const std::string &paramName, const unsigned int universeIndex, const ScalingData &scalingData) const;                
+                ubsmear::UBMatrix GetPredictedCrossSectionInUniverse(const std::string &group, const std::string &paramName, const unsigned int universeIndex, const ScalingData &scalingData) const;
 
                 /**
                 *  @brief  Get the NuWro predicted flux-integrated forward-folded cross-section in the nominal universe
@@ -598,14 +598,14 @@ class CrossSectionHelper
                 /**
                 *  @brief  Get the selected background event distribution in reco space for each multisim universe
                 *
-                *  @return the map of multisim TH1 histograms for each universe//Todo improve description   
+                *  @return the map of multisim TH1 histograms for each universe//Todo improve description
                 */
                 std::unordered_map<std::string, CrossSectionHelper::SystTH1FMap> GetSelectedBackgroundRecoMap() const;
 
                 /**
                 *  @brief  Get the selected signal event distribution in reco-vs-truth space for each multisim universe
                 *
-                *  @return the map of multisim TH2 histograms for each universe//Todo improve description   
+                *  @return the map of multisim TH2 histograms for each universe//Todo improve description
                 */
                 std::unordered_map<std::string, CrossSectionHelper::SystTH2FMap> GetSelectedSignalRecoTruthMap() const;
 

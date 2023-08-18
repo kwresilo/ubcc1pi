@@ -107,7 +107,7 @@ void GetChiSquared(Int_t &npar, Double_t *gin, Double_t &chi2, Double_t *par, In
     {
         // The eigenvalues of the covariance matrix give the variance along each eigenvector
         const auto variance = pEigenvalues->At(iBin, 0);
-    
+
         // Check if the eigenvalue is zero.
         // This represents a combination of bins in which there is no variance
         if (std::abs(variance) <= std::numeric_limits<float>::epsilon())
@@ -117,12 +117,12 @@ void GetChiSquared(Int_t &npar, Double_t *gin, Double_t &chi2, Double_t *par, In
             throw std::logic_error("UBStatisticsHelper::GetChi2 - input covariance matrix has a zero eigenvalue");
         }
 
-    
+
         // Check that we don't have a negative eigenvalue - this should never happen for a true covariance matrix
         if (variance < 0.f)
             throw std::logic_error("UBStatisticsHelper::GetChi2 - input covariance matrix has negative eigenvalue: " + std::to_string(variance));
 
-    
+
         // Add to the total chi2 and increase the number of degrees of freedom
         const auto diff = diffEigen.At(iBin, 0);
         chi2 += (diff * diff) / variance;
@@ -183,7 +183,7 @@ void ExtractNuWroSidebandFit2(const Config &config)
     // Setup the event selection
     // -------------------------------------------------------------------------------------------------------------------------------------
     // Here we are using the default CC1pi selection. The final cut of this selection (named "likelyGoldenPion") is used to identify events
-    // in which the reconstructed & selected pion candidate is "golden". Here a golden pion is one that is: contained within the TPC, 
+    // in which the reconstructed & selected pion candidate is "golden". Here a golden pion is one that is: contained within the TPC,
     // doesn't undergo any scatters on the argon, and comes to rest (before any secondary interaction). If an event passes all the cuts of
     // this selection, it's said to pass the "golden" selection. If an event passes the penultimate cut, it is said to have passed the
     // "generic" selection. Events passing the generic selection are likely to be CC1pi, but may or may not have a golden pion. All events
@@ -199,7 +199,7 @@ void ExtractNuWroSidebandFit2(const Config &config)
     // Setup the cross-section objects
     // -------------------------------------------------------------------------------------------------------------------------------------
     // Here we make a map from a name of the cross-section to the cross-section object itself. In this way, we can iterate through the
-    // cross-section objects and reduce code-bloat. The first index is an identifier for the selection that's applied (generic or goldlen), 
+    // cross-section objects and reduce code-bloat. The first index is an identifier for the selection that's applied (generic or goldlen),
     // the second index is an identifier for the kinematic quantity that's relevant for the cross-section (e.g. muonMomentum), and the
     // mapped type is the cross-section object.
     typedef std::map<std::string, std::map<std::string, CrossSectionHelper::CrossSection> > CrossSectionMap;
@@ -312,7 +312,7 @@ void ExtractNuWroSidebandFit2(const Config &config)
     ExtractionHelper::InputFileList inputData;
     float totalExposurePOT;
     ExtractionHelper::PopulateInputFileList(config, inputData, totalExposurePOT);
-    
+
     scalingData.exposurePOT = totalExposurePOT*testingFraction;
     scalingData.nTargets = config.global.targetDensity * (1e-8) * AnalysisHelper::GetFiducialVolume();
 
@@ -356,7 +356,7 @@ void ExtractNuWroSidebandFit2(const Config &config)
         //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
         //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
         //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-        //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!        
+        //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
         std::cout<<"############################\nUsing "<<testingFraction*100<<"\% of events!\n############################\n"<<std::endl;
         for (unsigned int i = 0; i < nEvents*testingFraction; ++i) // todo change back to all events!!!!!!!!!!!!!!!!!!!!!!
         {
@@ -436,7 +436,7 @@ void ExtractNuWroSidebandFit2(const Config &config)
                         xsecMapSidebandGenie.at(selectionName).at(name).AddWeightedSelectedDataEvent(getSidebandValue.at(name)(recoData), weight);
                     }
                 }
-            }            
+            }
             if (isDataBNB) continue; // For BNB data that's all we need to do!
             // std::cout<<"DEBUG Fit P4"<<std::endl;
             // -----------------------------------------------------------------------------------------------------------------------------
@@ -554,7 +554,7 @@ void ExtractNuWroSidebandFit2(const Config &config)
                 {
                     std::cout<<"xsecWeightsScaleFactor is close to zero but nominal weight is not!"<<std::endl;
                     std::cout<<"Skipped event: "<<i<<" - weight: "<<weight<<" - xsecWeightsScaleFactor: "<<xsecWeightsScaleFactor<<std::endl;
-                    throw std::runtime_error("xsecWeightsScaleFactor is close to zero but nominal weight is not!"); 
+                    throw std::runtime_error("xsecWeightsScaleFactor is close to zero but nominal weight is not!");
                 }
                 // std::cout<<"Skipped: xsecWeightsScaleFactor and nominal weight are close to zero!"<<std::endl;
                 continue;
@@ -596,7 +596,7 @@ void ExtractNuWroSidebandFit2(const Config &config)
                         {
                             // std::cout<<"DEBUG Fit P8.3"<<std::endl;
                             xsecMapSidebandNuWroTrue.at(selectionName).at(name).AddSignalEvent(recoValue, trueValue, isSelected, weight, emptySystFloatMap, xsecWeights, emptySystFloatMap);
-                        } 
+                        }
                         else
                         {
                             // std::cout<<"DEBUG Fit P8.4"<<std::endl;
@@ -629,7 +629,7 @@ void ExtractNuWroSidebandFit2(const Config &config)
                         if(isNuWro)
                         {
                             xsecMapSidebandNuWroTrue.at(selectionName).at(name).AddSelectedBackgroundEvent(recoValue, false, weight, emptySystFloatMap, xsecWeights, emptySystFloatMap, bootstrapWeights);
-                        } 
+                        }
                         else
                         {
                             if(isOverlay) // Genie MC for NuWro (no EXT or dirt events in NuWro)
@@ -742,7 +742,7 @@ void ExtractNuWroSidebandFit2(const Config &config)
 
                 // const auto &[pPredictionStatBias, pPredictionStatCovariance] = xsec.GetPredictedCrossSectionStatUncertainty(scalingData);
                 // const auto predictionErrorMatrix = CrossSectionHelper::GetErrorMatrix(*pPredictionStatBias, *pPredictionStatCovariance);
-                
+
                 const auto totalErrorMatrixMap = xsec.GetTotalErrorMatrixMap(scalingData);
                 // std::cout<<dataTypeName<<": nominal totalErrorMatrixMap.at(\"data\"):"<<std::endl;
                 // totalErrorMatrixMap.at("data").Print();
@@ -763,7 +763,7 @@ void ExtractNuWroSidebandFit2(const Config &config)
 
                 auto minimizer = FittingHelper(nBins);
                 std::pair<std::vector<Double_t>, std::vector<Double_t>> result;
-                
+
                 std::vector<float> fitCovMatrixVector;
                 bool successful = false;
 
@@ -812,13 +812,13 @@ void ExtractNuWroSidebandFit2(const Config &config)
                 sidebandParamVectorTruth.Print();
                 std::cout<<"nominal param errors:"<<std::endl;
                 sidebandErrorVectorTruth.Print();
-                
+
                 // std::cout<<"DEBUG Nom Fit Point 2"<<std::endl;
 
                 cc0piNominalConstraintMap[dataTypeName][selectionName].emplace(name, result);
 
                 // std::cout<<"DEBUG Nom Fit Point 3"<<std::endl;
-                
+
                 if(!config.global.fitInSystematicUniverses) continue;
 
                 // -------------------------------------------------------------------------------------------------------------------------------------
@@ -830,7 +830,7 @@ void ExtractNuWroSidebandFit2(const Config &config)
                 {
                     weightDimensionMap.emplace("xsec", systParams.xsecDimensions);
                 }
-                if(dataTypeName=="BNB") // Do not fit this for fake-data 
+                if(dataTypeName=="BNB") // Do not fit this for fake-data
                 {
                     weightDimensionMap.emplace("reint", systParams.reintDimensions);
                     weightDimensionMap.emplace("flux", systParams.fluxDimensions);
@@ -848,17 +848,17 @@ void ExtractNuWroSidebandFit2(const Config &config)
                             // const auto selectedSignalTruthUniverses = xsec.GetSelectedSignalRecoTruthMap().at(group).at(paramName).at(iUni);
                             // const auto selectedBackgroundRecoUniverses = xsec.GetSelectedBackgroundRecoMap().at(group).at(paramName).at(iUni);
                             std::pair<std::vector<Double_t>, std::vector<Double_t>> resultInUniverse;
-                            const auto pSmearingMatrixInUniverse = xsec.GetSmearingMatrixInUniverse(group, paramName, iUni);//todo check if this is righ or GetSmearingMatrixInUniverseAllSelected should be used 
+                            const auto pSmearingMatrixInUniverse = xsec.GetSmearingMatrixInUniverse(group, paramName, iUni);//todo check if this is righ or GetSmearingMatrixInUniverseAllSelected should be used
 
                             if(pSmearingMatrixNuWro)
                             {
                                 const auto smearingMatrixInUniverse = *pSmearingMatrixInUniverse;
 
                                 // // AnalysisHelper::PrintLoadingBar(iUni, nUniverses);
- 
+
                                 const auto dataInUniverse = xsec.GetBNBDataCrossSectionInUniverse(group, paramName, iUni, scalingData);
                                 const auto predictionInUniverse = xsec.GetPredictedCrossSectionInUniverse(group, paramName, iUni, scalingData);
-                                pDataNuWro = &dataInUniverse; 
+                                pDataNuWro = &dataInUniverse;
                                 pSmearingMatrixNuWro = &smearingMatrixInUniverse;
                                 pPredictionNuWro = &predictionInUniverse;
                                 //todo: check if totalerrormatrixmap also needs to be calaculated in each universe
@@ -928,7 +928,7 @@ void ExtractNuWroSidebandFit2(const Config &config)
         // oarch2 << cc0piGoldenNominalConstraintMapNuWro;
         // ofs1.close();
         // ofs2.close();
-        // if(config.global.fitInSystematicUniverses) 
+        // if(config.global.fitInSystematicUniverses)
         // {
         //     std::ofstream ofs3("cc0piGenericUniverseConstraintMapNuWro.bin", std::ios::binary);
         //     std::ofstream ofs4("cc0piGoldenUniverseConstraintMapNuWro.bin", std::ios::binary);
@@ -947,7 +947,7 @@ void ExtractNuWroSidebandFit2(const Config &config)
             {
                 std::cout << "True: Processing sideband: "<<selectionName<< " - " << name << std::endl;
 
-                
+
                 // Get the smearing matrix of selected events
                 const auto smearingMatrix = xsec.GetSmearingMatrixAllSelected();
                 const auto smearingMatrixGeneral = xsec.GetSmearingMatrix();
@@ -961,7 +961,7 @@ void ExtractNuWroSidebandFit2(const Config &config)
             }
         }
     }
-    
+
     // if(config.global.useBNBAsData)
     // {
     //     std::ofstream ofs5("cc0piGenericNominalConstraintMapBNB.bin", std::ios::binary);
@@ -972,7 +972,7 @@ void ExtractNuWroSidebandFit2(const Config &config)
     //     oarch6 << cc0piGoldenNominalConstraintMapBNB;
     //     ofs5.close();
     //     ofs6.close();
-    //     if(config.global.fitInSystematicUniverses) 
+    //     if(config.global.fitInSystematicUniverses)
     //     {
     //         std::ofstream ofs7("cc0piGenericUniverseConstraintMapBNB.bin", std::ios::binary);
     //         std::ofstream ofs8("cc0piGoldenUniverseConstraintMapBNB.bin", std::ios::binary);
@@ -989,7 +989,7 @@ void ExtractNuWroSidebandFit2(const Config &config)
     boost::archive::binary_oarchive oarch1(ofs1);
     oarch1 << cc0piNominalConstraintMap;
     ofs1.close();
-    if(config.global.fitInSystematicUniverses) 
+    if(config.global.fitInSystematicUniverses)
     {
         std::ofstream ofs2("cc0piUniverseConstraintMap.bin", std::ios::binary);
         boost::archive::binary_oarchive oarch2(ofs2);

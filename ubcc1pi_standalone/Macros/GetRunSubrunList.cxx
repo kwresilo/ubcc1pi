@@ -32,20 +32,20 @@ void GetRunSubrunList(const Config &config)
                 if (config.getRunSubrunList.useNuWro) fileNames.emplace_back(config.filesRun1.nuWroFileName, "run1_runSubrunList_NuWro.txt");
                 break;
             }
-            case 2: 
+            case 2:
             {
                 if (config.getRunSubrunList.useDataEXT) fileNames.emplace_back(config.filesRun2.dataEXTFileName, "run2_runSubrunList_dataEXT.txt");
                 if (config.getRunSubrunList.useDataBNB) fileNames.emplace_back(config.filesRun2.dataBNBFileName, "run2_runSubrunList_dataBNB.txt");
                 if (config.getRunSubrunList.useNuWro) fileNames.emplace_back(config.filesRun2.nuWroFileName, "run2_runSubrunList_NuWro.txt");
                 break;
             }
-            case 3: 
+            case 3:
             {
                 if (config.getRunSubrunList.useDataEXT) fileNames.emplace_back(config.filesRun3.dataEXTFileName, "run3_runSubrunList_dataEXT.txt");
                 if (config.getRunSubrunList.useDataBNB) fileNames.emplace_back(config.filesRun3.dataBNBFileName, "run3_runSubrunList_dataBNB.txt");
                 if (config.getRunSubrunList.useNuWro) fileNames.emplace_back(config.filesRun3.nuWroFileName, "run3_runSubrunList_NuWro.txt");
                 break;
-            }        
+            }
             default:
                 throw std::logic_error("GetRunSubrunList - Invalid run number");
         }

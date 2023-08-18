@@ -128,7 +128,7 @@ void ExtractionHelper::ExtractionHelper::PopulateAnalysisValueMap(AnalysisValueM
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
 
-void ExtractionHelper::ExtractionHelper::SaveCrossSectionMatricies(const CrossSectionHelper::CrossSection &xsec, const CrossSectionHelper::CrossSection::ScalingData &scalingData, 
+void ExtractionHelper::ExtractionHelper::SaveCrossSectionMatricies(const CrossSectionHelper::CrossSection &xsec, const CrossSectionHelper::CrossSection::ScalingData &scalingData,
     const std::string &selectionName, const std::string &name, const std::string &postfix, const bool disableUncertainties)
 {
     // -----------------------------------------------------------------------------------------------------------------------------

@@ -59,7 +59,7 @@ void QuerryWeights(const Config &config)
 
         if (isOverlay)// || isNuWro)
             reader.EnableSystematicBranches();
-        
+
         // if (isDetVar) continue; // TODO: Remove this after debugging !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
         // if(isDataBNB || isDirt || isDataEXT) continue; // Todo: Remove !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
@@ -156,7 +156,7 @@ void QuerryWeights(const Config &config)
 
             // // Get the nominal event weight, scaled by the sample normalisation
             // const auto weight = AnalysisHelper::GetNominalEventWeight(pEvent) * normalisation;
-            
+
             // // Determine if this is truly a CC0Pi event
             // const auto isTrueCC0Pi = (isOverlay || isDetVar || isNuWro) && AnalysisHelper::IsTrueCC0Pi(pEvent, config.global.useAbsPdg, config.global.protonMomentumThreshold);
 

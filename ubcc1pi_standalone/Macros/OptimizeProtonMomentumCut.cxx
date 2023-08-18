@@ -84,7 +84,7 @@
 //     auto selection = SelectionHelper::GetDefaultSelection();
 
 
-//     // The list of proton momentum thresholds to try 
+//     // The list of proton momentum thresholds to try
 //     const std::vector<float> protonMomentumThresholdVector = {0.25f, 0.26f, 0.27f, 0.28f, 0.29f, 0.3f, 0.31f, 0.32f, 0.33f, 0.34f, 0.35f};
 
 //     // -------------------------------------------------------------------------------------------------------------------------------------
@@ -134,14 +134,14 @@
 //         phaseSpaceMap.emplace(name, std::pair<float, float>({binning.min, binning.max}));
 
 
-        
+
 //         if(name != "nProtons") continue; // Only add the nProtons cross-section
 
 //         // Here we calculate every cross-section using both the generic and golden selection. In the end we only use the golden selection for
 //         // the pion momentum, but we additionally apply it to other cross-sections as a cross-check.
 //         // Add the cross-section object to the map using the binning from the input configuration
 //         const auto &[extendedBinEdges, hasUnderflow, hasOverflow] = CrossSectionHelper::GetExtendedBinEdges(binning.min, binning.max, binning.binEdges);
-        
+
 
 //         for (const auto &selectionName : {"generic", "golden"})
 //         {
@@ -311,7 +311,7 @@
 
 //         if (isOverlay || isNuWro)
 //             reader.EnableSystematicBranches();
-        
+
 //         // if (isDetVar) continue; // TODO: Remove this after debugging !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 //         // if(isDataBNB || isDirt || isDataEXT) continue; // Todo: Remove !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
@@ -674,7 +674,7 @@
 //                                     xsecMapBNBVector.at(n).at(selectionName).at(name).AddSelectedBackgroundEvent(recoValue, isDirt, scaledWeightBNB, scaledFluxWeightsBNB, scaledXSecWeightsBNB, scaledReintWeightsBNB, sidebandWeightsBNB, seedString);
 //                                 }
 
-//                             } 
+//                             }
 //                             else if(isNuWro)
 //                             {
 //                                 // The multisim weights here are meaningless
@@ -696,7 +696,7 @@
 //         }
 //     }
 
-//     std::vector<float> traceVector; 
+//     std::vector<float> traceVector;
 //     // Loop over all cross-section objects
 //     for(unsigned int n=0; n<xsecMapBNBVector.size(); n++)
 //     {
@@ -903,7 +903,7 @@
 //                 // Loop over the two quantities that have systematic uncertainties
 //                 for (const std::string &quantity : {"data", "smearingMatrix"})
 //                 {
-//                     if(quantity=="data") continue; // Only interested in smearing matrix uncertainties // todo: implement correctly 
+//                     if(quantity=="data") continue; // Only interested in smearing matrix uncertainties // todo: implement correctly
 
 //                     // Get the number of bins (for the smearing matrix there are N^2 bins when flattened)
 //                     const auto nBins = (quantity == "data" ? data.GetRows() : std::pow(smearingMatrix.GetRows(), 2));

@@ -341,7 +341,7 @@ void MakeNuWroXSecPlots(const Config &config)
                 // Plot the error matrix on the prediction
                 PlottingHelper::PlotErrorMatrix(predictionErrorMatrixScaled, prefix + "_prediction_stat_totalErrorMatrix_"+dataTypeName+"Scaled", metadata);
                 PlottingHelper::PlotFractionalErrorMatrix(predictionErrorMatrixScaled, predictionScaled, prefix + "_prediction_stat_totalFracErrorMatrix_"+dataTypeName+"Scaled", metadata);
-                
+
                 PlottingHelper::PlotErrorMatrix(predictionErrorMatrixUnscaled, prefix + "_prediction_stat_totalErrorMatrix_"+dataTypeName+"Unscaled", metadata);
                 PlottingHelper::PlotFractionalErrorMatrix(predictionErrorMatrixUnscaled, predictionUnscaled, prefix + "_prediction_stat_totalFracErrorMatrix_"+dataTypeName+"Unscaled", metadata);
 
