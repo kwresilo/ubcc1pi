@@ -1,5 +1,10 @@
 # ubcc1pi unfolded
 A package for the selection and analysis of charged current single pion muon neutrino interactions in MicroBooNE.
+<figure>
+    <img src="https://news.fnal.gov/wp-content/uploads/2018/06/MicroBooNE-image-Neutrino-2018.jpg" alt="alt text" width="50%" height="50%">
+    <figcaption>Image: MicroBooNE collaboration </figcaption>
+</figure>
+
 
 ## Overview
 This repository analyses [PeLEE ntuples](https://github.com/ubneutrinos/searchingfornues) that have at least version v08_00_00_70.
