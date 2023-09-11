@@ -11,7 +11,7 @@
 namespace ubcc1pi
 {
 
-Event::Event()
+Event::Event(const bool hasTruthInfo)
 {
     UBCC1PI_MACRO_EVENT_TRUTH_PARTICLE_MEMBERS(truth_particle, "", UBCC1PI_MACRO_INIT_MEMBER_VECTOR)
     UBCC1PI_MACRO_EVENT_RECO_PARTICLE_MEMBERS(reco_particle, "", UBCC1PI_MACRO_INIT_MEMBER_VECTOR)
@@ -19,11 +19,12 @@ Event::Event()
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
 
-Event::Event(const EventPeLEE& eventPeLEE, const bool hasTruthInfo, const bool excludeGranddaughterParticles /*= false*/)
+Event::Event(const EventPeLEE& eventPeLEE, const bool excludeGranddaughterParticles /*= false*/)
 {
     UBCC1PI_MACRO_EVENT_TRUTH_PARTICLE_MEMBERS(truth_particle, "", UBCC1PI_MACRO_INIT_MEMBER_VECTOR)
     UBCC1PI_MACRO_EVENT_RECO_PARTICLE_MEMBERS(reco_particle, "", UBCC1PI_MACRO_INIT_MEMBER_VECTOR)
 
+    const auto hasTruthInfo = eventPeLEE.HasTruthWeights();
     const int intMinValue = -2147483648; // hardcoded to match root type
     const float floatMinValue = -340282346638528859811704183484516925440.000000f;
     // const double doubleMinValue = -1.7976931348623158e+308;
@@ -133,6 +134,7 @@ Event::Event(const EventPeLEE& eventPeLEE, const bool hasTruthInfo, const bool e
             // pParticle->endStateProductsHitWeightW.Set(pParticlePeLEE->());
         }
     }
+    
 
     // ************* EVENT RECO *************
     // std::cout<<"DEBUG Event.cxx Point 10"<<std::endl;
@@ -369,11 +371,11 @@ Event::Event(const EventPeLEE& eventPeLEE, const bool hasTruthInfo, const bool e
         // if(pParticlePeLEE->dvtx_y_boundary() != doubleMinValue) pParticle->vertexDistanceToYBoundary.Set(pParticlePeLEE->dvtx_y_boundary());
         // if(pParticlePeLEE->dvtx_z_boundary() != doubleMinValue) pParticle->vertexDistanceToZBoundary.Set(pParticlePeLEE->dvtx_z_boundary());
 
-        std::cout<<"DEBUG pfp_vtx point 0"<<std::endl;
+        // std::cout<<"DEBUG pfp_vtx point 0"<<std::endl;
         if(pParticlePeLEE->pfp_vtx_x_v() != floatMinValue) pParticle->vertexX.Set(pParticlePeLEE->pfp_vtx_x_v());
         if(pParticlePeLEE->pfp_vtx_y_v() != floatMinValue) pParticle->vertexY.Set(pParticlePeLEE->pfp_vtx_y_v());
         if(pParticlePeLEE->pfp_vtx_z_v() != floatMinValue) pParticle->vertexZ.Set(pParticlePeLEE->pfp_vtx_z_v());
-        std::cout<<"DEBUG pfp_vtx point 1"<<std::endl;
+        // std::cout<<"DEBUG pfp_vtx point 1"<<std::endl;
 
         // if(pParticlePeLEE->pfpdg() == 11)
         // {

@@ -9,6 +9,10 @@
 namespace ubcc1pi
 {
 
+Subrun::Subrun(const bool hasTruthInfo){}
+
+// -----------------------------------------------------------------------------------------------------------------------------------------
+
 void Subrun::Print() const
 {
     std::cout << std::string(80, '=') << std::endl;

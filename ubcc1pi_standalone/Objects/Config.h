@@ -12,6 +12,7 @@
 
 #include "ubcc1pi_standalone/Helpers/PlottingHelper.h"
 #include "ubcc1pi_standalone/Helpers/CrossSectionHelper.h"
+#include "ubcc1pi_standalone/Helpers/AnalysisHelper.h"
 
 namespace ubcc1pi
 {
@@ -21,6 +22,29 @@ namespace ubcc1pi
  */
 struct Config
 {
+    /**
+     *  @brief  Input files
+     *
+     * Specify the type and location of PeLEE ntuples
+     *
+     */
+     // bool: wheter to use the file
+    std::vector< std::tuple<AnalysisHelper::SampleType, bool, std::string> > inputFiles = {
+        // Beam off
+        {AnalysisHelper::DataEXT, true, "/pnfs/uboone/persistent/users/jdetje/pelee_v08_00_00_70/combined/bnb_beam_off_peleeTuple_uboone_v08_00_00_70_run1.root"},
+        {AnalysisHelper::DataEXT, true, "/pnfs/uboone/persistent/users/jdetje/pelee_v08_00_00_70/combined/bnb_beam_off_peleeTuple_uboone_v08_00_00_70_run2.root"},
+        {AnalysisHelper::DataEXT, true, "/pnfs/uboone/persistent/users/jdetje/pelee_v08_00_00_70/combined/bnb_beam_off_peleeTuple_uboone_v08_00_00_70_run3.root"},
+        // Beam on
+        {AnalysisHelper::DataBNB, true, "/pnfs/uboone/persistent/users/jdetje/pelee_v08_00_00_70/bnb_beam_on_peleeTuple_uboone_v08_00_00_70_run1_C1.root"},
+        // Overlay dirt
+        {AnalysisHelper::Dirt,    true, "/pnfs/uboone/persistent/users/jdetje/pelee_v08_00_00_70/combined/overlay_peleeTuple_uboone_v08_00_00_70_run2_dirt.root"},
+        {AnalysisHelper::Dirt,    true, "/pnfs/uboone/persistent/users/jdetje/pelee_v08_00_00_70/overlay_peleeTuple_uboone_v08_00_00_70_run3_dirt.root"},
+        // Overlay MC
+        {AnalysisHelper::Overlay, true, "/pnfs/uboone/persistent/users/jdetje/pelee_v08_00_00_70/overlay_peleeTuple_uboone_v08_00_00_70_run1_nu.root"},
+        {AnalysisHelper::Overlay, true, "/pnfs/uboone/persistent/users/jdetje/pelee_v08_00_00_70/overlay_peleeTuple_uboone_v08_00_00_70_run2_nu.root"}
+    };
+
+
     /**
      *  @brief  Input files structure
      *
@@ -496,14 +520,14 @@ struct Config
         bool        axisTitles                  = true;              ///< If we want to draw axis lables and titles on the plots (if false, they are not drawn so you can add your own later)
         bool        scaleByBinWidth             = true;
         bool        useCC0piConstraint          = true;              ///< If we should use the CC0pi selection to constrain CC1pi cross-section
-        bool        useBNBAsData                = false;              ///< If we should run with real data
+        bool        useBNBAsData                = false;             ///< If we should run with real data
         bool        useNuWroAsData              = true;              ///< If we should run with NuWro as data
-        bool        useGenieAsData              = false;              ///< If we should run with Genie as data
+        bool        useGenieAsData              = false;             ///< If we should run with Genie as data
         bool        useDetVar                   = true;              ///< If we should run with detector variations
         bool        fitInSystematicUniverses    = true;              ///< If we should fit not only in nominal but also in systematic universes
-        bool        useEfficiencyCorrection     = false;              ///< If we should use the efficiency-effect-free smearing matrix to use when creating the plots
-        std::vector<unsigned int> runs          = {1,2,3};               ///< The runs to use in the analysis
-        std::string outputFile                  = "/uboone/data/users/jdetje/ubcc1piOutput/processedPeLEE.root"; ///< The location to save processed PeLEE files
+        bool        useEfficiencyCorrection     = false;             ///< If we should use the efficiency-effect-free smearing matrix to use when creating the plots
+        std::vector<unsigned int> runs          = {1,2,3};           ///< The runs to use in the analysis
+        std::string outputPath                  = "/uboone/data/users/jdetje/ubcc1piOutput/"; ///< The location to save processed PeLEE files
 
         /**
          *  @brief  The Binning structure

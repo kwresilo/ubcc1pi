@@ -46,23 +46,23 @@ TreeWriter::TreeWriter(const std::vector<std::string> inputFiles, const std::str
 // Create destructor
 TreeWriter::~TreeWriter()
 {
-    std::cout<<"DEBUG ~TreeWriter Point -1"<<std::endl;
+    // std::cout<<"DEBUG ~TreeWriter Point -1"<<std::endl;
     m_pOutFile->cd();
-    std::cout<<"DEBUG ~TreeWriter Point 0"<<std::endl;
+    // std::cout<<"DEBUG ~TreeWriter Point 0"<<std::endl;
     m_pOutTree->Write();
-    std::cout<<"DEBUG ~TreeWriter Point 1"<<std::endl;
+    // std::cout<<"DEBUG ~TreeWriter Point 1"<<std::endl;
     m_pOutFile->Close();
-    std::cout<<"DEBUG ~TreeWriter Point 2"<<std::endl;
+    // std::cout<<"DEBUG ~TreeWriter Point 2"<<std::endl;
     // delete m_pOutTree;
-    // std::cout<<"DEBUG ~TreeWriter Point 2.1"<<std::endl;
+    // // std::cout<<"DEBUG ~TreeWriter Point 2.1"<<std::endl;
     delete m_pOutFile;
-    std::cout<<"DEBUG ~TreeWriter Point 2.2"<<std::endl;
+    // std::cout<<"DEBUG ~TreeWriter Point 2.2"<<std::endl;
     delete m_pEventChain;
-    std::cout<<"DEBUG ~TreeWriter Point 2.2"<<std::endl;
+    // std::cout<<"DEBUG ~TreeWriter Point 2.2"<<std::endl;
     delete m_pSubrunChain;
-    std::cout<<"DEBUG ~TreeWriter Point 2.3"<<std::endl;
+    // std::cout<<"DEBUG ~TreeWriter Point 2.3"<<std::endl;
     delete m_pTotalExposurePOTParam;
-    std::cout<<"DEBUG ~TreeWriter Point 3"<<std::endl;
+    // std::cout<<"DEBUG ~TreeWriter Point 3"<<std::endl;
 }
 
 void TreeWriter::Fill()

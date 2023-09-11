@@ -5,8 +5,8 @@
  */
 
 #include "ubcc1pi_standalone/Macros/Macros.h"
-
 #include "ubcc1pi_standalone/Objects/FileReader.h"
+#include "ubcc1pi_standalone/Helpers/AnalysisHelper.h"
 
 #include <stdexcept>
 #include <fstream>
@@ -18,55 +18,32 @@ namespace ubcc1pi_macros
 
 void GetRunSubrunList(const Config &config)
 {
-    // Get the input and output file names
-    std::vector< std::pair<std::string, std::string> > fileNames;
-
-    for (const auto run: config.global.runs)
-    {
-        switch (run)
-        {
-            case 1:
-            {
-                if (config.getRunSubrunList.useDataEXT) fileNames.emplace_back(config.filesRun1.dataEXTFileName, "run1_runSubrunList_dataEXT.txt");
-                if (config.getRunSubrunList.useDataBNB) fileNames.emplace_back(config.filesRun1.dataBNBFileName, "run1_runSubrunList_dataBNB.txt");
-                if (config.getRunSubrunList.useNuWro) fileNames.emplace_back(config.filesRun1.nuWroFileName, "run1_runSubrunList_NuWro.txt");
-                break;
-            }
-            case 2:
-            {
-                if (config.getRunSubrunList.useDataEXT) fileNames.emplace_back(config.filesRun2.dataEXTFileName, "run2_runSubrunList_dataEXT.txt");
-                if (config.getRunSubrunList.useDataBNB) fileNames.emplace_back(config.filesRun2.dataBNBFileName, "run2_runSubrunList_dataBNB.txt");
-                if (config.getRunSubrunList.useNuWro) fileNames.emplace_back(config.filesRun2.nuWroFileName, "run2_runSubrunList_NuWro.txt");
-                break;
-            }
-            case 3:
-            {
-                if (config.getRunSubrunList.useDataEXT) fileNames.emplace_back(config.filesRun3.dataEXTFileName, "run3_runSubrunList_dataEXT.txt");
-                if (config.getRunSubrunList.useDataBNB) fileNames.emplace_back(config.filesRun3.dataBNBFileName, "run3_runSubrunList_dataBNB.txt");
-                if (config.getRunSubrunList.useNuWro) fileNames.emplace_back(config.filesRun3.nuWroFileName, "run3_runSubrunList_NuWro.txt");
-                break;
-            }
-            default:
-                throw std::logic_error("GetRunSubrunList - Invalid run number");
-        }
-    }
+    // const bool zarkosToolExists = std::filesystem::exists("/uboone/app/users/zarko/getDataInfo.py"); // C++ 17 only
+    ifstream f("/uboone/app/users/zarko/getDataInfo.py");
+    const bool zarkosToolExists = f.good(); 
 
     // For each of the input files
-    for (const auto &ioFileName : fileNames)
+    for (const auto &[sampleType, useThisFile, inputFilePath] : config.inputFiles)
     {
-        const auto inputFileName = ioFileName.first;
-        const auto outputFileName = ioFileName.second;
+        if(sampleType!=AnalysisHelper::DataBNB && sampleType != AnalysisHelper::DataEXT) continue;
+        // std::filesystem::path pathObj(inputFilePath);
+        // std::string outputFilePath = "./" + pathObj.stem().string() + ".list"; // C++ 17 only
+        std::string outputFilePath = "./";
+        std::string fileName = inputFilePath.substr(inputFilePath.find_last_of("/\\") + 1);
+        fileName = fileName.substr(0, fileName.find_last_of("."));
+        outputFilePath += fileName + ".list";
+        std::cout << outputFilePath << std::endl;
 
         // Open the output file
         ofstream outFile;
-        outFile.open(outputFileName);
+        outFile.open(outputFilePath);
 
         // Read the subruns
-        FileReader reader(inputFileName);
+        FileReader<EventPeLEE, SubrunPeLEE> reader(inputFilePath, false);
         auto pSubrun = reader.GetBoundSubrunAddress();
 
         const auto nSubruns = reader.GetNumberOfSubruns();
-        std::cout << "Writing " << nSubruns << " sub-runs to file: " << outputFileName << std::endl;
+        std::cout << "Writing " << nSubruns << " sub-runs to file: " << outputFilePath << std::endl;
 
         for (unsigned int i = 0; i < nSubruns; ++i)
         {
@@ -82,6 +59,11 @@ void GetRunSubrunList(const Config &config)
         }
 
         outFile.close();
+
+        if(zarkosToolExists)
+        {
+            std::system(std::string("/uboone/app/users/zarko/getDataInfo.py -v2 --run-subrun-list ").append(outputFilePath).c_str());
+        }
     }
 }
 

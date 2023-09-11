@@ -35,13 +35,19 @@ class EventPeLEE
 
         /**
          *  @brief  Constructor
+         *  @param  hasTruthInfo whether the event has truth info
          */
-        EventPeLEE();
+        EventPeLEE(const bool hasTruthInfo = false);
 
         /**
          *  @brief  Print the member variables to the terminal
          */
         void Print() const;
+
+        /**
+         *  @brief  Return whether the event contains truth weights
+         */
+        bool HasTruthWeights() const; 
 
         /**
          *  @brief  The metadata information structure
@@ -57,6 +63,7 @@ class EventPeLEE
         struct Truth
         {
             PELEE_MACRO_EVENT_TRUTH_MEMBERS("", "", PELEE_MACRO_DECLARE_MEMBER)
+            PELEE_MACRO_EVENT_TRUTH_OPTIONAL_MEMBERS("", "", PELEE_MACRO_DECLARE_MEMBER)
 
             /**
              *  @brief  The truth particle information structure
@@ -97,6 +104,7 @@ class EventPeLEE
         // friend FileReader<EventPeLEE>;  ///< The file reader class is a friend
         template<typename T, typename U> friend class FileReader;
         friend EventFactory;            ///< The event factory class is a friend
+        bool hasTruthWeights;
 
         /**
          *  @brief  Bind this event to an output tree

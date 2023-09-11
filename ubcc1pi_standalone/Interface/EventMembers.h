@@ -232,14 +232,16 @@
 
 /** The event truth information members */
 #define COMMA , // This is needed for the std::map macro below since it uses commas to separate arguments
-#define PELEE_MACRO_EVENT_TRUTH_MEMBERS(p, q, f)                                                                                                           \
+#define PELEE_MACRO_EVENT_TRUTH_OPTIONAL_MEMBERS(p, q, f)                                                                                                   \
     f(p, q, false, float,                                           weightSpline) /*splineEventWeight*/                                                    \
     f(p, q, false, float,                                           weightTune) /*splineEventWeight ?*/                                                    \
     f(p, q, false, float,                                           weightSplineTimesTune) /*genieTuneEventWeight*/                                        \
     f(p, q, true,  std::map<std::string COMMA std::vector<double>>, weights) /*systParamNames and systParamValues*/                                        \
     f(p, q, true,  std::vector<unsigned short>,                     weightsFlux) /*cast from u short to int*/ /*systParamFirstValueIndex*/                 \
     f(p, q, true,  std::vector<unsigned short>,                     weightsGenie) /*cast from u short to int*/ /*systParamFirstValueIndex*/                \
-    f(p, q, true,  std::vector<unsigned short>,                     weightsReint) /*cast from u short to int*/ /*systParamFirstValueIndex*/                \
+    f(p, q, true,  std::vector<unsigned short>,                     weightsReint) /*cast from u short to int*/ /*systParamFirstValueIndex*/
+
+#define PELEE_MACRO_EVENT_TRUTH_MEMBERS(p, q, f)                                                                                                           \
     f(p, q, false, int,                                             ccnc) /*bool isCC*/                                                                    \
     f(p, q, false, int,                                             interaction) /*interactionMode and interactionString*/                                 \
     f(p, q, false, int,                                             nu_pdg) /*nuPDGCode*/                                                                  \
@@ -248,9 +250,8 @@
     f(p, q, false, float,                                           true_nu_vtx_y) /*Part of nuVertex*/                                                    \
     f(p, q, false, float,                                           true_nu_vtx_z) /*Part of nuVertex*/                                                    \
     f(p, q, true,  std::vector<float>,                              mc_purity) /*slicePurities*/                                                           \
-    f(p, q, true,  std::vector<float>,                              mc_completeness) /*sliceCompletenesses*/                                               \
+    f(p, q, true,  std::vector<float>,                              mc_completeness) /*sliceCompletenesses*/
     /*f(p, q, false, int,                                           nFinalStates)*/
-
 
 /** The event truth particle information members */
 #define PELEE_MACRO_EVENT_TRUTH_PARTICLE_MEMBERS(p, q, f)                                                                                  \

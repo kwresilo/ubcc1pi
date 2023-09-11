@@ -278,6 +278,13 @@ class SelectionHelper
          *
          *  @return the event selection
          */
+        static EventSelection GetCC0piSelectionModifiedPeLEE(const float muonLikeProtonValue = -0.4f, const float barelyResemblingProtonValue = 0.1f);
+
+        /**
+         *  @brief  Get the CC0pi event selection
+         *
+         *  @return the event selection
+         */
         static EventSelection GetCC0piSelectionModifiedPart1();
 
         /**

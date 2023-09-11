@@ -10,12 +10,11 @@
 namespace ubcc1pi
 {
 
-EventPeLEE::EventPeLEE()
+EventPeLEE::EventPeLEE(const bool hasTruthInfo) : hasTruthWeights(hasTruthInfo)
 {
     PELEE_MACRO_EVENT_TRUTH_PARTICLE_MEMBERS(truth_particle, "", PELEE_MACRO_INIT_MEMBER_VECTOR)
     PELEE_MACRO_EVENT_RECO_PARTICLE_MEMBERS(reco_particle, "", PELEE_MACRO_INIT_MEMBER_VECTOR)
 }
-
 // -----------------------------------------------------------------------------------------------------------------------------------------
 
 void EventPeLEE::Print() const
@@ -33,6 +32,7 @@ void EventPeLEE::Print() const
     std::cout << std::string(80, '-') << std::endl;
 
     PELEE_MACRO_EVENT_TRUTH_MEMBERS("", truth, PELEE_MACRO_PRINT_MEMBER)
+    if(hasTruthWeights) {PELEE_MACRO_EVENT_TRUTH_OPTIONAL_MEMBERS(truth, truth, PELEE_MACRO_PRINT_MEMBER)}
 
     unsigned int i = 0;
     for (const auto &particle : truth.particles)
@@ -58,10 +58,18 @@ void EventPeLEE::Print() const
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
 
+bool EventPeLEE::HasTruthWeights() const
+{
+    return hasTruthWeights;
+}
+
+// -----------------------------------------------------------------------------------------------------------------------------------------
+
 void EventPeLEE::BindToOutputTree(TTree * pTree)
 {
     PELEE_MACRO_EVENT_METADATA_MEMBERS(metadata, metadata, PELEE_MACRO_BIND_OUTPUT_BRANCH)
     PELEE_MACRO_EVENT_TRUTH_MEMBERS(truth, truth, PELEE_MACRO_BIND_OUTPUT_BRANCH)
+    if(hasTruthWeights) {PELEE_MACRO_EVENT_TRUTH_OPTIONAL_MEMBERS(truth, truth, PELEE_MACRO_BIND_OUTPUT_BRANCH)}
     PELEE_MACRO_EVENT_TRUTH_PARTICLE_MEMBERS(truth_particle, "", PELEE_MACRO_BIND_OUTPUT_VECTOR_BRANCH)
     PELEE_MACRO_EVENT_RECO_MEMBERS(reco, reco, PELEE_MACRO_BIND_OUTPUT_BRANCH)
     PELEE_MACRO_EVENT_RECO_PARTICLE_MEMBERS(reco_particle, "", PELEE_MACRO_BIND_OUTPUT_VECTOR_BRANCH)
@@ -73,6 +81,7 @@ void EventPeLEE::BindToInputTree(TTree * pTree)
 {
     PELEE_MACRO_EVENT_METADATA_MEMBERS(metadata, metadata, PELEE_MACRO_BIND_INPUT_BRANCH)
     PELEE_MACRO_EVENT_TRUTH_MEMBERS(truth, truth, PELEE_MACRO_BIND_INPUT_BRANCH)
+    if(hasTruthWeights) {PELEE_MACRO_EVENT_TRUTH_OPTIONAL_MEMBERS(truth, truth,  PELEE_MACRO_BIND_INPUT_BRANCH)}
     PELEE_MACRO_EVENT_TRUTH_PARTICLE_MEMBERS(truth_particle, "", PELEE_MACRO_BIND_INPUT_VECTOR_BRANCH)
     PELEE_MACRO_EVENT_RECO_MEMBERS(reco, reco, PELEE_MACRO_BIND_INPUT_BRANCH)
     PELEE_MACRO_EVENT_RECO_PARTICLE_MEMBERS(reco_particle, "", PELEE_MACRO_BIND_INPUT_VECTOR_BRANCH)
@@ -85,6 +94,7 @@ void EventPeLEE::Reset()
     PELEE_MACRO_EVENT_METADATA_MEMBERS("", metadata, PELEE_MACRO_RESET_MEMBER)
 
     PELEE_MACRO_EVENT_TRUTH_MEMBERS("", truth, PELEE_MACRO_RESET_MEMBER)
+    if(hasTruthWeights) {PELEE_MACRO_EVENT_TRUTH_OPTIONAL_MEMBERS(truth, truth, PELEE_MACRO_RESET_MEMBER)} 
     PELEE_MACRO_EVENT_TRUTH_PARTICLE_MEMBERS(truth_particle, "", PELEE_MACRO_RESET_MEMBER_VECTOR)
     truth.particles.clear();
 

@@ -65,7 +65,7 @@
         "Macros/TestSidebandSelectionsPeLEEVsUbcc1pi.cxx",
         // "Macros/PrintConfig.cxx",
         // "Macros/CountPOT.cxx",
-        // "Macros/GetRunSubrunList.cxx",
+        "Macros/GetRunSubrunList.cxx",
         // "Macros/TruthStudy.cxx",
         // "Macros/FitRangeCurves.cxx",
         // "Macros/SecondaryInteractionsStudy.cxx",

@@ -140,8 +140,8 @@ void AnalyzerTest(const Config &config)
     inputData.push_back(std::make_tuple(AnalysisHelper::DataBNB, "", std::string("/uboone/data/users/jdetje/ubcc1piVSpelee/ubcc1pi/ubcc1piAnalysis_0_4k.root"), 1.f));
 
     // Loop over the files
-    FileReader<EventPeLEE, SubrunPeLEE> readerPeLEE(std::get<2>(inputData.at(0)));
-    FileReader<Event, Subrun> reader(std::get<2>(inputData.at(1)));
+    FileReader<EventPeLEE, SubrunPeLEE> readerPeLEE(std::get<2>(inputData.at(0)), true);
+    FileReader<Event, Subrun> reader(std::get<2>(inputData.at(1)), true);
 
     if(readerPeLEE.GetNumberOfEvents()!=reader.GetNumberOfEvents())
     {

@@ -31,8 +31,9 @@ class FileReader
          *  @brief  Constructor
          *
          *  @param  inputFile the path to the input file
+         *  @param  hasTruthInfo whether the event has truth info
          */
-        FileReader(const std::string &inputFile);
+        FileReader(const std::string &inputFile, const bool hasTruthInfo);
 
         /**
          *  @brief  Destructor

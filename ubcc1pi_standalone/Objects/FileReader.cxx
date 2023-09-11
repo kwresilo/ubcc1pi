@@ -10,7 +10,7 @@ namespace ubcc1pi
 {
 
 template <class T, class U>
-FileReader<T, U>::FileReader(const std::string &inputFile)
+FileReader<T, U>::FileReader(const std::string &inputFile, const bool hasTruthInfo)
 {
     m_inputFile = inputFile;
     m_pFile = TFile::Open(m_inputFile.c_str());
@@ -20,8 +20,8 @@ FileReader<T, U>::FileReader(const std::string &inputFile)
     std::string subrunTreeName = "subruns";
     if constexpr (std::is_same_v<U, SubrunPeLEE>) subrunTreeName = "nuselection/SubRun";
     m_pSubrunTree = static_cast<TTree*>(m_pFile->Get(subrunTreeName.c_str()));
-    m_pEvent = std::make_shared<T>();
-    m_pSubrun = std::make_shared<U>();
+    m_pEvent = std::make_shared<T>(hasTruthInfo);
+    m_pSubrun = std::make_shared<U>(hasTruthInfo);
 
 
     this->BindEventToTree();

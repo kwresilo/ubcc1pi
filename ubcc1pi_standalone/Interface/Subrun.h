@@ -27,6 +27,12 @@ class Subrun
     public:
 
         /**
+         *  @brief  Constructor
+         *  @param  hasTruthInfo whether the event has truth info; needed to be compatible with EventPeLEE in FileReader
+         */
+        Subrun(const bool hasTruthInfo = false);
+
+        /**
          *  @brief  Print the member variables to the terminal
          */
         void Print() const;

@@ -26,6 +26,8 @@
 #define PELEE_MACRO_SUBRUN_MEMBERS(p, q, f)                                                                                                \
     f(p, q, false, int,         run)                                                                                                       \
     f(p, q, false, int,         subRun)                                                                                                    \
+
+#define PELEE_MACRO_SUBRUN_OPTIONAL_MEMBERS(p, q, f)                                                                                                    \
     f(p, q, false, float,       pot)
 
 #endif
