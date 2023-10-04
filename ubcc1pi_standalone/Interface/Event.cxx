@@ -56,6 +56,7 @@ Event::Event(const EventPeLEE& eventPeLEE, const bool excludeGranddaughterPartic
                 systParamValues.push_back(value);
             }
         }
+	//truth.isSignal.Set(eventPeLEE.mc_is_signal());
         truth.systParamNames.Set(systParamNames);
         truth.systParamFirstValueIndex.Set(systParamFirstValueIndex); // Might need to use weightsFlux, weightsGenie, weightsReint at some point to sort out the indices
         truth.systParamValues.Set(systParamValues);
@@ -138,7 +139,9 @@ Event::Event(const EventPeLEE& eventPeLEE, const bool excludeGranddaughterPartic
 
     // ************* EVENT RECO *************
     // std::cout<<"DEBUG Event.cxx Point 10"<<std::endl;
-    reco.passesCCInclusive.Set(eventPeLEE.reco.filter_ccinclusive());
+    
+
+
     // if(eventPeLEE.reco.nslice() != intMinValue) reco.nSlices.Set(eventPeLEE.reco.nslice());
     // reco.hasSelectedSlice.Set(eventPeLEE.reco..());
     if(eventPeLEE.reco.topological_score() != floatMinValue) reco.selectedTopologicalScore.Set(eventPeLEE.reco.topological_score());
@@ -159,6 +162,10 @@ Event::Event(const EventPeLEE& eventPeLEE, const bool excludeGranddaughterPartic
     // reco.largestFlashZWidth.Set(eventPeLEE.reco..());
     if(eventPeLEE.reco.reco_nu_vtx_x() != floatMinValue && eventPeLEE.reco.reco_nu_vtx_y() != floatMinValue && eventPeLEE.reco.reco_nu_vtx_z() != floatMinValue) reco.nuVertexNoSCC.Set(TVector3(eventPeLEE.reco.reco_nu_vtx_x(), eventPeLEE.reco.reco_nu_vtx_y(), eventPeLEE.reco.reco_nu_vtx_z()));
 
+
+    if( eventPeLEE.reco.topological_score() > 0.1 && eventPeLEE.reco.reco_nu_vtx_sce_x()  > 21.5 && eventPeLEE.reco.reco_nu_vtx_sce_x()  < 234.85 && eventPeLEE.reco.reco_nu_vtx_sce_y() > -95. && eventPeLEE.reco.reco_nu_vtx_sce_y() < 95. && eventPeLEE.reco.reco_nu_vtx_sce_z() > 21.5 && eventPeLEE.reco.reco_nu_vtx_sce_z() < 966.8) reco.passesEventLevelCCInclusive.Set(true);
+    else reco.passesEventLevelCCInclusive.Set(false);
+ 	
 
     // ************* EVENT RECO PARTICLE *************
     // std::cout<<"DEBUG Event.cxx Point 11"<<std::endl;
@@ -183,6 +190,11 @@ Event::Event(const EventPeLEE& eventPeLEE, const bool excludeGranddaughterPartic
         const auto pParticle = &reco.particles.at(recoTargetIndex);
         recoTargetIndex++;
 
+	//backtracked quantities 
+	if(pParticlePeLEE->backtracked_purity() != floatMinValue) pParticle->backtrackedPurity.Set(pParticlePeLEE->backtracked_purity());
+	if(pParticlePeLEE->backtracked_completeness() != floatMinValue) pParticle->backtrackedCompleteness.Set(pParticlePeLEE->backtracked_completeness());
+        if(pParticlePeLEE->backtracked_pdg() != floatMinValue) pParticle->backtrackedPDG.Set(std::abs(pParticlePeLEE->backtracked_pdg()));
+	if( (pParticlePeLEE->backtracked_px() != floatMinValue) && (pParticlePeLEE->backtracked_py() != floatMinValue) && (pParticlePeLEE->backtracked_pz() != floatMinValue) ) pParticle->backtrackedMomentum.Set( std::sqrt( std::pow(pParticlePeLEE->backtracked_px(), 2) + std::pow(pParticlePeLEE->backtracked_py(), 2) + std::pow(pParticlePeLEE->backtracked_pz(), 2) ) );
         // pParticle->isCCInclusiveMuonCandidate.Set(pParticlePeLEE->);
         if(pParticlePeLEE->pfpdg() != intMinValue) pParticle->pdgCode.Set(pParticlePeLEE->pfpdg());
         if(pParticlePeLEE->pfnplanehits_U() != intMinValue) pParticle->nHitsU.Set(pParticlePeLEE->pfnplanehits_U());
@@ -194,6 +206,7 @@ Event::Event(const EventPeLEE& eventPeLEE, const bool excludeGranddaughterPartic
         // pParticle->nDescendentHitsV.Set(pParticlePeLEE->);
         // pParticle->nDescendentHitsW.Set(pParticlePeLEE->);
         // pParticle->nHitsInLargestDescendent.Set(pParticlePeLEE->);
+	if(pParticlePeLEE->trk_llr_pid_score_v() != floatMinValue) pParticle->llrScore.Set(pParticlePeLEE->trk_llr_pid_score_v());
         if(pParticlePeLEE->trk_score_v() >= 0.f) pParticle->trackScore.Set(pParticlePeLEE->trk_score_v());
         if(pParticlePeLEE->trk_sce_start_x_v() != floatMinValue) pParticle->startX.Set(pParticlePeLEE->trk_sce_start_x_v());
         if(pParticlePeLEE->trk_sce_start_y_v() != floatMinValue) pParticle->startY.Set(pParticlePeLEE->trk_sce_start_y_v());
@@ -209,6 +222,7 @@ Event::Event(const EventPeLEE& eventPeLEE, const bool excludeGranddaughterPartic
         if(pParticlePeLEE->trk_dir_z_v()!= floatMinValue && pParticlePeLEE->trk_dir_x_v() != floatMinValue) pParticle->xzAngle.Set(std::atan2(pParticlePeLEE->trk_dir_z_v(), pParticlePeLEE->trk_dir_x_v()));
         // if(pParticlePeLEE->trk_len_v() != floatMinValue) pParticle->length.Set(pParticlePeLEE->trk_len_v());
         if(pParticlePeLEE->trk_len_v() != floatMinValue) pParticle->range.Set(pParticlePeLEE->trk_len_v());
+
 
         // pParticle->transverseVertexDist.Set(pParticlePeLEE->);
         // pParticle->longitudinalVertexDist.Set(pParticlePeLEE->);

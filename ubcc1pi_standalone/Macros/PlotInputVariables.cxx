@@ -180,17 +180,17 @@ void PlotInputVariables(const Config &config)
     }
 
     // Pion angle plots
-    PlottingHelper::MultiPlot phiPlot("Phi / rad", yLabel, 50u, -3.142f, 3.142f);
-    PlottingHelper::MultiPlot cosThetaPlot("cos(theta)", yLabel, 50u, -1.f, 1.f);
+    //PlottingHelper::MultiPlot phiPlot("Phi / rad", yLabel, 50u, -3.142f, 3.142f);
+    //PlottingHelper::MultiPlot cosThetaPlot("cos(theta)", yLabel, 50u, -1.f, 1.f);
 
-    TH2F *hPhiCosThetaData = new TH2F("hPhiCosThetaData", "", 100u, -3.142f, 3.142f, 100u, -1.f, 1.f);
-    TH2F *hPhiCosThetaSim = new TH2F("hPhiCosThetaSim", "", 100u, -3.142f, 3.142f, 100u, -1.f, 1.f);
+    //TH2F *hPhiCosThetaData = new TH2F("hPhiCosThetaData", "", 100u, -3.142f, 3.142f, 100u, -1.f, 1.f);
+    //TH2F *hPhiCosThetaSim = new TH2F("hPhiCosThetaSim", "", 100u, -3.142f, 3.142f, 100u, -1.f, 1.f);
 
     // Special plot for trackScore for particles with and without descendents
-    PlottingHelper::MultiPlot trackScoreWithDescendents("Track score", yLabel, 30, 0, 1);
-    PlottingHelper::MultiPlot trackScoreWithoutDescendents("Track score", yLabel, 30, 0, 1);
-    PlottingHelper::MultiPlot trackScoreWithDescendentsSignal("Track score", yLabel, 30, 0, 1);
-    PlottingHelper::MultiPlot trackScoreWithoutDescendentsSignal("Track score", yLabel, 30, 0, 1);
+    //PlottingHelper::MultiPlot trackScoreWithDescendents("Track score", yLabel, 30, 0, 1);
+    //PlottingHelper::MultiPlot trackScoreWithoutDescendents("Track score", yLabel, 30, 0, 1);
+    //PlottingHelper::MultiPlot trackScoreWithDescendentsSignal("Track score", yLabel, 30, 0, 1);
+    //PlottingHelper::MultiPlot trackScoreWithoutDescendentsSignal("Track score", yLabel, 30, 0, 1);
 
     //
     // Fill the plots
@@ -198,7 +198,7 @@ void PlotInputVariables(const Config &config)
     for (const auto [sampleType, fileName, normalisation] : inputData)
     {
         std::cout << "Reading input file: " << fileName << std::endl;
-
+	//TODO: change to PeLEE
         FileReader reader(fileName);
         auto pEvent = reader.GetBoundEventAddress();
 
@@ -208,10 +208,10 @@ void PlotInputVariables(const Config &config)
             AnalysisHelper::PrintLoadingBar(i, nEvents);
 
             reader.LoadEvent(i);
-
+	    //TODO: change to isSignal
             const auto isTrueCC0Pi = AnalysisHelper::IsTrueCC0Pi(pEvent, config.global.useAbsPdg, config.global.protonMomentumThreshold); // todo remove this
             if(!isTrueCC0Pi) continue;
-
+	    //TODO: check this is set up
             // Only use events passing the CC inclusive selection
             if (!pEvent->reco.passesCCInclusive())
                 continue;
@@ -220,7 +220,7 @@ void PlotInputVariables(const Config &config)
             const auto recoParticles = pEvent->reco.particles;
 
             const auto truthParticles = pEvent->truth.particles; // This will be empty for non MC events
-            const auto isSignal = (sampleType == AnalysisHelper::Overlay && AnalysisHelper::IsTrueCC1Pi(pEvent, config.global.useAbsPdg));
+            const auto isSignal = (sampleType == AnalysisHelper::Overlay && AnalysisHelper::IsTrueCC1Pi(pEvent, config.global.useAbsPdg));   //TODO: change to pParticle is Signal 
 
             for (unsigned int index = 0; index < recoParticles.size(); ++index)
             {
@@ -234,12 +234,12 @@ void PlotInputVariables(const Config &config)
                     continue;
 
                 // Fill the angle plots
-                const auto dir = TVector3(particle.directionX(), particle.directionY(), particle.directionZ()).Unit();
-                const auto phi = std::atan2(dir.Y(), dir.X());
-                const auto cosTheta = dir.Z();
-                phiPlot.Fill(phi, particleStyle, weight);
-                cosThetaPlot.Fill(cosTheta, particleStyle, weight);
-
+                //const auto dir = TVector3(particle.directionX(), particle.directionY(), particle.directionZ()).Unit();
+                //const auto phi = std::atan2(dir.Y(), dir.X());
+                //const auto cosTheta = dir.Z();
+                //phiPlot.Fill(phi, particleStyle, weight);
+                //cosThetaPlot.Fill(cosTheta, particleStyle, weight);
+		/*
                 if (sampleType == AnalysisHelper::DataBNB)
                 {
                     hPhiCosThetaData->Fill(phi, cosTheta, weight);
@@ -248,7 +248,7 @@ void PlotInputVariables(const Config &config)
                 {
                     hPhiCosThetaSim->Fill(phi, cosTheta, weight);
                 }
-
+		*/
                 // Insist the particle is contained
                 if (!AnalysisHelper::IsContained(particle))
                     continue;
@@ -274,9 +274,9 @@ void PlotInputVariables(const Config &config)
 
                     shouldPlotSignal = true;
                 }
-
+		
                 // Fill the special plots for track-score with and without descendents
-                if (particle.nDescendents() != 0)
+                /*if (particle.nDescendents() != 0)
                 {
                     trackScoreWithDescendents.Fill(particle.trackScore(), particleStyle, weight);
 
@@ -290,7 +290,7 @@ void PlotInputVariables(const Config &config)
                     if (shouldPlotSignal)
                         trackScoreWithoutDescendentsSignal.Fill(particle.trackScore(), particleStyle, weight);
                 }
-
+*/
                 // Fill the feature plots
                 for (unsigned int iFeature = 0; iFeature < featureNames.size(); ++iFeature)
                 {
@@ -346,11 +346,11 @@ void PlotInputVariables(const Config &config)
         plotVector.at(iFeature).SaveAsStacked("inputVariables_" + prefix + "_" + featureName, useLogX, false, useLogY);
         plotVectorSignal.at(iFeature).SaveAs("inputVariables_signal_"  + prefix + "_" + featureName, useLogX, false, 0, useLogY);
     }
-
+/*
     goldenPionBDTPlot.SaveAsStacked("inputVariables_goldenPionBDTResponse_" + prefix);
     protonBDTPlot.SaveAsStacked("inputVariables_protonBDTResponse_" + prefix);
-    muonBDTPlot.SaveAsStacked("inputVariables_muonBDTResponse_" + prefix);
-
+    muonBDTPlot.SaveAsStacked("inputVariables_muonBDTResponse_" + prefix);*/
+/*
     trackScoreWithDescendents.SaveAsStacked("inputVariables_trackScore-withDescendents_" + prefix, false, false, true);
     trackScoreWithDescendentsSignal.SaveAs("inputVariables_trackScore-withDescendents_signal_" + prefix, false, false, 0, true);
     trackScoreWithoutDescendents.SaveAsStacked("inputVariables_trackScore-withoutDescendents_" + prefix, false, false, true);
@@ -367,7 +367,7 @@ void PlotInputVariables(const Config &config)
     PlottingHelper::SaveCanvas(pCanvas, "inputVariables_phi-cosTheta_" + prefix);
 
     hPhiCosThetaData->Draw("colz");
-    PlottingHelper::SaveCanvas(pCanvas, "inputVariables_phi-cosTheta_data_" + prefix);
+    PlottingHelper::SaveCanvas(pCanvas, "inputVariables_phi-cosTheta_data_" + prefix); */
 }
 
 } // ubcc1pi macros

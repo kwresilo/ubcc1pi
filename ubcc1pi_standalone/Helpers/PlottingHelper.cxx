@@ -794,23 +794,25 @@ PlottingHelper::PlotStyle PlottingHelper::GetPlotStyle(const Event::Reco::Partic
     if (sampleType == AnalysisHelper::DataEXT)
         return externalType;
 
-    if (!particle.hasMatchedMCParticle.IsSet())
-        return externalType;
+    //if (!particle.hasMatchedMCParticle.IsSet())
+      //  return externalType;
 
-    if (!particle.hasMatchedMCParticle())
-        return externalType;
+    //if (!particle.hasMatchedMCParticle())
+      //  return externalType;
 
-    if (truthParticles.empty())
-        return externalType;
+    //if (truthParticles.empty())
+      //  return externalType;
 
     // Get the true pdg code applying the visibility conditions
     auto truePdgCode = -std::numeric_limits<int>::max();
-    bool isGolden = false;
+    //bool isGolden = false;
     try
     {
-        const auto truthParticle = AnalysisHelper::GetBestMatchedTruthParticle(particle, truthParticles);
-        truePdgCode = useAbsPdg ? std::abs(truthParticle.pdgCode()) : truthParticle.pdgCode();
-        isGolden = AnalysisHelper::IsGolden(truthParticle);
+	//TODO: change to backtracked_pdgi
+	//return externalType if ourity 0
+        //const auto truthParticle = AnalysisHelper::GetBestMatchedTruthParticle(particle, truthParticles);
+        truePdgCode = particle.backtrackedPDG(); 
+        //isGolden = AnalysisHelper::IsGolden(truthParticle);
     }
     catch (const std::logic_error &)
     {
@@ -824,7 +826,8 @@ PlottingHelper::PlotStyle PlottingHelper::GetPlotStyle(const Event::Reco::Partic
         case 2212:
             return usePoints ? ProtonPoints : Proton;
         case 211:
-            return (isGolden ? (usePoints ? GoldenPionPoints : GoldenPion) : (usePoints ? NonGoldenPionPoints : NonGoldenPion));
+            //return v(isGolden ? (usePoints ? GoldenPionPoints : GoldenPion) : (usePoints ? NonGoldenPionPoints : NonGoldenPion));
+	    return usePoints ? NonGoldenPionPoints : NonGoldenPion;
         case -211:
             return usePoints ? PiMinusPoints : PiMinus;
         case 11:
@@ -835,7 +838,7 @@ PlottingHelper::PlotStyle PlottingHelper::GetPlotStyle(const Event::Reco::Partic
         // it's a better representation of what they actually represent. This is a (good) approximation, because it's possible that the pi0
         // decays via another mode (pi0 -> 2 gamma has a branching ratio of 98.8%). In the case of a Dalitz decay (pi0 -> gamma e+ e-) we
         // might reconstruct the elecron/positron and here label it as a photon.
-        case 111:
+        //case 111:
         case 22:
             return usePoints ? PhotonPoints : Photon;
         default:

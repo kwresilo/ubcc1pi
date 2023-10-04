@@ -19,7 +19,7 @@
  *          - Accessible in C++ via: event.metadata.variable()
  *          - Accessible in the root tree via: metadata_variable
  *      - Truth
- *          - Defined by the UBCC1PI_MACRO_EVENT_TRUTH_MEMBERS macro
+ *          - Defined b y the UBCC1PI_MACRO_EVENT_TRUTH_MEMBERS macro
  *          - Accessible in C++ via: event.truth.variable()
  *          - Accessible in the root tree via: truth_variable
  *          - Particle level information is defined by the UBCC1PI_MACRO_EVENT_TRUTH_PARTICLE_MEMBERS macro
@@ -72,7 +72,8 @@
     f(p, q, true,  TVector3,                   nuVertex)                                                                                   \
     f(p, q, false, int,                        nFinalStates)                                                                               \
     f(p, q, true,  std::vector<float>,         slicePurities)                                                                              \
-    f(p, q, true,  std::vector<float>,         sliceCompletenesses)
+    f(p, q, true,  std::vector<float>,         sliceCompletenesses)                                                                        \
+    f(p, q, false, bool,                        isSignal)
 
 
 /** The event truth particle information members */
@@ -108,7 +109,7 @@
 
 /** The event reco information members */
 #define UBCC1PI_MACRO_EVENT_RECO_MEMBERS(p, q, f)                                                                                          \
-    f(p, q, false, bool,                passesCCInclusive)                                                                                 \
+    f(p, q, true, bool,                 passesCCInclusive)                                                                                 \
     f(p, q, false, int,                 nSlices)                                                                                           \
     f(p, q, false, bool,                hasSelectedSlice)                                                                                  \
     f(p, q, false, float,               selectedTopologicalScore)                                                                          \
@@ -127,7 +128,10 @@
     f(p, q, false, float,               largestFlashYWidth)                                                                                \
     f(p, q, false, float,               largestFlashZCtr)                                                                                  \
     f(p, q, false, float,               largestFlashZWidth)                                                                                \
-    f(p, q, true,  TVector3,            nuVertexNoSCC) /* New PeLEE variable */
+    f(p, q, true,  TVector3,            nuVertexNoSCC) /* New PeLEE variable */                                                            \
+    f(p, q, false, bool,                passesEventLevelCCInclusive)                                                                                
+
+
 
 /** The event reco particle information members */
 #define UBCC1PI_MACRO_EVENT_RECO_PARTICLE_MEMBERS(p, q, f)                                                                                 \
@@ -209,7 +213,14 @@
     f(p, q, false, float,               distance) /* New PeLEE variable; not SCE corrected (unlike transverse- and logitudinalVertexDist)*/\
     f(p, q, false, float,               vertexX) /* New variable !ONLY USED FOR UBCC1PI INPUT*/                                            \
     f(p, q, false, float,               vertexY) /* New variable !ONLY USED FOR UBCC1PI INPUT*/                                            \
-    f(p, q, false, float,               vertexZ) /* New variable !ONLY USED FOR UBCC1PI INPUT*/
+    f(p, q, false, float,               vertexZ) /* New variable !ONLY USED FOR UBCC1PI INPUT*/                                            \
+    f(p, q, false, float,                llrScore)                                                                                         \
+    f(p, q, false, float,               backtrackedPurity)                                                                                 \
+    f(p, q, false, float,               backtrackedCompleteness)                                                                           \
+    f(p, q, false, float,               backtrackedMomentum)                                                                               \
+    f(p, q, false, float,               backtrackedPDG)                                                                                 
+
+
     // f(p, q, false, double,              vertexDistanceToXBoundary) /* New PeLEE variable !ONLY USED FOR PELEE INPUT*/
     // f(p, q, false, double,              vertexDistanceToZBoundary) /* New PeLEE variable !ONLY USED FOR PELEE INPUT*/
     // f(p, q, false, double,              vertexDistanceToYBoundary) /* New PeLEE variable !ONLY USED FOR PELEE INPUT*/
@@ -250,8 +261,7 @@
     f(p, q, false, float,                                           true_nu_vtx_y) /*Part of nuVertex*/                                                    \
     f(p, q, false, float,                                           true_nu_vtx_z) /*Part of nuVertex*/                                                    \
     f(p, q, true,  std::vector<float>,                              mc_purity) /*slicePurities*/                                                           \
-    f(p, q, true,  std::vector<float>,                              mc_completeness) /*sliceCompletenesses*/
-    /*f(p, q, false, int,                                           nFinalStates)*/
+    f(p, q, true,  std::vector<float>,                              mc_completeness) /*sliceCompletenesses*/                                               
 
 /** The event truth particle information members */
 #define PELEE_MACRO_EVENT_TRUTH_PARTICLE_MEMBERS(p, q, f)                                                                                  \
@@ -295,7 +305,8 @@
     f(p, q, false, float,               reco_nu_vtx_sce_x) /*Part of nuVertex*/                                                            \
     f(p, q, false, float,               reco_nu_vtx_sce_y) /*Part of nuVertex*/                                                            \
     f(p, q, false, float,               reco_nu_vtx_sce_z) /*Part of nuVertex*/                                                            \
-    f(p, q, false, float,               nu_flashmatch_score) /*flashChi2*/
+    f(p, q, false, float,               nu_flashmatch_score) /*flashChi2*/                                                                 \
+
     /*f(p, q, false, bool,                hasSelectedSlice)                                                                                \
     f(p, q, true,  std::vector<float>,  sliceTopologicalScores)                                                                            \
     f(p, q, true,  std::vector<bool>,   sliceIsSelectedAsNu)                                                                               \
@@ -386,7 +397,14 @@
     f(p, q, false, bool,                trk_bragg_pion_fwd_preferred_v_v)                                                                  \
     f(p, q, false, int,                 trk_nhits_u_v) /*Used for truncatedMeandEdx*/                                                      \
     f(p, q, false, int,                 trk_nhits_v_v) /*Used for truncatedMeandEdx*/                                                      \
-    f(p, q, false, int,                 trk_nhits_y_v) /*Used for truncatedMeandEdx*/
+    f(p, q, false, int,                 trk_nhits_y_v) /*Used for truncatedMeandEdx*/                                                      \
+    f(p, q, false, float,               trk_llr_pid_score_v)                                                                               \
+    f(p, q, false, float,               backtracked_px)                                                                                    \
+    f(p, q, false, float,               backtracked_py)                                                                                    \
+    f(p, q, false, float,               backtracked_pz)                                                                                    \
+    f(p, q, false, float,               backtracked_purity)                                                                                \
+    f(p, q, false, float,               backtracked_completeness)                                                                          \
+    f(p, q, false, float,               backtracked_pdg)                                                                                    
 
     // f(p, q, false, float,               trk_bragg_p_v) /*ATTN: Not same as ubcc1pi - max of fwd and bwd*/
     // f(p, q, false, float,               trk_bragg_mu_v) /*ATTN: Not same as ubcc1pi - max of fwd and bwd*/

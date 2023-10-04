@@ -31,17 +31,17 @@ struct Config
      // bool: wheter to use the file
     std::vector< std::tuple<AnalysisHelper::SampleType, bool, std::string> > inputFiles = {
         // Beam off
-        {AnalysisHelper::DataEXT, true, "/pnfs/uboone/persistent/users/jdetje/pelee_v08_00_00_70/combined/bnb_beam_off_peleeTuple_uboone_v08_00_00_70_run1.root"},
-        {AnalysisHelper::DataEXT, true, "/pnfs/uboone/persistent/users/jdetje/pelee_v08_00_00_70/combined/bnb_beam_off_peleeTuple_uboone_v08_00_00_70_run2.root"},
-        {AnalysisHelper::DataEXT, true, "/pnfs/uboone/persistent/users/jdetje/pelee_v08_00_00_70/combined/bnb_beam_off_peleeTuple_uboone_v08_00_00_70_run3.root"},
+        {AnalysisHelper::DataEXT, false, "/pnfs/uboone/persistent/users/jdetje/pelee_v08_00_00_70/combined/bnb_beam_off_peleeTuple_uboone_v08_00_00_70_run1.root"},
+        {AnalysisHelper::DataEXT, false, "/pnfs/uboone/persistent/users/jdetje/pelee_v08_00_00_70/combined/bnb_beam_off_peleeTuple_uboone_v08_00_00_70_run2.root"},
+        {AnalysisHelper::DataEXT, false, "/pnfs/uboone/persistent/users/jdetje/pelee_v08_00_00_70/combined/bnb_beam_off_peleeTuple_uboone_v08_00_00_70_run3.root"},
         // Beam on
-        {AnalysisHelper::DataBNB, true, "/pnfs/uboone/persistent/users/jdetje/pelee_v08_00_00_70/bnb_beam_on_peleeTuple_uboone_v08_00_00_70_run1_C1.root"},
+        {AnalysisHelper::DataBNB, false, "/pnfs/uboone/persistent/users/jdetje/pelee_v08_00_00_70/bnb_beam_on_peleeTuple_uboone_v08_00_00_70_run1_C1.root"},
         // Overlay dirt
-        {AnalysisHelper::Dirt,    true, "/pnfs/uboone/persistent/users/jdetje/pelee_v08_00_00_70/combined/overlay_peleeTuple_uboone_v08_00_00_70_run2_dirt.root"},
-        {AnalysisHelper::Dirt,    true, "/pnfs/uboone/persistent/users/jdetje/pelee_v08_00_00_70/overlay_peleeTuple_uboone_v08_00_00_70_run3_dirt.root"},
+        {AnalysisHelper::Dirt,    false, "/pnfs/uboone/persistent/users/jdetje/pelee_v08_00_00_70/combined/overlay_peleeTuple_uboone_v08_00_00_70_run2_dirt.root"},
+        {AnalysisHelper::Dirt,    false, "/pnfs/uboone/persistent/users/jdetje/pelee_v08_00_00_70/overlay_peleeTuple_uboone_v08_00_00_70_run3_dirt.root"},
         // Overlay MC
         {AnalysisHelper::Overlay, true, "/pnfs/uboone/persistent/users/jdetje/pelee_v08_00_00_70/overlay_peleeTuple_uboone_v08_00_00_70_run1_nu.root"},
-        {AnalysisHelper::Overlay, true, "/pnfs/uboone/persistent/users/jdetje/pelee_v08_00_00_70/overlay_peleeTuple_uboone_v08_00_00_70_run2_nu.root"}
+        {AnalysisHelper::Overlay, false, "/pnfs/uboone/persistent/users/jdetje/pelee_v08_00_00_70/overlay_peleeTuple_uboone_v08_00_00_70_run2_nu.root"}
     };
 
 
@@ -154,7 +154,7 @@ struct Config
     struct FilesRun1
     {
         // September overlays files contain systematic weights
-        std::string overlaysFileName = "/uboone/data/users/jdetje/ubcc1pi/sep2020/ubcc1piAnalysis_overlays_08Oct21.root"; ///< Overlays file name input
+        std::string overlaysFileName = "/uboone/data/users/kwresilo/CCNp1pi/data/newPeLEE/stv-overlay_peleeTuple_uboone_v08_00_00_70_run1_nu.root"; ///< Overlays file name input
         // std::string overlaysFileName = "/uboone/data/users/jdetje/ubcc1pi/sep2020/ubcc1piAnalysis_overlays_08Oct21_test_head20.root";
 
         std::string dirtFileName     = "/uboone/data/users/jdetje/ubcc1pi/sep2020/ubcc1piAnalysis_dirt_08Oct21.root";     ///< Dirt file name input
@@ -219,7 +219,7 @@ struct Config
     struct FilesRun2
     {
         // September overlays files contain systematic weights
-        std::string overlaysFileName = "/uboone/data/users/jdetje/ubcc1pi/sep2020/ubcc1piAnalysis_overlays_run2_07Nov21.root"; ///< Overlays file name inputs
+        std::string overlaysFileName = "/pnfs/uboone/persistent/users/jdetje/pelee_v08_00_00_70/overlay_peleeTuple_uboone_v08_00_00_70_run1_nu.root"; ///< Overlays file name inputs
         std::string dirtFileName     = "/uboone/data/users/jdetje/ubcc1pi/sep2020/ubcc1piAnalysis_dirt_run2_07Nov21.root";     ///< Dirt file name input
         std::string dataEXTFileName  = "/uboone/data/users/jdetje/ubcc1pi/sep2020/ubcc1piAnalysis_extbnb_run2_17Jan22.root";  ///< EXT data file name input
         std::string dataBNBFileName  = "/uboone/data/users/jdetje/ubcc1pi/sep2020/ubcc1piAnalysis_bnb_run2_08Nov21.root";  ///< BNB data file name input
@@ -345,13 +345,13 @@ struct Config
      */
     struct NormsRun1 : NormList
     {
-        float  overlaysPOT        = 1.195e+21;// TODO: REMOVE!! 6.42546e+19 POT for overlays_08Oct21_test_head20.root //1.195e+21;      ///< The total POT for the overlays MC
+        float  overlaysPOT        = 1.31e+21;// TODO: REMOVE!! 6.42546e+19 POT for overlays_08Oct21_test_head20.root //1.195e+21;      ///< The total POT for the overlays MC
         // Andy S files: 1.22447e+21, Kirsty D files (Jan 21):  1.18578e+21, Philip D files (Oct 08) 1.195e+21
         float  dirtPOT            = 2.63523e+20;    ///< The total POT for the dirt MC
         // Andy S files: 2.85049e+20, Kirsty D files (Jan 21): 2.91414e+20, Philip D files (Oct 08) 2.63523e+20
         float  dataEXTTriggers    = 64322029.0;     ///< The EXT triggers for the EXT data
         // Andy S files: 62540367.0, Kirsty D files (Jan 21): 64322029.0
-        float  dataBNBTor875WCut  = 1.532e+20;      ///< The POT measured by the 875m toroid (with quality cuts)
+        float  dataBNBTor875WCut  = 1.62e+20;      ///< The POT measured by the 875m toroid (with quality cuts)
         // Andy S files: 1.455e+20, Kirsty D files (Jan 21): 1.532e+20
         float  dataBNBE1DCNTWCut  = 34076199.0;     ///< The BNB spills sent by the accelerator division (with quality cuts)
         // Andy S files: 32339256.0, Kirsty D files (Jan 21): 34076199.0
@@ -516,18 +516,18 @@ struct Config
         std::string lastCutGeneric              = "startNearVertex"; ///< The last cut of the generic selection (remaining cuts are part of the golden selection)
         float       protonMomentumThreshold     = 0.3f;              ///< The minimum proton momentum to be counted [GeV]
         float       targetDensity               = 8.44191f;          ///< The number of target nuclei per unit volume - units e23 / cm^3
-        std::string selection                   = "Default";         ///< Which selection to use (can be "CCInclusive","Default", or "CC0pi")
+        std::string selection                   = "CCInclusive";         ///< Which selection to use (can be "CCInclusive","Default", or "CC0pi")
         bool        axisTitles                  = true;              ///< If we want to draw axis lables and titles on the plots (if false, they are not drawn so you can add your own later)
         bool        scaleByBinWidth             = true;
-        bool        useCC0piConstraint          = true;              ///< If we should use the CC0pi selection to constrain CC1pi cross-section
+        bool        useCC0piConstraint          = false;              ///< If we should use the CC0pi selection to constrain CC1pi cross-section
         bool        useBNBAsData                = false;             ///< If we should run with real data
-        bool        useNuWroAsData              = true;              ///< If we should run with NuWro as data
+        bool        useNuWroAsData              = false;              ///< If we should run with NuWro as data
         bool        useGenieAsData              = false;             ///< If we should run with Genie as data
-        bool        useDetVar                   = true;              ///< If we should run with detector variations
-        bool        fitInSystematicUniverses    = true;              ///< If we should fit not only in nominal but also in systematic universes
+        bool        useDetVar                   = false;              ///< If we should run with detector variations
+        bool        fitInSystematicUniverses    = false;              ///< If we should fit not only in nominal but also in systematic universes
         bool        useEfficiencyCorrection     = false;             ///< If we should use the efficiency-effect-free smearing matrix to use when creating the plots
-        std::vector<unsigned int> runs          = {1,2,3};           ///< The runs to use in the analysis
-        std::string outputPath                  = "/uboone/data/users/jdetje/ubcc1piOutput/"; ///< The location to save processed PeLEE files
+        std::vector<unsigned int> runs          = {1};           ///< The runs to use in the analysis
+        std::string outputPath                  = "/uboone/data/users/kwresilo/CCNp1pi/data/newPeLEE/"; ///< The location to save processed PeLEE files
 
         /**
          *  @brief  The Binning structure
@@ -560,7 +560,7 @@ struct Config
         Binning muonMomentum {
             0.15f,                                    // min
             std::numeric_limits<float>::max(),        // max
-            {0.15f, 0.23f, 0.32f, 0.45f, 0.66f, 1.5f} // binEdges
+            {0.15f, 0.23f, 0.32f, 0.45f, 0.66f, 1.2f} // binEdges
         }; ///< The muonMomentum binning
 
         Binning pionCosTheta {
@@ -578,7 +578,7 @@ struct Config
         Binning pionMomentum {
             0.f,                               // min
             std::numeric_limits<float>::max(), // max
-            {0.1f, 0.16f, 0.19f, 0.22f, 0.6f}  // binEdges
+            {0.0f, 0.16f, 0.19f, 0.22f, 0.6f}  // binEdges
         }; ///< The pionMomentum binning
 
         Binning muonPionAngle {
@@ -647,7 +647,7 @@ struct Config
         Binning protonMomentum {
             0.1f,                                    // min
             1.8f,        // max
-            {0.1f, 0.23f, 0.32f, 0.45f, 0.66f, 1.3f} // binEdges
+            {0.3f, 0.45f, 0.66f, 1.f} // binEdges
         }; ///< The protonMomentum binning
 
         Binning protonPionAngle {
@@ -746,7 +746,7 @@ struct Config
     struct TrainBDTs
     {
         float trainingFraction     = 0.5f;  ///< Fraction of the sample on which we should train the BDTs
-        bool  onlyGoodTruthMatches = false; ///< If we should only train on reco particles with a completeness >50%
+        bool  onlyGoodTruthMatches = true; ///< If we should only train on reco particles with a completeness >50%
         bool  weightByCompleteness = true;  ///< If we should weight the training examples by the reco-truth match completeness
         bool  shouldOptimize       = false; ///< If we should optimize the BDT parameters (this can take a while)
         bool  shouldMakePlots      = true;  ///< If we should make plots of the BDT responses

@@ -487,7 +487,41 @@ bool AnalysisHelper::IsTrueCCInclusive(const std::shared_ptr<Event> &pEvent, con
 }
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
+bool AnalysisHelper::PassesDaughterLevelCCInclusive(const std::shared_ptr<Event> &pEvent)
+{
 
+   const auto& reco = pEvent->reco;
+   unsigned int nParticles = reco.particles.size();
+
+   bool hasMuonCandidate = false;
+   bool daughtersInPCV = true;
+
+   std::vector<int> muonCandidateIndices;
+
+   for( int i = 0; i < nParticles; i++ )
+   {
+	const auto pParticle = reco.particles.at(i);
+	if (pParticle.generation() != 2 ) continue;
+
+	float track_score = pParticle.trackScore();
+        float start_dist = pParticle.distance();
+        float track_length = pParticle.range();
+        float pid_score = pParticle.llrScore();
+
+	if (track_score > 0.8 && start_dist < 4. && track_length > 10. && pid_score > 0.2)
+	{
+	    muonCandidateIndices.push_back(i);
+	}
+
+	daughtersInPCV &= (pParticle.startX > 10. && pParticle.startX < 246.35 && pParticle.startY > -106.5 && pParticle.startY < 106.5 && pParticle.startZ > 10. && pParticle.startZ < 1026.8); 
+	
+    }
+
+    if (muonCandidateIndices.size() > 0 ) hasMuonCandidate = true;
+
+    return (hasMuonCandidate && daughtersInPCV); 
+} 
+// -----------------------------------------------------------------------------------------------------------------------------------------
 bool AnalysisHelper::IsTrueCC1Pi(const std::shared_ptr<Event> &pEvent, const bool useAbsPdg)
 {
     if (!pEvent->metadata.hasTruthInfo())
@@ -499,16 +533,17 @@ bool AnalysisHelper::IsTrueCC1Pi(const std::shared_ptr<Event> &pEvent, const boo
     if (!AnalysisHelper::IsFiducial(truth.nuVertex()))
         return false;
 
+    //CountParticlesAboveMomentumThreshold(const std::vector<Event::Truth::Particle> &particles, const int pdgCode, const bool useAbsPdg, const float momentumThreshold)
     // Count the visible particles
     const auto visibleParticles = AnalysisHelper::SelectVisibleParticles(pEvent->truth.particles);
-    const auto nMu = AnalysisHelper::CountParticlesWithPdgCode(visibleParticles, 13, useAbsPdg);
-    const auto nProton = AnalysisHelper::CountParticlesWithPdgCode(visibleParticles, 2212, useAbsPdg);
-    const auto nPion = AnalysisHelper::CountParticlesWithPdgCode(visibleParticles, 211, useAbsPdg);
+    const auto nMu = AnalysisHelper::CountParticlesWithinMomentumRange(visibleParticles, 13, useAbsPdg, 0.15, 1.2);
+    const auto nProton = AnalysisHelper::CountParticlesWithinMomentumRange(visibleParticles, 2212, useAbsPdg, 0.2, 1.) ;
+    const auto nPion = AnalysisHelper::CountParticlesWithinMomentumRange(visibleParticles, 211, useAbsPdg, 0.15, 10.);
     const auto nOther = visibleParticles.size() - (nMu + nProton + nPion);
 
     // std::cout<<"DEBUG AnalysisHelper::IsTrueCC1Pi - nMu: "<<nMu<<" nProton: "<<nProton<<" nPion: "<<nPion<<" nOther: "<<nOther<<std::endl;
     // Insist on the CC1Pi topology
-    return (nMu == 1 && nPion == 1 && nOther == 0);
+    return (nMu == 1 && nPion == 1 && nProton >0 && nOther == 0);
 }
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
@@ -579,6 +614,20 @@ unsigned int AnalysisHelper::CountParticlesWithPdgCode(const std::vector<Event::
         if (pdg == pdgCode)
             count++;
     }
+
+    return count;
+}
+
+unsigned int AnalysisHelper::CountParticlesWithinMomentumRange(const std::vector<Event::Truth::Particle> &particles,const int pdgCode, const bool useAbsPdg, const float momentumMin, const float momentumMax)
+{
+    unsigned int count = 0;
+
+    for (const auto &particle : particles)
+    {
+	const auto pdg = useAbsPdg ? std::abs(particle.pdgCode()) : particle.pdgCode();
+        if (pdg == pdgCode && particle.momentum()>=momentumMin && particle.momentum() <= momentumMax)
+            count++;
+    }   
 
     return count;
 }
@@ -790,7 +839,7 @@ float AnalysisHelper::GetFiducialVolume()
 
 bool AnalysisHelper::IsFiducial(const TVector3 &point)
 {
-    return AnalysisHelper::IsPointWithinMargins(point, 10.f, 10.f, 10.f, 10.f, 10.f, 50.f);
+    return AnalysisHelper::IsPointWithinMargins(point, 21.5f, 21.5f, 21.5f, 21.5f, 21.5f, 70.f);
 }
 
 // -----------------------------------------------------------------------------------------------------------------------------------------

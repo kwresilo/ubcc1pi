@@ -288,6 +288,14 @@ class AnalysisHelper
          */
         static bool IsTrueCCInclusive(const std::shared_ptr<Event> &pEvent, const bool useAbsPdg);
 
+	/**
+ 	* @brief Determine whether the daughters particles of the input event pass CCInclusiveCuts
+ 	* 
+ 	* @param pEvent the input event
+ 	*
+        * @return boolean, true if daughters pass CCInclusive
+        */
+	static bool PassesDaughterLevelCCInclusive(const std::shared_ptr<Event> &pEvent);
         /**
          *  @brief  Determine if the input event is truly a fiducial CC1Pi event
          *
@@ -338,6 +346,18 @@ class AnalysisHelper
          */
         static unsigned int CountParticlesWithPdgCode(const std::vector<Event::Truth::Particle> &particles, const int pdgCode, const bool useAbsPdg);
 
+	/**
+ 	*@brief  Count the number of particles in the input vector with the supplied PDG code that are within specified momentum range
+	*
+	* @param  particles the input particles
+	* @param  pdgCode the pdg code
+	* @param  useAbsPdg if we should group particles with the same absolute PDG code
+	* @param  momentum  mimimum
+	* @param  momentum maximum
+	*
+	* @return the number of particles with the pdg code
+ 	*/
+	static unsigned int CountParticlesAboveMomentumThreshold(const std::vector<Event::Truth::Particle> &particles, const int pdgCode, const bool useAbsPdg, const float momentumMin, const float momentumMax);
 
         /**
          *  @brief  Count the number of particles in the input vector with the supplied PDG code that are above a momentum threshold

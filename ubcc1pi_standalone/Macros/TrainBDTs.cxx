@@ -48,20 +48,21 @@ void TrainBDTs(const Config &config)
     for (const auto &[sampleType, sampleRun, fileName, normalisation] : inputData)
     {
         // Read the input file
-        FileReader reader(fileName);
+        FileReader<EventPeLEE, SubrunPeLEE> readerPeLEE(fileName);
         auto pEvent = reader.GetBoundEventAddress();
 
-        for (unsigned int eventIndex = 0, nEvents = reader.GetNumberOfEvents(); eventIndex < nEvents; ++eventIndex)
+	//for (unsigned int eventIndex = 0, nEvents = reader.GetNumberOfEvents(); eventIndex < nEvents; ++eventIndex)
+        for (unsigned int eventIndex = 0, nEvents = reader.GetNumberOfEvents(); eventIndex < 100; ++eventIndex)
         {
             AnalysisHelper::PrintLoadingBar(eventIndex, nEvents);
             reader.LoadEvent(eventIndex);
 
-            // Event must be true CC1Pi
+            // Event must be true CC1PiNp
             if (!AnalysisHelper::IsTrueCC1Pi(pEvent, config.global.useAbsPdg))
-                continue;
+	        continue;
 
             // Event must pass the CCInclusive selection
-            if (!pEvent->reco.passesCCInclusive())
+            if (! (pEvent->reco.passesEventLevelCCInclusive() && AnalysisHelper::PassesDaughterLevelCCInclusive(pEvent) ) )
                 continue;
 
             cc1PiEventIndices.emplace_back(sampleRun, eventIndex);
@@ -78,10 +79,10 @@ void TrainBDTs(const Config &config)
     // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     // Setup the BDTs to train
     // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    const auto goldenPionFeatureNames = BDTHelper::GoldenPionBDTFeatureNames;
+    //const auto goldenPionFeatureNames = BDTHelper::GoldenPionBDTFeatureNames;
     const auto protonFeatureNames = BDTHelper::ProtonBDTFeatureNames;
     const auto muonFeatureNames = BDTHelper::MuonBDTFeatureNames;
-    BDTHelper::BDTFactory goldenPionBDTFactory("goldenPion", goldenPionFeatureNames);
+    //BDTHelper::BDTFactory goldenPionBDTFactory("goldenPion", goldenPionFeatureNames);
     BDTHelper::BDTFactory protonBDTFactory("proton", protonFeatureNames);
     BDTHelper::BDTFactory muonBDTFactory("muon", muonFeatureNames);
 
@@ -91,8 +92,8 @@ void TrainBDTs(const Config &config)
     for (const auto &[sampleType, sampleRun, fileName, normalisation] : inputData)
     {
         // Read the input file
-        FileReader reader(fileName);
-        auto pEvent = reader.GetBoundEventAddress();
+        FileReader<EventPeLEE, SubrunPeLEE> readerPeLEE(fileName);
+	auto pEvent = reader.GetBoundEventAddress();
 
         std::cout << "Filling the BDT entries" << std::endl;
         for (unsigned int i = 0; i < nCC1PiEvents; ++i)
@@ -113,36 +114,47 @@ void TrainBDTs(const Config &config)
             for (const auto &recoParticle : recoParticles)
             {
                 // Only use contained particles for training
-                if (!AnalysisHelper::HasTrackFit(recoParticle) || !AnalysisHelper::IsContained(recoParticle))
+                if (!AnalysisHelper::HasTrackFit(recoParticle))// Events with isSignal in true contained by defintion in CC1piNp analysis || !AnalysisHelper::IsContained(recoParticle))
                     continue;
 
                 // Determine the true origin of the reco particle
-                bool isExternal = true;
+                bool isExternal = false;
                 int truePdgCode = -std::numeric_limits<int>::max();
-                bool trueIsGolden = false;
+                //bool trueIsGolden = false;
                 float trueMomentum = -std::numeric_limits<float>::max();
                 float completeness = -std::numeric_limits<float>::max();
 
-                try
-                {
+		if ( !(recoParticle.backtrackedPurity() > 0. && recoParticle.backtrackedPurity() <= 1.) ) isExternal = true;
+		else
+		{
+		    truePdgCode = recoParticle.backtrackedPDG();
+		    trueMomentum = recoParticle.backtrackedMomentum();
+		    completeness = recoParticle.backtrackedCompleteness();
+		}
+		     
+        	/*
+		try
+                { 
+		    //get rid of next two lines
                     const auto truthParticleIndex = AnalysisHelper::GetBestMatchedTruthParticleIndex(recoParticle, truthParticles);
                     const auto truthParticle = truthParticles.at(truthParticleIndex);
 
+		    //how do I know it's EXT :') 		
                     isExternal = false;
-                    truePdgCode = truthParticle.pdgCode();
-                    trueMomentum = truthParticle.momentum();
-                    trueIsGolden = AnalysisHelper::IsGolden(truthParticle);
-                    completeness = recoParticle.truthMatchCompletenesses().at(truthParticleIndex);
+                    truePdgCode = truthParticle.pdgCode(); //use recoParticle.backtracked_pdg?
+                    trueMomentum = truthParticle.momentum(); //use recoParticle.backtracked_momentum?
+                    trueIsGolden = AnalysisHelper::IsGolden(truthParticle); // this one is a little tricky
+                    completeness = recoParticle.truthMatchCompletenesses().at(truthParticleIndex); //use recoPArticle.backtracked_completeness?
                 }
                 catch (const std::exception &) {}
-
+		*/
                 // Only use good matches for training
                 if (config.trainBDTs.onlyGoodTruthMatches && (isExternal || completeness < 0.5f))
                     continue;
 
                 // Extract the features
-                std::vector<float> goldenPionFeatures;
-                const auto areAllFeaturesAvailableGoldenPion = BDTHelper::GetBDTFeatures(recoParticle, goldenPionFeatureNames, goldenPionFeatures);
+                //std::vector<float> goldenPionFeatures;
+                //const auto areAllFeaturesAvailableGoldenPion = BDTHelper::GetBDTFeatures(recoParticle, goldenPionFeatureNames, goldenPionFeatures);
 
                 std::vector<float> protonFeatures;
                 const auto areAllFeaturesAvailableProton = BDTHelper::GetBDTFeatures(recoParticle, protonFeatureNames, protonFeatures);
@@ -154,12 +166,13 @@ void TrainBDTs(const Config &config)
                 const auto completenessWeight = (config.trainBDTs.weightByCompleteness ? (isExternal ? 1.f : completeness) : 1.f);
                 const auto weight = eventWeight * completenessWeight;
 
+		/*
                 if (areAllFeaturesAvailableGoldenPion)
                 {
                     const bool isGoldenPion = !isExternal && truePdgCode == 211 && trueIsGolden;
                     goldenPionBDTFactory.AddEntry(goldenPionFeatures, isGoldenPion, isTrainingEvent, weight);
                 }
-
+		*/
                 if (areAllFeaturesAvailableProton)
                 {
                     const bool isProton = !isExternal && truePdgCode == 2212;
@@ -180,8 +193,8 @@ void TrainBDTs(const Config &config)
     // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     if (config.trainBDTs.shouldOptimize)
     {
-        std::cout << "Optimizing golden pion BDT" << std::endl;
-        goldenPionBDTFactory.OptimizeParameters();
+        //std::cout << "Optimizing golden pion BDT" << std::endl;
+        //goldenPionBDTFactory.OptimizeParameters();
 
         std::cout << "Optimizing proton BDT" << std::endl;
         protonBDTFactory.OptimizeParameters();
@@ -193,8 +206,8 @@ void TrainBDTs(const Config &config)
     // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     // Train and test the BDTs
     // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    std::cout << "Training and testing golden pion BDT" << std::endl;
-    goldenPionBDTFactory.TrainAndTest();
+    //std::cout << "Training and testing golden pion BDT" << std::endl;
+    //goldenPionBDTFactory.TrainAndTest();
 
     std::cout << "Training and testing proton BDT" << std::endl;
     protonBDTFactory.TrainAndTest();
@@ -210,12 +223,12 @@ void TrainBDTs(const Config &config)
         return;
 
     const std::string yLabel = "Fraction of reco particles";
-    PlottingHelper::MultiPlot goldenPionBDTPlot("Golden pion BDT response", yLabel, 50, -0.9f, 0.45f);
+    //PlottingHelper::MultiPlot goldenPionBDTPlot("Golden pion BDT response", yLabel, 50, -0.9f, 0.45f);
     PlottingHelper::MultiPlot protonBDTPlot("Proton BDT response", yLabel, 50, -0.8f, 0.7f);
     PlottingHelper::MultiPlot muonBDTPlot("Muon BDT response", yLabel, 50, -0.9f, 0.6f);
 
     // Using the newly trained BDT weight files, setup up a BDT for evaluation
-    BDTHelper::BDT goldenPionBDT("goldenPion", goldenPionFeatureNames);
+    //BDTHelper::BDT goldenPionBDT("goldenPion", goldenPionFeatureNames);
     BDTHelper::BDT protonBDT("proton", protonFeatureNames);
     BDTHelper::BDT muonBDT("muon", muonFeatureNames);
 
@@ -223,7 +236,7 @@ void TrainBDTs(const Config &config)
     for (const auto &[sampleType, sampleRun, fileName, normalisation] : inputData)
     {
         // Read the input file
-        FileReader reader(fileName);
+        FileReader<EventPeLEE, SubrunPeLEE> readerPeLEE(fileName);
         auto pEvent = reader.GetBoundEventAddress();
 
         std::cout << "Filling the BDT entries" << std::endl;
@@ -245,15 +258,23 @@ void TrainBDTs(const Config &config)
             for (const auto &recoParticle : recoParticles)
             {
                 // Only use contained particles for testing
-                if (!AnalysisHelper::HasTrackFit(recoParticle) || !AnalysisHelper::IsContained(recoParticle))
+                if (!AnalysisHelper::HasTrackFit(recoParticle))// || !AnalysisHelper::IsContained(recoParticle))
                     continue;
 
                 // Determine the true origin of the reco particle
-                bool isExternal = true;
+                bool isExternal = false;
                 int truePdgCode = -std::numeric_limits<int>::max();
                 bool trueIsGolden = false;
                 float completeness = -std::numeric_limits<float>::max();
 
+		if ( !(recoParticle.backtrackedPurity() > 0. && recoParticle.backtrackedPurity() <= 1.) ) isExternal = true;
+                else
+                {
+                    truePdgCode = recoParticle.backtrackedPDG();
+                    trueMomentum = recoParticle.backtrackedMomentum();
+                    completeness = recoParticle.backtrackedCompleteness();
+                }	
+		/*
                 try
                 {
                     const auto truthParticleIndex = AnalysisHelper::GetBestMatchedTruthParticleIndex(recoParticle, truthParticles);
@@ -265,7 +286,7 @@ void TrainBDTs(const Config &config)
                     completeness = recoParticle.truthMatchCompletenesses().at(truthParticleIndex);
                 }
                 catch (const std::exception &) {}
-
+		*/
                 // Only use good matches for testing
                 if (config.trainBDTs.onlyGoodTruthMatches && (isExternal || completeness < 0.5f))
                     continue;
@@ -278,8 +299,8 @@ void TrainBDTs(const Config &config)
                     continue;
 
                 // Extract the features
-                std::vector<float> goldenPionFeatures;
-                const auto areAllFeaturesAvailableGoldenPion = BDTHelper::GetBDTFeatures(recoParticle, goldenPionFeatureNames, goldenPionFeatures);
+                //std::vector<float> goldenPionFeatures;
+                //const auto areAllFeaturesAvailableGoldenPion = BDTHelper::GetBDTFeatures(recoParticle, goldenPionFeatureNames, goldenPionFeatures);
 
                 std::vector<float> protonFeatures;
                 const auto areAllFeaturesAvailableProton = BDTHelper::GetBDTFeatures(recoParticle, protonFeatureNames, protonFeatures);
@@ -287,12 +308,13 @@ void TrainBDTs(const Config &config)
                 std::vector<float> muonFeatures;
                 const auto areAllFeaturesAvailableMuon = BDTHelper::GetBDTFeatures(recoParticle, muonFeatureNames, muonFeatures);
 
+		/*
                 if (areAllFeaturesAvailableGoldenPion)
                 {
                     const auto goldenPionBDTResponse = goldenPionBDT.GetResponse(goldenPionFeatures);
                     goldenPionBDTPlot.Fill(goldenPionBDTResponse, style, eventWeight);
                 }
-
+		*/
                 if (areAllFeaturesAvailableProton)
                 {
                     const auto protonBDTResponse = protonBDT.GetResponse(protonFeatures);
@@ -309,7 +331,7 @@ void TrainBDTs(const Config &config)
     }
 
     // Save the plots
-    goldenPionBDTPlot.SaveAs("goldenPionBDTResponse");
+    //goldenPionBDTPlot.SaveAs("goldenPionBDTResponse");
     protonBDTPlot.SaveAs("protonBDTResponse");
     muonBDTPlot.SaveAs("muonBDTResponse");
 }

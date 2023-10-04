@@ -31,47 +31,27 @@ namespace ubcc1pi_macros
 
 void Analyzer(const Config &config)
 {
+
     // A map from each cross-section to the limits of the phase-space that should be considered. The key is the
-    // identifier for the kinematic quantity and the mapped value is a pair containing the limits [min, max]
+    //     // identifier for the kinematic quantity and the mapped value is a pair containing the limits [min, max]
     std::map< std::string, std::pair<float, float> > phaseSpaceMap;
     for (const auto &[name, binning, scaleByBinWidth] : std::vector< std::tuple<std::string, Config::Global::Binning, bool> > {
-
-        // The names of the cross-section kinematic parameters, and their binning information.
-        // The third (boolean) parameter indicates if the cross-section bins should be scaled by their width
-        { "muonCosTheta", config.global.muonCosTheta, true },
-        { "muonPhi", config.global.muonPhi, true },
         { "muonMomentum", config.global.muonMomentum, true },
 
-        { "pionCosTheta", config.global.pionCosTheta, true },
-        { "pionPhi", config.global.pionPhi, true  },
         { "pionMomentum", config.global.pionMomentum, true },
 
-        { "muonPionAngle", config.global.muonPionAngle, true },
-        { "nProtons", config.global.nProtons, false }
+        { "protonMomentum", config.global.pionMomentum, true }
     })
+
     {
         // Add to the phase-space map
         phaseSpaceMap.emplace(name, std::pair<float, float>({binning.min, binning.max}));
     }
 
-    // -------------------------------------------------------------------------------------------------------------------------------------
-    // Setup the relevent "getters" for each cross-section and for the CC0pi selection
-    // -------------------------------------------------------------------------------------------------------------------------------------
-    ExtractionHelper::AnalysisValueMap getValueCC1Pi;
-    ExtractionHelper::AnalysisValueMap getValueCC0Pi;
-    ExtractionHelper::PopulateAnalysisValueMap(getValueCC1Pi, false);
-    ExtractionHelper::PopulateAnalysisValueMap(getValueCC0Pi, true);
 
-    std::cout<<"..........................................\nUSING Modified CC0pi Selection: muonLikeProtonValue=-0.48f, barelyResemblingProtonValue=0.12f\n.........................................."<<std::endl;
-    auto selectionCC0Pi = SelectionHelper::GetCC0piSelectionModifiedPeLEE(-0.48f, 0.12f);
-    auto selectionCC1Pi = SelectionHelper::GetDefaultSelection();
 
-    // ExtractionHelper::InputFileList inputData;
-    // typedef std::vector< std::tuple<AnalysisHelper::SampleType, std::string, std::string, float> > InputFileList;
-    // inputData.emplace_back(AnalysisHelper::Overlay, "", "/uboone/data/users/jdetje/ubcc1piVSpelee/pelee/neutrinoselection_filt_0_4k.root", 1);
-    // inputData.emplace_back(AnalysisHelper::Overlay, "", "/uboone/app/users/jdetje/searchingfornues/files/steps4/neutrinoselection_filt_upodated5.root", 1);
-    // inputData.emplace_back(AnalysisHelper::DataBNB, "", "/uboone/data/users/jdetje/pelee_v08_00_00_70/bnb_beam_on_peleeTuple_uboone_v08_00_00_70_run2_E1_head5.root", 1);
-
+    // LOOK INTO THESE SELECTIONS, GET DEFAULT DELECTION APPLIES BDT PART
+    auto selectionCC1Pi = SelectionHelper::GetCCInclusiveSelection();
 
     const auto currentTime = std::chrono::system_clock::now();
     const auto currentTimeT = std::chrono::system_clock::to_time_t(currentTime);
@@ -86,6 +66,7 @@ void Analyzer(const Config &config)
     // TreeWriter treeWriter(inputFiles, config.global.outputFile.c_str());
 
     // Loop over the files
+    //
     for (const auto &[sampleType, useThisFile, filePath] : config.inputFiles)
     {
         if(!useThisFile) continue;
@@ -100,6 +81,8 @@ void Analyzer(const Config &config)
 
         const auto outputFilePath = config.global.outputPath + fileName + "_ubcc1pi_" + currentDateTime.str() + ".root";
         // Todo: Change the code to combine all input files of the same type across different runs into one output file
+        // WRITES NEW TREE, PROBABLY NEED TO MODIIFY
+        // CLASSIFIES TYPE OF DATA FOR SELECTION 
         TreeWriter treeWriter(std::vector<std::string>({filePath}), outputFilePath.c_str());
         const auto isOverlay = (sampleType == AnalysisHelper::Overlay);
         const auto isDirt    = (sampleType == AnalysisHelper::Dirt);
@@ -113,61 +96,24 @@ void Analyzer(const Config &config)
         // if(isDataBNB || isDirt || isDataEXT) continue; // Todo: Remove!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
         // Open the input file for reading and enable the branches with systematic event weights (if required)
+        // TEMPLATED: 2 VERSIONS ONE WITH BRACKETS (NEEDED TO PELEE NTUPLES)
         FileReader<EventPeLEE, SubrunPeLEE> readerPeLEE(filePath, isMC);
 
         if (isMC) readerPeLEE.EnableSystematicBranches(); // Todo: Is this correct/optimal?
 
+	
         // Loop over the events in the file
         const auto nEvents = readerPeLEE.GetNumberOfEvents();
         const auto pEventPeLEE = readerPeLEE.GetBoundEventAddress();
         std::cout << "### Only processing every 10th event ###" << std::endl;
-        for (unsigned int i = 0; i < nEvents/10; i++) //nEvents; i++) // Todo: Remove!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+        for (unsigned int i = 0; i < 1000; i++) //nEvents; i++) // Todo: Remove!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
         {
+
+	    //LOAD EVENTS
             AnalysisHelper::PrintLoadingBar(i, nEvents);
             readerPeLEE.LoadEvent(i);
             Event event(*pEventPeLEE, isMC);
             const auto pEvent = std::make_shared<Event>(event);
-
-            // ####################################################################
-            // #################### Reco CC0pi ####################
-            // ####################################################################
-            // std::cout<<"DEBUG Analyzer Point 0"<<std::endl;
-            const auto &[passedGoldenselectionCC0Pi, cutsPassedCC0Pi, assignedPdgCodesCC0Pi] = selectionCC0Pi.Execute(pEvent);
-            // std::cout<<"DEBUG Analyzer Point 1"<<std::endl;
-            const auto passedGenericselectionCC0Pi = SelectionHelper::IsCutPassed(cutsPassedCC0Pi, config.global.lastCutGeneric);
-            // std::cout<<"DEBUG Analyzer Point 2"<<std::endl;
-
-            // Get the reco analysis data (if available, otherwise set to dummy values)
-            const auto recoDataCC0Pi = (
-                passedGenericselectionCC0Pi
-                    ? AnalysisHelper::GetRecoAnalysisDataCC0Pi(pEvent->reco, assignedPdgCodesCC0Pi, passedGoldenselectionCC0Pi)
-                    : AnalysisHelper::GetDummyAnalysisData()
-            );
-
-            // Here we apply reco-level phase-space restrictions
-            // For any event that passes the generic selection, get the value of the kinematic quantity and check if it is outside of the
-            // min/max values supplied in the binning. If so, then reject the event.
-            auto passesPhaseSpaceRecoCC0Pi = false;
-            if (passedGenericselectionCC0Pi)
-            {
-                // Start by assuming the event passes the phase-space cuts
-                passesPhaseSpaceRecoCC0Pi = true;
-
-                // Check the value of the kinematic quantities are within the phase-space limits
-                for (const auto &[name, minMax] : phaseSpaceMap)
-                {
-                    const auto &[min, max] = minMax;
-                    const auto value = getValueCC0Pi.at(name)(recoDataCC0Pi);
-
-                    if (value < min || value > max)
-                    {
-                        passesPhaseSpaceRecoCC0Pi = false;
-                        break;
-                    }
-                }
-            }
-            const auto isSelectedGenericCC0Pi = passedGenericselectionCC0Pi && passesPhaseSpaceRecoCC0Pi;
-            const auto isSelectedGoldenCC0Pi = passedGoldenselectionCC0Pi && passesPhaseSpaceRecoCC0Pi;
 
             // ################################################################
             // #################### Reco CC1pi ####################
@@ -204,6 +150,8 @@ void Analyzer(const Config &config)
                     }
                 }
             }
+
+	    
             const auto isSelectedGenericCC1Pi = passedGenericSelection && passesPhaseSpaceRecoCC1Pi;
             const auto isSelectedGoldenCC1Pi = passedGoldenSelection && passesPhaseSpaceRecoCC1Pi;
 
@@ -211,8 +159,8 @@ void Analyzer(const Config &config)
             // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
             // Reco variables
             // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-            treeWriter.SetOutputBranchAddress("cc0pi_selected_generic", (void*)&isSelectedGenericCC0Pi, "cc0pi_selected_generic/O" );
-            treeWriter.SetOutputBranchAddress("cc0pi_selected_golden", (void*)&isSelectedGoldenCC0Pi, "cc0pi_selected_golden/O" );
+            
+	    // ADD BRANCHES TO EMPTY NTUPLES?
             treeWriter.SetOutputBranchAddress("cc1pi_selected_generic", (void*)&isSelectedGenericCC1Pi, "cc1pi_selected_generic/O" );
             treeWriter.SetOutputBranchAddress("cc1pi_selected_golden", (void*)&isSelectedGoldenCC1Pi, "cc1pi_selected_golden/O" );
 
@@ -225,58 +173,8 @@ void Analyzer(const Config &config)
             treeWriter.SetOutputBranchAddress("cc1pi_reco_muonPionAngle", (void*)&recoDataCC1Pi.muonPionAngle, "cc1pi_reco_muonPionAngle/F" );
             treeWriter.SetOutputBranchAddress("cc1pi_reco_nProtons", (void*)&recoDataCC1Pi.nProtons, "cc1pi_reco_nProtons/I" );
 
-            treeWriter.SetOutputBranchAddress("cc0pi_reco_muonMomentum", (void*)&recoDataCC0Pi.muonMomentum, "cc0pi_reco_muonMomentum/F" );
-            treeWriter.SetOutputBranchAddress("cc0pi_reco_muonCosTheta", (void*)&recoDataCC0Pi.muonCosTheta, "cc0pi_reco_muonCosTheta/F" );
-            treeWriter.SetOutputBranchAddress("cc0pi_reco_muonPhi", (void*)&recoDataCC0Pi.muonPhi, "cc0pi_reco_muonPhi/F" );
-            treeWriter.SetOutputBranchAddress("cc0pi_reco_pionMomentum", (void*)&recoDataCC0Pi.pionMomentum, "cc0pi_reco_pionMomentum/F" );
-            treeWriter.SetOutputBranchAddress("cc0pi_reco_pionCosTheta", (void*)&recoDataCC0Pi.pionCosTheta, "cc0pi_reco_pionCosTheta/F" );
-            treeWriter.SetOutputBranchAddress("cc0pi_reco_pionPhi", (void*)&recoDataCC0Pi.pionPhi, "cc0pi_reco_pionPhi/F" );
-            treeWriter.SetOutputBranchAddress("cc0pi_reco_muonPionAngle", (void*)&recoDataCC0Pi.muonPionAngle, "cc0pi_reco_muonPionAngle/F" );
-            treeWriter.SetOutputBranchAddress("cc0pi_reco_nProtons", (void*)&recoDataCC0Pi.nProtons, "cc0pi_reco_nProtons/I" );
-
-            // treeWriter.SetOutputBranchAddress("muon_candidate_idx", &pEventPeLEE->muon_candidate_idx_, "muon_candidate_idx/I" );
-            // treeWriter.SetOutputBranchAddress("pion_candidate_idx", &pEventPeLEE->pion_candidate_idx_, "pion_candidate_idx/I" );
-            // treeWriter.SetOutputBranchAddress("lead_p_candidate_idx", &pEventPeLEE->lead_p_candidate_idx_, "lead_p_candidate_idx/I" );
-
             if (!isDataBNB) // For BNB data that's all we need to do!
             {
-                // #####################################################
-                // #################### Truth CC0pi ####################
-                // #####################################################
-                // Determine if this is truly a CC0Pi event
-                const auto isTrueCC0Pi = (isOverlay || isDetVar || isNuWro) && AnalysisHelper::IsTrueCC0Pi(pEvent, config.global.useAbsPdg, config.global.protonMomentumThreshold);
-
-                // Get the truth analysis data (if available, otherwise set to dummy values)
-                const auto truthDataCC0Pi = (
-                    (isTrueCC0Pi)
-                        ? AnalysisHelper::GetTruthAnalysisDataCC0Pi(pEvent->truth, config.global.useAbsPdg, config.global.protonMomentumThreshold)
-                        : AnalysisHelper::GetDummyAnalysisData()
-                );
-
-                // Here we apply truth-level phase-space restrictions
-                // For all true CC0Pi events, we check if the values of each kinematic variable are within the supplied limits. If not then the
-                // event is not classed as "signal"
-                bool passesPhaseSpaceTruthCC0Pi = false;
-                if (isTrueCC0Pi)
-                {
-                    // Start by assuming the event passes the phase-space cuts
-                    passesPhaseSpaceTruthCC0Pi = true;
-
-                    // Check the value of the kinematic quantities are within the phase-space limits
-                    for (const auto &[name, minMax] : phaseSpaceMap)
-                    {
-                        // if(name == "pionMomentum") continue; // Not really compatible with the pion momentum in the CC1pi selection // todo check this
-                        const auto &[min, max] = minMax;
-                        const auto value = getValueCC0Pi.at(name)(truthDataCC0Pi);
-
-                        if (value < min || value > max)
-                        {
-                            passesPhaseSpaceTruthCC0Pi = false;
-                            break;
-                        }
-                    }
-                }
-                const auto isCC0PiSignal = isTrueCC0Pi && passesPhaseSpaceTruthCC0Pi;
 
                 // #####################################################
                 // #################### Truth CC1pi ####################
@@ -387,36 +285,6 @@ void Analyzer(const Config &config)
                 treeWriter.SetOutputBranchAddress("mc_nu_pdg", (void*)&dummyInt, "mc_nu_pdg/I");
             }
 
-            // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-            // Weights
-            // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-            // // std::cout<<"DEBUG Point 0"<<std::endl;
-            std::map<std::string, const std::vector<double>*> weightPtrMap;
-            if(isMC)
-            {
-                // // std::cout<<"DEBUG Point 1"<<std::endl;
-                // General systematic weights
-                for (auto &weights : *pEventPeLEE->truth.weights.GetAddress())
-                {
-                    weightPtrMap[weights.first] = &weights.second;
-                    treeWriter.SetObjectOutputBranchAddress<std::vector<double>>("weight_" + weights.first, weightPtrMap.at(weights.first));
-                }
-
-                // std::cout<<"DEBUG Point 2"<<std::endl;
-                // GENIE weights
-                treeWriter.SetOutputBranchAddress("spline_weight", (void*)pEventPeLEE->truth.weightSpline.GetAddress(), "spline_weight/F");
-                treeWriter.SetOutputBranchAddress("tuned_cv_weight", (void*)pEventPeLEE->truth.weightTune.GetAddress(), "tuned_cv_weight/F");
-                // std::cout<<"DEBUG Point 3"<<std::endl;
-            }
-            else
-            {
-                // // std::cout<<"DEBUG Point 4"<<std::endl;
-                // Non-mc weights are set to 1
-                const auto defaultWeight = 1.f;
-                treeWriter.SetOutputBranchAddress("spline_weight", (void*)&defaultWeight, "spline_weight/F");
-                treeWriter.SetOutputBranchAddress("tuned_cv_weight", (void*)&defaultWeight, "tuned_cv_weight/F");
-                // // std::cout<<"DEBUG Point 5"<<std::endl;
-            }
             // // std::cout<<"DEBUG Point 6"<<std::endl;
 
             // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

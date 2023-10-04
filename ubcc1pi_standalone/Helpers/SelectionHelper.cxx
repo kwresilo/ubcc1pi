@@ -625,43 +625,44 @@ SelectionHelper::EventSelection SelectionHelper::GetDefaultSelection()
         // See docID: 25589-v2 for details
 
         // track score > 0.85
-        {"particleTrackScore", 0.85f},
+        {"particleTrackScore", 0.8f},
         // vertex distance < 4 cm
         {"particleVertexDistance", 4.0f},
         // generation = 2 (direct neutrino daughter)
         {"particleGeneration"},
         // track length > 20 cm
-        {"particleTrackLength", 20.0f}, // ATTN: This analysis and pelee use SCE corrected lengths numucc does not
-        // Proton χ2 > 60
-        {"particleProtonChi2", 60.0f},
+        {"particleTrackLength", 10.0f}, // ATTN: This analysis and pelee use SCE corrected lengths numucc does not
+        {"llrScore", 0.2}; //muon PID cut
+	// Proton χ2 > 60
+        //{"particleProtonChi2", 60.0f},
         // Muon χ2 < 30
-        {"particleMuonChi2", 30.0f},
+        //{"particleMuonChi2", 30.0f},
         // Proton χ2/Muon χ2 > 7
-        {"particleProtonChi2OverMuonChi2", 7.0f},
+        //{"particleProtonChi2OverMuonChi2", 7.0f},
 
         // ########### CC inclusive selection continued; conditions now apply to events ###########
         // Pandora PDG code = 14 (reconstructed object with the most hits is track-like).
-        {"pandoraNuPDGIsNumu"},
+        //{"pandoraNuPDGIsNumu"},
         // Start vertex of all daughters is at least 10 cm from all borders
         {"daughterVerticesContained", 10.0f},
         // Neutrino vertex is in the fiducial volume.
         {"nuVertexFiducial"},
         // Flash χ2 < 10 OR topological score > 0.25
-        {"topologicalOrFlashMatch"},
+        //{"topologicalOrFlashMatch"},
         // Topological score > 0.06
-        {"topologicalScoreCC", 0.06f},
+        {"topologicalScoreCC", 0.1f},
 
         // {"passesCCInclusive"},
-        {"min2Tracks"},
-        {"max1Uncontained"},
-        {"2NonProtons", -0.06f},
-        {"pionHasValiddEdx", 1.0f},
-        {"pionNotInGap"},
-        {"muonNotInGap"},
-        {"openingAngle", 2.65f},
-        {"topologicalScore", 0.67f},
-        {"startNearVertex", 9.5f},
-        {"likelyGoldenPion", -0.03f}
+        //{"min2Tracks"},
+        //{"max1Uncontained"},
+        //{"2NonProtons", -0.06f},
+        //{"pionHasValiddEdx", 1.0f},
+        //{"pionNotInGap"},
+        //{"muonNotInGap"},
+        //{"openingAngle", 2.65f},
+        //{"topologicalScore", 0.67f},
+        //{"startNearVertex", 9.5f},
+        //{"likelyGoldenPion", -0.03f}
     };
 
     // Load up the BDTs and store them in a map
