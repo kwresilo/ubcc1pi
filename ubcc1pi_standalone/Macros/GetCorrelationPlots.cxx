@@ -54,7 +54,7 @@ void GetCorrelationPlots(const Config &config)
         // Open the file
         const auto isMC = (sampleType == AnalysisHelper::Overlay);
 	
-        FileReader reader(fileName);
+        //FileReader reader(fileName);
 	FileReader<EventPeLEE, SubrunPeLEE> readerPeLEE(fileName, isMC);
         auto pEventPeLEE = readerPeLEE.GetBoundEventAddress();
         //auto pEvent = reader.GetBoundEventAddress();
