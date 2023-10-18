@@ -632,7 +632,6 @@ SelectionHelper::EventSelection SelectionHelper::GetDefaultSelection()
         {"particleGeneration"},
         // track length > 20 cm
         {"particleTrackLength", 10.0f}, // ATTN: This analysis and pelee use SCE corrected lengths numucc does not
-        {"llrScore", 0.2}; //muon PID cut
 	// Proton χ2 > 60
         //{"particleProtonChi2", 60.0f},
         // Muon χ2 < 30

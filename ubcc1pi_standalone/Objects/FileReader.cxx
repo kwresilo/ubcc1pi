@@ -65,7 +65,7 @@ void FileReader<T, U>::BindSubrunToTree()
 // -----------------------------------------------------------------------------------------------------------------------------------------
 
 template <class T, class U>
-std::shared_ptr<T> FileReader<T, U>::GetBoundEventAddress()
+const std::shared_ptr<T> FileReader<T, U>::GetBoundEventAddress()
 {
     return m_pEvent;
 }

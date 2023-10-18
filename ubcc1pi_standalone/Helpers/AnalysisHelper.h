@@ -357,7 +357,7 @@ class AnalysisHelper
 	*
 	* @return the number of particles with the pdg code
  	*/
-	static unsigned int CountParticlesAboveMomentumThreshold(const std::vector<Event::Truth::Particle> &particles, const int pdgCode, const bool useAbsPdg, const float momentumMin, const float momentumMax);
+	static unsigned int CountParticlesWithinMomentumRange(const std::vector<Event::Truth::Particle> &particles, const int pdgCode, const bool useAbsPdg, const float momentumMin, const float momentumMax);
 
         /**
          *  @brief  Count the number of particles in the input vector with the supplied PDG code that are above a momentum threshold

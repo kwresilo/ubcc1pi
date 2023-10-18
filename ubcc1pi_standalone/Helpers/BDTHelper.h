@@ -301,7 +301,8 @@ const std::vector<std::string> BDTHelper::ParticleBDTFeatureNames = {
     "nDescendents",
     "nSpacePointsNearEnd",
     "wiggliness",
-    "trackScore"
+    "trackScore",
+    "llrPID"
 };
 
 // -----------------------------------------------------------------------------------------------------------------------------------------

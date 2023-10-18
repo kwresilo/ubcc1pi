@@ -498,13 +498,23 @@ bool AnalysisHelper::PassesDaughterLevelCCInclusive(const std::shared_ptr<Event>
 
    std::vector<int> muonCandidateIndices;
 
-   for( int i = 0; i < nParticles; i++ )
-   {
+   for( unsigned int i = 0; i < nParticles; i++ )
+   {		
 	const auto pParticle = reco.particles.at(i);
 	if (pParticle.generation() != 2 ) continue;
 
+	// if start values aren't set then we won't pass daughter level cuts anyway	
+	if (!(pParticle.startX.IsSet() && pParticle.startY.IsSet() && pParticle.startZ.IsSet())) return false;
+
+	// if particle has no trackfit, then it won't pass cuts, continue to next
+	if(!(pParticle.trackScore.IsSet() && pParticle.distance.IsSet() && pParticle.range.IsSet() && pParticle.llrScore.IsSet() ) ) continue;
+
+	//std::cout << "purity: " << pParticle.backtrackedPurity() << std::endl;
+	//std::cout << "completeness: " << pParticle.backtrackedCompleteness() << std::endl;	
 	float track_score = pParticle.trackScore();
+	//std::cout << "track_score: " << track_score << std::endl;
         float start_dist = pParticle.distance();
+	//std::cout << "daughter distance: " << start_dist << std::endl;
         float track_length = pParticle.range();
         float pid_score = pParticle.llrScore();
 
@@ -513,7 +523,7 @@ bool AnalysisHelper::PassesDaughterLevelCCInclusive(const std::shared_ptr<Event>
 	    muonCandidateIndices.push_back(i);
 	}
 
-	daughtersInPCV &= (pParticle.startX > 10. && pParticle.startX < 246.35 && pParticle.startY > -106.5 && pParticle.startY < 106.5 && pParticle.startZ > 10. && pParticle.startZ < 1026.8); 
+	daughtersInPCV &= (pParticle.startX() > 10.f && pParticle.startX() < 246.35f && pParticle.startY() > -106.5f && pParticle.startY() < 106.5f && pParticle.startZ() > 10.f && pParticle.startZ() < 1026.8f); 
 	
     }
 
@@ -522,7 +532,7 @@ bool AnalysisHelper::PassesDaughterLevelCCInclusive(const std::shared_ptr<Event>
     return (hasMuonCandidate && daughtersInPCV); 
 } 
 // -----------------------------------------------------------------------------------------------------------------------------------------
-bool AnalysisHelper::IsTrueCC1Pi(const std::shared_ptr<Event> &pEvent, const bool useAbsPdg)
+bool AnalysisHelper::IsTrueCC1Pi( const std::shared_ptr<Event> &pEvent, const bool useAbsPdg)
 {
     if (!pEvent->metadata.hasTruthInfo())
         throw std::invalid_argument("AnalysisHelper::IsTrueCC1Pi - Input event doesn't have truth information!");

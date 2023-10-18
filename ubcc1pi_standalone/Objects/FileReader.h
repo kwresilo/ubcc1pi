@@ -61,7 +61,7 @@ class FileReader
          *
          *  @return the address of the bound event
          */
-        std::shared_ptr<T> GetBoundEventAddress();
+        const std::shared_ptr<T> GetBoundEventAddress();
 
         /**
          *  @brief  Get the subrun bound to the output tree

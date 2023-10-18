@@ -35,23 +35,23 @@ void PlotInputVariables(const Config &config)
     //   - Second, a string which is used to identify a given detector variation sample (for other sample type, this is unused)
     //   - Third, the path to the input file
     //   - Fourth, the normalisation factor to apply to all events in that file
-    std::cout<<"##########################################\nUSING NUWRO AS DATA & Only CC0pi!\n##########################################"<<std::endl;
+    //std::cout<<"##########################################\nUSING NUWRO AS DATA & Only CC0pi!\n##########################################"<<std::endl;
     for (const auto run: config.global.runs)
     {
         if(run == 1)
         {
-            inputData.emplace_back(AnalysisHelper::Overlay, config.filesRun1.overlaysFileName, NormalisationHelper::GetOverlaysNormalisationToNuWro(config, 1));
-            inputData.emplace_back(AnalysisHelper::DataBNB, config.filesRun1.nuWroFileName, 1.f);
+            inputData.emplace_back(AnalysisHelper::Overlay, config.filesRun1.overlaysFileName, NormalisationHelper::GetOverlaysNormalisation(config, 1));
+//            inputData.emplace_back(AnalysisHelper::DataEXT, config.filesRun1.dataEXTFileName, NormalisationHelper::GetDataEXTNormalisation(config, 1));
         }
         else if(run == 2)
         {
             inputData.emplace_back(AnalysisHelper::Overlay, config.filesRun2.overlaysFileName, NormalisationHelper::GetOverlaysNormalisationToNuWro(config, 2));
-            inputData.emplace_back(AnalysisHelper::DataBNB, config.filesRun2.nuWroFileName, 1.f);
+ //           inputData.emplace_back(AnalysisHelper::DataBNB, config.filesRun2.nuWroFileName, 1.f);
         }
         else if(run == 3)
         {
             inputData.emplace_back(AnalysisHelper::Overlay, config.filesRun3.overlaysFileName, NormalisationHelper::GetOverlaysNormalisationToNuWro(config, 3));
-            inputData.emplace_back(AnalysisHelper::DataBNB, config.filesRun3.nuWroFileName, 1.f);
+  //          inputData.emplace_back(AnalysisHelper::DataBNB, config.filesRun3.nuWroFileName, 1.f);
         }
         else throw std::logic_error("PlotEventSelectionCuts - Invalid run number");
     }
@@ -158,6 +158,13 @@ void PlotInputVariables(const Config &config)
             continue;
         }
 
+	if (featureName == "llrPID")
+        {
+            plotVector.emplace_back("LLR PID", yLabel, 41, -1, 1);
+            plotVectorSignal.emplace_back("LLR PID", yLabel, 41, -1, 1);
+            continue;
+        }
+
         throw std::logic_error("PlotInputVariables - unknown feature: \"" + featureName + "\"");
     }
 
@@ -198,29 +205,37 @@ void PlotInputVariables(const Config &config)
     for (const auto [sampleType, fileName, normalisation] : inputData)
     {
         std::cout << "Reading input file: " << fileName << std::endl;
+	std::cout << "Normalisation: "<< normalisation << std::endl;
 	//TODO: change to PeLEE
-        FileReader reader(fileName);
-        auto pEvent = reader.GetBoundEventAddress();
+        //FileReader reader(fileName);
+        const auto isMC = (sampleType == AnalysisHelper::Overlay);
+	FileReader<EventPeLEE, SubrunPeLEE> readerPeLEE(fileName, isMC);
 
-        const auto nEvents = reader.GetNumberOfEvents();
+        //auto pEvent = reader.GetBoundEventAddress();
+	auto pEventPeLEE = readerPeLEE.GetBoundEventAddress();
+        const auto nEvents = readerPeLEE.GetNumberOfEvents();
+
         for (unsigned int i = 0; i < nEvents; ++i)
         {
             AnalysisHelper::PrintLoadingBar(i, nEvents);
 
-            reader.LoadEvent(i);
-	    //TODO: change to isSignal
-            const auto isTrueCC0Pi = AnalysisHelper::IsTrueCC0Pi(pEvent, config.global.useAbsPdg, config.global.protonMomentumThreshold); // todo remove this
-            if(!isTrueCC0Pi) continue;
-	    //TODO: check this is set up
-            // Only use events passing the CC inclusive selection
-            if (!pEvent->reco.passesCCInclusive())
-                continue;
+            //reader.LoadEvent(i);
+            readerPeLEE.LoadEvent(i);
+	    Event event(*pEventPeLEE, isMC);
+	    const auto pEvent = std::make_shared<Event>(event);
 
-            const auto weight = normalisation * AnalysisHelper::GetNominalEventWeight(pEvent);
+            //const auto isTrueCC1Pi = AnalysisHelper::IsTrueCC1Pi(pEvent, config.global.useAbsPdg); // todo remove this
+            //if(!isTrueCC1Pi) continue;
+            // Only use events passing the CC inclusive selection
+            //if (! (pEvent->reco.passesEventLevelCCInclusive() && AnalysisHelper::PassesDaughterLevelCCInclusive(pEvent) ))
+              //  continue;
+	  
+	    //TODO: what's GetNominalEventWeight 
+            const auto weight = normalisation;// * AnalysisHelper::GetNominalEventWeight(pEvent);
             const auto recoParticles = pEvent->reco.particles;
 
             const auto truthParticles = pEvent->truth.particles; // This will be empty for non MC events
-            const auto isSignal = (sampleType == AnalysisHelper::Overlay && AnalysisHelper::IsTrueCC1Pi(pEvent, config.global.useAbsPdg));   //TODO: change to pParticle is Signal 
+            const auto isSignal = (sampleType == AnalysisHelper::Overlay && AnalysisHelper::IsTrueCC1Pi(pEvent, config.global.useAbsPdg));    
 
             for (unsigned int index = 0; index < recoParticles.size(); ++index)
             {
@@ -261,6 +276,18 @@ void PlotInputVariables(const Config &config)
                 // ATTN there can be particles that are in a signal event (i.e. neutrons) but we don't want to plot, so here we check
                 // for the "Other" category to avoid including them
                 bool shouldPlotSignal = false;
+
+		if (particleStyle != PlottingHelper::Muon &&
+                    particleStyle != PlottingHelper::Proton &&
+                    particleStyle != PlottingHelper::NonGoldenPion &&
+                    particleStyle != PlottingHelper::GoldenPion &&
+                    particleStyle != PlottingHelper::External &&
+		    particleStyle != PlottingHelper::Photon &&
+	            particleStyle != PlottingHelper::Electron)
+		{ 
+		    std::cout << particle.backtrackedPDG()  << std::endl;
+		    //std::cout << particle.backtrackedPurity() <<std::endl;
+		}
                 if (isSignal && particleStyle != PlottingHelper::Other)
                 {
                     if (particleStyle != PlottingHelper::Muon &&
@@ -274,7 +301,8 @@ void PlotInputVariables(const Config &config)
 
                     shouldPlotSignal = true;
                 }
-		
+	
+		//std::cout << "should plot signal? " << shouldPlotSignal <<std::endl;	
                 // Fill the special plots for track-score with and without descendents
                 /*if (particle.nDescendents() != 0)
                 {
@@ -335,7 +363,7 @@ void PlotInputVariables(const Config &config)
     }
 
     // Save the plots
-    const std::string prefix = "CC0pi";
+    const std::string prefix = "CC1piNp";
     for (unsigned int iFeature = 0; iFeature < featureNames.size(); ++iFeature)
     {
         const auto &featureName = featureNames.at(iFeature);

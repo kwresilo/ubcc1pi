@@ -207,7 +207,7 @@ Event::Event(const EventPeLEE& eventPeLEE, const bool excludeGranddaughterPartic
         // pParticle->nDescendentHitsW.Set(pParticlePeLEE->);
         // pParticle->nHitsInLargestDescendent.Set(pParticlePeLEE->);
 	if(pParticlePeLEE->trk_llr_pid_score_v() != floatMinValue) pParticle->llrScore.Set(pParticlePeLEE->trk_llr_pid_score_v());
-        if(pParticlePeLEE->trk_score_v() >= 0.f) pParticle->trackScore.Set(pParticlePeLEE->trk_score_v());
+        if(pParticlePeLEE->trk_score_v() != floatMinValue) pParticle->trackScore.Set(pParticlePeLEE->trk_score_v());
         if(pParticlePeLEE->trk_sce_start_x_v() != floatMinValue) pParticle->startX.Set(pParticlePeLEE->trk_sce_start_x_v());
         if(pParticlePeLEE->trk_sce_start_y_v() != floatMinValue) pParticle->startY.Set(pParticlePeLEE->trk_sce_start_y_v());
         if(pParticlePeLEE->trk_sce_start_z_v() != floatMinValue) pParticle->startZ.Set(pParticlePeLEE->trk_sce_start_z_v());
@@ -380,6 +380,7 @@ Event::Event(const EventPeLEE& eventPeLEE, const bool excludeGranddaughterPartic
         if(pParticlePeLEE->trk_pid_chipr_v() >= 0) pParticle->chi2ForwardProtonW.Set(pParticlePeLEE->trk_pid_chipr_v());
         if(pParticlePeLEE->trk_pid_chimu_v() >= 0) pParticle->chi2ForwardMuonW.Set(pParticlePeLEE->trk_pid_chimu_v());
         if(pParticlePeLEE->trk_distance_v() != floatMinValue) pParticle->distance.Set(pParticlePeLEE->trk_distance_v());
+	else(pParticle->distance.Set(9999999.f));
 
         // if(pParticlePeLEE->dvtx_x_boundary() != doubleMinValue) pParticle->vertexDistanceToXBoundary.Set(pParticlePeLEE->dvtx_x_boundary());
         // if(pParticlePeLEE->dvtx_y_boundary() != doubleMinValue) pParticle->vertexDistanceToYBoundary.Set(pParticlePeLEE->dvtx_y_boundary());

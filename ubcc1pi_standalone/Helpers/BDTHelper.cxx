@@ -370,6 +370,21 @@ bool BDTHelper::GetBDTFeatures(const Event::Reco::Particle &recoParticle, const 
             continue;
         }
 
+	if (name == "llrPID")
+        {
+            if (!recoParticle.llrScore.IsSet())
+            {
+                if (shouldDebug)
+                    std::cout << "DEBUG - Can't calculate: " << name << std::endl;
+
+                features.clear();
+                return false;
+            }
+
+            features.push_back(recoParticle.llrScore());
+            continue;
+        }
+
         throw std::invalid_argument("BDTHelper::GetBDTFeatures - Unknown feature: \"" + name + "\"");
     }
 

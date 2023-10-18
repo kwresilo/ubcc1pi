@@ -52,22 +52,31 @@ void GetCorrelationPlots(const Config &config)
     for (const auto &[sampleType, fileName, normalisation] : inputData)
     {
         // Open the file
+        const auto isMC = (sampleType == AnalysisHelper::Overlay);
+	
         FileReader reader(fileName);
-        auto pEvent = reader.GetBoundEventAddress();
-        const auto nEvents = reader.GetNumberOfEvents();
+	FileReader<EventPeLEE, SubrunPeLEE> readerPeLEE(fileName, isMC);
+        auto pEventPeLEE = readerPeLEE.GetBoundEventAddress();
+        //auto pEvent = reader.GetBoundEventAddress();
+        const auto nEvents = readerPeLEE.GetNumberOfEvents();
 
         // Extract the values of the features
         for (unsigned int eventIndex = 0; eventIndex < nEvents; ++eventIndex)
         {
             AnalysisHelper::PrintLoadingBar(eventIndex, nEvents);
-            reader.LoadEvent(eventIndex);
+            //reader.LoadEvent(eventIndex);
+	    
+	    AnalysisHelper::PrintLoadingBar(eventIndex, nEvents);
+            readerPeLEE.LoadEvent(eventIndex);
+            Event event(*pEventPeLEE, isMC);
+	    const auto pEvent = std::make_shared<Event>(event);
 
             // Event must be true CC1Pi
             if (!AnalysisHelper::IsTrueCC1Pi(pEvent, config.global.useAbsPdg))
                 continue;
 
             // Event must pass the CCInclusive selection
-            if (!pEvent->reco.passesCCInclusive())
+            if (!(pEvent->reco.passesEventLevelCCInclusive() && AnalysisHelper::PassesDaughterLevelCCInclusive(pEvent) ) )
                 continue;
 
             for (const auto &particle : pEvent->reco.particles)

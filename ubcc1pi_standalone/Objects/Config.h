@@ -31,9 +31,9 @@ struct Config
      // bool: wheter to use the file
     std::vector< std::tuple<AnalysisHelper::SampleType, bool, std::string> > inputFiles = {
         // Beam off
-        {AnalysisHelper::DataEXT, false, "/pnfs/uboone/persistent/users/jdetje/pelee_v08_00_00_70/combined/bnb_beam_off_peleeTuple_uboone_v08_00_00_70_run1.root"},
-        {AnalysisHelper::DataEXT, false, "/pnfs/uboone/persistent/users/jdetje/pelee_v08_00_00_70/combined/bnb_beam_off_peleeTuple_uboone_v08_00_00_70_run2.root"},
-        {AnalysisHelper::DataEXT, false, "/pnfs/uboone/persistent/users/jdetje/pelee_v08_00_00_70/combined/bnb_beam_off_peleeTuple_uboone_v08_00_00_70_run3.root"},
+        {AnalysisHelper::DataEXT, true, "/pnfs/uboone/persistent/users/jdetje/pelee_v08_00_00_70/combined/bnb_beam_off_peleeTuple_uboone_v08_00_00_70_run1.root"},
+        {AnalysisHelper::DataEXT, true, "/pnfs/uboone/persistent/users/jdetje/pelee_v08_00_00_70/combined/bnb_beam_off_peleeTuple_uboone_v08_00_00_70_run2.root"},
+        {AnalysisHelper::DataEXT, true, "/pnfs/uboone/persistent/users/jdetje/pelee_v08_00_00_70/combined/bnb_beam_off_peleeTuple_uboone_v08_00_00_70_run3.root"},
         // Beam on
         {AnalysisHelper::DataBNB, false, "/pnfs/uboone/persistent/users/jdetje/pelee_v08_00_00_70/bnb_beam_on_peleeTuple_uboone_v08_00_00_70_run1_C1.root"},
         // Overlay dirt
@@ -41,7 +41,8 @@ struct Config
         {AnalysisHelper::Dirt,    false, "/pnfs/uboone/persistent/users/jdetje/pelee_v08_00_00_70/overlay_peleeTuple_uboone_v08_00_00_70_run3_dirt.root"},
         // Overlay MC
         {AnalysisHelper::Overlay, true, "/pnfs/uboone/persistent/users/jdetje/pelee_v08_00_00_70/overlay_peleeTuple_uboone_v08_00_00_70_run1_nu.root"},
-        {AnalysisHelper::Overlay, false, "/pnfs/uboone/persistent/users/jdetje/pelee_v08_00_00_70/overlay_peleeTuple_uboone_v08_00_00_70_run2_nu.root"}
+        {AnalysisHelper::Overlay, true, "/pnfs/uboone/persistent/users/jdetje/pelee_v08_00_00_70/overlay_peleeTuple_uboone_v08_00_00_70_run2_nu.root"},
+	{AnalysisHelper::Overlay, true, "/pnfs/uboone/persistent/users/jdetje/pelee_v08_00_00_70/overlay_peleeTuple_uboone_v08_00_00_70_run3_nu.root"}
     };
 
 
@@ -154,13 +155,14 @@ struct Config
     struct FilesRun1
     {
         // September overlays files contain systematic weights
-        std::string overlaysFileName = "/uboone/data/users/kwresilo/CCNp1pi/data/newPeLEE/stv-overlay_peleeTuple_uboone_v08_00_00_70_run1_nu.root"; ///< Overlays file name input
+        //std::string overlaysFileName = "/pnfs/uboone/persistent/users/davidc/searchingfornues/v08_00_00_43/0928/prodgenie_bnb_nu_uboone_overlay_mcc9.1_v08_00_00_26_filter_run1_reco2_reco2.root";
+	std::string overlaysFileName = "/pnfs/uboone/persistent/users/jdetje/pelee_v08_00_00_70/overlay_peleeTuple_uboone_v08_00_00_70_run1_nu.root"; ///< Overlays file name input
         // std::string overlaysFileName = "/uboone/data/users/jdetje/ubcc1pi/sep2020/ubcc1piAnalysis_overlays_08Oct21_test_head20.root";
 
         std::string dirtFileName     = "/uboone/data/users/jdetje/ubcc1pi/sep2020/ubcc1piAnalysis_dirt_08Oct21.root";     ///< Dirt file name input
         // std::string dirtFileName     = "/pnfs/uboone/scratch/users/jdetje/ubcc1pi/dirt_final/49396507_11/ubcc1piAnalysis.root";
 
-        std::string dataEXTFileName  = "/pnfs/uboone/persistent/users/kduffy/ubcc1pi/ubcc1pi_extbnb_run1_combined_5Jan2021.root";  ///< EXT data file name input
+        std::string dataEXTFileName  = "/pnfs/uboone/persistent/users/jdetje/pelee_v08_00_00_70/combined/bnb_beam_off_peleeTuple_uboone_v08_00_00_70_run1.root";  ///< EXT data file name input
 
         std::string dataBNBFileName  = "/pnfs/uboone/persistent/users/kduffy/ubcc1pi/ubcc1pi_bnb_run1-C1_5Jan2021.root";  ///< BNB data file name input
         // std::string dataBNBFileName  = "/uboone/data/users/jdetje/ubcc1pi/sep2020/ubcc1piAnalysis_overlays_08Oct21_test_tail20.root";
@@ -219,9 +221,9 @@ struct Config
     struct FilesRun2
     {
         // September overlays files contain systematic weights
-        std::string overlaysFileName = "/pnfs/uboone/persistent/users/jdetje/pelee_v08_00_00_70/overlay_peleeTuple_uboone_v08_00_00_70_run1_nu.root"; ///< Overlays file name inputs
+        std::string overlaysFileName = "/pnfs/uboone/persistent/users/jdetje/pelee_v08_00_00_70/combined/overlay_peleeTuple_uboone_v08_00_00_70_run2_dirt.root"; ///< Overlays file name inputs
         std::string dirtFileName     = "/uboone/data/users/jdetje/ubcc1pi/sep2020/ubcc1piAnalysis_dirt_run2_07Nov21.root";     ///< Dirt file name input
-        std::string dataEXTFileName  = "/uboone/data/users/jdetje/ubcc1pi/sep2020/ubcc1piAnalysis_extbnb_run2_17Jan22.root";  ///< EXT data file name input
+        std::string dataEXTFileName  = "/pnfs/uboone/persistent/users/jdetje/pelee_v08_00_00_70/combined/bnb_beam_off_peleeTuple_uboone_v08_00_00_70_run2.root";  ///< EXT data file name input
         std::string dataBNBFileName  = "/uboone/data/users/jdetje/ubcc1pi/sep2020/ubcc1piAnalysis_bnb_run2_08Nov21.root";  ///< BNB data file name input
 
         // std::string nuWroFileName  = "/uboone/data/users/jdetje/ubcc1pi/sep2020/ubcc1piAnalysis_nuwro_run2_13Dec21.root";
@@ -258,9 +260,9 @@ struct Config
     struct FilesRun3
     {
         // September overlays files contain systematic weights
-        std::string overlaysFileName = "/uboone/data/users/jdetje/ubcc1pi/sep2020/ubcc1piAnalysis_overlays_run3_07Nov21.root"; ///< Overlays file name inputs
+        std::string overlaysFileName = "/pnfs/uboone/persistent/users/jdetje/pelee_v08_00_00_70/overlay_peleeTuple_uboone_v08_00_00_70_run3_nu.root"; ///< Overlays file name inputs
         std::string dirtFileName     = "/uboone/data/users/jdetje/ubcc1pi/sep2020/ubcc1piAnalysis_dirt_run3_07Nov21.root";     ///< Dirt file name input
-        std::string dataEXTFileName  = "/uboone/data/users/jdetje/ubcc1pi/sep2020/ubcc1piAnalysis_extbnb_run3_17Jan22.root";  ///< EXT data file name input
+        std::string dataEXTFileName  = "/pnfs/uboone/persistent/users/jdetje/pelee_v08_00_00_70/combined/bnb_beam_off_peleeTuple_uboone_v08_00_00_70_run3.root";  ///< EXT data file name input
         std::string dataBNBFileName  = "/uboone/data/users/jdetje/ubcc1pi/sep2020/ubcc1piAnalysis_bnb_run3_17Jan22.root";  ///< BNB data file name input
 
         // std::string nuWroFileName  = "/uboone/data/users/jdetje/ubcc1pi/sep2020/ubcc1piAnalysis_nuwro_run3_14Dec21.root";
@@ -345,15 +347,15 @@ struct Config
      */
     struct NormsRun1 : NormList
     {
-        float  overlaysPOT        = 1.31e+21;// TODO: REMOVE!! 6.42546e+19 POT for overlays_08Oct21_test_head20.root //1.195e+21;      ///< The total POT for the overlays MC
+        float  overlaysPOT        = 1.29e+21;// TODO: REMOVE!! 6.42546e+19 POT for overlays_08Oct21_test_head20.root //1.195e+21;      ///< The total POT for the overlays MC
         // Andy S files: 1.22447e+21, Kirsty D files (Jan 21):  1.18578e+21, Philip D files (Oct 08) 1.195e+21
         float  dirtPOT            = 2.63523e+20;    ///< The total POT for the dirt MC
         // Andy S files: 2.85049e+20, Kirsty D files (Jan 21): 2.91414e+20, Philip D files (Oct 08) 2.63523e+20
-        float  dataEXTTriggers    = 64322029.0;     ///< The EXT triggers for the EXT data
+        float  dataEXTTriggers    = 65744587.0;     ///< The EXT triggers for the EXT data
         // Andy S files: 62540367.0, Kirsty D files (Jan 21): 64322029.0
-        float  dataBNBTor875WCut  = 1.62e+20;      ///< The POT measured by the 875m toroid (with quality cuts)
+        float  dataBNBTor875WCut  = 1.67e+20;      ///< The POT measured by the 875m toroid (with quality cuts)
         // Andy S files: 1.455e+20, Kirsty D files (Jan 21): 1.532e+20
-        float  dataBNBE1DCNTWCut  = 34076199.0;     ///< The BNB spills sent by the accelerator division (with quality cuts)
+        float  dataBNBE1DCNTWCut  = 36906271.0;     ///< The BNB spills sent by the accelerator division (with quality cuts)
         // Andy S files: 32339256.0, Kirsty D files (Jan 21): 34076199.0
 
         float nuWroPOT            = 3.08669e+20;//3.0867e+20;      ///< The total POT for the nuWro MC
@@ -406,11 +408,11 @@ struct Config
      */
     struct NormsRun2 : NormList
     {
-        float  overlaysPOT        = 4.38501e+20;
+        float  overlaysPOT        = 1.02e+21;
         float  dirtPOT            = 4.40468e+20;
-        float  dataEXTTriggers    = 87761971.0;
-        float  dataBNBTor875WCut  = 1.94e+20;
-        float  dataBNBE1DCNTWCut  = 42667752.0;
+        float  dataEXTTriggers    = 153928909.0;
+        float  dataBNBTor875WCut  = 2.62e+20;
+        float  dataBNBE1DCNTWCut  = 62557664.0;
 
         // float  nuWroTor875WCut  = 2.278e+19;      ///< The POT measured by the 875m toroid (with quality cuts)
         // float  nuWroE1DCNTWCut  = 5397028.0;     ///< The BNB spills sent by the accelerator division (with quality cuts)
@@ -446,11 +448,11 @@ struct Config
      */
     struct NormsRun3 : NormList
     {
-        float  overlaysPOT        = 8.92215e+20;
+        float  overlaysPOT        = 1.31e+21;
         float  dirtPOT            = 1.61137e+20;
-        float  dataEXTTriggers    = 126185602.0;//130439550.0;
-        float  dataBNBTor875WCut  = 2.051e+20;//1.996e+20;
-        float  dataBNBE1DCNTWCut  = 49186781.0;//47886106.0;
+        float  dataEXTTriggers    = 207380078.0;//130439550.0;
+        float  dataBNBTor875WCut  = 2.56e+20;//1.996e+20;
+        float  dataBNBE1DCNTWCut  = 61744410.0;//47886106.0;
 
         // float  nuWroTor875WCut  = 2.195e+19;      ///< The POT measured by the 875m toroid (with quality cuts)
         // float  nuWroE1DCNTWCut  = 5215049.0;     ///< The BNB spills sent by the accelerator division (with quality cuts)
@@ -526,7 +528,7 @@ struct Config
         bool        useDetVar                   = false;              ///< If we should run with detector variations
         bool        fitInSystematicUniverses    = false;              ///< If we should fit not only in nominal but also in systematic universes
         bool        useEfficiencyCorrection     = false;             ///< If we should use the efficiency-effect-free smearing matrix to use when creating the plots
-        std::vector<unsigned int> runs          = {1};           ///< The runs to use in the analysis
+        std::vector<unsigned int> runs          = {1,2,3};           ///< The runs to use in the analysis
         std::string outputPath                  = "/uboone/data/users/kwresilo/CCNp1pi/data/newPeLEE/"; ///< The location to save processed PeLEE files
 
         /**
@@ -710,7 +712,7 @@ struct Config
      */
     struct PlotInputVariables
     {
-        bool plotBDTResponses = true; ///< If we should plot the responses of the trained BDTs, set to true if you haven't already trained the BDTs
+        bool plotBDTResponses = false; ///< If we should plot the responses of the trained BDTs, set to true if you haven't already trained the BDTs
     };
     PlotInputVariables plotInputVariables; ///< The configuration options for the PlotInputVariables macro
 
