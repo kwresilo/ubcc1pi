@@ -60,9 +60,9 @@ void TrainBDTs(const Config &config)
         int evts = 0;
 	int sel = 0;	
 	//for (unsigned int eventIndex = 0, nEvents = readerPeLEE.GetNumberOfEvents(); eventIndex < nEvents; ++eventIndex)
-        for (unsigned int eventIndex = 0, nEvents = readerPeLEE.GetNumberOfEvents(); eventIndex < 10000; ++eventIndex)
+        for (unsigned int eventIndex = 0, nEvents = readerPeLEE.GetNumberOfEvents(); eventIndex < 100000; ++eventIndex)
         {
-            AnalysisHelper::PrintLoadingBar(eventIndex, nEvents);
+            //AnalysisHelper::PrintLoadingBar(eventIndex, nEvents);
             readerPeLEE.LoadEvent(eventIndex);
 	    Event event(*pEventPeLEE, isMC); //fails with old ntuples
             const auto pEvent = std::make_shared<Event>(event);
@@ -102,7 +102,7 @@ void TrainBDTs(const Config &config)
     //BDTHelper::BDTFactory goldenPionBDTFactory("goldenPion", goldenPionFeatureNames);
     BDTHelper::BDTFactory protonBDTFactory("proton", protonFeatureNames);
     BDTHelper::BDTFactory muonBDTFactory("muon", muonFeatureNames);
-
+    
     // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     // Fill the BDT training and testing entries
     // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -113,13 +113,13 @@ void TrainBDTs(const Config &config)
         FileReader<EventPeLEE, SubrunPeLEE> readerPeLEE(fileName, isMC);
 	auto pEventPeLEE = readerPeLEE.GetBoundEventAddress();
 
-        std::cout << "Filling the BDT entries 116" << std::endl;
+        std::cout << "Filling the BDT entries, loop over " << nCC1PiEvents << " CC1PiEvents" << std::endl;
         for (unsigned int i = 0; i < nCC1PiEvents; ++i)
         {
             const auto run = cc1PiEventIndices.at(i).first;
             if(sampleRun != run) continue;
 
-            AnalysisHelper::PrintLoadingBar(i, nCC1PiEvents);
+            //AnalysisHelper::PrintLoadingBar(i, nCC1PiEvents);
 
             const auto eventIndex = cc1PiEventIndices.at(i).second;
             const auto isTrainingEvent = shuffler.IsTrainingEvent(i);
@@ -131,21 +131,27 @@ void TrainBDTs(const Config &config)
             const auto truthParticles = pEvent->truth.particles;
             const auto recoParticles = pEvent->reco.particles;
             const float eventWeight = AnalysisHelper::GetNominalEventWeight(pEvent)*normalisation;
+	    //std::cout << "Event: " << eventIndex << ", Event weight: " << eventWeight << std::endl;
 
             for (const auto &recoParticle : recoParticles)
             {
                 // Only use contained particles for training
                 if (!AnalysisHelper::HasTrackFit(recoParticle))// Events with isSignal in true contained by defintion in CC1piNp analysis || !AnalysisHelper::IsContained(recoParticle))
-                    continue;
-		if (!(recoParticle.backtrackedPurity.IsSet() && recoParticle.backtrackedCompleteness.IsSet() && recoParticle.backtrackedMomentum.IsSet() && recoParticle.backtrackedPDG.IsSet()) ) continue; 
-                // Determine the true origin of the reco particle
+                    {
+			std::cout << "Missing TrackFit" <<std::endl;
+			continue;
+		    }
+		
+		//If reco particle is a cosmic, backtracked purity completeness and momentum not set. PDG =0
+
+		// Determine the true origin of the reco particle
                 bool isExternal = false;
                 int truePdgCode = -std::numeric_limits<int>::max();
                 //bool trueIsGolden = false;
                 float trueMomentum = -std::numeric_limits<float>::max();
                 float completeness = -std::numeric_limits<float>::max();
 
-		if ( !(recoParticle.backtrackedPurity() > 0. && recoParticle.backtrackedPurity() <= 1.) ) isExternal = true;
+		if ( !(recoParticle.backtrackedPurity.IsSet())) isExternal = true;
 		else
 		{
 		    truePdgCode = recoParticle.backtrackedPDG();
@@ -154,21 +160,6 @@ void TrainBDTs(const Config &config)
 		}
 		     
         	
-		//try
-                //{ 
-		    //get rid of next two lines
-                   // const auto truthParticleIndex = AnalysisHelper::GetBestMatchedTruthParticleIndex(recoParticle, truthParticles);
-                    //const auto truthParticle = truthParticles.at(truthParticleIndex);
-
-		    //how do I know it's EXT :') 		
-                   // isExternal = false;
-                   // truePdgCode = truthParticle.pdgCode(); //use recoParticle.backtracked_pdg?
-                    //trueMomentum = truthParticle.momentum(); //use recoParticle.backtracked_momentum?
-                    //trueIsGolden = AnalysisHelper::IsGolden(truthParticle); // this one is a little tricky
-                    //completeness = recoParticle.truthMatchCompletenesses().at(truthParticleIndex); //use recoPArticle.backtracked_completeness?
-                //}
-                //catch (const std::exception &) {}
-		
                 // Only use good matches for training
                 if (config.trainBDTs.onlyGoodTruthMatches && (isExternal || completeness < 0.5f))
                     continue;
@@ -199,11 +190,10 @@ void TrainBDTs(const Config &config)
                     const bool isProton = !isExternal && truePdgCode == 2212;
                     protonBDTFactory.AddEntry(protonFeatures, isProton, isTrainingEvent, weight);
                 }
-
                 if (areAllFeaturesAvailableMuon)
                 {
-                    const bool isMuon = !isExternal && truePdgCode == 13;
-                    muonBDTFactory.AddEntry(muonFeatures, isMuon, isTrainingEvent, weight);
+		    const bool isMuon = !isExternal && truePdgCode == 13;
+		    muonBDTFactory.AddEntry(muonFeatures, isMuon, isTrainingEvent, weight);
                 }
             }
         }
@@ -242,7 +232,7 @@ void TrainBDTs(const Config &config)
 
     if (!config.trainBDTs.shouldMakePlots)
         return;
-
+    
     const std::string yLabel = "Fraction of reco particles";
     //PlottingHelper::MultiPlot goldenPionBDTPlot("Golden pion BDT response", yLabel, 50, -0.9f, 0.45f);
     PlottingHelper::MultiPlot protonBDTPlot("Proton BDT response", yLabel, 50, -0.8f, 0.7f);
@@ -252,7 +242,7 @@ void TrainBDTs(const Config &config)
     //BDTHelper::BDT goldenPionBDT("goldenPion", goldenPionFeatureNames);
     BDTHelper::BDT protonBDT("proton", protonFeatureNames);
     BDTHelper::BDT muonBDT("muon", muonFeatureNames);
-
+    	
     std::cout << "Making BDT training plots" << std::endl;
     for (const auto &[sampleType, sampleRun, fileName, normalisation] : inputData)
     {
@@ -286,34 +276,20 @@ void TrainBDTs(const Config &config)
                 // Only use contained particles for testing
                 if (!AnalysisHelper::HasTrackFit(recoParticle))// || !AnalysisHelper::IsContained(recoParticle))
                     continue;
-		if (!(recoParticle.backtrackedPurity.IsSet() && recoParticle.backtrackedCompleteness.IsSet() && recoParticle.backtrackedMomentum.IsSet() && recoParticle.backtrackedPDG.IsSet()) ) continue;
-                // Determine the true origin of the reco particle
-                bool isExternal = false;
+	
+		bool isExternal = false;
                 int truePdgCode = -std::numeric_limits<int>::max();
                 bool trueIsGolden = false;
-		float trueMomentum = -std::numeric_limits<float>::max();
+                float trueMomentum = -std::numeric_limits<float>::max();
                 float completeness = -std::numeric_limits<float>::max();
-
-		if ( !(recoParticle.backtrackedPurity() > 0. && recoParticle.backtrackedPurity() <= 1.) ) isExternal = true;
+                //
+                if ( !(recoParticle.backtrackedPurity.IsSet())) isExternal = true;
                 else
                 {
-                    truePdgCode = recoParticle.backtrackedPDG();
-                    trueMomentum = recoParticle.backtrackedMomentum();
-                    completeness = recoParticle.backtrackedCompleteness();
-                }	
-		
-                //try
-                //{
-                  //  const auto truthParticleIndex = AnalysisHelper::GetBestMatchedTruthParticleIndex(recoParticle, truthParticles);
-                    //const auto truthParticle = truthParticles.at(truthParticleIndex);
-
-                    //isExternal = false;
-                    //truePdgCode = config.global.useAbsPdg ? std::abs(truthParticle.pdgCode()) : truthParticle.pdgCode();
-                    //trueIsGolden = AnalysisHelper::IsGolden(truthParticle);
-                    //completeness = recoParticle.truthMatchCompletenesses().at(truthParticleIndex);
-                //}
-                //catch (const std::exception &) {}
-		
+                truePdgCode = recoParticle.backtrackedPDG();
+                trueMomentum = recoParticle.backtrackedMomentum();
+                completeness = recoParticle.backtrackedCompleteness();
+	 	}	
                 // Only use good matches for testing
                 if (config.trainBDTs.onlyGoodTruthMatches && (isExternal || completeness < 0.5f))
                     continue;
@@ -355,7 +331,7 @@ void TrainBDTs(const Config &config)
                 if (areAllFeaturesAvailableMuon)
                 {
                     const auto muonBDTResponse = muonBDT.GetResponse(muonFeatures);
-                //    muonBDTPlot.Fill(muonBDTResponse, style, eventWeight);
+                    muonBDTPlot.Fill(muonBDTResponse, style, eventWeight);
                 }
             }
         }

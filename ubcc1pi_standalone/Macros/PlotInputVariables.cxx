@@ -45,13 +45,13 @@ void PlotInputVariables(const Config &config)
         }
         else if(run == 2)
         {
-            inputData.emplace_back(AnalysisHelper::Overlay, config.filesRun2.overlaysFileName, NormalisationHelper::GetOverlaysNormalisationToNuWro(config, 2));
+            inputData.emplace_back(AnalysisHelper::Overlay, config.filesRun2.overlaysFileName, NormalisationHelper::GetOverlaysNormalisation(config, 2));
  //           inputData.emplace_back(AnalysisHelper::DataBNB, config.filesRun2.nuWroFileName, 1.f);
         }
         else if(run == 3)
         {
-            inputData.emplace_back(AnalysisHelper::Overlay, config.filesRun3.overlaysFileName, NormalisationHelper::GetOverlaysNormalisationToNuWro(config, 3));
-  //          inputData.emplace_back(AnalysisHelper::DataBNB, config.filesRun3.nuWroFileName, 1.f);
+            inputData.emplace_back(AnalysisHelper::Overlay, config.filesRun3.overlaysFileName, NormalisationHelper::GetOverlaysNormalisation(config, 3));
+  //     §     inputData.emplace_back(AnalysisHelper::DataBNB, config.filesRun3.nuWroFileName, 1.f);
         }
         else throw std::logic_error("PlotEventSelectionCuts - Invalid run number");
     }
@@ -169,19 +169,19 @@ void PlotInputVariables(const Config &config)
     }
 
     // Setup the BDT outputs
-    const auto goldenPionFeatureNames = BDTHelper::GoldenPionBDTFeatureNames;
+    //const auto goldenPionFeatureNames = BDTHelper::GoldenPionBDTFeatureNames;
     const auto protonFeatureNames = BDTHelper::ProtonBDTFeatureNames;
     const auto muonFeatureNames = BDTHelper::MuonBDTFeatureNames;
 
     PlottingHelper::MultiPlot muonBDTPlot("Muon BDT response", yLabel, 40, -0.85f, 0.50f);
     PlottingHelper::MultiPlot protonBDTPlot("Proton BDT response", yLabel, 40, -0.60f, 0.60f);
-    PlottingHelper::MultiPlot goldenPionBDTPlot("Golden pion BDT response", yLabel, 40, -0.8f, 0.4f);
+    //PlottingHelper::MultiPlot goldenPionBDTPlot("Golden pion BDT response", yLabel, 40, -0.8f, 0.4f);
 
-    std::shared_ptr<BDTHelper::BDT> pGoldenPionBDT, pProtonBDT, pMuonBDT;
+    std::shared_ptr<BDTHelper::BDT> pProtonBDT, pMuonBDT;
     if (config.plotInputVariables.plotBDTResponses)
     {
         // Setup the BDTs
-        pGoldenPionBDT = std::make_shared<BDTHelper::BDT>("goldenPion", goldenPionFeatureNames);
+        //pGoldenPionBDT = std::make_shared<BDTHelper::BDT>("goldenPion", goldenPionFeatureNames);
         pProtonBDT = std::make_shared<BDTHelper::BDT>("proton", protonFeatureNames);
         pMuonBDT = std::make_shared<BDTHelper::BDT>("muon", muonFeatureNames);
     }
@@ -277,7 +277,7 @@ void PlotInputVariables(const Config &config)
                 // for the "Other" category to avoid including them
                 bool shouldPlotSignal = false;
 
-		if (particleStyle != PlottingHelper::Muon &&
+		/*if (particleStyle != PlottingHelper::Muon &&
                     particleStyle != PlottingHelper::Proton &&
                     particleStyle != PlottingHelper::NonGoldenPion &&
                     particleStyle != PlottingHelper::GoldenPion &&
@@ -287,7 +287,7 @@ void PlotInputVariables(const Config &config)
 		{ 
 		    std::cout << particle.backtrackedPDG()  << std::endl;
 		    //std::cout << particle.backtrackedPurity() <<std::endl;
-		}
+		}*/
                 if (isSignal && particleStyle != PlottingHelper::Other)
                 {
                     if (particleStyle != PlottingHelper::Muon &&
@@ -322,6 +322,8 @@ void PlotInputVariables(const Config &config)
                 // Fill the feature plots
                 for (unsigned int iFeature = 0; iFeature < featureNames.size(); ++iFeature)
                 {
+
+		    //.if (particleStyle == PlottingHelper::Other || particleStyle == PlottingHelper::OtherPoints) continue;
                     plotVector.at(iFeature).Fill(features.at(iFeature), particleStyle, weight);
 
                     if (shouldPlotSignal)
@@ -331,8 +333,8 @@ void PlotInputVariables(const Config &config)
                 // Fill the BDT plots
                 if (config.plotInputVariables.plotBDTResponses)
                 {
-                    std::vector<float> goldenPionFeatures;
-                    const auto areAllFeaturesAvailableGoldenPion = BDTHelper::GetBDTFeatures(particle, goldenPionFeatureNames, goldenPionFeatures);
+                    //std::vector<float> goldenPionFeatures;
+                    //const auto areAllFeaturesAvailableGoldenPion = BDTHelper::GetBDTFeatures(particle, goldenPionFeatureNames, goldenPionFeatures);
 
                     std::vector<float> protonFeatures;
                     const auto areAllFeaturesAvailableProton = BDTHelper::GetBDTFeatures(particle, protonFeatureNames, protonFeatures);
@@ -340,11 +342,11 @@ void PlotInputVariables(const Config &config)
                     std::vector<float> muonFeatures;
                     const auto areAllFeaturesAvailableMuon = BDTHelper::GetBDTFeatures(particle, muonFeatureNames, muonFeatures);
 
-                    if (areAllFeaturesAvailableGoldenPion)
-                    {
-                        const auto goldenPionBDTResponse = pGoldenPionBDT->GetResponse(goldenPionFeatures);
-                        goldenPionBDTPlot.Fill(goldenPionBDTResponse, particleStyle, weight);
-                    }
+                    //if (areAllFeaturesAvailableGoldenPion)
+                    //{
+                     //   const auto goldenPionBDTResponse = pGoldenPionBDT->GetResponse(goldenPionFeatures);
+                       // goldenPionBDTPlot.Fill(goldenPionBDTResponse, particleStyle, weight);
+                    //}
 
                     if (areAllFeaturesAvailableProton)
                     {

@@ -841,7 +841,9 @@ PlottingHelper::PlotStyle PlottingHelper::GetPlotStyle(const Event::Reco::Partic
         //case 111:
         case 22:
             return usePoints ? PhotonPoints : Photon;
-        default:
+        case 0:
+	    return usePoints ? ExternalPoints : External;
+	default:
             return usePoints ? OtherPoints : Other;
     }
 }
