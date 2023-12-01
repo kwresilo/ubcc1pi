@@ -40,8 +40,8 @@ void PlotInputVariables(const Config &config)
     {
         if(run == 1)
         {
-            inputData.emplace_back(AnalysisHelper::Overlay, config.filesRun1.overlaysFileName, NormalisationHelper::GetOverlaysNormalisation(config, 1));
-//            inputData.emplace_back(AnalysisHelper::DataEXT, config.filesRun1.dataEXTFileName, NormalisationHelper::GetDataEXTNormalisation(config, 1));
+            //inputData.emplace_back(AnalysisHelper::Overlay, config.filesRun1.overlaysFileName, NormalisationHelper::GetOverlaysNormalisation(config, 1));
+            inputData.emplace_back(AnalysisHelper::DataEXT, config.filesRun1.dataEXTFileName, NormalisationHelper::GetDataEXTNormalisation(config, 1));
         }
         else if(run == 2)
         {
@@ -214,16 +214,18 @@ void PlotInputVariables(const Config &config)
         //auto pEvent = reader.GetBoundEventAddress();
 	auto pEventPeLEE = readerPeLEE.GetBoundEventAddress();
         const auto nEvents = readerPeLEE.GetNumberOfEvents();
-
+	std::cout << nEvents <<  std::endl;
         for (unsigned int i = 0; i < nEvents; ++i)
         {
-            AnalysisHelper::PrintLoadingBar(i, nEvents);
+         //   AnalysisHelper::PrintLoadingBar(i, nEvents);
 
             //reader.LoadEvent(i);
-            readerPeLEE.LoadEvent(i);
+            std::cout << "pelee reader " << std::endl;
+	    readerPeLEE.LoadEvent(i);
+	    std::cout << "pelee event" <<std::endl;
 	    Event event(*pEventPeLEE, isMC);
+	    std::cout << "make shared evt" << std::endl;
 	    const auto pEvent = std::make_shared<Event>(event);
-
             //const auto isTrueCC1Pi = AnalysisHelper::IsTrueCC1Pi(pEvent, config.global.useAbsPdg); // todo remove this
             //if(!isTrueCC1Pi) continue;
             // Only use events passing the CC inclusive selection
@@ -231,16 +233,28 @@ void PlotInputVariables(const Config &config)
               //  continue;
 	  
 	    //TODO: what's GetNominalEventWeight 
-            const auto weight = normalisation;// * AnalysisHelper::GetNominalEventWeight(pEvent);
+            const auto weight = normalisation*AnalysisHelper::GetNominalEventWeight(pEvent);
             const auto recoParticles = pEvent->reco.particles;
-
+	    
+	    std::cout << "Event " << i << std::endl;
+            std::cout << "recoParticles.size() = " << recoParticles.size() <<std::endl;
+	    //if (recoParticles.size() == 0) continue;
+	    std::cout << "truth empty? " << pEvent->truth.particles.empty() <<std::endl;
             const auto truthParticles = pEvent->truth.particles; // This will be empty for non MC events
-            const auto isSignal = (sampleType == AnalysisHelper::Overlay && AnalysisHelper::IsTrueCC1Pi(pEvent, config.global.useAbsPdg));    
+	    const auto isSignal = (sampleType == AnalysisHelper::Overlay && AnalysisHelper::IsTrueCC1Pi(pEvent, config.global.useAbsPdg));   
 
-            for (unsigned int index = 0; index < recoParticles.size(); ++index)
+	    std::cout << "isSignal? " << isSignal << std::endl; 
+            //if (!(recoParticles.size() > 0)) continue; 
+	    for (unsigned int index = 0; index < recoParticles.size(); ++index)
             {
+		std::cout << "particle " << index << std::endl;
                 const auto &particle = recoParticles.at(index);
-
+		
+		if ( !(particle.backtrackedPurity.IsSet())) 
+		{
+			std::cout << "PDG: "<< particle.backtrackedPDG() <<std::endl;
+			
+		}
                 // Get the plot style
                 const auto particleStyle = PlottingHelper::GetPlotStyle(particle, sampleType, truthParticles, false, config.global.useAbsPdg);
 

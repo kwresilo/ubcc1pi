@@ -59,8 +59,8 @@ void TrainBDTs(const Config &config)
 
         int evts = 0;
 	int sel = 0;	
-	//for (unsigned int eventIndex = 0, nEvents = readerPeLEE.GetNumberOfEvents(); eventIndex < nEvents; ++eventIndex)
-        for (unsigned int eventIndex = 0, nEvents = readerPeLEE.GetNumberOfEvents(); eventIndex < 100000; ++eventIndex)
+	for (unsigned int eventIndex = 0, nEvents = readerPeLEE.GetNumberOfEvents(); eventIndex < nEvents; ++eventIndex)
+        //for (unsigned int eventIndex = 0, nEvents = readerPeLEE.GetNumberOfEvents(); eventIndex < 100000; ++eventIndex)
         {
             //AnalysisHelper::PrintLoadingBar(eventIndex, nEvents);
             readerPeLEE.LoadEvent(eventIndex);
@@ -119,7 +119,7 @@ void TrainBDTs(const Config &config)
             const auto run = cc1PiEventIndices.at(i).first;
             if(sampleRun != run) continue;
 
-            //AnalysisHelper::PrintLoadingBar(i, nCC1PiEvents);
+            AnalysisHelper::PrintLoadingBar(i, nCC1PiEvents);
 
             const auto eventIndex = cc1PiEventIndices.at(i).second;
             const auto isTrainingEvent = shuffler.IsTrainingEvent(i);
@@ -321,9 +321,6 @@ void TrainBDTs(const Config &config)
                 if (areAllFeaturesAvailableProton)
                 {
                     const auto protonBDTResponse = protonBDT.GetResponse(protonFeatures);
-		    std::cout << "Event weight: "<< eventWeight << std::endl;
-		    std::cout << "style: " << style << std::endl;
-		    std::cout << "proton BDT response: "<< protonBDTResponse << std::endl;
                     protonBDTPlot.Fill(protonBDTResponse, style, eventWeight);
 
                 }

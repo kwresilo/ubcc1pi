@@ -311,9 +311,13 @@ const std::vector<std::string> BDTHelper::MuonBDTFeatureNames = {
     "logBragg_pToMIP",
     "logBragg_piToMIP",
     "truncMeandEdx",
+    "protonForward",
+    "muonForward",
     "nDescendents",
+    "nSpacePointsNearEnd",
     "wiggliness",
-    "trackScore"
+    "trackScore",
+    "llrPID"
 };
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
@@ -322,8 +326,13 @@ const std::vector<std::string> BDTHelper::ProtonBDTFeatureNames = {
     "logBragg_pToMIP",
     "logBragg_piToMIP",
     "truncMeandEdx",
+    "protonForward",
+    "muonForward",
+    "nDescendents",
+    "nSpacePointsNearEnd",
     "wiggliness",
-    "trackScore"
+    "trackScore",
+    "llrPID"
 };
 
 // -----------------------------------------------------------------------------------------------------------------------------------------

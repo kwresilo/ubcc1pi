@@ -505,6 +505,7 @@ namespace ubcc1pi_macros
      */
     void RunFullAnalysis(const Config &config = Config());
 
+    void WriteBDTScores(const Config &config = Config());
 } // namespace ubcc1pi_macros
 
 #endif

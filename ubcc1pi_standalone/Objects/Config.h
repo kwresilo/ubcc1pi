@@ -31,151 +31,33 @@ struct Config
      // bool: wheter to use the file
     std::vector< std::tuple<AnalysisHelper::SampleType, bool, std::string> > inputFiles = {
         // Beam off
-        {AnalysisHelper::DataEXT, true, "/pnfs/uboone/persistent/users/jdetje/pelee_v08_00_00_70/combined/bnb_beam_off_peleeTuple_uboone_v08_00_00_70_run1.root"},
-        {AnalysisHelper::DataEXT, true, "/pnfs/uboone/persistent/users/jdetje/pelee_v08_00_00_70/combined/bnb_beam_off_peleeTuple_uboone_v08_00_00_70_run2.root"},
-        {AnalysisHelper::DataEXT, true, "/pnfs/uboone/persistent/users/jdetje/pelee_v08_00_00_70/combined/bnb_beam_off_peleeTuple_uboone_v08_00_00_70_run3.root"},
+        //{AnalysisHelper::DataEXT, false, "/pnfs/uboone/persistent/users/jdetje/pelee_v08_00_00_70/combined/bnb_beam_off_peleeTuple_uboone_v08_00_00_70_run1.root"},
+        //{AnalysisHelper::DataEXT, false, "/pnfs/uboone/persistent/users/jdetje/pelee_v08_00_00_70/combined/bnb_beam_off_peleeTuple_uboone_v08_00_00_70_run2.root"},
+        //{AnalysisHelper::DataEXT, false, "/pnfs/uboone/persistent/users/jdetje/pelee_v08_00_00_70/combined/bnb_beam_off_peleeTuple_uboone_v08_00_00_70_run3.root"},
         // Beam on
-        {AnalysisHelper::DataBNB, false, "/pnfs/uboone/persistent/users/jdetje/pelee_v08_00_00_70/bnb_beam_on_peleeTuple_uboone_v08_00_00_70_run1_C1.root"},
+        //{AnalysisHelper::DataBNB, false, "/pnfs/uboone/persistent/users/jdetje/pelee_v08_00_00_70/bnb_beam_on_peleeTuple_uboone_v08_00_00_70_run1_C1.root"},
         // Overlay dirt
-        {AnalysisHelper::Dirt,    false, "/pnfs/uboone/persistent/users/jdetje/pelee_v08_00_00_70/combined/overlay_peleeTuple_uboone_v08_00_00_70_run2_dirt.root"},
-        {AnalysisHelper::Dirt,    false, "/pnfs/uboone/persistent/users/jdetje/pelee_v08_00_00_70/overlay_peleeTuple_uboone_v08_00_00_70_run3_dirt.root"},
+        //{AnalysisHelper::Dirt,    false, "/pnfs/uboone/persistent/users/jdetje/pelee_v08_00_00_70/combined/overlay_peleeTuple_uboone_v08_00_00_70_run2_dirt.root"},
+        //{AnalysisHelper::Dirt,    false, "/pnfs/uboone/persistent/users/jdetje/pelee_v08_00_00_70/overlay_peleeTuple_uboone_v08_00_00_70_run3_dirt.root"},
         // Overlay MC
-        {AnalysisHelper::Overlay, true, "/pnfs/uboone/persistent/users/jdetje/pelee_v08_00_00_70/overlay_peleeTuple_uboone_v08_00_00_70_run1_nu.root"},
-        {AnalysisHelper::Overlay, true, "/pnfs/uboone/persistent/users/jdetje/pelee_v08_00_00_70/overlay_peleeTuple_uboone_v08_00_00_70_run2_nu.root"},
-	{AnalysisHelper::Overlay, true, "/pnfs/uboone/persistent/users/jdetje/pelee_v08_00_00_70/overlay_peleeTuple_uboone_v08_00_00_70_run3_nu.root"}
+        {AnalysisHelper::Overlay, true, "/uboone/data/users/kwresilo/CCNp1pi/data/newPeLEE/nu_overlay_run1.root"},
+        //{AnalysisHelper::Overlay, false, "/pnfs/uboone/persistent/users/jdetje/pelee_v08_00_00_70/overlay_peleeTuple_uboone_v08_00_00_70_run2_nu.root"},
+	//{AnalysisHelper::Overlay, false, "/pnfs/uboone/persistent/users/jdetje/pelee_v08_00_00_70/overlay_peleeTuple_uboone_v08_00_00_70_run3_nu.root"}
     };
-
-
-    /**
-     *  @brief  Input files structure
-     *
-     * Specify the location of special ubcc1pi analysis root files that the standalone analysis code uses as input
-     * You can produce them from art root files by running the ubcc1pi::AnalysisFileWriter module
-     *
-     */
-    // struct FileList
-    // {
-    //     // September overlays files contain systematic weights
-    //     std::string overlaysFileName, dirtFileName, dataEXTFileName, dataBNBFileName, nuWroFileName;
-    //     std::vector< std::pair<std::string, std::string> > detVarFiles;
-    // };
-
-    // FileList filesRun1;
-    // filesRun1.overlaysFileName = "/uboone/data/users/jdetje/ubcc1pi/sep2020/ubcc1piAnalysis_overlays_08Oct21.root"; ///< Overlays file name input
-    // // std::string overlaysFileName = "/uboone/data/users/jdetje/ubcc1pi/sep2020/ubcc1piAnalysis_overlays_08Oct21_test_head20.root";
-    // filesRun1.dirtFileName     = "/uboone/data/users/jdetje/ubcc1pi/sep2020/ubcc1piAnalysis_dirt_08Oct21.root";     ///< Dirt file name input
-    // // std::string dirtFileName     = "/pnfs/uboone/scratch/users/jdetje/ubcc1pi/dirt_final/49396507_11/ubcc1piAnalysis.root";
-    // filesRun1.dataEXTFileName  = "/pnfs/uboone/persistent/users/kduffy/ubcc1pi/ubcc1pi_extbnb_run1_combined_5Jan2021.root";  ///< EXT data file name input
-    // filesRun1.dataBNBFileName  = "/pnfs/uboone/persistent/users/kduffy/ubcc1pi/ubcc1pi_bnb_run1-C1_5Jan2021.root";  ///< BNB data file name input
-    // // std::string dataBNBFileName  = "/uboone/data/users/jdetje/ubcc1pi/sep2020/ubcc1piAnalysis_overlays_08Oct21_test_tail20.root";
-    // // std::string nuWroFileName  = "/uboone/data/users/jdetje/ubcc1pi/sep2020/ubcc1piAnalysis_nuwro_run1_28Feb22.root";  ///< NuWro file name input
-    // // std::string nuWroFileName  = "/uboone/app/users/jdetje/cc1pi_handover_57_2/test_ccinc_21Apr/ubcc1piAnalysisFiltered.root";
-    // // std::string nuWroFileName  = "/uboone/app/users/jdetje/cc1pi_handover_57_2/test_ccinc_21Apr/ubcc1piAnalysisUnfiltered.root";
-    // // std::string nuWroFileName  = "/uboone/app/users/jdetje/cc1pi_handover_57_2/test_ccinc_21Apr/ubcc1piAnalysisUnfilteredDetVar.root";
-    // // std::string nuWroFileName  = "/uboone/app/users/jdetje/cc1pi_handover_57_2/test_ccinc_21Apr/ubcc1piAnalysisFilteredDetVar.root";
-    // // std::string nuWroFileName  = "/uboone/app/users/jdetje/cc1pi_handover_57_2/test_ccinc_21Apr/ubcc1piAnalysisFilteredDetVar_larger.root";
-    // // std::string nuWroFileName  = "/uboone/app/users/jdetje/cc1pi_handover_57_2/test_ccinc_21Apr/ubcc1piAnalysisUnfilteredDetVar_larger.root";
-    // // std::string nuWroFileName = "/pnfs/uboone/scratch/users/jdetje/ubcc1pi/nuwro_run1_corrected_backup/ubcc1piAnalysisCombined.root";
-    // filesRun1.nuWroFileName = "/uboone/data/users/jdetje/ubcc1pi/sep2020/ubcc1piAnalysis_nuwro_run1_28Apr22_noCCProduction.root";
-    // /**
-    //  *  @brief  The detector variation files
-    //  *
-    //  *          The events in each detector variation sample (in the same run) are identical apart from the detector parameter that's
-    //  *          been changed - this way we can limit the effects of statistical variations. As a result we also need to have a
-    //  *          central-value (CV) sample in which nothing is changed that we can compare to. Here, only some of the variations are
-    //  *          available for run 1. Instead we use run3b, for which the varaitions are available. In every case the variation is
-    //  *          considered wrt to the relevant "CV" file, and the fractional difference is quantity we care about.
-    //  */
-    // filesRun1.detVarFiles = {
-    //     // Run-1 files
-    //     {"CV_SCE",         "/uboone/data/users/jdetje/ubcc1pi/sep2020/ubcc1piAnalysis_overlays_DetVar_CV_run1_19Oct.root"},
-    //     {"CV",             "/uboone/data/users/jdetje/ubcc1pi/sep2020/ubcc1piAnalysis_overlays_DetVar_CV_run1_19Oct.root"}, // Same CV for all run 1 variations
-    //     {"LYDown",         "/uboone/data/users/jdetje/ubcc1pi/sep2020/ubcc1piAnalysis_overlays_DetVar_LYDown_run1_19Oct.root"},
-    //     {"LYRayleigh",     "/uboone/data/users/jdetje/ubcc1pi/sep2020/ubcc1piAnalysis_overlays_DetVar_LYRayleigh_run1_19Oct.root"},
-    //     {"SCE",            "/uboone/data/users/jdetje/ubcc1pi/sep2020/ubcc1piAnalysis_overlays_DetVar_SCE_run1_19Oct.root"},
-    //     {"Recomb2",        "/uboone/data/users/jdetje/ubcc1pi/sep2020/ubcc1piAnalysis_overlays_DetVar_Recomb2_run1_19Oct.root"},
-    //     {"WireModX",       "/uboone/data/users/jdetje/ubcc1pi/sep2020/ubcc1piAnalysis_overlays_DetVar_WireModX_run1_19Oct.root"},
-    //     {"WireModYZ",      "/uboone/data/users/jdetje/ubcc1pi/sep2020/ubcc1piAnalysis_overlays_DetVar_WireModYZ_run1_19Oct.root"},
-    //     {"WireModThetaXZ", "/uboone/data/users/jdetje/ubcc1pi/sep2020/ubcc1piAnalysis_overlays_DetVar_WireModThetaXZ_run1_19Oct.root"},
-    //     {"WireModThetaYZ", "/uboone/data/users/jdetje/ubcc1pi/sep2020/ubcc1piAnalysis_overlays_DetVar_WireModThetaYZ_run1_19Oct.root"}
-    // };
-
-
-
-    // FileList filesRun2;
-    // // September overlays files contain systematic weights
-    // filesRun2.overlaysFileName = "/uboone/data/users/jdetje/ubcc1pi/sep2020/ubcc1piAnalysis_overlays_run2_07Nov21.root"; ///< Overlays file name inputs
-    // filesRun2.dirtFileName     = "/uboone/data/users/jdetje/ubcc1pi/sep2020/ubcc1piAnalysis_dirt_run2_07Nov21.root";     ///< Dirt file name input
-    // filesRun2.dataEXTFileName  = "/uboone/data/users/jdetje/ubcc1pi/sep2020/ubcc1piAnalysis_extbnb_run2_17Jan22.root";  ///< EXT data file name input
-    // filesRun2.dataBNBFileName  = "/uboone/data/users/jdetje/ubcc1pi/sep2020/ubcc1piAnalysis_bnb_run2_08Nov21.root";  ///< BNB data file name input
-
-    // // std::string nuWroFileName  = "/uboone/data/users/jdetje/ubcc1pi/sep2020/ubcc1piAnalysis_nuwro_run2_13Dec21.root";
-    // // std::string nuWroFileName  = "/pnfs/uboone/scratch/users/jdetje/ubcc1pi/nuwro_run2a/nuwro_run2a_test.root";
-    // // std::string nuWroFileName  = "/pnfs/uboone/scratch/users/jdetje/ubcc1pi/nuwro_run2b/nuwro_run2b_test.root";
-    // filesRun2.nuWroFileName  = "/uboone/data/users/jdetje/ubcc1pi/sep2020/ubcc1piAnalysis_nuwro_run2ab_06May22_noCCProduction.root";
-
-    // std::vector< std::pair<std::string, std::string> > detVarFiles = {
-    //     // Run-3 files
-    //     {"CV_SCE",         "/uboone/data/users/jdetje/ubcc1pi/sep2020/ubcc1piAnalysis_overlays_DetVar_CV_run3ab_09Mar22.root"},
-    //     {"CV",             "/uboone/data/users/jdetje/ubcc1pi/sep2020/ubcc1piAnalysis_overlays_DetVar_CV_run3ab_high_09Mar22.root"},
-    //     {"LYDown",         "/uboone/data/users/jdetje/ubcc1pi/sep2020/ubcc1piAnalysis_overlays_DetVar_LYDown_run3ab_high_09Mar22.root"},
-    //     {"LYRayleigh",     "/uboone/data/users/jdetje/ubcc1pi/sep2020/ubcc1piAnalysis_overlays_DetVar_LYRayleigh_run3ab_high_09Mar22.root"},
-    //     {"SCE",            "/uboone/data/users/jdetje/ubcc1pi/sep2020/ubcc1piAnalysis_overlays_DetVar_SCE_run3ab_09Mar22.root"},
-    //     {"Recomb2",        "/uboone/data/users/jdetje/ubcc1pi/sep2020/ubcc1piAnalysis_overlays_DetVar_Recomb2_run3ab_09Mar22.root"},
-    //     {"WireModX",       "/uboone/data/users/jdetje/ubcc1pi/sep2020/ubcc1piAnalysis_overlays_DetVar_WireModX_run3ab_high_09Mar22.root"},
-    //     {"WireModYZ",      "/uboone/data/users/jdetje/ubcc1pi/sep2020/ubcc1piAnalysis_overlays_DetVar_WireModYZ_run3ab_high_09Mar22.root"},
-    //     {"WireModThetaXZ", "/uboone/data/users/jdetje/ubcc1pi/sep2020/ubcc1piAnalysis_overlays_DetVar_WireModThetaXZ_run3ab_high_09Mar22.root"},
-    //     {"WireModThetaYZ", "/uboone/data/users/jdetje/ubcc1pi/sep2020/ubcc1piAnalysis_overlays_DetVar_WireModThetaYZ_run3ab_high_09Mar22.root"}
-    // };
-
-    // filesRun2.detVarFiles = detVarFiles;
-
-    // FileList filesRun3;
-    // // September overlays files contain systematic weights
-    // filesRun3.overlaysFileName = "/uboone/data/users/jdetje/ubcc1pi/sep2020/ubcc1piAnalysis_overlays_run3_07Nov21.root"; ///< Overlays file name inputs
-    // filesRun3.dirtFileName     = "/uboone/data/users/jdetje/ubcc1pi/sep2020/ubcc1piAnalysis_dirt_run3_07Nov21.root";     ///< Dirt file name input
-    // filesRun3.dataEXTFileName  = "/uboone/data/users/jdetje/ubcc1pi/sep2020/ubcc1piAnalysis_extbnb_run3_17Jan22.root";  ///< EXT data file name input
-    // filesRun3.dataBNBFileName  = "/uboone/data/users/jdetje/ubcc1pi/sep2020/ubcc1piAnalysis_bnb_run3_17Jan22.root";  ///< BNB data file name input
-
-    // // std::string nuWroFileName  = "/uboone/data/users/jdetje/ubcc1pi/sep2020/ubcc1piAnalysis_nuwro_run3_14Dec21.root";
-    // // std::string nuWroFileName  = "/pnfs/uboone/scratch/users/jdetje/ubcc1pi/nuwro_run3a/nuwro_run3a_test.root";
-    // // std::string nuWroFileName  = "/pnfs/uboone/scratch/users/jdetje/ubcc1pi/nuwro_run3b/nuwro_run3b_test.root";
-    // filesRun3.nuWroFileName  = "/uboone/data/users/jdetje/ubcc1pi/sep2020/ubcc1piAnalysis_nuwro_run3ab_06May22_noCCProduction.root";
-    // filesRun3.detVarFiles = detVarFiles;
-
-
-
-
-
-
-
 
 
 
     struct FilesRun1
     {
-        // September overlays files contain systematic weights
-        //std::string overlaysFileName = "/pnfs/uboone/persistent/users/davidc/searchingfornues/v08_00_00_43/0928/prodgenie_bnb_nu_uboone_overlay_mcc9.1_v08_00_00_26_filter_run1_reco2_reco2.root";
-	std::string overlaysFileName = "/pnfs/uboone/persistent/users/jdetje/pelee_v08_00_00_70/overlay_peleeTuple_uboone_v08_00_00_70_run1_nu.root"; ///< Overlays file name input
-        // std::string overlaysFileName = "/uboone/data/users/jdetje/ubcc1pi/sep2020/ubcc1piAnalysis_overlays_08Oct21_test_head20.root";
+	std::string overlaysFileName = "/uboone/data/users/kwresilo/CCNp1pi/data/newPeLEE/nu_overlay_run1.root"; ///< Overlays file name input
 
-        std::string dirtFileName     = "/uboone/data/users/jdetje/ubcc1pi/sep2020/ubcc1piAnalysis_dirt_08Oct21.root";     ///< Dirt file name input
-        // std::string dirtFileName     = "/pnfs/uboone/scratch/users/jdetje/ubcc1pi/dirt_final/49396507_11/ubcc1piAnalysis.root";
+        std::string dirtFileName     = "/pnfs/uboone/persistent/users/jdetje/pelee_v08_00_00_70/overlay_peleeTuple_uboone_v08_00_00_70_run1_dirt.root";     ///< Dirt file name input
 
         std::string dataEXTFileName  = "/pnfs/uboone/persistent/users/jdetje/pelee_v08_00_00_70/combined/bnb_beam_off_peleeTuple_uboone_v08_00_00_70_run1.root";  ///< EXT data file name input
 
-        std::string dataBNBFileName  = "/pnfs/uboone/persistent/users/kduffy/ubcc1pi/ubcc1pi_bnb_run1-C1_5Jan2021.root";  ///< BNB data file name input
-        // std::string dataBNBFileName  = "/uboone/data/users/jdetje/ubcc1pi/sep2020/ubcc1piAnalysis_overlays_08Oct21_test_tail20.root";
-
-        // std::string nuWroFileName  = "/uboone/data/users/jdetje/ubcc1pi/sep2020/ubcc1piAnalysis_nuwro_run1_28Feb22.root";  ///< NuWro file name input
-        // std::string nuWroFileName  = "/uboone/app/users/jdetje/cc1pi_handover_57_2/test_ccinc_21Apr/ubcc1piAnalysisFiltered.root";
-        // std::string nuWroFileName  = "/uboone/app/users/jdetje/cc1pi_handover_57_2/test_ccinc_21Apr/ubcc1piAnalysisUnfiltered.root";
-        // std::string nuWroFileName  = "/uboone/app/users/jdetje/cc1pi_handover_57_2/test_ccinc_21Apr/ubcc1piAnalysisUnfilteredDetVar.root";
-        // std::string nuWroFileName  = "/uboone/app/users/jdetje/cc1pi_handover_57_2/test_ccinc_21Apr/ubcc1piAnalysisFilteredDetVar.root";
-        // std::string nuWroFileName  = "/uboone/app/users/jdetje/cc1pi_handover_57_2/test_ccinc_21Apr/ubcc1piAnalysisFilteredDetVar_larger.root";
-        // std::string nuWroFileName  = "/uboone/app/users/jdetje/cc1pi_handover_57_2/test_ccinc_21Apr/ubcc1piAnalysisUnfilteredDetVar_larger.root";
-        // std::string nuWroFileName = "/pnfs/uboone/scratch/users/jdetje/ubcc1pi/nuwro_run1_corrected_backup/ubcc1piAnalysisCombined.root";
-        std::string nuWroFileName = "/uboone/data/users/jdetje/ubcc1pi/sep2020/ubcc1piAnalysis_nuwro_run1_28Apr22_noCCProduction.root";
+        std::string dataBNBFileName  = "/uboone/data/users/kwresilo/CCNp1pi/data/newPeLEE/beam_on_run1.root";  ///< BNB data file name input
+        
+	std::string nuWroFileName = "/uboone/data/users/jdetje/ubcc1pi/sep2020/ubcc1piAnalysis_nuwro_run1_28Apr22_noCCProduction.root";
 
         /**
          *  @brief  The detector variation files
@@ -200,35 +82,17 @@ struct Config
             {"WireModThetaYZ", "/uboone/data/users/jdetje/ubcc1pi/sep2020/ubcc1piAnalysis_overlays_DetVar_WireModThetaYZ_run1_19Oct.root"}
         };
 
-        // std::vector< std::pair<std::string, std::string> > detVarFiles = {
-        //     // Run-1 files
-        //     {"CVRun1",         "/uboone/data/users/asmith/ubcc1pi/samples/oct2020/samples/ubcc1piAnalysis_overlays_DetVar_CV_run1.root"},
-        //     {"LYDown",         "/uboone/data/users/asmith/ubcc1pi/samples/oct2020/samples/ubcc1piAnalysis_overlays_DetVar_LYDown_run1.root"},
-        //     {"LYRayleigh",     "/uboone/data/users/asmith/ubcc1pi/samples/oct2020/samples/ubcc1piAnalysis_overlays_DetVar_LYRayleigh_run1.root"},
-
-        //     // Run-3b files
-        //     {"CVRun3b",        "/uboone/data/users/asmith/ubcc1pi/samples/oct2020/samples/ubcc1piAnalysis_overlays_DetVar_CV_run3b.root"},
-        //     {"SCE",            "/uboone/data/users/asmith/ubcc1pi/samples/oct2020/samples/ubcc1piAnalysis_overlays_DetVar_SCE_run3b.root"},
-        //     {"Recomb2",        "/uboone/data/users/asmith/ubcc1pi/samples/oct2020/samples/ubcc1piAnalysis_overlays_DetVar_Recomb2_run3b.root"},
-        //     // {"WireModX",       "/uboone/data/users/asmith/ubcc1pi/samples/oct2020/samples/ubcc1piAnalysis_overlays_DetVar_WireModX_run3b.root"},
-        //     // {"WireModYZ",      "/uboone/data/users/asmith/ubcc1pi/samples/oct2020/samples/ubcc1piAnalysis_overlays_DetVar_WireModYZ_run3b.root"},
-        //     // {"WireModThetaXZ", "/uboone/data/users/asmith/ubcc1pi/samples/oct2020/samples/ubcc1piAnalysis_overlays_DetVar_WireModThetaXZ_run3b.root"},
-        //     // {"WireModThetaYZ", "/uboone/data/users/asmith/ubcc1pi/samples/oct2020/samples/ubcc1piAnalysis_overlays_DetVar_WireModThetaYZ_run3b.root"}
-        // };
     };
     FilesRun1 filesRun1; ///< The input files
 
     struct FilesRun2
     {
         // September overlays files contain systematic weights
-        std::string overlaysFileName = "/pnfs/uboone/persistent/users/jdetje/pelee_v08_00_00_70/combined/overlay_peleeTuple_uboone_v08_00_00_70_run2_dirt.root"; ///< Overlays file name inputs
-        std::string dirtFileName     = "/uboone/data/users/jdetje/ubcc1pi/sep2020/ubcc1piAnalysis_dirt_run2_07Nov21.root";     ///< Dirt file name input
+        std::string dirtFileName = "/pnfs/uboone/persistent/users/jdetje/pelee_v08_00_00_70/combined/overlay_peleeTuple_uboone_v08_00_00_70_run2_dirt.root"; ///< Overlays file name inputs
+        std::string overlaysFileName     = "/pnfs/uboone/persistent/users/jdetje/pelee_v08_00_00_70/overlay_peleeTuple_uboone_v08_00_00_70_run2_nu.root";     ///< Dirt file name input
         std::string dataEXTFileName  = "/pnfs/uboone/persistent/users/jdetje/pelee_v08_00_00_70/combined/bnb_beam_off_peleeTuple_uboone_v08_00_00_70_run2.root";  ///< EXT data file name input
-        std::string dataBNBFileName  = "/uboone/data/users/jdetje/ubcc1pi/sep2020/ubcc1piAnalysis_bnb_run2_08Nov21.root";  ///< BNB data file name input
+        std::string dataBNBFileName  = "/pnfs/uboone/persistent/users/jdetje/pelee_v08_00_00_70/combined/bnb_beam_on_peleeTuple_uboone_v08_00_00_70_run2.root";  ///< BNB data file name input
 
-        // std::string nuWroFileName  = "/uboone/data/users/jdetje/ubcc1pi/sep2020/ubcc1piAnalysis_nuwro_run2_13Dec21.root";
-        // std::string nuWroFileName  = "/pnfs/uboone/scratch/users/jdetje/ubcc1pi/nuwro_run2a/nuwro_run2a_test.root";
-        // std::string nuWroFileName  = "/pnfs/uboone/scratch/users/jdetje/ubcc1pi/nuwro_run2b/nuwro_run2b_test.root";
         std::string nuWroFileName  = "/uboone/data/users/jdetje/ubcc1pi/sep2020/ubcc1piAnalysis_nuwro_run2ab_06May22_noCCProduction.root";
 
         /**
@@ -261,9 +125,9 @@ struct Config
     {
         // September overlays files contain systematic weights
         std::string overlaysFileName = "/pnfs/uboone/persistent/users/jdetje/pelee_v08_00_00_70/overlay_peleeTuple_uboone_v08_00_00_70_run3_nu.root"; ///< Overlays file name inputs
-        std::string dirtFileName     = "/uboone/data/users/jdetje/ubcc1pi/sep2020/ubcc1piAnalysis_dirt_run3_07Nov21.root";     ///< Dirt file name input
+        std::string dirtFileName     = "/pnfs/uboone/persistent/users/jdetje/pelee_v08_00_00_70/overlay_peleeTuple_uboone_v08_00_00_70_run3_dirt.root";     ///< Dirt file name input
         std::string dataEXTFileName  = "/pnfs/uboone/persistent/users/jdetje/pelee_v08_00_00_70/combined/bnb_beam_off_peleeTuple_uboone_v08_00_00_70_run3.root";  ///< EXT data file name input
-        std::string dataBNBFileName  = "/uboone/data/users/jdetje/ubcc1pi/sep2020/ubcc1piAnalysis_bnb_run3_17Jan22.root";  ///< BNB data file name input
+        std::string dataBNBFileName  = "/pnfs/uboone/persistent/users/jdetje/pelee_v08_00_00_70/combined/bnb_beam_on_peleeTuple_uboone_v08_00_00_70_run3.root";  ///< BNB data file name input
 
         // std::string nuWroFileName  = "/uboone/data/users/jdetje/ubcc1pi/sep2020/ubcc1piAnalysis_nuwro_run3_14Dec21.root";
         // std::string nuWroFileName  = "/pnfs/uboone/scratch/users/jdetje/ubcc1pi/nuwro_run3a/nuwro_run3a_test.root";
@@ -528,7 +392,7 @@ struct Config
         bool        useDetVar                   = false;              ///< If we should run with detector variations
         bool        fitInSystematicUniverses    = false;              ///< If we should fit not only in nominal but also in systematic universes
         bool        useEfficiencyCorrection     = false;             ///< If we should use the efficiency-effect-free smearing matrix to use when creating the plots
-        std::vector<unsigned int> runs          = {1,2,3};           ///< The runs to use in the analysis
+        std::vector<unsigned int> runs          = {1};           ///< The runs to use in the analysis
         std::string outputPath                  = "/uboone/data/users/kwresilo/CCNp1pi/data/newPeLEE/"; ///< The location to save processed PeLEE files
 
         /**
@@ -674,9 +538,9 @@ struct Config
      */
     struct CountPOT
     {
-        bool  useOverlays           = false; ///< If we should count the POT for the overlays
-        bool  useDirt               = false; ///< If we should count the POT for the dirt
-        bool  useDetectorVariations = true; ///< If we should count the POT for the detector variations
+        bool  useOverlays           = true; ///< If we should count the POT for the overlays
+        bool  useDirt               = true; ///< If we should count the POT for the dirt
+        bool  useDetectorVariations = false; ///< If we should count the POT for the detector variations
         bool  useNuWro              = false; ///< If we should count the POT for NuWro
     };
     CountPOT countPOT; ///< The configuration options for the CountPOT macro
@@ -712,7 +576,7 @@ struct Config
      */
     struct PlotInputVariables
     {
-        bool plotBDTResponses = false; ///< If we should plot the responses of the trained BDTs, set to true if you haven't already trained the BDTs
+        bool plotBDTResponses = true; ///< If we should plot the responses of the trained BDTs, set to true if you haven't already trained the BDTs
     };
     PlotInputVariables plotInputVariables; ///< The configuration options for the PlotInputVariables macro
 
@@ -750,7 +614,7 @@ struct Config
         float trainingFraction     = 0.5f;  ///< Fraction of the sample on which we should train the BDTs
         bool  onlyGoodTruthMatches = true; ///< If we should only train on reco particles with a completeness >50%
         bool  weightByCompleteness = true;  ///< If we should weight the training examples by the reco-truth match completeness
-        bool  shouldOptimize       = false; ///< If we should optimize the BDT parameters (this can take a while)
+        bool  shouldOptimize       = true; ///< If we should optimize the BDT parameters (this can take a while)
         bool  shouldMakePlots      = true;  ///< If we should make plots of the BDT responses
     };
     TrainBDTs trainBDTs; ///< The configuration options for the TrainBDTs macro

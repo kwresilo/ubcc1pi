@@ -536,13 +536,13 @@ bool AnalysisHelper::IsTrueCC1Pi( const std::shared_ptr<Event> &pEvent, const bo
 {
     if (!pEvent->metadata.hasTruthInfo())
         throw std::invalid_argument("AnalysisHelper::IsTrueCC1Pi - Input event doesn't have truth information!");
-
+    std::cout << "getting truth" << std::endl;
     const auto& truth = pEvent->truth;
-
+    std::cout << "is fiducial?" << std::endl;
     // Insist the true neutrino is fiducial
     if (!AnalysisHelper::IsFiducial(truth.nuVertex()))
         return false;
-
+    std::cout << "counting true particles" <<std::endl;
     //CountParticlesAboveMomentumThreshold(const std::vector<Event::Truth::Particle> &particles, const int pdgCode, const bool useAbsPdg, const float momentumThreshold)
     // Count the visible particles
     const auto visibleParticles = AnalysisHelper::SelectVisibleParticles(pEvent->truth.particles);
