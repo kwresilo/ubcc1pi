@@ -30,21 +30,40 @@ struct Config
      */
      // bool: wheter to use the file
     std::vector< std::tuple<AnalysisHelper::SampleType, bool, std::string> > inputFiles = {
-        // Beam off
-        //{AnalysisHelper::DataEXT, false, "/pnfs/uboone/persistent/users/jdetje/pelee_v08_00_00_70/combined/bnb_beam_off_peleeTuple_uboone_v08_00_00_70_run1.root"},
-        //{AnalysisHelper::DataEXT, false, "/pnfs/uboone/persistent/users/jdetje/pelee_v08_00_00_70/combined/bnb_beam_off_peleeTuple_uboone_v08_00_00_70_run2.root"},
-        //{AnalysisHelper::DataEXT, false, "/pnfs/uboone/persistent/users/jdetje/pelee_v08_00_00_70/combined/bnb_beam_off_peleeTuple_uboone_v08_00_00_70_run3.root"},
-        // Beam on
-        //{AnalysisHelper::DataBNB, false, "/pnfs/uboone/persistent/users/jdetje/pelee_v08_00_00_70/bnb_beam_on_peleeTuple_uboone_v08_00_00_70_run1_C1.root"},
-        // Overlay dirt
-        //{AnalysisHelper::Dirt,    false, "/pnfs/uboone/persistent/users/jdetje/pelee_v08_00_00_70/combined/overlay_peleeTuple_uboone_v08_00_00_70_run2_dirt.root"},
-        //{AnalysisHelper::Dirt,    false, "/pnfs/uboone/persistent/users/jdetje/pelee_v08_00_00_70/overlay_peleeTuple_uboone_v08_00_00_70_run3_dirt.root"},
-        // Overlay MC
-        {AnalysisHelper::Overlay, true, "/uboone/data/users/kwresilo/CCNp1pi/data/newPeLEE/nu_overlay_run1.root"},
-        //{AnalysisHelper::Overlay, false, "/pnfs/uboone/persistent/users/jdetje/pelee_v08_00_00_70/overlay_peleeTuple_uboone_v08_00_00_70_run2_nu.root"},
-	//{AnalysisHelper::Overlay, false, "/pnfs/uboone/persistent/users/jdetje/pelee_v08_00_00_70/overlay_peleeTuple_uboone_v08_00_00_70_run3_nu.root"}
+
+	// Beam off
+	{AnalysisHelper::DataEXT, false, "/pnfs/uboone/persistent/users/jdetje/pelee_v08_00_00_70/combined/bnb_beam_off_peleeTuple_uboone_v08_00_00_70_run1.root"},
+        {AnalysisHelper::DataEXT, false, "/pnfs/uboone/persistent/users/jdetje/pelee_v08_00_00_70/combined/bnb_beam_off_peleeTuple_uboone_v08_00_00_70_run2.root"},
+        {AnalysisHelper::DataEXT, false, "/pnfs/uboone/persistent/users/jdetje/pelee_v08_00_00_70/combined/bnb_beam_off_peleeTuple_uboone_v08_00_00_70_run3.root"},
+
+	// Beam on
+	{AnalysisHelper::DataBNB, false, "/pnfs/uboone/persistent/users/jdetje/pelee_v08_00_00_70/bnb_beam_on_peleeTuple_uboone_v08_00_00_70_run1_C1.root"},
+
+
     };
 
+   /*
+    std::vector< std::tuple<AnalysisHelper::SampleType, bool, std::string> > inputFiles = {
+        // Beam off
+        {AnalysisHelper::DataEXT, false, "/pnfs/uboone/persistent/users/jdetje/pelee_v08_00_00_70/combined/bnb_beam_off_peleeTuple_uboone_v08_00_00_70_run1.root"},
+        {AnalysisHelper::DataEXT, false, "/pnfs/uboone/persistent/users/jdetje/pelee_v08_00_00_70/combined/bnb_beam_off_peleeTuple_uboone_v08_00_00_70_run2.root"},
+        {AnalysisHelper::DataEXT, false, "/pnfs/uboone/persistent/users/jdetje/pelee_v08_00_00_70/combined/bnb_beam_off_peleeTuple_uboone_v08_00_00_70_run3.root"},
+        // Beam on
+        {AnalysisHelper::DataBNB, false, "/pnfs/uboone/persistent/users/jdetje/pelee_v08_00_00_70/bnb_beam_on_peleeTuple_uboone_v08_00_00_70_run1_C1.root"},
+        // Overlay dirt
+        {AnalysisHelper::Dirt,    true, "/pnfs/uboone/persistent/users/jdetje/pelee_v08_00_00_70/overlay_peleeTuple_uboone_v08_00_00_70_run1_dirt.root" },
+	{AnalysisHelper::Dirt,    true, "/pnfs/uboone/persistent/users/jdetje/pelee_v08_00_00_70/combined/overlay_peleeTuple_uboone_v08_00_00_70_run2_dirt.root"},
+        {AnalysisHelper::Dirt,    true, "/pnfs/uboone/persistent/users/jdetje/pelee_v08_00_00_70/overlay_peleeTuple_uboone_v08_00_00_70_run3_dirt.root"},
+        // Overlay MC
+        {AnalysisHelper::Overlay, true, "/pnfs/uboone/persistent/users/jdetje/pelee_v08_00_00_70/overlay_peleeTuple_uboone_v08_00_00_70_run1_nu.root"},
+        {AnalysisHelper::Overlay, true, "/pnfs/uboone/persistent/users/jdetje/pelee_v08_00_00_70/overlay_peleeTuple_uboone_v08_00_00_70_run2_nu.root"},
+	{AnalysisHelper::Overlay, true, "/pnfs/uboone/persistent/users/jdetje/pelee_v08_00_00_70/overlay_peleeTuple_uboone_v08_00_00_70_run3_nu.root"},
+
+	{AnalysisHelper::Overlay, true, "/pnfs/uboone/persistent/users/jdetje/pelee_v08_00_00_70/overlay_peleeTuple_uboone_v08_00_00_70_run1_nue.root"},
+	{AnalysisHelper::Overlay, true, "/pnfs/uboone/persistent/users/jdetje/pelee_v08_00_00_70/overlay_peleeTuple_uboone_v08_00_00_70_run2_nue.root"},
+	{AnalysisHelper::Overlay, true, "/pnfs/uboone/persistent/users/jdetje/pelee_v08_00_00_70/overlay_peleeTuple_uboone_v08_00_00_70_run3_nue.root"},
+    };
+*/
 
 
     struct FilesRun1
@@ -211,7 +230,7 @@ struct Config
      */
     struct NormsRun1 : NormList
     {
-        float  overlaysPOT        = 1.29e+21;// TODO: REMOVE!! 6.42546e+19 POT for overlays_08Oct21_test_head20.root //1.195e+21;      ///< The total POT for the overlays MC
+        float  overlaysPOT        = 1.28e+21;// TODO: REMOVE!! 6.42546e+19 POT for overlays_08Oct21_test_head20.root //1.195e+21;      ///< The total POT for the overlays MC
         // Andy S files: 1.22447e+21, Kirsty D files (Jan 21):  1.18578e+21, Philip D files (Oct 08) 1.195e+21
         float  dirtPOT            = 2.63523e+20;    ///< The total POT for the dirt MC
         // Andy S files: 2.85049e+20, Kirsty D files (Jan 21): 2.91414e+20, Philip D files (Oct 08) 2.63523e+20
@@ -614,7 +633,7 @@ struct Config
         float trainingFraction     = 0.5f;  ///< Fraction of the sample on which we should train the BDTs
         bool  onlyGoodTruthMatches = true; ///< If we should only train on reco particles with a completeness >50%
         bool  weightByCompleteness = true;  ///< If we should weight the training examples by the reco-truth match completeness
-        bool  shouldOptimize       = true; ///< If we should optimize the BDT parameters (this can take a while)
+        bool  shouldOptimize       = false; ///< If we should optimize the BDT parameters (this can take a while)
         bool  shouldMakePlots      = true;  ///< If we should make plots of the BDT responses
     };
     TrainBDTs trainBDTs; ///< The configuration options for the TrainBDTs macro

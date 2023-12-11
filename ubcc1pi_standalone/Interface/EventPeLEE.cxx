@@ -127,16 +127,20 @@ void EventPeLEE::PrepareForTreeFill()
 void EventPeLEE::PrepareAfterTreeRead()
 {
     unsigned int nTruthParticles;
+    std::cout << "DEBUG PrepareAfterTreeRead 0" << std::endl;
     PELEE_MACRO_EVENT_TRUTH_PARTICLE_MEMBERS(truth_particle, &nTruthParticles, PELEE_MACRO_GET_MEMBER_VECTOR_SIZE)
-
+    std::cout << "DEBUG PrepareAfterTreeRead 1" << std::endl;
     truth.particles.resize(nTruthParticles);
+    std::cout << "DEBUG PrepareAfterTreeRead 2" << std::endl;
     PELEE_MACRO_EVENT_TRUTH_PARTICLE_MEMBERS(truth_particle, truth.particles, PELEE_MACRO_READ_MEMBER_VECTOR)
-
+    std::cout << "DEBUG PrepareAfterTreeRead 3" << std::endl;
     unsigned int nRecoParticles;
     PELEE_MACRO_EVENT_RECO_PARTICLE_MEMBERS(reco_particle, &nRecoParticles, PELEE_MACRO_GET_MEMBER_VECTOR_SIZE)
-
+    std::cout << "DEBUG PrepareAfterTreeRead 4" << std::endl;
     reco.particles.resize(nRecoParticles);
+    std::cout << "DEBUG PrepareAfterTreeRead 5" << std::endl;
     PELEE_MACRO_EVENT_RECO_PARTICLE_MEMBERS(reco_particle, reco.particles, PELEE_MACRO_READ_MEMBER_VECTOR)
+    std::cout << "DEBUG PrepareAfterTreeRead 6" << std::endl;
 }
 
 } // namespace ubcc1pi

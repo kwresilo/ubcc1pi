@@ -816,13 +816,20 @@ inline std::string Member< std::map<std::string, std::vector<double>> >::ToStrin
 
 /** Define a macro that reads the vectors in the tree */
 #define PELEE_MACRO_READ_MEMBER_VECTOR(p, q, r, t, n)                                                                                      \
+    std::cout << "p: " << #p << std::endl;                                                                                                  \
+    std::cout << p##_##n##_inputVect->size() <<std::endl;                                                                                   \
+    std::cout << "q: " << #q << std::endl;                                                                                                  \
+    std::cout << "r: " << #r << std::endl;                                                                                                  \
+    std::cout << "t: " << #t << std::endl;                                                                                                  \
+    std::cout << "n: " << #n << std::endl;                                                                                                  \
     for (unsigned int i = 0; i < p##_##n##_inputVect->size(); ++i)                                                                         \
     {                                                                                                                                      \
-        q.at(i).n.Set(p##_##n##_inputVect->at(i));                                                                                         \
+	q.at(i).n.Set(p##_##n##_inputVect->at(i));                                                                                         \
     }                                                                                                                                      \
 
 /** Define a macro to count the size of the member vector - here q will receive the size of the vector */
 #define PELEE_MACRO_GET_MEMBER_VECTOR_SIZE(p, q, r, t, n)                                                                                  \
+    std::cout << p##_##n##_inputVect->size() << std::endl;                                                                                                 \
     *q = p##_##n##_inputVect->size();
 
 /** Define a macro that prints each of the member variables */
